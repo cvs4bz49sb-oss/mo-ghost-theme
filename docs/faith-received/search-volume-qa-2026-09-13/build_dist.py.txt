@@ -1,0 +1,804 @@
+import html as html_mod
+#!/usr/bin/env python3
+"""Generate the static deploy tree dist/ for faith-received.vercel.app.
+
+Reads:
+  tools/prdl_reader_prototype/reader_shell.html  — reader template (verbatim)
+  tools/visual_review/faith_received.py          — LIBRARY + DESIGN constants
+  out/blob_stage/v1/works-index.json             — works metadata (preferred)
+  runs/works_manifest.json                       — fallback works source
+
+Writes:
+  dist/read.html                  reader shell + config block
+  dist/index.html                 library page + config block
+  dist/read/{slug}.html           495 SEO shells (one per work)
+  dist/sitemap.xml
+  dist/robots.txt
+  dist/404.html
+  dist/prdl-system.css            dereferenced from symlink
+
+Usage:
+  python3 tools/build_dist.py
+  FR_BLOB_BASE=https://... FR_DOMAIN=https://... python3 tools/build_dist.py
+"""
+import html as _html
+import importlib.util
+import json
+import hashlib
+import os
+import pathlib
+import re
+import shutil
+import sys
+
+ROOT = pathlib.Path("/Users/speter/Davenant")
+DIST = ROOT / "dist"
+
+# ── env config ────────────────────────────────────────────────────────────────
+# Auto-load tools/.fr_build.env (public build-time config: Blob base, Firebase web config, domain).
+# Without this, a bare `python3 build_dist.py` shipped a broken bundle (BLOB-BASE-TBD → BLOB=null →
+# no works loaded, null Firebase → no owner sign-in). Existing env vars win; the file fills gaps.
+_ENV_FILE = ROOT / "tools" / ".fr_build.env"
+if _ENV_FILE.exists():
+    for _ln in _ENV_FILE.read_text().splitlines():
+        _ln = _ln.strip()
+        if not _ln or _ln.startswith("#") or "=" not in _ln:
+            continue
+        _k, _v = _ln.split("=", 1)
+        os.environ.setdefault(_k.strip(), _v.strip())
+
+BLOB_BASE = os.environ.get("FR_BLOB_BASE", "https://BLOB-BASE-TBD").strip()
+FB_RAW = os.environ.get("FIREBASE_WEBCONFIG", "").strip()
+DOMAIN = os.environ.get("FR_DOMAIN", "https://faith-received.vercel.app").strip().rstrip("/")
+SITE = os.environ.get("FR_SITE", "faith-received").strip() or "faith-received"
+TODAY = "2026-06-11"
+import time as _t
+BUILD_VER = str(int(_t.time()))   # bumped every build → busts the 1-yr browser cache on mutable JSON
+
+# ── load faith_received.py constants (LIBRARY, DESIGN) ───────────────────────
+def _load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+_fr_path = ROOT / "tools" / "visual_review" / "faith_received.py"
+fr = _load("faith_received_bd", _fr_path)
+LIBRARY_TEMPLATE: str = fr.LIBRARY   # has __DESIGN__ placeholder
+DESIGN_CSS: str = fr.DESIGN
+
+# ── build firebase config tag ─────────────────────────────────────────────────
+if FB_RAW:
+    try:
+        _fb_obj = json.loads(FB_RAW)
+        FB_JSON = json.dumps(_fb_obj)
+    except Exception:
+        FB_JSON = "null"
+else:
+    FB_JSON = "null"
+
+# ── hard gate: never ship a config-less bundle ─────────────────────────────────
+# A build with a placeholder Blob base loads NO works (reader falls back to /api/* which 404s on the
+# static deploy); a null Firebase config kills owner sign-in + the whole review/edit path. Both have
+# happened — abort loudly instead of silently shipping a dead site.
+if "TBD" in BLOB_BASE or not BLOB_BASE.startswith("http"):
+    raise SystemExit(f"build_dist ABORT: FR_BLOB_BASE is a placeholder ({BLOB_BASE!r}). "
+                     f"Set it (or populate {_ENV_FILE}) before building.")
+if FB_JSON == "null":
+    raise SystemExit("build_dist ABORT: FIREBASE_WEBCONFIG is empty → owner sign-in/review would be dead. "
+                     f"Set it (or populate {_ENV_FILE}) before building.")
+
+
+def _config_block(slug: str | None = None) -> str:
+    """Canonical config <script> injected into every page."""
+    lines = [
+        f"window.__FR_BLOB_BASE__={json.dumps(BLOB_BASE)};",
+        f"window.__FR_VER={json.dumps(BUILD_VER)};",   # cache-bust for mutable JSON (meta/work/shards/index/review)
+        f"window.__FR_FB__={FB_JSON};",
+        f"window.__FR_SITE__={json.dumps(SITE)};",
+        "window.__FR_ASK_WORKSPACE__=true;",
+        "try{const t=localStorage.getItem(\"fr_theme\");if([\"light\",\"dark\",\"sepia\"].includes(t))document.documentElement.dataset.theme=t;}catch(e){}",
+    ]
+    display_file = ROOT / "tools" / "visual_review" / "workgroups.json"
+    if display_file.exists():
+        display_groups = json.loads(display_file.read_text())
+        display_volumes = {key: value["display_volume"] for key, value in display_groups.get("works", {}).items() if value.get("display_volume")}
+        lines.append(f"window.__FR_EDITION_VOLUMES__={json.dumps(display_volumes)};")
+    if slug is not None:
+        lines.append(f"window.__FR_SLUG__={json.dumps(slug)};")
+    return "<script>" + "".join(lines) + "</script>"
+
+
+def _hoist_body_styles(html: str) -> str:
+    """FIRST PAINT (owner 2026-09-10 "a magnifying glass briefly loads before the full site"): the library's own
+    <style> blocks sat in the body ~250 KB after the markup, so the hero rendered unstyled — the search icon an
+    unsized SVG at full width — until they streamed in. Move every body <style> block to the end of <head>, in
+    their original order and AFTER the injected shared stylesheets, so the cascade is unchanged."""
+    head_end = html.find("</head>")
+    body_at = html.find("<body")
+    if head_end < 0 or body_at < 0:
+        return html
+    blocks = re.findall(r"<style\b[^>]*>[\s\S]*?</style>", html[body_at:])
+    if not blocks:
+        return html
+    body = html[body_at:]
+    for blk in blocks:
+        body = body.replace(blk, "", 1)
+    return html[:head_end] + "".join(blocks) + html[head_end:body_at] + body
+
+
+def _inject_config(html: str, config_script: str) -> str:
+    """Inject config block immediately before </head>."""
+    config_script += (f'<link rel="stylesheet" href="/fr-reading-system.css?v={BUILD_VER}">'
+                      f'<link rel="stylesheet" href="/ask-workspace.css?v={BUILD_VER}">'
+                      f'<script defer src="/ask-store.js?v={BUILD_VER}"></script>'
+                      f'<script defer src="/ask-workspace.js?v={BUILD_VER}"></script>'
+                      f'<script src="/research-data.js?v={BUILD_VER}"></script>'
+                      f'<script src="/research-notebook.js?v={BUILD_VER}"></script>'
+                      f'<script defer src="/site-navigation.js?v={BUILD_VER}"></script>'
+                      f'<link rel="stylesheet" href="/site-navigation.css?v={BUILD_VER}">')
+    html = html.replace('__RESEARCH_V__', BUILD_VER).replace('__TOOLS_V__', BUILD_VER)
+    for asset in ('shelf-constellations.js', 'shelf-constellations.css', 'connection-evidence.js', 'connection-evidence.css', 'personal-research.js', 'personal-research.css', 'verse-research.js', 'verse-research.css'):
+        html = html.replace(f'"/{asset}"', f'"/{asset}?v={BUILD_VER}"')
+    if '/shelf-constellations.js' in html and '/connection-evidence.js' not in html:
+        config_script += f'<script src="/connection-evidence.js?v={BUILD_VER}"></script><link rel="stylesheet" href="/connection-evidence.css?v={BUILD_VER}">'
+    if 'FRPersonalResearch' in html and '/personal-research.js' not in html:
+        config_script += f'<script defer src="/personal-research.js?v={BUILD_VER}"></script><link rel="stylesheet" href="/personal-research.css?v={BUILD_VER}">'
+    if 'FRPinsExperience' in html:
+        config_script += f'<script src="/pins-experience.js?v={BUILD_VER}"></script>'
+    html = html.replace('src="/cgpt-link.js"', f'src="/cgpt-link.js?v={BUILD_VER}"')
+    html = html.replace('href="/research-experience.css"', f'href="/research-experience.css?v={BUILD_VER}"')
+    if "</head>" in html:
+        return html.replace("</head>", config_script + "</head>", 1)
+    # fallback: prepend
+    return config_script + html
+
+
+# ── load reader template ──────────────────────────────────────────────────────
+_reader_tpl_path = ROOT / "tools" / "prdl_reader_prototype" / "reader_shell.html"
+
+def _package_reader_runtime(template: str) -> tuple[str, str]:
+    """Keep the source self-contained, but share its unchanged classic script on deploy.
+
+    The script remains at exactly the same document position. Its preload starts in
+    the head, and its content hash stays stable across unrelated site releases.
+    """
+    matches = list(re.finditer(r'<script id="reader-core">([\s\S]*?)</script>', template))
+    if len(matches) != 1:
+        raise ValueError("reader package: expected exactly one reader-core script")
+    match = matches[0]
+    runtime = match[1]
+    if len(runtime.encode("utf-8")) < 100_000:
+        raise ValueError("reader package: core script unexpectedly small")
+    version = hashlib.sha256(runtime.encode("utf-8")).hexdigest()[:16]
+    url = f"/reader-core.js?v={version}"
+    shell = template[:match.start()] + f'<script id="reader-core" src="{url}"></script>' + template[match.end():]
+    shell = shell.replace("<head>", f'<head>\n<link rel="preload" as="script" href="{url}">', 1)
+    if '<link rel="preload" as="script"' not in shell:
+        raise ValueError("reader package: missing preload insertion point")
+    return shell, runtime
+
+
+READER_TEMPLATE, READER_RUNTIME = _package_reader_runtime(_reader_tpl_path.read_text(encoding="utf-8"))
+
+
+# ── load works metadata ───────────────────────────────────────────────────────
+def _load_works() -> list[dict]:
+    """Return list of work dicts from blob works-index.json if present, else manifest."""
+    wi = ROOT / "out" / "blob_stage" / "v1" / "works-index.json"
+    if wi.exists():
+        d = json.loads(wi.read_text(encoding="utf-8"))
+        return d.get("works", [])
+    # fallback: runs/works_manifest.json
+    mf = ROOT / "runs" / "works_manifest.json"
+    if mf.exists():
+        d = json.loads(mf.read_text(encoding="utf-8"))
+        return d.get("works", [])
+    return []
+
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+STUB_CSS = ("body{margin:0;display:grid;place-items:center;min-height:100vh;background:#FAF8F3;color:#2A231D;"
+            "font-family:'Iowan Old Style',Palatino,Georgia,serif;text-align:center;padding:2rem}"
+            ".tc{max-width:34rem}.tc .k{font:600 .72rem/1 -apple-system,system-ui,sans-serif;letter-spacing:.12em;"
+            "text-transform:uppercase;color:#C1593C}.tc h1{font-size:1.7rem;line-height:1.25;margin:.6rem 0 .2rem;color:#A8462B}"
+            ".tc .a{font-style:italic;color:#5C5046;margin:0 0 1.2rem}"
+            ".tc a{color:#C1593C;font:600 .9rem/1 -apple-system,system-ui,sans-serif;text-decoration:none;"
+            "border:1px solid #C9A96E;border-radius:999px;padding:.55rem 1.2rem;display:inline-block}")
+
+
+def _stub_page(title, author, url, subtitle=""):
+    return (f'<div class="tc"><div class=k>The Faith Received</div><h1>{title}</h1>'
+            f'<p class=a>{author}{(" &middot; " + subtitle) if subtitle else ""}</p>'
+            f'<a href="{url}">Open in the reader</a></div>')
+
+
+def _seo_tags(work: dict) -> str:
+    """Per-work meta tags for the SEO shell."""
+    slug = work.get("slug", "")
+    title = _html.escape(work.get("title") or slug)
+    author = _html.escape(work.get("author") or "")
+    n_pages = work.get("n_pages") or 0
+    desc = _html.escape(
+        f"{author}. {work.get('title', '')}. Latin–English parallel edition, {n_pages} pages."
+    )
+    url = _html.escape(f"{DOMAIN}/read/{slug}")
+    # social card image: the work's title-page facsimile (Blob WebP). Scanned works only.
+    tp = work.get("title_page") or 1
+    og_img = (f'<meta property="og:image" content="{BLOB_BASE}/v1/works/{slug}/p/{tp}.webp">\n'
+              f'<meta name="twitter:card" content="summary_large_image">\n') if work.get("has_pages") else \
+             '<meta name="twitter:card" content="summary">\n'
+    return (
+        f'<title>{title} — The Faith Received</title>\n'
+        f'<meta property="og:title" content="{title}">\n'
+        f'<meta property="og:description" content="{desc}">\n'
+        f'<meta name="description" content="{desc}">\n'
+        f'<meta property="og:type" content="book">\n'
+        f'<meta property="og:url" content="{url}">\n'
+        f'<link rel="canonical" href="{url}">\n'
+        + og_img
+        # Highwire citation_* — the meta family Zotero (and Scholar) actually parses (10_RESEARCH_SYNTHESIS).
+        # No citation_publication_date: library_meta has no year field (owner decision: ship without).
+        + f'<meta name="citation_title" content="{title}">\n'
+        + (f'<meta name="citation_author" content="{author}">\n' if author else '')
+        + f'<meta name="citation_language" content="la">\n'
+        f'<meta name="citation_public_url" content="{url}">\n'
+    )
+
+
+def _coins_span(work: dict) -> str:
+    """COinS span (Zotero's most reliable detection channel — Princeton CDH 2025). Body-level.
+    Book genre, no date field (no publication-year data yet)."""
+    from urllib.parse import quote
+    kev = "&".join([
+        "ctx_ver=Z39.88-2004",
+        "rft_val_fmt=" + quote("info:ofi/fmt:kev:mtx:book"),
+        "rft.genre=book",
+        "rft.btitle=" + quote(work.get("title") or work.get("slug", "")),
+    ] + (["rft.au=" + quote(work["author"])] if work.get("author") else []) + [
+        "rft.language=lat",
+        "rft_id=" + quote(f"{DOMAIN}/read/{work.get('slug','')}"),
+    ])
+    return f'<span class="Z3988" title="{_html.escape(kev)}"></span>'
+
+
+def _replace_head_title(html: str, new_tags: str) -> str:
+    """Insert additional tags right after <head>; keep the template's own <title> as fallback
+    but put the work-specific <title> first so it wins (browsers use the first one)."""
+    # inject immediately after <head> open tag
+    m = re.search(r"<head[^>]*?(?<!/)>", html, re.I)
+    if m:
+        pos = m.end()
+        return html[:pos] + "\n" + new_tags + html[pos:]
+    return new_tags + html
+
+
+# ── build steps ───────────────────────────────────────────────────────────────
+def build_read_html(out: pathlib.Path) -> None:
+    """dist/read.html — reader template + config block. Also emit review.html (identical) so the
+    legacy owner URL /review?ws=<slug> serves the reader natively (the static deploy has no /review
+    route, and a vercel.json rewrite is shadowed by the edge gate middleware). The reader treats
+    /review as a normal reader load in Blob mode — owner review = the masthead buttons + double-click."""
+    html = _inject_config(READER_TEMPLATE, _config_block())
+    html = html.replace("__TOOLS_V__", BUILD_VER)   # cache-bust the split tools bundle with the shell
+    out.write_text(html, encoding="utf-8")
+    (out.parent / "reader-core.js").write_text(READER_RUNTIME, encoding="utf-8")
+    tools_src = ROOT / "tools" / "prdl_reader_prototype" / "read-tools.js"
+    (out.parent / "read-tools.js").write_text(tools_src.read_text(encoding="utf-8"), encoding="utf-8")
+    print(f"  wrote {out.relative_to(ROOT)}  ({out.stat().st_size:,} bytes)")
+    review = out.with_name("review.html")
+    review.write_text(html, encoding="utf-8")
+    print(f"  wrote {review.relative_to(ROOT)}  (alias of read.html for /review?ws=)")
+
+
+def build_index_html(out: pathlib.Path) -> None:
+    """dist/index.html — library template with DESIGN substituted + config block."""
+    html = LIBRARY_TEMPLATE.replace("__DESIGN__", DESIGN_CSS)
+    html = _inject_config(html, _config_block())
+    html = _hoist_body_styles(html)
+    out.write_text(html, encoding="utf-8")
+    print(f"  wrote {out.relative_to(ROOT)}  ({out.stat().st_size:,} bytes)")
+
+
+def build_seo_shells(read_dir: pathlib.Path, works: list[dict]) -> int:
+    """dist/read/{slug}.html — one SEO shell per work.
+
+    FOLLOW-UP (owner 2026-08-17): the full-reader-copy shell (476KB × every work) is why
+    a deploy hit 4.8GB — it duplicates the READER APP per slug, not content. PL works
+    already ship as 1KB stubs (crawlable meta + canonical + redirect into /read?w=,
+    which hydrates). EXTEND THE STUB PATH TO ALL BORN-DIGITAL WORKS (has_pages false):
+    deploys drop to ~50MB, and the reader stays the single copy of itself. Facsimile
+    works may keep full shells until their SEO impact is re-measured."""
+    read_dir.mkdir(parents=True, exist_ok=True)
+    count = 0
+    for w in works:
+        slug = w.get("slug")
+        if not slug:
+            continue
+        # CANON-MODE works (PL, 8,967 of them): a full 476KB reader copy per work made the
+        # deploy 4.8GB. They get a 1KB SEO stub — crawlable metadata + instant client
+        # redirect into the query-param reader, which hydrates from the canon.
+        # ALL BORN-DIGITAL works ship as ~550B SEO stubs (owner 2026-08-17 'go with the
+        # stub'): crawlable metadata + canonical + instant redirect into the hydrating
+        # reader. Only facsimile works (scan og:image) keep the full shell. Deploys drop
+        # from ~780MB to ~50MB.
+        if (not w.get("has_pages")) or slug.startswith("pg-") or slug.startswith("po-"):
+            # canon works (PG/PO) are facsimile-backed but hydrate at read-time — stub them too
+            if slug.startswith("eebo-"):
+                # English Divines: the adapted EEBO reader hydrates from eebo/{id}.json.gz
+                t = html_mod.escape(w.get("title") or slug); a = html_mod.escape(w.get("author") or "")
+                url = f"/readen.html?id={slug[5:]}"
+                (read_dir / f"{slug}.html").write_text(
+                    f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
+                    f'<title>{t} — {a} — The Faith Received</title>'
+                    f'<meta name="description" content="{t} by {a} ({html_mod.escape(str(w.get("volume") or ""))}). EEBO-TCP transcription, English Divines shelf.">'
+                    f'<link rel="canonical" href="https://thefaithreceived.vercel.app{url}">'
+                    f'<meta http-equiv="refresh" content="0;url={url}">'
+                    f'<style>{STUB_CSS}</style>'
+                    f'</head><body>{_stub_page(t, a, url, html_mod.escape(str(w.get("volume") or "")))}</body></html>',
+                    encoding="utf-8")
+                count += 1
+                continue
+            t = html_mod.escape(w.get("title") or slug); a = html_mod.escape(w.get("author") or "")
+            vol = html_mod.escape(str(w.get("volume") or ""))
+            desc = f"{t} by {a}." + (f" {vol}." if vol else "") + " The Faith Received digital library."
+            (read_dir / f"{slug}.html").write_text(
+                f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
+                f'<title>{t} — {a} — The Faith Received</title>'
+                f'<meta name="description" content="{desc}">'
+                f'<link rel="canonical" href="https://thefaithreceived.vercel.app/read?w={slug}">'
+                f'<meta http-equiv="refresh" content="0;url=/read?w={slug}">'
+                f'<style>{STUB_CSS}</style>'
+                f'</head><body>{_stub_page(t, a, "/read?w=" + slug, vol)}</body></html>',
+                encoding="utf-8")
+            count += 1
+            continue
+        seo = _seo_tags(w)
+        # Place SEO tags at the very start of <head>, then inject config before </head>
+        html = _replace_head_title(READER_TEMPLATE, seo)
+        html = _inject_config(html, _config_block(slug))
+        # COinS lives in <body> (Zotero scans body for Z3988 spans)
+        html = re.sub(r"(<body[^>]*?(?<!/)>)", lambda m: m.group(1) + _coins_span(w), html, count=1)
+        dest = read_dir / f"{slug}.html"
+        dest.write_text(html, encoding="utf-8")
+        count += 1
+    print(f"  wrote {count} SEO shells under dist/read/")
+    return count
+
+
+def build_sitemap(out: pathlib.Path, works: list[dict]) -> None:
+    urls = "\n".join(
+        f"  <url><loc>{DOMAIN}/read/{_html.escape(w['slug'])}</loc>"
+        f"<lastmod>{TODAY}</lastmod></url>"
+        for w in works
+        if w.get("slug")
+    )
+    xml = f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}\n</urlset>\n'
+    out.write_text(xml, encoding="utf-8")
+    print(f"  wrote {out.relative_to(ROOT)}  ({out.stat().st_size:,} bytes)")
+
+
+def build_robots(out: pathlib.Path) -> None:
+    out.write_text(
+        f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n",
+        encoding="utf-8",
+    )
+    print(f"  wrote {out.relative_to(ROOT)}")
+
+
+def build_404(out: pathlib.Path) -> None:
+    html = f"""<!doctype html>
+<html lang="en" data-site="faith-received">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found — The Faith Received</title>
+<link rel="stylesheet" href="/prdl-system.css">
+<style>
+{DESIGN_CSS}
+body{{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem}}
+.code{{font-family:var(--font-display);font-size:5rem;color:var(--accent);line-height:1;margin:0 0 .5rem}}
+h1{{font-family:var(--font-display);font-size:1.6rem;font-weight:400;color:var(--fg);margin:0 0 1rem}}
+p{{color:var(--muted);max-width:38ch;margin:0 0 1.5rem}}
+a{{color:var(--accent);text-decoration:none;border:1px solid var(--accent-soft);border-radius:999px;padding:.45rem 1.2rem;font:600 .85rem/1 var(--sans)}}
+a:hover{{background:var(--highlight)}}
+</style>
+</head>
+<body>
+<div class="code">404</div>
+<h1>Page not found</h1>
+<p>The page you requested could not be found. Perhaps the work was moved or the link is outdated.</p>
+<a href="/">Return to the Library</a>
+</body>
+</html>
+"""
+    out.write_text(html, encoding="utf-8")
+    print(f"  wrote {out.relative_to(ROOT)}")
+
+
+def build_legal(out: pathlib.Path) -> None:
+    # Extract :root vars from DESIGN_CSS for the provenance page
+    root_match = re.search(r":root\s*\{([^}]+)\}", DESIGN_CSS)
+    root_vars = root_match.group(0) if root_match else ""
+    html = f"""<!doctype html>
+<html lang="en" data-site="faith-received">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legal &amp; Provenance — The Faith Received</title>
+<link rel="stylesheet" href="/prdl-system.css">
+<style>
+{DESIGN_CSS}
+.wrap{{max-width:680px;margin:0 auto;padding:3rem clamp(1rem,4vw,2.5rem) 6rem}}
+.masthead{{background:var(--masthead);padding:13px clamp(1rem,4vw,2.5rem);border-bottom:1px solid rgba(255,255,255,.12)}}
+.masthead .brand{{font-family:var(--font-display);font-size:1.4rem;color:var(--masthead-ink)}}
+.masthead a{{color:var(--masthead-ink);text-decoration:none;font-size:.85rem;margin-left:auto;opacity:.75}}
+.masthead a:hover{{opacity:1}}
+.masthead{{display:flex;align-items:center;gap:1rem}}
+h1{{font-family:var(--font-display);font-size:2rem;font-weight:400;color:var(--accent);margin:2rem 0 .4rem}}
+h2{{font-family:var(--font-display);font-size:1.3rem;font-weight:400;color:var(--accent2);margin:2rem 0 .5rem;border-bottom:1px solid var(--border);padding-bottom:.35rem}}
+p,li{{line-height:1.72;color:var(--fg);margin:0 0 .8rem}}
+li{{margin:.3rem 0}}
+a{{color:var(--accent)}}
+.cc{{display:inline-flex;align-items:center;gap:.45rem;font:600 .8rem/1 var(--sans);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:.35rem .7rem;text-decoration:none}}
+.cc:hover{{border-color:var(--accent-soft);background:var(--highlight)}}
+.pending{{font:.75rem/1.5 var(--sans);color:var(--muted);border:1px dashed var(--border);border-radius:6px;padding:.5rem .85rem;display:inline-block;margin-top:.4rem}}
+</style>
+</head>
+<body>
+<div class="masthead">
+  <span class="brand">The Faith Received</span>
+  <a href="/">&#8592; Library</a>
+</div>
+<div class="wrap">
+<h1>Legal &amp; Provenance</h1>
+
+<h2>Source Scans</h2>
+<p>The source facsimile images displayed alongside the text are digitised reproductions of
+early-modern printed books, the originals of which entered the public domain centuries ago.
+The digital scans are sourced from libraries and archives that make their holdings freely
+available for scholarly and non-commercial use.</p>
+
+<h2>Transcriptions &amp; Translations</h2>
+<p>The Latin transcriptions and English translations were produced with AI-assisted tools
+and have been reviewed and corrected editorially.</p>
+<!-- PENDING OWNER CONFIRMATION -->
+<p>These transcriptions and translations are published under the
+<a href="https://creativecommons.org/licenses/by/4.0/" rel="license">Creative Commons
+Attribution 4.0 International (CC&#160;BY&#160;4.0)</a> licence.</p>
+<a class="cc" href="https://creativecommons.org/licenses/by/4.0/" rel="license">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <text x="10" y="14" text-anchor="middle" font-size="10" font-family="serif">cc</text>
+  </svg>
+  CC BY 4.0
+</a>
+<p class="pending">Note: licence terms are pending final confirmation by the site owner.</p>
+
+<h2>How to Cite</h2>
+<p>Cite a work from this library as:</p>
+<p style="margin-left:1.2em"><i>Author</i>, <i>Title</i> (The Faith Received digital edition),
+fol.&#160;N, https://thefaithreceived.vercel.app/read/&lt;work&gt;#b&lt;page&gt;-&lt;paragraph&gt;.</p>
+<p>Every paragraph on the site has a stable anchor: the <b>Copy citation</b> and <b>Copy link</b>
+buttons in the reader produce a complete reference with this permalink, e.g.
+<code>[chamier-panstratia-catholica-vol-1/p214/b2]</code>. Translations are AI-assisted; readers
+should verify critical passages against the facing Latin and the source facsimile, and are asked
+to cite the permalink so others can do the same.</p>
+<p>The full text of any work can be downloaded from the reader (Notebook&#160;→&#160;⤓&#160;This
+work) as Markdown containing both the Latin and the English.</p>
+
+<h2>Contact</h2>
+<p>For questions about provenance, permissions, or corrections, please contact
+<a href="mailto:contact@faith-received.vercel.app">contact@faith-received.vercel.app</a>.</p>
+
+<h2>Site</h2>
+<p>The Faith Received is a reading and reference library of Latin theological sources from the
+Reformation and post-Reformation era, presented in bilingual Latin–English parallel editions.</p>
+</div>
+</body>
+</html>
+"""
+    out.write_text(html, encoding="utf-8")
+    print(f"  wrote {out.relative_to(ROOT)}")
+
+
+def build_search(out: pathlib.Path) -> None:
+    """Copy the standalone search page (canonical: tools/search_page/search.html —
+    the PL/PO sister-site template ported to TFR's data contracts, 2026-08-07)."""
+    src = ROOT / "tools" / "search_page" / "search.html"
+    if src.exists():
+        out.write_text(_inject_config(src.read_text(encoding="utf-8"), _config_block()), encoding="utf-8")
+        print(f"  wrote {out.relative_to(ROOT)}  ({out.stat().st_size:,} bytes)")
+    else:
+        print("  WARN: tools/search_page/search.html missing — search page not shipped")
+
+
+def build_desk(dist: pathlib.Path) -> None:
+    """Desk (owner 2026-08-19): the minimal Logos-style document center — write a paper,
+    insert quotations from notes / saved answers / conversations with citations attached.
+    Canonical source: tools/desk/desk.html; served at /desk via cleanUrls."""
+    src = ROOT / "tools" / "desk" / "desk.html"
+    if src.exists():
+        (dist / "desk.html").write_text(_inject_config(src.read_text(encoding="utf-8"), _config_block()), encoding="utf-8")
+        print("  wrote dist/desk.html")
+
+
+def build_landing_assets(dist: pathlib.Path) -> None:
+    """Landing imagery (owner 2026-09-10 "use the images, see what the mereo landing does, and copy it in"):
+    the Mere Orthodoxy landing's plates, copied verbatim to dist/assets/tfr/."""
+    src = ROOT / "tools" / "landing_assets" / "tfr"
+    out = dist / "assets" / "tfr"
+    out.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for f in src.iterdir():
+        if f.is_file():
+            shutil.copy2(f, out / f.name)
+            n += 1
+    print(f"  landing images: {n} file(s) -> dist/assets/tfr/")
+
+
+def build_appicons(dist: pathlib.Path) -> None:
+    """PWA identity (owner 2026-08-17 'easy to wrap and deploy on an app store'):
+    manifest + maskable icons, copied verbatim."""
+    src = ROOT / "tools" / "appicons"
+    n = 0
+    for f in src.iterdir():
+        shutil.copy2(f, dist / f.name)
+        n += 1
+    print(f"  app icons + manifest: {n} file(s)")
+
+
+def build_eebo_reader(dist: pathlib.Path) -> None:
+    """English Divines reader (2026-08-17): the EEBO reading experience adapted into TFR
+    — sidebar Contents + one wide reading column; hydrates from the eebo/{id}.json.gz
+    work store on this same Blob. Canonical sources: tools/eebo_reader/."""
+    src = ROOT / "tools" / "eebo_reader"
+    for f in ("readen.html", "eebo.css"):
+        if (src / f).exists():
+            if f.endswith(".html"):
+                (dist / f).write_text(_inject_config((src / f).read_text(encoding="utf-8"), _config_block()), encoding="utf-8")
+            else:
+                shutil.copy2(str(src / f), str(dist / f))
+            print(f"  wrote dist/{f}")
+
+
+def build_css(out: pathlib.Path) -> None:
+    """Dereference the symlink at tools/prdl_reader_prototype/prdl-system.css."""
+    sym = ROOT / "tools" / "prdl_reader_prototype" / "prdl-system.css"
+    try:
+        real = sym.resolve(strict=True)
+        shutil.copy2(str(real), str(out))
+        print(f"  wrote {out.relative_to(ROOT)}  ({out.stat().st_size:,} bytes) [from {real}]")
+    except (OSError, FileNotFoundError) as exc:
+        # Never publish an empty design system during a File Provider outage.
+        # This snapshot matches the production alias on 2026-09-13 byte for byte.
+        # The canonical Dropbox symlink above remains the preferred source.
+        import hashlib
+        recovery = sym.with_name("prdl-system.recovery.css")
+        expected = "773f88d15ebcac8e350408a207ff6e52df4f73bbe4ac95a80b5665ffe5a0dc8c"
+        data = recovery.read_bytes()
+        if hashlib.sha256(data).hexdigest() != expected:
+            raise RuntimeError("Shared stylesheet unavailable and recovery checksum failed") from exc
+        out.write_bytes(data)
+        print(f"  WARN: canonical shared stylesheet unavailable ({exc}); used verified recovery snapshot ({len(data):,} bytes)")
+
+
+# ── secrets gate ──────────────────────────────────────────────────────────────
+_SECRET_PATTERNS = [
+    "sk-or-",
+    "vercel_blob_rw_",
+    "vck_",
+    "sk-proj-",
+    "sk-ant-",
+    "sk-cef",
+    "BLOB_READ_WRITE",
+    "DEEPSEEK_API",
+    "AZURE_OPENAI",
+]
+
+
+def secrets_gate(dist: pathlib.Path) -> None:
+    """Scan every file in dist/ for secret patterns; exit(1) on any hit.
+    'AIza' (Firebase public web key) is explicitly allowed."""
+    hits = []
+    for f in sorted(dist.rglob("*")):
+        if not f.is_file():
+            continue
+        try:
+            text = f.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        for pat in _SECRET_PATTERNS:
+            if pat in text:
+                hits.append((str(f.relative_to(ROOT)), pat))
+    if hits:
+        for path, pat in hits:
+            print(f"  SECRET LEAKED: {path}  pattern={pat!r}", file=sys.stderr)
+        sys.exit(1)
+    print("  secrets gate: PASS (no secrets found in dist/)")
+
+
+# ── main ──────────────────────────────────────────────────────────────────────
+def main() -> None:
+    print(f"build_dist: BLOB_BASE={BLOB_BASE!r}  DOMAIN={DOMAIN!r}  SITE={SITE!r}")
+
+    # Clean and recreate dist/
+    if DIST.exists():
+        shutil.rmtree(DIST)
+    DIST.mkdir(parents=True)
+    (DIST / "read").mkdir()
+
+    works = _load_works()
+    print(f"  loaded {len(works)} works from metadata")
+
+    # Author-page edition grouping is display metadata, independent of search dedupe.
+    (DIST / "data").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / "tools" / "visual_review" / "workgroups.json", DIST / "data" / "workgroups.json")
+    print("Building static files …")
+    build_read_html(DIST / "read.html")
+    build_index_html(DIST / "index.html")
+    n_shells = build_seo_shells(DIST / "read", works)
+    build_sitemap(DIST / "sitemap.xml", works)
+    build_robots(DIST / "robots.txt")
+    build_404(DIST / "404.html")
+    # collections page (/pins): pinned-parallels manager — shareable via #c= payload links
+    pins_tpl = (ROOT / "tools" / "prdl_reader_prototype" / "pins.html").read_text(encoding="utf-8")
+    (DIST / "pins.html").write_text(_inject_config(pins_tpl, _config_block()), encoding="utf-8")
+    print("  wrote dist/pins.html  (collections)")
+
+    # dictionary page (/dtc): Dictionnaire de Théologie Catholique — dedicated lookup interface
+    dtc_tpl = (ROOT / "tools" / "prdl_reader_prototype" / "dtc.html").read_text(encoding="utf-8")
+    (DIST / "dtc.html").write_text(_inject_config(dtc_tpl, _config_block()), encoding="utf-8")
+    print("  wrote dist/dtc.html  (dictionary)")
+    # research pages (/bible, /fathers, /topics): one shell, three doors — scripture, the
+    # author rooms, the topic index. They were hand-built into dist/ and this builder rmtrees
+    # dist/ on every run, so any build from any session deleted them and the next deploy
+    # (rsync --delete) removed them from production. They are emitted here now.
+    _rsh = ROOT / "tools" / "prdl_reader_prototype" / "research_shell.html"
+    if _rsh.exists():
+        _rtxt = _inject_config(_rsh.read_text(encoding="utf-8"), _config_block())
+        # one shell, three doors — but each door gets its OWN <title> (pre-Ghost-port
+        # coherence 2026-09-03: all three shipped as "Latin Fathers")
+        _rtitles = {"bible.html": "Scripture", "fathers.html": "Authors", "topics.html": "Topics", "authors.html": "Authors", "compare.html": "Compare"}
+        # /authors (owner 2026-09-09) = the same shell as /fathers: the directory grouped by tradition;
+        # author-room links keep /fathers#slug as their canonical path
+        for _name in ("bible.html", "fathers.html", "topics.html", "authors.html", "compare.html"):
+            _pt = _rtxt.replace("<title>Latin Fathers — The Faith Received</title>",
+                                f"<title>{_rtitles[_name]} — The Faith Received</title>", 1)
+            (DIST / _name).write_text(_pt, encoding="utf-8")
+        print("  wrote dist/{bible,fathers,topics}.html  (research shell)")
+    else:
+        print("  WARNING: research_shell.html missing — /bible /fathers /topics NOT emitted")
+
+    for name in ("search-tools.js", "pins-experience.js", "research-data.js", "research-notebook.js", "site-navigation.js", "site-navigation.css", "desk-workflow.js", "desk-workflow.css", "reader-margins.js", "reader-margins.css", "reader-footnotes.js", "reader-footnotes.css", "reader-bookmarks.js", "reader-scripture-preview.js", "reader-scripture-preview.css", "verse-research.js", "verse-research.css", "connection-evidence.js", "connection-evidence.css", "personal-research.js", "personal-research.css", "migne-navigation.js", "pld-reading.js", "reader-navigation.js", "reader-source-outline.js", "reader-contents.js", "reader-contents.css", "work-research.js", "work-research.css", "work-research-sources.js", "work-research-sources.css", "scripture-tools.js", "scripture-navigation.css", "constellations.css", "research-tools.js", "research-experience.css", "shelf-constellations.js", "shelf-constellations.css"):
+        source = ROOT / "tools" / "prdl_reader_prototype" / name
+        if name == "pld-reading.js":
+            registry = json.loads((source.parent / "pld-reading-reviewed.json").read_text(encoding="utf-8"))
+            if registry.get("version") != 1 or not isinstance(registry.get("headings"), dict) or not isinstance(registry.get("introductions"), dict):
+                raise ValueError("PL reader: invalid reviewed source registry")
+            for key, row in registry["headings"].items():
+                if not re.fullmatch(r"w\d+-b\d+", key) or not all(isinstance(row.get(k), str) and row[k] for k in ("head", "paragraph", "english")):
+                    raise ValueError("PL reader: incomplete reviewed heading")
+            marker = '/*__FR_PLD_REVIEWED__*/{"version":1,"headings":{},"introductions":{}}'
+            script = source.read_text(encoding="utf-8")
+            if script.count(marker) != 1:
+                raise ValueError("PL reader: expected one reviewed source registry marker")
+            (DIST / name).write_text(script.replace(marker, json.dumps(registry, ensure_ascii=True, separators=(",", ":"))), encoding="utf-8")
+        elif name == "reader-navigation.js":
+            registry = json.loads((source.parent / "reader-toc-repairs.json").read_text(encoding="utf-8"))
+            if registry.get("version") != 1 or not isinstance(registry.get("works"), dict):
+                raise ValueError("reader navigation: invalid display repair registry")
+            marker = '/*__FR_TOC_REPAIRS__*/{"version":1,"works":{}}'
+            script = source.read_text(encoding="utf-8")
+            if script.count(marker) != 1:
+                raise ValueError("reader navigation: expected exactly one repair registry marker")
+            (DIST / name).write_text(script.replace(marker, json.dumps(registry, ensure_ascii=True, separators=(",", ":"))), encoding="utf-8")
+        elif name == "reader-source-outline.js":
+            registry = json.loads((source.parent / "reader-source-outline-overrides.json").read_text(encoding="utf-8"))
+            if registry.get("version") != 1 or not isinstance(registry.get("works"), dict):
+                raise ValueError("source outline: invalid reviewed source registry")
+            marker = '/*__FR_SOURCE_OUTLINE_OVERRIDES__*/{"version":1,"works":{}}'
+            script = source.read_text(encoding="utf-8")
+            if script.count(marker) != 1:
+                raise ValueError("source outline: expected exactly one source registry marker")
+            (DIST / name).write_text(script.replace(marker, json.dumps(registry, ensure_ascii=True, separators=(",", ":"))), encoding="utf-8")
+        else:
+            shutil.copy2(source, DIST / name)
+
+    # the Web observatory (/web): the corpus as a citation sky (owner 2026-08-28)
+    _wsh = ROOT / "tools" / "prdl_reader_prototype" / "web_shell.html"
+    if _wsh.exists():
+        (DIST / "web.html").write_text(
+            _inject_config(_wsh.read_text(encoding="utf-8"), _config_block()), encoding="utf-8")
+        print("  wrote dist/web.html  (the Web of Theology)")
+
+    # SKIPPED (owner 2026-06-11): build_legal(DIST / "legal.html")
+    build_css(DIST / "prdl-system.css")
+    build_search(DIST / "search.html")
+    build_eebo_reader(DIST)
+    build_desk(DIST)
+    build_appicons(DIST)
+    ask_src = ROOT / "tools" / "ask_workspace"
+    for name in ("ask-store.js", "ask-stream.js", "ask-worker.js", "ask-jobs.js", "ask-workspace.js", "ask-workspace.css", "fr-reading-system.css"):
+        shutil.copy2(ask_src / name, DIST / name)
+    (DIST / "ask.html").write_text(_inject_config((ask_src / "ask.html").read_text(encoding="utf-8"), _config_block()), encoding="utf-8")
+    print("  wrote Ask workspace and shared conversation assets")
+    # "Use my ChatGPT" link widget (origin-wide; landing + reader include it) — vanilla, copied verbatim
+    _cgpt = ROOT / "tools" / "prdl_reader_prototype" / "cgpt-link.js"
+    if _cgpt.exists():
+        shutil.copy2(str(_cgpt), str(DIST / "cgpt-link.js"))
+        print("  wrote dist/cgpt-link.js  (Use my ChatGPT widget)")
+    # Ghost-embed Ask widget (owner 2026-09-06 "the ghost site can utilize this") — served
+    # ungated at /embed/ask.js for third-party pages; middleware.js excludes embed/ from the gate
+    _ghost = ROOT / "tools" / "embed" / "ask.js"
+    if _ghost.exists():
+        (DIST / "embed").mkdir(exist_ok=True)
+        shutil.copy2(str(_ghost), str(DIST / "embed" / "ask.js"))
+        print("  wrote dist/embed/ask.js  (Ghost Ask embed)")
+    # embedded-works catalog for the Ask scope picker (family-shared; emitted by the PLD repo
+    # from the Upstash namespaces — refresh site_data/embcat.json from pld_site_latest on emit)
+    _embcat = ROOT / "site_data" / "embcat.json"
+    if _embcat.exists():
+        (DIST / "data").mkdir(exist_ok=True)
+        shutil.copy2(str(_embcat), str(DIST / "data" / "embcat.json"))
+        print("  wrote dist/data/embcat.json  (Ask scope catalog)")
+
+    # Summary
+    all_files = sorted(DIST.rglob("*"))
+    file_list = [f for f in all_files if f.is_file()]
+    total_size = sum(f.stat().st_size for f in file_list)
+    print(f"\nSummary: {len(file_list)} files, {total_size / 1024:.0f} KB total")
+    # top-level breakdown
+    top = {}
+    for f in file_list:
+        rel = f.relative_to(DIST)
+        key = rel.parts[0] if len(rel.parts) > 1 else str(rel)
+        top[key] = top.get(key, 0) + 1
+    for k, v in sorted(top.items()):
+        print(f"  dist/{k}: {v} file(s)")
+
+    print("\nRunning secrets gate …")
+    secrets_gate(DIST)
+
+    print("\nRunning page gate …")
+    _page_gate(DIST)
+
+    print("\nBuild complete.")
+
+
+def _page_gate(dist):
+    """Abort if any inline <script> fails node --check, or a literal \\uXXXX escape sits in
+    static HTML (renders literally in markup — the recurring escape-bug class)."""
+    import re, subprocess, tempfile, sys
+    from pathlib import Path
+    core = Path(dist) / "reader-core.js"
+    if not core.exists():
+        sys.exit("page gate FAIL: packaged reader runtime is missing")
+    checked = subprocess.run(["node", "--check", str(core)], capture_output=True, text=True)
+    if checked.returncode:
+        sys.exit(f"page gate FAIL: reader-core.js: {checked.stderr.strip()}")
+    for html in sorted(Path(dist).glob("*.html")):
+        src = html.read_text()
+        # split on ANY opening <script ...> (incl. src= tags) + the close, so a src-only script's
+        # empty body checks clean and the odd/even zone parity stays aligned.
+        zones = re.split(r"<script\b[^>]*>|</script>", src)
+        for i, z in enumerate(zones):
+            if i % 2 == 1:
+                with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as f:
+                    f.write(z); tmp = f.name
+                r = subprocess.run(["node", "--check", tmp], capture_output=True, text=True)
+                Path(tmp).unlink(missing_ok=True)
+                if r.returncode != 0:
+                    tail = (r.stderr or "").strip().splitlines()
+                    sys.exit(f"page gate FAIL: {html.name} script#{(i+1)//2}: {tail[-1] if tail else 'syntax error'}")
+            else:
+                m = re.search(r"\\u[0-9a-fA-F]{4}", z)
+                if m:
+                    sys.exit(f"page gate FAIL: {html.name}: literal {m.group(0)} in static HTML — use an &entity;")
+    print("  page gate: PASS (inline scripts and reader runtime parse; no literal escapes in markup)")
+
+
+if __name__ == "__main__":
+    main()

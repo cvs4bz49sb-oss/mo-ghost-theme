@@ -1,0 +1,43 @@
+/* Notebook presentation only. Saved records remain owned by FRResearchNotebook. */
+(function(root,factory){const api=factory(root);if(typeof module==='object'&&module.exports)module.exports=api;else root.FRPinsExperience=api;})(typeof window==='undefined'?globalThis:window,function(root){
+  'use strict';
+  const str=x=>x==null?'':String(x),list=x=>Array.isArray(x)?x:[];
+  const origin=()=>root.location?.origin||'https://thefaithreceived.vercel.app';
+  function safeURL(value){try{const u=new URL(str(value),origin());return value&&/^https?:$/.test(u.protocol)?u.href:'';}catch(_){return '';}}
+  function sourceURL(item){
+    const explicit=safeURL(item.url||item.u);if(explicit)return explicit;
+    if(!item.slug)return '';
+    const sites={pld:'https://pld-patrologia-latina.vercel.app/read/',pg:'https://patrologia-graeca.vercel.app/read/',po:'https://patrologia-orientalis.vercel.app/read/',aq:'https://aquinas-studies.vercel.app/read/'};
+    if(sites[item.site])return sites[item.site]+encodeURIComponent(item.slug)+'.html'+(item.page!=null?'#'+(item.site==='pg'?'c':'b')+encodeURIComponent(str(item.page)):'');
+    const u=new URL('/read',origin());u.searchParams.set('w',item.slug);
+    if(item.pldpart)u.searchParams.set('pldpart',item.pldpart);
+    if(item.sourcePath)u.searchParams.set('section',item.sourcePath);
+    if(item.sourceKey)u.searchParams.set('heading',item.sourceKey);
+    if(item.row)u.hash=item.row;else if(item.page!=null)u.hash='b'+item.page+'-0';
+    return u.href;
+  }
+  function kind(item){return item.readingPlace?'reading-place':item.quoteImage?'quote-image':item.askTurn||item.askAnswer?'answer':item.type!=='note'?(item.page==null?'work':'passage'):item.research?.kind||'note';}
+  const kindLabel=value=>({'reading-place':'Reading place',work:'Saved work',passage:'Saved passage',answer:'Saved Ask answer',highlight:'Highlight','quote-image':'Saved quote',note:'Note',reference:'Saved reference','comparison-view':'Comparison view',sequence:'Reading sequence',position:'Recorded position',positions:'Recorded positions',verse:'Scripture'}[value]||'Saved research');
+  function describe(item,index={},titles={}){
+    const k=kind(item),meta=index[item.slug]||{},work=titles[item.slug]||meta.title||item.title||item.work||item.slug||'';
+    const sources=list(item.research?.sources).concat(list(item.askSources));
+    const href=k==='answer'&&item.chat?safeURL('/ask?chat='+encodeURIComponent(item.chat)):sourceURL(item)||safeURL(item.research?.sources?.[0]?.url);
+    const title=k==='answer'?(item.askQuestion||item.label||'Saved answer'):['work','passage','reading-place','reference','highlight','quote-image'].includes(k)?work||item.label||kindLabel(k):item.label||item.title||kindLabel(k);
+    let body=k==='answer'?str(item.askAnswer||item.text):k==='reading-place'?str(item.text):str(item.text||item.label||'');
+    if(k==='comparison-view'){const lines=body.split('\n');if(lines[0]===item.label&&safeURL(lines.slice(1).join('\n'))===safeURL(item.url))body='';}
+    const baseLocation=item.page==null?'':item.cite||((/^pld-|^pg-|^po-/.test(item.slug||''))?'Column ':'Location ')+item.page,edition=str(meta.volume||item.volume),location=edition&&!str(title).includes(edition)&&!str(baseLocation).includes(edition)?[edition,baseLocation].filter(Boolean).join(' · '):baseLocation;
+    return {kind:k,kindLabel:kindLabel(k),title,body,note:str(item.note),author:str(meta.author||item.author),location,href,sources,
+      action:k==='comparison-view'?'Open comparison':k==='reading-place'?'Resume reading':k==='answer'&&item.chat?'Open conversation':k==='work'?'Open work':'Read source'};
+  }
+  function deskURL(collectionId,itemId){const u=new URL('/desk',origin());u.searchParams.set('view','research');if(collectionId)u.searchParams.set('notebook',collectionId);if(itemId)u.searchParams.set('item',itemId);return u.pathname+u.search;}
+  function matches(item,query,index={},titles={}){const d=describe(item,index,titles);return [d.title,d.body,d.note,d.author,d.location,d.kindLabel,...d.sources.map(s=>[s.title,s.cite,s.author].join(' '))].join(' ').toLocaleLowerCase().includes(str(query).trim().toLocaleLowerCase());}
+  function markdown(item,index={},titles={}){
+    const d=describe(item,index,titles),label=str(d.title).replace(/[\[\]]/g,''),lines=['## '+label];
+    if(d.author||d.location)lines.push([d.author,d.location].filter(Boolean).join(', '));
+    if(d.href)lines.push('['+d.action+']('+d.href+')');
+    if(d.body)lines.push(d.body);if(d.note)lines.push('Your note:\n\n'+d.note);
+    if(d.sources.length)lines.push('Sources:\n'+d.sources.map(s=>{const u=sourceURL(s);return '- '+(u?'['+str(s.cite||s.title||s.slug||'Source').replace(/[\[\]]/g,'')+']('+u+')':str(s.cite||s.title||'Source'));}).join('\n'));
+    return lines.join('\n\n');
+  }
+  return {safeURL,sourceURL,kind,kindLabel,describe,deskURL,matches,markdown};
+});

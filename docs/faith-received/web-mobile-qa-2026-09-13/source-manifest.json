@@ -1,0 +1,74 @@
+[
+  {
+    "source": "tools/prdl_reader_prototype/web_shell.html",
+    "file": "web_shell.html.txt",
+    "bytes": 109029,
+    "sha256": "8a440ec824b44f4d2f1275176f334cf532b3201a444908e75bb842696ef31c14"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/connection-evidence.js",
+    "file": "connection-evidence.js.txt",
+    "bytes": 42469,
+    "sha256": "5f31f4e12d2d80c3cf4a42476bc3f4bef977d9e5a5e4fc65eeab4c558491df3b"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/connection-evidence.css",
+    "file": "connection-evidence.css.txt",
+    "bytes": 9876,
+    "sha256": "9dd32801818ec29e761eaaa9ab9314c4a570d8c83cdfc6ed8d13f61b57adae58"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/constellations.css",
+    "file": "constellations.css.txt",
+    "bytes": 30475,
+    "sha256": "a557421666fec7866c11ea75f09bb84d64dd050ba1481287b465010354a9ef81"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/shelf-constellations.css",
+    "file": "shelf-constellations.css.txt",
+    "bytes": 7323,
+    "sha256": "64806b9c2284d5376edbdf70415345d10552961ca592750cb6d305b8e66999ad"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader_shell.html",
+    "file": "reader_shell.html.txt",
+    "bytes": 765553,
+    "sha256": "5da737f9580c9585ce1d3fa3459edeb3223acc4fc770f2fb12cc8ac5bc233746"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/pins.html",
+    "file": "pins.html.txt",
+    "bytes": 54282,
+    "sha256": "e3c3b7e2ce7afb7d1746b77fba284bb496202cb1bada818a284d97fac477349a"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/pins-experience.js",
+    "file": "pins-experience.js.txt",
+    "bytes": 4882,
+    "sha256": "281858fc9c4cc40f1c6707d77fb6c2154cf0012bcfebb1dafffb540a5dd59da3"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/personal-research.css",
+    "file": "personal-research.css.txt",
+    "bytes": 15143,
+    "sha256": "6f95e2290678aac4daf6492a7413eae205c9ba8ed1bc0a386c70d579a7dd6b04"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/connection-evidence.test.cjs",
+    "file": "connection-evidence.test.cjs.txt",
+    "bytes": 9574,
+    "sha256": "fe39ddc0bcc33eed49c36d5f6ca42f09d40af9d453d72cbe82e21744b70017a7"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-source-navigation.test.cjs",
+    "file": "reader-source-navigation.test.cjs.txt",
+    "bytes": 18712,
+    "sha256": "8b96ebb7f374d3dcc2e2fd1d6cb636dcec8a39effec6d205f09781926dc178c3"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/pins-experience.test.cjs",
+    "file": "pins-experience.test.cjs.txt",
+    "bytes": 4959,
+    "sha256": "6ef9ed39fca3271eed48320d262cba7f098eee14c77088d5e1a8c9acc120f92b"
+  }
+]

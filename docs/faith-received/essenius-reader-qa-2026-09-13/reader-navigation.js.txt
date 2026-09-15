@@ -1,0 +1,231 @@
+/* Reader navigation uses existing rendered text and published catalogue metadata. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.FRReaderNavigation=api;})(typeof window==='undefined'?globalThis:window,function(){
+'use strict';
+const string=x=>x==null?'':String(x),label=x=>string(x).replace(/\s+/g,' ').trim();
+const isConfession=d=>/confession|catechism|creed/i.test(string(d?.collection))||/^(rc|lc|cf)-\d/.test(string(d?.slug));
+function chapterLabel(text){const s=label(text).replace(/^§\s*/,'');return s.length<=300&&/^(?:chapter|chap\.?|article|question|part|book|section)\s+(?:\d+|[ivxlcdm]+|(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[ -](?:one|two|three|four|five|six|seven|eight|nine))?)\s*(?:[.:;–—-]\s*)+\S/i.test(s);}
+function contents(reading){
+ const seen=new Set(),rows=[],candidates=[];
+ for(const e of reading.querySelectorAll('h2,h3,h4,h5,h6,.en p,.stk-en p')){
+  if(e.closest('.rowx,.appbank,.footnotes,.margin,.rtoc,.ctoc,.la,.stk-la'))continue;
+  const clone=e.cloneNode(true);clone.querySelectorAll('a.hlink,button,.h-anchor').forEach(n=>n.remove());
+  const title=label(clone.textContent).replace(/^§\s*/,''),head=/^H[2-6]$/.test(e.tagName);
+  const emphasized=e.tagName==='P'&&e.children.length===1&&/^(STRONG|B)$/.test(e.firstElementChild.tagName)&&label(e.firstElementChild.textContent)===title;
+  const rubric=e.tagName==='P'&&e.parentElement.children.length===1&&title.length>=15&&title.length<=100&&title.split(' ').length>=3&&/^[A-Z]/.test(title)&&!/[.!?;:,]$/.test(title);
+  const numbered=chapterLabel(title);
+  // a question is catechesis, not a section (2026-09-10, the Small Catechism's "What does this mean?")
+  if(!head&&/\?$/.test(title))continue;
+  if(!title||title.length>300||(!head&&!numbered&&!emphasized&&!rubric))continue;
+  candidates.push({e,title,head,numbered});
+ }
+ // A surviving authored chapter/article series is stronger structure than a
+ // short paragraph or bold Bible-book name. Keep semantic heading elements as
+ // genuine subheads; retain the older unheaded fallback when no series exists.
+ const series=candidates.filter(c=>c.numbered).length>=2;
+ for(const {e,title,head,numbered} of candidates){
+  if(series&&!numbered&&!head)continue;
+  let anchor=e.id||e.closest('[id^="b"],[id^="h"]')?.id;
+  if(!anchor){anchor='contents-'+(rows.length+1);e.id=anchor;}
+  const page=(anchor.match(/^b(.+)-\d+$/)||[])[1]??e.closest('[data-page]')?.dataset.page??'';
+  const key=anchor+'|'+title;if(seen.has(key))continue;seen.add(key);
+  rows.push({title,page:string(page),anchor,depth:head?(/^H[23]$/.test(e.tagName)?1:2):(numbered?1:2),element:e});
+ }
+ // levelled heads (2026-09-10): when the work marks main heads (.hmain rows) beside sub heads, sub heads sit under them
+ if(rows.some(r=>r.element?.closest?.('.hmain'))&&rows.some(r=>/^H[2-6]$/.test(r.element?.tagName||'')&&!r.element.closest('.hmain')))
+  for(const r of rows)if(/^H[2-6]$/.test(r.element?.tagName||''))r.depth=r.element.closest('.hmain')?1:2;
+ return rows;
+}
+function catalogue(data,titles={},confessions=[]){
+ if(!Array.isArray(data?.works))throw Error('Invalid work catalogue');
+ const bySlug=new Map(data.works.filter(w=>w&&w.slug).map(w=>[string(w.slug),w]));
+ for(const c of Array.isArray(confessions)?confessions:[])if(c?.slug&&!bySlug.has(string(c.slug)))bySlug.set(string(c.slug),{...c,volume:c.volume??c.year??'',_confession:true});
+ return [...bySlug.values()].map(w=>({...w,slug:string(w.slug),title:string(w.title||w.slug),author:Array.isArray(w.author)?w.author.map(string).join(', '):string(w.author),volume:string(w.volume),title_en:typeof titles[w.slug]==='string'?titles[w.slug]:''})).sort((a,b)=>a.author.localeCompare(b.author)||(a.title_en||a.title).localeCompare(b.title_en||b.title)||a.volume.localeCompare(b.volume,undefined,{numeric:true}));
+}
+
+// Display-only Quenstedt navigation, checked against the canonical TEI's printed
+// chapter indexes and the opening discussion at each destination. Printed page
+// offsets: Part I +10, II +622, III +842, IV +1514. Some source chapter headings
+// survive only in the indexes; those index locations must not become body links.
+// Scope guard prevents this pagination map from touching another witness/reflow.
+const quenstedtSpine = [{"page":1,"depth":1,"title":"Front matter: Parts I–II"},{"page":11,"depth":1,"title":"Part I. The preliminaries and end of theology"},{"page":11,"depth":2,"title":"Chapter I. Theology in general"},{"page":29,"depth":2,"title":"Chapter II. The general object of theology: religion"},{"page":41,"depth":2,"title":"Chapter III. The principle of theology"},{"page":63,"depth":2,"title":"Chapter IV. Holy Scripture"},{"page":251,"depth":2,"title":"Chapter V. Articles of faith"},{"page":260,"depth":2,"title":"Chapter VI. God and the natural knowledge of God"},{"page":278,"depth":2,"title":"Chapter VII. The revealed knowledge and names of God"},{"page":294,"depth":2,"title":"Chapter VIII. The essence of God considered absolutely"},{"page":328,"depth":2,"title":"Chapter IX. God considered relatively: the Holy Trinity"},{"page":424,"depth":2,"title":"Chapter X. The actions of God and creation"},{"page":452,"depth":2,"title":"Chapter XI. Angels"},{"page":521,"depth":2,"title":"Chapter XII. Man"},{"page":537,"depth":2,"title":"Chapter XIII. Providence"},{"page":560,"depth":2,"title":"Chapter XIV. The formal end of theology: the enjoyment of God"},{"page":591,"depth":2,"title":"Index: Chapters and questions"},{"page":594,"depth":2,"title":"Index: Scripture passages"},{"page":603,"depth":2,"title":"Index: Subjects, names, and words"},{"page":623,"depth":1,"title":"Part II. The subject of theology: sinful man brought to salvation"},{"page":623,"depth":2,"title":"Chapter I. The state of integrity and the image of God"},{"page":670,"depth":2,"title":"Chapter II. Sin"},{"page":791,"depth":2,"title":"Chapter III. The natural powers of fallen man and free will"},{"page":822,"depth":2,"title":"Index: Chapters and questions"},{"page":823,"depth":2,"title":"Index: Scripture passages"},{"page":825,"depth":2,"title":"Index: Subjects, names, and words"},{"page":835,"depth":1,"title":"Front matter: Parts III–IV"},{"page":843,"depth":1,"title":"Part III. The principles of salvation"},{"page":843,"depth":2,"title":"Chapter I. The universal benevolence of God"},{"page":856,"depth":2,"title":"Chapter II. The special benevolence of God and predestination"},{"page":916,"depth":2,"title":"Chapter III. Christ the Redeemer"},{"page":1292,"depth":2,"title":"Chapter IV. Redemption"},{"page":1303,"depth":2,"title":"Chapter V. Gracious calling"},{"page":1318,"depth":2,"title":"Chapter VI. Regeneration"},{"page":1330,"depth":2,"title":"Chapter VII. Conversion"},{"page":1356,"depth":2,"title":"Chapter VIII. The justification of the sinner before God"},{"page":1420,"depth":2,"title":"Chapter IX. Penitence and confession"},{"page":1456,"depth":2,"title":"Chapter X. The mystical union of believers with God"},{"page":1474,"depth":2,"title":"Chapter XI. Renewal"},{"page":1483,"depth":2,"title":"Index: Chapters and questions"},{"page":1486,"depth":2,"title":"Index: Scripture passages"},{"page":1494,"depth":2,"title":"Index: Subjects, names, and words"},{"page":1515,"depth":1,"title":"Part IV. The means of salvation"},{"page":1515,"depth":2,"title":"Chapter I. The Word of God, especially the Law"},{"page":1573,"depth":2,"title":"Chapter II. The Gospel"},{"page":1587,"depth":2,"title":"Chapter III. The sacraments in general"},{"page":1602,"depth":2,"title":"Chapter IV. The Old Testament sacraments: circumcision and the Passover lamb"},{"page":1620,"depth":2,"title":"Chapter V. Baptism"},{"page":1690,"depth":2,"title":"Chapter VI. The Lord’s Supper"},{"page":1769,"depth":2,"title":"Chapter VII. Divine testaments"},{"page":1795,"depth":2,"title":"Chapter VIII. Justifying faith"},{"page":1820,"depth":2,"title":"Chapter IX. Good works"},{"page":1862,"depth":2,"title":"Chapter X. The cross"},{"page":1865,"depth":2,"title":"Chapter XI. Prayer"},{"page":1907,"depth":2,"title":"Chapter XII. Ecclesiastical ministry"},{"page":1934,"depth":2,"title":"Chapter XIII. The civil magistrate"},{"page":1965,"depth":2,"title":"Chapter XIV. Marriage"},{"page":1992,"depth":2,"title":"Chapter XV. The Church"},{"page":2035,"depth":2,"title":"Chapter XVI. The great Antichrist"},{"page":2048,"depth":2,"title":"Chapter XVII. Death and the state of souls after death"},{"page":2090,"depth":2,"title":"Chapter XVIII. The resurrection of the dead"},{"page":2119,"depth":2,"title":"Chapter XIX. The final judgment"},{"page":2148,"depth":2,"title":"Chapter XX. The consummation of the age"},{"page":2175,"depth":2,"title":"Index: Chapters and questions"},{"page":2179,"depth":2,"title":"Index: Scripture passages"},{"page":2185,"depth":2,"title":"Index: Subjects, names, and words"}];
+
+const abelardSlug='peter-abelard-peter-abelard-sic-et-non';
+// Complete English display labels translated from the untruncated Latin heads.
+const abelardLabels={"75": "Question 75: That in Christ he who is the Son of God is not he who is the Son of Man, or that he who is eternal is not he who is temporal, and the contrary", "104": "Question 104: That Matthew is prefigured by the man and Mark by the lion in the figures of the four living creatures, and conversely", "117": "Question 117: On the sacrament of the altar: that it is essentially the very reality of Christ’s flesh and blood, and the contrary", "158": "Question 158: That the punishment of unbaptized little children is the mildest in comparison with the other punishments of the damned, and the contrary"};
+const perkinsSlug='perkins-hepie-keia-treatise-christian-equitie-moderation';
+const lutherIndexSlug='luther-wa-schriften-68';
+// Verified from the published canonical TEI, not from the mislocated metadata.
+const lutherIndexSpine=[{"title":"S","page":3,"depth":1,"navDepthExact":true},{"title":"[S, SA]","page":3,"depth":2,"navDepthExact":true},{"title":"[SE]","page":127,"depth":2,"navDepthExact":true},{"title":"SI","page":189,"depth":2,"navDepthExact":true},{"title":"[SM]","page":206,"depth":2,"navDepthExact":true},{"title":"[SO]","page":206,"depth":2,"navDepthExact":true},{"title":"[SP]","page":227,"depth":2,"navDepthExact":true},{"title":"[SQ]","page":272,"depth":2,"navDepthExact":true},{"title":"[ST]","page":272,"depth":2,"navDepthExact":true},{"title":"T","page":354,"depth":1,"navDepthExact":true},{"title":"[TA]","page":354,"depth":2,"navDepthExact":true},{"title":"[TE]","page":362,"depth":2,"navDepthExact":true},{"title":"[TI]","page":415,"depth":2,"navDepthExact":true},{"title":"[TO]","page":422,"depth":2,"navDepthExact":true},{"title":"[TR]","page":431,"depth":2,"navDepthExact":true},{"title":"[TU]","page":454,"depth":2,"navDepthExact":true},{"title":"[TY]","page":464,"depth":2,"navDepthExact":true},{"title":"U","page":469,"depth":1,"navDepthExact":true},{"title":"usus — use","page":483,"depth":2,"navDepthExact":true},{"title":"V","page":498,"depth":1,"navDepthExact":true},{"title":"[VA]","page":498,"depth":2,"navDepthExact":true},{"title":"[VE]","page":514,"depth":2,"navDepthExact":true},{"title":"[VI]","page":563,"depth":2,"navDepthExact":true},{"title":"[VU]","page":687,"depth":2,"navDepthExact":true},{"title":"Z","page":692,"depth":1,"navDepthExact":true},{"title":"Editorial material","page":693,"depth":1,"navDepthExact":true},{"title":"Verfasser und Verfasserinnen der Artikel","page":693,"depth":2,"navDepthExact":true},{"title":"Einleitendes Material","page":693,"depth":2,"navDepthExact":true},{"title":"[Title Page]","page":693,"depth":2,"navDepthExact":true},{"title":"Contents","page":693,"depth":2,"navDepthExact":true},{"title":"Siglen und Abkürzungen","page":693,"depth":2,"navDepthExact":true},{"title":"Preface","page":693,"depth":2,"navDepthExact":true}];
+const abelardSupplement={
+ 49:{title:'Question 49: Whether all orders of heavenly spirits are generally called angels, or not',page:41,nextPage:42},
+ 70:{title:'Question 70: That God cannot be made less, and the contrary',page:55,nextPage:56}
+};
+const questionNumber=text=>{const m=label(text).replace(/^§\s*/,'').match(/^(?:(?:Question|Quaestio|Q\.?)\s*(\d+)\b|(\d{2,3})\s*:)/i);return m?Number(m[1]||m[2]):null;};
+// The builder injects the independently reviewed, display-only registry here.
+// Exact outline fingerprints keep a repair tied to its reviewed metadata layout.
+const reviewedRepairs=/*__FR_TOC_REPAIRS__*/{"version":1,"works":{}};
+const reviewedOutlineCache=new WeakMap();
+function outlineFingerprint(rows){
+ const value=JSON.stringify(rows.map(r=>[r.title,r.page,r.depth]));
+ let a=2166136261,b=2246822507;
+ for(let i=0;i<value.length;i++){const c=value.charCodeAt(i);a=Math.imul(a^c,16777619)>>>0;b=Math.imul(b^c,2246822519)>>>0;}
+ return a.toString(16).padStart(8,'0')+b.toString(16).padStart(8,'0');
+}
+function reviewedOutline(data){
+ const rule=reviewedRepairs.works?.[data?.slug],source=data?.structure;
+ if(!rule||!Array.isArray(source)||source.length!==rule.rows||Number(data.n_pages)!==rule.pages||
+    rule.teiVersion!=null&&String(data.tei_v)!==String(rule.teiVersion)||
+    rule.navSourceVersion!=null&&data.nav_source_version!==rule.navSourceVersion)return null;
+ const cached=reviewedOutlineCache.get(source);
+ if(cached?.rule===rule&&cached.snapshot.every((s,i)=>source[i]===s.row&&source[i].title===s.title&&source[i].page===s.page&&source[i].depth===s.depth))return cached.rows;
+ if(source.some(r=>!r||typeof r.title!=='string')||outlineFingerprint(source)!==rule.fingerprint)return null;
+ const rows=[],used=new Set(),nodes=rule.nodes||source.map((_,i)=>i);
+ for(const node of nodes){
+  let row;
+  if(Number.isInteger(node)&&node>=0&&node<source.length&&!used.has(node)){used.add(node);row={...source[node],...(rule.edits?.[node]||{})};}
+  else if(Array.isArray(node)&&(node.length===3||node.length===4)){
+   row={title:node[0],page:node[1],depth:node[2]};
+   if(node.length===4){
+    const target=node[3];
+    if(!target||typeof target!=='object'||typeof target.navSourcePath!=='string'||!/^\d+(?:\.\d+)*$/.test(target.navSourcePath)||
+       typeof target.navSourceText!=='string'||!target.navSourceText.trim())return null;
+    row.navSourcePath=target.navSourcePath;row.navSourceText=target.navSourceText;
+   }
+  }
+  else return null;
+  if(typeof row.title!=='string'||!row.title.trim()||!Number.isInteger(row.depth)||row.depth<1||row.depth>12||
+   !(typeof row.page==='string'&&row.page.trim()||Number.isInteger(row.page)&&row.page>0))return null;
+  rows.push({...row,navDepthExact:true});
+ }
+ reviewedOutlineCache.set(source,{rule,rows,snapshot:source.map(row=>({row,title:row.title,page:row.page,depth:row.depth}))});return rows;
+}
+function repairedSeries(data){
+ const source=data?.structure||[];
+ if(data?.slug===abelardSlug&&Number(data.n_pages)===137){
+  // The prologue is a sibling of the questions, never their container. Questions
+  // 49 and 70 survive as Q. 049 in body text and a 070: subhead respectively.
+  const rows=source.map(s=>({...s,title:abelardLabels[questionNumber(s.title)]||abelardSupplement[questionNumber(s.title)]?.title||s.title,depth:questionNumber(s.title)!==null||/^Prologue$/i.test(s.title)?1:s.depth,navDepthExact:true}));
+  for(const [number,entry] of Object.entries(abelardSupplement)){
+   if(rows.some(s=>questionNumber(s.title)===Number(number)))continue;
+   const previous=rows.find(s=>questionNumber(s.title)===Number(number)-1),next=rows.find(s=>questionNumber(s.title)===Number(number)+1);
+   if(Number(previous?.page)!==entry.page||Number(next?.page)!==entry.nextPage)continue;
+   const at=rows.findIndex(s=>questionNumber(s.title)>Number(number));
+   rows.splice(at<0?rows.length:at,0,{title:entry.title,page:entry.page,depth:1,navDepthExact:true});
+  }
+  return rows;
+ }
+ if(data?.slug===lutherIndexSlug&&Number(data.n_pages)===693)return lutherIndexSpine.map(s=>({...s}));
+ if(data?.slug===perkinsSlug&&Number(data.n_pages)===104)return [...source.map(s=>({...s})),{title:'Treatise on Christian equity and moderation',page:14,depth:1,navDepthExact:true}].sort((a,b)=>Number(a.page)-Number(b.page));
+ return null;
+}
+function exactHeading(data,folio,title){
+ // Perkins's opening is unheaded; land at its actual beginning, not a later
+ // paragraph that happens to repeat the title words.
+ if(data?.slug===perkinsSlug&&Number(data.n_pages)===104&&String(folio?.dataset?.page)==='14'&&title==='Treatise on Christian equity and moderation')return folio;
+ if(folio&&title&&reviewedOutline(data)){
+  const norm=t=>label(t).replace(/^§\s*/,'').replace(/[.\s]+$/,'').toLocaleLowerCase();
+  const targets=folio.querySelectorAll('.rhead .en .csub,.rhead .en .cmain,.rhead .la .csub,.rhead .la .cmain');
+  for(const h of targets)if(h.getClientRects().length&&norm(h.textContent)===norm(title))return h;
+  // Reviewed index labels can contain both languages and an index number that
+  // the authored body rubric omits. Require a unique exact match on this page.
+  const labels=[...new Set([title,...String(title).split(/\s+—\s+/)].flatMap(t=>[t,t.replace(/^\d+[.)]\s*/, '')]).map(norm))];
+  for(const value of labels){
+   if(value.length<6||!value.includes(' '))continue;
+   const matches=Array.from(targets).filter(h=>h.getClientRects().length&&norm(h.textContent)===value);
+   if(matches.length===1)return matches[0];
+  }
+  // Some canonical chapters begin with an untagged rubric inside a paragraph.
+  // Exact opening text plus punctuation is safer than matching a later mention.
+  for(const selector of ['.en p','.la p']){
+   const matches=Array.from(folio.querySelectorAll(selector)).filter(p=>{
+    if(!p.getClientRects().length||p.closest('.rapp,.rtoc,.footnotes,.margin,.appbank,blockquote'))return false;
+    const text=norm(p.textContent);
+    return labels.some(value=>value.length>=6&&value.includes(' ')&&text.startsWith(value)&&/[.,:;!?]/.test(text.charAt(value.length)));
+   });
+   if(matches.length===1){matches[0].classList.add('reader-inline-target');return matches[0];}
+  }
+ }
+ const abelard=data?.slug===abelardSlug&&Number(data.n_pages)===137;
+ const index=data?.slug===lutherIndexSlug&&Number(data.n_pages)===693;
+ if(!abelard&&!index||!folio||!title)return null;
+ const number=questionNumber(title),norm=t=>label(t).replace(/^§\s*/,'').replace(/[\[\].]/g,'').toLowerCase();
+ if(abelard&&number===null)return null;
+ // Never guess by shared subject words when several questions begin on a page.
+ for(const selector of ['.rhead .en .csub','.rhead .la .csub']){
+  for(const h of folio.querySelectorAll(selector))if(h.getClientRects().length&&(abelard?questionNumber(h.textContent)===number:norm(h.textContent)===norm(title)))return h;
+ }
+ // Q. 049 is an existing displayed rubric at the end of a long paragraph. Keep
+ // its precise inline position rather than jumping to the preceding argument.
+ if(abelard&&number===49&&String(folio.dataset?.page)==='41'){
+  for(const selector of ['.en .capsrun','.la .capsrun']){
+   for(const h of folio.querySelectorAll(selector))if(h.getClientRects().length&&questionNumber(h.textContent)===49){h.classList.add('reader-inline-target');return h;}
+  }
+ }
+ return null;
+}
+function seriesLocator(data,page){
+ if(!Number.isFinite(Number(page)))return '';
+ if(data?.slug===abelardSlug&&Number(data.n_pages)===137){
+  const questions=repairedSeries(data).filter(s=>questionNumber(s.title)!==null&&Number(s.page)<=Number(page));
+  if(!questions.length)return 'Prologue';
+  const last=Number(questions[questions.length-1].page),onPage=questions.filter(s=>Number(s.page)===last).map(s=>questionNumber(s.title));
+  return onPage.length>1?'qq. '+onPage[0]+'–'+onPage[onPage.length-1]:'q. '+onPage[0];
+ }
+ if(data?.slug===lutherIndexSlug&&Number(data.n_pages)===693){
+  if(Number(page)>=693)return 'Editorial material';
+  const headings=lutherIndexSpine.filter(s=>s.depth===1&&s.page<=Number(page));return headings.length?'Index · '+headings[headings.length-1].title:'Index';
+ }
+ return '';
+}
+
+const outlineCache=new WeakMap();
+function outline(data){
+ const source=data?.structure||[];
+ const reviewed=reviewedOutline(data);if(reviewed)return reviewed;
+ const series=repairedSeries(data);if(series)return series;
+ if(data?.slug!=='quenstedt-systema-theologicum'||Number(data.n_pages)!==2212)return source;
+ if(outlineCache.has(source))return outlineCache.get(source);
+ const major=t=>/^(?:chapter|caput|cap\.)\s+[ivxlcdm]+\b/i.test(t)||/\b(?:pars (?:prima|secunda|tertia|quarta)|part (?:one|two|three|four))\b/i.test(t)||/^(?:front matter|chapters of|capita |(?:first|second|third) index|index (?:primus|secundus|tertius))/i.test(t);
+ const rows=quenstedtSpine.map(s=>({...s,navDepthExact:true,navSpine:true}));
+ for(const s of source){
+  if(major(label(s.title)))continue;
+  const page=Number(s.page),front=page<11||page>=835&&page<843;
+  rows.push({...s,depth:Math.max(front?2:3,Number(s.depth)||1),navDepthExact:true});
+ }
+ rows.sort((a,b)=>Number(a.page)-Number(b.page)||(a.navSpine?0:1)-(b.navSpine?0:1)||(a.navSpine&&b.navSpine?a.depth-b.depth:0));
+ outlineCache.set(source,rows);return rows;
+}
+
+function locator(data,page){
+ // These repairs validate destinations and hierarchy. Keep unreviewed, body-mined
+ // locator strings from turning quoted chapter references into running labels.
+ if(reviewedOutline(data))return (data.has_pages?'p. ':'§ ')+string(page);
+ const series=seriesLocator(data,page);if(series)return series;
+ if(data?.slug!=="quenstedt-systema-theologicum"||Number(data.n_pages)!==2212||!Number.isFinite(Number(page)))return "";
+ let part="",node=null;
+ for(const s of quenstedtSpine){if(s.page>Number(page))break;const m=s.title.match(/^Part ([IVX]+)\./);if(m)part=m[1];node=s;}
+ if(!node)return "";
+ const chapter=node.title.match(/^Chapter ([IVX]+)\./);
+ return chapter?"Part "+part+" · ch. "+chapter[1]:node.title.startsWith("Index:")?"Part "+part+" · Index":node.title.startsWith("Front matter")?"Front matter":node.title;
+}
+
+// Group only published index pages, using the existing outline for section labels.
+// Page IDs are opaque; sequence comes from the edition's page inventory.
+function indexSections(entries,outline,pages){
+ const order=new Map((pages||[]).map((p,i)=>[string(p.n),i])),seen=new Set();
+ const heads=(outline||[]).map((h,i)=>({...h,key:i,page:string(h.page),position:order.get(string(h.page))})).filter(h=>h.position!==undefined&&/\b(index|indices|contents|tabula|errata)\b/i.test(h.title||'')).sort((a,b)=>a.position-b.position||a.key-b.key);
+ const labels={quaestionum:'Index of questions',errata:'Errata',citations:'Index of citations',topical:'Index',alphabetic:'Index',contents:'Contents'};
+ const groups=[];let prior=null;
+ for(const [raw,kind] of entries||[]){
+  const page=string(raw);if(!page||seen.has(page))continue;seen.add(page);
+  const position=order.get(page);let head=null;
+  if(position!==undefined)for(const h of heads){if(h.position>position)break;head=h;}
+  const key=head?'outline:'+head.key:'kind:'+kind;
+  if(!prior||prior.key!==key){const sourceTitle=head?.title||labels[kind]||'Index',parts=sourceTitle.split(' — '),tail=parts.slice(1).join(' — '),letters=tail.replace(/[^A-Za-z]/g,'');const title=parts.length>1&&letters&&letters===letters.toUpperCase()?parts[0]:sourceTitle;prior={key,title,sourceTitle,pages:[]};groups.push(prior);}
+  prior.pages.push(page);
+ }
+ return groups;
+}
+
+return {isConfession,chapterLabel,contents,catalogue,outline,locator,exactHeading,indexSections};
+});

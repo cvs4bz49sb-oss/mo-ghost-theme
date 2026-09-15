@@ -1,0 +1,110 @@
+[
+  {
+    "bucket": "mo-tfr",
+    "prefix": "v1/pgen",
+    "files": 3641,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr",
+    "prefix": "v1/pggap",
+    "files": 125,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr",
+    "prefix": "v1/pgtoc",
+    "files": 1884,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr",
+    "prefix": "v1/pgvol",
+    "files": 161,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr",
+    "prefix": "v1/pgvtx",
+    "files": 2975,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr",
+    "prefix": "v1/pgzone",
+    "files": 3254,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr",
+    "prefix": "v1/tei/pg",
+    "files": 3825,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr",
+    "prefix": "v1/tei/pgpv",
+    "files": 161,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr-library",
+    "prefix": "v1/pgen",
+    "files": 3641,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr-library",
+    "prefix": "v1/pggap",
+    "files": 125,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr-library",
+    "prefix": "v1/pgtoc",
+    "files": 1884,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr-library",
+    "prefix": "v1/pgvol",
+    "files": 161,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr-library",
+    "prefix": "v1/pgvtx",
+    "files": 2975,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr-library",
+    "prefix": "v1/pgzone",
+    "files": 3254,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr-library",
+    "prefix": "v1/tei/pg",
+    "files": 3825,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr-library",
+    "prefix": "v1/tei/pgpv",
+    "files": 161,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr",
+    "prefix": "v1/pgauthors.json",
+    "files": 1,
+    "verified": true
+  },
+  {
+    "bucket": "mo-tfr-library",
+    "prefix": "v1/pgauthors.json",
+    "files": 1,
+    "verified": true
+  }
+]

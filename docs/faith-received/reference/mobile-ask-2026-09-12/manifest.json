@@ -1,0 +1,36 @@
+{
+  "scope": "Frontend reference snapshots; preserve MereO adapters, routes and branding when applying",
+  "date": "2026-09-12",
+  "files": [
+    {
+      "file": "ask-workspace.js.txt",
+      "sha256": "36440eb2b7f42cf1ca5f30b4c648e8b2df2debc92093c230a6c8d7d3b33ffdef",
+      "bytes": 90272
+    },
+    {
+      "file": "ask-workspace.css.txt",
+      "sha256": "3f6b067d57cfb0f3d87f9731a8917b4c7c5f1e61c2edb00ee7ff8f936bc42957",
+      "bytes": 38411
+    },
+    {
+      "file": "ask-citation-integrity.test.cjs.txt",
+      "sha256": "e301fbb3dd75d6520bdda978bfc7abec3ea2b0e1389c3bba8841d2800fa7c6f7",
+      "bytes": 1364
+    },
+    {
+      "file": "ask-render.test.cjs.txt",
+      "sha256": "255b3894ce0cdde9c63b2fbe7459daa3045c9814c05785f9bb0ba9b8cf785d28",
+      "bytes": 5039
+    },
+    {
+      "file": "ask-source-navigation.test.cjs.txt",
+      "sha256": "857716e7fe65b5997630266b5804664b3bbd7c77b7761bc28fc2bc6e558ac609",
+      "bytes": 12601
+    },
+    {
+      "file": "ask-answer-dom.test.cjs.txt",
+      "sha256": "f267d0b0a03e109a770be69b6b6dba2387086489b7046c934ae51fa4e3089562",
+      "bytes": 9591
+    }
+  ]
+}

@@ -1,0 +1,400 @@
+TAP version 13
+# Subtest: first Delete only asks for confirmation, and Cancel preserves all documents
+ok 1 - first Delete only asks for confirmation, and Cancel preserves all documents
+  ---
+  duration_ms: 43.889291
+  ...
+# Subtest: confirmation removes only the selected document and cancels its pending autosave
+ok 2 - confirmation removes only the selected document and cancels its pending autosave
+  ---
+  duration_ms: 0.55575
+  ...
+# Subtest: a failed storage write preserves the document and editor
+ok 3 - a failed storage write preserves the document and editor
+  ---
+  duration_ms: 0.344542
+  ...
+# Subtest: reading history resumes exact compound milestones and zero without changing stored records
+ok 4 - reading history resumes exact compound milestones and zero without changing stored records
+  ---
+  duration_ms: 2.59925
+  ...
+# Subtest: clipped passages insert as quotations and commentary remains separately identified
+ok 5 - clipped passages insert as quotations and commentary remains separately identified
+  ---
+  duration_ms: 0.245292
+  ...
+# Subtest: mined positions and questions never become verbatim source quotations
+ok 6 - mined positions and questions never become verbatim source quotations
+  ---
+  duration_ms: 0.104541
+  ...
+# Subtest: insertion retains every source citation and escapes saved markup
+ok 7 - insertion retains every source citation and escapes saved markup
+  ---
+  duration_ms: 1.123834
+  ...
+# Subtest: source presentation cannot mutate the saved source inventory
+ok 8 - source presentation cannot mutate the saved source inventory
+  ---
+  duration_ms: 0.424792
+  ...
+# Subtest: legacy highlights recover exact row anchors and preserve notes
+ok 9 - legacy highlights recover exact row anchors and preserve notes
+  ---
+  duration_ms: 0.204
+  ...
+# Subtest: reading history and legacy annotations retain the selected PLD source division
+ok 10 - reading history and legacy annotations retain the selected PLD source division
+  ---
+  duration_ms: 0.311
+  ...
+# Subtest: unsafe explicit URLs are never emitted as executable links
+ok 11 - unsafe explicit URLs are never emitted as executable links
+  ---
+  duration_ms: 0.326208
+  ...
+# Subtest: reader annotation keys stay distinct when work metadata omits both slug and workspace
+ok 12 - reader annotation keys stay distinct when work metadata omits both slug and workspace
+  ---
+  duration_ms: 3.100833
+  ...
+# Subtest: highlight snapshots use canonical lane text when a personal translation is displayed
+ok 13 - highlight snapshots use canonical lane text when a personal translation is displayed
+  ---
+  duration_ms: 3.076959
+  ...
+# Subtest: filtering keeps only token matches and their real ancestors without changing hierarchy
+ok 14 - filtering keeps only token matches and their real ancestors without changing hierarchy
+  ---
+  duration_ms: 3.828
+  ...
+# Subtest: clearing a filter restores deliberate expansion rather than keeping temporary ancestor expansion
+ok 15 - clearing a filter restores deliberate expansion rather than keeping temporary ancestor expansion
+  ---
+  duration_ms: 0.5105
+  ...
+# Subtest: search includes original source headings and each requested token
+ok 16 - search includes original source headings and each requested token
+  ---
+  duration_ms: 0.308334
+  ...
+# Subtest: keys retain compound page identity and distinguish repeated headings without array-position keys
+ok 17 - keys retain compound page identity and distinguish repeated headings without array-position keys
+  ---
+  duration_ms: 0.492625
+  ...
+# Subtest: current index prefers exact source identity and uses source page order, never numeric coercion
+ok 18 - current index prefers exact source identity and uses source page order, never numeric coercion
+  ---
+  duration_ms: 0.439
+  ...
+# Subtest: ten thousand nested rows use iterative model and ancestry filtering without recursive overflow
+ok 19 - ten thousand nested rows use iterative model and ancestry filtering without recursive overflow
+  ---
+  duration_ms: 98.257166
+  ...
+# Subtest: current section marks a visible ancestor without scrolling; Current section reveals and focuses the leaf
+ok 20 - current section marks a visible ancestor without scrolling; Current section reveals and focuses the leaf
+  ---
+  duration_ms: 1.355333
+  ...
+# Subtest: typing filters existing rows without replacing the focused input or its caret
+ok 21 - typing filters existing rows without replacing the focused input or its caret
+  ---
+  duration_ms: 0.523042
+  ...
+# Subtest: capture before a rebuild retains query, input selection, scroll and chosen expansion
+ok 22 - capture before a rebuild retains query, input selection, scroll and chosen expansion
+  ---
+  duration_ms: 0.872541
+  ...
+# Subtest: caret focus returns to the corresponding source entry after a rebuild
+ok 23 - caret focus returns to the corresponding source entry after a rebuild
+  ---
+  duration_ms: 1.096792
+  ...
+# Subtest: filter expansion is temporary and Expand/Collapse all never alters source rows
+ok 24 - filter expansion is temporary and Expand/Collapse all never alters source rows
+  ---
+  duration_ms: 0.532042
+  ...
+# Subtest: short flat works retain a simple list without unnecessary filter controls
+ok 25 - short flat works retain a simple list without unnecessary filter controls
+  ---
+  duration_ms: 0.31175
+  ...
+# Subtest: Enter flushes the newest pending query and directly activates exactly one matching link
+ok 26 - Enter flushes the newest pending query and directly activates exactly one matching link
+  ---
+  duration_ms: 0.590542
+  ...
+# Subtest: ArrowDown only focuses the latest match, while IME, modifiers and blank Enter never navigate
+ok 27 - ArrowDown only focuses the latest match, while IME, modifiers and blank Enter never navigate
+  ---
+  duration_ms: 0.454292
+  ...
+# Subtest: numbered heading searches do not confuse Title X with IX, XI, or XX
+ok 28 - numbered heading searches do not confuse Title X with IX, XI, or XX
+  ---
+  duration_ms: 0.579583
+  ...
+# Subtest: tabs and filter controls share one header while rows remain in the original scroll container
+ok 29 - tabs and filter controls share one header while rows remain in the original scroll container
+  ---
+  duration_ms: 0.650084
+  ...
+# Subtest: numeric catalogue volumes cannot crash the reader library
+ok 30 - numeric catalogue volumes cannot crash the reader library
+  ---
+  duration_ms: 23.916042
+  ...
+# Subtest: mixed metadata is normalized and invalid catalogues remain retryable errors
+ok 31 - mixed metadata is normalized and invalid catalogues remain retryable errors
+  ---
+  duration_ms: 0.188459
+  ...
+# Subtest: existing chapter and article labels are recognized without inventing headings
+ok 32 - existing chapter and article labels are recognized without inventing headings
+  ---
+  duration_ms: 1.206458
+  ...
+# Subtest: confession navigation covers actual collection identifiers and their canonical slugs
+ok 33 - confession navigation covers actual collection identifiers and their canonical slugs
+  ---
+  duration_ms: 0.214416
+  ...
+# Subtest: reader source remains parseable after navigation integration
+ok 34 - reader source remains parseable after navigation integration
+  ---
+  duration_ms: 6.679875
+  ...
+# Subtest: reader catalogue includes confessions without duplicating core works
+ok 35 - reader catalogue includes confessions without duplicating core works
+  ---
+  duration_ms: 0.096459
+  ...
+# Subtest: authored CHAP abbreviations accept Roman numbering and punctuation chains
+ok 36 - authored CHAP abbreviations accept Roman numbering and punctuation chains
+  ---
+  duration_ms: 0.40875
+  ...
+# Subtest: Westminster-style source supplies all 33 chapters without Bible-list and approval-paragraph false positives
+ok 37 - Westminster-style source supplies all 33 chapters without Bible-list and approval-paragraph false positives
+  ---
+  duration_ms: 0.923791
+  ...
+# Subtest: genuine semantic subheadings remain in reading order under an authored chapter series
+ok 38 - genuine semantic subheadings remain in reading order under an authored chapter series
+  ---
+  duration_ms: 0.23375
+  ...
+# Subtest: small unheaded confessions retain their existing fallback entries when no numbered series exists
+ok 39 - small unheaded confessions retain their existing fallback entries when no numbered series exists
+  ---
+  duration_ms: 0.291291
+  ...
+# Subtest: historical indexes group by source headings while preserving every opaque page ID
+ok 40 - historical indexes group by source headings while preserving every opaque page ID
+  ---
+  duration_ms: 0.385209
+  ...
+# Subtest: unlabelled index pages remain available without invented letters or duplicate destinations
+ok 41 - unlabelled index pages remain available without invented letters or duplicate destinations
+  ---
+  duration_ms: 0.096
+  ...
+# Subtest: index display separates an all-caps Latin echo but retains the complete source title
+ok 42 - index display separates an all-caps Latin echo but retains the complete source title
+  ---
+  duration_ms: 0.088125
+  ...
+# Subtest: an early contents choice retains its exact page and heading through replacement
+ok 43 - an early contents choice retains its exact page and heading through replacement
+  ---
+  duration_ms: 1.985875
+  ...
+# Subtest: a newer contents choice cancels pending restoration of the previous one
+ok 44 - a newer contents choice cancels pending restoration of the previous one
+  ---
+  duration_ms: 0.395666
+  ...
+# Subtest: deliberate scrolling cancels automatic repositioning
+ok 45 - deliberate scrolling cancels automatic repositioning
+  ---
+  duration_ms: 0.385208
+  ...
+# Subtest: ordinary reading preserves a compound page ID and viewport offset
+ok 46 - ordinary reading preserves a compound page ID and viewport offset
+  ---
+  duration_ms: 0.337792
+  ...
+# Subtest: restoration waits for a not-yet-materialized target without losing the heading
+ok 47 - restoration waits for a not-yet-materialized target without losing the heading
+  ---
+  duration_ms: 0.928083
+  ...
+# Subtest: overlapping TEI and shard rebuilds retain the original reading position
+ok 48 - overlapping TEI and shard rebuilds retain the original reading position
+  ---
+  duration_ms: 0.653583
+  ...
+# Subtest: canonical index covers detached pages outside the mounted and initially loaded page inventory
+ok 49 - canonical index covers detached pages outside the mounted and initially loaded page inventory
+  ---
+  duration_ms: 2.5945
+  ...
+# Subtest: English-only canonical text is searchable without requiring a source lane
+ok 50 - English-only canonical text is searchable without requiring a source lane
+  ---
+  duration_ms: 2.1705
+  ...
+# Subtest: page references preserve compound milestones and only normalize wholly numeric zero padding
+ok 51 - page references preserve compound milestones and only normalize wholly numeric zero padding
+  ---
+  duration_ms: 0.739791
+  ...
+# Subtest: repeated chapter labels include distinct complete page references without duplicating explicit locators
+ok 52 - repeated chapter labels include distinct complete page references without duplicating explicit locators
+  ---
+  duration_ms: 0.657417
+  ...
+# Subtest: plain-text extraction separates blocks while retaining inline word joins and notes
+ok 53 - plain-text extraction separates blocks while retaining inline word joins and notes
+  ---
+  duration_ms: 1.747791
+  ...
+# Subtest: fallback coverage is explicitly loaded text and cannot borrow unrendered legacy data
+ok 54 - fallback coverage is explicitly loaded text and cannot borrow unrendered legacy data
+  ---
+  duration_ms: 3.562041
+  ...
+# Subtest: large indexes yield without truncating matching results
+ok 55 - large indexes yield without truncating matching results
+  ---
+  duration_ms: 2.1645
+  ...
+# Subtest: authoritative source regions label provenance and sort body before contents and front matter without dropping hits
+ok 56 - authoritative source regions label provenance and sort body before contents and front matter without dropping hits
+  ---
+  duration_ms: 0.665666
+  ...
+# Subtest: provenance inherits explicit source metadata but never derives a region from a printed page or contents wording
+ok 57 - provenance inherits explicit source metadata but never derives a region from a printed page or contents wording
+  ---
+  duration_ms: 0.965667
+  ...
+# Subtest: snippets highlight literal terms while escaping source markup and regex characters
+ok 58 - snippets highlight literal terms while escaping source markup and regex characters
+  ---
+  duration_ms: 1.127542
+  ...
+# Subtest: mobile result selection retains query/results and reopens the same Search pane
+ok 59 - mobile result selection retains query/results and reopens the same Search pane
+  ---
+  duration_ms: 1.740083
+  ...
+# Subtest: desktop result selection keeps the rail open and delegates the only navigation
+ok 60 - desktop result selection keeps the rail open and delegates the only navigation
+  ---
+  duration_ms: 0.6555
+  ...
+# Subtest: Contents and Front matter labels are rendered only from retained provenance
+ok 61 - Contents and Front matter labels are rendered only from retained provenance
+  ---
+  duration_ms: 0.85025
+  ...
+# Subtest: editing a query while canonical text loads discards its stale results
+ok 62 - editing a query while canonical text loads discards its stale results
+  ---
+  duration_ms: 0.4705
+  ...
+# Subtest: Ask about this work starts a clean work-scoped draft rather than reusing an old passage
+ok 63 - Ask about this work starts a clean work-scoped draft rather than reusing an old passage
+  ---
+  duration_ms: 0.638167
+  ...
+# Subtest: Roell p116 references include inherited chapters and complete range metadata
+ok 64 - Roell p116 references include inherited chapters and complete range metadata
+  ---
+  duration_ms: 25.515416
+  ...
+# Subtest: Roell p119 lowercase Roman chapters and compact verse lists link without changing punctuation
+ok 65 - Roell p119 lowercase Roman chapters and compact verse lists link without changing punctuation
+  ---
+  duration_ms: 3.249125
+  ...
+# Subtest: multi-verse anchors carry full references with a chapter-commentary fallback
+ok 66 - multi-verse anchors carry full references with a chapter-commentary fallback
+  ---
+  duration_ms: 1.323708
+  ...
+# Subtest: preview parser expands explicit lists and ascending ranges without inferring following verses
+ok 67 - preview parser expands explicit lists and ascending ranges without inferring following verses
+  ---
+  duration_ms: 0.978334
+  ...
+# Subtest: same-book continuation stays within explicit adjacent chapter and verse groups
+ok 68 - same-book continuation stays within explicit adjacent chapter and verse groups
+  ---
+  duration_ms: 1.270042
+  ...
+# Subtest: invalid Roman tokens, numbered-book chapters, and partial numeric words remain unlinked
+ok 69 - invalid Roman tokens, numbered-book chapters, and partial numeric words remain unlinked
+  ---
+  duration_ms: 1.185667
+  ...
+# Subtest: HTML attributes, existing links, and note cues are not rewritten by Scripture linking
+ok 70 - HTML attributes, existing links, and note cues are not rewritten by Scripture linking
+  ---
+  duration_ms: 0.727958
+  ...
+# Subtest: links preserve italic, bold and split numbered-book markup character for character
+ok 71 - links preserve italic, bold and split numbered-book markup character for character
+  ---
+  duration_ms: 0.734167
+  ...
+# Subtest: native TEI linking combines adjacent text and formatting without changing note numbering
+ok 72 - native TEI linking combines adjacent text and formatting without changing note numbering
+  ---
+  duration_ms: 1.042292
+  ...
+# Subtest: lowercase book abbreviations and Roman book prefixes resolve without treating ordinary prose as chapters
+ok 73 - lowercase book abbreviations and Roman book prefixes resolve without treating ordinary prose as chapters
+  ---
+  duration_ms: 0.936125
+  ...
+# Subtest: period-separated inherited Roman chapters stop before Roman-numbered prose
+ok 74 - period-separated inherited Roman chapters stop before Roman-numbered prose
+  ---
+  duration_ms: 0.670334
+  ...
+# Subtest: actual Roell paragraph seams link 19 and 5,6,7 while preserving every source row, paragraph, label and character
+ok 75 - actual Roell paragraph seams link 19 and 5,6,7 while preserving every source row, paragraph, label and character
+  ---
+  duration_ms: 1.947708
+  ...
+# Subtest: bare book seam links Apoc. and XVI.5 without consuming II. God
+ok 76 - bare book seam links Apoc. and XVI.5 without consuming II. God
+  ---
+  duration_ms: 1.205125
+  ...
+# Subtest: paragraph enhancement rejects numbered prose, intervening headings, different lanes and different folios
+ok 77 - paragraph enhancement rejects numbered prose, intervening headings, different lanes and different folios
+  ---
+  duration_ms: 1.319583
+  ...
+# Subtest: internal numbered cross-references do not masquerade as the book of Numbers
+ok 78 - internal numbered cross-references do not masquerade as the book of Numbers
+  ---
+  duration_ms: 0.579416
+  ...
+1..78
+# tests 78
+# suites 0
+# pass 78
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 168.988292

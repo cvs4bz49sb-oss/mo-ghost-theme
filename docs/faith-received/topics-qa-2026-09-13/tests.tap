@@ -1,0 +1,230 @@
+TAP version 13
+# Subtest: a late initial topic response never replaces the newly selected comparison column
+ok 1 - a late initial topic response never replaces the newly selected comparison column
+  ---
+  duration_ms: 0.966125
+  ...
+# Subtest: an old evidence request can finish caching without painting over another topic
+ok 2 - an old evidence request can finish caching without painting over another topic
+  ---
+  duration_ms: 0.452375
+  ...
+# Subtest: stale comparison instances stop painting and clear pending loading state
+ok 3 - stale comparison instances stop painting and clear pending loading state
+  ---
+  duration_ms: 0.321833
+  ...
+# Subtest: a work fold with no page provides a whole-work link without recursive globals
+ok 4 - a work fold with no page provides a whole-work link without recursive globals
+  ---
+  duration_ms: 6.9555
+  ...
+# Subtest: a fold uses its own first cited compound column and keeps page zero
+ok 5 - a fold uses its own first cited compound column and keeps page zero
+  ---
+  duration_ms: 0.802833
+  ...
+# Subtest: page summaries navigate to their source without pretending the summary is literal text
+ok 6 - page summaries navigate to their source without pretending the summary is literal text
+  ---
+  duration_ms: 1.065792
+  ...
+# Subtest: the actual comparison cell renders work groups with their own rows
+ok 7 - the actual comparison cell renders work groups with their own rows
+  ---
+  duration_ms: 0.755542
+  ...
+# Subtest: author-position groups never use an unrelated work-list variable
+ok 8 - author-position groups never use an unrelated work-list variable
+  ---
+  duration_ms: 0.160125
+  ...
+# Subtest: author grouping preserves shelf-specific routes without adding overlapping counts
+ok 9 - author grouping preserves shelf-specific routes without adding overlapping counts
+  ---
+  duration_ms: 1.106416
+  ...
+# Subtest: dates outrank unreliable era flags, missing dates stay undated
+ok 10 - dates outrank unreliable era flags, missing dates stay undated
+  ---
+  duration_ms: 0.065917
+  ...
+# Subtest: topic evidence includes people beyond the truncated author roster
+ok 11 - topic evidence includes people beyond the truncated author roster
+  ---
+  duration_ms: 0.080375
+  ...
+# Subtest: milestone strings and zero survive notebook serialization
+ok 12 - milestone strings and zero survive notebook serialization
+  ---
+  duration_ms: 0.088292
+  ...
+# Subtest: shared topic pages deduplicate repeats across exports without inferring missing pages
+ok 13 - shared topic pages deduplicate repeats across exports without inferring missing pages
+  ---
+  duration_ms: 0.754083
+  ...
+# Subtest: historical index reader links preserve exact anchors and reject off-site or active URLs
+ok 14 - historical index reader links preserve exact anchors and reject off-site or active URLs
+  ---
+  duration_ms: 0.164334
+  ...
+# Subtest: accent-insensitive discovery does not alter source labels
+ok 15 - accent-insensitive discovery does not alter source labels
+  ---
+  duration_ms: 0.186583
+  ...
+# Subtest: anonymous shelf records and ambiguous topic metadata stay separate
+ok 16 - anonymous shelf records and ambiguous topic metadata stay separate
+  ---
+  duration_ms: 0.080833
+  ...
+# Subtest: work graph references resolve only an unambiguous recorded Bible chapter
+ok 17 - work graph references resolve only an unambiguous recorded Bible chapter
+  ---
+  duration_ms: 1.059333
+  ...
+# Subtest: inline previews keep exact source routes and exclude external destinations
+ok 18 - inline previews keep exact source routes and exclude external destinations
+  ---
+  duration_ms: 0.920042
+  ...
+# Subtest: extraction notes stay distinct from legitimate specialist topics
+ok 19 - extraction notes stay distinct from legitimate specialist topics
+  ---
+  duration_ms: 0.13125
+  ...
+# Subtest: connection summaries exclude raw labels while retaining legitimate shared subjects
+ok 20 - connection summaries exclude raw labels while retaining legitimate shared subjects
+  ---
+  duration_ms: 0.065667
+  ...
+# Subtest: patristic citations accept Arabic and Roman volume numbers without prefix matching
+ok 21 - patristic citations accept Arabic and Roman volume numbers without prefix matching
+  ---
+  duration_ms: 0.562458
+  ...
+# Subtest: edition labels preserve column identifiers and do not invent PO column ranges
+ok 22 - edition labels preserve column identifiers and do not invent PO column ranges
+  ---
+  duration_ms: 0.590375
+  ...
+# Subtest: works follow numeric volume and column order while distinct records remain separate
+ok 23 - works follow numeric volume and column order while distinct records remain separate
+  ---
+  duration_ms: 0.241458
+  ...
+# Subtest: recorded Roman-numbered volumes keep their printed labels and sort numerically
+ok 24 - recorded Roman-numbered volumes keep their printed labels and sort numerically
+  ---
+  duration_ms: 0.833042
+  ...
+# Subtest: a shelf topic count uses the published page label, never a graph weight
+ok 25 - a shelf topic count uses the published page label, never a graph weight
+  ---
+  duration_ms: 0.165166
+  ...
+# Subtest: page references combine room and map samples without truncating columns or inventing links
+ok 26 - page references combine room and map samples without truncating columns or inventing links
+  ---
+  duration_ms: 0.0865
+  ...
+# Subtest: map references require an exact topic and author prefix
+ok 27 - map references require an exact topic and author prefix
+  ---
+  duration_ms: 0.073541
+  ...
+# Subtest: topic routes retain the selected shelf and reject unrecognized scope
+ok 28 - topic routes retain the selected shelf and reject unrecognized scope
+  ---
+  duration_ms: 0.063583
+  ...
+# Subtest: author matching accepts reordered names, accents, variants and accidental spaces
+ok 29 - author matching accepts reordered names, accents, variants and accidental spaces
+  ---
+  duration_ms: 0.904042
+  ...
+# Subtest: connections recover classifier chatter onto its topic and keep clean labels (09-13)
+ok 30 - connections recover classifier chatter onto its topic and keep clean labels (09-13)
+  ---
+  duration_ms: 1.218
+  ...
+# Subtest: Leibniz series retain Roman volume order, including the preliminary fifth volume
+ok 31 - Leibniz series retain Roman volume order, including the preliminary fifth volume
+  ---
+  duration_ms: 9.219625
+  ...
+# Subtest: different collected-work series stay separate and subvolumes sort numerically
+ok 32 - different collected-work series stay separate and subvolumes sort numerically
+  ---
+  duration_ms: 0.626042
+  ...
+# Subtest: published edition grouping order wins without hiding any witness
+ok 33 - published edition grouping order wins without hiding any witness
+  ---
+  duration_ms: 0.361125
+  ...
+# Subtest: canonical catalogue metadata orders evidence rows whose labels omit volumes
+ok 34 - canonical catalogue metadata orders evidence rows whose labels omit volumes
+  ---
+  duration_ms: 0.44075
+  ...
+# Subtest: work folds keep the largest work expanded after ordering its series
+ok 35 - work folds keep the largest work expanded after ordering its series
+  ---
+  duration_ms: 5.476084
+  ...
+# Subtest: the research shell still parses after shared ordering integration
+ok 36 - the research shell still parses after shared ordering integration
+  ---
+  duration_ms: 3.523292
+  ...
+# Subtest: topic redraws register one metadata listener rather than multiplying listeners
+ok 37 - topic redraws register one metadata listener rather than multiplying listeners
+  ---
+  duration_ms: 1.101791
+  ...
+# Subtest: parts of a volume precede later unsplit volumes
+ok 38 - parts of a volume precede later unsplit volumes
+  ---
+  duration_ms: 0.75625
+  ...
+# Subtest: statement pages remain bounded and clamp after filters change
+ok 39 - statement pages remain bounded and clamp after filters change
+  ---
+  duration_ms: 0.4505
+  ...
+# Subtest: paged evidence validates complete scope and leaves source identifiers intact
+ok 40 - paged evidence validates complete scope and leaves source identifiers intact
+  ---
+  duration_ms: 0.244583
+  ...
+# Subtest: repeated cursors, unchanged pages, wrong sources and incomplete totals fail without destroying previous records
+ok 41 - repeated cursors, unchanged pages, wrong sources and incomplete totals fail without destroying previous records
+  ---
+  duration_ms: 0.1875
+  ...
+# Subtest: extracted statements are labelled and do not request a purported quote highlight
+ok 42 - extracted statements are labelled and do not request a purported quote highlight
+  ---
+  duration_ms: 0.182875
+  ...
+# Subtest: topic work folds use one shared renderer without another nested section layer
+ok 43 - topic work folds use one shared renderer without another nested section layer
+  ---
+  duration_ms: 3.745375
+  ...
+# Subtest: topic opening and late metadata do not start an exhaustive fetch or reset via outline callbacks
+ok 44 - topic opening and late metadata do not start an exhaustive fetch or reset via outline callbacks
+  ---
+  duration_ms: 3.585416
+  ...
+1..44
+# tests 44
+# suites 0
+# pass 44
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 56.958291

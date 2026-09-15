@@ -1,0 +1,20 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const ctx={module:{exports:{}}};vm.runInNewContext(fs.readFileSync(__dirname+'/pld-reading.js','utf8'),ctx);const P=ctx.module.exports;
+test('editorial paragraphs retain their own columns and source IDs, including opening prose',()=>{
+ const rows=[{kind:'milestone',unit:'column',n:'158'},{kind:'p',id:'opening',lang:'la',text:'Opening note.'},{kind:'milestone',unit:'column',n:'158:1098C'},{kind:'p',id:'gerson',lang:'la',text:'Haec ex Gersone carptim.'},{kind:'milestone',unit:'column',n:'158:1099B'},{kind:'p',id:'continuation',lang:'la',text:'Joannes Gerson.'}];
+ const notes=P.editorialEntries(rows,1059,true);assert.deepEqual(Object.keys(notes),['1059','1098','1099']);assert.equal(notes['1098'][0].id,'gerson');assert.equal(notes['1099'][0].sourceColumn,'158:1099B');assert.equal(rows[1].text,'Opening note.');
+});
+test('genuine English notes remain available, while identical English echoes are not called translations',()=>{
+ const notes=P.editorialEntries([{kind:'p',id:'a',lang:'la',text:'Latin original.'},{kind:'p',lang:'en',corresp:'#a',text:'Latin original.'},{kind:'p',lang:'en',corresp:'#a',text:'Actual English translation.'}],1067,true);
+ assert.equal(notes['1067'].length,2);assert.equal(notes['1067'][1].language,'en');assert.match(P.editorialHTML(notes['1067'],'1067'),/available English/);
+});
+test('unmapped notes remain explicit and no column number is invented',()=>{
+ const notes=P.editorialEntries([{kind:'milestone',unit:'column',n:'158:1098'},{kind:'p',lang:'la',text:'An unplaced note.'}],null,false);assert.deepEqual(Object.keys(notes),['editorial']);const html=P.editorialHTML(notes.editorial,'editorial');assert.match(html,/column locations are not supplied/);assert.doesNotMatch(html,/col\. 1098/);
+});
+test('editorial rendering is labelled, escaped, and outside paired reader rows',()=>{
+ const html=P.editorialHTML([{kind:'p',id:'source-a',language:'la',text:'Latin <script>alert(1)</script>'}],'1099');assert.match(html,/Editorial notes · col\. 1099/);assert.match(html,/English translation not available/);assert.match(html,/data-source-id="source-a"/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/class="row|<script>/);
+});
+test('the reader source still parses with continuous editorial columns',()=>{const s=fs.readFileSync(__dirname+'/reader_shell.html','utf8');for(const m of s.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))if(m[1].trim())new vm.Script(m[1]);});
+test('unmapped editorial appendices do not replace the existing unpaginated text segments',()=>{
+ const s=fs.readFileSync(__dirname+'/reader_shell.html','utf8'),a=s.indexOf('  if(!pages.length){const count=Math.max(Object.keys(teiSegment(laD))'),b=s.indexOf('  if(IS_PL_INDEX)',a),pages=[],box={pages,teiSegment:d=>d,laD:{1:[],2:[],3:[]},enD:{1:[],2:[]},sourceView:{combined:true,editorial:{editorial:[{text:'note'}]}}};assert.ok(a>0);vm.runInNewContext(s.slice(a,b),box);assert.deepEqual(pages,[1,2,3,'editorial']);
+});

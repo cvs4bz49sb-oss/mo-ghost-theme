@@ -1,0 +1,95 @@
+TAP version 13
+# Subtest: either printed column reaches its PG opening while exact columns win
+ok 1 - either printed column reaches its PG opening while exact columns win
+  ---
+  duration_ms: 0.703292
+  ...
+# Subtest: opaque compound locators and other corpora are never shifted
+ok 2 - opaque compound locators and other corpora are never shifted
+  ---
+  duration_ms: 0.081834
+  ...
+# Subtest: a selected primary text never concatenates translation or alternative witnesses
+ok 3 - a selected primary text never concatenates translation or alternative witnesses
+  ---
+  duration_ms: 0.769
+  ...
+# Subtest: both jump inputs use the opening resolver and the reader remains parseable
+ok 4 - both jump inputs use the opening resolver and the reader remains parseable
+  ---
+  duration_ms: 9.893209
+  ...
+# Subtest: numeric catalogue volumes cannot crash the reader library
+ok 5 - numeric catalogue volumes cannot crash the reader library
+  ---
+  duration_ms: 17.770209
+  ...
+# Subtest: mixed metadata is normalized and invalid catalogues remain retryable errors
+ok 6 - mixed metadata is normalized and invalid catalogues remain retryable errors
+  ---
+  duration_ms: 0.179959
+  ...
+# Subtest: existing chapter and article labels are recognized without inventing headings
+ok 7 - existing chapter and article labels are recognized without inventing headings
+  ---
+  duration_ms: 1.270334
+  ...
+# Subtest: confession navigation covers actual collection identifiers and their canonical slugs
+ok 8 - confession navigation covers actual collection identifiers and their canonical slugs
+  ---
+  duration_ms: 0.229458
+  ...
+# Subtest: reader source remains parseable after navigation integration
+ok 9 - reader source remains parseable after navigation integration
+  ---
+  duration_ms: 7.35
+  ...
+# Subtest: reader catalogue includes confessions without duplicating core works
+ok 10 - reader catalogue includes confessions without duplicating core works
+  ---
+  duration_ms: 0.195666
+  ...
+# Subtest: authored CHAP abbreviations accept Roman numbering and punctuation chains
+ok 11 - authored CHAP abbreviations accept Roman numbering and punctuation chains
+  ---
+  duration_ms: 0.466917
+  ...
+# Subtest: Westminster-style source supplies all 33 chapters without Bible-list and approval-paragraph false positives
+ok 12 - Westminster-style source supplies all 33 chapters without Bible-list and approval-paragraph false positives
+  ---
+  duration_ms: 1.854125
+  ...
+# Subtest: genuine semantic subheadings remain in reading order under an authored chapter series
+ok 13 - genuine semantic subheadings remain in reading order under an authored chapter series
+  ---
+  duration_ms: 0.26975
+  ...
+# Subtest: small unheaded confessions retain their existing fallback entries when no numbered series exists
+ok 14 - small unheaded confessions retain their existing fallback entries when no numbered series exists
+  ---
+  duration_ms: 0.271917
+  ...
+# Subtest: historical indexes group by source headings while preserving every opaque page ID
+ok 15 - historical indexes group by source headings while preserving every opaque page ID
+  ---
+  duration_ms: 0.327167
+  ...
+# Subtest: unlabelled index pages remain available without invented letters or duplicate destinations
+ok 16 - unlabelled index pages remain available without invented letters or duplicate destinations
+  ---
+  duration_ms: 0.07825
+  ...
+# Subtest: index display separates an all-caps Latin echo but retains the complete source title
+ok 17 - index display separates an all-caps Latin echo but retains the complete source title
+  ---
+  duration_ms: 0.077458
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 86.03675

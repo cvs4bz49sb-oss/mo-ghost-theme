@@ -1,0 +1,168 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+
+// Exercise the production source-navigation functions. Only saved state, DOM
+// boundaries, child-reader APIs and delayed IndexedDB completion are synthetic.
+const source=fs.readFileSync(path.join(__dirname,'ask-workspace.js'),'utf8');
+const marker="  if(document.readyState==='loading')";
+assert.equal(source.split(marker).length,2,'Production bootstrap is located once');
+const popstate=source.match(/window\.addEventListener\('popstate',(\(\)=>\{[\s\S]*?\n    \})\);/);
+assert.ok(popstate,'Production source popstate handler is located');
+const instrumented=source.replace(marker,`
+  window.__askSourceTest={
+    configure(ui,records){panel=ui;visible=true;current='chat-a';conversations=records;
+      flushDraft=async()=>{};refresh=async()=>{};syncComposer=()=>{};togglePopover=()=>{};},
+    open:openSource,show:showConversation,back:returnToConversation,forget:forgetSource,switchChat,
+    popstate:${popstate[1]},
+    remember:rememberSourcePosition,bind:bindSourceDocument,
+    ready(){setSourceLoading(false);},
+    seed(href,position){sourcePositions.set(localURL(href),structuredClone(position));},
+    snapshot(){return {current,sourceURL,sourceTitle,sourceReady,sequence:sourceSequence};},
+    hide(){visible=false;}
+  };
+`+marker);
+const origin='https://navigation.invalid';
+const url=(work,page)=>origin+'/read?w='+work+'#b'+encodeURIComponent(page)+'-0';
+const tick=()=>new Promise(resolve=>setImmediate(resolve));
+
+function element(){
+  const classes=new Set(),attrs={};
+  return {dataset:{},hidden:false,scrollTop:0,scrollHeight:500,clientHeight:400,textContent:'',
+    classList:{add(...values){values.forEach(v=>classes.add(v));},remove(...values){values.forEach(v=>classes.delete(v));},contains:v=>classes.has(v),toggle(v,on){if(on===undefined)on=!classes.has(v);on?classes.add(v):classes.delete(v);return on;}},
+    setAttribute:(key,value)=>{attrs[key]=value;},getAttribute:key=>attrs[key],
+    contains(){return false;},querySelector(){return null;},querySelectorAll(){return [];},
+    addEventListener(){},getBoundingClientRect:()=>({top:100}),getClientRects:()=>[{}],focus(){this.focused=true;},blur(){this.blurred=true;}};
+}
+
+function harness({loaded=url('old','1'),delayUpdates=false,childAPI=true}={}){
+  const calls={navigate:[],restore:[],replace:[],reload:0,cancel:0,updates:[],history:[]};
+  const records=[{id:'chat-a',contextWork:'old',turns:[]},{id:'chat-b',contextWork:'other',turns:[]}];
+  const pending=[];
+  const store={update(id,change){const record=records.find(c=>c.id===id);assert.ok(record,'Update has a known conversation');change(record);calls.updates.push(id);
+    return delayUpdates?new Promise(resolve=>pending.push({id,resolve:()=>resolve(structuredClone(record))})):Promise.resolve(structuredClone(record));}};
+  const childLocation={href:loaded,replace(href){calls.replace.push(href);this.href=href;},reload(){calls.reload++;}};
+  let captured={id:'b52:0183A-0',page:'52:0183A',offset:-42,scroll:820};
+  const childScroll=element(),childEvents=new Map();
+  const childDoc={location:childLocation,documentElement:{dataset:{}},scrollingElement:childScroll,
+    querySelector(selector){if(selector==='#scroll,.artscroll')return childScroll;if(selector==='#reading .row')return {};if(selector==='#reading')return {};return null;},addEventListener(){}};
+  const child={location:childLocation,addEventListener(name,fn){childEvents.set(name,fn);},__frCaptureReaderPosition:()=>structuredClone(captured),__frCancelReaderNavigation:()=>calls.cancel++};
+  if(childAPI){child.__frNavigateReaderAnchor=href=>{calls.navigate.push(href);childLocation.href=href;return true;};child.__frRestoreReaderPosition=position=>calls.restore.push(structuredClone(position));}
+  const frame=Object.assign(element(),{contentWindow:child,contentDocument:childDoc});
+  const nodes=new Map(['.fra-reader','.fra-mobile-tabs','#fra-source-status','#fra-input','#fra-feed','#fra-source-title','#fra-source-open','#fra-source-location','#fra-read-tab','#fra-chat-tab','#fra-history-toggle','#fra-thread'].map(s=>[s,element()]));
+  nodes.set('#fra-source-frame',frame);nodes.get('.fra-reader').hidden=true;
+  const feed=nodes.get('#fra-feed');feed.scrollTop=432;
+  const trigger=Object.assign(element(),{id:'citation-a',href:url('alpha','52:0183A'),isConnected:true,closest:()=>({dataset:{turn:'turn-a'}}),getBoundingClientRect:()=>({top:180})});
+  feed.contains=node=>node===trigger;
+  const panel=Object.assign(element(),{dataset:{theme:'light'},querySelector(selector){assert.ok(nodes.has(selector),'Unexpected UI selector: '+selector);return nodes.get(selector);}});
+  const history={state:null,pushState(state){this.state=state;calls.history.push({type:'push',state});},replaceState(state){this.state=state;calls.history.push({type:'replace',state});},back(){calls.history.push({type:'back'});}};
+  const window={};window.parent=window;
+  const document={readyState:'loading',addEventListener(){},activeElement:trigger,getElementById:id=>id===trigger.id?trigger:null};
+  let timer=0;const timers=new Map(),frames=[];
+  const context=vm.createContext({window,document,FRChatStore:store,URL,structuredClone,history,location:{origin,hostname:'navigation.invalid',pathname:'/ask',search:''},
+    matchMedia:()=>({matches:false,addEventListener(){}}),CSS:{escape:value=>value},
+    setTimeout(fn){timers.set(++timer,fn);return timer;},clearTimeout(id){timers.delete(id);},requestAnimationFrame(fn){frames.push(fn);return frames.length;},
+    fetch(){throw Error('No network is permitted in the source-navigation fixture');}});
+  vm.runInContext(instrumented,context,{filename:'ask-workspace.js'});
+  const api=window.__askSourceTest;api.configure(panel,records);
+  return {api,calls,records,nodes,frame,panel,history,pending,trigger,
+    resolve(index=0){assert.ok(pending[index],'Pending store update exists');pending[index].resolve();},
+    capture(value){captured=value;},flushFrames(){while(frames.length)frames.shift()();}};
+}
+
+test('returning to the conversation cancels a source whose store update is still pending',async()=>{
+  const h=harness({delayUpdates:true}),pending=h.api.open(url('alpha','9'),'Alpha',true,false,h.trigger);
+  assert.equal(h.nodes.get('.fra-reader').hidden,false);
+  h.api.show();h.resolve();await pending;h.flushFrames();
+  assert.equal(h.nodes.get('.fra-reader').hidden,true);
+  assert.equal(h.calls.replace.length,0);assert.equal(h.calls.navigate.length,0);
+  assert.ok(h.calls.cancel>0);assert.equal(h.nodes.get('#fra-feed').scrollTop,432);
+});
+
+test('switching chats prevents delayed source completion from reopening the old reader',async()=>{
+  const h=harness({delayUpdates:true}),pending=h.api.open(url('alpha','9'),'Alpha');
+  const switching=h.api.switchChat('chat-b');await tick();
+  assert.equal(h.api.snapshot().current,'chat-b');
+  h.resolve(0);await pending;h.resolve(1);await switching;
+  assert.equal(h.nodes.get('.fra-reader').hidden,true);
+  assert.equal(h.api.snapshot().sourceURL,'');assert.equal(h.calls.replace.length,0);
+  assert.equal(h.records[1].contextWork,'other','Old source does not alter the new conversation context');
+});
+
+test('latest source wins when an earlier store completion arrives last',async()=>{
+  const h=harness({delayUpdates:true}),first=h.api.open(url('alpha','8'),'Alpha');
+  const last=h.api.open(url('beta','52:0183A'),'Beta');
+  h.resolve(1);await last;h.resolve(0);await first;
+  assert.deepEqual(h.calls.replace,[url('beta','52:0183A')]);
+  assert.equal(h.frame.dataset.source,url('beta','52:0183A'));
+  assert.equal(h.nodes.get('#fra-source-title').textContent,'Beta');
+  assert.equal(h.history.state.frAskSource.url,url('beta','52:0183A'));
+});
+
+test('another fragment of the same work uses the child navigation owner without reload',async()=>{
+  const h=harness({loaded:origin+'/read?w=alpha&p=1#b1-0'}),target=url('alpha','52:0183A');
+  await h.api.open(target,'Alpha column');
+  assert.deepEqual(h.calls.navigate,[target]);assert.deepEqual(h.calls.replace,[]);assert.equal(h.calls.reload,0);
+  assert.equal(h.frame.dataset.resume,'false');assert.equal(h.nodes.get('#fra-source-location').textContent,'Passage 52:0183A');
+});
+test('source-heading links reuse the current book and retain the exact heading on resume',async()=>{
+  const target=origin+'/read?w=alpha&section=1&heading=chapter-two&p=5#b5-0';
+  const h=harness({loaded:origin+'/read?w=alpha&section=1&heading=chapter-one&p=5#b5-0'});
+  await h.api.open(target,'Chapter II');assert.deepEqual(h.calls.navigate,[target]);assert.deepEqual(h.calls.replace,[]);
+  const saved={id:'b5-0',page:'5',sourcePath:'1',sourceText:'Chapter II',sourceKey:'chapter-two',anchor:true};h.api.seed(target,saved);
+  h.api.show();await h.api.open(target,'Chapter II',true,true);assert.deepEqual(h.calls.restore,[saved]);
+  const external=new URL(h.nodes.get('#fra-source-open').href);assert.equal(external.searchParams.get('section'),'1');assert.equal(external.searchParams.get('heading'),'chapter-two');
+});
+
+test('explicit reclick navigates to the citation while resume restores the saved reading snapshot',async()=>{
+  const target=url('alpha','52:0183A'),h=harness({loaded:target});
+  const saved={id:'b52:0184B-2',page:'52:0184B',offset:-22,scroll:1780};h.api.seed(target,saved);
+  await h.api.open(target,'Alpha',true,false,h.trigger);
+  assert.deepEqual(h.calls.navigate,[target]);assert.equal(h.calls.restore.length,0);
+  h.api.show();await h.api.open(target,'Alpha',true,true);
+  assert.deepEqual(h.calls.restore,[saved]);assert.equal(h.calls.navigate.length,1);
+  assert.equal(h.nodes.get('#fra-source-location').textContent,'Passage 52:0184B');
+  const external=new URL(h.nodes.get('#fra-source-open').href);assert.equal(external.searchParams.get('p'),'52:0184B');assert.equal(external.hash,'#b52:0184B-2');
+});
+
+test('a child load after returning to the conversation cancels navigation instead of relanding',async()=>{
+  const h=harness({loaded:url('alpha','1')});await h.api.open(url('alpha','2'),'Alpha');
+  h.api.show();const before=h.calls.navigate.length;h.api.bind();
+  assert.equal(h.calls.navigate.length,before);assert.ok(h.calls.cancel>=2);
+  assert.equal(h.nodes.get('.fra-reader').hidden,true);
+});
+
+test('a remembered compound-page position is used only by resume, including delayed child loading',async()=>{
+  const target=url('alpha','3'),h=harness({loaded:url('other','1')}),saved={id:'b52:0183A-0',page:'52:0183A',offset:-42,scroll:820};
+  h.api.seed(target,saved);await h.api.open(target,'Alpha',true,true);
+  assert.deepEqual(h.calls.replace,[target]);assert.equal(h.calls.restore.length,0);
+  h.api.bind();assert.deepEqual(h.calls.restore,[saved]);assert.equal(h.calls.navigate.length,0);
+});
+
+test('delayed internal Back preserves a newer visible source and restores its history entry',async()=>{
+  const h=harness(),first=url('alpha','4'),newer=url('beta','52:0183A');
+  await h.api.open(first,'Alpha');h.api.back();
+  assert.equal(h.calls.history.at(-1).type,'back');
+  await h.api.open(newer,'Beta');const sequence=h.api.snapshot().sequence,cancels=h.calls.cancel;
+  // The pending traversal now reaches the parent conversation entry.
+  h.history.state={parentMarker:'conversation'};h.api.popstate();
+  assert.equal(h.nodes.get('.fra-reader').hidden,false);
+  assert.equal(h.api.snapshot().sourceURL,newer);assert.equal(h.api.snapshot().sequence,sequence);
+  assert.equal(h.calls.cancel,cancels);assert.equal(h.calls.history.at(-1).type,'push');
+  assert.equal(h.history.state.parentMarker,'conversation');assert.equal(h.history.state.frAskSource.url,newer);
+  assert.equal(h.history.state.frAskSource.chat,'chat-a');assert.equal(h.history.state.frAskSource.title,'Beta');
+  // One subsequent Back still returns from the new source normally.
+  h.api.back();h.history.state={parentMarker:'conversation'};h.api.popstate();
+  assert.equal(h.nodes.get('.fra-reader').hidden,true);
+  assert.equal(h.calls.history.at(-1).type,'back');
+});
+
+test('delayed Back does not cancel a newer source still waiting for its store update',async()=>{
+  const h=harness({delayUpdates:true}),first=h.api.open(url('alpha','4'),'Alpha');h.resolve(0);await first;
+  h.api.back();const newer=url('beta','8'),pending=h.api.open(newer,'Beta');
+  h.history.state=null;h.api.popstate();h.resolve(1);await pending;
+  assert.equal(h.nodes.get('.fra-reader').hidden,false);
+  assert.equal(h.calls.replace.at(-1),newer);assert.equal(h.history.state.frAskSource.url,newer);
+});

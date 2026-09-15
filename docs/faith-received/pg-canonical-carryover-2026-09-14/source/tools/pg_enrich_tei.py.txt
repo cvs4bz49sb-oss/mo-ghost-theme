@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""Lossless PG TEI structure enrichment. Opening links never claim sentence alignment."""
+import argparse,collections,hashlib,json,re,time
+from pathlib import Path
+import xml.etree.ElementTree as E
+NS='http://www.tei-c.org/ns/1.0';T=lambda n:'{'+NS+'}'+n;ID='{http://www.w3.org/XML/1998/namespace}id';E.register_namespace('',NS)
+MARK='tfr-pg-structure-20260914';ALT={'translation','secondary','diplomatic','witness','edition'}
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def enrich(data,slug):
+ root=E.fromstring(data,parser=E.XMLParser(target=E.TreeBuilder(insert_comments=True,insert_pis=True)))
+ existing_change=next((e for e in root.iter(T('change')) if e.get('n')==MARK),None)
+ body=root.find('.//'+T('body'))
+ if body is None:return data,{'status':'no-body'}
+ if existing_change is not None and all(p.get(ID) for p in body.iter(T('p'))):return data,{'status':'already-enriched'}
+ for host in root.iter(T('standOff')):
+  for group in list(host):
+   if group.tag==T('linkGrp') and group.get('resp')=='#'+MARK:host.remove(group)
+ before=''.join(body.itertext());old_ids=[e.get(ID) for e in root.iter() if e.get(ID)];dupes=[k for k,n in collections.Counter(old_ids).items() if n>1]
+ if dupes:return data,{'status':'held-duplicate-source-ids','duplicates':len(dupes)}
+ used=set(old_ids);new_ids=0
+ def identify(node,kind):
+  nonlocal new_ids
+  if node.get(ID):return node.get(ID)
+  seed=E.tostring(node,encoding='utf-8');base=slug+'-'+kind+'-'+sha(seed)[:14];ident=base;i=1
+  while ident in used:i+=1;ident=base+'-'+str(i)
+  node.set(ID,ident);used.add(ident);new_ids+=1;return ident
+ for p in body.iter(T('p')):identify(p,'p')
+ groups={};image_groups=collections.defaultdict(list);anchor_group={};col_groups=collections.defaultdict(set);ctx={'group':None,'column':None,'anchor':None};explicit_source=0
+ def group_for(node,kind):
+  ident=identify(node,kind);n=node.get('n','');image=node.get('facs','')
+  if image:
+   for existing in image_groups[image]:
+    prior=groups[existing]['n'];adjacent=n==prior or n.isdigit() and prior.isdigit() and abs(int(n)-int(prior))<=1
+    if adjacent:
+     if n.isdigit() and prior.isdigit():groups[existing]['n']=str(min(int(n),int(prior)))
+     return existing
+  groups.setdefault(ident,{'n':n,'source':[],'supplemental-source':[],'secondary-source':[],'translation':[]})
+  if image:image_groups[image].append(ident)
+  return ident
+ def primary(node,marked_only=False,source_role='source'):
+  nonlocal explicit_source
+  for ch in node:
+   if ch.tag==T('div') and ch.get('type') in ALT:
+    keep=ctx.copy()
+    if ch.get('type')=='secondary':primary(ch,False,'secondary-source')
+    else:primary(ch,True,'supplemental-source')
+    ctx.update(keep);continue
+   if ch.tag!=T('div') and marked_only and ch.get('resp')!='#pageview-zone':continue
+   if ch.tag==T('pb'):
+    ctx.update(group=group_for(ch,'opening'),column=ch.get('n'),anchor=ch.get(ID));anchor_group[ch.get(ID)]=ctx['group']
+    if ch.get('n'):col_groups[ch.get('n')].add(ctx['group'])
+   elif ch.tag==T('milestone') and ch.get('unit')=='column':
+    ctx['column']=ch.get('n');ctx['anchor']=identify(ch,'column')
+    if ctx['group'] is None:ctx['group']=group_for(ch,'column')
+    anchor_group[ch.get(ID)]=ctx['group'];col_groups[ch.get('n')].add(ctx['group'])
+   elif ch.tag==T('p'):
+    if ctx['group']:
+     groups[ctx['group']][source_role].append(ch.get(ID));anchor_group[ch.get(ID)]=ctx['group']
+     if ctx['column'] and not ch.get('n'):ch.set('n',ctx['column']);explicit_source+=1
+     if ctx['anchor'] and not ch.get('corresp'):ch.set('corresp','#'+ctx['anchor'])
+   elif ch.tag==T('div'):primary(ch,marked_only,source_role)
+ primary(body)
+ last_group=None;last_col=None;unlocated=0;translated=0;seen_translation=set()
+ id_nodes={e.get(ID):e for e in root.iter() if e.get(ID)}
+ for d in body.iter(T('div')):
+  if d.get('type')!='translation':continue
+  for p in d.iter(T('p')):
+   if id(p) in seen_translation:continue
+   seen_translation.add(id(p))
+   anchor=(p.get('corresp') or '').lstrip('#');col=p.get('n');group=anchor_group.get(anchor)
+   if not col and anchor in anchor_group:col=id_nodes[anchor].get('n')
+   if col:
+    possible=col_groups.get(col,set());preferred=[key for key in possible if groups[key]['source']];group=group or (last_group if col==last_col and last_group in possible else None) or (preferred[0] if len(preferred)==1 else next(iter(possible)) if len(possible)==1 else None);last_col=col;last_group=group
+   elif group:last_group=group
+   else:group=last_group;col=last_col
+   if group:
+    groups[group]['translation'].append(p.get(ID));translated+=1
+   else:unlocated+=1
+ standoff=root.find(T('standOff'))
+ if standoff is None:standoff=E.SubElement(root,T('standOff'))
+ linked=0
+ for ident,g in groups.items():
+  if not any(g[role] for role in ['source','supplemental-source','secondary-source','translation']):continue
+  lg=E.SubElement(standoff,T('linkGrp'),{'type':'printed-opening-membership','n':g['n'],'corresp':'#'+ident,'resp':'#'+MARK})
+  for role in ['source','supplemental-source','secondary-source','translation']:
+   for paragraph in g[role]:E.SubElement(lg,T('link'),{'type':role,'target':'#'+ident+' #'+paragraph});linked+=1
+ header=root.find(T('teiHeader'))
+ if header is None:header=E.Element(T('teiHeader'));root.insert(0,header)
+ rev=header.find(T('revisionDesc'))
+ if rev is None:rev=E.SubElement(header,T('revisionDesc'))
+ change_id=MARK if existing_change is None else MARK+'-refresh-'+sha(data)[:12]
+ change=E.SubElement(rev,T('change'),{ID:change_id,'n':MARK,'when':'2026-09-14'})
+ change.text='Added stable paragraph IDs and explicit printed-opening membership; no source or translation words changed. These links identify common openings, not verified sentence equivalence. Input SHA-256: '+sha(data)+'.'
+ assert ''.join(body.itertext())==before,'Body text changed'
+ result=E.tostring(root,encoding='utf-8',xml_declaration=True);check=E.fromstring(result);new=[e.get(ID) for e in check.iter() if e.get(ID)];new_set=set(new);assert len(new)==len(new_set);assert set(old_ids)<=new_set
+ for g in check.iter(T('linkGrp')):
+  if g.get('type')!='printed-opening-membership':continue
+  for link in g:
+   for ref in link.get('target','').split():assert ref.startswith('#') and ref[1:] in new_set
+ return result,{'status':'enriched','new_ids':new_ids,'source_paragraph_locations':explicit_source,'translation_paragraphs_linked':translated,'unlocated_translation_paragraphs':unlocated,'opening_groups':len(groups),'membership_links':linked,'body_text_unchanged':True,'before_sha256':sha(data),'after_sha256':sha(result)}
+def main():
+ ap=argparse.ArgumentParser();ap.add_argument('--run',default='runs/pg_alignment_repair_20260914');ap.add_argument('--ids');a=ap.parse_args();run=Path(a.run);src=run/'snapshot/tei/pg';out=run/'enriched/tei/pg';out.mkdir(parents=True,exist_ok=True)
+ files=[src/(n+'.xml') for n in a.ids.split(',')] if a.ids else sorted(src.glob('*.xml'));stats=[]
+ for i,p in enumerate(files):
+  try:data,report=enrich(p.read_bytes(),'pg-'+p.stem);(out/p.name).write_bytes(data);stats.append({'id':p.stem,**report})
+  except Exception as e:stats.append({'id':p.stem,'status':'error','error':str(e)[:200]})
+  if (i+1)%400==0:print('enriched',i+1,'/',len(files),flush=True)
+ dest=run/('enrichment-pilot.json' if a.ids else 'enrichment-report.json');dest.write_text(json.dumps(stats,ensure_ascii=False,indent=2)+'\n');print(json.dumps(dict(collections.Counter(r['status'] for r in stats)),indent=2))
+ if any(r['status']=='error' for r in stats):raise SystemExit(1)
+if __name__=='__main__':main()

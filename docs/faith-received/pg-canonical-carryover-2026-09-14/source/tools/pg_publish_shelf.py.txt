@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Publish frozen PG XML; synchronize PG-only prefixes to both R2 buckets, no deletions."""
+from pathlib import Path
+import importlib.util,subprocess,json,time
+ROOT=Path('/Users/speter/Davenant');RUN=ROOT/'runs/pg_alignment_repair_20260914';sp=importlib.util.spec_from_file_location('r2',ROOT/'tools/ingest_v2/r2_sync.py');m=importlib.util.module_from_spec(sp);sp.loader.exec_module(m);env=m.env()
+rows=json.loads((RUN/'release-manifest.json').read_text());assert len(rows)>15000 and all(r['r2Path'].startswith(('v1/tei/pg/','v1/tei/pgpv/','v1/pgtoc/','v1/pgvtx/','v1/pgzone/','v1/pgen/','v1/pggap/','v1/pgvol/','v1/pgauthors.json')) for r in rows)
+def call(args):subprocess.run(args,cwd=ROOT,env=env,check=True)
+call(['node','tools/blob_upload/verify_pg_release.mjs',str(RUN),'preflight'])
+call(['node','tools/blob_upload/upload_v2.mjs',str(RUN/'publish'),'--concurrency','8'])
+call(['node','tools/blob_upload/verify_pg_release.mjs',str(RUN),'verify'])
+prefixes=sorted({str(Path(r['r2Path']).parent) for r in rows if r['r2Path']!='v1/pgauthors.json'});proof=[]
+for bucket in ['mo-tfr','mo-tfr-library']:
+ for prefix in prefixes:
+  source=RUN/'mirror'/prefix;remote='mor2:'+bucket+'/'+prefix;backup='mor2:'+bucket+'/v1/repair-backups/pg-20260914/'+prefix.removeprefix('v1/')
+  print('SYNC',bucket,prefix,flush=True)
+  call(['rclone','copy',str(source),remote,'--checksum','--transfers','8','--checkers','16','--backup-dir',backup,'--stats','30s','--stats-one-line','--contimeout','15s','--timeout','90s','--retries','2','--low-level-retries','3'])
+  print('VERIFY',bucket,prefix,flush=True)
+  call(['rclone','check',str(source),remote,'--one-way','--download','--checkers','8','--stats','30s','--stats-one-line','--contimeout','15s','--timeout','90s','--retries','2','--low-level-retries','3'])
+  proof.append({'bucket':bucket,'prefix':prefix,'files':sum(str(Path(r['r2Path']).parent)==prefix for r in rows),'verified':True})
+  (RUN/'r2-rich-proof.json').write_text(json.dumps(proof,indent=2)+'\n')
+meta=next((r for r in rows if r['r2Path']=='v1/pgauthors.json'),None)
+if meta:
+ import hashlib
+ for bucket in ['mo-tfr','mo-tfr-library']:
+  remote='mor2:'+bucket+'/v1/pgauthors.json';old=subprocess.run(['rclone','cat',remote],env=env,capture_output=True)
+  backup=RUN/'before-r2'/bucket/'v1/pgauthors.json';backup.parent.mkdir(parents=True,exist_ok=True)
+  if old.returncode==0 and old.stdout and not backup.exists():backup.write_bytes(old.stdout)
+  call(['rclone','copyto',str(RUN/'mirror/v1/pgauthors.json'),remote,'--checksum'])
+  data=subprocess.check_output(['rclone','cat',remote],env=env);assert hashlib.sha256(data).hexdigest()==meta['final_sha256']
+  proof.append({'bucket':bucket,'prefix':'v1/pgauthors.json','files':1,'verified':True});(RUN/'r2-rich-proof.json').write_text(json.dumps(proof,indent=2)+'\n')
+print('COMPLETE: enriched canonical XML and all PG text prefixes verified on Blob and both R2 stores.',flush=True)

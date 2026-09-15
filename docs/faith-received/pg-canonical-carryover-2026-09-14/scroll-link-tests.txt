@@ -1,0 +1,90 @@
+TAP version 13
+# Subtest: captures a stable body row and retains compound page identity
+ok 1 - captures a stable body row and retains compound page identity
+  ---
+  duration_ms: 0.875166
+  ...
+# Subtest: temporary find marks are never persisted as bookmark anchors
+ok 2 - temporary find marks are never persisted as bookmark anchors
+  ---
+  duration_ms: 0.201542
+  ...
+# Subtest: a preceding inline page milestone wins over a merged Flow host row
+ok 3 - a preceding inline page milestone wins over a merged Flow host row
+  ---
+  duration_ms: 0.070792
+  ...
+# Subtest: hidden lanes and apparatus cannot become the saved reading place
+ok 4 - hidden lanes and apparatus cannot become the saved reading place
+  ---
+  duration_ms: 0.42625
+  ...
+# Subtest: page zero is valid and a stable reading place has an idempotent notebook identity
+ok 5 - page zero is valid and a stable reading place has an idempotent notebook identity
+  ---
+  duration_ms: 0.2405
+  ...
+# Subtest: Etymologies source divisions retain distinct bookmark links and identities
+ok 6 - Etymologies source divisions retain distinct bookmark links and identities
+  ---
+  duration_ms: 0.264875
+  ...
+# Subtest: EEBO source-heading bookmarks remain stable when sequential rendered heading IDs change
+ok 7 - EEBO source-heading bookmarks remain stable when sequential rendered heading IDs change
+  ---
+  duration_ms: 0.246459
+  ...
+# Subtest: distinct source headings on one page keep distinct bookmark identities
+ok 8 - distinct source headings on one page keep distinct bookmark identities
+  ---
+  duration_ms: 0.06475
+  ...
+# Subtest: headings sharing a canonical division retain separate saved links and notebook identities
+ok 9 - headings sharing a canonical division retain separate saved links and notebook identities
+  ---
+  duration_ms: 0.23425
+  ...
+# Subtest: generated headings without durable paths use canonical page anchors, including compound pages
+ok 10 - generated headings without durable paths use canonical page anchors, including compound pages
+  ---
+  duration_ms: 0.237
+  ...
+# Subtest: saving uses the existing selected notebook and stores no separate bookmark state
+ok 11 - saving uses the existing selected notebook and stores no separate bookmark state
+  ---
+  duration_ms: 0.250375
+  ...
+# Subtest: real notebook commits preserve other research and distinguish multiple places on one page
+ok 12 - real notebook commits preserve other research and distinguish multiple places on one page
+  ---
+  duration_ms: 1.3575
+  ...
+# Subtest: the action saves without a text selection and opens the existing Saved rail
+ok 13 - the action saves without a text selection and opens the existing Saved rail
+  ---
+  duration_ms: 0.401167
+  ...
+# Subtest: scrolling links preserve the edition and mounted route while retiring stale heading targets
+ok 14 - scrolling links preserve the edition and mounted route while retiring stale heading targets
+  ---
+  duration_ms: 0.348375
+  ...
+# Subtest: scrolling links never adopt a transient search result and accept page zero
+ok 15 - scrolling links never adopt a transient search result and accept page zero
+  ---
+  duration_ms: 0.035291
+  ...
+# Subtest: the current reading place excludes a paragraph obscured by the sticky header
+ok 16 - the current reading place excludes a paragraph obscured by the sticky header
+  ---
+  duration_ms: 0.045708
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 37.184

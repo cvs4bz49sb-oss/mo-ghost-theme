@@ -1,0 +1,400 @@
+TAP version 13
+# Subtest: a path never reverses a citation in a directed journey
+ok 1 - a path never reverses a citation in a directed journey
+  ---
+  duration_ms: 1.075791
+  ...
+# Subtest: incoming evidence names the citing author, not the selected author
+ok 2 - incoming evidence names the citing author, not the selected author
+  ---
+  duration_ms: 0.076583
+  ...
+# Subtest: source and shared topic pages preserve volume/column strings
+ok 3 - source and shared topic pages preserve volume/column strings
+  ---
+  duration_ms: 0.263667
+  ...
+# Subtest: shared profile chapters distinguish Gospel and numbered letters
+ok 4 - shared profile chapters distinguish Gospel and numbered letters
+  ---
+  duration_ms: 0.409083
+  ...
+# Subtest: verse overlap requires exact work or author identity in source rows
+ok 5 - verse overlap requires exact work or author identity in source rows
+  ---
+  duration_ms: 0.324583
+  ...
+# Subtest: filters preserve every matching row and do not promote citation kind to agreement
+ok 6 - filters preserve every matching row and do not promote citation kind to agreement
+  ---
+  duration_ms: 0.484375
+  ...
+# Subtest: saved connection carries only provided source evidence, deduplicated by exact URL
+ok 7 - saved connection carries only provided source evidence, deduplicated by exact URL
+  ---
+  duration_ms: 0.231667
+  ...
+# Subtest: previews never accept an external or executable URL
+ok 8 - previews never accept an external or executable URL
+  ---
+  duration_ms: 0.144166
+  ...
+# Subtest: doctrine context keeps section tags separate from page-position tags
+ok 9 - doctrine context keeps section tags separate from page-position tags
+  ---
+  duration_ms: 0.406375
+  ...
+# Subtest: resolution never treats an opaque target identifier as a held work
+ok 10 - resolution never treats an opaque target identifier as a held work
+  ---
+  duration_ms: 0.282125
+  ...
+# Subtest: multi-target authority references preserve all held targets and exact recorded anchors
+ok 11 - multi-target authority references preserve all held targets and exact recorded anchors
+  ---
+  duration_ms: 0.370792
+  ...
+# Subtest: only identical identified propositions deduplicate; section contexts and authorities remain
+ok 12 - only identical identified propositions deduplicate; section contexts and authorities remain
+  ---
+  duration_ms: 0.16675
+  ...
+# Subtest: source and reception choices preserve the actual citation direction
+ok 13 - source and reception choices preserve the actual citation direction
+  ---
+  duration_ms: 0.179417
+  ...
+# Subtest: journey choices ignore unavailable graph nodes and never duplicate a self-edge
+ok 14 - journey choices ignore unavailable graph nodes and never duplicate a self-edge
+  ---
+  duration_ms: 0.036458
+  ...
+# Subtest: known citation anchors are never replaced by a whole-work mention search
+ok 15 - known citation anchors are never replaced by a whole-work mention search
+  ---
+  duration_ms: 0.109083
+  ...
+# Subtest: mixed-direction paths retain the selected citation when authors cite one another
+ok 16 - mixed-direction paths retain the selected citation when authors cite one another
+  ---
+  duration_ms: 0.056458
+  ...
+# Subtest: long citation lists remain fully reachable through bounded work and reference pages
+ok 17 - long citation lists remain fully reachable through bounded work and reference pages
+  ---
+  duration_ms: 90.541042
+  ...
+# Subtest: compound source locations sort as strings without being collapsed to their volume number
+ok 18 - compound source locations sort as strings without being collapsed to their volume number
+  ---
+  duration_ms: 0.108208
+  ...
+# Subtest: save controls reach the delegated handler and source links retain the research page
+ok 19 - save controls reach the delegated handler and source links retain the research page
+  ---
+  duration_ms: 0.253167
+  ...
+# Subtest: a path starting at a cited author opens the citing author’s evidence
+ok 20 - a path starting at a cited author opens the citing author’s evidence
+  ---
+  duration_ms: 0.365042
+  ...
+# Subtest: a path in citation direction preserves its source and target
+ok 21 - a path in citation direction preserves its source and target
+  ---
+  duration_ms: 0.065209
+  ...
+# Subtest: missing evidence does not invent a citation
+ok 22 - missing evidence does not invent a citation
+  ---
+  duration_ms: 0.053083
+  ...
+# Subtest: bidirectional citation uses the displayed outgoing row consistently
+ok 23 - bidirectional citation uses the displayed outgoing row consistently
+  ---
+  duration_ms: 0.038542
+  ...
+# Subtest: a shared source preserves column IDs and every edge states its recorded basis
+ok 24 - a shared source preserves column IDs and every edge states its recorded basis
+  ---
+  duration_ms: 2.3955
+  ...
+# Subtest: names, topics, and verses mentioned only in prose cannot manufacture connections
+ok 25 - names, topics, and verses mentioned only in prose cannot manufacture connections
+  ---
+  duration_ms: 0.312125
+  ...
+# Subtest: a shared work on different pages does not become a shared source-page claim
+ok 26 - a shared work on different pages does not become a shared source-page claim
+  ---
+  duration_ms: 0.288042
+  ...
+# Subtest: same wording and a shared conversation URL do not invent unsourced question links
+ok 27 - same wording and a shared conversation URL do not invent unsourced question links
+  ---
+  duration_ms: 0.6805
+  ...
+# Subtest: explicit user relations are retained with their direction and explanation
+ok 28 - explicit user relations are retained with their direction and explanation
+  ---
+  duration_ms: 0.199542
+  ...
+# Subtest: ambiguous legacy relation endpoints stay unresolved rather than selecting an arbitrary note
+ok 29 - ambiguous legacy relation endpoints stay unresolved rather than selecting an arbitrary note
+  ---
+  duration_ms: 0.088166
+  ...
+# Subtest: resolver-recorded cited works have a distinct directed provenance, not a quotation claim
+ok 30 - resolver-recorded cited works have a distinct directed provenance, not a quotation claim
+  ---
+  duration_ms: 0.999958
+  ...
+# Subtest: unresolved or guessed citation metadata cannot create held-work citation edges
+ok 31 - unresolved or guessed citation metadata cannot create held-work citation edges
+  ---
+  duration_ms: 0.098083
+  ...
+# Subtest: section-level context stays separate from claim-specific topic annotations
+ok 32 - section-level context stays separate from claim-specific topic annotations
+  ---
+  duration_ms: 0.462583
+  ...
+# Subtest: reordering legacy collection records does not change their map identity
+ok 33 - reordering legacy collection records does not change their map identity
+  ---
+  duration_ms: 0.43325
+  ...
+# Subtest: legacy annotation and highlight keys preserve milestone strings and active highlight state
+ok 34 - legacy annotation and highlight keys preserve milestone strings and active highlight state
+  ---
+  duration_ms: 0.293083
+  ...
+# Subtest: cited outlines retain every supplied source, including distinct quotations at one location
+ok 35 - cited outlines retain every supplied source, including distinct quotations at one location
+  ---
+  duration_ms: 0.557791
+  ...
+# Subtest: saved sequence snapshots preserve editable headings, notes, and complete source records
+ok 36 - saved sequence snapshots preserve editable headings, notes, and complete source records
+  ---
+  duration_ms: 0.242584
+  ...
+# Subtest: outline and SVG exports escape saved markup and exclude executable source URLs
+ok 37 - outline and SVG exports escape saved markup and exclude executable source URLs
+  ---
+  duration_ms: 0.155458
+  ...
+# Subtest: new Desk creation flushes the current paper before committing or opening a separate draft
+ok 38 - new Desk creation flushes the current paper before committing or opening a separate draft
+  ---
+  duration_ms: 1.137792
+  ...
+# Subtest: an unsavable current Desk paper blocks new-draft creation without replacing the editor
+ok 39 - an unsavable current Desk paper blocks new-draft creation without replacing the editor
+  ---
+  duration_ms: 0.737667
+  ...
+# Subtest: the real Desk save function no longer evicts documents beyond its former thirty-record cap
+ok 40 - the real Desk save function no longer evicts documents beyond its former thirty-record cap
+  ---
+  duration_ms: 0.441209
+  ...
+# Subtest: a two-step saved journey retains citation direction and each step source through all exports
+ok 41 - a two-step saved journey retains citation direction and each step source through all exports
+  ---
+  duration_ms: 0.463333
+  ...
+# Subtest: raw analysis and section membership retain stance, replies, nuance, and verification as annotations
+ok 42 - raw analysis and section membership retain stance, replies, nuance, and verification as annotations
+  ---
+  duration_ms: 0.504958
+  ...
+# Subtest: canonical note-ID relations work and unresolved original links stay unresolved
+ok 43 - canonical note-ID relations work and unresolved original links stay unresolved
+  ---
+  duration_ms: 0.070167
+  ...
+# Subtest: empty conversations are excluded without deleting data, while drafts and archived research remain identifiable
+ok 44 - empty conversations are excluded without deleting data, while drafts and archived research remain identifiable
+  ---
+  duration_ms: 0.144333
+  ...
+# Subtest: reader notes and highlights remain in their explicitly assigned notebook
+ok 45 - reader notes and highlights remain in their explicitly assigned notebook
+  ---
+  duration_ms: 0.105375
+  ...
+# Subtest: research keeps citation-only records and exact row anchors in its complete source inventory
+ok 46 - research keeps citation-only records and exact row anchors in its complete source inventory
+  ---
+  duration_ms: 0.074458
+  ...
+# Subtest: explicit reader links survive cards and exports with source division and exact paragraph
+ok 47 - explicit reader links survive cards and exports with source division and exact paragraph
+  ---
+  duration_ms: 0.812458
+  ...
+# Subtest: compound page labels remain strings and whole works do not get false null anchors
+ok 48 - compound page labels remain strings and whole works do not get false null anchors
+  ---
+  duration_ms: 0.154458
+  ...
+# Subtest: saved Ask answers expose the answer, conversation and original citations
+ok 49 - saved Ask answers expose the answer, conversation and original citations
+  ---
+  duration_ms: 0.212167
+  ...
+# Subtest: quote records and working annotations remain visible and searchable
+ok 50 - quote records and working annotations remain visible and searchable
+  ---
+  duration_ms: 0.151208
+  ...
+# Subtest: unsafe URLs are rejected and Desk receives collection and item identity
+ok 51 - unsafe URLs are rejected and Desk receives collection and item identity
+  ---
+  duration_ms: 0.369042
+  ...
+# Subtest: annotating a saved answer preserves the original question and answer
+ok 52 - annotating a saved answer preserves the original question and answer
+  ---
+  duration_ms: 1.697167
+  ...
+# Subtest: Ask notebook saving uses the common save operation with complete answer and sources
+ok 53 - Ask notebook saving uses the common save operation with complete answer and sources
+  ---
+  duration_ms: 1.3445
+  ...
+# Subtest: saved works and passages retain their edition identity without retitling the work
+ok 54 - saved works and passages retain their edition identity without retitling the work
+  ---
+  duration_ms: 0.220417
+  ...
+# Subtest: block parser preserves full encoded compound IDs and rejects malformed escapes
+ok 55 - block parser preserves full encoded compound IDs and rejects malformed escapes
+  ---
+  duration_ms: 1.652708
+  ...
+# Subtest: accepted same-work navigation hydrates and lands an exact compound row without document navigation
+ok 56 - accepted same-work navigation hydrates and lands an exact compound row without document navigation
+  ---
+  duration_ms: 1.758292
+  ...
+# Subtest: latest citation wins while earlier targets are still virtualized
+ok 57 - latest citation wins while earlier targets are still virtualized
+  ---
+  duration_ms: 0.630291
+  ...
+# Subtest: a recognized absent nonzero row is accepted and waits instead of jumping to the page top
+ok 58 - a recognized absent nonzero row is accepted and waits instead of jumping to the page top
+  ---
+  duration_ms: 0.378459
+  ...
+# Subtest: page-start citations retain visible seam fallback after the opening row merged
+ok 59 - page-start citations retain visible seam fallback after the opening row merged
+  ---
+  duration_ms: 0.467375
+  ...
+# Subtest: late rebuilds retain exact citation intent through pending and settled captures
+ok 60 - late rebuilds retain exact citation intent through pending and settled captures
+  ---
+  duration_ms: 0.764125
+  ...
+# Subtest: user scrolling cancels the active citation and all pending restoration
+ok 61 - user scrolling cancels the active citation and all pending restoration
+  ---
+  duration_ms: 0.297667
+  ...
+# Subtest: source suspension blocks late placements and resumes a saved exact target after showing
+ok 62 - source suspension blocks late placements and resumes a saved exact target after showing
+  ---
+  duration_ms: 0.40825
+  ...
+# Subtest: ordinary saved viewport offsets survive a cancel and restore generation
+ok 63 - ordinary saved viewport offsets survive a cancel and restore generation
+  ---
+  duration_ms: 0.891583
+  ...
+# Subtest: query page requests stay in the current work and preserve existing view options
+ok 64 - query page requests stay in the current work and preserve existing view options
+  ---
+  duration_ms: 0.744708
+  ...
+# Subtest: deferred reader tools delegate source navigation without restarting initial hash landing
+ok 65 - deferred reader tools delegate source navigation without restarting initial hash landing
+  ---
+  duration_ms: 1.375875
+  ...
+# Subtest: search navigation waits for the exact occurrence and keeps public locations canonical
+ok 66 - search navigation waits for the exact occurrence and keeps public locations canonical
+  ---
+  duration_ms: 0.286208
+  ...
+# Subtest: a newer search occurrence cancels old arrival and pending occurrence restoration
+ok 67 - a newer search occurrence cancels old arrival and pending occurrence restoration
+  ---
+  duration_ms: 0.258125
+  ...
+# Subtest: external saved positions restore after occurrence marks disappear
+ok 68 - external saved positions restore after occurrence marks disappear
+  ---
+  duration_ms: 0.213375
+  ...
+# Subtest: source-path TOC navigation hydrates and opens the exact division heading, not another same-page heading
+ok 69 - source-path TOC navigation hydrates and opens the exact division heading, not another same-page heading
+  ---
+  duration_ms: 0.958708
+  ...
+# Subtest: unknown or changed source-path targets fail without falling back to a guessed numbered page
+ok 70 - unknown or changed source-path targets fail without falling back to a guessed numbered page
+  ---
+  duration_ms: 0.219208
+  ...
+# Subtest: expanded Part titles and shared question labels resolve their unique canonical source path
+ok 71 - expanded Part titles and shared question labels resolve their unique canonical source path
+  ---
+  duration_ms: 0.52275
+  ...
+# Subtest: ambiguous repeated source headings require an exact title match
+ok 72 - ambiguous repeated source headings require an exact title match
+  ---
+  duration_ms: 0.183334
+  ...
+# Subtest: verified Baxter Front Matter opens the existing first page when its label precedes pagination
+ok 73 - verified Baxter Front Matter opens the existing first page when its label precedes pagination
+  ---
+  duration_ms: 0.24625
+  ...
+# Subtest: source arrivals follow the measured mobile header when fonts change its height
+ok 74 - source arrivals follow the measured mobile header when fonts change its height
+  ---
+  duration_ms: 0.39275
+  ...
+# Subtest: heading keys distinguish two chapters in one source division and survive restoration
+ok 75 - heading keys distinguish two chapters in one source division and survive restoration
+  ---
+  duration_ms: 0.412333
+  ...
+# Subtest: identical source headings on different pages cannot land on the wrong mounted instance
+ok 76 - identical source headings on different pages cannot land on the wrong mounted instance
+  ---
+  duration_ms: 0.309625
+  ...
+# Subtest: generic pre-pagination roots require explicit canonical metadata before falling back to page start
+ok 77 - generic pre-pagination roots require explicit canonical metadata before falling back to page start
+  ---
+  duration_ms: 0.274375
+  ...
+# Subtest: page-start placement clears the actual fixed reader header
+ok 78 - page-start placement clears the actual fixed reader header
+  ---
+  duration_ms: 0.419375
+  ...
+1..78
+# tests 78
+# suites 0
+# pass 78
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 132.493958

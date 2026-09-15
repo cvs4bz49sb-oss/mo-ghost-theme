@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""Freeze the validated enriched PG corpus and exact ancillary files for publication."""
+from pathlib import Path
+import json,hashlib,shutil,xml.etree.ElementTree as E
+RUN=Path('/Users/speter/Davenant/runs/pg_alignment_repair_20260914');rows=json.loads((RUN/'snapshot-manifest.json').read_text());reports={r['id']:r for r in json.loads((RUN/'enrichment-report.json').read_text())};result=[]
+sha=lambda b:hashlib.sha256(b).hexdigest()
+for i,r in enumerate(rows):
+ original=RUN/'snapshot'/r['path'];assert sha(original.read_bytes())==r['sha256']
+ canonical=r['path'].startswith('tei/pg/');source=RUN/'enriched'/r['path'] if canonical else original;data=source.read_bytes()
+ if r['path'].endswith('.xml'):E.fromstring(data)
+ else:json.loads(data)
+ if canonical:
+  report=reports[Path(r['path']).stem];assert report['status'] in ['enriched','already-enriched'];assert report.get('body_text_unchanged',True)
+  dest=RUN/'publish'/r['path'];dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,dest)
+ mirror=RUN/'mirror'/r['r2Path'];mirror.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,mirror)
+ result.append({**r,'final_sha256':sha(data),'final_md5':hashlib.md5(data).hexdigest(),'final_size':len(data),'canonical_enriched':canonical})
+ if (i+1)%2000==0:print('release files',i+1,flush=True)
+(RUN/'release-manifest.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'files':len(result),'canonical':sum(r['canonical_enriched'] for r in result),'bytes':sum(r['final_size'] for r in result)}))

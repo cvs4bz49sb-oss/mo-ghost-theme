@@ -1,0 +1,231 @@
+#!/usr/bin/env python3
+"""PG TEI RE-SEGMENTATION (owner 2026-09-03 "do it"): the tei/pg/{id}.xml exports carry
+one giant <p> per Migne column in both lanes; the segmented truth already exists — the
+pgen sidecars (out/pgen_stage/v1/pgen/{id}.json, harvested from the PG site's own
+read/en pages) hold per-column English with \\n\\n paragraph breaks and '## ' heads.
+Deterministic re-export, no LLM:
+
+  EN lane: each translation-div column <p> whose pgen coverage is >=90% of the canon's
+           column text is replaced by the sidecar's paragraphs (first <p> keeps the
+           corresp/n anchors; '## ' heads become their own <p>). Shorter sidecars never
+           replace (no text loss, gate per column).
+  GREEK lane: pure splitting — each body column <p> is split where an UPPERCASE-GREEK
+           caps-run (>=8 Greek capitals) begins (running titles, letter addresses).
+           Whitespace-normalized concatenation must equal the original per column or
+           the column is left untouched.
+
+Gates per work: XML well-formed; Greek chars byte-identical after normalization; EN
+chars never shrink below the canon per replaced column. Ledger runs/pg_tei_reseg.json
+(resumable). Output staged to out/pgtei_stage/tei/pg/{id}.xml.
+
+  python3 tools/pg_tei_reseg.py --ids 460,1668,2994     # invariant sample
+  python3 tools/pg_tei_reseg.py --all                    # fleet
+  (upload: node tools/blob_upload/upload_v2.mjs out/pgtei_stage --prefix tei/pg)
+"""
+import argparse, json, pathlib, re, sys, urllib.request
+import concurrent.futures as cf
+import xml.etree.ElementTree as ET
+
+ROOT = pathlib.Path('/Users/speter/Davenant')
+PGEN = ROOT / 'out/pgen_stage/v1/pgen'
+CACHE = ROOT / 'runs/pg_tei_cache'
+OUT = ROOT / 'out/pgtei_stage/tei/pg'
+LEDGER = ROOT / 'runs/pg_tei_reseg.json'
+B = 'https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com'
+NS = 'http://www.tei-c.org/ns/1.0'
+ET.register_namespace('', NS)
+T = lambda tag: f'{{{NS}}}{tag}'
+CACHE.mkdir(parents=True, exist_ok=True)
+OUT.mkdir(parents=True, exist_ok=True)
+
+GRCAPS = re.compile(r'(?<![\u0370-\u03ff\u1f00-\u1fff])'
+                    r'((?:[\u0391-\u03a9\u1f08-\u1ffc\u0386-\u038f][\u0391-\u03a9\u1f08-\u1ffc\u0386-\u038f\'\u2019.,\u0374\u00b4\u02b9\u0384\u1fbd\u1fbf()\d\u2014\u2013-]*\s+){2,14}'
+                    r'[\u0391-\u03a9\u1f08-\u1ffc\u0386-\u038f][\u0391-\u03a9\u1f08-\u1ffc\'\u2019.\u0374\u00b4\u02b9\u0384\u1fbd\u1fbf()\d]*\s*[.:]?)(?![\u0370-\u03ff\u1f00-\u1fff])')
+# v2 (owner 2026-09-03 pg-1445): U+0384 tonos was outside the caps class, so
+# "\u039f\u039c\u0399\u039b\u0399\u0391 \u0391\u0384." split as "\u039f\u039c\u0399\u039b\u0399\u0391 \u0391" | "\u0384. \u03a4\u1f78\u03bd..." with the prime glued to
+# the next paragraph; and a division head under 8 capitals (OMILIA B = 7) never split.
+SHORTHEAD = re.compile('((?:\u039f\u039c\u0399\u039b\u0399\u0391|\u039b\u039f\u0393\u039f\u03a3|\u0395\u03a0\u0399\u03a3\u03a4\u039f\u039b\u0397|\u039a\u0395\u03a6\u0391\u039b\u0391\u0399\u039f\u039d)\\s+[\u0391-\u03a9]{1,4}[\u0374\u00b4\u02b9\u0384\u1fbd\u1fbf\']?\\s*\\.?)(?=\\s|$)')
+# EN harvest residue (the site's own read/en pages): version markers and bare apparatus
+# cue letters. Conservative -- the article 'A Christian' survives every rule.
+EN_CLEAN = [
+    (re.compile(r'\s*\[alt-version omitted\]\s*'), ' '),
+    (re.compile('(^|[a-z][;:] )[A-F] (?=[A-Z*\u201c"])'), '\\1'),
+    (re.compile(r'([a-z][.,;:] )[A-F] (?=\*)'), '\\1'),
+    (re.compile(r'^[A-F] (?=[a-z])'), ''),
+    (re.compile(r'\b[A-F] (?=\*?(?:For|But|And|When|Then|Thus|Yet|Nor|Therefore|Moreover|Wherefore|The|This|That|These|Those|Saint|Holy)\b)'), ''),
+]
+
+
+def en_clean(s):
+    for rx, rep in EN_CLEAN:
+        s = rx.sub(rep, s)
+    return s
+
+
+norm = lambda s: re.sub(r'\s+', '', str(s))
+
+
+def fetch_tei(wid):
+    c = CACHE / f'{wid}.xml'
+    if c.exists() and c.stat().st_size > 500:
+        return c.read_text()
+    t = urllib.request.urlopen(f'{B}/tei/pg/{wid}.xml', timeout=180).read().decode()
+    c.write_text(t)
+    return t
+
+
+def split_greek(text):
+    """split at caps-run + short-head boundaries; joined output must equal input"""
+    spans = []
+    for m in GRCAPS.finditer(text):
+        caps = re.sub(r'[^\u0391-\u03a9\u1f08-\u1ffc]', '', m.group(1))
+        if len(caps) >= 8:
+            spans.append((m.start(1), m.end(1)))
+    for m in SHORTHEAD.finditer(text):
+        if m.start() == 0 or text[m.start() - 1] in ' \n.:;\u00b7':
+            spans.append((m.start(1), m.end(1)))
+    if not spans:
+        return [text]
+    spans.sort()
+    merged = [spans[0]]
+    for a, b in spans[1:]:
+        if a >= merged[-1][1]:
+            merged.append((a, b))
+    parts, pos = [], 0
+    for a, b in merged:
+        if a > pos and text[pos:a].strip():
+            parts.append(text[pos:a])
+        parts.append(text[a:b])
+        pos = b
+    if pos < len(text):
+        parts.append(text[pos:])
+    return [p for p in parts if p.strip()] or [text]
+
+
+def rework(wid):
+    try:
+        pgen = json.loads((PGEN / f'{wid}.json').read_text())
+        xml = fetch_tei(wid)
+        root = ET.fromstring(xml)
+    except Exception as e:
+        return wid, f'SKIP {e.__class__.__name__}'
+    stats = {'gr_split': 0, 'en_replaced': 0, 'en_kept': 0, 'en_cols': 0}
+
+    # ---- GREEK: split body column blocks (never inside witness divs) ----
+    def walk(div):
+        def parents(node):
+            yield node
+            for child in node:
+                if child.tag == T('div') and child.get('type') in ('translation','secondary','diplomatic','witness','edition'):
+                    continue
+                yield from parents(child)
+        for parent in parents(div):
+            kids = list(parent)
+            for idx, ch in enumerate(kids):
+                if ch.tag == T('div') and ch.get('type') in ('translation', 'secondary', 'diplomatic', 'witness', 'edition'):
+                    continue
+                if ch.tag == T('p') and not list(ch) and ch.text and len(ch.text) > 400:
+                    parts = split_greek(ch.text)
+                    if len(parts) > 1 and norm(''.join(parts)) == norm(ch.text):
+                        pos = list(parent).index(ch)
+                        parent.remove(ch)
+                        for k, ptxt in enumerate(parts):
+                            attrs = dict(ch.attrib)
+                            if k: attrs.pop('{http://www.w3.org/XML/1998/namespace}id', None)
+                            e = ET.Element(T('p'), attrs)
+                            e.text = ptxt.strip()
+                            parent.insert(pos + k, e)
+                        stats['gr_split'] += 1
+    body = root.find(f'.//{T("body")}')
+    for div in list(body):
+        if div.tag == T('div') and div.get('type') not in ('translation', 'secondary', 'diplomatic', 'witness', 'edition'):
+            walk(div)
+
+    # ---- EN: replace column paragraphs from the sidecar ----
+    for tdiv in root.iter(T('div')):
+        if tdiv.get('type') != 'translation':
+            continue
+        kids = list(tdiv)
+        for ch in kids:
+            if ch.tag != T('p'):
+                continue
+            n = ch.get('n') or (re.search(r'-c(\d+)', ch.get('corresp') or '') or [None, None])[1]
+            if not n or str(n) not in pgen:
+                continue
+            stats['en_cols'] += 1
+            old = ch.text or ''
+            new = str(pgen[str(n)])
+            if len(norm(new)) < len(norm(old)) * 0.9:
+                stats['en_kept'] += 1
+                continue
+            segs = [x for x in (en_clean(s.strip()) for s in re.split(r'\n\s*\n+', new) if s.strip()) if x.strip()]
+            if not segs:
+                stats['en_kept'] += 1
+                continue
+            pos = list(tdiv).index(ch)
+            attrs = {k: v for k, v in ch.attrib.items()}
+            tdiv.remove(ch)
+            for k, s in enumerate(segs):
+                e = ET.Element(T('p'), attrs if k == 0 else {})
+                e.text = re.sub(r'^#{1,6}\s*', '', s)
+                tdiv.insert(pos + k, e)
+            stats['en_replaced'] += 1
+
+    # ---- EN: APPEND sidecar columns the canon never carried (vol-verify 2026-09-03:
+    # pg-16 canon EN covered 205 of the sidecar's 615 columns — replacement alone leaves
+    # most of the site's English out of the TEI). One extra translation div, columns in
+    # order, each first <p> anchored n= so the reader keys it. ----
+    covered = set()
+    for tdiv in root.iter(T('div')):
+        if tdiv.get('type') != 'translation':
+            continue
+        for ch in tdiv:
+            if ch.tag == T('p'):
+                n = ch.get('n') or (re.search(r'-c(\d+)', ch.get('corresp') or '') or [None, None])[1]
+                if n:
+                    covered.add(str(n))
+    extra = sorted((k for k in pgen if str(k).isdigit() and str(k) not in covered), key=int)
+    if extra:
+        host = root.find(f'.//{T("body")}')
+        nd = ET.SubElement(host, T('div'), {'type': 'translation', 'resp': '#site-sidecar'})
+        nd.set('{http://www.w3.org/XML/1998/namespace}lang', 'en')
+        for k in extra:
+            segs = [x for x in (en_clean(s.strip()) for s in re.split(r'\n\s*\n+', str(pgen[k])) if s.strip()) if x.strip()]
+            for j, s in enumerate(segs):
+                e = ET.SubElement(nd, T('p'), {'n': str(k)} if j == 0 else {})
+                e.text = re.sub(r'^#{1,6}\s*', '', s)
+        stats['en_appended'] = len(extra)
+
+    out = ET.tostring(root, encoding='unicode')
+    ET.fromstring(out.encode())   # well-formedness gate
+    (OUT / f'{wid}.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n' + out)
+    return wid, stats
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--ids', default='')
+    ap.add_argument('--all', action='store_true')
+    a = ap.parse_args()
+    led = json.loads(LEDGER.read_text()) if LEDGER.exists() else {}
+    if a.ids:
+        ids = a.ids.split(',')
+    else:
+        ids = sorted((p.stem for p in PGEN.glob('*.json')), key=lambda x: int(x) if x.isdigit() else 0)
+        ids = [i for i in ids if i not in led]
+    print(f'{len(ids)} works to re-segment')
+    done = 0
+    with cf.ThreadPoolExecutor(8) as ex:
+        for wid, st in ex.map(rework, ids):
+            led[wid] = st
+            done += 1
+            if a.ids or done % 50 == 0:
+                print(f'  {wid}: {st}', flush=True)
+                LEDGER.write_text(json.dumps(led))
+    LEDGER.write_text(json.dumps(led))
+    ok = sum(1 for v in led.values() if isinstance(v, dict))
+    print(f'DONE: {ok} reworked · {len(led)-ok} skipped')
+
+
+if __name__ == '__main__':
+    main()

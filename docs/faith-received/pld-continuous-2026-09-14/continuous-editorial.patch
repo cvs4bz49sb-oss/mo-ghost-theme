@@ -1,0 +1,214 @@
+--- a/tools/prdl_reader_prototype/pld-reading.js
++++ b/tools/prdl_reader_prototype/pld-reading.js
+@@ -137,10 +137,10 @@
+     const options=[{id:'2',label:'Text',start:String(profile.mainFirst||1)},{id:'3',label:'Editorial notes',start:String(profile.columnNotes?profile.first:1)}];
+     return {doc:result,id:selected,label:notes?'Editorial notes':'Text',buttonLabel:notes?'Notes':'Text',options,notes,
+       columnNotes:notes&&profile.columnNotes,sourceName:notes?'Original':null,sourceLinks:notes?(profile.parts||[profile.part]).map((part,i)=>({label:(profile.parts||[]).length>1?'Open source notes '+(i+1):'Open source notes',url:'https://artflsrv04.uchicago.edu/philologic5/PLD/navigate/'+slug.slice(4)+'/'+part.split(' ').join('/')})):null,
+-      explanation:notes?(profile.columnNotes?'Editorial notes, separate from the main text. Column labels mark the start of each source block.':'Editorial notes from the source edition, separate from the main text.'):'The main text and the edition’s editorial notes are available as separate views.',
++      explanation:notes?(profile.columnNotes?'Editorial notes in the original language, separate from the author’s text. Column labels mark the start of each source block.':'Editorial notes from the source edition, shown in their original language and separate from the author’s text.'):'The main text and the edition’s editorial notes are available as separate views.',
+       source:'https://artflsrv04.uchicago.edu/philologic5/PLD/navigate/'+slug.slice(4)+(notes?'/'+profile.part.split(' ').join('/'):'/table-of-contents')};
+   }
+-  function sourceView(doc,slug,hash,requested,reference){
++  function sourceViewPart(doc,slug,hash,requested,reference){
+     if(slug!=='pld-6037')return partitionView(doc,slug,hash,requested,reference);
+ 
+     if(slug!=='pld-6037'||hash!==etymologiesHash)return null;
+@@ -173,7 +173,44 @@
+     return {doc:result,id:selected,label:choice.label,options,notes:selected==='3'||selected==='5',
+       source:'https://artflsrv04.uchicago.edu/philologic5/PLD/navigate/6037/'+selected};
+   }
+-  const api={heading,introduction,renderedHeading,sourcePart,sourceView,hasSourceViews,publisherNotes,citationContext,numericColumn,etymologiesHash};
++  // Editorial material is outside the author's paired reading rows. Its own
++  // source markers determine placement; unmapped notes remain labelled at the end.
++  function editorialEntries(records,first=null,columnNotes=true){
++    let at=columnNotes&&Number.isFinite(Number(first))&&first!=null?String(Number(first)):'editorial',raw='';
++    const out={},originals=new Map(),colonFormat=records.some(r=>r.kind==='milestone'&&r.unit==='column'&&String(r.n).includes(':'));
++    for(const r of records){
++      if(r.kind==='milestone'&&r.unit==='column'&&columnNotes){if(colonFormat&&!String(r.n).includes(':'))continue;const n=numericColumn(r.n);if(n!=null){at=String(n);raw=String(r.n);}continue;}
++      if(r.kind!=='p'&&r.kind!=='head')continue;const body=String(r.text||'').replace(/\s+/g,' ').trim();if(!body)continue;
++      const language=r.lang||'la',id=String(r.id||'');
++      if(language==='en'){const prior=originals.get(String(r.corresp||'').replace(/^#/,''));if(prior&&prior===body)continue;}
++      else if(id)originals.set(id,body);
++      (out[at]||(out[at]=[])).push({kind:r.kind,language,id,text:body,sourceColumn:raw});
++    }
++    return out;
++  }
++  function sourceRecords(doc){return [...doc.querySelectorAll('body head,body p,body milestone')].filter(n=>!n.parentElement?.closest('p,head')).map(n=>({kind:n.localName,unit:n.getAttribute('unit'),n:n.getAttribute('n'),lang:lang(n),id:n.getAttribute('xml:id'),corresp:n.getAttribute('corresp'),text:n.textContent}));}
++  function sourceView(doc,slug,hash,requested,reference){
++    if(requested&&requested!=='all')return sourceViewPart(doc,slug,hash,requested,reference);
++    const main=sourceViewPart(doc,slug,hash,'2',reference);if(!main)return null;
++    const notes=sourceViewPart(doc,slug,hash,'3',reference);if(!notes)return main;
++    let editorial=editorialEntries(sourceRecords(notes.doc),sourceViews.works[slug]?.first,!!notes.columnNotes);
++    if(slug==='pld-6037'){
++      const second=sourceViewPart(doc,slug,hash,'4',reference),secondNotes=sourceViewPart(doc,slug,hash,'5',reference);
++      if(second){const target=main.doc.querySelector('body');for(const child of [...second.doc.querySelector('body').children])target.appendChild(child.cloneNode(true));}
++      if(secondNotes){const more=editorialEntries(sourceRecords(secondNotes.doc),null,false);for(const [key,rows]of Object.entries(more))(editorial[key]||(editorial[key]=[])).push(...rows);}
++    }
++    const paragraphs=Object.values(editorial).flat().filter(r=>r.kind==='p'),english=paragraphs.filter(r=>r.language==='en').length;
++    return {...main,id:'all',label:'Text and editorial notes',buttonLabel:'Text + notes',notes:false,combined:true,editorial,
++      hasMainEnglish:[...main.doc.querySelectorAll('p')].some(n=>lang(n)==='en'&&text(n)),
++      editorialEnglish:english,editorialParagraphs:paragraphs.length,
++      options:[{id:'all',label:'Text and editorial notes',start:main.options?.find(o=>o.id==='2')?.start||String(sourceViews.works[slug]?.mainFirst||1)},...main.options],
++      explanation:'The author’s text and the edition’s notes follow their recorded column order. Editorial material is labelled separately.'+(english?'':' The editorial notes have no English translation in the published text.')};
++  }
++  function editorialHTML(entries,page){
++    if(!entries?.length)return '';const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),hasEnglish=entries.some(r=>r.language==='en'),languages=[...new Set(entries.map(r=>r.language))];
++    return `<section class="pld-editorial" data-page="${esc(page)}" id="editorial-${esc(page)}"><h4>Editorial notes${page==='editorial'?'':' · col. '+esc(page)}</h4><p class="pld-editorial-status">${hasEnglish?'Original and available English text.':languages.length===1&&languages[0]==='la'?'Latin original; English translation not available.':'Original text; English translation not available.'} These notes are separate from the author’s text.${page==='editorial'?' Their column locations are not supplied.':''}</p>${entries.map(r=>`<${r.kind==='head'?'h5':'p'} class="pld-editorial-text" lang="${esc(r.language)}"${r.id?' data-source-id="'+esc(r.id)+'"':''}>${esc(r.text)}</${r.kind==='head'?'h5':'p'}>`).join('')}</section>`;
++  }
++  const api={editorialEntries,editorialHTML,heading,introduction,renderedHeading,sourcePart,sourceView,hasSourceViews,publisherNotes,citationContext,numericColumn,etymologiesHash};
+   if(typeof module==='object'&&module.exports)module.exports=api;
+   root.FRPldReading=api;
+ })(typeof window==='object'?window:globalThis);
+--- a/tools/prdl_reader_prototype/reader_shell.html
++++ b/tools/prdl_reader_prototype/reader_shell.html
+@@ -2212,6 +2212,13 @@
+ .cc-search{box-sizing:border-box;width:100%;min-height:44px;margin-top:6px;padding:9px 10px;border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:4px;font:16px var(--font-body)}
+ .cc-search::placeholder{color:var(--muted);opacity:1}.cc-count{font:12px var(--font-body);color:var(--muted);margin:10px 0}.cc-list .nav-node{display:block;min-height:44px;box-sizing:border-box;text-decoration:none;color:var(--fg);padding:10px 8px;border-bottom:1px solid var(--border);font-size:14px;line-height:1.45}.cc-list .nd2{padding-left:18px}.cc-list a:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
+ .nl-retry{font:inherit;color:var(--fg);background:none;border:1px solid var(--border);border-radius:4px;min-height:44px;padding:8px 12px;margin:8px}.nl-q{font-size:16px!important}
++
++/* Editorial matter stays in the volume and outside the author’s paired rows. */
++.pld-editorial{display:block!important;border-block:1px solid var(--border);margin:22px 0;padding:16px 0;scroll-margin-top:calc(var(--phh,64px) + 14px)}
++.pld-editorial h4{font:600 18px/1.4 var(--body);margin:0 0 8px}.pld-editorial h5{font:600 16px/1.5 var(--body);margin:16px 0 8px}
++.pld-editorial-status,.pld-note-label{font:13px/1.55 var(--body);color:var(--muted);margin:0 0 14px;max-width:75ch}
++.pld-editorial .pld-editorial-text{font:16px/1.7 var(--body);max-width:75ch;margin:0 0 16px;white-space:normal;overflow-wrap:anywhere}
++@media(max-width:640px){.pld-editorial{margin:16px 0;padding:12px 0}.pld-editorial h4{font-size:17px}.pld-editorial .pld-editorial-text{font-size:16px;line-height:1.65}.pld-editorial-status{font-size:12px}}
+ </style>
+ <link rel="stylesheet" href="/work-research.css?v=__TOOLS_V__">
+ <script defer src="/work-research.js?v=__TOOLS_V__"></script>
+@@ -2760,8 +2767,7 @@
+   if(frReaderBlockReference(location.hash)||location.hash.length>1)return;
+   let page=new URLSearchParams(location.search).get("p");
+   if(!page)try{const ws=new URLSearchParams(location.search).get("ws")||new URLSearchParams(location.search).get("w"),saved=JSON.parse(localStorage.getItem("fr_lastread")||"{}");
+-    if(/^pld-\d+$/.test(ws)&&!new URLSearchParams(location.search).has('pldpart')&&['2','3','4','5'].includes(saved[ws]?.pldpart)){
+-      const url=new URL(location.href);url.searchParams.set('pldpart',saved[ws].pldpart);history.replaceState(history.state,'',url);}
++    // A plain volume opens the complete reading view; explicit saved-source links retain their layer.
+     const last=saved[ws]?.page;if(last!=null&&(!/^\d+$/.test(String(last))||Number(last)>3))page=String(last);
+   }catch(_){}
+   if(page)window.__frInitialReference=String(page);
+@@ -3622,7 +3628,7 @@
+       const delta=target.getBoundingClientRect().top-sc.getBoundingClientRect().top;
+       // The mobile masthead can grow after fonts load. Keep source-heading arrivals
+       // below its current bottom instead of freezing the initial desktop-sized gap.
+-      const header=(position.sourcePath||target.classList?.contains('pganchor'))&&document.querySelector?.('.ph');
++      const header=(position.sourcePath||target.classList?.contains('pganchor')||frReaderBlockReference(position.id)?.index==='0')&&document.querySelector?.('.ph');
+       if(header)offset=Math.max(14,header.getBoundingClientRect().bottom-sc.getBoundingClientRect().top+14);
+       if(offset==null)offset=delta;
+       const drift=delta-offset;if(Math.abs(drift)>2){sc.scrollTop+=drift;stable=0;}else stable++;
+@@ -3664,7 +3670,7 @@
+     if(target.origin!==here.origin)return false;
+     const work=url=>url.searchParams.get('w')||url.searchParams.get('ws')||(/^\/read\/([^/]+?)(?:\.html)?$/.exec(url.pathname)||[])[1]||'';
+     const currentWork=work(here)||window.__FR_SLUG__||DATA?.slug||'',targetWork=work(target);
+-    if(/^pld-\d+$/.test(currentWork)&&(target.searchParams.get('pldpart')||'2')!==(here.searchParams.get('pldpart')||'2'))return false;
++    if(/^pld-\d+$/.test(currentWork)&&(target.searchParams.get('pldpart')||'all')!==(here.searchParams.get('pldpart')||'all'))return false;
+     // the reader may be mounted under a route prefix (MereO: /the-faith-received/read/) — a citation to the SAME page is
+     // always ours; the bare /read shapes stay for cross-page doors (owner 2026-09-11 'fix it for mereo': ?p=&hl= never landed)
+     const samePage=target.pathname.replace(/\/+$/,'')===here.pathname.replace(/\/+$/,'');
+@@ -3797,6 +3803,8 @@
+ }
+ function locOf(n){
+   if(typeof INDEX_PAGES!=='undefined'&&(INDEX_PAGES?.has(n)||INDEX_PAGES?.has(String(n))))return 'Index · '+(DATA?.has_pages?'p. ':'§ ')+n;
++  if(n==='editorial')return 'Editorial notes';
++  if(DATA?.pld_source_view?.combined&&DATA.pld_source_view.hasColumns===false)return 'Section '+n;
+   if(DATA?.pld_source_view?.notes)return DATA.pld_source_view.columnNotes?'Editorial notes, col. '+n:'Notes, section '+n;
+   const corrected=window.FRReaderNavigation?.locator(DATA,n);if(corrected)return corrected;
+   if(/^P[LG]\s*\d/i.test(DATA?.volume||""))return "col. "+n;
+@@ -4977,11 +4985,12 @@
+     const laEls=teiHeadFix(TEI_PAGES.la[key]||[],String(pg.n)),enEls=teiHeadFix(TEI_PAGES.en[key]||[],String(pg.n));
+     // mirror renderFolio's ONLY skip rule: born-digital blank leaves. Facsimile blanks still
+     // get a section (the scan stays visible) — every DATA.pages entry must produce a folio.
+-    if(DATA.has_pages===false&&!isFront&&!isTitle&&!laEls.length&&!enEls.length)return;
++    if(DATA.has_pages===false&&!isFront&&!isTitle&&!laEls.length&&!enEls.length&&!DATA.pld_editorial?.[key]?.length)return;
+     const fm=el("div","fmark"+(isFront?" frontmatter":"")+(isTitle?" titlepage":""));
+     fm.innerHTML=`<span class="ff" role="button" tabindex="0">${esc(locOf(pg.n))}</span><span class="fr"></span><span class="fm">${isTitle?"title page":"p. "+pg.n}</span>`;
+     R.appendChild(fm);
+     const sec=el("section","folio"+(isFront?" frontmatter":"")+(isTitle?" titlepage":""));sec.dataset.idx=pi;sec.dataset.page=pg.n;
++    if(DATA.pld_source_view?.notes){const label=el("p","pld-note-label");label.textContent="Editorial notes from the source edition, shown in their original language.";sec.appendChild(label);}
+     const enQ=teiKids(enEls),notesLA=[],notesEN=[];
+     // SECTION-SYNC pairing (owner 2026-08-11 'all deadspace at the bottom'): heads are the
+     // only hard sync points — everything between renders as TWO CONTINUOUS FACING COLUMNS,
+@@ -5235,6 +5244,7 @@
+     }
+     enhanceScriptureContinuations(sec);
+     const ab=appBank(notesLA,notesEN);if(ab)sec.appendChild(ab);
++    if(DATA.pld_editorial?.[key]?.length)sec.insertAdjacentHTML('beforeend',window.FRPldReading.editorialHTML(DATA.pld_editorial[key],String(pg.n)));
+     R.appendChild(sec);io.observe(sec);
+   }
+   // READING EDITION post-pass (owner 2026-08-10): (1) body runs continue across page
+@@ -5527,6 +5537,7 @@
+     let prev=null;
+     for(const cur of secs){
+       if(!prev){prev=cur;continue;}
++      if(prev.querySelector(".pld-editorial")||cur.querySelector(".pld-editorial")){prev=cur;continue;}
+       if(cur.classList.contains("frontmatter")!==prev.classList.contains("frontmatter")){prev=cur;continue;}
+       const kidsP=[...prev.children].filter(x=>!x.classList.contains("apptog")&&!x.classList.contains("rapp"));
+       const kidsC=[...cur.children].filter(x=>!x.classList.contains("ixchip"));
+@@ -5552,6 +5563,7 @@
+     prev=null;
+     for(const cur of R.querySelectorAll(".folio")){
+       if(!prev){prev=cur;continue;}
++      if(prev.querySelector(".pld-editorial")||cur.querySelector(".pld-editorial")){prev=cur;continue;}
+       const pk=[...prev.children].filter(x=>!x.classList.contains("apptog")&&!x.classList.contains("rapp"));
+       const pr=pk[pk.length-1],cr=[...cur.children].find(x=>!x.classList.contains("ixchip"));
+       if(pr&&cr&&pr.classList.contains("row")&&pr.classList.contains("tail")
+@@ -5590,7 +5602,7 @@
+     R.querySelectorAll(".row.furn").forEach(r=>{const t=((r.querySelector(".la")||{}).textContent||"")+" "+((r.querySelector(".en")||{}).textContent||"");if(t.replace(/p\.\s*\d+/g,"").trim().length>12)r.classList.remove("furn");});
+     R.querySelectorAll(".folio.rolled").forEach(f=>{const m=f.previousElementSibling;if(m&&m.classList&&m.classList.contains("fmark"))m.classList.add("rolled");});
+     // a BLANK leaf (title verso, blank page: no rows at all) has nothing to head either — its chip would stack on the next page's (owner 2026-09-04)
+-    R.querySelectorAll(".folio:not(.titlepage)").forEach(f=>{if(f.querySelector(".row,.stkwrap"))return;const m=f.previousElementSibling;if(m&&m.classList&&m.classList.contains("fmark"))m.classList.add("rolled");});
++    R.querySelectorAll(".folio:not(.titlepage)").forEach(f=>{if(f.querySelector(".row,.stkwrap,.pld-editorial"))return;const m=f.previousElementSibling;if(m&&m.classList&&m.classList.contains("fmark"))m.classList.add("rolled");});
+     // RUNNING-HEAD ECHO HEADS (owner 2026-09-04, Urraburu Psych. II p.13 "DISPUTATIO PRIMA." printed as the leaf's
+     // running head AND as the display head): within one folio, a head row whose Latin (or English) repeats the
+     // text of a head row earlier in the same consecutive run of heads is the echo — hide it, keep the first.
+@@ -6102,7 +6114,7 @@
+  author.textContent=DATA.author||"";author.href="/?a="+encodeURIComponent(DATA.author||"");
+  volume.textContent=String(DATA.volume||"").replace(/\b(P[LG]|PO)\s*(\d+)/g,"$1 $2");
+  place.textContent=locOf(n);place.setAttribute('aria-label','Go to a place in this work, currently '+locOf(n));
+- const column=(!DATA.pld_source_view?.notes||DATA.pld_source_view?.columnNotes)&&/^P[LG]\s*\d/i.test(DATA.volume||""),unit=column?'column':DATA.has_pages?'page':'section';
++ const column=DATA.pld_source_view?.hasColumns!==false&&(!DATA.pld_source_view?.notes||DATA.pld_source_view?.columnNotes)&&/^P[LG]\s*\d/i.test(DATA.volume||""),unit=column?'column':DATA.has_pages?'page':'section';
+  $("#pgJump").setAttribute('aria-label',unit[0].toUpperCase()+unit.slice(1)+' number');$("#pgJump").title='Go to '+unit;
+  $("#reader-jump-label").textContent='Go to '+unit;
+  if(!$("#aaPop").classList.contains('on'))$("#reader-jump").value=String(n);
+@@ -7287,6 +7299,8 @@
+     }
+   };
+   const body=doc.querySelector("body");if(body)walk(body,0);
++  if(!pages.length){const count=Math.max(Object.keys(teiSegment(laD)).length,Object.keys(teiSegment(enD)).length,1);for(let i=1;i<=count;i++)pages.push(i);}
++  if(sourceView?.combined){for(const key of Object.keys(sourceView.editorial||{}))if(key!=='editorial'&&!pages.some(n=>String(n)===key))pages.push(Number(key));pages.sort((a,b)=>Number(a)-Number(b));if(sourceView.editorial?.editorial?.length)pages.push('editorial');}
+   if(!pages.length)pages.push(1);
+   if(IS_PL_INDEX){
+     // CLICKABLE CITATIONS (owner 2026-08-17 'this is not clickable'): every "S. August.,
+@@ -7314,8 +7328,9 @@
+   wireVolTravel("PL",(vol.match(/\d+/)||[])[0],+id,"pld","plvol");
+   window.__pldCanonDocs={la:laD,en:enD};   // loadTEI consumes these instead of fetching sidecars
+   return {slug:ws,title,title_en:title,author,author_la:author_la!==author?author_la:undefined,volume:vol,tradition:"Latin Fathers",
+-    has_pages:false,has_tei:true,tei_v:0,en_only:false,source_only:!!sourceView?.notes,n_pages:pages.length,
+-    pld_source_view:sourceView?{id:sourceView.id,label:sourceView.label,options:sourceView.options,notes:sourceView.notes,columnNotes:sourceView.columnNotes,sourceName:sourceView.sourceName,buttonLabel:sourceView.buttonLabel,explanation:sourceView.explanation,sourceLinks:sourceView.sourceLinks,source:sourceView.source}:null,
++    has_pages:false,has_tei:true,tei_v:0,en_only:false,source_only:!!sourceView?.notes||!!sourceView?.combined&&!sourceView.hasMainEnglish,n_pages:pages.length,
++    pld_editorial:sourceView?.combined?sourceView.editorial:null,
++    pld_source_view:sourceView?{id:sourceView.id,label:sourceView.label,combined:!!sourceView.combined,hasColumns:firstColumn!=null,options:sourceView.options,notes:sourceView.notes,columnNotes:sourceView.columnNotes,sourceName:sourceView.sourceName,buttonLabel:sourceView.buttonLabel,explanation:sourceView.explanation,sourceLinks:sourceView.sourceLinks,source:sourceView.source}:null,
+     structure:struct,base:null,reader_introduction:window.FRPldReading.introduction(doc.querySelectorAll('head'),colN,ws,struct),
+     pages:pages.map(n=>({n,la:"",en:""}))};
+ }
+--- /dev/null
++++ b/tools/prdl_reader_prototype/pld-editorial.test.cjs
+@@ -0,0 +1,20 @@
++const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
++const ctx={module:{exports:{}}};vm.runInNewContext(fs.readFileSync(__dirname+'/pld-reading.js','utf8'),ctx);const P=ctx.module.exports;
++test('editorial paragraphs retain their own columns and source IDs, including opening prose',()=>{
++ const rows=[{kind:'milestone',unit:'column',n:'158'},{kind:'p',id:'opening',lang:'la',text:'Opening note.'},{kind:'milestone',unit:'column',n:'158:1098C'},{kind:'p',id:'gerson',lang:'la',text:'Haec ex Gersone carptim.'},{kind:'milestone',unit:'column',n:'158:1099B'},{kind:'p',id:'continuation',lang:'la',text:'Joannes Gerson.'}];
++ const notes=P.editorialEntries(rows,1059,true);assert.deepEqual(Object.keys(notes),['1059','1098','1099']);assert.equal(notes['1098'][0].id,'gerson');assert.equal(notes['1099'][0].sourceColumn,'158:1099B');assert.equal(rows[1].text,'Opening note.');
++});
++test('genuine English notes remain available, while identical English echoes are not called translations',()=>{
++ const notes=P.editorialEntries([{kind:'p',id:'a',lang:'la',text:'Latin original.'},{kind:'p',lang:'en',corresp:'#a',text:'Latin original.'},{kind:'p',lang:'en',corresp:'#a',text:'Actual English translation.'}],1067,true);
++ assert.equal(notes['1067'].length,2);assert.equal(notes['1067'][1].language,'en');assert.match(P.editorialHTML(notes['1067'],'1067'),/available English/);
++});
++test('unmapped notes remain explicit and no column number is invented',()=>{
++ const notes=P.editorialEntries([{kind:'milestone',unit:'column',n:'158:1098'},{kind:'p',lang:'la',text:'An unplaced note.'}],null,false);assert.deepEqual(Object.keys(notes),['editorial']);const html=P.editorialHTML(notes.editorial,'editorial');assert.match(html,/column locations are not supplied/);assert.doesNotMatch(html,/col\. 1098/);
++});
++test('editorial rendering is labelled, escaped, and outside paired reader rows',()=>{
++ const html=P.editorialHTML([{kind:'p',id:'source-a',language:'la',text:'Latin <script>alert(1)</script>'}],'1099');assert.match(html,/Editorial notes · col\. 1099/);assert.match(html,/English translation not available/);assert.match(html,/data-source-id="source-a"/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/class="row|<script>/);
++});
++test('the reader source still parses with continuous editorial columns',()=>{const s=fs.readFileSync(__dirname+'/reader_shell.html','utf8');for(const m of s.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))if(m[1].trim())new vm.Script(m[1]);});
++test('unmapped editorial appendices do not replace the existing unpaginated text segments',()=>{
++ const s=fs.readFileSync(__dirname+'/reader_shell.html','utf8'),a=s.indexOf('  if(!pages.length){const count=Math.max(Object.keys(teiSegment(laD))'),b=s.indexOf('  if(IS_PL_INDEX)',a),pages=[],box={pages,teiSegment:d=>d,laD:{1:[],2:[],3:[]},enD:{1:[],2:[]},sourceView:{combined:true,editorial:{editorial:[{text:'note'}]}}};assert.ok(a>0);vm.runInNewContext(s.slice(a,b),box);assert.deepEqual(pages,[1,2,3,'editorial']);
++});

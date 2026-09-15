@@ -1,0 +1,66 @@
+{
+  "deployment": "dpl_8oPyvgKgnoQ29ZvYzUBAKwWjJiwZ",
+  "alias": "https://thefaithreceived.vercel.app",
+  "files": [
+    {
+      "file": "web.html",
+      "local_md5": "35cf769bf6cff300b5aacb48133c8bdb",
+      "live_md5": "35cf769bf6cff300b5aacb48133c8bdb",
+      "match": true
+    },
+    {
+      "file": "constellations.css",
+      "local_md5": "cb2207692457ba39ea6e43c569126f8a",
+      "live_md5": "cb2207692457ba39ea6e43c569126f8a",
+      "match": true
+    },
+    {
+      "file": "connection-evidence.js",
+      "local_md5": "46d2945d6b7dc1ea6c2d5e24cde0f3ee",
+      "live_md5": "46d2945d6b7dc1ea6c2d5e24cde0f3ee",
+      "match": true
+    },
+    {
+      "file": "connection-evidence.css",
+      "local_md5": "000bb4e3c4a5dc483cfb8b91256959c1",
+      "live_md5": "000bb4e3c4a5dc483cfb8b91256959c1",
+      "match": true
+    },
+    {
+      "file": "shelf-constellations.css",
+      "local_md5": "4b3a176bacdb2d217e3e64c9ce7a8ee6",
+      "live_md5": "4b3a176bacdb2d217e3e64c9ce7a8ee6",
+      "match": true
+    },
+    {
+      "file": "read.html",
+      "local_md5": "9cffcf671ab870922b1b5e56044f17a8",
+      "live_md5": "9cffcf671ab870922b1b5e56044f17a8",
+      "match": true
+    },
+    {
+      "file": "reader-core.js",
+      "local_md5": "a6ffa413472ed462a64aa5c461d8f5be",
+      "live_md5": "a6ffa413472ed462a64aa5c461d8f5be",
+      "match": true
+    },
+    {
+      "file": "pins.html",
+      "local_md5": "3c0a3c338b594e1ee07685056f35ad8a",
+      "live_md5": "3c0a3c338b594e1ee07685056f35ad8a",
+      "match": true
+    },
+    {
+      "file": "pins-experience.js",
+      "local_md5": "c48c597958d057e9ef6c315230d6f60f",
+      "live_md5": "c48c597958d057e9ef6c315230d6f60f",
+      "match": true
+    },
+    {
+      "file": "personal-research.css",
+      "local_md5": "76d7da8a9e0920245a0daa54689db8cd",
+      "live_md5": "76d7da8a9e0920245a0daa54689db8cd",
+      "match": true
+    }
+  ]
+}

@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en" data-site="faith-received">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>The Faith Received — Notebook</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231C1C1A'/%3E%3Ctext x='33' y='46' font-family='Georgia,serif' font-style='italic' font-size='40' fill='%23F0F0ED' text-anchor='middle'%3EF%3C/text%3E%3Crect x='14' y='52' width='36' height='3' rx='1.5' fill='%23F0F0ED'/%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+/* ACADEMIC MONOCHROME v3 (owner 2026-09-06 "/pins needs to be redone") — stone under white
+   sheet cards, ink accents, EB Garamond identity; graphite dark (three-state pattern). */
+:root{--bg:#F0F0ED;--fg:#1C1C1A;--muted:#5A5A56;--accent:#1C1C1A;--accent2:#3A3A36;--accent-soft:#B9B9B3;
+  --border:#D8D8D3;--card-bg:#FFFFFF;--highlight:#E7E7E2;--ink-soft:#4A4A46;
+  --font-display:'EB Garamond',Georgia,serif;--font-body:'Source Serif Pro',Georgia,serif;--sans:'Source Serif Pro',Georgia,serif;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#131312;--fg:#E9E9E5;--muted:#96918A;
+  --accent:#E9E9E5;--accent2:#C9C9C4;--accent-soft:#5A5A54;--border:#3A3835;--card-bg:#1C1B1A;--highlight:#242322;--ink-soft:#B5B0A9}}
+:root[data-theme="dark"]{--bg:#131312;--fg:#E9E9E5;--muted:#96918A;
+  --accent:#E9E9E5;--accent2:#C9C9C4;--accent-soft:#5A5A54;--border:#3A3835;--card-bg:#1C1B1A;--highlight:#242322;--ink-soft:#B5B0A9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.62 var(--font-body);-webkit-font-smoothing:antialiased}
+a{color:var(--fg)}
+.top{background:var(--bg);color:var(--fg);padding:1rem 1.4rem .8rem;display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.top .wm{font:500 1.3rem/1 var(--font-display);letter-spacing:.005em}
+.top .sub{font:italic .88rem/1 var(--font-display);color:var(--muted)}
+.top a.back{margin-left:auto;color:var(--muted);font:600 .78rem/1 var(--sans);text-decoration:none;padding:.35rem .7rem;border:1px solid var(--border);border-radius:999px}
+.top a.back:hover{color:var(--fg);border-color:var(--fg)}
+.wrap{max-width:52rem;margin:0 auto;padding:1.6rem 1.2rem 4rem}
+h1{font:500 1.7rem/1.25 var(--font-display);color:var(--fg);margin:.4rem 0 1rem;text-wrap:balance}
+.muted{color:var(--muted)}
+button{font:600 .8rem/1 var(--sans);cursor:pointer;transition:background .15s,color .15s,border-color .15s;user-select:none}
+button:active{transform:scale(.97)}
+.bar{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap;margin:0 0 1.2rem}
+.btn{border:1px solid var(--border);background:var(--card-bg);color:var(--fg);padding:.5rem .8rem;border-radius:8px}
+.btn:hover{border-color:var(--fg)}
+.btn.pri{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.btn.pri:hover{background:var(--accent2);border-color:var(--accent2)}
+/* collection tabs */
+.cols{display:flex;gap:.4rem;flex-wrap:wrap;margin:0 0 1.1rem}
+.col-tab{border:1px solid var(--border);background:transparent;color:var(--fg);padding:.42rem .75rem;border-radius:999px;font:600 .78rem/1 var(--sans)}
+.col-tab:hover{border-color:var(--fg)}
+.col-tab.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.col-tab .n{opacity:.65;font-weight:400;margin-left:.3rem;font-variant-numeric:tabular-nums}
+/* cards — white sheets on the stone desk */
+.card{position:relative;display:block;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;
+  padding:.75rem 2.4rem .8rem .95rem;margin:0 0 .5rem;text-decoration:none;color:var(--fg);
+  box-shadow:0 1px 2px rgba(0,0,0,.04);transition:border-color .15s}
+.card:hover{border-color:var(--fg)}
+.card .t{font:600 .95rem/1.35 var(--font-body);text-wrap:pretty}
+.rtrad{display:inline-block;font:600 .62rem/1.4 var(--sans);letter-spacing:.03em;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:.02rem .42rem;margin-left:.45rem;vertical-align:1px}
+.card .m{font:italic .8rem/1.4 var(--font-display);color:var(--muted);margin-top:.1rem}
+.card .x{display:block;font:.8rem/1.5 var(--font-body);color:var(--muted);margin-top:.35rem}
+.card .rm{position:absolute;top:.4rem;right:.45rem;border:0;background:transparent;color:var(--accent-soft);font-size:1rem;padding:.15rem .3rem;border-radius:6px}
+.card .rm:hover{color:var(--fg);background:var(--highlight)}
+.empty{color:var(--muted);font-style:italic;padding:1.4rem .2rem}
+.note{font:.8rem/1.5 var(--sans);color:var(--muted);margin:1.2rem 0 0}
+.shared-banner{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:.7rem .9rem;margin:0 0 1.1rem;font-size:.9rem}
+input.rn{font:1rem var(--font-body);padding:.4rem .6rem;border:1px solid var(--border);border-radius:8px;background:var(--card-bg);color:var(--fg)}
+input.rn:focus{outline:2px solid var(--fg)}
+.card .lat{display:block;font:italic .78rem/1.35 var(--font-body);color:var(--muted);margin-top:.05rem}
+.card .lbl{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:italic .8rem/1.5 var(--font-display);color:var(--ink-soft);margin-top:.28rem;padding-left:.55rem;border-left:1px solid var(--border)}
+.card .nt{display:block;font:.82rem/1.5 var(--font-body);color:var(--fg);background:var(--highlight);border-radius:6px;padding:.35rem .55rem;margin-top:.4rem;white-space:pre-wrap}
+.card .nb{position:absolute;top:.4rem;right:2.1rem;border:0;background:transparent;color:var(--accent-soft);font-size:.9rem;padding:.15rem .3rem;border-radius:6px}
+.card .nb:hover{color:var(--fg);background:var(--highlight)}
+.card .mv{position:absolute;right:.35rem;border:0;background:transparent;color:var(--accent-soft);font-size:.72rem;line-height:1;padding:.12rem .3rem;border-radius:6px;opacity:0;transition:opacity 160ms ease-out}
+.card:hover .mv{opacity:.85}.card .mv:hover{color:var(--fg);background:var(--highlight)}
+.card .mv[data-d="-1"]{top:1.7rem}.card .mv[data-d="1"]{top:2.85rem}
+h2.grp{font:600 .72rem/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:1.1rem 0 .45rem;padding-bottom:.3rem;border-bottom:1px solid var(--border)}
+h2.grp .n{font-weight:400;margin-left:.45rem;opacity:.6}
+.notecard{background:var(--highlight);border-style:dashed;cursor:default}
+.notecard .ntx{display:block;font:italic .88rem/1.6 var(--font-display);color:var(--fg);padding-right:1.6rem;white-space:normal}
+.memo{margin:.15rem 0 .7rem;padding:.6rem .8rem;border:1px dashed var(--border);border-radius:8px;font:italic .86rem/1.55 var(--font-display);color:var(--ink-soft);cursor:text}
+.memo .mmut{opacity:.8}.memo{display:block;width:100%;text-align:left;color:var(--fg);cursor:text}
+.pins-note-editor{margin:16px 0;padding:16px;border:1px solid var(--border);background:var(--card-bg);color:var(--fg)}
+.pins-note-editor label{display:block;font:600 16px/1.5 var(--font-body)}
+.pins-note-editor textarea{display:block;box-sizing:border-box;width:100%;min-height:180px;margin-top:8px;padding:12px;border:1px solid var(--border);border-radius:4px;background:var(--card-bg);color:var(--fg);font:400 17px/1.65 var(--font-body);resize:vertical}
+.pins-note-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:12px}.pins-note-actions [role=status]{font-size:14px;color:var(--muted)}
+.pins-note-editor button{min-height:44px}.pins-note-editor textarea:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.shared-memo{cursor:default}
+@media print{.card .mv{display:none!important}}
+.card.linkable{cursor:crosshair;outline:2px dashed var(--accent-soft);outline-offset:2px}
+.card.linkA{outline:2px solid var(--fg);outline-offset:2px}
+.cons{margin:1.4rem 0 0}
+.cons h2{font:500 1.15rem/1.3 var(--font-display);color:var(--fg);margin:0 0 .5rem}
+.cons svg{width:100%;height:auto;background:var(--card-bg);border:1px solid var(--border);border-radius:8px}
+.cons svg line.cl{stroke:var(--fg);opacity:.3}
+.cons svg text{fill:var(--fg)}
+.cons svg text.ce{fill:var(--muted)}
+.cons svg circle.cn{fill:var(--fg)}
+.cons .edge-row{display:flex;align-items:center;gap:.5rem;font:.85rem/1.5 var(--font-body);padding:.25rem 0}
+.cons .edge-row .rel{font:600 .68rem/1.4 var(--sans);letter-spacing:.03em;color:var(--bg);background:var(--fg);border-radius:999px;padding:.05rem .5rem}
+.cons .edge-row .ex{border:0;background:none;color:var(--accent-soft);cursor:pointer;font-size:.9rem}
+.cons .edge-row .ex:hover{color:var(--fg)}
+.ed-head{margin:.4rem 0 1.1rem;border-bottom:2px solid var(--fg);padding-bottom:.7rem}
+.ed-kicker{font:600 .66rem/1.6 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ed-head h1{margin:.15rem 0 .1rem}
+.ed-meta{font:italic .85rem/1.5 var(--font-display);color:var(--muted)}
+.ed-colophon{font:italic .78rem/1.6 var(--font-display);color:var(--muted);border-top:1px solid var(--border);padding-top:.6rem;margin-top:1.6rem}
+@media print{
+  .noprint,.top,.card .rm,.card .nb,.cons .ex{display:none!important}
+  body{background:#fff;color:#000;font-size:11pt}
+  .wrap{max-width:100%;padding:0}
+  .card{border:none;box-shadow:none;border-bottom:1px solid #ddd;border-radius:0;page-break-inside:avoid}
+  .cons svg{max-height:3.2in}
+  a{color:#000;text-decoration:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+/* One notebook workspace: quiet controls, readable saved records, bounded lists. */
+.top .wm{text-decoration:none}.top #pinsTheme{margin-left:auto;min-height:44px}.top a.back{margin-left:0}
+.wrap.pins-navigation{max-width:64rem;padding:18px 24px 0}.wrap.pins-main{max-width:64rem;padding:24px 24px 72px}
+.pins-intro{max-width:65ch;color:var(--muted);margin:-4px 0 24px}
+.pins-main h1{font-size:2rem}.pins-main .cols{gap:8px}.pins-main .col-tab{min-height:44px;border-radius:5px}
+.pins-main .btn,.pins-navigation button{min-height:44px}.pins-main .bar{gap:8px;margin:16px 0}
+html[data-site] .pins-main .memo{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;min-height:64px;padding:12px 14px;font:400 16px/1.6 var(--font-body);color:var(--fg)}
+.pins-filters{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:end;gap:12px;margin-top:20px}
+.pins-filters label,.pins-work-search label{font:600 13px/1.5 var(--font-body);display:grid;gap:5px}
+.pins-filters input,.pins-filters select,.pins-work-search input{min-width:0;min-height:44px;padding:8px 10px;background:var(--card-bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;font:400 16px/1.5 var(--font-body)}
+#pinsResultCount{font:400 13px/1.5 var(--font-body);color:var(--muted);margin:10px 0}
+.pins-list{max-height:64dvh;min-height:120px;overflow:auto;overscroll-behavior:contain;scrollbar-color:var(--border) transparent;border-block:1px solid var(--border);background:var(--card-bg)}
+.pins-main .saved-item,.saved-item{padding:18px 20px;margin:0;border:0;border-bottom:1px solid var(--border);border-radius:0;box-shadow:none;background:var(--card-bg);cursor:default}
+.saved-item:last-child{border-bottom:0}.saved-item .t{margin:2px 0 5px;font:600 19px/1.4 var(--font-body);overflow-wrap:anywhere}
+.saved-kind{font:400 12px/1.5 var(--font-body);color:var(--muted)}.saved-item .m{margin:0 0 8px;font:400 13px/1.5 var(--font-body);color:var(--muted)}
+.saved-text,.saved-preview,.saved-full>div{font:400 16px/1.7 var(--font-body);white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0}.saved-preview{color:var(--fg)}
+.saved-print{display:none}
+.saved-annotation{margin:12px 0;padding-block:10px;border-block:1px solid var(--border)}.saved-annotation strong{font-size:13px}.saved-annotation p{margin:4px 0;white-space:pre-wrap}
+.saved-actions{display:flex;align-items:center;flex-wrap:wrap;gap:4px 16px;margin-top:12px;font:400 14px/1.5 var(--font-body)}
+.saved-actions a,.saved-actions button,.saved-actions summary{min-height:44px;display:inline-flex;align-items:center;color:var(--fg)}
+.saved-actions a{text-underline-offset:3px}.saved-actions .saved-open{font-weight:600}
+.saved-item .nb,.saved-item .rm,.saved-item .mv{position:static;opacity:1;background:none;border:0;padding:5px 0;color:var(--fg);font:inherit;transform:none}
+.saved-item .rm{color:var(--muted)}.saved-item .mv:disabled{opacity:.45;cursor:default}.saved-menu>div{display:flex;gap:14px;flex-wrap:wrap}
+.saved-sources,.saved-full,.saved-analysis{margin-top:10px;font-size:14px}.saved-sources summary,.saved-full summary,.saved-analysis summary{cursor:pointer;min-height:36px;padding-block:6px}
+.saved-sources li{margin-block:8px;overflow-wrap:anywhere}.saved-analysis pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.pins-main .cons{margin:0;max-height:320px;overflow:auto}.pins-main .cons .edge-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)}
+.pins-relations{margin-top:24px}.pins-relations>summary{cursor:pointer;min-height:44px;padding-block:10px}
+#pinsPages{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:12px;font-size:13px}#pinsPages[hidden]{display:none}
+.pins-work-search{margin:16px 0;padding:16px;border:1px solid var(--border);background:var(--card-bg)}.pins-work-query{display:flex;gap:10px;margin-top:8px}.pins-work-query input{flex:1}
+.pins-work-search select{width:100%;min-width:0;min-height:44px;background:var(--card-bg);color:var(--fg);border:1px solid var(--border);font:400 16px/1.5 var(--font-body);padding:8px}.pins-work-search label+label{margin-top:12px}.pins-work-search h2{font:600 19px/1.4 var(--font-body);margin:0 0 14px}
+.pins-work-results{max-height:320px;overflow:auto;overscroll-behavior:contain}.pins-work-result{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--border);font-size:15px}.pins-work-result>div{flex:1;overflow-wrap:anywhere}.pins-work-result button{flex-shrink:0}
+.pins-text-button{border:0;background:none;color:var(--fg);text-decoration:underline;text-underline-offset:3px;font:inherit;cursor:pointer;padding:0;min-height:30px}
+.pins-main :focus-visible,.pins-navigation :focus-visible,.top :focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.pins-main button:disabled{opacity:.5;cursor:default}#moreRow{flex-wrap:wrap;gap:8px;width:100%;padding-top:8px}
+@media(max-width:640px){.top{padding:12px 16px;gap:8px}.top .wm{font-size:1.2rem}.wrap.pins-navigation{padding:12px 16px 0}.wrap.pins-main{padding:18px 16px 80px}.pins-intro{font-size:15px}.pins-filters{grid-template-columns:1fr 1fr}.pins-filters label:first-child{grid-column:1/-1}.saved-item,.pins-main .saved-item{padding:16px}.pins-work-query{flex-wrap:wrap}.pins-work-query input{flex-basis:100%}.saved-item .t{font-size:18px}.pins-list{max-height:62dvh}.personal-entry-bar{gap:8px 16px!important}}
+@media(prefers-reduced-motion:reduce){button:active{transform:none}}
+@media(max-width:640px){#pinsPages{display:grid;grid-template-columns:1fr 1fr;padding-right:84px;gap:8px}#pinsPage{grid-column:1/-1;grid-row:1;text-align:center}}
+@media print{.pins-navigation,.pins-filters,.saved-actions,.bar,.cols,.pins-relations,#pinsPages,#pinsResultCount{display:none!important}.pins-list{max-height:none;overflow:visible}.saved-preview{display:none}.saved-full>div{display:block}.saved-item{break-inside:avoid}}
+@media print{.saved-full{display:none}.saved-print{display:block;white-space:pre-wrap}}
+@media(max-width:640px){.wrap.pins-main{padding-top:12px}.pins-main h1{font-size:28px}.pins-intro{font-size:14px;line-height:1.5}.saved-item,.pins-main .saved-item{padding:12px}.saved-item .t{font-size:16px;line-height:1.45}.saved-item .saved-actions{gap:6px 14px}.saved-item .saved-text,.saved-item .saved-preview{font-size:15px;line-height:1.55}}
+</style>
+</head>
+<body>
+<div class="top"><a class="wm" href="/">The Faith Received</a><button type="button" class="btn" id="pinsTheme" aria-label="Change reading theme">Theme</button><a class="back fr-home-link" data-fr-home href="/" aria-label="Back to library"><span class="fr-home-wide">‹ Library</span><span class="fr-home-compact"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>Library</span></a></div>
+<div class="wrap pins-navigation"><nav class="personal-entry-bar" aria-label="Research views"><button type="button" id="pinsBrowse" aria-pressed="true">Collections</button><button type="button" id="pinsPersonal" aria-pressed="false">All saved research</button><button type="button" id="importCollection">Import collection</button><a id="pinsDesk" href="/desk?view=research">Use in Desk</a></nav><input type="file" id="collectionFile" accept="application/json,.json" hidden><p id="collectionStatus" role="status" aria-live="polite"></p></div>
+<main class="wrap pins-main" id="app"><p class="muted">Loading…</p></main>
+<section id="personalResearchPage" hidden><div id="personalResearchHost"></div></section>
+<script>
+const BLOB=(window.__FR_BLOB_BASE__||"").replace(/\/$/,"");
+const VER=window.__FR_VER?("?v="+window.__FR_VER):"";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+// ── store: fr_collections_v1 = [{id,name,items:[{slug,page}]}] ; migrates legacy fr_pins ──
+function loadCols(){
+  let C;try{C=JSON.parse(localStorage.getItem("fr_collections_v1")||"[]");if(!Array.isArray(C)||C.some(c=>!c||!c.id||!Array.isArray(c.items)))throw Error('Unexpected collection format');}catch(e){$("#collectionStatus").textContent="Saved collections could not be read. They have not been overwritten.";throw e;}
+  if(!C.length){
+    let legacy;try{legacy=JSON.parse(localStorage.getItem("fr_pins")||"[]");if(!Array.isArray(legacy))throw Error('Unexpected legacy format');}catch(e){$("#collectionStatus").textContent="Legacy saved passages could not be read. They have not been overwritten.";throw e;}
+    C=[{id:"default",name:"Reading list",items:legacy.map(x=>({...x,site:x.site||"fr"}))}];
+    saveCols(C);
+  }
+  return C;}
+function saveCols(C){
+  try{COLS=window.FRResearchNotebook.commitCollections(C);}catch(e){$("#collectionStatus").textContent=e.message;throw e;}
+  if(typeof window._frSyncCollections==='function')Promise.resolve().then(()=>window._frSyncCollections(COLS)).catch(()=>{$("#collectionStatus").textContent="Saved in this browser; account sync did not complete.";});
+  window.dispatchEvent(new Event('fr-notebook-updated'));
+}
+let WIDX=null,TEN={},COLS=[],ACTIVE=null,SHARED=null;
+let SHARED_FROM_FILE=false,NOTE_EDITOR=null,NAME_EDITOR=null;
+const pinsRoute=new URLSearchParams(location.search);
+let COLLECTION_QUERY=pinsRoute.get('q')||'',COLLECTION_KIND=pinsRoute.get('kind')||'',COLLECTION_PAGE=Math.max(0,(Number(pinsRoute.get('page'))||1)-1),LINK_CLEANUP=null;
+const experience=()=>window.FRPinsExperience;
+function notebookTools(){if(!window.FRResearchNotebook?.sharePlan){$("#collectionStatus").textContent='Collection tools could not load. Reload before changing saved data.';throw Error('Collection tools unavailable');}return window.FRResearchNotebook;}
+function downloadCollection(collection){const data=notebookTools().sharePlan(collection,location.origin),url=URL.createObjectURL(new Blob([data.contents],{type:'application/json;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=data.filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);}
+function validShared(payload){try{notebookTools().decodeShared(payload);return true;}catch(_){return false;}}
+$("#importCollection").onclick=()=>$("#collectionFile").click();
+$("#collectionFile").onchange=async event=>{const file=event.target.files[0];if(!file)return;try{const payload=JSON.parse(await file.text());const collection=notebookTools().decodeShared(payload);SHARED=notebookTools().sharePayload(collection);SHARED_FROM_FILE=true;personalView(false);render();$("#collectionStatus").textContent='Collection file opened for review. Use Save a copy to add it to your collections.';}catch(_){$("#collectionStatus").textContent='This collection file could not be read. No saved data was changed.';}finally{event.target.value='';}};
+let PERSONAL_RESEARCH=null,PERSONAL_OPEN=false;
+function personalView(open){
+  PERSONAL_OPEN=!!open;$("#app").hidden=PERSONAL_OPEN;$("#personalResearchPage").hidden=!PERSONAL_OPEN;
+  $("#pinsBrowse").setAttribute('aria-pressed',String(!PERSONAL_OPEN));$("#pinsPersonal").setAttribute('aria-pressed',String(PERSONAL_OPEN));
+  const url=new URL(location.href);PERSONAL_OPEN?url.searchParams.set('view','research'):url.searchParams.delete('view');history.replaceState(null,'',url);
+  if(PERSONAL_OPEN){if(!PERSONAL_RESEARCH){if(!window.FRPersonalResearch){$("#personalResearchHost").textContent='Personal research could not load. Reload this page to try again.';return;}PERSONAL_RESEARCH=window.FRPersonalResearch.mount($("#personalResearchHost"));}else PERSONAL_RESEARCH.refresh();}
+  else if(COLS.length)render();
+}
+$("#pinsBrowse").onclick=()=>personalView(false);$("#pinsPersonal").onclick=()=>personalView(true);
+document.addEventListener('DOMContentLoaded',()=>{if(new URLSearchParams(location.search).get('view')==='research')personalView(true);});
+function reloadPersonalCollections(){try{const next=JSON.parse(localStorage.getItem('fr_collections_v1')||'[]');if(Array.isArray(next)&&next.length){COLS=next;ACTIVE=new URLSearchParams(location.search).get('notebook')||localStorage.getItem('fr_pincol')||COLS[0].id;if(!PERSONAL_OPEN)render();}}catch(_){$("#collectionStatus").textContent='The updated collection could not be read. Your saved data has not been changed.';}}
+window.addEventListener('storage',event=>{if(event.key==='fr_collections_v1')reloadPersonalCollections();});
+window.addEventListener('fr-research-saved',reloadPersonalCollections);
+function pinsTheme(){const root=document.documentElement,current=root.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');$('#pinsTheme').setAttribute('aria-label','Switch to '+(current==='dark'?'light':'dark')+' theme');}
+$('#pinsTheme').onclick=()=>{const root=document.documentElement,current=root.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');root.dataset.theme=current==='dark'?'light':'dark';localStorage.setItem('fr_theme',root.dataset.theme);pinsTheme();};pinsTheme();
+const b64e=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const b64d=s=>{try{return JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/")))));}catch(e){return null;}};
+// ── excerpt hydration (meta→shard→page, cached) ──
+const _exc={};
+async function excerpt(slug,page){
+  const k=slug+"|"+page;if(k in _exc)return _exc[k];
+  try{
+    const meta=await fetch(BLOB+"/v1/works/"+slug+"/meta.json"+VER).then(r=>r.json());
+    const f=meta.single?"work.json":((meta.shards||[]).find(s=>s.from<=page&&page<=s.to)||{}).file;
+    if(!f)return _exc[k]=null;
+    const d=await fetch(BLOB+"/v1/works/"+slug+"/"+f+VER).then(r=>r.json());
+    const pg=(d.pages||[]).find(x=>x.n===page);
+    const tx=(pg&&(pg.en||pg.la)||"").replace(/\[\^[^\]]*\]:?/g,"").replace(/[#*]+/g,"").replace(/\s+/g," ").trim();
+    return _exc[k]=tx?tx.slice(0,220):null;
+  }catch(e){return _exc[k]=null;}}
+function hydrate(){[...document.querySelectorAll(".card[data-x]")].slice(0,24).forEach(a=>{
+  const [s,p]=a.dataset.x.split("|");
+  excerpt(s,+p).then(tx=>{if(tx&&!a.querySelector(".x"))a.insertAdjacentHTML("beforeend",'<span class=x>'+esc(tx)+'…</span>');});});}
+// unified cross-corpus scheme: items may carry site fr|pld|po (absent = fr).
+const SITES={fr:{name:"The Faith Received",url:(s,p)=>"/read?w="+encodeURIComponent(s)+"#b"+p+"-0"},
+  pld:{name:"Patrologia Latina",url:(s,p)=>"https://pld-patrologia-latina.vercel.app/read/"+s+".html#b"+p},
+  po:{name:"Patrologia Orientalis",url:(s,p)=>"https://patrologia-orientalis.vercel.app/read/"+s+".html#b"+p},
+  pg:{name:"Patrologia Graeca",url:(s,p)=>"https://patrologia-graeca.vercel.app/read/"+s+".html#c"+p},
+  aq:{name:"Aquinas Studies",url:(s,p)=>"https://aquinas-studies.vercel.app/read/"+s+".html#b"+p}};
+const ikey=it=>notebookTools().itemKey(it);
+function mvBtns(k,index){const act=COLS.find(c=>c.id===ACTIVE);if(!act||act.sort||COLLECTION_QUERY||COLLECTION_KIND)return '';return '<button type="button" class="mv" data-mv="'+esc(k)+'" data-item-index="'+index+'" data-d="-1"'+(index===0?' disabled':'')+'>Move up</button><button type="button" class="mv" data-mv="'+esc(k)+'" data-item-index="'+index+'" data-d="1"'+(index===act.items.length-1?' disabled':'')+'>Move down</button>';}
+function card(it,removable){
+  const act=COLS.find(c=>c.id===ACTIVE),itemIndex=removable?(act?.items||[]).indexOf(it):-1,d=experience().describe(it,WIDX||{},TEN);
+  const key=ikey(it),full=d.body.length>360,body=d.body?(full?'<p class="saved-preview">'+esc(d.body.slice(0,360))+'…</p><details class="saved-full"><summary>Read full saved text</summary><div>'+esc(d.body).replace(/\n/g,'<br>')+'</div></details><div class="saved-print">'+esc(d.body).replace(/\n/g,'<br>')+'</div>':'<div class="saved-text">'+esc(d.body).replace(/\n/g,'<br>')+'</div>'):'';
+  const sourceList=d.sources.map(source=>{const url=experience().sourceURL(source),label=source.cite||[source.author,source.title||source.slug,source.page!=null?'Location '+source.page:''].filter(Boolean).join(', ');return '<li>'+(url?'<a href="'+esc(url)+'">'+esc(label||'Read source')+'</a>':esc(label||'Saved source'))+'</li>';}).join('');
+  const analysis=it.research&&window.FRPersonalResearch?.provenanceHTML?FRPersonalResearch.provenanceHTML(it.research):'';
+  return '<article class="card saved-item" data-k="'+esc(key)+'" data-item-index="'+itemIndex+'">'
+    +'<div class="saved-kind">'+esc(d.kindLabel)+'</div><h2 class="t">'+esc(d.title)+'</h2>'
+    +'<p class="m">'+esc([d.author&&(!d.location||!d.location.includes(d.author))?d.author:'',d.location].filter(Boolean).join(' · '))+'</p>'+body
+    +(d.note?'<div class="saved-annotation"><strong>Your note</strong><p>'+esc(d.note).replace(/\n/g,'<br>')+'</p></div>':'')
+    +(sourceList?'<details class="saved-sources"><summary>Sources ('+d.sources.length+')</summary><ul>'+sourceList+'</ul></details>':'')
+    +(analysis?'<details class="saved-analysis"><summary>Analysis context</summary>'+analysis+'</details>':'')
+    +'<div class="saved-actions">'+(d.href?'<a class="saved-open" href="'+esc(d.href)+'">'+esc(d.action)+'</a>':'')
+    +(removable?'<a href="'+esc(experience().deskURL(act.id,it.id||key))+'">Use in Desk</a><button type="button" class="nb" data-note="'+esc(key)+'" data-item-index="'+itemIndex+'">'+(d.kind==='note'?'Edit note':'Annotate')+'</button>'
+      +'<details class="saved-menu"><summary>More</summary><div>'+mvBtns(key,itemIndex)+'<button type="button" class="rm" data-rm="'+esc(key)+'" data-item-index="'+itemIndex+'">Remove item</button></div></details>':'')+'</div></article>';
+}
+function itemName(k,act){
+  const resolved=notebookTools().resolveEndpoint(act,k),it=resolved&&(act.items||[]).find(i=>ikey(i)===resolved);if(!it)return 'Unresolved saved item';
+  if(it.type==='note')return String(it.label||it.cite||it.text||'Note').slice(0,60);
+  const m=(WIDX||{})[it.slug]||{};
+  const en=(it.site||"fr")==="fr"?(TEN[it.slug]||""):"";
+  return ((m.author?m.author+", ":"")+(en||m.title||it.slug)).slice(0,44)+(it.page!=null?" · "+it.page:"");}
+function consHTML(act,removable=true){
+  const all=notebookTools().resolveEdges(act);if(!all.length)return '<p class="note">No relationships recorded. Use Collection actions to link two saved items.</p>';
+  const rows=all.map(e=>'<div class="edge-row"><span>'+esc(e.resolved?itemName(e.a,act):'Unresolved saved item')+'</span><span class="rel">'+esc(e.rel)+'</span><span>'+esc(e.resolved?itemName(e.b,act):'Original relation retained')+'</span>'+(removable?'<button class="ex" data-ei="'+e.index+'" aria-label="Remove this relationship">Remove</button>':'')+'</div>').join('');
+  return '<div class="cons">'+rows+(all.some(e=>!e.resolved)?'<p class="note">Some older endpoints are missing or ambiguous. Their original relations are retained.</p>':'')+'</div>';
+}
+function authorOf(i){const site=i.site||"fr";
+  if(site==="fr")return ((WIDX||{})[i.slug]||{}).author||i.author||"Unattributed";
+  return i.author||(SITES[site]||{}).name||"Other corpora";}
+function mdLine(item){return experience().markdown(item,WIDX||{},TEN)+(item.research&&window.FRPersonalResearch?.provenanceMarkdown?'\n\n'+FRPersonalResearch.provenanceMarkdown(item.research):'');}
+function citations(items,name,memo,byAuthor){
+  let out="# "+(name||"Research notebook")+"\n";
+  if(memo)out+="\n> "+memo.replace(/\n+/g,"\n> ")+"\n";
+  const notes=items.filter(i=>i.type==="note"),rest=items.filter(i=>i.type!=="note");
+  if(notes.length)out+="\n## Notes\n\n"+notes.map(mdLine).join("\n\n")+"\n";
+  if(byAuthor){
+    const G={};rest.forEach(i=>{(G[authorOf(i)]=G[authorOf(i)]||[]).push(i);});
+    Object.keys(G).sort().forEach(aut=>{out+="\n## "+aut+"\n\n"+G[aut].map(mdLine).join("\n")+"\n";});}
+  else if(rest.length)out+="\n## Passages\n\n"+rest.map(mdLine).join("\n")+"\n";
+  return out+"\n— assembled in The Faith Received · "+location.origin+"/pins\n";}
+function listHTML(act){
+  const filtered=act.items.filter(item=>(!COLLECTION_KIND||experience().kind(item)===COLLECTION_KIND)&&experience().matches(item,COLLECTION_QUERY,WIDX||{},TEN));
+  if(act.sort==='author')filtered.sort((a,b)=>authorOf(a).localeCompare(authorOf(b)));
+  if(act.sort==='type')filtered.sort((a,b)=>experience().kindLabel(experience().kind(a)).localeCompare(experience().kindLabel(experience().kind(b))));
+  const pages=Math.ceil(filtered.length/24);COLLECTION_PAGE=Math.max(0,Math.min(COLLECTION_PAGE,Math.max(0,pages-1)));
+  const shown=filtered.slice(COLLECTION_PAGE*24,COLLECTION_PAGE*24+24);
+  return {html:shown.map(i=>card(i,true)).join('')||'<div class="empty">'+(act.items.length?'No saved items match these filters.':'Save a work, bookmark a reading place, or clip a passage from the reader. You can also write a note here.')+'</div>',total:filtered.length,pages};
+}
+function renderList(){
+  if(LINK_CLEANUP)LINK_CLEANUP();
+  const act=COLS.find(c=>c.id===ACTIVE);if(!act||!$('#collectionList'))return;
+  const result=listHTML(act),address=new URL(location.href);for(const [key,value] of [['q',COLLECTION_QUERY],['kind',COLLECTION_KIND],['page',COLLECTION_PAGE?String(COLLECTION_PAGE+1):'']]){if(value)address.searchParams.set(key,value);else address.searchParams.delete(key);}history.replaceState(history.state,'',address);$('#collectionList').innerHTML=result.html;$('#collectionList').scrollTop=0;
+  $('#pinsResultCount').textContent=result.total+' saved '+(result.total===1?'item':'items');
+  $('#pinsPrevious').disabled=COLLECTION_PAGE===0;$('#pinsNext').disabled=(COLLECTION_PAGE+1)>=result.pages;
+  $('#pinsPage').textContent=result.pages?'Page '+(COLLECTION_PAGE+1)+' of '+result.pages:'';$('#pinsPages').hidden=result.pages<2;bindSavedActions(act);
+}
+function bindSavedActions(act){
+  $("#collectionList").querySelectorAll(".rm").forEach(b=>b.onclick=ev=>{ev.preventDefault();ev.stopPropagation();
+    const k=b.dataset.rm;
+    notebookTools().removeCollectionItem(act,k,b.dataset.itemIndex);
+    saveCols(COLS);render();});
+  $("#collectionList").querySelectorAll(".nb").forEach(b=>b.onclick=ev=>{ev.preventDefault();ev.stopPropagation();
+    const it=act.items[notebookTools().findItemIndex(act,b.dataset.note,b.dataset.itemIndex)];if(!it)return;
+    openNoteEditor(b.closest('.card'),act,{kind:'item',key:b.dataset.note,index:b.dataset.itemIndex,field:experience().kind(it)==='note'?'text':'note',before:experience().kind(it)==='note'?(it.text||''):(it.note||'')});});
+  $("#collectionList").querySelectorAll(".mv").forEach(b=>b.onclick=ev=>{ev.preventDefault();ev.stopPropagation();
+    const k=b.dataset.mv,d=+b.dataset.d,ix=notebookTools().findItemIndex(act,k,b.dataset.itemIndex),j=ix+d;
+    if(ix<0||j<0||j>=act.items.length)return;
+    [act.items[ix],act.items[j]]=[act.items[j],act.items[ix]];saveCols(COLS);render();});
+}
+function openRelationshipEditor(collection){
+  if(NOTE_EDITOR?.isConnected){NOTE_EDITOR.querySelector('textarea').focus();return;}
+  const existing=$('#pinsRelationship');if(existing){existing.querySelector('select').focus();return;}
+  if(collection.items.length<2){$('#collectionStatus').textContent='Save at least two items before linking them.';return;}
+  const form=document.createElement('form');form.id='pinsRelationship';form.className='pins-work-search';
+  const options=collection.items.map((item,i)=>{const d=experience().describe(item,WIDX||{},TEN);return '<option value="'+esc(ikey(item))+'">'+esc((i+1)+'. '+d.title+(d.location?' · '+d.location:'')+' ('+d.kindLabel+')')+'</option>';}).join('');
+  form.innerHTML='<h2>Link saved items</h2><label>First item<select name="first" aria-label="First item">'+options+'</select></label><label>Relationship<input name="relation" value="parallels" maxlength="100" required></label><label>Second item<select name="second" aria-label="Second item">'+options+'</select></label><p role="status">Record your relationship between the selected items.</p><div class="pins-note-actions"><button type="submit" class="btn">Save relationship</button><button type="button" class="btn" data-link-cancel>Cancel linking</button></div>';
+  $('.bar').after(form);form.elements.second.selectedIndex=1;form.querySelector('[data-link-cancel]').onclick=()=>{form.remove();$('#linkBtn').focus();};
+  form.onsubmit=event=>{event.preventDefault();const a=form.elements.first.value,b=form.elements.second.value,rel=form.elements.relation.value.trim();if(a===b||!rel){form.querySelector('[role=status]').textContent='Choose two different items and describe their relationship.';return;}
+    collection.edges=collection.edges||[];if(!collection.edges.some(e=>e.a===a&&e.b===b&&e.rel===rel))collection.edges.push({a,b,rel});try{saveCols(COLS);form.remove();render();$('#collectionStatus').textContent='Relationship saved.';}catch(error){form.querySelector('[role=status]').textContent=error.message;}};
+  form.querySelector('select').focus();
+}
+function openCollectionEditor(collection){
+  if(NOTE_EDITOR?.isConnected){NOTE_EDITOR.querySelector('textarea').focus();return;}
+  if(NAME_EDITOR?.isConnected){NAME_EDITOR.querySelector('input').focus();return;}
+  const form=document.createElement('form');form.className='pins-work-search';form.id='pinsCollectionEditor';form.dataset.before=collection?.name||'';NAME_EDITOR=form;
+  const label=collection?'Rename collection':'New collection';form.innerHTML='<h2>'+label+'</h2><label for="pinsCollectionName">Collection name</label><input id="pinsCollectionName" type="text" required maxlength="60" autocomplete="off"><div class="pins-note-actions"><button type="submit" class="btn">'+(collection?'Save name':'Create collection')+'</button><button type="button" class="btn" data-name-cancel>Cancel</button><span role="status"></span></div>';
+  $('.cols').after(form);const input=form.querySelector('input'),status=form.querySelector('[role=status]'),button=form.querySelector('[type=submit]');input.value=form.dataset.before;
+  const finish=()=>{NAME_EDITOR=null;form.remove();COLS=notebookTools().read().collections;render();$('#newCol')?.focus();};form.querySelector('[data-name-cancel]').onclick=finish;
+  form.onsubmit=async event=>{event.preventDefault();const name=input.value.trim();if(!name){status.textContent='Enter a collection name.';return;}button.disabled=true;
+    try{if(collection){const fresh=notebookTools().read().collections,target=fresh.find(c=>c.id===collection.id);if(!target||target.name!==form.dataset.before)throw Error('This collection changed in another view. Your proposed name is kept.');target.name=name;saveCols(fresh);}else{const result=await notebookTools().createCollection(name);COLS=notebookTools().read().collections;ACTIVE=result.id;COLLECTION_QUERY='';COLLECTION_KIND='';COLLECTION_PAGE=0;}finish();$('#collectionStatus').textContent=collection?'Collection renamed.':'Collection created. New saves will go here.';}
+    catch(error){status.textContent=error.message;button.disabled=false;}};input.focus();input.select();
+}
+function openWorkSearch(collection){
+  if(NOTE_EDITOR?.isConnected){NOTE_EDITOR.querySelector('textarea').focus();return;}
+  const existing=$('#pinsWorkSearch');if(existing){existing.querySelector('input').focus();return;}
+  const form=document.createElement('form');form.id='pinsWorkSearch';form.className='pins-work-search';
+  form.innerHTML='<label for="pinsWorkQuery">Find a work to save</label><div class="pins-work-query"><input id="pinsWorkQuery" type="search" placeholder="Author or title" autocomplete="off"><button type="button" class="btn" data-work-close>Close search</button></div><p data-work-status role="status"></p><div class="pins-work-results"></div>';
+  $('#memoBox').after(form);const input=form.querySelector('input'),status=form.querySelector('[role=status]'),results=form.querySelector('.pins-work-results');let limit=12;
+  form.onsubmit=event=>event.preventDefault();form.querySelector('[data-work-close]').onclick=()=>{form.remove();render();$('#addWork').focus();};
+  const search=()=>{const words=input.value.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);results.replaceChildren();
+    if(!words.length){status.textContent='Search by author, title, or a few words from each.';return;}
+    if(!WIDX){status.textContent='The work catalogue is still loading. Try again shortly.';return;}
+    const hits=Object.values(WIDX).filter(w=>words.every(word=>[w.author,w.title,TEN[w.slug]].join(' ').toLocaleLowerCase().includes(word)));
+    status.textContent=hits.length?Math.min(limit,hits.length)+' of '+hits.length+' matching works':'No works match this search.';
+    for(const work of hits.slice(0,limit)){const row=document.createElement('div');row.className='pins-work-result';const label=document.createElement('div');label.textContent=[work.author,TEN[work.slug]||work.title].filter(Boolean).join(' · ');const save=document.createElement('button');save.type='button';save.className='btn';const already=(COLS.find(c=>c.id===collection.id)?.items||[]).some(i=>i.slug===work.slug&&i.page==null&&i.type!=='note');save.textContent=already?'Saved':'Save work';save.disabled=already;
+      save.onclick=async()=>{save.disabled=true;try{const r=await notebookTools().saveWork(work,{collectionId:collection.id});status.textContent=(r.created?'Saved in ':'Already in ')+r.collectionName+'.';save.textContent='Saved';COLS=notebookTools().read().collections;renderList();}catch(error){status.textContent=error.message;save.disabled=false;}};row.append(label,save);results.appendChild(row);}
+    if(hits.length>limit){const more=document.createElement('button');more.type='button';more.className='btn';more.textContent='Show more matches';more.onclick=()=>{limit+=12;search();};results.appendChild(more);}};
+  input.oninput=()=>{limit=12;search();};input.addEventListener('keydown',event=>{if(event.key==='Escape'){form.remove();render();$('#addWork').focus();}});form.addEventListener('refresh',search);const refresh=()=>{if(form.isConnected)search();else document.removeEventListener('pins-refresh-work-search',refresh);};document.addEventListener('pins-refresh-work-search',refresh);search();input.focus();
+}
+function openNoteEditor(anchor,collection,edit){
+  if(NOTE_EDITOR?.isConnected){NOTE_EDITOR.querySelector('textarea').focus();return;}
+  const editor=document.createElement('form');editor.className='pins-note-editor';editor.dataset.before=edit.before;NOTE_EDITOR=editor;
+  const title=edit.kind==='memo'?'Working notes':edit.kind==='new'?'New note':'Edit note';
+  editor.innerHTML='<label>'+esc(title)+'<textarea aria-label="'+esc(title)+'" rows="6"></textarea></label><div class="pins-note-actions"><button type="submit" class="btn">Save note</button><button type="button" class="btn" data-cancel>Cancel editing</button><span role="status">Not saved yet</span></div>';
+  anchor.after(editor);const input=editor.querySelector('textarea'),status=editor.querySelector('[role=status]'),submit=editor.querySelector('[type=submit]');input.value=edit.before;input.focus();
+  const finish=()=>{NOTE_EDITOR=null;editor.remove();COLS=notebookTools().read().collections;render();};
+  editor.querySelector('[data-cancel]').onclick=finish;
+  editor.onsubmit=async event=>{event.preventDefault();if(submit.disabled)return;submit.disabled=true;status.textContent='Saving…';
+    try{if(edit.kind==='new'){if(!input.value.trim()){status.textContent='Write a note before saving.';submit.disabled=false;return;}await notebookTools().save({type:'note',text:input.value},{collectionId:collection.id});}
+      else await notebookTools().editNote(collection.id,{...edit,text:input.value});
+      finish();$("#collectionStatus").textContent='Note saved in this notebook.';
+    }catch(error){status.textContent=error.message||'Your note could not be saved. Your draft is still here.';submit.disabled=false;}};
+  input.addEventListener('keydown',event=>{if((event.metaKey||event.ctrlKey)&&event.key==='Enter'&&!event.isComposing){event.preventDefault();editor.requestSubmit();}});
+}
+window.addEventListener('beforeunload',event=>{if(NOTE_EDITOR?.isConnected&&NOTE_EDITOR.querySelector('textarea')?.value!==NOTE_EDITOR.dataset.before||NAME_EDITOR?.isConnected&&NAME_EDITOR.querySelector('input')?.value!==NAME_EDITOR.dataset.before){event.preventDefault();event.returnValue='';}});
+function render(){
+  if(NOTE_EDITOR?.isConnected||NAME_EDITOR?.isConnected)return;
+  if($("#pinsRelationship"))return;
+  if($("#pinsWorkSearch")){document.dispatchEvent(new Event("pins-refresh-work-search"));return;}
+  if(LINK_CLEANUP)LINK_CLEANUP();
+  const app=$("#app");
+  if(SHARED){
+    let shared;try{shared=notebookTools().decodeShared(SHARED);}catch(_){app.innerHTML='<p class="muted">This shared collection could not be read. No local records were changed.</p>';return;}
+    const today=new Date().toISOString().slice(0,10),nEdges=(shared.edges||[]).length;
+    app.innerHTML='<div class="shared-banner noprint">Shared collection: <b>'+esc(shared.name||'Untitled')+'</b> ('+shared.items.length+' saved records). '
+      +'<button class="btn pri" id="saveCopy">Save a copy to my collections</button><button class="btn" id="citeColl">Copy collection citation</button><button class="btn" id="sharedDownload">Download full collection</button><button class="btn" id="printColl">Print collection</button><button class="btn" id="closeShared">Close shared collection</button></div>'
+      +'<div class="ed-head"><h1>'+esc(shared.name||'Shared collection')+'</h1><div class="ed-meta">'+shared.items.length+' saved records'+(nEdges?' · '+nEdges+' recorded relations':'')+'</div></div>'
+      +(shared.memo?'<div class="memo shared-memo">'+esc(shared.memo).replace(/\n/g,'<br>')+'</div>':'')
+      +'<section class="pins-list" aria-label="Shared saved items">'+shared.items.map(item=>card(item,false)).join('')+'</section>'+consHTML(shared,false)
+      +'<p class="note">Full notes, source inventories, and research metadata are retained. Download the collection file to keep the complete record.</p>';
+    $('#citeColl').onclick=async function(){try{const url=SHARED_FROM_FILE?'':location.href;await navigator.clipboard.writeText('“'+(shared.name||'Shared collection')+'.” A research collection assembled in The Faith Received, '+today+'. '+shared.items.length+' saved records.'+(url?' '+url:' Imported collection file.'));this.textContent='Citation copied';}catch(_){$('#collectionStatus').textContent='The citation could not be copied. Download the full collection instead.';}};
+    $('#closeShared').onclick=()=>{SHARED=null;SHARED_FROM_FILE=false;const url=new URL(location.href);url.hash='';url.searchParams.delete('shared');history.replaceState(null,'',url);render();$('#collectionStatus').textContent='Shared collection closed. Your collections are unchanged.';};
+    $('#printColl').onclick=()=>window.print();$('#sharedDownload').onclick=()=>downloadCollection(shared);
+    $('#saveCopy').onclick=()=>{
+      const copy={...shared,id:'c'+Date.now()+'-'+Math.random().toString(36).slice(2),name:(shared.name||'Shared')+' (copy)',...(shared.id?{sourceCollectionId:shared.id}:{})};
+      try{const next=[...COLS,copy];saveCols(next);COLS=next;location.hash='';SHARED=null;SHARED_FROM_FILE=false;ACTIVE=copy.id;notebookTools().selectCollection(ACTIVE);render();$('#collectionStatus').textContent='Saved a copy to '+copy.name+'.';}catch(error){$('#collectionStatus').textContent='The collection could not be saved. '+(error.message||'Try downloading a copy.');}
+    };
+    hydrate();return;
+  }
+  const act=COLS.find(c=>c.id===ACTIVE)||COLS[0];ACTIVE=act.id;notebookTools().selectCollection(ACTIVE);const address=new URL(location.href);address.searchParams.set('notebook',ACTIVE);history.replaceState(history.state,'',address);
+  app.innerHTML='<h1>Notebook</h1><p class="pins-intro">Keep sources together, return to your reading, and bring selected material into Desk.</p>'
+    +'<div class=cols>'+COLS.map(c=>'<button class="col-tab'+(c.id===act.id?" on":"")+'" data-col="'+esc(c.id)+'">'+esc(c.name)+'<span class=n>'+c.items.length+'</span></button>').join("")
+    +'<button class=col-tab id=newCol>New collection</button></div>'
+    +'<button type="button" id="memoBox" class="memo" aria-label="Edit working notes">'
+    +(act.memo?esc(act.memo).replace(/\n/g,"<br>"):'<span class=mmut>Write working notes for this notebook.</span>')+'</button>'
+    +'<div class=bar>'
+    +'<button class=btn id=addNote>Add note</button>'
+    +'<button class=btn id=addWork>Add work</button>'
+    +'<button class=btn id=shareBtn>Share collection</button>'
+    +'<button class=btn id=downloadCol>Download full collection</button>'
+    +'<button class=btn id=moreBtn aria-expanded="false" aria-controls="moreRow">Collection actions</button>'
+    +'<span id=moreRow style="display:none">'
+    +'<button class=btn id=copyBtn title="Copy the whole notebook as Markdown — memo, notes, linked passages">Copy Markdown</button>'
+    +'<button class=btn id=grpBtn></button>'
+    +'<button class=btn id=linkBtn>Link two items</button>'
+    +'<button class=btn id=renameBtn>Rename collection</button>'
+    +(COLS.length>1?'<button class=btn id=delBtn>Delete collection</button>':"")
+    +'</span>'
+    +'</div>'
+    +'<div id="shareStatus" class="note" role="status"></div>'
+    +'<div class="pins-filters"><label>Find saved items<input id="pinsQuery" type="search" placeholder="Title, author, passage, or note" value="'+esc(COLLECTION_QUERY)+'"></label><label>Type<select id="pinsKind"><option value="">All types</option>'+[...new Set(act.items.map(i=>experience().kind(i)))].map(k=>'<option value="'+esc(k)+'"'+(k===COLLECTION_KIND?' selected':'')+'>'+esc(experience().kindLabel(k))+'</option>').join('')+'</select></label><label>Order<select id="pinsOrder"><option value="">Saved order</option><option value="author"'+(act.sort==='author'?' selected':'')+'>Author</option><option value="type"'+(act.sort==='type'?' selected':'')+'>Type</option></select></label></div><p id="pinsResultCount" role="status"></p><section id="collectionList" class="pins-list" aria-label="Saved items" tabindex="0"></section><nav id="pinsPages" aria-label="Saved item pages"><button class="btn" id="pinsPrevious">Previous items</button><span id="pinsPage"></span><button class="btn" id="pinsNext">Next items</button></nav>'
+    +'<details class="pins-relations"><summary>Recorded relationships ('+(act.edges||[]).length+')</summary>'+consHTML(act)+'</details>'
+    +'<p class="note">New reader and Ask saves go into the selected collection. <button type="button" class="pins-text-button" id="openAllResearch">All saved research</button> also includes unfiled highlights, reader notes, and Ask conversations. Download a collection to keep a portable copy.</p>';
+  document.querySelectorAll(".col-tab[data-col]").forEach(b=>b.onclick=()=>{ACTIVE=b.dataset.col;COLLECTION_QUERY="";COLLECTION_KIND="";COLLECTION_PAGE=0;notebookTools().selectCollection(ACTIVE);const url=new URL(location.href);url.searchParams.set("notebook",ACTIVE);history.replaceState(null,"",url);render();});
+  $('#newCol').onclick=()=>openCollectionEditor();
+  $("#moreBtn").onclick=()=>{const r=$("#moreRow");r.style.display=r.style.display==="none"?"inline-flex":"none";$("#moreBtn").setAttribute("aria-expanded",String(r.style.display!=="none"));};
+  const gb=$("#grpBtn");gb.textContent=act.sort==="author"?"⇅ My order":"⇅ By author";
+  gb.title="Organize the notebook: your hand order, or grouped by author";
+  gb.onclick=()=>{act.sort=act.sort==="author"?undefined:"author";saveCols(COLS);render();};
+  $('#renameBtn').onclick=()=>openCollectionEditor(act);
+  const del=$("#delBtn");if(del)del.onclick=()=>{if(!confirm('Delete “'+act.name+'” and its '+act.items.length+' pins?'))return;
+    COLS=COLS.filter(c=>c.id!==act.id);ACTIVE=COLS[0].id;localStorage.setItem("fr_pincol",ACTIVE);saveCols(COLS);render();};
+  $("#shareBtn").onclick=()=>{
+    try{const share=notebookTools().sharePlan(act,location.origin),status=$("#shareStatus");status.replaceChildren();
+      if(share.kind==='file'){status.textContent='This complete collection is too large for a reliable share link. No notes or source records have been shortened. ';const download=document.createElement('button');download.type='button';download.className='btn';download.textContent='Download full collection';download.onclick=()=>downloadCollection(act);status.appendChild(download);return;}
+      navigator.clipboard.writeText(share.url).then(()=>{status.textContent='Complete collection link copied, including full notes and research metadata.';}).catch(()=>{status.textContent='The link could not be copied. Download the full collection instead.';});
+    }catch(e){$("#collectionStatus").textContent=e.message;}};
+  $("#downloadCol").onclick=()=>downloadCollection(act);
+  $("#copyBtn").onclick=()=>{navigator.clipboard.writeText(citations(act.items,act.name,act.memo,act.sort==="author")).then(()=>{
+    $("#copyBtn").textContent="✓ copied";setTimeout(()=>{$("#copyBtn").textContent="Copy Markdown";},1400);});};
+  $("#addNote").onclick=()=>openNoteEditor($("#memoBox"),act,{kind:'new',before:''});
+  const mb=$("#memoBox");if(mb)mb.onclick=()=>openNoteEditor(mb,act,{kind:'memo',before:act.memo||''});
+  $('#addWork').onclick=()=>openWorkSearch(act);
+  $('#pinsQuery').oninput=()=>{COLLECTION_QUERY=$('#pinsQuery').value;COLLECTION_PAGE=0;renderList();};
+  $('#pinsKind').onchange=()=>{COLLECTION_KIND=$('#pinsKind').value;COLLECTION_PAGE=0;renderList();};
+  $('#pinsOrder').onchange=()=>{act.sort=$('#pinsOrder').value||undefined;COLLECTION_PAGE=0;saveCols(COLS);renderList();};
+  $('#pinsPrevious').onclick=()=>{COLLECTION_PAGE--;renderList();};$('#pinsNext').onclick=()=>{COLLECTION_PAGE++;renderList();};
+  $('#openAllResearch').onclick=()=>personalView(true);
+  $('#pinsDesk').href=experience().deskURL(act.id);
+  $('#linkBtn').onclick=()=>openRelationshipEditor(act);
+  document.querySelectorAll(".cons .ex").forEach(b=>b.onclick=()=>{
+    act.edges.splice(+b.dataset.ei,1);saveCols(COLS);render();});
+  renderList();}
+(async function(){
+  // Notes are local. The catalogue enriches work cards after the notebook opens.
+  try{COLS=loadCols();ACTIVE=new URLSearchParams(location.search).get("notebook")||localStorage.getItem("fr_pincol")||COLS[0].id;}catch(_){$("#app").innerHTML='<p class="muted">Saved collections could not be read. No stored data was changed.</p>';return;}
+  if(!location.hash.startsWith('#c=')&&!new URLSearchParams(location.search).has('shared'))render();
+  try{const [d,te]=await Promise.all([
+      fetch(BLOB+"/v1/works-index.json"+VER).then(r=>r.json()),
+      fetch(BLOB+"/v1/titles_en.json"+VER).then(r=>r.ok?r.json():{}).catch(()=>({}))]);
+    WIDX={};(d.works||[]).forEach(w=>WIDX[w.slug]=w);TEN=te||{};}catch(e){WIDX={};TEN={};}
+  try{COLS=loadCols();ACTIVE=new URLSearchParams(location.search).get("notebook")||localStorage.getItem("fr_pincol")||COLS[0].id;}catch(_){$('#collectionStatus').textContent='The updated collections could not be read. Your current draft is unchanged.';return;}
+  const m=location.hash.match(/#c=([A-Za-z0-9_-]+)/);
+  if(m){const sh=b64d(m[1]);if(validShared(sh))SHARED=sh;}
+  // ?shared=<id> — a Firestore share from ANY of the three sites (common 'shared' collection,
+  // one Firebase project). PLD/PO notebook shares render best-effort with cross-site deep-links.
+  const sq=new URLSearchParams(location.search).get("shared");
+  if(sq&&window.__FR_FB__&&window.__FR_FB__.apiKey){
+    try{
+      const [A,F]=await Promise.all([
+        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js")]);
+      const app=A.initializeApp(window.__FR_FB__),db=F.getFirestore(app);
+      const snap=await F.getDoc(F.doc(db,"shared",sq));
+      if(snap.exists()){
+        const d=snap.data()||{};
+        const items=[];
+        if(Array.isArray(d.items))d.items.forEach(x=>items.push(x.length===3?x:["fr",x[0],x[1]]));
+        else if(d.notes&&typeof d.notes==="object"){
+          const corpus=d.corpus||"pld";
+          Object.values(d.notes).forEach(n=>{
+            const w=n.srcWork||n.work||n.w,b=n.block||n.b||n.anchor;
+            if(w!=null&&b!=null)items.push([n.site||corpus,String(w),+b]);});}
+        if(items.length)SHARED={n:(d.name||"Shared")+(d.ownerName?" — "+d.ownerName:""),i:items};
+      }
+    }catch(e){}
+  }
+  render();
+  addEventListener("hashchange",()=>{const m2=location.hash.match(/#c=([A-Za-z0-9_-]+)/),shared=m2?b64d(m2[1]):null;SHARED=shared&&validShared(shared)?shared:null;SHARED_FROM_FILE=false;render();});
+})();
+</script>
+</body>
+</html>

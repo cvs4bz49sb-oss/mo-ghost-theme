@@ -1,0 +1,20 @@
+{
+  "authorOpen": true,
+  "firstStatement": "ef652a7538d9b6f00bd1e689",
+  "horizontalOverflow": false,
+  "loaded": "100 loaded statements of 622 indexed · 100 match the current filter.",
+  "page": "Previous\nPage 2 of 5\n21–40\nNext",
+  "renderedStatements": 20,
+  "scrollAreas": [
+    {
+      "class": "rx-fold-body rx-pane rx-topic-authors",
+      "overflow": "auto"
+    },
+    {
+      "class": "rx-voice-pane rx-pane",
+      "overflow": "visible"
+    }
+  ],
+  "url": "https://thefaithreceived.vercel.app/topics?sh=ed&q=Richard+Baxter#god",
+  "width": 390
+}

@@ -1,0 +1,180 @@
+TAP version 13
+# Subtest: a path never reverses a citation in a directed journey
+ok 1 - a path never reverses a citation in a directed journey
+  ---
+  duration_ms: 1.587583
+  ...
+# Subtest: incoming evidence names the citing author, not the selected author
+ok 2 - incoming evidence names the citing author, not the selected author
+  ---
+  duration_ms: 0.133792
+  ...
+# Subtest: source and shared topic pages preserve volume/column strings
+ok 3 - source and shared topic pages preserve volume/column strings
+  ---
+  duration_ms: 0.342291
+  ...
+# Subtest: shared profile chapters distinguish Gospel and numbered letters
+ok 4 - shared profile chapters distinguish Gospel and numbered letters
+  ---
+  duration_ms: 1.021834
+  ...
+# Subtest: verse overlap requires exact work or author identity in source rows
+ok 5 - verse overlap requires exact work or author identity in source rows
+  ---
+  duration_ms: 0.4315
+  ...
+# Subtest: filters preserve every matching row and do not promote citation kind to agreement
+ok 6 - filters preserve every matching row and do not promote citation kind to agreement
+  ---
+  duration_ms: 0.705084
+  ...
+# Subtest: saved connection carries only provided source evidence, deduplicated by exact URL
+ok 7 - saved connection carries only provided source evidence, deduplicated by exact URL
+  ---
+  duration_ms: 0.163375
+  ...
+# Subtest: previews never accept an external or executable URL
+ok 8 - previews never accept an external or executable URL
+  ---
+  duration_ms: 0.112334
+  ...
+# Subtest: doctrine context keeps section tags separate from page-position tags
+ok 9 - doctrine context keeps section tags separate from page-position tags
+  ---
+  duration_ms: 0.30875
+  ...
+# Subtest: resolution never treats an opaque target identifier as a held work
+ok 10 - resolution never treats an opaque target identifier as a held work
+  ---
+  duration_ms: 0.256209
+  ...
+# Subtest: multi-target authority references preserve all held targets and exact recorded anchors
+ok 11 - multi-target authority references preserve all held targets and exact recorded anchors
+  ---
+  duration_ms: 0.59325
+  ...
+# Subtest: only identical identified propositions deduplicate; section contexts and authorities remain
+ok 12 - only identical identified propositions deduplicate; section contexts and authorities remain
+  ---
+  duration_ms: 0.161042
+  ...
+# Subtest: source and reception choices preserve the actual citation direction
+ok 13 - source and reception choices preserve the actual citation direction
+  ---
+  duration_ms: 0.160875
+  ...
+# Subtest: journey choices ignore unavailable graph nodes and never duplicate a self-edge
+ok 14 - journey choices ignore unavailable graph nodes and never duplicate a self-edge
+  ---
+  duration_ms: 0.052
+  ...
+# Subtest: known citation anchors are never replaced by a whole-work mention search
+ok 15 - known citation anchors are never replaced by a whole-work mention search
+  ---
+  duration_ms: 0.111542
+  ...
+# Subtest: mixed-direction paths retain the selected citation when authors cite one another
+ok 16 - mixed-direction paths retain the selected citation when authors cite one another
+  ---
+  duration_ms: 0.056458
+  ...
+# Subtest: long citation lists remain fully reachable through bounded work and reference pages
+ok 17 - long citation lists remain fully reachable through bounded work and reference pages
+  ---
+  duration_ms: 106.276458
+  ...
+# Subtest: compound source locations sort as strings without being collapsed to their volume number
+ok 18 - compound source locations sort as strings without being collapsed to their volume number
+  ---
+  duration_ms: 0.123666
+  ...
+# Subtest: save controls reach the delegated handler and source links retain the research page
+ok 19 - save controls reach the delegated handler and source links retain the research page
+  ---
+  duration_ms: 0.260459
+  ...
+# Subtest: an explicit Summa question outside the held volume is a target conflict
+ok 20 - an explicit Summa question outside the held volume is a target conflict
+  ---
+  duration_ms: 0.2705
+  ...
+# Subtest: Summa range checks preserve valid boundary questions
+ok 21 - Summa range checks preserve valid boundary questions
+  ---
+  duration_ms: 0.09875
+  ...
+# Subtest: ambiguous citations and unrelated title numbers never establish a target conflict
+ok 22 - ambiguous citations and unrelated title numbers never establish a target conflict
+  ---
+  duration_ms: 0.071208
+  ...
+# Subtest: a path starting at a cited author opens the citing author’s evidence
+ok 23 - a path starting at a cited author opens the citing author’s evidence
+  ---
+  duration_ms: 0.514583
+  ...
+# Subtest: a path in citation direction preserves its source and target
+ok 24 - a path in citation direction preserves its source and target
+  ---
+  duration_ms: 0.125375
+  ...
+# Subtest: missing evidence does not invent a citation
+ok 25 - missing evidence does not invent a citation
+  ---
+  duration_ms: 0.05875
+  ...
+# Subtest: bidirectional citation uses the displayed outgoing row consistently
+ok 26 - bidirectional citation uses the displayed outgoing row consistently
+  ---
+  duration_ms: 0.045959
+  ...
+# Subtest: view identities separate sources, reception, work scopes and actual directed paths
+ok 27 - view identities separate sources, reception, work scopes and actual directed paths
+  ---
+  duration_ms: 0.578625
+  ...
+# Subtest: a citation view preserves filters, page position, closed folds and safe previews
+ok 28 - a citation view preserves filters, page position, closed folds and safe previews
+  ---
+  duration_ms: 0.963375
+  ...
+# Subtest: state from another directed citation cannot filter a new connection
+ok 29 - state from another directed citation cannot filter a new connection
+  ---
+  duration_ms: 0.075666
+  ...
+# Subtest: invalid page positions clamp and the rebuilt shell parses
+ok 30 - invalid page positions clamp and the rebuilt shell parses
+  ---
+  duration_ms: 2.990166
+  ...
+# Subtest: leaving a journey snapshots it, aborts stale listeners and bounds retained views
+ok 31 - leaving a journey snapshots it, aborts stale listeners and bounds retained views
+  ---
+  duration_ms: 0.739209
+  ...
+# Subtest: directed route keys survive URL round trips that omit redundant edge directions
+ok 32 - directed route keys survive URL round trips that omit redundant edge directions
+  ---
+  duration_ms: 0.050042
+  ...
+# Subtest: returning to a multi-step path reopens the actual evidence steps in citation direction
+ok 33 - returning to a multi-step path reopens the actual evidence steps in citation direction
+  ---
+  duration_ms: 0.335458
+  ...
+# Subtest: a found mixed path and its URL round trip restore the same directed view
+ok 34 - a found mixed path and its URL round trip restore the same directed view
+  ---
+  duration_ms: 1.33525
+  ...
+1..34
+# tests 34
+# suites 0
+# pass 34
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 158.9965

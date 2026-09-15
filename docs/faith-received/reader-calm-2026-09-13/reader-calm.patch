@@ -1,0 +1,286 @@
+--- a/tools/ask_workspace/fr-reading-system.css
++++ b/tools/ask_workspace/fr-reading-system.css
+@@ -1,4 +1,4 @@
+-/* Shared reading edition: paper, soft graphite, editorial type. Source files only.
++/* Shared reading edition: paper, neutral graphite, editorial type. Source files only.
+    The owner's September 6 direction replaces the mixed warm and colored chrome.
+    Existing accessibility font, size, lane, and explicit sepia choices remain available. */
+ @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+@@ -18,11 +18,11 @@
+ /* Owner-approved September 7 direction: stone/graphite, brown apparatus details,
+    and the established shelf identities. Paragraph ink and primary actions stay neutral. */
+ :root{--detail:#775B43;--detail-rule:#C6B7A7;--shelf-latin:#A8462B;--shelf-greek:#3E5F8A;--shelf-eastern:#7A6025;--shelf-english:#3F6B4E;--shelf-medieval:#5B4E7A;--shelf-catholic:#8E2F39;--shelf-reformed:#4A6178;--shelf-lutheran:#2F6F62;--shelf-humanism:#6E5A3A;--shelfc:var(--detail)}
+-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){--detail:#C7AD90;--detail-rule:#62564A;--shelf-latin:#D09A7E;--shelf-greek:#9FB5D3;--shelf-eastern:#C7AD78;--shelf-english:#A4B7A4;--shelf-medieval:#B9ACCA;--shelf-catholic:#C9A0A5;--shelf-reformed:#A5B7C6;--shelf-lutheran:#97B8AE;--shelf-humanism:#BEAE91}}
+-:root[data-theme="dark"]{--detail:#C7AD90;--detail-rule:#62564A;--shelf-latin:#D09A7E;--shelf-greek:#9FB5D3;--shelf-eastern:#C7AD78;--shelf-english:#A4B7A4;--shelf-medieval:#B9ACCA;--shelf-catholic:#C9A0A5;--shelf-reformed:#A5B7C6;--shelf-lutheran:#97B8AE;--shelf-humanism:#BEAE91}
++@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){--detail:#B9BCB8;--detail-rule:#3A3D3F;--shelf-latin:#D09A7E;--shelf-greek:#9FB5D3;--shelf-eastern:#C7AD78;--shelf-english:#A4B7A4;--shelf-medieval:#B9ACCA;--shelf-catholic:#C9A0A5;--shelf-reformed:#A5B7C6;--shelf-lutheran:#97B8AE;--shelf-humanism:#BEAE91}}
++:root[data-theme="dark"]{--detail:#B9BCB8;--detail-rule:#3A3D3F;--shelf-latin:#D09A7E;--shelf-greek:#9FB5D3;--shelf-eastern:#C7AD78;--shelf-english:#A4B7A4;--shelf-medieval:#B9ACCA;--shelf-catholic:#C9A0A5;--shelf-reformed:#A5B7C6;--shelf-lutheran:#97B8AE;--shelf-humanism:#BEAE91}
+ [data-shelf="Latin Fathers"]{--shelfc:var(--shelf-latin)}[data-shelf="Greek Fathers"]{--shelfc:var(--shelf-greek)}[data-shelf="Eastern Fathers"]{--shelfc:var(--shelf-eastern)}[data-shelf="English Divines"]{--shelfc:var(--shelf-english)}[data-shelf="Medieval"]{--shelfc:var(--shelf-medieval)}[data-shelf="Roman Catholic"]{--shelfc:var(--shelf-catholic)}[data-shelf="Reformed"],[data-shelf="Continental Reformed"]{--shelfc:var(--shelf-reformed)}[data-shelf="Lutheran"]{--shelfc:var(--shelf-lutheran)}[data-shelf="Humanism and Law"]{--shelfc:var(--shelf-humanism)}
+-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]),:root[data-site]:not([data-theme="light"]):not([data-theme="sepia"]){--bg:#222320;--bg-warm:#272824;--card:#2B2C29;--card-bg:#2B2C29;--panel:#2B2C29;--paper:#2B2C29;--sidebar:#242521;--sidebar-bg:#242521;--fg:#E9E9E5;--head:#E9E9E5;--ink:#E9E9E5;--accent:#E9E9E5;--accent2:#D2D3CB;--muted:#B0B0A8;--border:#454740;--line:#454740;--hl:#373932;--highlight:#373932;--rule-soft:#3A3C35;--accent-soft:#868A7E;--latin:#E9E9E5;--english:#E9E9E5;--masthead:#2B2C29;--masthead-ink:#E9E9E5;--facs-mat:#1C1D1B}}
+-:root[data-theme="dark"],:root[data-site][data-theme="dark"]{--bg:#222320;--bg-warm:#272824;--card:#2B2C29;--card-bg:#2B2C29;--panel:#2B2C29;--paper:#2B2C29;--sidebar:#242521;--sidebar-bg:#242521;--fg:#E9E9E5;--head:#E9E9E5;--ink:#E9E9E5;--accent:#E9E9E5;--accent2:#D2D3CB;--muted:#B0B0A8;--border:#454740;--line:#454740;--hl:#373932;--highlight:#373932;--rule-soft:#3A3C35;--accent-soft:#868A7E;--latin:#E9E9E5;--english:#E9E9E5;--masthead:#2B2C29;--masthead-ink:#E9E9E5;--facs-mat:#1C1D1B}
++@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]),:root[data-site]:not([data-theme="light"]):not([data-theme="sepia"]){--bg:#1C1D1E;--bg-warm:#202122;--card:#222426;--card-bg:#222426;--panel:#222426;--paper:#222426;--sidebar:#1C1E20;--sidebar-bg:#1C1E20;--fg:#DAD9D5;--head:#DAD9D5;--ink:#DAD9D5;--accent:#DAD9D5;--accent2:#C8C8C4;--muted:#ABADA9;--border:#3A3D3F;--line:#3A3D3F;--hl:#2D3032;--highlight:#2D3032;--rule-soft:#303336;--accent-soft:#777B7D;--latin:#DAD9D5;--english:#DAD9D5;--masthead:#222426;--masthead-ink:#DAD9D5;--facs-mat:#17191A}}
++:root[data-theme="dark"],:root[data-site][data-theme="dark"]{--bg:#1C1D1E;--bg-warm:#202122;--card:#222426;--card-bg:#222426;--panel:#222426;--paper:#222426;--sidebar:#1C1E20;--sidebar-bg:#1C1E20;--fg:#DAD9D5;--head:#DAD9D5;--ink:#DAD9D5;--accent:#DAD9D5;--accent2:#C8C8C4;--muted:#ABADA9;--border:#3A3D3F;--line:#3A3D3F;--hl:#2D3032;--highlight:#2D3032;--rule-soft:#303336;--accent-soft:#777B7D;--latin:#DAD9D5;--english:#DAD9D5;--masthead:#222426;--masthead-ink:#DAD9D5;--facs-mat:#17191A}
+ :root[data-theme="sepia"],:root[data-site][data-theme="sepia"]{--bg:#EEE7D9;--card:#FAF6EC;--card-bg:#FAF6EC;--panel:#FAF6EC;--paper:#FAF6EC;--sidebar:#EEE7D9;--sidebar-bg:#EEE7D9;--fg:#302C24;--head:#302C24;--ink:#302C24;--accent:#302C24;--accent2:#514A3D;--muted:#6D6557;--border:#D8D0C1;--line:#D8D0C1;--hl:#E7DFCF;--highlight:#E7DFCF;--rule-soft:#E2DACB;--latin:#302C24;--english:#302C24;--masthead:#FAF6EC;--masthead-ink:#302C24}
+ body{ -webkit-font-smoothing:antialiased }
+ body::after{display:none!important}
+@@ -121,10 +121,10 @@
+ #deskScrim{position:fixed;inset:0;z-index:35;border:0;background:rgba(0,0,0,.18);padding:0;width:100%;height:100%}
+ #deskScrim[hidden]{display:none}
+ 
+-/* Soft graphite for long academic reading; explicit and system themes agree. */
++/* Neutral graphite for long academic reading; explicit and system themes agree. */
+ :root{color-scheme:light;--control-border:var(--border)}
+-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){color-scheme:dark;--control-border:#7D8075}}
+-:root[data-theme="dark"]{color-scheme:dark;--control-border:#7D8075}
++@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){color-scheme:dark;--control-border:#767C80}}
++:root[data-theme="dark"]{color-scheme:dark;--control-border:#767C80}
+ ::selection{background:var(--fg);color:var(--bg)}
+ #ed{caret-color:var(--fg)}
+ #ed a{text-decoration:underline;text-underline-offset:3px}
+@@ -215,3 +215,10 @@
+  #reading .fmark>.ff,#reading .fmark>.fm{display:none!important}
+  #reading .pganchor[data-page]{display:inline-block!important;width:1px!important;min-width:0!important;max-width:1px!important;height:1px!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;font-size:0!important;line-height:0!important;overflow:hidden!important;clip-path:inset(50%);opacity:0!important;pointer-events:none!important;vertical-align:baseline}
+ }
++
++/* Calm reader chrome: one neutral surface hierarchy in dark mode. */
++@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){--detail:var(--muted);--detail-rule:var(--border)}}
++:root[data-theme="dark"]{--detail:var(--muted);--detail-rule:var(--border)}
++html:not(.fr-plain) .ph.fr-reader-head,html:not(.fr-plain) #notebook,html:not(.fr-plain) .frthumb{box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
++html:not(.fr-plain) #nav .nav-node.on{background:var(--hl);border-left-color:var(--fg)}
++html:not(.fr-plain) #notebook .nb-context-label{color:var(--muted)}
+--- a/tools/prdl_reader_prototype/reader_shell.html
++++ b/tools/prdl_reader_prototype/reader_shell.html
+@@ -2311,17 +2311,18 @@
+ <div class="nb-scrim" id="nbScrim"></div>
+ <aside class="notebook" id="notebook" aria-hidden="true" aria-label="Research" inert>
+   <div class="nb-head"><span>Research</span><button class="nb-x" id="nbClose" aria-label="Close research">×</button></div>
+-  <div class="nb-tabs" role="tablist" aria-label="Research tools"><button type="button" id="nbWorkPanelTab" role="tab" aria-selected="false" aria-controls="nbWorkPanel">Work</button><button type="button" id="nbWorkSearchTab" role="tab" aria-selected="false" aria-controls="nbWorkSearch">Search</button><button type="button" id="nbPassageTab" role="tab" aria-selected="true" aria-controls="nbPassage">Passage</button><button type="button" id="nbSavedTab" role="tab" aria-selected="false" aria-controls="nbSaved">Saved <span id="nbSavedCount"></span></button><button type="button" id="nbChatsTab" role="tab" aria-selected="false" aria-controls="nbChats">Conversations</button></div>
++  <div class="nb-tabs" role="tablist" aria-label="Research tools"><button type="button" id="nbWorkPanelTab" role="tab" aria-selected="true" aria-controls="nbWorkPanel">Work</button><button type="button" id="nbWorkSearchTab" role="tab" aria-selected="false" aria-controls="nbWorkSearch">Search</button><button type="button" id="nbPassageTab" role="tab" aria-selected="false" aria-controls="nbPassage">Passage</button><button type="button" id="nbSavedTab" role="tab" aria-selected="false" aria-controls="nbSaved">Saved <span id="nbSavedCount"></span></button><button type="button" id="nbChatsTab" role="tab" aria-selected="false" aria-controls="nbChats">Chats</button></div>
+   <div class="nb-project"><label>Save to notebook<select id="nbProjectPick" aria-label="Save to notebook"></select></label><a id="nbProjectDesk" href="/desk">Return to writing</a></div>
+-  <section id="nbWorkPanel" class="nb-panel" role="tabpanel" aria-labelledby="nbWorkPanelTab" hidden><div class="nb-reading-place"><div><button type="button" id="nbSaveWork" aria-pressed="false" title="Keep this work in your notebook for later reading">Save work</button><button type="button" id="nbSaveReadingPlace">Save reading place</button><button type="button" id="nbOpenSavedPlaces" hidden>Open saved places</button></div><p id="nbBookmarkStatus" role="status">Keep a fixed place in your notebook as your reading progress changes.</p></div><div id="nbWorkAnalysis"></div><div id="nbWorkSources"></div></section>
++  <section id="nbWorkPanel" class="nb-panel" role="tabpanel" aria-labelledby="nbWorkPanelTab"><div class="nb-work-identity"><h2 id="nbWorkTitle"></h2><p id="nbWorkAuthor"></p><div class="nb-work-primary"><button type="button" id="nbFindInWork">Search this work</button><button type="button" id="nbFindRelated">Find related works</button><button type="button" id="nbWorkAsk">Ask about this work</button><button type="button" id="nbWorkAbout">Edition details</button></div></div><div class="nb-reading-place"><div><button type="button" id="nbSaveWork" aria-pressed="false" title="Keep this work in your notebook for later reading">Save work</button><button type="button" id="nbSaveReadingPlace">Save reading place</button><button type="button" id="nbOpenSavedPlaces" hidden>Open saved places</button></div><p id="nbBookmarkStatus" role="status">Keep a fixed place in your notebook as your reading progress changes.</p></div><div id="nbWorkSources"></div><details id="nbAnalysisFold" class="nb-analysis-fold"><summary>Summaries and analysis</summary><div id="nbWorkAnalysis"></div></details></section>
+   <section id="nbWorkSearch" class="nb-panel" role="tabpanel" aria-labelledby="nbWorkSearchTab" hidden>
++    <div class="nb-find-modes" role="group" aria-label="Search scope"><button type="button" id="nbFindTextMode" aria-pressed="true">This work</button><button type="button" id="nbFindRelatedMode" aria-pressed="false">Related works</button></div><div id="nbWorkTextSearch">
+     <div class="nb-work-search-controls">
+     <form id="nbWorkSearchForm" class="nb-work-search-form" role="search" aria-label="Search this work"><label for="nbWorkSearchQuery">Search this work</label><div><input id="nbWorkSearchQuery" type="search" placeholder="Enter words or a phrase" autocomplete="off" aria-describedby="nbWorkSearchStatus"><button type="submit">Search text</button></div></form>
+     <div class="nb-work-search-tools"><button type="button" id="nbWorkSearchClear">Clear search</button><a id="nbWorkSearchLibrary" href="/search" target="_blank" rel="noopener">Search library</a></div>
+     </div>
+     <p id="nbWorkSearchStatus" class="nb-guidance" role="status">Find pages containing all the words you enter.</p><div id="nbWorkSearchResults"></div><button type="button" id="nbWorkSearchMore" class="nb-book-ask" hidden>Show more results</button>
+-  </section>
+-  <section id="nbPassage" class="nb-panel" role="tabpanel" aria-labelledby="nbPassageTab">
++  </div><div id="nbRelatedSearch" hidden></div></section>
++  <section id="nbPassage" class="nb-panel" role="tabpanel" aria-labelledby="nbPassageTab" hidden>
+     <p class="nb-guidance" id="nbSelectionHelp">Select words in the book to highlight, add a note, make a quote image, or discuss the passage.</p>
+     <div id="nbSelection" hidden><p class="nb-context-label" id="nbSelectionCite"></p><blockquote id="nbSelectionText"></blockquote><div class="nb-passage-actions"><button type="button" data-reader-action="highlight">Highlight passage</button><button type="button" data-reader-action="save-research">Clip to notebook</button><button type="button" data-reader-action="desk">Use in Desk</button><button type="button" data-reader-action="note">Add note</button><button type="button" data-reader-action="image">Make quote image</button><button type="button" data-reader-action="ask">Discuss passage</button></div><fieldset class="nb-highlight-colors"><legend>Highlight color</legend><button type="button" data-reader-color="amber">Amber</button><button type="button" data-reader-color="sage">Sage</button><button type="button" data-reader-color="slate">Slate</button><button type="button" data-reader-color="">Clear highlight</button></fieldset><details class="nb-more"><summary>More passage tools</summary><div class="nb-passage-actions"><button type="button" data-reader-action="copy">Copy with citation</button><button type="button" data-reader-action="link">Copy passage link</button><button type="button" data-reader-action="translate">Write translation</button><button type="button" data-reader-action="parallels">Find parallels</button><button type="button" data-reader-action="pin">Save reference</button><button type="button" data-reader-action="bib">Copy BibTeX</button></div></details></div>
+     <figure id="nbImagePreview" class="nb-image-preview" hidden><figcaption>Quote image</figcaption><img alt="A typeset image of the selected quotation" width="1200" height="630"><a id="nbImageDownload" download>Download PNG</a></figure>
+--- a/tools/prdl_reader_prototype/read-tools.js
++++ b/tools/prdl_reader_prototype/read-tools.js
+@@ -1176,11 +1176,13 @@
+     for(const [e,value] of nbInert)e.inert=value;nbInert.clear();
+     if(open&&!sideMedia.matches)for(const e of [app,document.querySelector('.frthumb'),$('#fra-launcher')].filter(Boolean)){nbInert.set(e,e.inert);e.inert=true;}
+   }
+-  let workResearch=null;
++  let workResearch=null,relatedResearch=null;
++  let readerSearchMode='work';
+   function ensureWorkResearch(){
+     if(!window.FRWorkResearch){$('#nbWorkAnalysis').textContent='Work analysis tools could not be loaded. Reload this page to try again.';return;}
++    $('#nbWorkTitle').textContent=DATA.title_en||DATA.title||WORK;$('#nbWorkTitle').title=$('#nbWorkTitle').textContent;$('#nbWorkAuthor').textContent=AUTHOR||'';
+     if(!workResearch){
+-      workResearch=FRWorkResearch.mount($('#nbWorkAnalysis'),{slug:WORK_SLUG,blob:BLOB,title:[$('#h1')?.textContent||DATA.title,DATA.volume].filter(Boolean).join(', '),author:AUTHOR,page:cur,location:locOf,
++      workResearch=FRWorkResearch.mount($('#nbWorkAnalysis'),{compact:true,slug:WORK_SLUG,blob:BLOB,title:[$('#h1')?.textContent||DATA.title,DATA.volume].filter(Boolean).join(', '),author:AUTHOR,page:cur,location:locOf,
+         about:()=>{closeNotebook(false);$('#rdAbout').click();},
+         read:page=>{if(!sideMedia.matches)closeNotebook();jump(String(page));},
+         ask:q=>{closeNotebook(false);window.FRAsk?.open({fresh:true,q:q||'',contextWork:WORK_SLUG,works:WORK_SLUG?[WORK_SLUG]:[]});},
+@@ -1189,10 +1191,11 @@
+           const cite=CITEWORK+(record.page?', '+locOf(record.page):''),source={slug:WORK_SLUG,page:String(record.page),url:new URL(url,location.origin).href,cite,title:DATA.title_en||DATA.title||WORK,author:AUTHOR};
+           return FRResearchNotebook.save({id:'work-analysis:'+WORK_SLUG+':'+record.id,type:'note',researchRecord:true,slug:WORK_SLUG,page:record.page,text:'Extracted '+FRWorkResearch.recordNames[record.kind]+': '+record.text,cite,url:source.url,work:WORK,author:AUTHOR,label:'Work analysis',research:{kind:record.kind,sources:[source],authors:AUTHOR?[AUTHOR]:[],topics:context.statementTopics||[],sectionTopics:context.sectionTopics||[],verses:context.verses||[],citations:context.citations||[],analysis:{...record.raw,sectionMembership:record.sections||[record.unit],sectionTopics:record.sectionTopics||[]},provenance:'Published work analysis; not a verbatim quotation'}});
+         }});
+-      window.FRWorkResearchSources?.mount($('#nbWorkSources'),{slug:WORK_SLUG,blob:BLOB,author:AUTHOR,confession:window.FRReaderNavigation?.isConfession(DATA),location:locOf,browseAnalysis:options=>workResearch.browse(options),read:page=>{if(!sideMedia.matches)closeNotebook();jump(String(page));}});
+-      const place=$('#reader-location');if(place)new MutationObserver(()=>workResearch.setPage(cur)).observe(place,{childList:true,characterData:true,subtree:true});
++      window.FRWorkResearchSources?.mount($('#nbWorkSources'),{slug:WORK_SLUG,blob:BLOB,author:AUTHOR,confession:window.FRReaderNavigation?.isConfession(DATA),location:locOf,browseAnalysis:options=>{$('#nbAnalysisFold').open=true;return workResearch.browse(options);},read:page=>{if(!sideMedia.matches)closeNotebook();jump(String(page));}});
++      $('#nbAnalysisFold').ontoggle=()=>{if($('#nbAnalysisFold').open)workResearch.load();};
++      const place=$('#reader-location');if(place)new MutationObserver(()=>{workResearch.setPage(cur);relatedResearch?.setPage();}).observe(place,{childList:true,characterData:true,subtree:true});
+     }
+-    workResearch.setPage(cur);workResearch.load();
++    workResearch.setPage(cur);if($('#nbAnalysisFold').open)workResearch.load();
+   }
+   let readerSearchIndex=null,readerSearchTEI=null,readerSearchSequence=0,readerSearchQuery='',readerSearchHits=[],readerSearchTerms=[],readerSearchShown=50,readerSearchSelected='';
+   function readerSearchCoverage(index){return index.kind==='canonical'?'Canonical '+index.lanes.join(' and ')+' text · '+index.pages+' pages indexed':'Loaded reading text only · '+index.pages+' pages indexed. Other pages have not been searched.';}
+@@ -1229,6 +1232,23 @@
+     readerSearchSelected=hit.page;renderReaderSearch();$('#nbWorkSearchQuery').blur();if(!sideMedia.matches)closeNotebook(false);
+     const sequence=readerSearchSequence;findReadSearchResult(hit,readerSearchTerms,{current:()=>sequence===readerSearchSequence,status:text=>{$('#nbWorkSearchStatus').textContent=text;}}).catch(()=>{if(sequence===readerSearchSequence)$('#nbWorkSearchStatus').textContent='The matching words could not be shown. Select the result to retry; your search is retained.';});
+   };
++  function findMode(mode){
++    readerSearchMode=mode==='related'?'related':'work';
++    const related=readerSearchMode==='related';$('#nbWorkTextSearch').hidden=related;$('#nbRelatedSearch').hidden=!related;
++    $('#nbFindTextMode').setAttribute('aria-pressed',String(!related));$('#nbFindRelatedMode').setAttribute('aria-pressed',String(related));
++    if(related){
++      if(!relatedResearch){
++        if(!window.FRWorkResearch?.mountRelated){$('#nbRelatedSearch').textContent='Related search could not load. Reload to try again.';return;}
++        relatedResearch=FRWorkResearch.mountRelated($('#nbRelatedSearch'),{slug:WORK_SLUG,page:()=>cur,location:locOf,resolve:id=>FRResearchData.resolveWork(id)});
++      }
++      relatedResearch.open();
++    }
++  }
++  $('#nbFindTextMode').onclick=()=>findMode('work');$('#nbFindRelatedMode').onclick=()=>findMode('related');
++  $('#nbFindInWork').onclick=()=>{researchTab('search');findMode('work');};
++  $('#nbFindRelated').onclick=()=>{researchTab('search');findMode('related');};
++  $('#nbWorkAsk').onclick=()=>{closeNotebook(false);window.FRAsk?.open({contextWork:WORK_SLUG,works:WORK_SLUG?[WORK_SLUG]:[]});};
++  $('#nbWorkAbout').onclick=()=>{closeNotebook(false);$('#rdAbout').click();};
+   function researchTab(name){
+     name=['work','search','passage','saved','chats'].includes(name)?name:activeResearchTab;activeResearchTab=name;
+     for(const [key,id] of [['work','WorkPanel'],['search','WorkSearch'],['passage','Passage'],['saved','Saved'],['chats','Chats']]){const on=key===name;$('#nb'+id).hidden=!on;$('#nb'+id+'Tab').setAttribute('aria-selected',String(on));$('#nb'+id+'Tab').tabIndex=on?0:-1;}
+@@ -1236,6 +1256,7 @@
+     notebook.querySelector('.nb-settings').hidden=name==='work'||name==='search'||name==='chats';
+     if(name==='chats')renderConversations();
+     if(name==='work')ensureWorkResearch();
++    if(name==='search')findMode(readerSearchMode);
+   }
+   for(const [key,id] of [['work','WorkPanel'],['search','WorkSearch'],['passage','Passage'],['saved','Saved'],['chats','Chats']])$('#nb'+id+'Tab').onclick=()=>researchTab(key);
+   $('.nb-tabs').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const keys=['work','search','passage','saved','chats'],tabs=[...$('.nb-tabs').querySelectorAll('button')],i=tabs.indexOf(document.activeElement),n=e.key==='Home'?0:e.key==='End'?keys.length-1:(i+(e.key==='ArrowRight'?1:keys.length-1))%keys.length;researchTab(keys[n]);tabs[n].focus();tabs[n].scrollIntoView({block:'nearest',inline:'nearest'});});
+@@ -1252,7 +1273,7 @@
+   window.addEventListener('fr-notebook-updated',()=>{updateCount();if(notebook.classList.contains('open'))renderNotebook();});
+   window.addEventListener('fr-conversations-updated',()=>{if(notebook.classList.contains('open')&&!$('#nbChats').hidden)renderConversations();});
+   window.addEventListener('storage',e=>{if(['fr_hl','fr_notes','fr_tr','fr_collections_v1'].includes(e.key)&&notebook.classList.contains('open'))renderNotebook();});
+-  window.__frSearchWork=async query=>{await openNotebook('search');$('#nbWorkSearchQuery').value=String(query||'');await runReaderSearch();};
++  window.__frSearchWork=async query=>{await openNotebook('search');findMode('work');$('#nbWorkSearchQuery').value=String(query||'');await runReaderSearch();};
+   window.__frOpenNotebook=openNotebook;   // thumb-bar hook (mobile shell)
+   window.FRReaderResearch={open:openNotebook,close:closeNotebook,passage:()=>passage&&({...passage}),navigate(url){return window.__frNavigateReaderAnchor?.(url)===true;}};
+   if(new URLSearchParams(location.search).get('research')==='work')queueMicrotask(()=>openNotebook('work'));
+--- a/tools/prdl_reader_prototype/work-research.js
++++ b/tools/prdl_reader_prototype/work-research.js
+@@ -23,9 +23,9 @@
+  const slug=opts.slug,url=opts.blob+'/v1/mine/units/'+encodeURIComponent(slug)+'.json';
+  let model=null,pending=null,page=str(opts.page),scope='page',query='',topic='',limits={},opened=new Set(),dead=false,missing=false,browseSequence=0;
+  const location=p=>opts.location?.(p)||'Page '+p;
+- host.innerHTML=`<div class="wr-identity"><p class="nb-context-label">This work</p><h2>${esc(opts.title)}</h2><p>${esc(opts.author)}</p><div class="wr-actions"><button type="button" data-about>View edition details</button><button type="button" data-ask-book>Discuss work</button></div></div><p class="wr-intro">Explore the published analysis beside the source. Save records to your notebook or bring them into a conversation.</p><div class="wr-controls"><label>Show<select data-scope><option value="page">Current location</option><option value="work">Whole work</option></select></label><label>Topic context<select data-topic><option value="">All topics</option></select></label><label class="wr-search">Search analysis<input type="search" data-query placeholder="Find a claim, name, or term"></label></div><p class="wr-status" data-status role="status">Loading work analysis…</p><div data-results></div><details class="wr-coverage"><summary>About this analysis</summary><p>These are extracted summaries and annotations, not a critical edition or a statement of the author's settled beliefs. Labels such as “asserts” describe the local passage and can belong to a speaker being reported. Open the source to check context.</p><p data-coverage></p><a href="${esc(url)}" target="_blank" rel="noopener">Open published data (JSON)</a></details>`;
++ host.innerHTML=(opts.compact?'':`<div class="wr-identity"><p class="nb-context-label">This work</p><h2>${esc(opts.title)}</h2><p>${esc(opts.author)}</p><div class="wr-actions"><button type="button" data-about>View edition details</button><button type="button" data-ask-book>Discuss work</button></div></div>`)+`<p class="wr-intro">Explore the published analysis beside the source. Save records to your notebook or bring them into a conversation.</p><div class="wr-controls"><label>Show<select data-scope><option value="page">Current location</option><option value="work">Whole work</option></select></label><label>Topic context<select data-topic><option value="">All topics</option></select></label><label class="wr-search">Search analysis<input type="search" data-query placeholder="Find a claim, name, or term"></label></div><p class="wr-status" data-status role="status">Loading work analysis…</p><div data-results></div><details class="wr-coverage"><summary>About this analysis</summary><p>These are extracted summaries and annotations, not a critical edition or a statement of the author's settled beliefs. Labels such as “asserts” describe the local passage and can belong to a speaker being reported. Open the source to check context.</p><p data-coverage></p><a href="${esc(url)}" target="_blank" rel="noopener">Open published data (JSON)</a></details>`;
+  const results=host.querySelector('[data-results]'),status=host.querySelector('[data-status]');
+- host.querySelector('[data-about]').onclick=opts.about;host.querySelector('[data-ask-book]').onclick=()=>opts.ask();
++ if(!opts.compact){host.querySelector('[data-about]').onclick=opts.about;host.querySelector('[data-ask-book]').onclick=()=>opts.ask();}
+  const controls=()=>{limits={};render();};
+  host.querySelector('[data-scope]').onchange=e=>{scope=e.target.value;controls();};host.querySelector('[data-topic]').onchange=e=>{topic=e.target.value;controls();};host.querySelector('[data-query]').oninput=e=>{query=e.target.value;controls();};
+  function recordHTML(r){const x=r.raw,meta=[x.stance?'Local label: '+x.stance:'',x.how||x.intent,x.move,x.family].filter(Boolean).join(' · ');return `<article class="wr-record" data-record="${esc(r.id)}"><p class="wr-record-loc">${esc(r.page?location(r.page):'Location not supplied')}${r.unit?' · '+esc(r.unit):''}</p><p class="wr-text">${esc(r.text)}</p>${meta?'<p class="wr-meta">'+esc(meta)+'</p>':''}${x.against?'<p class="wr-meta">Directed against: '+esc(x.against)+'</p>':''}${x.locator?'<p class="wr-meta">Cited location: '+esc(x.locator)+'</p>':''}${x.subtle?'<p class="wr-meta">'+esc(x.subtle)+'</p>':''}${x.verify?.span?'<details class="wr-verification"><summary>Recorded evidence span</summary><p>'+esc(x.verify.span)+'</p><small>Recorded by the extraction process; check against the current source.</small></details>':''}<div class="wr-record-context"></div><div class="wr-actions">${r.page?'<a data-read data-page="'+esc(r.page)+'" href="'+esc(sourceURL(slug,r.page))+'">Read source</a>':''}<button type="button" data-save="${esc(r.id)}">Save record</button><button type="button" data-discuss="${esc(r.id)}">Discuss record</button>${x.resolved?.work_slug||list(x.resolved_multi).length?'<button type="button" data-targets="'+esc(r.id)+'">View cited works</button>':''}</div><div class="wr-resolved-targets" hidden></div></article>`;}
+@@ -83,5 +83,65 @@
+  }
+  return {load,browse,setPage(next){next=str(next);if(next!==page){page=next;if(scope==='page'){limits={};render();}}},destroy(){dead=true;browseSequence++;}};
+ }
+-return {kinds,recordNames,normalize,filter,recordContext,sourceURL,discussion,mount};
++
++function relatedCandidates(data,currentSlug){
++ if(!data||typeof data!=='object'||data.error)throw Error('Related search is unavailable.');
++ const primary=Array.isArray(data.works)?data.works:Array.isArray(data.results)?data.results:null;
++ if(!primary)throw Error('Related search returned an unreadable response.');
++ const rows=[],seen=new Set(),add=(slug,page,citation='')=>{
++  slug=str(slug);if(!/^[a-z0-9][a-z0-9._-]*$/i.test(slug)||slug===currentSlug)return;
++  page=page==null||page===''?null:str(page);const key=slug+'|'+(page||'');if(seen.has(key))return;seen.add(key);rows.push({slug,page,citation:str(citation)});
++ };
++ for(const hit of primary)if(hit&&typeof hit==='object')add(hit.slug,hit.page);
++ for(const hit of list(data.fathers)){
++  if(!hit||typeof hit!=='object')continue;
++  const prefix={PL:'pld-',PG:'pg-',PO:'po-'}[hit.src],doc=str(hit.doc);
++  // Legacy vector anchors are row IDs, not canonical page numbers. Link the held work.
++  if(prefix&&/^[a-z0-9._-]+$/i.test(doc))add(doc.startsWith(prefix)?doc:prefix+doc,null,hit.cit);
++ }
++ return rows.slice(0,32);
++}
++function mountRelated(host,opts){
++ let sequence=0,controller=null,loaded=false,loading=false,basis=null,lastQuery='',dead=false;
++ const cache=new Map(),where=()=>opts.location(opts.page());
++ host.innerHTML=`<h2 class="nb-related-title">Related works</h2><p class="nb-guidance">Find other works through a passage or an idea. Suggestions come from indexed passages; similarity does not establish agreement.</p><form class="nb-related-form" role="search" aria-label="Find related works"><label>Search by an idea or phrase<input type="search" data-related-query placeholder="Enter an idea or phrase" autocomplete="off"></label><button type="submit">Find works</button></form><div class="nb-related-actions"><button type="button" data-related-page>Use current passage</button><a data-related-library href="/search" target="_blank" rel="noopener">Search the library</a></div><p class="nb-related-status" data-related-status role="status"></p><div data-related-results></div>`;
++ const input=host.querySelector('[data-related-query]'),status=host.querySelector('[data-related-status]'),results=host.querySelector('[data-related-results]'),pageButton=host.querySelector('[data-related-page]'),library=host.querySelector('[data-related-library]');
++ const libraryLink=()=>{library.href='/search'+(input.value.trim()?'?q='+encodeURIComponent(input.value.trim()):'');};
++ input.oninput=libraryLink;
++ async function load(query=''){
++  query=str(query).trim();if(query&&query.length<3){status.textContent='Enter at least three characters, or use the current passage.';return;}
++  const page=str(opts.page()),key=query?'query:'+query:'page:'+page;
++  const own=++sequence;loading=true;controller?.abort();const requestController=new AbortController();controller=requestController;let timer;
++  status.textContent=query?'Finding related works…':'Finding works related to '+where()+'…';status.setAttribute('aria-busy','true');results.replaceChildren();
++  try{
++   let record=cache.get(key);
++   if(!record){
++    const params=query?new URLSearchParams({q:query,k:'16',sparse:'1'}):new URLSearchParams({s:opts.slug,p:page});
++    timer=setTimeout(()=>requestController.abort(),20000);
++    const response=await (opts.request||fetch)((query?'/api/vsearch?':'/api/related?')+params,{signal:requestController.signal});
++    if(!response.ok)throw Error(response.status===401||response.status===403?'Sign in to the library and try again.':'Related search could not load. Try again, or search the library.');
++    const data=await response.json(),candidates=relatedCandidates(data,opts.slug);
++    const resolved=await Promise.all(candidates.map(async hit=>({hit,found:await opts.resolve(hit.slug)})));
++    const groups=new Map();let unresolved=0;
++    for(const {hit,found} of resolved){if(found?.status!=='held'){unresolved++;continue;}if(found.slug===opts.slug)continue;
++     let group=groups.get(found.slug);if(!group){group={slug:found.slug,title:found.work.title_en||found.work.title||'Untitled work',author:found.work.author||'',url:found.url,pages:[],citations:[]};groups.set(found.slug,group);}
++     if(hit.page!==null&&!group.pages.includes(hit.page))group.pages.push(hit.page);if(hit.citation&&!group.citations.includes(hit.citation))group.citations.push(hit.citation);
++    }
++    record={groups:[...groups.values()],unresolved,missing:!!data.missing};cache.set(key,record);if(cache.size>12)cache.delete(cache.keys().next().value);
++   }
++   if(dead||own!==sequence)return;loaded=true;basis=page;lastQuery=query;
++   results.innerHTML=record.groups.map(g=>`<article class="nb-related-work"><h3><a href="${esc(g.url)}" target="_blank" rel="noopener">${esc(g.title)}</a></h3><p>${esc(g.author)}</p>${g.citations.length?'<p class="nb-related-citation">'+esc(g.citations.join(' · '))+'</p>':''}<div class="nb-related-passages">${g.pages.map(p=>'<a href="'+esc(sourceURL(g.slug,p))+'" target="_blank" rel="noopener">Read '+esc(/^\d+$/.test(p)?'p. '+p:p)+'</a>').join('')}${g.pages.length?'':'<a href="'+esc(g.url)+'" target="_blank" rel="noopener">Open work</a>'}</div></article>`).join('');
++   const count=record.groups.length;
++   status.textContent=record.missing?'This passage has no similarity results yet. Try an idea or phrase.':count?count+' related '+(count===1?'work':'works')+(query?' for “'+query+'”.':' based on '+opts.location(page)+'.'):record.unresolved?'The suggestions could not be matched to current library editions. Try a phrase or search the library.':'No related works were found for this selection. Try another phrase or passage.';
++   sync();
++  }catch(error){if(!dead&&own===sequence){status.textContent=error.name==='AbortError'?'Related search took too long. Try again, or search the library.':error.message;}}
++  finally{clearTimeout(timer);if(own===sequence){loading=false;status.removeAttribute('aria-busy');}}
++ }
++ function sync(){pageButton.textContent=loaded&&!lastQuery&&basis!==str(opts.page())?'Update from current passage · '+where():'Use current passage · '+where();}
++ host.querySelector('form').onsubmit=e=>{e.preventDefault();load(input.value);};
++ pageButton.onclick=()=>{input.value='';libraryLink();load();};sync();
++ return {open(){if(!loaded&&!loading)load();else sync();},setPage:sync,destroy(){dead=true;sequence++;controller?.abort();}};
++}
++
++return {kinds,recordNames,normalize,filter,recordContext,sourceURL,discussion,relatedCandidates,mountRelated,mount};
+ });
+--- a/tools/prdl_reader_prototype/work-research.css
++++ b/tools/prdl_reader_prototype/work-research.css
+@@ -1,4 +1,4 @@
+-/* Work research shares the reader's neutral surfaces and brown apparatus. */
++/* Work research shares the reader's neutral reading surfaces. */
+ #notebook{--font-body:"Source Serif Pro",Georgia,serif}
+ .wr-controls input::placeholder{color:var(--muted);opacity:1}
+ .nb-tabs{gap:clamp(12px,3vw,22px);justify-content:space-between}
+@@ -9,7 +9,7 @@
+ .wr-intro{margin:16px 0;line-height:1.5}
+ .wr-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 12px}
+ .wr-controls label{min-width:0;font-size:12px;color:var(--muted)}
+-.wr-controls select,.wr-controls input{display:block;box-sizing:border-box;width:100%;min-height:40px;margin-top:4px;border:1px solid var(--border);border-radius:4px;background:var(--card,var(--bg));color:var(--fg);font:14px var(--font-body);padding:8px}
++.wr-controls select,.wr-controls input{display:block;box-sizing:border-box;width:100%;min-height:44px;margin-top:4px;border:1px solid var(--border);border-radius:4px;background:var(--card,var(--bg));color:var(--fg);font:16px var(--font-body);padding:8px}
+ .wr-controls .wr-search{grid-column:1/-1}
+ .wr-controls select{text-overflow:ellipsis}
+ .wr-status{min-height:20px;line-height:1.45;margin:10px 0 14px}
+@@ -37,3 +37,39 @@
+ @media(prefers-reduced-motion:reduce){.wr-group>summary::before{transition:none}}
+ 
+ .wr-topic-context{font-size:13px;margin:8px 0;color:var(--muted)}.wr-topic-context summary{min-height:36px;cursor:pointer;color:var(--detail,var(--fg))}.wr-topic-context a,.wr-resolved-targets a{color:var(--detail,var(--fg));text-underline-offset:3px}.wr-topic-context p{margin:8px 0}.wr-resolved-targets{border-top:1px solid var(--border);margin-top:12px;padding-top:4px;font-size:14px}.wr-resolved-targets small{display:block;margin-top:4px}
++
++/* Start with a small set of recognizable tasks; detailed analysis is optional. */
++.nb-work-identity h2,.nb-related-title{font:500 23px/1.2 var(--font-display,var(--font-body));margin:0 0 6px;overflow-wrap:anywhere}
++.nb-work-identity>p{font:13px/1.5 var(--font-body);color:var(--muted);margin:0 0 14px}
++.nb-work-primary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 20px}
++.nb-work-primary button{min-height:44px;padding:9px 10px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--fg);font:14px/1.35 var(--font-body);text-align:left;cursor:pointer}
++.nb-work-primary button:hover{background:var(--hl)}
++.nb-analysis-fold{border-top:1px solid var(--border);margin-top:20px}
++.nb-analysis-fold>summary{min-height:48px;display:flex;align-items:center;gap:10px;font:15px/1.4 var(--font-body);cursor:pointer;list-style:none}
++.nb-analysis-fold>summary::before{content:'›';font-size:20px;transform:rotate(0deg)}
++.nb-analysis-fold[open]>summary::before{transform:rotate(90deg)}
++.nb-analysis-fold>summary::-webkit-details-marker{display:none}
++#notebook .nb-tabs{justify-content:space-between;gap:12px}
++#notebook .nb-tabs button{min-height:48px;font-size:14px}
++.nb-find-modes{display:flex;gap:8px;padding:14px 0;border-bottom:1px solid var(--border)}
++.nb-find-modes button{flex:1;min-height:44px;padding:8px 10px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--muted);font:14px/1.4 var(--font-body);cursor:pointer}
++.nb-find-modes button[aria-pressed="true"]{background:var(--hl);color:var(--fg);border-color:var(--muted)}
++#nbRelatedSearch{padding-top:18px}
++#nbRelatedSearch[hidden],#nbWorkTextSearch[hidden]{display:none!important}
++.nb-related-form{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px;margin-top:16px}
++.nb-related-form label{min-width:0;font:13px/1.5 var(--font-body);color:var(--muted)}
++.nb-related-form input{display:block;box-sizing:border-box;width:100%;min-height:44px;margin-top:6px;padding:9px 10px;border:1px solid var(--control-border,var(--border));border-radius:5px;background:var(--bg);color:var(--fg);font:16px/1.4 var(--font-body)}
++.nb-related-form button{min-height:44px;padding:10px 12px;border:0;border-radius:5px;background:var(--fg);color:var(--bg);font:14px/1.4 var(--font-body);cursor:pointer}
++.nb-related-actions,.nb-related-passages{display:flex;gap:6px 16px;flex-wrap:wrap;margin:8px 0}
++.nb-related-actions button,.nb-related-actions a,.nb-related-passages a{display:inline-flex;align-items:center;min-height:44px;padding:4px 0;border:0;background:none;color:var(--fg);font:13px/1.4 var(--font-body);text-decoration:underline;text-underline-offset:4px;cursor:pointer}
++.nb-related-status{font:13px/1.55 var(--font-body);color:var(--muted);margin:8px 0 18px}
++.nb-related-work{padding:16px 0;border-top:1px solid var(--border)}
++.nb-related-work h3{margin:0 0 7px;font:500 17px/1.4 var(--font-body);overflow-wrap:anywhere}
++.nb-related-work h3 a{color:var(--fg);text-decoration:none}.nb-related-work h3 a:hover{text-decoration:underline}
++.nb-related-work>p{margin:4px 0;font:13px/1.5 var(--font-body);color:var(--muted)}
++.nb-related-work .nb-related-citation{font-size:12px}
++#notebook :is(.nb-work-primary button,.nb-find-modes button,.nb-related-form button,.nb-analysis-fold summary):focus-visible{outline:2px solid var(--fg);outline-offset:3px}
++@media(max-width:640px){#notebook .nb-tabs{gap:10px;padding-inline:16px}#notebook .nb-tabs button{font-size:14px}.nb-work-primary{gap:8px}.wr-actions button,.wr-actions a,.wr-topic-context summary,.wr-coverage summary{min-height:44px}}
++
++/* Long historical titles remain available in Edition details without displacing tools. */
++.nb-work-identity h2{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}

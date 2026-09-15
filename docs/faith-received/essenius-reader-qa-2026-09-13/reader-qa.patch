@@ -1,0 +1,307 @@
+--- a/tools/prdl_reader_prototype/reader_shell.html
++++ b/tools/prdl_reader_prototype/reader_shell.html
+@@ -2286,11 +2286,11 @@
+               <div class="aarow"><span class="aal">Layout</span><div class="aaseg" role="group" aria-label="Reading layout"><button type="button" id="readerFlowView" aria-pressed="true">Flow</button><button type="button" id="readerPageView" aria-pressed="false">Pages</button></div></div>
+               <div class="aarow"><span class="aal">Footnotes</span><div class="aaseg" role="group" aria-label="Footnote display"><button type="button" id="readerNotesDemand" aria-pressed="true">On demand</button><button type="button" id="readerNotesAll" aria-pressed="false">Show all</button></div><span id="readerNoteState" class="reader-note-state"></span></div>
+               <div class="aarow"><span class="aal">Font</span><div class="aaseg" role="group" aria-label="Body font"><button id="fSerif" class="tgl" title="Classic serif">Serif</button><button id="fSans" class="tgl" title="Modern sans-serif">Sans</button><button id="fEasy" class="tgl" title="Atkinson Hyperlegible — high-legibility / dyslexia-friendly">Easy</button></div></div>
+-              <div class="aarow"><span class="aal">Spacing</span><div class="aaseg" role="group" aria-label="Line spacing"><button id="lhC" class="tgl" title="Compact lines">▤</button><button id="lhN" class="tgl" title="Normal lines">☰</button><button id="lhR" class="tgl" title="Relaxed lines">≡</button></div></div>
++              <div class="aarow"><span class="aal">Spacing</span><div class="aaseg" role="group" aria-label="Line spacing"><button id="lhC" class="tgl" title="Compact lines">Compact</button><button id="lhN" class="tgl" title="Normal lines">Normal</button><button id="lhR" class="tgl" title="Relaxed lines">Relaxed</button></div></div>
+               <div class="aarow aakeys"><span class="aal">Keys</span><button id="kbdBtn" class="tgl" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts" style="min-width:1.6em;padding:0 .3em">?</button></div>
+               <div class="aarow"><span class="aal">Text</span><div class="sld szc" title="Text size"><button type="button" class="t1" id="szDn" title="Smaller text" aria-label="Decrease text size">A</button><input type="range" id="tzs" aria-label="Text size" min="14" max="34" step="1"><button type="button" class="t2" id="szUp" title="Larger text" aria-label="Increase text size">A</button></div></div>
+-              <div class="aarow" id="source-size"><span class="aal" id="source-size-name">Latin</span><label class="sld lnz lz-la" title="Latin lane size — relative to the base text size"><span class="lt">La</span><input type="range" id="lzs" min="70" max="150" step="5"></label></div>
+-              <div class="aarow"><span class="aal">English</span><label class="sld lnz lz-en" title="English lane size — relative to the base text size"><span class="lt">En</span><input type="range" id="ezs" min="70" max="150" step="5"></label></div>
++              <div class="aarow" id="source-size"><span class="aal" id="source-size-name">Latin</span><label class="sld lnz lz-la" title="Latin lane size — relative to the base text size"><span class="lt">La</span><input type="range" id="lzs" aria-label="Latin text size" min="70" max="150" step="5"></label></div>
++              <div class="aarow"><span class="aal">English</span><label class="sld lnz lz-en" title="English lane size — relative to the base text size"><span class="lt">En</span><input type="range" id="ezs" aria-label="English text size" min="70" max="150" step="5"></label></div>
+               <div class="aarow"><span class="aal">Scan</span><label class="sld izc" title="Scan size · over the image: scroll = pan, Ctrl/⌘+scroll = zoom, drag = move">🔍<input type="range" id="izs" min="55" max="360" step="5"></label></div>
+             </div></div>
+         </div>
+@@ -2508,6 +2508,9 @@
+     let reference=scriptureLocation(text,XREF_RE.lastIndex,book);if(!reference)continue;
+     // Lowercase ordinary words such as "mark 3 items" are not chapter citations.
+     const plainBook=match[2].replace(/\.$/,'');if(plainBook===plainBook.toLowerCase()&&!reference.selection&&(!match[2].endsWith('.')||plainBook===book.toLowerCase()))continue;
++    // Bare num. denotes an internal numbered passage in scholarly prose.
++    // Require a verse for this ambiguous abbreviation; spelled-out Numbers still works.
++    if(/^num$/i.test(plainBook)&&!reference.selection)continue;
+     reference.start=match.index+match[1].length;references.push(reference);
+     while(reference.selection){
+       const separator=/^\s*(?:,|;|&amp;|&|et\b)\s*/.exec(text.slice(reference.end))||/^\s*\.\s*(?=[IVXLCDM]+\s*[.:,]\s*\d)/i.exec(text.slice(reference.end));if(!separator)break;
+@@ -3789,6 +3792,7 @@
+   return url.href;
+ }
+ function locOf(n){
++  if(typeof INDEX_PAGES!=='undefined'&&(INDEX_PAGES?.has(n)||INDEX_PAGES?.has(String(n))))return 'Index · '+(DATA?.has_pages?'p. ':'§ ')+n;
+   if(DATA?.pld_source_view?.notes)return 'Notes, section '+n;
+   const corrected=window.FRReaderNavigation?.locator(DATA,n);if(corrected)return corrected;
+   if(/^P[LG]\s*\d/i.test(DATA?.volume||""))return "col. "+n;
+@@ -3831,12 +3835,13 @@
+   if(d.blurb&&d.blurb.genre)bits.push(esc(d.blurb.genre));
+   const s=$("#sub"); if(!s)return; s.innerHTML=bits.join(" · ");
+ }).catch(()=>{}); }
+-function openAbout(){ aboutFor().then(d=>{
++function openAbout(){ const priorFocus=document.activeElement;aboutFor().then(d=>{
+   let ov=document.getElementById("aboutOv"); if(ov)ov.remove();
+-  ov=document.createElement("div"); ov.id="aboutOv"; ov.className="about-ov";
++  ov=document.createElement("div"); ov.id="aboutOv"; ov.className="about-ov";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");ov.setAttribute("aria-label","Edition details");
++  $("#aaPop")?.classList.remove("on");$("#aaBtn")?.setAttribute("aria-expanded","false");
+   const a=d.author,b=(typeof d.blurb==="string")?{blurb:d.blurb}:d.blurb;   // blurbs.json carries plain strings for newer works
+   const authLine=[a&&a.dates,a&&a.tradition,a&&a.affiliation].filter(Boolean).join(" · ");
+-  let h='<div class="about-box"><div class="about-h"><div><h2>'+esc(DATA.title_en||DATA.title)+'</h2><div class="ah-meta">'+esc([(DATA.title_en&&DATA.title_en!==DATA.title)?DATA.title:null,DATA.author,DATA.volume].filter(Boolean).join(" · "))+'</div></div><button class="about-x" title="Close (esc)">✕</button></div><div class="about-body">';
++  let h='<div class="about-box"><div class="about-h"><div><h2>'+esc(DATA.title_en||DATA.title)+'</h2><div class="ah-meta">'+esc([(DATA.title_en&&DATA.title_en!==DATA.title)?DATA.title:null,DATA.author,DATA.volume].filter(Boolean).join(" · "))+'</div></div><button class="about-x" aria-label="Close edition details" title="Close (esc)">✕</button></div><div class="about-body">';
+   // WHO first — situate the person, then the work
+   h+='<div class="about-sec"><h3>'+esc(DATA.author)+'</h3>';
+   if(authLine)h+='<div class="about-tags">'+esc(authLine)+'</div>';
+@@ -3847,10 +3852,10 @@
+   if(b&&b.blurb){ if(b.genre)h+='<div class="about-tags"><b>'+esc(b.genre)+'</b></div>'; h+='<div class="about-prose"><p>'+esc(b.blurb)+'</p></div>'; }
+   h+='</div></div>';    // no machine fallback sentence, no generated-orientation eyebrow (user 2026-07-20): author + work, period.
+   ov.innerHTML=h; document.body.appendChild(ov);
+-  const close=()=>{ov.remove();removeEventListener("keydown",esk);};
+-  function esk(e){if(e.key==="Escape")close();}
++  const close=()=>{ov.remove();removeEventListener("keydown",esk);const target=priorFocus?.getClientRects().length?priorFocus:$("#aaBtn");target?.focus({preventScroll:true});};
++  function esk(e){if(e.key==="Escape"){e.preventDefault();close();}else if(e.key==="Tab"){e.preventDefault();ov.querySelector(".about-x").focus();}}
+   ov.addEventListener("click",e=>{if(e.target===ov)close();});
+-  ov.querySelector(".about-x").onclick=close; addEventListener("keydown",esk);
++  ov.querySelector(".about-x").onclick=close;ov.querySelector(".about-x").focus();addEventListener("keydown",esk);
+ }).catch(()=>{}); }
+ function wireAbout(){ const b=$("#rdAbout"); if(b)b.onclick=openAbout; enrichSub(); }
+ // TEI PATH (2026-08-10): fetches the per-lane TEI sidecars, pre-segments them by <pb>, and hands
+@@ -5825,34 +5830,19 @@
+   // extra scroll-to-letter step is layered ON TOP of goNav rather than inside it, so goNav's own
+   // poll-until-rendered contract (2560ish) stays exactly as every other nav destination uses it.
+   function renderIndexNav(nav){
+-    const KIND_LABEL={quaestionum:"Index Quaestionum",errata:"Errata",citations:"Index of Citations",topical:"Index",alphabetic:"Index",contents:"Contents"};
+-    const box=el("div","nav-index");
+-    [...INDEX_PAGES.entries()].forEach(([page,kind])=>{
+-      const row=el("div","nav-node nd1 ixnavrow");
+-      row.dataset.page=page;
+-      row.innerHTML=`<span class="cv leaf">▾</span><span class="nn-t">${esc(KIND_LABEL[kind]||"Index")}</span>`;
+-      row.onclick=()=>goNav(+page,row);
+-      box.appendChild(row);
+-      if(kind==="alphabetic"){
+-        const rail=el("div","ixnav-az");
+-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(L=>{
+-          const chip=el("button","ixnav-chip");chip.type="button";chip.textContent=L;
+-          chip.onclick=ev=>{ev.stopPropagation();
+-            goNav(+page,row);
+-            // same plain-then-zero-padded data-page lookup the .pgo jump handler already uses
+-            // (readingEditionPass, ~3288) — INDEX_PAGES' key comes from teiNorm() (padding
+-            // stripped) while .folio's own data-page mirrors pg.n, which isn't always in the
+-            // same padded/unpadded form across works.
+-            let k=0;const iv=setInterval(()=>{
+-              const sec=document.querySelector(`.folio[data-page="${page}"]`)||document.querySelector(`.folio[data-page="${String(page).padStart(4,"0")}"]`);
+-              const hit=sec&&[...sec.querySelectorAll(".ixletter")].find(h=>h.textContent.trim()===L);
+-              if(hit){clearInterval(iv);hit.scrollIntoView({behavior:"smooth",block:"start"});}
+-              else if(++k>40)clearInterval(iv);
+-            },200);};
+-          rail.appendChild(chip);
+-        });
+-        box.appendChild(rail);
+-      }
++    const box=el('div','nav-index');
++    const groups=FRReaderNavigation.indexSections([...INDEX_PAGES.entries()],readerDisplayOutline(),DATA.pages);
++    const intro=el('p','index-guidance');intro.textContent='Open an index section or choose one of its pages.';box.appendChild(intro);
++    groups.forEach((group,i)=>{
++      const fold=el('details','index-section');fold.open=i===0;
++      const summary=el('summary');summary.textContent=group.title;summary.title=group.sourceTitle;fold.appendChild(summary);
++      const count=el('p','index-guidance');count.textContent=group.pages.length+' '+(group.pages.length===1?'page':'pages');fold.appendChild(count);
++      const pages=el('div','index-page-links');
++      group.pages.forEach(page=>{
++        const link=el('a','index-page-link');link.dataset.page=page;link.href=readerOutlineHref({page});
++        link.textContent=(DATA.has_pages?'Page ':'Section ')+page;
++        link.onclick=e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();goNav(page,link);};pages.appendChild(link);
++      });fold.appendChild(pages);box.appendChild(fold);
+     });
+     nav.appendChild(box);
+   }
+@@ -5860,7 +5850,7 @@
+   // author-sorted list in the drawer; the open work is marked. Index cached across views.
+   function renderLibrary(nav){
+     const box=el("div","nav-lib");
+-    box.innerHTML='<input class="nl-q" placeholder="Filter by title or author…" autocomplete=off spellcheck=false><div class="nl-list"><div class="nl-msg">Loading the library…</div></div>';
++    box.innerHTML='<input class="nl-q" type="search" aria-label="Filter library by title or author" placeholder="Filter by title or author…" autocomplete=off spellcheck=false><div class="nl-list"><div class="nl-msg">Loading the library…</div></div>';
+     nav.appendChild(box);
+     const list=box.querySelector(".nl-list"),inp=box.querySelector(".nl-q");
+     const norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");  // Suárez matches "suarez"
+@@ -5872,15 +5862,15 @@
+       let h="",lastA=null;
+       m.slice(0,900).forEach(w=>{
+         const a=w._confession?"Confessions":w.author||"No named author";
+-        if(a!==lastA){h+='<div class="nl-au'+(t?" open":"")+'" data-au="'+esc(a)+'"><span class="nl-cv">▸</span>'+esc(a)+'</div>';lastA=a;}
++        if(a!==lastA){h+='<button type="button" class="nl-au'+(t?" open":"")+'" aria-expanded="'+(t?'true':'false')+'" data-au="'+esc(a)+'"><span class="nl-cv" aria-hidden="true">▸</span>'+esc(a)+'</button>';lastA=a;}
+         h+='<a class="nl-w'+(DATA&&w.slug===DATA.slug?" here":"")+'" href="/read?w='+encodeURIComponent(w.slug)+'">'
+           +'<span class="nl-t">'+esc(w.title_en||w.title||w.slug)+(w.volume?' <span class="nl-v">· '+esc(String(w.volume))+'</span>':'')+'</span></a>';
+       });
+       list.innerHTML=h||'<div class="nl-msg">No matches.</div>';
+       if(!t)list.classList.add("nl-collapsed");else list.classList.remove("nl-collapsed");
+-      list.querySelectorAll(".nl-au").forEach(g=>{g.onclick=()=>g.classList.toggle("open");});
++      list.querySelectorAll(".nl-au").forEach(g=>{g.onclick=()=>g.setAttribute("aria-expanded",String(g.classList.toggle("open")));});
+       // keep the current work's author expanded
+-      if(DATA){let group=list.querySelector("a.here")?.previousElementSibling;while(group&&!group.classList.contains("nl-au"))group=group.previousElementSibling;if(group)group.classList.add("open");}
++      if(DATA){let group=list.querySelector("a.here")?.previousElementSibling;while(group&&!group.classList.contains("nl-au"))group=group.previousElementSibling;if(group){group.classList.add("open");group.setAttribute("aria-expanded","true");}}
+       if(m.length>900)list.insertAdjacentHTML("beforeend",'<div class="nl-msg">'+(m.length-900)+' more — narrow the filter</div>');
+     };
+     const go=ws=>{if(!box.isConnected)return;paint(ws,inp.value);inp.oninput=()=>paint(ws,inp.value);};
+--- a/tools/prdl_reader_prototype/read-tools.js
++++ b/tools/prdl_reader_prototype/read-tools.js
+@@ -401,7 +401,9 @@
+     else if(e.key==="?"){e.preventDefault();
+       let h=$("#kbdhelp");
+       if(h){h.remove();return;}
+-      h=el("div","kbdhelp");h.id="kbdhelp";h.style.animation="khIn .15s var(--ease)";
++      const priorFocus=document.activeElement;
++      $('#aaPop')?.classList.remove('on');$('#aaBtn')?.setAttribute('aria-expanded','false');
++      h=el("div","kbdhelp");h.id="kbdhelp";h.setAttribute('role','dialog');h.setAttribute('aria-modal','true');h.setAttribute('aria-label','Keyboard shortcuts');
+       h.innerHTML='<div class=kh-box><b>Keyboard</b><table>'
+         +'<tr><td>← →</td><td>previous / next page</td></tr>'
+         +'<tr><td>⌘K or /</td><td>find in reading text</td></tr>'
+@@ -410,8 +412,10 @@
+         +'<tr><td>[ or ]</td><td>hide / show the contents sidebar</td></tr>'
+         +'<tr><td>Esc</td><td>close panels</td></tr>'
+         +'<tr><td>click a page pill</td><td>copy the citation + link</td></tr></table>'
+-        +'<span class=kh-x>press ? to close</span></div>';
+-      h.onclick=()=>h.remove();document.body.appendChild(h);}});
++        +'<button type="button" class="kh-close">Close shortcuts</button></div>';
++      const closeHelp=()=>{h.remove();document.removeEventListener('keydown',helpKey,true);const target=priorFocus?.getClientRects().length?priorFocus:$('#aaBtn');target?.focus({preventScroll:true});};
++      function helpKey(event){if(event.key==='Escape'||event.key==='?'){event.preventDefault();event.stopImmediatePropagation();closeHelp();}else if(event.key==='Tab'){event.preventDefault();h.querySelector('button').focus();}}
++      h.onclick=event=>{if(event.target===h)closeHelp();};h.querySelector('button').onclick=closeHelp;document.body.appendChild(h);h.querySelector('button').focus();document.addEventListener('keydown',helpKey,true);}});
+   {const kb=$("#kbdBtn");if(kb)kb.onclick=()=>document.dispatchEvent(new KeyboardEvent("keydown",{key:"?"}));}
+   const setMode=m=>{if(m==="ask"&&window.FRAsk){ov.classList.remove("open");window.FRAsk.open();return;}mode=m;$("#rsThis").setAttribute("aria-pressed",m==="this");$("#rsAll").setAttribute("aria-pressed",m==="all");$("#rsAsk").setAttribute("aria-pressed",m==="ask");
+     q.placeholder=m==="this"?"Search this work…":m==="all"?"Search the corpus…":"Ask a question of the corpus…";
+@@ -994,7 +998,7 @@
+   function editNote(r){if(reading.querySelector('.rowx.note.editing[data-for="'+r.id+'"]'))return;
+     const cur=(lj("fr_notes")[K(r)]||{}).t||"";const ex=rowx(r,"note");if(ex)ex.remove();
+     const d=el("div","rowx note editing");d.dataset.for=r.id;d.dataset.kind="note";
+-    d.innerHTML='<span class="by">Note</span><textarea placeholder="Your note on this passage…"></textarea>'+
++    d.innerHTML='<span class="by">Note</span><textarea aria-label="Note on this passage" placeholder="Your note on this passage…"></textarea>'+
+       '<div class="act"><button class="primary sv">Save</button><button class="cx">Cancel</button><button class="dl">Remove</button></div>';
+     placeAfter(r,d);const ta=d.querySelector("textarea");ta.value=cur;ta.focus();
+     d.querySelector(".cx").onclick=()=>{renderNote(r);};
+@@ -1166,7 +1170,7 @@
+   notebook.querySelectorAll('[data-reader-action]').forEach(b=>b.onclick=()=>act(b.dataset.readerAction));
+   notebook.querySelectorAll('[data-reader-color]').forEach(b=>b.onclick=()=>{const r=passageRow();if(r){setHl(r,b.dataset.readerColor);status(b.dataset.readerColor?'Highlight saved.':'Highlight cleared.');}});
+   $('#spClip').onclick=()=>{hidePop();savePassageResearch();openNotebook('passage');};
+-  $('#nbAskBook').onclick=()=>{closeNotebook(false);window.FRAsk?.open({contextWork:WORK_SLUG});};
++  $('#nbAskBook').onclick=()=>{closeNotebook(false);window.FRAsk?.open({fresh:true,contextWork:WORK_SLUG,works:WORK_SLUG?[WORK_SLUG]:[]});};
+   $('#nbNewChat').onclick=()=>{closeNotebook(false);window.FRAsk?.open({fresh:true,contextWork:WORK_SLUG});};
+   function syncNotebookLayout(){
+     const open=notebook.classList.contains('open');populateNotebookContext();
+@@ -1247,7 +1251,7 @@
+   $('#nbFindTextMode').onclick=()=>findMode('work');$('#nbFindRelatedMode').onclick=()=>findMode('related');
+   $('#nbFindInWork').onclick=()=>{researchTab('search');findMode('work');};
+   $('#nbFindRelated').onclick=()=>{researchTab('search');findMode('related');};
+-  $('#nbWorkAsk').onclick=()=>{closeNotebook(false);window.FRAsk?.open({contextWork:WORK_SLUG,works:WORK_SLUG?[WORK_SLUG]:[]});};
++  $('#nbWorkAsk').onclick=()=>{closeNotebook(false);window.FRAsk?.open({fresh:true,contextWork:WORK_SLUG,works:WORK_SLUG?[WORK_SLUG]:[]});};
+   $('#nbWorkAbout').onclick=()=>{closeNotebook(false);$('#rdAbout').click();};
+   function researchTab(name){
+     name=['work','search','passage','saved','chats'].includes(name)?name:activeResearchTab;activeResearchTab=name;
+--- a/tools/prdl_reader_prototype/reader-navigation.js
++++ b/tools/prdl_reader_prototype/reader-navigation.js
+@@ -209,5 +209,23 @@
+  return chapter?"Part "+part+" · ch. "+chapter[1]:node.title.startsWith("Index:")?"Part "+part+" · Index":node.title.startsWith("Front matter")?"Front matter":node.title;
+ }
+ 
+-return {isConfession,chapterLabel,contents,catalogue,outline,locator,exactHeading};
++// Group only published index pages, using the existing outline for section labels.
++// Page IDs are opaque; sequence comes from the edition's page inventory.
++function indexSections(entries,outline,pages){
++ const order=new Map((pages||[]).map((p,i)=>[string(p.n),i])),seen=new Set();
++ const heads=(outline||[]).map((h,i)=>({...h,key:i,page:string(h.page),position:order.get(string(h.page))})).filter(h=>h.position!==undefined&&/\b(index|indices|contents|tabula|errata)\b/i.test(h.title||'')).sort((a,b)=>a.position-b.position||a.key-b.key);
++ const labels={quaestionum:'Index of questions',errata:'Errata',citations:'Index of citations',topical:'Index',alphabetic:'Index',contents:'Contents'};
++ const groups=[];let prior=null;
++ for(const [raw,kind] of entries||[]){
++  const page=string(raw);if(!page||seen.has(page))continue;seen.add(page);
++  const position=order.get(page);let head=null;
++  if(position!==undefined)for(const h of heads){if(h.position>position)break;head=h;}
++  const key=head?'outline:'+head.key:'kind:'+kind;
++  if(!prior||prior.key!==key){const sourceTitle=head?.title||labels[kind]||'Index',parts=sourceTitle.split(' — '),tail=parts.slice(1).join(' — '),letters=tail.replace(/[^A-Za-z]/g,'');const title=parts.length>1&&letters&&letters===letters.toUpperCase()?parts[0]:sourceTitle;prior={key,title,sourceTitle,pages:[]};groups.push(prior);}
++  prior.pages.push(page);
++ }
++ return groups;
++}
++
++return {isConfession,chapterLabel,contents,catalogue,outline,locator,exactHeading,indexSections};
+ });
+--- a/tools/prdl_reader_prototype/reader-contents.css
++++ b/tools/prdl_reader_prototype/reader-contents.css
+@@ -41,3 +41,22 @@
+  html.g-mobile #nav .nav-node .nav-open{flex:1;min-width:0;text-align:left;overflow-wrap:break-word}
+  html.g-mobile #nav .nav-node{scroll-margin-top:8px;scroll-margin-bottom:12px}
+ }
++
++/* Historical indexes expose source destinations, never speculative alphabet buttons. */
++.nav-index{padding:8px 4px 24px}
++.index-guidance{font:14px/1.5 var(--font-body,Georgia,serif);color:var(--muted);margin:8px 0 14px}
++.index-section{border-top:1px solid var(--border);padding:8px 0 14px}
++.index-section>summary{font:500 17px/1.4 var(--font-body,Georgia,serif);padding:12px 4px;min-height:44px;box-sizing:border-box;cursor:pointer;overflow-wrap:anywhere}
++.index-page-links{display:flex;flex-wrap:wrap;gap:8px}
++.index-page-link{display:inline-flex;align-items:center;min-height:44px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;color:var(--fg);font:14px/1.4 var(--font-body,Georgia,serif);text-decoration:none;box-sizing:border-box}
++.index-page-link:hover,.index-page-link:focus-visible{background:var(--hl);border-color:var(--muted)}
++.nav-lib .nl-au{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--border);background:none;color:var(--fg);min-height:44px;font:500 15px/1.4 var(--font-body,Georgia,serif);cursor:pointer}
++.nav-lib .nl-q{font-size:16px;min-height:44px}
++html:not(.fr-plain) #aaPop :is(button,input[type=range],input[type=text]){min-height:44px}
++html:not(.fr-plain) #aaPop :is(#szDn,#szUp){min-width:44px}
++html:not(.fr-plain) #aaPop .aaseg button{padding:6px 10px}
++
++#kbdhelp{z-index:10080;background:rgb(0 0 0 / .5)}
++#kbdhelp .kh-box{box-sizing:border-box;min-width:0;width:min(440px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;border-radius:8px;box-shadow:none}
++#kbdhelp .kh-close{min-height:44px;padding:8px 14px;border:1px solid var(--border);border-radius:4px;background:var(--card);color:var(--fg);font:14px var(--font-body,Georgia,serif)}
++#kbdhelp .kh-close:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+--- a/tools/desk/desk.html
++++ b/tools/desk/desk.html
+@@ -113,6 +113,14 @@
+   #ed{max-width:none;font-size:12pt}
+   body{background:#fff;color:#000}
+ }
++
++/* Keep document deletion within the page, with a keyboard-accessible confirmation. */
++#docList .doc-row{display:flex;align-items:center;flex-wrap:wrap;padding:0}
++#docList .doc-open{flex:1;min-width:100px;min-height:44px;padding:10px;border:0;background:none;color:var(--fg);font:inherit;text-align:left;cursor:pointer}
++#docList .doc-del,#docList .doc-cancel{position:static;float:none;min-width:44px;min-height:44px;padding:8px;border:0;background:none;color:var(--muted);font:13px var(--font-body,Georgia,serif);cursor:pointer;opacity:1}
++#docList .doc-del[data-armed=true]{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
++#docList .doc-cancel[hidden]{display:none}
++#docList button:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
+ </style>
+ <link rel="stylesheet" href="/desk-workflow.css?v=__RESEARCH_V__"><script src="/desk-workflow.js?v=__RESEARCH_V__"></script>
+ </head>
+@@ -120,7 +128,7 @@
+ <header>
+   <a class="brand fr-home-link desk-home" data-fr-home href="/" aria-label="Back to library"><span class="fr-home-wide"><b>The Faith Received</b><span> · Desk</span></span><span class="fr-home-compact"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>Library</span></a>
+   <button class="hbtn" id="docsTog" aria-label="Your documents"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5h14M5 12h14M5 19h14"/></svg></button>
+-  <input id="dTitle" placeholder="Untitled paper" autocomplete="off" spellcheck="true">
++  <input id="dTitle" aria-label="Paper title" placeholder="Untitled paper" autocomplete="off" spellcheck="true">
+   <span id="wc"></span>
+   <button class="hbtn" id="deskTheme" aria-label="Change reading theme" title="Change reading theme"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg></button>
+   <button class="hbtn" id="railTog" aria-label="Insert from your research"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 4h16v16H4zM14 4v16M7 8h4M7 12h4"/></svg></button>
+@@ -195,16 +203,25 @@
+ function renderDocs(){
+   var list=docsAll();
+   $('#docList').innerHTML=list.map(function(d){
+-    return '<button class="doc-row'+(CUR&&d.id===CUR.id?' on':'')+'" data-id="'+esc(d.id)+'">'
+-      +'<span class="doc-del" data-del="'+esc(d.id)+'" title="Delete this document">✕</span>'
+-      +'<span class="t">'+esc(d.title||'Untitled paper')+'</span>'
+-      +'<span class="m">'+new Date(d.ts).toLocaleDateString()+'</span></button>';}).join('')
++    var title=d.title||'Untitled paper';
++    return '<div class="doc-row'+(CUR&&d.id===CUR.id?' on':'')+'">'
++      +'<button type="button" class="doc-open" data-id="'+esc(d.id)+'"><span class="t">'+esc(title)+'</span><span class="m">'+new Date(d.ts).toLocaleDateString()+'</span></button>'
++      +'<button type="button" class="doc-del" data-del="'+esc(d.id)+'" aria-label="Delete '+esc(title)+'">Delete</button>'
++      +'<button type="button" class="doc-cancel" hidden>Cancel</button></div>';}).join('')
+     ||'<div class="rl-empty">Papers you write collect here, saved on this device.</div>';
+   Array.prototype.forEach.call(document.querySelectorAll('.doc-row'),function(r){
+-    r.onclick=function(e){
+-      var del=e.target.getAttribute&&e.target.getAttribute('data-del');
+-      if(del){if(confirm('Delete this document?')){docsPut(docsAll().filter(function(d){return d.id!==del;}));if(CUR&&CUR.id===del){CUR=null;$('#ed').innerHTML='';$('#dTitle').value='';}renderDocs();}return;}
+-      openDoc(r.getAttribute('data-id'));};});}
++    var open=r.querySelector('.doc-open'),del=r.querySelector('.doc-del'),cancel=r.querySelector('.doc-cancel');
++    open.onclick=function(){openDoc(open.getAttribute('data-id'));};
++    cancel.onclick=function(){renderDocs();};
++    del.onclick=function(){
++      if(del.getAttribute('data-armed')!=='true'){del.setAttribute('data-armed','true');del.textContent='Confirm delete';del.setAttribute('aria-label','Confirm deletion of '+open.querySelector('.t').textContent);cancel.hidden=false;return;}
++      var id=del.getAttribute('data-del');
++      if(!docsPut(docsAll().filter(function(d){return d.id!==id;})))return;
++      if(CUR&&CUR.id===id){clearTimeout(_sv);CUR=null;docDirty=false;savedRange=null;$('#ed').innerHTML='';$('#dTitle').value='';}
++      renderDocs();wcUpdate();if(!CUR){var remaining=docsAll();if(remaining.length)openDoc(remaining[0].id);else $('#newDoc').focus();}
++    };
++  });}
++
+ function wcUpdate(){var t=$('#ed').textContent.trim();$('#wc').textContent=t?t.split(/\s+/).length.toLocaleString()+' words':'';}
+ 
+ /* ── toolbar ── */

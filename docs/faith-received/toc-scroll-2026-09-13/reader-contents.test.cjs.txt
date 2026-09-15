@@ -1,0 +1,112 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/reader-contents.js','utf8'),box={module:{exports:{}}};vm.runInNewContext(source,box);const api=box.module.exports;
+const clean=value=>JSON.parse(JSON.stringify(value));
+const items=[{title:'Book I',page:'1'},{title:'Chapter I',page:'2'},{title:'Question of grâce',navFullTitle:'Question of grace and providence',page:'3'},{title:'Question of law',page:'4'},{title:'Book II',page:'5'},{title:'Chapter I',page:'6'}],parents=[-1,0,1,1,-1,4];
+
+test('filtering keeps only token matches and their real ancestors without changing hierarchy',()=>{
+ const tree=api.model(items,parents),before=JSON.stringify(items),result=api.filtered(tree,'GRACE providence');
+ assert.deepEqual(clean(result.visible),[true,true,true,false,false,false]);assert.equal(result.count,1);assert.equal(result.matches[0],false);assert.equal(JSON.stringify(items),before);assert.deepEqual(clean(tree.parents),parents);
+});
+test('clearing a filter restores deliberate expansion rather than keeping temporary ancestor expansion',()=>{
+ const tree=api.model(items,parents),chosen=new Set([tree.keys[0]]);
+ assert.deepEqual(clean(api.filtered(tree,'grace',chosen).visible),[true,true,true,false,false,false]);
+ assert.deepEqual(clean(api.filtered(tree,'',chosen).visible),[true,true,false,false,true,false]);
+ assert.deepEqual([...chosen],[tree.keys[0]]);
+});
+test('search includes original source headings and each requested token',()=>{
+ const tree=api.model([{title:'Chapter',navSourceText:'Of the Lord’s Supper and Eucharist',page:'52:0183A'}],[-1]);
+ assert.equal(api.filtered(tree,'SUPPER eucharist').count,1);assert.equal(api.filtered(tree,'supper baptism').count,0);
+});
+test('keys retain compound page identity and distinguish repeated headings without array-position keys',()=>{
+ const list=[{title:'Book I',page:'52:0183A'},{title:'Chapter I',page:'52:0183A'},{title:'Chapter I',page:'52:0183A'},{title:'Book II',page:'52:0183B'},{title:'Chapter I',page:'52:0183B'}],tree=api.model(list,[-1,0,0,-1,3]);
+ assert.equal(new Set(tree.keys).size,list.length);assert.ok(tree.keys[0].includes('52:0183A'));assert.ok(tree.keys[3].includes('52:0183B'));
+ const extra=api.model([{title:'Preface',page:'0'},...list],[-1,-1,1,1,-1,4]);assert.deepEqual(clean(extra.keys.slice(1)),clean(tree.keys));
+});
+test('current index prefers exact source identity and uses source page order, never numeric coercion',()=>{
+ const list=[{title:'Front',page:'title'},{title:'Question 26',page:'52:0183A',navSourcePath:'0.4',navSourceKey:'key26'},{title:'Question 27',page:'52:0183A',navSourcePath:'0.4',navSourceKey:'key27'},{title:'Later',page:'52:0183B'}],pages=[{n:'title'},{n:'52:0183A'},{n:'52:0183B'}];
+ assert.equal(api.currentIndex(list,pages,'52:0183B',{sourcePath:'0.4',sourceKey:'key26'}),1);assert.equal(api.currentIndex(list,pages,'52:0183A',{sourcePath:'0.4',sourceKey:'key27'}),2);assert.equal(api.currentIndex(list,pages,'52:0183B'),3);assert.equal(api.currentIndex(list,pages,'52:0183B',{sourcePath:''}),3);assert.equal(api.currentIndex(list,pages,'title',{page:'52:0183B'}),3);assert.equal(api.currentIndex([{title:'Zero',page:0}],[{n:0}],0),0);
+});
+test('ten thousand nested rows use iterative model and ancestry filtering without recursive overflow',()=>{
+ const count=10000,list=Array.from({length:count},(_,i)=>({title:i===count-1?'Final needle':'Section '+i,page:String(i)})),ancestry=list.map((_,i)=>i-1),tree=api.model(list,ancestry),result=api.filtered(tree,'needle');
+ assert.equal(result.count,1);assert.equal(result.visible.filter(Boolean).length,count);assert.ok(tree.keys.every(key=>key.length<160),'Stable keys do not recursively embed their full ancestry');
+});
+
+function dom(){
+ const document={activeElement:null};
+ function make(tag='div'){
+  let classes=new Set();const events=new Map(),attrs=new Map();
+  const node={tagName:tag.toUpperCase(),ownerDocument:document,children:[],parentElement:null,dataset:{},hidden:false,disabled:false,scrollTop:0,textContent:'',value:'',style:{setProperty(){}},
+   get className(){return [...classes].join(' ');},set className(value){classes=new Set(value.split(/\s+/).filter(Boolean));},
+   classList:{contains:name=>classes.has(name),add(...names){names.forEach(n=>classes.add(n));},remove(...names){names.forEach(n=>classes.delete(n));},toggle(name,on){if(on===undefined)on=!classes.has(name);on?classes.add(name):classes.delete(name);return on;}},
+   setAttribute:(name,value)=>attrs.set(name,String(value)),getAttribute:name=>attrs.get(name),removeAttribute:name=>attrs.delete(name),
+   appendChild(child){child.remove();child.parentElement=this;this.children.push(child);return child;},insertBefore(child,before){child.remove();child.parentElement=this;const i=this.children.indexOf(before);this.children.splice(i<0?this.children.length:i,0,child);return child;},
+   remove(){if(this.parentElement){const siblings=this.parentElement.children;const i=siblings.indexOf(this);if(i>=0)siblings.splice(i,1);this.parentElement=null;}},
+   replaceChildren(...next){if(this.contains(document.activeElement))document.activeElement=document.body;this.children.forEach(child=>{child.parentElement=null;});this.children=[];next.forEach(child=>this.appendChild(child));this.scrollTop=0;},
+   contains(other){for(let n=other;n;n=n.parentElement)if(n===this)return true;return false;},
+   querySelector(selector){const cls=selector.split('.').at(-1);for(const child of this.children){if(child.classList.contains(cls)&&(!selector.startsWith('button')||child.tagName==='BUTTON'))return child;const nested=child.querySelector(selector);if(nested)return nested;}return null;},
+   addEventListener(type,handler){if(!events.has(type))events.set(type,[]);events.get(type).push(handler);},removeEventListener(type,handler){events.set(type,(events.get(type)||[]).filter(h=>h!==handler));},
+   emit(type,extra={}){const event={type,target:this,preventDefault(){},stopPropagation(){},...extra};for(const handler of events.get(type)||[])handler(event);if(type==='click')this.onclick?.(event);},click(){this.emit('click');},
+   getClientRects(){for(let n=this;n;n=n.parentElement)if(n.hidden)return [];return [{}];},getBoundingClientRect:()=>({top:0,height:48}),
+   focus(){document.activeElement=this;},setSelectionRange(start,end,direction){this.selectionStart=start;this.selectionEnd=end;this.selectionDirection=direction;},scrollIntoView(){this.scrollCalls=(this.scrollCalls||0)+1;}};
+  return node;
+ }
+ document.createElement=make;document.body=make('body');document.activeElement=document.body;return {document,make};
+}
+function harness(){
+ const {document,make}=dom(),frames=[],session=new Map(),root={document,requestAnimationFrame:fn=>{frames.push(fn);return frames.length;},sessionStorage:{getItem:key=>session.get(key)||null,setItem:(key,value)=>session.set(key,value)}};
+ const context={window:root,module:{exports:{}}};vm.runInNewContext(source,context);const contents=context.module.exports,nav=make();document.body.appendChild(nav);let selected=2;
+ const makeRows=(values=items,ancestry=parents)=>values.map((item,i)=>{const row=make();row.className='nav-node';row.dataset.page=item.page;const caret=make('button');caret.className='cv';caret.dataset.label=item.title;if(ancestry.includes(i))row.appendChild(caret);const link=make('a');link.className='nav-open nn-t';link.textContent=item.title;row.appendChild(link);return row;});
+ function bind(rows=makeRows(),key='fixture'){nav.replaceChildren(...rows);return {rows,controller:contents.bind({nav,items,rows,parents,children:parents.map((_,i)=>parents.includes(i)),depths:[1,2,3,3,1,2],key,onCurrent:()=>selected})};}
+ return {contents,nav,document,makeRows,bind,select:index=>{selected=index;},flush(){while(frames.length)frames.shift()();}};
+}
+test('current section marks a visible ancestor without scrolling; Current section reveals and focuses the leaf',()=>{
+ const h=harness(),{rows,controller}=h.bind();assert.equal(rows[0].classList.contains('on'),true);assert.equal(rows[2].hidden,true);assert.ok(rows.every(row=>!row.scrollCalls));
+ h.contents.highlight(h.nav,5);assert.equal(rows[4].classList.contains('on'),true);assert.equal(rows[0].classList.contains('on'),false);assert.ok(rows.every(row=>!row.scrollCalls));
+ h.select(2);controller.showCurrent();assert.equal(rows[2].hidden,false);assert.equal(rows[2].classList.contains('on'),true);assert.equal(h.document.activeElement,rows[2].querySelector('.nav-open'));assert.equal(rows[2].scrollCalls,1);
+});
+test('typing filters existing rows without replacing the focused input or its caret',()=>{
+ const h=harness(),{rows,controller}=h.bind();const input=controller.input;input.focus();input.value='grace';input.setSelectionRange(2,4,'forward');input.emit('input');h.flush();
+ assert.equal(h.document.activeElement,input);assert.equal(input.selectionStart,2);assert.equal(input.selectionEnd,4);assert.deepEqual(rows.map(row=>!row.hidden),[true,true,true,false,false,false]);
+});
+test('capture before a rebuild retains query, input selection, scroll and chosen expansion',()=>{
+ const h=harness(),first=h.bind();first.rows[0].querySelector('button.cv').emit('click');first.controller.setQuery('grace');first.controller.input.focus();first.controller.input.setSelectionRange(1,3,'backward');h.nav.scrollTop=246;
+ h.contents.capture(h.nav);const next=h.bind();h.flush();assert.equal(next.controller.input.value,'grace');assert.equal(h.nav.scrollTop,246);assert.equal(h.document.activeElement,next.controller.input);assert.equal(next.controller.input.selectionStart,1);assert.equal(next.controller.input.selectionEnd,3);
+ next.controller.setQuery('');assert.deepEqual(next.rows.map(row=>!row.hidden),[true,true,false,false,true,false]);
+});
+test('caret focus returns to the corresponding source entry after a rebuild',()=>{
+ const h=harness(),first=h.bind();const caret=first.rows[0].querySelector('button.cv');caret.focus();h.nav.scrollTop=90;h.contents.capture(h.nav);const next=h.bind();h.flush();assert.equal(h.document.activeElement,next.rows[0].querySelector('button.cv'));assert.equal(h.nav.scrollTop,90);
+});
+test('filter expansion is temporary and Expand/Collapse all never alters source rows',()=>{
+ const h=harness(),{rows,controller}=h.bind(),before=JSON.stringify(items);controller.expandAll(true);assert.ok(rows.every(row=>!row.hidden));controller.setQuery('grace');controller.expandAll(false);assert.deepEqual(rows.map(row=>!row.hidden),[true,false,false,false,false,false]);controller.setQuery('');assert.ok(rows.every(row=>!row.hidden));assert.equal(JSON.stringify(items),before);
+});
+test('short flat works retain a simple list without unnecessary filter controls',()=>{
+ const h=harness(),list=items.slice(0,3),rows=h.makeRows(list,[-1,-1,-1]);h.nav.replaceChildren(...rows);h.contents.bind({nav:h.nav,items:list,rows,parents:[-1,-1,-1],key:'flat',onCurrent:()=>0});assert.equal(h.nav.children.length,3);assert.ok(rows.every(row=>!row.hidden));
+});
+
+test('Enter flushes the newest pending query and directly activates exactly one matching link',()=>{
+ const h=harness(),{rows,controller}=h.bind(),navigations=[];rows.forEach((row,i)=>{row.querySelector('.nav-open').onclick=()=>navigations.push(i);});
+ controller.setQuery('law');controller.input.value='grace';controller.input.emit('input');controller.input.emit('keydown',{key:'Enter'});
+ assert.deepEqual(navigations,[2]);assert.equal(controller.input.value,'grace');assert.deepEqual(rows.map(row=>!row.hidden),[true,true,true,false,false,false]);
+ h.flush();assert.deepEqual(navigations,[2],'An old queued frame cannot trigger a second navigation');assert.equal(controller.input.value,'grace');
+});
+
+test('ArrowDown only focuses the latest match, while IME, modifiers and blank Enter never navigate',()=>{
+ const h=harness(),{rows,controller}=h.bind(),navigations=[];rows.forEach((row,i)=>{row.querySelector('.nav-open').onclick=()=>navigations.push(i);});
+ controller.input.value='law';controller.input.emit('input');controller.input.emit('keydown',{key:'ArrowDown'});assert.equal(h.document.activeElement,rows[3].querySelector('.nav-open'));assert.deepEqual(navigations,[]);
+ for(const extra of [{metaKey:true},{ctrlKey:true},{shiftKey:true},{altKey:true},{isComposing:true},{keyCode:229}])controller.input.emit('keydown',{key:'Enter',...extra});
+ controller.input.emit('compositionstart');controller.input.emit('keydown',{key:'Enter'});controller.input.emit('compositionend');assert.deepEqual(navigations,[]);
+ controller.setQuery('');controller.input.emit('keydown',{key:'Enter'});assert.deepEqual(navigations,[]);h.flush();assert.deepEqual(navigations,[]);
+});
+test('numbered heading searches do not confuse Title X with IX, XI, or XX',()=>{
+ const tree=api.model(['Index of the Book','Title IX','Title X','Title XI','Title XX','Chapter 1','Chapter 10'].map((title,i)=>({title,page:i})));
+ assert.deepEqual(clean(api.filtered(tree,'Title X').matches),[false,false,true,false,false,false,false]);
+ assert.deepEqual(clean(api.filtered(tree,'Chapter 1').matches),[false,false,false,false,false,true,false]);
+});
+
+test('tabs and filter controls share one header while rows remain in the original scroll container',()=>{
+ const h=harness(),tabs=h.document.createElement('div');tabs.className='nav-vt';const rows=h.makeRows();h.nav.replaceChildren(tabs,...rows);
+ const bind=()=>h.contents.bind({nav:h.nav,items,rows,parents,key:'header-fixture',onCurrent:()=>0});
+ let c=bind(),header=h.nav.querySelector('.rc-contents-header');assert.ok(header);assert.equal(tabs.parentElement,header);assert.equal(c.tools.parentElement,header);assert.ok(rows.every(row=>row.parentElement===h.nav));
+ h.nav.scrollTop=173;c=bind();assert.equal(h.nav.children.filter(n=>n.classList.contains('rc-contents-header')).length,1);h.flush();assert.equal(h.nav.scrollTop,173);
+ const saved=h.contents.release(h.nav);assert.equal(saved.scroll,173);assert.equal(tabs.parentElement,h.nav);assert.ok(rows.every(row=>row.parentElement===h.nav));assert.equal(h.nav.querySelector('.rc-contents-header'),null);assert.equal(h.nav.classList.contains('rc-has-controls'),false);
+});

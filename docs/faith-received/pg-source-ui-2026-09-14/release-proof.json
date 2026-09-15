@@ -1,0 +1,24 @@
+{
+  "deployment": "dpl_FACtqFmtNtYoicvm1EzAXmUVf3fa",
+  "alias": "https://thefaithreceived.vercel.app",
+  "checks": [
+    {
+      "asset": "read.html",
+      "localMd5": "e86fad2b0e75e6aa1be372f5018f3840",
+      "aliasMd5": "e86fad2b0e75e6aa1be372f5018f3840",
+      "match": true
+    },
+    {
+      "asset": "reader-core.js",
+      "localMd5": "304d72153c82bf4b1caf767923cbd657",
+      "aliasMd5": "304d72153c82bf4b1caf767923cbd657",
+      "match": true
+    },
+    {
+      "asset": "migne-navigation.js",
+      "localMd5": "e6af90a5639cf2249328529cc64746d7",
+      "aliasMd5": "e6af90a5639cf2249328529cc64746d7",
+      "match": true
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "deployment": "dpl_5tSibx6tvcRXCQpg76Zzq77Ypoif",
+  "files": [
+    {
+      "file": "web.html",
+      "local_md5": "f2b34380494a9890a67ba6c079af594f",
+      "live_md5": "f2b34380494a9890a67ba6c079af594f",
+      "match": true
+    },
+    {
+      "file": "connection-evidence.js",
+      "local_md5": "c7f802915c941a4d106894c13a0f05d8",
+      "live_md5": "c7f802915c941a4d106894c13a0f05d8",
+      "match": true
+    },
+    {
+      "file": "constellations.css",
+      "local_md5": "a8291612adf1c3c8ba6200be24f80517",
+      "live_md5": "a8291612adf1c3c8ba6200be24f80517",
+      "match": true
+    }
+  ]
+}

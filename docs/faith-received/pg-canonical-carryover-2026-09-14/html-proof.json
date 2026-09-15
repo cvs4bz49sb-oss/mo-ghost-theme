@@ -1,0 +1,12 @@
+{
+  "exact_match": true,
+  "match_ignoring_build_stamps": true,
+  "local_bytes": 243719,
+  "remote_bytes": 243719,
+  "differing_window": {
+    "local_chars": 0,
+    "remote_chars": 0
+  },
+  "local_stamps": [],
+  "remote_stamps": []
+}

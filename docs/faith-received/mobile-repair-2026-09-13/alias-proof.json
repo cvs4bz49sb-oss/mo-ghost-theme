@@ -1,0 +1,38 @@
+[
+  {
+    "file": "ask-workspace.js",
+    "local_sha256": "32f626be5ff76f92d4812baa71aa0fb6e61f9300a690d0959ac5354add763780",
+    "alias_sha256": "32f626be5ff76f92d4812baa71aa0fb6e61f9300a690d0959ac5354add763780",
+    "match": true
+  },
+  {
+    "file": "ask-workspace.css",
+    "local_sha256": "657b046628ea8cd52bc647ef0eb6ae471a30e2c0c63bb70116396c0f781e9c11",
+    "alias_sha256": "657b046628ea8cd52bc647ef0eb6ae471a30e2c0c63bb70116396c0f781e9c11",
+    "match": true
+  },
+  {
+    "file": "reader-contents.css",
+    "local_sha256": "7521f55f79f24f4bef6ea1d041032db07dc9730c50fa377b068e6f60de8cd0cf",
+    "alias_sha256": "7521f55f79f24f4bef6ea1d041032db07dc9730c50fa377b068e6f60de8cd0cf",
+    "match": true
+  },
+  {
+    "file": "read.html",
+    "local_sha256": "5bf2795f67fc891732c2255e953b56ea3a67daf4d9f529cd5d29878d281d2fc5",
+    "alias_sha256": "5bf2795f67fc891732c2255e953b56ea3a67daf4d9f529cd5d29878d281d2fc5",
+    "match": true
+  },
+  {
+    "file": "reader-core.js",
+    "local_sha256": "0aa2b99df6525f155c859ed15548b4ce3b71cf3ba68e33f021e992e855c3c314",
+    "alias_sha256": "0aa2b99df6525f155c859ed15548b4ce3b71cf3ba68e33f021e992e855c3c314",
+    "match": true
+  },
+  {
+    "file": "reader-contents.js",
+    "local_sha256": "8c2a6af25f9138d32b8428908cc7a88cfb65f28adbbc49b091b70f5bf7338ae0",
+    "alias_sha256": "8c2a6af25f9138d32b8428908cc7a88cfb65f28adbbc49b091b70f5bf7338ae0",
+    "match": true
+  }
+]

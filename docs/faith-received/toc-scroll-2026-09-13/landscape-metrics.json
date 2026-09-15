@@ -1,0 +1,16 @@
+{
+  "landscapeBefore": {
+    "headerTop": -117.5,
+    "headers": 1,
+    "main": 11487,
+    "nav": 235.5,
+    "workBottom": 118
+  },
+  "landscapeAfter": {
+    "headerTop": -507.5,
+    "headers": 1,
+    "main": 11487,
+    "nav": 625.5,
+    "workBottom": 118
+  }
+}

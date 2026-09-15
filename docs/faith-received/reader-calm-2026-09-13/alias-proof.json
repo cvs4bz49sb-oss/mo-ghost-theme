@@ -1,0 +1,65 @@
+[
+  {
+    "file": "read.html",
+    "status": 0,
+    "local_bytes": 242960,
+    "live_bytes": 242960,
+    "md5": "e800f790172dc120ba9254acb8cd6800",
+    "live_md5": "e800f790172dc120ba9254acb8cd6800",
+    "match": true
+  },
+  {
+    "file": "reader-core.js",
+    "status": 0,
+    "local_bytes": 521511,
+    "live_bytes": 521511,
+    "md5": "a9733a6dce57e9a0d4fecbce9b2efdcb",
+    "live_md5": "a9733a6dce57e9a0d4fecbce9b2efdcb",
+    "match": true
+  },
+  {
+    "file": "read-tools.js",
+    "status": 0,
+    "local_bytes": 169740,
+    "live_bytes": 169740,
+    "md5": "a7a39bbf484bf7d7dc5bfdb2fa0c8f66",
+    "live_md5": "a7a39bbf484bf7d7dc5bfdb2fa0c8f66",
+    "match": true
+  },
+  {
+    "file": "fr-reading-system.css",
+    "status": 0,
+    "local_bytes": 23854,
+    "live_bytes": 23854,
+    "md5": "d796005d6bc62d3a251998fea36e7254",
+    "live_md5": "d796005d6bc62d3a251998fea36e7254",
+    "match": true
+  },
+  {
+    "file": "work-research.js",
+    "status": 0,
+    "local_bytes": 22925,
+    "live_bytes": 22925,
+    "md5": "e3ba37a68aaedaa623ec529957e48d05",
+    "live_md5": "e3ba37a68aaedaa623ec529957e48d05",
+    "match": true
+  },
+  {
+    "file": "work-research.css",
+    "status": 0,
+    "local_bytes": 7662,
+    "live_bytes": 7662,
+    "md5": "9a47ab102cc2887dea130833d33b5d5f",
+    "live_md5": "9a47ab102cc2887dea130833d33b5d5f",
+    "match": true
+  },
+  {
+    "file": "ask-workspace.css",
+    "status": 0,
+    "local_bytes": 39605,
+    "live_bytes": 39605,
+    "md5": "99baf08dcb26e0a24a372656223ac134",
+    "live_md5": "99baf08dcb26e0a24a372656223ac134",
+    "match": true
+  }
+]

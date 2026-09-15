@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Desk — The Faith Received</title>
+<meta name="robots" content="noindex">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+Pro:ital,wght@0,400;0,600&display=swap');
+/* ACADEMIC MONOCHROME v3 (2026-09-06): stone under a white sheet, ink accents, EB Garamond
+   identity — the same tokens as /search and the reader; dark is graphite, not brown. */
+:root{--bg:#F0F0ED;--panel:#FFFFFF;--fg:#1C1C1A;--muted:#5A5A56;--line:#D8D8D3;--accent:#1C1C1A;--highlight:#E7E7E2;--sans:'Source Serif Pro',Georgia,serif;--serif:'EB Garamond','Source Serif Pro',Georgia,"Times New Roman",serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#131312;--panel:#1C1B1A;--fg:#E9E9E5;--muted:#96918A;--line:#3A3835;--accent:#E9E9E5;--highlight:#242322}}
+:root[data-theme="dark"]{--bg:#131312;--panel:#1C1B1A;--fg:#E9E9E5;--muted:#96918A;--line:#3A3835;--accent:#E9E9E5;--highlight:#242322}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:.8rem;padding:.55rem .9rem;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:30}
+header .brand{font-family:var(--serif);font-size:.95rem;white-space:nowrap;text-decoration:none;color:var(--fg)}
+header .brand b{color:var(--accent);font-weight:600}
+#dTitle{flex:1;min-width:0;font:600 1rem/1.3 var(--serif);font-size:max(1rem,16px);background:none;border:0;outline:none;color:var(--fg);padding:.3rem .2rem}
+#wc{color:var(--muted);font-size:.72rem;white-space:nowrap}
+.hbtn{font:500 .78rem/1 var(--sans);border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:.45rem .7rem;cursor:pointer;white-space:nowrap}
+.hbtn:hover{border-color:var(--fg)}
+#docsTog,#railTog{display:none}
+main{flex:1;display:grid;grid-template-columns:230px minmax(0,1fr) 300px;min-height:0}
+/* ── documents sidebar ── */
+#docs{border-right:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:.7rem .6rem}
+.ds-h{font:600 .68rem/1 var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:.2rem .2rem .6rem}
+#newDoc{width:100%;margin:0 0 .6rem;font:500 .8rem/1 var(--sans);border:1px dashed var(--line);background:none;color:var(--accent);border-radius:8px;padding:.55rem;cursor:pointer}
+#newDoc:hover{border-color:var(--accent)}
+.doc-row{display:block;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:.5rem .55rem;cursor:pointer;color:var(--fg);font:400 .82rem/1.35 var(--sans)}
+.doc-row:hover{background:var(--highlight)}
+.doc-row.on{background:var(--highlight);box-shadow:inset 2px 0 0 var(--fg)}
+.doc-row .t{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.doc-row .m{color:var(--muted);font-size:.68rem}
+.doc-del{float:right;border:0;background:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:0 .2rem}
+.doc-del:hover{color:var(--accent)}
+/* ── editor ── */
+#edwrap{overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:1.2rem 1rem 4rem;background:var(--bg)}
+#toolbar{position:sticky;top:0;z-index:10;display:flex;gap:.25rem;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.3rem;margin-bottom:1rem;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+#toolbar button{font:500 .8rem/1 var(--sans);border:0;background:none;color:var(--fg);border-radius:6px;padding:.45rem .6rem;cursor:pointer;min-width:2rem}
+#toolbar button:hover{background:var(--highlight)}
+#ed{width:100%;max-width:46rem;min-height:70vh;outline:none;font:400 1.06rem/1.78 var(--serif);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:3rem 3.2rem 4rem;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+#ed:empty::before{content:"Begin writing, or insert a passage from your saved research.";color:var(--muted);font-style:italic}
+#ed h2{font:600 1.4rem/1.3 var(--serif);margin:1.6em 0 .5em}
+#ed h3{font:600 1.12rem/1.3 var(--serif);margin:1.4em 0 .4em}
+#ed p{margin:.75em 0}
+#ed blockquote{margin:1em 0;padding:.6em 1em;border-left:none;background:var(--highlight);border-radius:8px;font-size:.95em}
+#ed blockquote cite{display:block;margin-top:.45em;font-style:normal;font-size:.82em;color:var(--muted)}
+#ed blockquote cite a{color:var(--accent);text-decoration:none}
+#ed a{color:var(--accent)}
+/* ── research rail ── */
+#rail{border-left:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:.7rem .6rem}
+.rl-tabs{display:flex;gap:.3rem;margin:0 0 .6rem}
+.rl-tabs button{flex:1;font:500 .74rem/1 var(--sans);border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;padding:.42rem .3rem;cursor:pointer}
+.rl-tabs button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.rl-item{border-bottom:1px solid var(--line);padding:.55rem .2rem;font:400 .8rem/1.45 var(--sans)}
+.rl-item .cite{color:var(--muted);font-size:.68rem;margin-bottom:.15rem}
+.rl-item .tx{max-height:4.2em;overflow:hidden}
+.rl-ins{margin-top:.35rem;font:500 .72rem/1 var(--sans);border:1px solid var(--line);background:none;color:var(--accent);border-radius:6px;padding:.34rem .6rem;cursor:pointer}
+.rl-ins:hover{border-color:var(--accent)}
+.rl-state{display:inline-block;font:500 .6rem/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:.16rem .5rem;margin-left:.35rem;color:var(--muted);vertical-align:1px}
+.rl-state[data-state=complete]{color:var(--accent);border-color:var(--accent)}
+.rl-state[data-state=needs_input],.rl-state[data-state=running]{color:var(--fg);border-color:var(--muted)}
+.rl-hint{font-style:italic;font-size:.74rem;line-height:1.5;color:var(--muted);margin:.15rem 0}
+.rl-full>summary{cursor:pointer;font:500 .7rem/1.4 var(--sans);color:var(--muted);margin-top:.25rem}
+.rl-full>div{font-size:.78rem;line-height:1.55;margin:.3rem 0;max-height:22rem;overflow:auto}
+.rl-full>div blockquote{margin:.4rem 0;padding-left:.6rem;border-left:1px solid var(--line);color:var(--muted)}
+.rl-empty{color:var(--muted);font-size:.8rem;font-style:italic;padding:.6rem .2rem;line-height:1.5}
+/* ── Ask the library, in the rail (2026-09-06): research without leaving the paper ── */
+.ak-box{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:.3rem .35rem;margin:0 0 .6rem}
+.ak-ta{display:block;width:100%;border:0;outline:0;background:none;color:var(--fg);font:400 .85rem/1.5 var(--sans);resize:none;padding:.35rem .45rem;min-height:2.1rem;max-height:7rem}
+.ak-row{display:flex;align-items:center;gap:.6rem;padding:0 .25rem}
+.ak-deep{display:flex;align-items:center;gap:.3rem;font:500 .68rem/1 var(--sans);color:var(--muted);cursor:pointer;user-select:none}
+.ak-deep input{position:absolute;left:-9999px;outline:none;pointer-events:none}
+.ak-deep::before{content:"";width:6px;height:6px;border-radius:50%;border:1px solid var(--muted)}
+.ak-deep:has(input:checked){color:var(--fg)}
+.ak-deep:has(input:checked)::before{background:var(--fg);border-color:var(--fg)}
+.ak-go{margin-left:auto;width:26px;height:26px;border:0;border-radius:50%;background:var(--fg);color:var(--bg);font:15px/1 var(--sans);cursor:pointer}
+.ak-go:disabled{opacity:.35;cursor:default}
+.ak-a{font:400 .82rem/1.55 var(--sans);padding:.2rem .1rem}
+.ak-a p{margin:.5em 0}.ak-a h3{font:600 .85rem/1.3 var(--sans);margin:.8em 0 .3em}
+.ak-a a{color:var(--fg)}
+.ak-prog{color:var(--muted);font-style:italic;font-size:.78rem}
+.ak-ins{display:block;width:100%;margin:.5rem 0 0;font:500 .74rem/1 var(--sans);border:1px solid var(--line);background:none;color:var(--fg);border-radius:8px;padding:.5rem;cursor:pointer}
+.ak-ins:hover{border-color:var(--fg)}
+/* ── mobile ── */
+@media (max-width:940px){
+  main{grid-template-columns:minmax(0,1fr)}
+  #ed{padding:1.4rem 1.1rem 2.5rem}
+  #docs,#rail{position:fixed;top:0;bottom:0;width:min(84vw,320px);z-index:40;box-shadow:0 0 40px rgba(0,0,0,.25);transform:translateX(-105%);transition:transform .22s ease-out}
+  #rail{right:0;left:auto;transform:translateX(105%)}
+  #docs.open,#rail.open{transform:none}
+  #docsTog,#railTog{display:inline-block}
+  header .brand span{display:none}
+  #wc{display:none}
+}
+@media (min-width:941px) and (max-width:1160px){
+  main{grid-template-columns:minmax(0,1fr) 300px}
+  #docs{position:fixed;inset:0 auto 0 0;width:320px;z-index:40;transform:translateX(-105%);transition:transform .18s ease-out;box-shadow:12px 0 32px #0002}
+  #docs.open{transform:none}
+  #docsTog,#closeDocuments{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
+}
+@media (max-width:430px){
+  header .brand{display:none}          /* verified: restores scrollWidth 433->390; the wordmark starved the title input to 6px (Opus audit P1) */
+  #dTitle{flex:1 1 auto;min-width:90px;font-size:16px}
+}
+@media print{
+  header,#docs,#rail,#toolbar{display:none!important}
+  main{display:block}
+  #edwrap{overflow:visible;padding:0}
+  #ed{max-width:none;font-size:12pt}
+  body{background:#fff;color:#000}
+}
+
+/* Keep document deletion within the page, with a keyboard-accessible confirmation. */
+#docList .doc-row{display:flex;align-items:center;flex-wrap:wrap;padding:0}
+#docList .doc-open{flex:1;min-width:100px;min-height:44px;padding:10px;border:0;background:none;color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+#docList .doc-del,#docList .doc-cancel{position:static;float:none;min-width:44px;min-height:44px;padding:8px;border:0;background:none;color:var(--muted);font:13px var(--font-body,Georgia,serif);cursor:pointer;opacity:1}
+#docList .doc-del[data-armed=true]{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
+#docList .doc-cancel[hidden]{display:none}
+#docList button:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
+</style>
+<link rel="stylesheet" href="/desk-workflow.css?v=__RESEARCH_V__"><script src="/desk-workflow.js?v=__RESEARCH_V__"></script>
+</head>
+<body>
+<header>
+  <a class="brand fr-home-link desk-home" data-fr-home href="/" aria-label="Back to library"><span class="fr-home-wide"><b>The Faith Received</b><span> · Desk</span></span><span class="fr-home-compact"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>Library</span></a>
+  <button class="hbtn" id="docsTog" aria-label="Your documents"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5h14M5 12h14M5 19h14"/></svg></button>
+  <input id="dTitle" aria-label="Paper title" placeholder="Untitled paper" autocomplete="off" spellcheck="true">
+  <span id="wc"></span>
+  <button class="hbtn" id="deskTheme" aria-label="Change reading theme" title="Change reading theme"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg></button>
+  <button class="hbtn" id="railTog" aria-label="Insert from your research"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 4h16v16H4zM14 4v16M7 8h4M7 12h4"/></svg></button>
+</header>
+<nav class="desk-workspace-bar" aria-label="Desk workspace"><div class="desk-modes"><button id="deskWriteMode" aria-pressed="true">Write</button><button id="deskResearchMode" aria-pressed="false">Research</button></div><label id="deskPaperContext" hidden>Paper<select id="deskPaper" aria-label="Current paper"></select></label><label class="desk-notebook-context">Notebook<select id="paperNotebook" aria-label="Notebook for this paper"></select></label><details class="desk-new-notebook"><summary>New notebook</summary><form id="newNotebookForm"><label>Notebook name<input id="newNotebookName" required autocomplete="off" placeholder="e.g. Grace and freedom"></label><button type="submit">Create notebook</button></form></details><span id="deskContextStatus" role="status"></span></nav>
+<main id="deskMain">
+  <aside id="docs"><a class="fr-home-link desk-panel-home" data-fr-home href="/" aria-label="Back to library"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>Library</a>
+    <div class="desk-rail-head"><span class="ds-h">Your documents</span><button class="hbtn desk-rail-close" id="closeDocuments" aria-label="Close documents">×</button></div>
+    <button id="newDoc">＋ New document</button>
+    <div id="docList"></div>
+    <div class="desk-export"><div class="ds-h">Export this document</div><button class="hbtn" id="exMd" title="Download this document as Markdown">Download Markdown</button><button class="hbtn" id="exPr">Print or save PDF</button></div>
+  </aside>
+  <section id="edwrap">
+    <div id="toolbar">
+      <button data-c="formatBlock" data-v="h2" title="Section heading">H2</button>
+      <button data-c="formatBlock" data-v="h3" title="Subheading">H3</button>
+      <button data-c="bold" title="Bold"><b>B</b></button>
+      <button data-c="italic" title="Italic"><i>I</i></button>
+      <button data-c="formatBlock" data-v="blockquote" title="Block quotation">❝</button>
+      <button data-c="insertUnorderedList" title="Bulleted list">•</button>
+      <button data-c="removeFormat" title="Clear formatting">⌫</button>
+    </div>
+    <div id="ed" contenteditable="true" spellcheck="true" role="textbox" aria-multiline="true" aria-label="Document text"></div><div id="deskSaveState" role="status" aria-live="polite">Saved in this browser</div>
+  </section>
+  <aside id="rail"><a class="fr-home-link desk-panel-home" data-fr-home href="/" aria-label="Back to library"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>Library</a>
+    <div class="desk-rail-head"><span class="ds-h">Your research</span><button class="hbtn desk-rail-close" id="closeResearch" aria-label="Close research">×</button></div>
+    <div class="desk-research-links"><a href="/pins">Manage notebooks</a><a href="/search">Find sources</a></div>
+    <button type="button" class="desk-personal-entry" id="deskPersonalOpen">Explore this notebook</button>
+    <div class="rl-tabs" role="group" aria-label="Saved research">
+      <button data-t="notes" class="on" aria-pressed="true">Notebook</button>
+      <button data-t="highlights" aria-pressed="false">Highlights</button>
+      <button data-t="history" aria-pressed="false">History</button><button data-t="chats" aria-pressed="false">Ask</button>
+    </div>
+    <label class="desk-collection-label" for="deskCollection">Show notes from</label><select id="deskCollection" aria-label="Choose a notebook"><option value="all">All notebooks</option></select>
+    <label class="desk-rail-search">Search research<input id="railSearch" type="search" placeholder="Find a passage, note, or work"></label><details id="deskNoteForm"><summary>Add a working note</summary><textarea id="deskNoteText" placeholder="Write a thought for this notebook"></textarea><button id="deskSaveNote" type="button">Save note</button></details><section id="deskSourcePreview" hidden><div><span>Source beside your draft</span><button id="deskSourceClose" type="button">Close source</button></div><iframe title="Source beside your draft"></iframe></section><div id="railBody"></div><button id="railMore" type="button" hidden>Show more items</button>
+  </aside>
+</main><section id="deskPersonal" hidden><div class="desk-personal-top"><button type="button" id="deskPersonalBack" hidden>Back to writing</button><a href="/pins">Manage notebooks</a></div><div id="deskPersonalHost"></div></section><button id="deskScrim" hidden aria-label="Close side panel"></button>
+<script>
+(function(){
+"use strict";
+var $=function(s){return document.querySelector(s);};
+function esc(s){var d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;}
+function lj(k){try{return JSON.parse(localStorage.getItem(k))||{};}catch(e){return {};}}
+
+/* Document store: fr_docs {v:1,docs:[{id,ts,title,html}]}; no implicit eviction. */
+function docsAll(){try{var d=JSON.parse(localStorage.getItem('fr_docs'))||{};return Array.isArray(d.docs)?d.docs:[];}catch(e){return [];}}
+function docsPut(list){try{var raw=localStorage.getItem('fr_docs'),previous=raw?JSON.parse(raw):{v:1,docs:[]};if(!previous||!Array.isArray(previous.docs))throw Error('Invalid document store');localStorage.setItem('fr_docs',JSON.stringify(Object.assign({},previous,{v:previous.v||1,docs:list})));$('#deskSaveState').textContent='Saved in this browser';return true;}catch(e){$('#deskSaveState').textContent='This document could not be saved. Existing saved documents were not overwritten. Download a copy before closing Desk.';return false;}}
+var CUR=null,savedRange=null,docDirty=false,writeScroll=0,researchScroll=0,railLimit=24;
+function workflow(){return window.FRDeskWorkflow;}
+function notebook(){return window.FRResearchNotebook;}
+function paperNotebook(){return CUR&&CUR.notebookId||notebook().read().activeId;}
+function contextStatus(text){$('#deskContextStatus').textContent=text;}
+function saveCur(){if(!CUR||!docDirty)return true;
+  var list=docsAll();
+  CUR.title=$('#dTitle').value.trim()||'Untitled paper';
+  CUR.html=$('#ed').innerHTML;
+  CUR.ts=Date.now();
+  if(!docsPut([CUR].concat(list.filter(function(d){return d.id!==CUR.id;}))))return false;
+  docDirty=false;renderDocs();return true;}
+var _sv;function autosave(){docDirty=true;clearTimeout(_sv);_sv=setTimeout(saveCur,600);wcUpdate();}
+function openDoc(id){
+  clearTimeout(_sv);if(CUR&&!saveCur())return false;savedRange=null;var d=docsAll().filter(function(x){return x.id===id;})[0];
+  if(!d)return false;
+  CUR=d;docDirty=false;contextStatus('');$('#dTitle').value=d.title==='Untitled paper'?'':d.title;$('#ed').innerHTML=d.html||'';
+  renderDocs();wcUpdate();syncWorkspace();if(personalResearch)personalResearch.setCollection(paperNotebook());
+  closePanels();return true;}
+function newDoc(){
+  clearTimeout(_sv);if(CUR&&!saveCur())return;savedRange=null;var next={id:'d'+Date.now()+'-'+Math.random().toString(36).slice(2),ts:Date.now(),title:'Untitled paper',html:''};
+  if(!docsPut([next].concat(docsAll())))return;CUR=next;docDirty=false;
+  $('#dTitle').value='';$('#ed').innerHTML='';renderDocs();wcUpdate();syncWorkspace();
+  closePanels();$('#dTitle').focus();}
+function renderDocs(){
+  var list=docsAll();
+  $('#docList').innerHTML=list.map(function(d){
+    var title=d.title||'Untitled paper';
+    return '<div class="doc-row'+(CUR&&d.id===CUR.id?' on':'')+'">'
+      +'<button type="button" class="doc-open" data-id="'+esc(d.id)+'"><span class="t">'+esc(title)+'</span><span class="m">'+new Date(d.ts).toLocaleDateString()+'</span></button>'
+      +'<button type="button" class="doc-del" data-del="'+esc(d.id)+'" aria-label="Delete '+esc(title)+'">Delete</button>'
+      +'<button type="button" class="doc-cancel" hidden>Cancel</button></div>';}).join('')
+    ||'<div class="rl-empty">Papers you write collect here, saved on this device.</div>';
+  Array.prototype.forEach.call(document.querySelectorAll('.doc-row'),function(r){
+    var open=r.querySelector('.doc-open'),del=r.querySelector('.doc-del'),cancel=r.querySelector('.doc-cancel');
+    open.onclick=function(){openDoc(open.getAttribute('data-id'));};
+    cancel.onclick=function(){renderDocs();};
+    del.onclick=function(){
+      if(del.getAttribute('data-armed')!=='true'){del.setAttribute('data-armed','true');del.textContent='Confirm delete';del.setAttribute('aria-label','Confirm deletion of '+open.querySelector('.t').textContent);cancel.hidden=false;return;}
+      var id=del.getAttribute('data-del');
+      if(!docsPut(docsAll().filter(function(d){return d.id!==id;})))return;
+      if(CUR&&CUR.id===id){clearTimeout(_sv);CUR=null;docDirty=false;savedRange=null;$('#ed').innerHTML='';$('#dTitle').value='';}
+      renderDocs();wcUpdate();if(!CUR){var remaining=docsAll();if(remaining.length)openDoc(remaining[0].id);else $('#newDoc').focus();}
+    };
+  });}
+
+function wcUpdate(){var t=$('#ed').textContent.trim();$('#wc').textContent=t?t.split(/\s+/).length.toLocaleString()+' words':'';}
+
+/* ── toolbar ── */
+Array.prototype.forEach.call(document.querySelectorAll('#toolbar button'),function(b){
+  b.onmousedown=function(e){e.preventDefault();};
+  b.onclick=function(){document.execCommand(b.getAttribute('data-c'),false,b.getAttribute('data-v')||null);$('#ed').focus();autosave();};});
+$('#ed').addEventListener('input',autosave);
+$('#dTitle').addEventListener('input',autosave);
+// Flush the current paper before following a site-home link.
+document.addEventListener('click',function(e){var link=e.target.closest&&e.target.closest('a[data-fr-home]');if(!link||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;clearTimeout(_sv);if(!saveCur()){e.preventDefault();closePanels();}});
+
+/* ── research rail: ask · notes · answers · conversations, each inserted WITH citation ── */
+var TAB='notes';
+var AK={q:'',a:'',src:[],busy:false};
+function akMd(t){
+  var h=esc(t)
+    .replace(/\[([a-z0-9-]{4,})\/p(\d+)\]/g,function(_,s2,p2){
+      return '<a href="/read?w='+s2+'#b'+p2+'-0" target="_blank">['+s2.split('-').slice(0,2).join('-')+' p.'+p2+']</a>';})
+    .replace(/^#{2,4}\s*(.+)$/gm,'<h3>$1</h3>')
+    .replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>').replace(/\*([^*\n]+)\*/g,'<i>$1</i>');
+  return '<p>'+h.replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>')+'</p>';}
+function akChatSave(q,a){
+  try{var st=JSON.parse(localStorage.getItem('fr_chats')||'{}');var cs=Array.isArray(st.chats)?st.chats:[];
+    var c=null;for(var i=0;i<cs.length;i++)if(cs[i].id==='desk'){c=cs[i];break;}
+    if(!c){c={id:'desk',ts:Date.now(),t:'Desk asks',w:'',turns:[]};cs.unshift(c);}
+    c.turns.push({q:q,a:String(a).slice(0,16000),src:AK.src||[],ts:Date.now()});c.turns=c.turns.slice(-20);c.ts=Date.now();
+    cs=[c].concat(cs.filter(function(x){return x.id!=='desk';}));
+    localStorage.setItem('fr_chats',JSON.stringify({v:1,chats:cs.slice(0,20)}));}catch(e){}}
+function akRun(){
+  if(AK.busy)return;
+  var ta=$('#akTa');var q=ta.value.trim();if(!q)return;
+  AK.busy=true;AK.q=q;AK.a='';ta.value='';
+  var out=$('#akOut');out.innerHTML='<div class="ak-prog">Searching the library\u2026</div>';
+  $('#akGo').disabled=true;
+  fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({messages:[{role:'user',content:q}],deep:$('#akDeep').checked})})
+  .then(function(r){
+    if(!r.ok||!r.body)throw new Error('Ask unavailable ('+r.status+')');
+    var rd=r.body.getReader(),dc=new TextDecoder(),buf='',pre=false;
+    function paint(){out.innerHTML='<div class="ak-a">'+akMd(AK.a)+'</div>'
+      +(AK.busy?'':'<button class="ak-ins" id="akIns">Insert answer with citations</button>');
+      var bi=$('#akIns');if(bi)bi.onclick=function(){
+        var a=akMd(AK.a);
+        insHtml('<blockquote>'+a+'<cite>\u2014 Ask the Library, on \u201c'+esc(q.slice(0,90))+'\u201d</cite></blockquote>');};}
+    function feed(tx){
+      if(pre){AK.a+=tx;return;}
+      buf+=tx;
+      for(;;){var nl=buf.indexOf('\n');if(nl<0)return;
+        var ln=buf.slice(0,nl);buf=buf.slice(nl+1);var o=null;
+        if(/^\s*\{/.test(ln)){try{o=JSON.parse(ln);}catch(e){}}
+        if(o&&o.t==='p'){out.innerHTML='<div class="ak-prog">'+esc(o.m||'')+'</div>';continue;}
+        if(o&&('sources' in o)){AK.src=(o.sources||[]).slice(0,14).map(function(x){return {slug:x.slug,page:x.page};});pre=true;AK.a=buf;buf='';return;}
+        AK.a+=ln+'\n';pre=true;AK.a+=buf;buf='';return;}}
+    return (function pump(){return rd.read().then(function(r2){
+      if(r2.done){AK.busy=false;$('#akGo').disabled=false;paint();akChatSave(q,AK.a);return;}
+      feed(dc.decode(r2.value,{stream:true}));if(pre)paint();return pump();});})();})
+  .catch(function(e){AK.busy=false;$('#akGo').disabled=false;
+    out.innerHTML='<div class="ak-prog">'+esc(String(e.message||e))+' \u2014 please try again.</div>';});}
+function insHtml(h){
+  if(!CUR)newDoc();if(!CUR)throw Error('A paper could not be created. Your research remains saved.');$('#ed').focus();var sel=window.getSelection();if(savedRange&&$('#ed').contains(savedRange.startContainer)){sel.removeAllRanges();sel.addRange(savedRange);}else{var range=document.createRange();range.selectNodeContents($('#ed'));range.collapse(false);sel.removeAllRanges();sel.addRange(range);}
+  try{document.execCommand('insertHTML',false,'<p><br></p>'+h+'<p><br></p>');}
+  catch(e){$('#ed').innerHTML+=h;}
+  autosave();var saved=saveCur();
+  if(matchMedia('(max-width:1160px)').matches)closePanels();return saved;}
+function bq(text,cite,href){
+  return '<blockquote>'+esc(text)+'<cite>— '+esc(cite)
+    +(href?' · <a href="'+esc(href)+'">read in context</a>':'')+'</cite></blockquote>';}
+function sourceLink(item){
+  if(item.slug&&(item.site||'fr')==='fr')return '/read?w='+encodeURIComponent(item.slug)+(item.row?'#'+encodeURIComponent(item.row):item.page!=null?'#b'+encodeURIComponent(String(item.page))+'-0':'');
+  try{var u=new URL(item.url||item.u||item.href||'',location.origin);return item.url||item.u||item.href?(/^https?:$/.test(u.protocol)?u.href:null):null;}catch(e){return null;}
+}
+function answerHtml(t){return (window.FRAsk?window.FRAsk.markdown(t.a||'',t.src||[]):akMd(t.a||''))+'<p><cite>Ask the Library · '+esc(t.q||'')+'</cite></p>';}
+function mdPlain(t){return String(t||'').replace(/```[\s\S]*?```/g,' ').replace(/^#{1,6}\s*/gm,'').replace(/^>\s?/gm,'').replace(/\*\*?|__/g,'').replace(/\[([^\]]*)\]\([^)]*\)/g,'$1').replace(/\s+/g,' ').trim();}
+var railSeq=0;
+async function renderRail(){
+  if(!notebook()||!workflow())return;
+  var token=++railSeq,body=$('#railBody'),rows=[],state;
+  try{state=notebook().read();}catch(e){body.textContent=e.message;return;}
+  var cols=state.collections,pick=$('#deskCollection'),chosen=pick.value||paperNotebook();
+  pick.innerHTML='<option value="all">All notebooks</option><option value="reader">Unfiled reader notes</option>'+cols.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';}).join('');
+  if(Array.prototype.some.call(pick.options,function(o){return o.value===chosen;}))pick.value=chosen;
+  pick.hidden=TAB!=='notes';$('.desk-collection-label').hidden=TAB!=='notes';$('#deskNoteForm').hidden=TAB!=='notes';
+  if(TAB==='notes'){
+    var notes=lj('fr_notes');Object.keys(notes).forEach(function(k){var n=notes[k];if(!n||!n.t||k.indexOf('ask|')===0)return;if(chosen==='all'||chosen==='reader'&&!n.notebookId||n.notebookId===chosen)rows.push(workflow().legacyRow(k,n,'note'));});
+    cols.filter(function(c){return chosen==='all'||chosen===c.id;}).forEach(function(c){(c.items||[]).forEach(function(item){rows.push(Object.assign({},item,{text:item.text||item.note||item.label||item.title||item.slug||'Saved reference',kind:notebook().kind(item),notebook:c.name}));});});
+  }else if(TAB==='highlights'){
+    var highlights=lj('fr_hl'),passages=lj('fr_highlight_passages_v1');Object.keys(highlights).forEach(function(k){var h=passages[k];if(h&&h.text)rows.push(Object.assign(workflow().legacyRow(k,h,'highlight'),{color:highlights[k],fileable:true}));});
+  }else if(TAB==='history'){
+    rows=workflow().readingHistory(lj('fr_lastread')).map(function(r){return Object.assign({},r,{kind:'history',text:r.title,cite:[r.author,'location '+r.page].filter(Boolean).join(' · '),fileable:true});});
+  }else{
+    var cs=[];try{cs=window.FRChatStore?await window.FRChatStore.all():(lj('fr_chats').chats||[]);}catch(e){cs=lj('fr_chats').chats||[];}if(token!==railSeq)return;
+    cs.filter(function(c){return !c.archived;}).forEach(function(c){var turns=c.turns||[];
+      /* EMPTY UNTITLED CONVERSATIONS STAY OFF THE RAIL (owner 2026-09-11
+         screenshot: duplicate "New conversation / draft" cards with dead
+         actions) - they stay reachable from the Ask page itself. */
+      if(!turns.length&&!(c.draft&&c.draft.trim())&&(!c.t||/^new conversation$/i.test(c.t)))return;
+      turns.forEach(function(t){var complete=!!t.a&&(!t.status||t.status==='complete');rows.push({text:complete?t.a:'',cite:t.q||c.t,html:complete?answerHtml(t):null,chat:c.id,kind:complete?'answer':'conversation',ts:t.ts||c.ts,state:t.serverJob&&t.serverJob.status||t.status||'draft',sources:t.src||[]});});
+      if((c.draft&&c.draft.trim())||!turns.length)rows.push({text:c.draft||'',cite:c.t||'Ask draft',chat:c.id,kind:'conversation',ts:c.ts,state:'draft'});});
+  }
+  rows.sort(function(a,b){return (b.ts||0)-(a.ts||0);});var query=$('#railSearch').value.trim().toLowerCase();if(query)rows=rows.filter(function(r){return [r.text,r.cite,r.title,r.author,r.notebook].join(' ').toLowerCase().includes(query);});
+  var visible=rows.slice(0,railLimit);$('#railMore').hidden=rows.length<=railLimit;$('#railMore').textContent='Show more items ('+visible.length+' of '+rows.length+')';
+  body.innerHTML=visible.map(function(r,i){var href=workflow().sourceURL(r),canInsert=r.kind!=='history'&&r.kind!=='conversation';
+    /* CARDS, NOT DUMPS (owner 2026-09-11): the citation line carries the
+       question ONCE with a state chip beside it; the body is a clamped
+       plain-text preview (never the raw markdown, never a duplicate of the
+       title); Read full item opens the RENDERED answer; chat actions name
+       the state (Resume draft / Continue conversation). */
+    var prev=r.kind==='answer'?mdPlain(r.text):String(r.text||'');
+    var showTx=!!prev&&prev!==String(r.cite||'');
+    var hasFull=r.kind!=='history'&&(r.html||String(r.text||'').length>240);
+    var chatLabel=r.state==='draft'?'Resume draft':r.state==='needs_input'?'Continue conversation':'Open conversation';
+    return '<article class="rl-item"'+(r.color?' data-highlight="'+esc(r.color)+'"':'')+'><div class="cite">'+esc(r.cite||r.notebook||r.title||'Saved research')+(r.state?' <span class="rl-state" data-state="'+esc(r.state)+'">'+esc(r.state.replace(/_/g,' '))+'</span>':'')+'</div>'+(showTx?'<div class="tx">'+esc(prev.slice(0,300))+'</div>':'')+(r.state==='needs_input'?'<div class="rl-hint">Awaiting your reply \u2014 open the conversation to continue.</div>':'')+(hasFull?'<details class="rl-full"><summary>Read full item</summary><div>'+(r.html||esc(r.text))+'</div></details>':'')+'<div class="rl-actions">'+(canInsert?'<button class="rl-ins" data-insert="'+i+'">'+(['highlight','passage','verse'].includes(r.kind)?'Insert quotation':r.kind==='answer'?'Insert answer':'Insert note')+'</button>':'')+(href?'<button class="rl-open" data-preview="'+i+'">'+(r.kind==='history'?'Resume reading':'Read source')+'</button><a href="'+esc(href)+'" target="_blank" rel="noopener">Open book</a>':'')+(r.fileable?'<button class="rl-open" data-file="'+i+'">Save in notebook</button>':'')+(r.chat?'<button class="rl-open" data-chat="'+esc(r.chat)+'">'+chatLabel+'</button>':'')+'</div></article>';}).join('')||'<p class="rl-empty">'+(query?'No items match this search.':TAB==='history'?'Works you read appear here at your last saved location.':TAB==='highlights'?'Highlight text in a book. It will appear here with its citation, ready to use.':TAB==='chats'?'Questions, drafts, and answers from Ask appear here.':'Clip a passage from a book or add a working note to this notebook.')+'</p>';
+  body.querySelectorAll('[data-insert]').forEach(function(b){b.onclick=function(){var r=visible[+b.dataset.insert];try{if(!insHtml(r.html||workflow().itemHTML(r)))throw Error('The insertion is visible but could not be saved. Keep this paper open.');contextStatus('Inserted into '+CUR.title+'.');}catch(e){contextStatus(e.message);}};});
+  body.querySelectorAll('[data-preview]').forEach(function(b){b.onclick=function(){var r=visible[+b.dataset.preview];$('#deskSourcePreview iframe').src=workflow().sourceURL(r);$('#deskSourcePreview').hidden=false;document.body.classList.add('desk-source-open');$('#deskSourcePreview').scrollIntoView({block:'start'});};});
+  body.querySelectorAll('[data-file]').forEach(function(b){b.onclick=async function(){try{var r=visible[+b.dataset.file],item=Object.assign({},r,{id:undefined,type:'note',label:r.title||r.cite,research:{kind:r.kind==='history'?'reference':'highlight',sources:[{slug:r.slug,page:r.page,row:r.row,url:workflow().sourceURL(r),title:r.title||r.work,author:r.author,cite:r.cite}]}});if(r.kind==='history')item.text='';var saved=await notebook().save(item,{collectionId:paperNotebook()});contextStatus('Saved in '+saved.collectionName+'.');b.textContent='Saved in notebook';}catch(e){contextStatus(e.message);}};});
+  body.querySelectorAll('[data-chat]').forEach(function(b){b.onclick=function(){closePanels();window.FRAsk&&window.FRAsk.open({id:b.dataset.chat});};});
+}
+document.querySelectorAll('.rl-tabs button').forEach(function(b){b.onclick=function(){TAB=b.dataset.t;railLimit=24;document.querySelectorAll('.rl-tabs button').forEach(function(x){x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',String(x===b));});renderRail();};});
+$('#deskCollection').onchange=function(){railLimit=24;renderRail();};
+$('#railSearch').oninput=function(){railLimit=24;renderRail();};$('#railMore').onclick=function(){railLimit+=24;renderRail();};
+$('#deskSourceClose').onclick=function(){$('#deskSourcePreview').hidden=true;$('#deskSourcePreview iframe').removeAttribute('src');document.body.classList.remove('desk-source-open');};
+$('#deskSaveNote').onclick=async function(){var text=$('#deskNoteText').value.trim();if(!text)return;try{var result=await notebook().save({type:'note',text:text,research:{kind:'note',sources:[]}},{collectionId:paperNotebook()});$('#deskNoteText').value='';$('#deskNoteForm').open=false;contextStatus('Note saved in '+result.collectionName+'.');renderRail();}catch(e){contextStatus(e.message);}};
+$('#closeResearch').onclick=function(){closePanels();$('#railTog').focus();};
+$('#closeDocuments').onclick=function(){closePanels();$('#docsTog').focus();};
+$('#deskTheme').onclick=function(){var root=document.documentElement,active=root.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');var theme=active==='dark'?'light':'dark';root.dataset.theme=theme;localStorage.setItem('fr_theme',theme);};
+document.addEventListener('selectionchange',function(){var sel=window.getSelection();if(sel.rangeCount&&$('#ed').contains(sel.anchorNode))savedRange=sel.getRangeAt(0).cloneRange();});
+window.addEventListener('fr-conversations-updated',renderRail);window.addEventListener('fr-notebook-updated',renderRail);
+window.addEventListener('storage',function(e){if(e.key==='fr_docs'&&CUR&&!docDirty){var fresh=docsAll().find(function(d){return d.id===CUR.id;});if(fresh&&fresh.ts>CUR.ts){CUR=fresh;savedRange=null;$('#ed').innerHTML=fresh.html||'';$('#dTitle').value=fresh.title==='Untitled paper'?'':fresh.title;wcUpdate();renderDocs();}}if(['fr_collections_v1','fr_notes','fr_hl','fr_highlight_passages_v1','fr_chats','fr_lastread'].indexOf(e.key)>=0)renderRail();});
+var personalResearch=null;
+function showPersonal(open){
+  if(!saveCur())return false;var wasOpen=!$('#deskPersonal').hidden;if(open&&!wasOpen)writeScroll=$('#edwrap').scrollTop;if(!open&&wasOpen)researchScroll=$('#deskPersonal').scrollTop;closePanels();
+  $('#deskMain').hidden=!!open;$('#deskPersonal').hidden=!open;document.body.classList.toggle('desk-personal-open',!!open);
+  if(open&&!personalResearch){if(!window.FRPersonalResearch){$('#deskPersonalHost').textContent='Personal research could not load. Reload Desk to try again.';return false;}personalResearch=window.FRPersonalResearch.mount($('#deskPersonalHost'),{onDeskDraft:createResearchDraft,onInsert:insertResearchNode,onInsertSequence:insertResearchSequence,collectionId:paperNotebook()});}
+  else if(open)personalResearch.refresh();syncWorkspace();var route=new URL(location.href);route.searchParams.set('doc',CUR?CUR.id:'');if(open)route.searchParams.set('view','research');else{route.searchParams.delete('view');route.searchParams.delete('item');}history.replaceState(null,'',route.pathname+route.search+route.hash);requestAnimationFrame(function(){if(open)$('#deskPersonal').scrollTop=researchScroll;else $('#edwrap').scrollTop=writeScroll;});return true;
+}
+function syncWorkspace(){
+  if(!CUR||!notebook())return;var route=new URL(location.href);route.searchParams.set('doc',CUR.id);history.replaceState(null,'',route.pathname+route.search+route.hash);var state=notebook().read(),id=CUR.notebookId||state.activeId;if(!state.collections.some(function(c){return c.id===id;}))id=state.activeId;
+  if(CUR.notebookId!==id){CUR.notebookId=id;docDirty=true;saveCur();}try{notebook().selectCollection(id);}catch(e){contextStatus(e.message);}
+  $('#paperNotebook').innerHTML=state.collections.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>';}).join('');$('#paperNotebook').value=id;
+  $('#deskCollection').value=id;$('#deskPaper').innerHTML=docsAll().map(function(d){return '<option value="'+esc(d.id)+'">'+esc(d.title||'Untitled paper')+'</option>';}).join('');$('#deskPaper').value=CUR.id;
+  var research=!$('#deskPersonal').hidden;$('#deskWriteMode').setAttribute('aria-pressed',String(!research));$('#deskResearchMode').setAttribute('aria-pressed',String(research));$('#deskPaperContext').hidden=!research;
+  try{localStorage.setItem('fr_desk_context_v1',JSON.stringify({docId:CUR.id,title:CUR.title,notebookId:id,ts:Date.now()}));}catch(_){}renderRail();
+}
+async function insertResearchNode(node){if(!CUR)newDoc();if(!CUR)throw Error('Choose a paper before inserting research.');if(!saveCur())throw Error('The current paper could not be saved.');var payload=workflow().nodeItem(node);CUR.research=Object.assign({},CUR.research,{insertedItems:(CUR.research&&CUR.research.insertedItems||[]).concat([payload])});showPersonal(false);if(!insHtml(workflow().itemHTML(node)))throw Error('The insertion could not be saved. Keep this paper open.');contextStatus('Inserted into '+CUR.title+'.');}
+async function insertResearchSequence(outline){if(!CUR)newDoc();if(!CUR)throw Error('Choose a paper before inserting research.');if(!saveCur())throw Error('The current paper could not be saved.');CUR.research=Object.assign({},CUR.research,{insertedSequences:(CUR.research&&CUR.research.insertedSequences||[]).concat([outline.research])});showPersonal(false);if(!insHtml(outline.html))throw Error('The sequence could not be saved. Keep this paper open.');contextStatus('Sequence inserted into '+CUR.title+'.');}
+$('#deskWriteMode').onclick=function(){showPersonal(false);};$('#deskResearchMode').onclick=function(){showPersonal(true);};
+$('#deskPaper').onchange=function(){if(openDoc(this.value)&&personalResearch)personalResearch.setCollection(paperNotebook());};
+$('#paperNotebook').onchange=function(){var old=CUR.notebookId;CUR.notebookId=this.value;docDirty=true;if(!saveCur()){CUR.notebookId=old;this.value=old;return;}syncWorkspace();if(personalResearch)personalResearch.setCollection(CUR.notebookId);contextStatus('This paper uses '+this.selectedOptions[0].textContent+'.');};
+$('#newNotebookForm').onsubmit=async function(e){e.preventDefault();try{var created=await notebook().createCollection($('#newNotebookName').value);CUR.notebookId=created.id;docDirty=true;if(!saveCur())throw Error('Notebook created, but the paper could not be saved.');$('#newNotebookName').value='';$('.desk-new-notebook').open=false;syncWorkspace();if(personalResearch)personalResearch.setCollection(created.id);contextStatus('Notebook created: '+created.name+'.');}catch(error){contextStatus(error.message);}};
+async function createResearchDraft(payload){
+  clearTimeout(_sv);if(!saveCur())throw Error('The current paper could not be saved. It remains open; download it before creating another draft.');
+  if(!window.FRResearchNotebook)throw Error('The research notebook could not load. Reload Desk to try again.');
+  var created=await window.FRResearchNotebook.createDeskDraft(payload);
+  if(!openDoc(created.id))throw Error('The new draft was saved, but the current paper could not be left safely. It remains available in Your documents.');
+  showPersonal(false);$('#ed').focus();return created;
+}
+window.FRDesk={insertAnswer:function(t){insHtml(answerHtml(t));},createDraft:createResearchDraft,returnToWriting:function(){showPersonal(false);$('#deskSourceClose').click();closePanels();$('#ed').focus();},receiveClip:function(result){showPersonal(true);personalResearch.focusItem(result.collectionId,result.item.id);contextStatus('Clipping ready to insert into '+(CUR&&CUR.title||'your paper')+'.');}};
+$('#deskPersonalOpen').onclick=function(){showPersonal(true);};$('#deskPersonalBack').onclick=function(){showPersonal(false);};
+document.addEventListener('DOMContentLoaded',function(){renderRail();try{var queued=JSON.parse(sessionStorage.getItem('fr_desk_insert_v1')||'null');if(queued){window.FRDesk.insertAnswer(queued);sessionStorage.removeItem('fr_desk_insert_v1');}}catch(e){$('#deskSaveState').textContent='The answer could not be inserted. Return to Ask and try again.';}});
+window.addEventListener('pagehide',function(){clearTimeout(_sv);saveCur();});
+
+/* ── export ── */
+function toMd(node){
+  var out='';
+  Array.prototype.forEach.call(node.childNodes,function(n){
+    if(n.nodeType===3){out+=n.textContent;return;}
+    if(n.nodeType!==1)return;
+    var tag=n.tagName.toLowerCase(),inner=toMd(n);
+    if(tag==='h2')out+='\n## '+inner.trim()+'\n\n';
+    else if(tag==='h3')out+='\n### '+inner.trim()+'\n\n';
+    else if(tag==='b'||tag==='strong')out+='**'+inner+'**';
+    else if(tag==='i'||tag==='em')out+='*'+inner+'*';
+    else if(tag==='blockquote')out+='\n'+inner.trim().split('\n').map(function(l){return '> '+l;}).join('\n')+'\n\n';
+    else if(tag==='cite')out+='\n— '+inner.trim();
+    else if(tag==='a')out+='['+inner+']('+n.getAttribute('href')+')';
+    else if(tag==='li')out+='- '+inner.trim()+'\n';
+    else if(tag==='ul'||tag==='ol')out+='\n'+inner+'\n';
+    else if(tag==='p'||tag==='div')out+=inner.trim()+'\n\n';
+    else if(tag==='br')out+='\n';
+    else out+=inner;});
+  return out;}
+$('#exMd').onclick=function(){saveCur();
+  var md='# '+($('#dTitle').value.trim()||'Untitled paper')+'\n\n'+toMd($('#ed')).replace(/\n{3,}/g,'\n\n').trim()+'\n';
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([md],{type:'text/markdown'}));
+  a.download=($('#dTitle').value.trim()||'paper').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')+'.md';
+  a.click();};
+$('#exPr').onclick=function(){saveCur();window.print();};
+
+/* ── shell ── */
+$('#newDoc').onclick=newDoc;
+function syncPanels(){var mobile=matchMedia('(max-width:940px)').matches,compact=matchMedia('(max-width:1160px)').matches,docs=$('#docs').classList.contains('open'),rail=$('#rail').classList.contains('open'),docsOverlay=compact&&docs,railOverlay=mobile&&rail,overlay=docsOverlay||railOverlay;
+ $('#deskScrim').hidden=!overlay;$('#edwrap').inert=overlay;$('body > header').inert=overlay;$('.desk-workspace-bar').inert=overlay;$('#docs').inert=compact&&!docs||railOverlay;$('#rail').inert=mobile&&!rail||docsOverlay;
+ $('#docsTog').setAttribute('aria-expanded',String(docs));$('#railTog').setAttribute('aria-expanded',String(rail));}
+function closePanels(){$('#docs').classList.remove('open');$('#rail').classList.remove('open');syncPanels();}
+$('#docsTog').onclick=function(){$('#docs').classList.toggle('open');$('#rail').classList.remove('open');syncPanels();if($('#docs').classList.contains('open'))$('#closeDocuments').focus();};
+$('#railTog').onclick=function(){$('#rail').classList.toggle('open');$('#docs').classList.remove('open');syncPanels();if($('#rail').classList.contains('open'))$('#closeResearch').focus();};
+$('#deskScrim').onclick=closePanels;
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!document.documentElement.classList.contains('fra-open')){closePanels();}});
+window.addEventListener('resize',syncPanels);syncPanels();
+var boot=docsAll();
+var requestedDoc=new URLSearchParams(location.search).get('doc');
+if(requestedDoc&&boot.some(function(d){return d.id===requestedDoc;}))openDoc(requestedDoc);
+else if(boot.length){var last=lj('fr_desk_context_v1').docId;openDoc(boot.some(function(d){return d.id===last;})?last:boot[0].id);}else newDoc();
+try{var savedTheme=localStorage.getItem('fr_theme');if(savedTheme==='light'||savedTheme==='dark')document.documentElement.dataset.theme=savedTheme;}catch(_){}
+document.addEventListener('DOMContentLoaded',function(){var params=new URLSearchParams(location.search),target=params.get('notebook');syncWorkspace();if(params.get('view')==='research'){showPersonal(true);if(target){var collection=notebook().read().collections.find(function(c){return c.id===target;});if(collection){personalResearch.setCollection(target);contextStatus('Browsing '+collection.name+'. Choose an item to insert into your paper.');}else contextStatus('This collection is unavailable in this browser. Your paper is unchanged.');}if(params.get('item'))personalResearch.focusItem(target||paperNotebook(),params.get('item'));}});
+renderRail();
+})();
+</script>
+</body></html>

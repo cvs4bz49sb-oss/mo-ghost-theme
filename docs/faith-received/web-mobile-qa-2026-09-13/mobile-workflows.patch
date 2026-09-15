@@ -1,0 +1,301 @@
+--- a/tools/prdl_reader_prototype/web_shell.html
++++ b/tools/prdl_reader_prototype/web_shell.html
+@@ -797,30 +797,32 @@
+       attrH=`<p style="font-size:.8rem;color:var(--gold);margin:.2rem 0 .5rem">${esc(mine.length>1?mine.length+" of his shelved volumes are "+note:note)}</p>`;}
+   }catch(_){}
+   if(__my!==__PSEQ)return;
+-  pbody.innerHTML=`${collH}${attrH}${bioH}
++  pbody.innerHTML=`<details class="web-author-about"><summary>About this author and index</summary>${collH}${attrH}${bioH}
+     <div class="metr">
+       <div><b>${inn.length.toLocaleString()}</b>citing authors</div>
+       <div><b>${fmt(n.win)}</b>times cited</div>
+       <div><b>${fmt(n.wout)}</b>citations made</div>
+     </div>
+     ${inn.length!==(n.din||0)?`<p class="index-coverage">The passage index lists ${inn.length.toLocaleString()} citing authors; the graph index lists ${(n.din||0).toLocaleString()}. Their coverage differs.</p>`:""}
+-    <div class="hows">${Object.entries(hows).sort((a,b)=>b[1]-a[1]).map(([h,c])=>`<span><b>${fmt(c)}</b> ${esc(h)}</span>`).join("")}</div>
++    <div class="hows">${Object.entries(hows).sort((a,b)=>b[1]-a[1]).map(([h,c])=>`<span><b>${fmt(c)}</b> ${esc(h)}</span>`).join("")}</div></details>
+     <div class="pbtns">
+       <a class="pbtn warm" href="${journeyURL([slug],'in')}">Follow reception</a><a class="pbtn" href="${journeyURL([slug],'out')}">Follow sources</a><button class="pbtn" id="bpath">Find a connecting path</button>
+       ${window.__ROOMS&&window.__ROOMS[slug]?`<a class="pbtn" href="/fathers?sh=${esc(window.__ROOMS[slug].sh)}#${esc(slug)}">Author room</a><a class="pbtn" href="${pairURL(slug,'')}">Compare with another author</a>`:""}
+     </div>
+     <div class="relation-tools"><label for="relation-query">Find a connection<input id="relation-query" type="search" placeholder="Filter connected authors"></label></div>
+-    <p id="relation-feedback" role="status"></p><h3 class="psect" id="relations-in-count">Cited by ${inn.length} authors</h3><div class="web-pane" data-relations="in">${inn.map(r=>eRow(r,"in")).join("")}</div>
+-    <h3 class="psect" id="relations-out-count">Cites ${out.length} authors</h3><div class="web-pane" data-relations="out">${out.map(r=>eRow(r,"out")).join("")}</div>`;
+-  pbody.querySelectorAll(".edge .er").forEach(el=>el.addEventListener("click",e=>{
+-    const go=e.target.closest("[data-go]");
+-    if(go){openAuthor(go.dataset.go);return;}
+-    if(el.tagName!=="SUMMARY")el.parentElement.classList.toggle("open");}));
+-  pbody.querySelectorAll("[data-edge]").forEach(el=>el.onclick=()=>{
+-    const [c2,t2]=el.dataset.edge.split("|");openEdge(c2,t2,slug);});
+-  FRShelfMap.bindPreviews(pbody);
+-  $("#bpath").onclick=()=>{openPathPicker();$("#path-from").value=n.a;$("#path-to").focus();};
+-  $("#relation-query").oninput=e=>{const term=e.target.value.trim().toLowerCase();let all=0;[['in','Cited by'],['out','Cites']].forEach(([dir,label])=>{const rows=[...pbody.querySelectorAll('[data-relations="'+dir+'"] .edge')];let visible=0;rows.forEach(row=>{row.hidden=!row.querySelector('.nm').textContent.toLowerCase().includes(term);if(!row.hidden)visible++;});all+=visible;$('#relations-'+dir+'-count').textContent=label+' '+visible+(term?' of '+rows.length:'')+' authors';});$('#relation-feedback').textContent=all?'':'No connected authors match this name. Try another spelling.';};
++    <p id="relation-feedback" role="status"></p><h3 class="psect" id="relations-in-count">Cited by ${inn.length} authors</h3><div class="web-pane" data-relations="in"></div>
++    <h3 class="psect" id="relations-out-count">Cites ${out.length} authors</h3><div class="web-pane" data-relations="out"></div>`;
++  const relationPages={in:0,out:0};
++  function renderRelations(){const term=$('#relation-query').value.trim().toLowerCase();let total=0;
++   for(const [dir,label,all] of [['in','Cited by',inn],['out','Cites',out]]){const rows=all.filter(r=>!term||String(r.a).toLowerCase().includes(term)),box=pbody.querySelector('[data-relations="'+dir+'"]'),win=FRConnectionEvidence.pageWindow(rows,relationPages[dir],12);relationPages[dir]=win.page;total+=rows.length;
++    $('#relations-'+dir+'-count').textContent=label+' '+rows.length+(term?' of '+all.length:'')+' authors';
++    box.innerHTML=win.items.map(r=>eRow(r,dir)).join('')+(win.pages>1?`<nav class="ce-pager" aria-label="${label} author pages"><button data-relation-page="${win.page-1}"${win.page===0?' disabled':''}>Previous</button><span>Page ${win.page+1} of ${win.pages}</span><button data-relation-page="${win.page+1}"${win.page+1===win.pages?' disabled':''}>Next</button></nav>`:'');
++    box.querySelectorAll('[data-relation-page]').forEach(button=>button.onclick=()=>{relationPages[dir]=Number(button.dataset.relationPage);renderRelations();box.scrollIntoView({block:'start'});});
++    box.querySelectorAll('[data-edge]').forEach(button=>button.onclick=()=>{const [c,t]=button.dataset.edge.split('|');openEdge(c,t,slug);});box.querySelectorAll('[data-go]').forEach(button=>button.onclick=()=>openAuthor(button.dataset.go));FRShelfMap.bindPreviews(box);
++   }$('#relation-feedback').textContent=total?'':'No connected authors match this name. Try another spelling.';
++  }
++  $('#bpath').onclick=()=>{openPathPicker();$('#path-from').value=n.a;$('#path-to').focus();};
++  $('#relation-query').oninput=()=>{relationPages.in=relationPages.out=0;renderRelations();};renderRelations();
+   pbody.scrollTop=0;
+ }
+ 
+@@ -884,7 +886,7 @@
+  $('#map-summary').textContent=connections.length.toLocaleString()+' recorded '+(direction==='out'?'source':direction==='in'?'reception':'author')+' connections'+(connections.length>80?' · strongest 80 shown on the map':'');draw();
+  const authorOptions=NODES.slice().sort((a,b)=>a.a.localeCompare(b.a)).map(n=>`<option value="${esc(n.s)}"${n.s===current.s?' selected':''}>${esc(n.a)}${n.sh?' · '+esc(SHN[n.sh]||''):''}</option>`).join('');
+  const heading=direction==='out'?'Cited authors':direction==='in'?'Citing authors':'Connected authors';
+- pbody.innerHTML=`<div class="ce-journey"><div class="ce-journey-controls"><label>Choose author<select id="journey-author">${authorOptions}</select></label><label>Follow<select id="journey-direction"><option value="out">Sources this author cites</option><option value="in">Authors who cite this author</option><option value="either">Both directions</option></select></label></div>${steps.length?`<details class="ce-path-history"><summary>Path so far · ${nodes.length} authors</summary><ol class="ce-chain">${nodes.map((n,i)=>`<li><a href="${journeyURL(chain.slice(0,i+1),direction,work,targetWork,'',via.slice(0,i))}">${esc(n.a)}</a><small>${n.yok?'c. '+n.y+' · ':''}${esc(SHN[n.sh]||'Indexed author')}</small></li>`).join('')}</ol><div class="ce-path-steps">${steps.map((step,i)=>`<details class="ce-journey-step" data-journey-step="${i}"><summary>${esc(step.citing.a)} cites ${esc(step.target.a)}</summary><div class="ce-step-body"></div></details>`).join('')}</div><button class="ce-save-path" disabled>Save selected journey</button><p class="ce-journey-feedback" id="journey-selection" role="status">Select passages from the path to save them together.</p></details>`:''}<div class="ce-connections-heading"><h3>${esc(heading)}</h3><a href="/web#a=${encodeURIComponent(current.s)}">Author overview</a></div><label><span class="sr-only">Find a cited author</span><input type="search" id="journey-query" placeholder="Filter these authors"></label><p class="ce-journey-feedback" id="journey-next-count" role="status"></p><div class="ce-next-list"></div><button class="ce-next-more" hidden>Show more authors</button><details class="ce-about"><summary>About these connections</summary><p class="ce-note">Open an author to read recorded references, grouped by their citing work. References are indexed under a work’s author; correspondence and editorial material can include other voices. Inspect the source before attributing a statement. Dates describe authors, not publication dates.</p></details><details class="ce-branch-history"><summary>Recently explored branches</summary><div></div></details></div>`;
++ pbody.innerHTML=`<div class="ce-journey"><details class="ce-journey-options"><summary>Change author or direction</summary><div class="ce-journey-controls"><label>Choose author<select id="journey-author">${authorOptions}</select></label><label>Follow<select id="journey-direction"><option value="out">Sources this author cites</option><option value="in">Authors who cite this author</option><option value="either">Both directions</option></select></label></div></details>${steps.length?`<details class="ce-path-history"><summary>Path so far · ${nodes.length} authors</summary><ol class="ce-chain">${nodes.map((n,i)=>`<li><a href="${journeyURL(chain.slice(0,i+1),direction,work,targetWork,'',via.slice(0,i))}">${esc(n.a)}</a><small>${n.yok?'c. '+n.y+' · ':''}${esc(SHN[n.sh]||'Indexed author')}</small></li>`).join('')}</ol><div class="ce-path-steps">${steps.map((step,i)=>`<details class="ce-journey-step" data-journey-step="${i}"><summary>${esc(step.citing.a)} cites ${esc(step.target.a)}</summary><div class="ce-step-body"></div></details>`).join('')}</div><button class="ce-save-path" disabled>Save selected journey</button><p class="ce-journey-feedback" id="journey-selection" role="status">Select passages from the path to save them together.</p></details>`:''}<div class="ce-connections-heading"><h3>${esc(heading)}</h3><a href="/web#a=${encodeURIComponent(current.s)}">Author overview</a></div><label><span class="sr-only">Find a cited author</span><input type="search" id="journey-query" placeholder="Filter these authors"></label><p class="ce-journey-feedback" id="journey-next-count" role="status"></p><div class="ce-next-list"></div><nav class="ce-pager ce-journey-pager" aria-label="Connection pages"><button class="ce-next-previous" hidden>Previous</button><button class="ce-next-more" hidden>Next authors</button></nav><details class="ce-about"><summary>About these connections</summary><p class="ce-note">Open an author to read recorded references, grouped by their citing work. References are indexed under a work’s author; correspondence and editorial material can include other voices. Inspect the source before attributing a statement. Dates describe authors, not publication dates.</p></details><details class="ce-branch-history"><summary>Recently explored branches</summary><div></div></details></div>`;
+  $('#journey-direction').value=direction;
+  if(direction!=='out')$('#journey-query').previousElementSibling.textContent='Find a connected author';
+  $('.ce-branch-history div').innerHTML=journeyBranches.filter(b=>b.url!==journeyURL(chain,direction,work,targetWork,'',stepKeys)).map(b=>`<a href="${esc(b.url)}">${esc(b.label)}</a>`).join('')||'<p class="ce-note">Branches you explore in this session appear here.</p>';
+@@ -900,17 +902,17 @@
+    };details.addEventListener('toggle',load);if(details.open)load();
+  }
+  pbody.querySelectorAll('[data-journey-step]').forEach(d=>wireEvidence(d,steps[+d.dataset.journeyStep],d.querySelector('.ce-step-body'),false,+d.dataset.journeyStep===0));
+- let openKey=options.reference||'',nextLimit=Math.max(30,Math.ceil((connections.findIndex(r=>r.key===openKey)+1)/30)*30);
++ let openKey=options.reference||'',nextPage=Math.max(0,Math.floor(connections.findIndex(r=>r.key===openKey)/12));
+  const renderNext=()=>{
+    const q=FRConnectionEvidence.fold($('#journey-query').value),rows=connections.filter(r=>!q||FRConnectionEvidence.fold(r.node.a).includes(q)),box=$('.ce-next-list');
+-   $('#journey-next-count').textContent=rows.length.toLocaleString()+' '+(rows.length===1?'connection':'connections')+(rows.length>nextLimit?' · showing '+nextLimit:'');$('.ce-next-more').hidden=rows.length<=nextLimit;
+-   box.innerHTML=rows.slice(0,nextLimit).map((r,i)=>`<details class="ce-next-author" data-connection-index="${i}"${r.key===openKey?' open':''}><summary><span>${esc(r.node.a)}${direction==='either'?'<small>'+esc(r.citing.a)+' cites '+esc(r.target.a)+'</small>':''}</span><small>${r.count.toLocaleString()} ${r.count===1?'reference':'references'}</small></summary><div class="ce-next-content"><div class="ce-next-actions"><button type="button" data-follow="${i}">${chain.includes(r.node.s)?'Return to this author':direction==='in'?'Follow their reception':direction==='out'?'Follow their sources':'Continue with this author'}</button><a href="/web#a=${encodeURIComponent(r.node.s)}">Author overview</a></div><div class="ce-next-evidence"></div></div></details>`).join('')||'<p class="ce-note">No recorded connections match. Try another name or direction.</p>';
++   const win=FRConnectionEvidence.pageWindow(rows,nextPage,12);nextPage=win.page;$('#journey-next-count').textContent=rows.length.toLocaleString()+' '+(rows.length===1?'connection':'connections')+(win.pages>1?' · page '+(win.page+1)+' of '+win.pages:'');$('.ce-next-more').hidden=$('.ce-next-previous').hidden=win.pages===1;$('.ce-next-more').disabled=win.page+1===win.pages;$('.ce-next-previous').disabled=win.page===0;
++   box.innerHTML=win.items.map((r,j)=>{const i=j+win.start;return `<details class="ce-next-author" data-connection-index="${i}"${r.key===openKey?' open':''}><summary><span>${esc(r.node.a)}${direction==='either'?'<small>'+esc(r.citing.a)+' cites '+esc(r.target.a)+'</small>':''}</span><small>${r.count.toLocaleString()} ${r.count===1?'reference':'references'}</small></summary><div class="ce-next-content"><div class="ce-next-actions"><button type="button" data-follow="${i}">${chain.includes(r.node.s)?'Return to this author':direction==='in'?'Follow their reception':direction==='out'?'Follow their sources':'Continue with this author'}</button><a href="/web#a=${encodeURIComponent(r.node.s)}">Author overview</a></div><div class="ce-next-evidence"></div></div></details>`;}).join('')||'<p class="ce-note">No recorded connections match. Try another name or direction.</p>';
+    box.querySelectorAll('[data-connection-index]').forEach(d=>{const r=rows[+d.dataset.connectionIndex];d.addEventListener('toggle',()=>{if(d.open){box.querySelectorAll('.ce-next-author[open]').forEach(other=>{if(other!==d)other.open=false;});openKey=r.key;history.replaceState(null,'',journeyURL(chain,direction,work,targetWork,openKey,stepKeys));}else if(openKey===r.key){openKey='';history.replaceState(null,'',journeyURL(chain,direction,work,targetWork,'',stepKeys));}});wireEvidence(d,r,d.querySelector('.ce-next-evidence'),true,chain.length===1);});
+    box.querySelectorAll('[data-follow]').forEach(button=>button.onclick=()=>{const r=rows[+button.dataset.follow],prior=chain.indexOf(r.node.s);rememberJourney(chain,direction,work,targetWork,stepKeys);openJourney(prior>=0?chain.slice(0,prior+1):[...chain,r.node.s],direction,{work,targetWork,via:prior>=0?stepKeys.slice(0,prior):[...stepKeys,r.key]});});
+  };
+  $('#journey-author').onchange=e=>{rememberJourney(chain,direction,work,targetWork,stepKeys);openJourney([e.target.value],direction);};
+  $('#journey-direction').onchange=e=>{rememberJourney(chain,direction,work,targetWork,stepKeys);openJourney([current.s],e.target.value);};
+- $('#journey-query').oninput=()=>{nextLimit=30;renderNext();};$('.ce-next-more').onclick=()=>{nextLimit+=30;renderNext();};renderNext();update();pbody.scrollTop=0;
++ $('#journey-query').oninput=()=>{nextPage=0;renderNext();};$('.ce-next-more').onclick=()=>{nextPage++;renderNext();$('.ce-next-list').scrollIntoView({block:'start'});};$('.ce-next-previous').onclick=()=>{nextPage--;renderNext();$('.ce-next-list').scrollIntoView({block:'start'});};renderNext();update();pbody.scrollTop=0;
+ }
+ 
+ /* ── doctrine flow ──────────────────────────────────────────────────────────── */
+@@ -925,7 +927,7 @@
+  const render=()=>{const q=FRResearch.fold($('#web-topic-evidence-q').value),rows=(d.pos||[]).filter(r=>!q||FRResearch.fold([r.a,r.wt,r.q].join(' ')).includes(q));
+    const byWork=new Map();rows.forEach(r=>{if(!byWork.has(r.w))byWork.set(r.w,[]);byWork.get(r.w).push(r);});const groups=[...byWork.values()].sort((a,b)=>b.length-a.length),shown=groups.slice(0,excerptLimit).flat();
+    $('#web-topic-evidence-count').textContent=rows.length+' available '+(rows.length===1?'excerpt':'excerpts')+' in '+groups.length+' '+(groups.length===1?'work':'works')+(groups.length>excerptLimit?' · showing '+excerptLimit+' works':'');
+-   $('#web-topic-evidence').innerHTML=shown.length?FRResearch.workFoldsHTML(shown,{sub:r=>r.a||'',extra:r=>`<span class="rx-annotation">${esc(r.a||'')}</span>`},topicUI):'<p class="index-note">No matching excerpts. Try another phrase.</p>';
++   $('#web-topic-evidence').innerHTML=shown.length?FRResearch.workFoldsHTML(shown,{evidenceKind:true,sub:r=>r.a||'',extra:r=>`<span class="rx-annotation">${esc(r.a||'')}</span>`},topicUI):'<p class="index-note">No matching excerpts. Try another phrase.</p>';
+    let more=$('#web-topic-evidence-more');if(!more){more=document.createElement('button');more.id='web-topic-evidence-more';more.className='pbtn';$('#web-topic-evidence').after(more);}more.textContent='Show more works';more.hidden=groups.length<=excerptLimit;more.onclick=()=>{excerptLimit+=24;render();};FRShelfMap.bindPreviews($('#web-topic-evidence'));
+  };$('#web-topic-evidence-q').oninput=()=>{excerptLimit=24;render();};render();
+  let contributorLimit=40;const renderAuthors=()=>{const q=FRResearch.fold($('#web-topic-author-q').value),hits=voices.filter(r=>!q||FRResearch.fold(r.a).includes(q));$('#web-topic-contributors').innerHTML=hits.slice(0,contributorLimit).map(r=>{const n=BYS[r.s]||NODES.find(n=>n.a===r.a);return n?`<button class="web-topic-row" data-a="${esc(n.s)}"><span>${esc(r.a)}</span><small>View citations</small></button>`:r.s?`<a class="web-topic-row" href="${FRResearch.authorURL(r,d.t)}"><span>${esc(r.a)}</span><small>Read topic evidence</small></a>`:`<div class="web-topic-row"><span>${esc(r.a)}</span><small>No citation-map entry</small></div>`;}).join('')||'<p class="index-note">No matching contributors.</p>';$('#web-topic-contributors').querySelectorAll('[data-a]').forEach(el=>el.onclick=()=>openAuthor(el.dataset.a));};const contributorMore=document.createElement('button');contributorMore.className='pbtn';contributorMore.textContent='Show more contributors';$('#web-topic-contributors').after(contributorMore);contributorMore.onclick=()=>{contributorLimit+=40;renderAuthors();contributorMore.hidden=voices.filter(r=>!$('#web-topic-author-q').value||FRResearch.fold(r.a).includes(FRResearch.fold($('#web-topic-author-q').value))).length<=contributorLimit;};$('#web-topic-author-q').oninput=()=>{contributorLimit=40;renderAuthors();contributorMore.hidden=voices.filter(r=>FRResearch.fold(r.a).includes(FRResearch.fold($('#web-topic-author-q').value))).length<=40;};renderAuthors();contributorMore.hidden=voices.length<=40;pbody.scrollTop=0;
+--- a/tools/prdl_reader_prototype/connection-evidence.js
++++ b/tools/prdl_reader_prototype/connection-evidence.js
+@@ -131,11 +131,13 @@
+     const unique=[...new Map(sources.filter(s=>s?.url).map(s=>[s.url,s])).values()];
+     return {type:'note',label,text:label+'\n\n'+unique.map(s=>s.cite+'\n'+s.url).join('\n\n'),cite:label,url:extra.url||'/web',research:{kind,sources:unique,verses:extra.verses||[],topics:extra.topics||[],authors:[...new Set(unique.map(s=>s.author).filter(Boolean).concat(extra.authors||[]))],...extra.research}};
+   }
++  function pageWindow(items,page=0,size=5){const pages=Math.max(1,Math.ceil(items.length/size)),current=Math.max(0,Math.min(Number(page)||0,pages-1)),start=current*size;return {page:current,pages,start,end:Math.min(items.length,start+size),items:items.slice(start,start+size)};}
++  function citationGroups(rows){const byWork=new Map();for(const r of rows){const key=String(r.w||'');if(!byWork.has(key))byWork.set(key,[]);byWork.get(key).push(r);}return [...byWork].map(([w,rs])=>[w,rs.slice().sort((a,b)=>String(a.p??'').localeCompare(String(b.p??''),undefined,{numeric:true}))]).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]));}
+   function mountCitation(host,options){
+     const {data,citing,target,commentaries={map:{}},initialWork='',initialTarget='',initialSources=[],onSelection,hideSave=false}=options;
+-    const entry=data?.to?.[target.s],works=data?.works||{},contexts=commentaries.map||{},rows=(entry?.rows||[]).map((r,i)=>({...r,id:i,title:works[r.w]||r.w}));
++    const entry=data?.to?.[target.s],works={...(data?.works||{})},workMetadata=new Map(),contexts=commentaries.map||{},rows=(entry?.rows||[]).map((r,i)=>({...r,id:i,title:works[r.w]||r.w}));
+     const available=new Set(rows.map(r=>source(r,works,citing.a).url)),selected=new Map(initialSources.filter(s=>available.has(s.url)).map(s=>[s.url,s])),groups=new Map();for(const row of rows)groups.set(row.w,(groups.get(row.w)||0)+1);
+-    const kinds=[...new Set(rows.map(r=>r.h).filter(Boolean))].sort(),targets=new Map(),editorialCount=rows.filter(r=>sourceContext(r.w,r.p)?.layer==='editorial-notes').length;let limit=24;
++    const kinds=[...new Set(rows.map(r=>r.h).filter(Boolean))].sort(),targets=new Map(),editorialCount=rows.filter(r=>sourceContext(r.w,r.p)?.layer==='editorial-notes').length;let workPage=0;const recordPages=new Map();
+     if(!entry){host.innerHTML='<p class="ce-note">The complete passage export is unavailable for this connection. The graph may still contain a recorded edge.</p>';return {sources:()=>[]};}
+     host.classList.add('connection-evidence');
+     host.innerHTML=`<p class="ce-explanation"><strong>${editorialCount?'References to '+esc(target.a)+' in works indexed under '+esc(citing.a):esc(citing.a)+' cites '+esc(target.a)}.</strong> ${editorialCount?count(editorialCount)+' '+(editorialCount===1?'reference is':'references are')+' in editorial notes.':'Read the references in the works below.'}</p><details class="ce-about"><summary>About citation records</summary><p class="ce-note">These are indexed references. A “quotes” label does not verify identical wording, and a citation does not establish agreement. Commentary labels describe the containing work, not an established route of transmission.</p></details><details class="ce-filter-options"><summary data-ce-filter-summary>Filter references</summary><div class="ce-filters">${editorialCount?'<label>Text layer<select data-ce-layer><option value="">All references</option><option value="text">Exclude editorial-only references</option><option value="notes">Editorial notes only</option></select></label>':''}<label>Source work<select data-ce-work><option value="">All ${groups.size} ${groups.size===1?'work':'works'}</option>${[...groups].sort((a,b)=>String(works[a[0]]||a[0]).localeCompare(String(works[b[0]]||b[0]))).map(([w,n])=>`<option value="${esc(w)}">${esc(works[w]||w)} (${count(n)})</option>`).join('')}</select></label><label>Recorded relation<select data-ce-kind><option value="">All relations</option>${kinds.map(k=>`<option>${esc(k)}</option>`).join('')}</select></label><label>Work context<select data-ce-context><option value="">All contexts</option><option value="sent">Sentences commentary</option><option value="sum">Summa commentary</option><option value="bib">Scripture commentary</option><option value="comp">Compilation</option><option value="other">Other or unclassified</option></select></label><label class="ce-wide">Cited work<select data-ce-target disabled><option value="">Checking held-work targets…</option></select></label><label class="ce-wide">Find a reference<input data-ce-query type="search" placeholder="Search mention, work, or locator"></label></div></details><button class="ce-clear" type="button" hidden>Clear reference filters</button><p class="ce-count" role="status"></p><div class="ce-records"></div><button class="ce-more" type="button">Show more references</button><div class="ce-selection"><span class="ce-selected" role="status">No passages selected</span>${hideSave?'':'<button class="ce-save" disabled>Save selected references</button>'}</div>`;
+@@ -162,34 +164,38 @@
+       find('.ce-clear').hidden=!activeFilters.length;
+       find('.ce-count').textContent=count(hits.length)+(hits.length===1?' available reference':' available references')+(+entry.n>rows.length?' · '+count(entry.n)+' counted in the index':'');
+       find('.ce-more').hidden=true;
+-      const recordHTML=r=>{const s=source(r,works,citing.a),context=contexts[r.w],layer=sourceContext(r.w,r.p),key=s.url;return `<article class="ce-record"><label class="ce-pick"><input type="checkbox" data-ce-pick="${r.id}"${selected.has(key)?' checked':''}><span>Select this source passage</span></label><h4><a href="${esc(readerURL(r.w))}">${esc(s.title)}</a></h4>${context?`<p class="ce-context">${esc(context.l)}</p>`:''}${layer?`<p class="ce-context">${layer.layer==='editorial-notes'?'Editorial notes from the source edition, not the author’s main text.':'This column has both main text and editorial notes.'} <a href="${esc('/read?w='+encodeURIComponent(r.w)+'&pldpart=3#b'+encodeURIComponent(String(r.p))+'-0')}">Read editorial notes</a></p>`:''}<p><span class="ce-label">Recorded mention</span>${esc(r.sf||'Mention text not supplied')}</p>${r.loc?`<p><span class="ce-label">Citation locator</span>${esc(r.loc)}</p>`:''}<div class="ce-note ce-resolution" data-ce-target-id="${esc(r.tw||'')}">${resolutionHTML(r.tw)}</div><div class="ce-source-actions"><span>${r.h?'Recorded as '+esc(r.h)+' · ':''}${s.page!=null?'p. '+esc(s.page):'Page not supplied'}</span><a href="${esc(withHl(s.url,r.sf))}">Open source</a>${saveBtn(r.w,s.page,s.title,(r.sf||'')+(r.loc?' — '+r.loc:''))}</div>${preview(withHl(s.url,r.sf))}${pageContextHTML(s)}</article>`;};
++      const recordHTML=r=>{const s=source(r,works,citing.a),context=contexts[r.w],layer=sourceContext(r.w,r.p),key=s.url;return `<article class="ce-record" data-ce-record="${r.id}"><label class="ce-pick"><input type="checkbox" data-ce-pick="${r.id}"${selected.has(key)?' checked':''}><span>Select p. ${esc(s.page??"?")}</span></label>${context?`<p class="ce-context">${esc(context.l)}</p>`:''}${layer?`<p class="ce-context">${layer.layer==='editorial-notes'?'Editorial notes from the source edition, not the author’s main text.':'This column has both main text and editorial notes.'} <a href="${esc('/read?w='+encodeURIComponent(r.w)+'&pldpart=3#b'+encodeURIComponent(String(r.p))+'-0')}">Read editorial notes</a></p>`:''}<p><span class="ce-label">Mention</span>${esc(r.sf||'Mention text not supplied')}</p>${r.loc?`<p><span class="ce-label">Cited location</span>${esc(r.loc)}</p>`:''}<div class="ce-note ce-resolution" data-ce-target-id="${esc(r.tw||'')}">${resolutionHTML(r.tw)}</div><div class="ce-source-actions"><span>${r.h?'Recorded as '+esc(r.h)+' · ':''}${s.page!=null?'p. '+esc(s.page):'Page not supplied'}</span><a href="${esc(withHl(s.url,r.sf))}" target="_blank" rel="noopener">Open source</a>${saveBtn(r.w,s.page,s.title,(r.sf||'')+(r.loc?' — '+r.loc:''))}</div>${preview(withHl(s.url,r.sf))}${pageContextHTML(s)}</article>`;};
+       const box=find('.ce-records');box.classList.add('ce-pane');box.scrollTop=0;
+       if(!hits.length){box.innerHTML='<p class="ce-note">No references match these filters. Clear the phrase or choose another work.</p>';return;}
+-      // bounded pane (2026-09-09): chunks arrive as the pane's own scroll nears its end; nothing is truncated
+-      if(box.__io)box.__io.disconnect();box.innerHTML='';let n=0;const CH=12;const sent=document.createElement('div');sent.className='ce-sentinel';sent.setAttribute('aria-hidden','true');box.appendChild(sent);
++      if(box.__io)box.__io.disconnect();box.innerHTML='';
+       const wire=frag=>{frag.querySelectorAll('[data-ce-pick]').forEach(input=>input.onchange=()=>{const r=rows[+input.dataset.cePick],s=source(r,works,citing.a);if(input.checked)selected.set(s.url,s);else selected.delete(s.url);box.querySelectorAll('[data-ce-pick]').forEach(el=>{el.checked=selected.has(source(rows[+el.dataset.cePick],works,citing.a).url);});updateSelection();});bindPreviews(frag);bindPageContexts(frag);
+         frag.querySelectorAll('[data-ce-fold]').forEach(d=>d.addEventListener('toggle',()=>{if(d.open)openFolds.add(d.dataset.ceFold);else openFolds.delete(d.dataset.ceFold);}));};
+       // BY WORK, COLLAPSED (2026-09-10): records grouped under their citing work, the largest work open; folds arrive
+       // in chunks as the pane's own scroll nears its end; nothing is truncated
+       const N=root.FRResearchNotebook,savedKeys=N?.savedKeys?N.savedKeys():new Set(),rk=(w,p)=>'fr|'+w+'|'+(p==null||p===''?'':String(p));
+       const saveBtn=(w,p,title,label)=>{if(!N?.savePassage||!w||p==null||p==='')return '';const on=savedKeys.has(rk(w,p));return `<button type="button" class="pinb${on?' on':''}" data-save-passage="${esc(w)}" data-page="${esc(String(p))}" data-title="${esc(String(title||'').slice(0,90))}" data-author="${esc(String(citing.a||'').slice(0,60))}" data-label="${esc(String(label||'').slice(0,240))}" aria-pressed="${on}">${on?'Saved':'Save passage'}</button>`;};
+-      const saveWorkBtn=(w,title)=>{if(!N?.saveWork||!w)return '';const on=savedKeys.has(rk(w,null));return `<button type="button" class="pinb pinb-work${on?' on':''}" data-save-work="${esc(w)}" data-title="${esc(String(title||'').slice(0,120))}" data-author="${esc(String(citing.a||'').slice(0,60))}" aria-pressed="${on}" onclick="event.stopPropagation()">${on?'Saved':'Save work'}</button>`;};
+-      const byW=new Map();hits.forEach(r=>{const w=String(r.w||'');if(!byW.has(w))byW.set(w,[]);byW.get(w).push(r);});
+-      const groups=[...byW.entries()].sort((x,y)=>y[1].length-x[1].length||x[0].localeCompare(y[0]));
+-      const openFolds=host.__ceOpen||(host.__ceOpen=new Set());if(!openFolds.size&&groups.length)openFolds.add(groups[0][0]);
+-      const foldHTML=([w,rs])=>{const s=source(rs[0],works,citing.a);return `<details class="ce-work" data-ce-fold="${esc(w)}"${openFolds.has(w)?' open':''}><summary><span><strong>${esc(s.title)}</strong></span><small class="ce-n">${rs.length}</small>${w?` <a class="ce-open-work" href="${esc(readerURL(w))}" onclick="event.stopPropagation()">open the work</a>${saveWorkBtn(w,s.title)}`:''}</summary><div class="ce-fold-body">${rs.slice().sort((a,b)=>(Number(a.p)||0)-(Number(b.p)||0)).map(recordHTML).join('')}</div></details>`;};
+-      const more=()=>{if(n>=groups.length)return;const end=Math.min(groups.length,n+CH);const t=document.createElement('template');t.innerHTML=groups.slice(n,end).map(foldHTML).join('');wire(t.content);box.insertBefore(t.content,sent);n=end;if(n>=groups.length){box.__io?.disconnect();sent.remove();}};
+-      more();if(n<groups.length){box.__io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))more();},{root:box,rootMargin:'320px 0px'});box.__io.observe(sent);}
+-    }
+-    host.querySelectorAll('select').forEach(el=>el.onchange=()=>paint());find('[data-ce-query]').oninput=()=>paint();
+-    find('.ce-clear').onclick=()=>{host.querySelectorAll('select').forEach(el=>el.value='');find('[data-ce-query]').value='';paint();};
++      const saveWorkBtn=(w,title)=>{if(!N?.saveWork||!w)return '';const on=savedKeys.has(rk(w,null));return `<button type="button" class="pinb pinb-work${on?' on':''}" data-save-work="${esc(w)}" data-title="${esc(String(title||'').slice(0,120))}" data-author="${esc(String(citing.a||'').slice(0,60))}" aria-pressed="${on}">${on?'Saved':'Save work'}</button>`;};
++      const ranked=citationGroups(hits),groups=root.FRResearch?.orderedWorks?root.FRResearch.orderedWorks(ranked,([w])=>({...workMetadata.get(w),w})):ranked,win=pageWindow(groups,workPage,6);workPage=win.page;
++      const openFolds=host.__ceOpen||(host.__ceOpen=new Set(groups.length?[groups[0][0]]:[]));
++      const pager=(p,kind,key='')=>p.pages>1?`<nav class="ce-pager" aria-label="${kind==='works'?'Work pages':'Reference pages'}"><button type="button" data-ce-page="${kind}" data-ce-page-work="${esc(key)}" data-page="${p.page-1}"${p.page===0?' disabled':''}>Previous</button><span>Page ${p.page+1} of ${p.pages}<small>${p.start+1}–${p.end}</small></span><button type="button" data-ce-page="${kind}" data-ce-page-work="${esc(key)}" data-page="${p.page+1}"${p.page+1===p.pages?' disabled':''}>Next</button></nav>`:'';
++      function recordPage(w,rs){const p=pageWindow(rs,recordPages.get(w)||0,5);recordPages.set(w,p.page);return pager(p,'records',w)+p.items.map(recordHTML).join('')+pager(p,'records',w);}
++      box.innerHTML=pager(win,'works')+win.items.map(([w,rs])=>{const s=source(rs[0],works,citing.a);return `<details class="ce-work" data-ce-fold="${esc(w)}"${openFolds.has(w)?' open':''}><summary><span><strong>${esc(s.title)}</strong></span><small class="ce-n">${count(rs.length)} references</small></summary><div class="ce-work-actions"><a class="ce-open-work" href="${esc(readerURL(w))}" target="_blank" rel="noopener">Open work</a>${saveWorkBtn(w,s.title)}</div><div class="ce-fold-body" data-ce-record-page="${esc(w)}">${recordPage(w,rs)}</div></details>`;}).join('')+pager(win,'works');
++      wire(box);
++      function wirePages(parent){parent.querySelectorAll('[data-ce-page]').forEach(button=>button.onclick=()=>{const kind=button.dataset.cePage,w=button.dataset.cePageWork,page=Number(button.dataset.page);if(kind==='works'){workPage=page;paint();return;}const body=box.querySelector('[data-ce-record-page="'+CSS.escape(w)+'"]'),rs=groups.find(g=>g[0]===w)?.[1]||[];if(!body)return;recordPages.set(w,page);body.innerHTML=recordPage(w,rs);wire(body);wirePages(body);const focus=body.querySelector('[data-page="'+(page+1)+'"]:not(:disabled)')||body.querySelector('[data-ce-page]:not(:disabled)');focus?.focus({preventScroll:true});body.scrollIntoView({block:'start',behavior:'auto'});});}
++      wirePages(box);
++
++    }
++    host.querySelectorAll('select').forEach(el=>el.onchange=()=>{workPage=0;recordPages.clear();paint();});find('[data-ce-query]').oninput=()=>{workPage=0;recordPages.clear();paint();};
++    find('.ce-clear').onclick=()=>{workPage=0;recordPages.clear();host.querySelectorAll('select').forEach(el=>el.value='');find('[data-ce-query]').value='';paint();};
+     if(!host.__ceSaveBound){host.__ceSaveBound=true;host.addEventListener('click',async e=>{const b=e.target.closest('[data-save-passage],[data-save-work]');if(!b)return;e.preventDefault();e.stopPropagation();
+       const N=root.FRResearchNotebook;if(!N?.saveWork)return;const isWork=b.hasAttribute('data-save-work'),slug=isWork?b.dataset.saveWork:b.dataset.savePassage,page=isWork?null:b.dataset.page,on=b.getAttribute('aria-pressed')==='true';b.disabled=true;
+       try{if(on)await N.unsave(slug,page);else if(isWork)await N.saveWork({slug,title:b.dataset.title,author:b.dataset.author});else await N.savePassage({slug,page,title:b.dataset.title,author:b.dataset.author,label:b.dataset.label});}
+       catch(err){b.title=(err&&err.message)||'This could not be saved.';b.disabled=false;return;}
+       const now=!on;host.querySelectorAll(isWork?`[data-save-work="${CSS.escape(slug)}"]`:`[data-save-passage="${CSS.escape(slug)}"][data-page="${CSS.escape(String(page))}"]`).forEach(x=>{x.classList.toggle('on',now);x.setAttribute('aria-pressed',String(now));x.textContent=now?'Saved':(x.hasAttribute('data-save-work')?'Save work':'Save passage');x.disabled=false;});b.disabled=false;});}
+     if(find('.ce-save'))find('.ce-save').onclick=()=>save(find('.ce-save'),researchNote('citation-connection',citing.a+' cites '+target.a,[...selected.values()],{url:'/web#e='+encodeURIComponent(citing.s)+','+encodeURIComponent(target.s),authors:[citing.a,target.a],research:{direction:'citation',citing:citing.s,target:target.s}}));
+-    paint();updateSelection();locateTargets();return {sources:()=>[...selected.values()]};
++    find('.ce-records').innerHTML='<p class="ce-note" role="status">Preparing source editions…</p>';
++    (async()=>{try{const catalogue=await root.FRResearchData?.corpus?.();if(!host.isConnected)return;for(const w of groups.keys()){const meta=catalogue?.works?.get(w);if(!meta)continue;workMetadata.set(w,meta);const title=meta.title_en||meta.title||works[w]||w,volume=meta.volume||'';works[w]=title+(volume&&!title.includes(volume)?' · '+volume:'');}find('[data-ce-work]').querySelectorAll('option').forEach(option=>{if(option.value)option.textContent=(works[option.value]||option.value)+' ('+count(groups.get(option.value))+')';});}catch(_){}if(!host.isConnected)return;paint();updateSelection();locateTargets();})();
++    return {sources:()=>[...selected.values()]};
+   }
+   const comparisonRuns=new WeakMap();
+   async function mountComparison(host,options){
+@@ -229,6 +235,6 @@
+       };details.addEventListener('toggle',load);
+     });return ()=>{alive=false;};
+   }
+-  const api={esc,fold,source,withHl,readerURL,safeURL,chapterReference,sharedChapters,sharedPages,verseOverlap,citationDirection,directedPath,journeyEdge,journeyConnections,filterCitations,pageContext,resolutionLabel,resolvedTargets,json,preview,bindPreviews,researchNote,save,mountCitation,mountComparison};
++  const api={pageWindow,citationGroups,esc,fold,source,withHl,readerURL,safeURL,chapterReference,sharedChapters,sharedPages,verseOverlap,citationDirection,directedPath,journeyEdge,journeyConnections,filterCitations,pageContext,resolutionLabel,resolvedTargets,json,preview,bindPreviews,researchNote,save,mountCitation,mountComparison};
+   if(typeof module==='object'&&module.exports)module.exports=api;else root.FRConnectionEvidence=api;
+ })(typeof window==='undefined'?globalThis:window);
+--- a/tools/prdl_reader_prototype/connection-evidence.css
++++ b/tools/prdl_reader_prototype/connection-evidence.css
+@@ -13,3 +13,11 @@
+ .ce-records .pinb{font:500 12px/1.2 var(--sans,system-ui);color:var(--muted,#6b675f);border:1px solid var(--border,#d9d4cb);border-radius:3px;background:transparent;padding:3px 7px;cursor:pointer;white-space:nowrap;margin-left:8px}.ce-records .pinb:hover{color:var(--fg,#1b1a17);border-color:var(--fg,#1b1a17)}.ce-records .pinb.on{color:var(--bg,#fff);background:var(--fg,#1b1a17);border-color:var(--fg,#1b1a17)}.ce-records .pinb:disabled{opacity:.6;cursor:wait}.ce-work>summary .pinb-work{flex:none}
+ 
+ .ce-filter-options{margin:12px 0;border-block:1px solid var(--border)}.connection-evidence .ce-filter-options>summary{font:14px/1.5 var(--body);padding:10px 0;min-height:44px;cursor:pointer;overflow-wrap:anywhere}.ce-filter-options .ce-filters{margin:6px 0 16px}.connection-evidence .ce-about>summary{font-size:13px;color:var(--muted);min-height:44px}.connection-evidence .ce-work>summary{flex-wrap:wrap}.connection-evidence .ce-work>summary>span{flex-basis:calc(100% - 60px)}
++
++/* Fixed reference pages replace thousands of simultaneously rendered records. */
++.ce-pager{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-block:1px solid var(--border);font:13px/1.4 var(--body)}
++.ce-pager>span{text-align:center;font-variant-numeric:tabular-nums}.ce-pager small{display:block;color:var(--muted);margin-top:3px}
++.ce-work-actions{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:0 0 8px}.ce-work-actions a{min-height:44px;display:inline-flex;align-items:center}.ce-work-actions .pinb-work{margin-left:0}
++.ce-records .ce-fold-body{padding-left:0}.ce-records .ce-work>summary{padding:10px 0;min-height:48px}.ce-records .ce-work>summary>span{flex-basis:auto}.ce-records .ce-n{font-size:12px}
++.ce-record .ce-label{display:inline;color:var(--muted);margin-right:7px}.ce-record .ce-pick{margin:0;min-height:40px}.ce-record p{margin:6px 0}.ce-record{padding:12px 0}.ce-record .ce-source-actions{gap:6px 12px;justify-content:start}.ce-record .ce-source-actions>span{margin-right:auto}.ce-record .pinb{margin-left:0}
++@media(max-width:760px){.connection-evidence{font-size:15px;line-height:1.55}.connection-evidence h4{font-size:19px;margin:0 0 8px}.connection-evidence h5{font-size:21px;margin:16px 0 10px}.connection-evidence h6{font-size:17px;margin:12px 0 8px}.ce-explanation{margin:8px 0}.ce-filter-options{margin:8px 0}.ce-filters{gap:10px}.ce-record{padding:10px 0}.ce-selection{padding:10px 0;margin-top:12px}.ce-fold-body{padding:0}.ce-preview{margin:0}.ce-preview iframe{height:min(480px,62dvh)}.ce-journey-step>summary{font-size:18px;min-height:48px}.ce-pager button{font-size:13px;padding:8px 10px;min-width:72px}.ce-records .pinb{min-height:44px;font-size:13px}.ce-source-actions{font-size:13px}.ce-record .ce-resolution{font-size:12px;line-height:1.5}}
+--- a/tools/prdl_reader_prototype/constellations.css
++++ b/tools/prdl_reader_prototype/constellations.css
+@@ -83,3 +83,23 @@
+ #web-topic-evidence .cd-work{border-bottom:1px solid var(--border)}#web-topic-evidence .cd-work>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:52px;padding:14px 0;cursor:pointer;list-style:none;font:16px/1.5 var(--body)}#web-topic-evidence .cd-work>summary::before{content:'+';color:var(--muted)}#web-topic-evidence .cd-work[open]>summary::before{content:'−'}#web-topic-evidence .cd-work>summary>span{flex:1;min-width:0}#web-topic-evidence .cd-n{font:12px var(--body);color:var(--muted)}#web-topic-evidence .cd-work>summary>a{min-height:44px;font:13px var(--body);text-decoration:underline;display:inline-flex;align-items:center}#web-topic-evidence .rx-excerpt{padding:16px 0;border-top:1px solid var(--border);font:16px/1.7 var(--body)}#web-topic-evidence .rx-excerpt>p{margin:0 0 10px;overflow-wrap:anywhere}#web-topic-evidence .rx-source{font:13px/1.6 var(--body);color:var(--muted)}#web-topic-evidence .rx-source>div{display:flex;align-items:center;gap:10px;flex-wrap:wrap}#web-topic-evidence .rx-source a{display:inline-flex;align-items:center;min-height:44px;text-decoration:underline}#web-topic-evidence .rx-annotation{display:block;font:13px var(--body);color:var(--muted);margin-top:6px}#web-topic-evidence-more{margin-top:14px}
+ 
+ #web-topic-evidence .cd-work>summary>span>small{display:block;font:13px/1.5 var(--body);color:var(--muted);margin-top:4px}
++
++/* Phone research prioritizes records and uses the panel as the only vertical scroller. */
++.web-author-about{border-bottom:1px solid var(--border);margin:0 0 12px;font:13px/1.5 var(--body)}.web-author-about>summary{min-height:44px;align-content:center;cursor:pointer}.web-author-about .metr{margin:10px 0;padding:10px 0}
++body.web-page #pbody .ce-records.ce-pane{max-height:none;overflow:visible;border:0;padding:0;scrollbar-gutter:auto}
++body.web-page #pbody .ce-next-list{max-height:none;overflow:visible;scrollbar-gutter:auto}
++body.web-page #pbody .ce-records .ce-pager{scroll-margin-top:12px}
++@media(max-width:760px){
++ body.web-page{--mast:104px}body.web-page header.site{grid-template-rows:44px 44px;padding:4px 16px 8px}body.web-page header.site>#mnav>a{font-size:13px}
++ #mobile-view button{min-height:44px}#explorer,#atlas,body.web-page.popen #atlas{top:calc(var(--mast) + 45px)}
++ .explorer-head{padding:16px 16px 0}.explorer-head h1{font-size:26px;margin-bottom:8px}.explorer-head>p{font-size:14px;line-height:1.5;margin-bottom:12px}
++ .index-tools{padding:6px 16px}.author-entry{padding:10px 16px;min-height:60px;font-size:15px}.author-entry small{margin-top:3px;font-size:12px}
++ body.web-page #panel .ph{padding:12px 56px 10px 16px}body.web-page #panel .ph h2{font-size:22px;line-height:1.2;margin:0 0 4px}body.web-page #panel .ph .sub{font-size:12px;line-height:1.4}
++ body.web-page #panel .ph .x{top:4px;right:8px}body.web-page #pbody{padding:10px 16px 24px}body.web-page .psect{font-size:20px;margin:18px 0 8px}
++ body.web-page #pbody .pbtns{gap:6px;margin:8px 0}body.web-page #pbody .pbtn{font-size:13px;padding:8px 10px;min-height:44px}
++ body.web-page .relation-tools{margin-top:14px}body.web-page .ce-connections-heading{margin:14px 0 8px}body.web-page #pbody .ce-journey h3{font-size:20px}.ce-next-author>summary{font-size:15px;min-height:48px;padding:8px 0}
++ body.web-page #pbody .sm{padding:10px 0;font-size:15px}body.web-page .ce-next-actions{padding:8px 0}
++ body.web-page #pbody .sat-head h3,body.web-page.shelf-comparison #pbody .sat-head h3{font-size:24px}body.web-page #pbody .sat-detail h4{font-size:24px}.web-topic-contributors{margin-top:16px}
++}
++body.web-page #pbody [data-relations].web-pane{max-height:none;overflow:visible;border:0;padding:0;scrollbar-gutter:auto}body.web-page .ce-pager{scroll-margin-top:12px}
++.ce-journey-options{margin:0 0 12px;border-bottom:1px solid var(--border)}.ce-journey-options>summary{min-height:44px;align-content:center;font:13px/1.5 var(--body);cursor:pointer}.ce-journey-options .ce-journey-controls{padding:8px 0 12px}
+--- a/tools/prdl_reader_prototype/shelf-constellations.css
++++ b/tools/prdl_reader_prototype/shelf-constellations.css
+@@ -10,3 +10,5 @@
+ 
+ /* Each edge opens its evidence without losing either endpoint. */
+ .sat-neighbour{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--border)}.shelf-atlas .sat-neighbours .sat-neighbour button{border-bottom:0}.shelf-atlas .sat-neighbours .sat-neighbour button[data-entry]{width:auto;min-width:72px;font-size:12px;text-decoration:underline;text-underline-offset:4px}.sat-neighbour button>span>small{display:block;font-size:12px;white-space:normal;margin-top:5px;text-decoration:underline;text-underline-offset:4px}.sat-connection-evidence:not(:empty){margin:24px 0;padding:4px 0 24px;border-block:1px solid var(--border)}.shelf-atlas .sat-connection-evidence .ce-pick{display:flex;flex-direction:row}.sat-connection-evidence .ce-preview{overflow:visible}.sat-connection-evidence h5:focus{outline:none}
++
++@media(max-width:760px){.shelf-atlas{padding:12px 0}.sat-head h3,.sat-detail h4{font-size:24px;line-height:1.2;margin-bottom:8px}.sat-head>p{font-size:14px;line-height:1.5}.sat-method{margin:8px 0 14px}.sat-index,.sat-detail{padding-block:12px}.shelf-atlas .sat-entry{padding:10px 4px;min-height:52px}.sat-detail h5{font-size:20px;margin:20px 0 8px}.sat-sources article{padding:12px 0}.sat-sources article>p:not(.sat-note){font-size:16px;line-height:1.6;margin:8px 0}.shelf-atlas .sat-back{margin-bottom:12px}.sat-book>summary{font-size:18px;min-height:48px}}
+--- a/tools/prdl_reader_prototype/reader_shell.html
++++ b/tools/prdl_reader_prototype/reader_shell.html
+@@ -3622,7 +3622,7 @@
+       const delta=target.getBoundingClientRect().top-sc.getBoundingClientRect().top;
+       // The mobile masthead can grow after fonts load. Keep source-heading arrivals
+       // below its current bottom instead of freezing the initial desktop-sized gap.
+-      const header=position.sourcePath&&document.querySelector?.('.ph');
++      const header=(position.sourcePath||target.classList?.contains('pganchor'))&&document.querySelector?.('.ph');
+       if(header)offset=Math.max(14,header.getBoundingClientRect().bottom-sc.getBoundingClientRect().top+14);
+       if(offset==null)offset=delta;
+       const drift=delta-offset;if(Math.abs(drift)>2){sc.scrollTop+=drift;stable=0;}else stable++;
+@@ -3708,7 +3708,11 @@
+ window.__frPlaceReaderAnchor=(target,opts={})=>{
+   if(!target)return null;
+   const block=opts.block||frAnchorBlock(target);
+-  target.scrollIntoView({block,behavior:opts.behavior||'auto'});
++  target.scrollIntoView({block,behavior:opts.behavior||'instant'});
++  if(block==='start'){
++    const sc=document.getElementById('scroll'),header=document.querySelector?.('.ph');
++    if(sc?.contains(target)&&header){const top=Math.max(sc.getBoundingClientRect().top,header.getBoundingClientRect().bottom)+12;sc.scrollTop+=target.getBoundingClientRect().top-top;}
++  }
+   return block;
+ };
+ window.__frAnchorBlock=frAnchorBlock;
+@@ -3751,7 +3755,7 @@
+       if(bs<0.6)t.querySelectorAll(".row:not(.rhead)").forEach(r=>{if(!r.getClientRects().length)return;
+         const sc=score((r.textContent||"").slice(0,260));if(sc>bs){bs=sc;best=r;}});
+       if(best&&bs>=0.6)tgt=best.closest(".row")||best;}}
+-  tgt.scrollIntoView({behavior:"auto",block:"start"});window.__frJumpEl=tgt;return tgt;}  // page starts at "pg. N", clear of the masthead (scroll-margin-top)
++  window.__frPlaceReaderAnchor(tgt,{block:"start"});window.__frJumpEl=tgt;return tgt;}  // page starts at "pg. N", clear of the masthead (scroll-margin-top)
+ // ---- canonical locators ----
+ // Scanned works cite by PRINTED PAGE ("p. N"). Born-digital (SCTA) works have no page image,
+ // so they're cited by their place in the spine — the scholastic locator (lib./dist./q./art./
+@@ -6099,11 +6103,12 @@
+  if(!$("#aaPop").classList.contains('on'))$("#reader-jump").value=String(n);
+  $("#pPrev").setAttribute('aria-label','Previous '+unit);$("#pNext").setAttribute('aria-label','Next '+unit);
+  $("#pPrev").title='Previous '+unit;$("#pNext").title='Next '+unit;
+- const source=window.__SRCNAME||'Latin',enOnly=app.classList.contains('en-only')||DATA?.src_lang==='en';
++ const source=DATA.pld_source_view?.sourceName||window.__SRCNAME||'Latin',enOnly=app.classList.contains('en-only')||DATA?.src_lang==='en';
+  app.style.setProperty('--source-label',JSON.stringify(source));
+  $("#source-size-name").textContent=source;$("#source-size").hidden=enOnly;
+  $("#source-size .lt").textContent=source==='Greek'?'Gr':source==='Latin'?'La':'Aa';
+  $("#source-size label").title=source+' text size';
++ if(DATA.pld_source_view?.sourceName){window.__SRCNAME=source;$("#m-par").textContent=source;}
+  $("#m-par").title='Show '+source+' text';$("#m-en").title='Show English translation';
+ }
+ function pgDenom(){const ns=(DATA&&DATA.pages||[]).map(x=>+x.n).filter(Number.isFinite);
+@@ -6221,7 +6226,7 @@
+   // keep your place: the row that was under the top of the viewport stays there across the relayout
+   if(window.__frAnchorRow&&window.__frAnchorRow.isConnected){
+     const navigation=window.__readerNavSerial||0,anchor=window.__frAnchorRow;
+-    requestAnimationFrame(()=>{if(navigation===(window.__readerNavSerial||0)&&anchor?.isConnected)anchor.scrollIntoView({block:"start"});});}
++    requestAnimationFrame(()=>{if(navigation===(window.__readerNavSerial||0)&&anchor?.isConnected)window.__frPlaceReaderAnchor(anchor,{block:"start"});});}
+ }
+ function mode(m){                                          // legacy presets → lane states
+   if(m==="en")Object.assign(LN,{en:true,la:false,fx:false});
+--- a/tools/prdl_reader_prototype/pins.html
++++ b/tools/prdl_reader_prototype/pins.html
+@@ -144,6 +144,7 @@
+ @media(max-width:640px){#pinsPages{display:grid;grid-template-columns:1fr 1fr;padding-right:84px;gap:8px}#pinsPage{grid-column:1/-1;grid-row:1;text-align:center}}
+ @media print{.pins-navigation,.pins-filters,.saved-actions,.bar,.cols,.pins-relations,#pinsPages,#pinsResultCount{display:none!important}.pins-list{max-height:none;overflow:visible}.saved-preview{display:none}.saved-full>div{display:block}.saved-item{break-inside:avoid}}
+ @media print{.saved-full{display:none}.saved-print{display:block;white-space:pre-wrap}}
++@media(max-width:640px){.wrap.pins-main{padding-top:12px}.pins-main h1{font-size:28px}.pins-intro{font-size:14px;line-height:1.5}.saved-item,.pins-main .saved-item{padding:12px}.saved-item .t{font-size:16px;line-height:1.45}.saved-item .saved-actions{gap:6px 14px}.saved-item .saved-text,.saved-item .saved-preview{font-size:15px;line-height:1.55}}
+ </style>
+ </head>
+ <body>
+--- a/tools/prdl_reader_prototype/pins-experience.js
++++ b/tools/prdl_reader_prototype/pins-experience.js
+@@ -25,7 +25,7 @@
+     const title=k==='answer'?(item.askQuestion||item.label||'Saved answer'):['work','passage','reading-place','reference','highlight','quote-image'].includes(k)?work||item.label||kindLabel(k):item.label||item.title||kindLabel(k);
+     let body=k==='answer'?str(item.askAnswer||item.text):k==='reading-place'?str(item.text):str(item.text||item.label||'');
+     if(k==='comparison-view'){const lines=body.split('\n');if(lines[0]===item.label&&safeURL(lines.slice(1).join('\n'))===safeURL(item.url))body='';}
+-    const location=item.page==null?'':item.cite||((/^pld-|^pg-|^po-/.test(item.slug||''))?'Column ':'Location ')+item.page;
++    const baseLocation=item.page==null?'':item.cite||((/^pld-|^pg-|^po-/.test(item.slug||''))?'Column ':'Location ')+item.page,edition=str(meta.volume||item.volume),location=edition&&!str(title).includes(edition)&&!str(baseLocation).includes(edition)?[edition,baseLocation].filter(Boolean).join(' · '):baseLocation;
+     return {kind:k,kindLabel:kindLabel(k),title,body,note:str(item.note),author:str(meta.author||item.author),location,href,sources,
+       action:k==='comparison-view'?'Open comparison':k==='reading-place'?'Resume reading':k==='answer'&&item.chat?'Open conversation':k==='work'?'Open work':'Read source'};
+   }
+--- a/tools/prdl_reader_prototype/personal-research.css
++++ b/tools/prdl_reader_prototype/personal-research.css
+@@ -23,3 +23,6 @@
+ @media(max-width:800px){[data-pr-workspace]{grid-template-columns:1fr;gap:18px}.pr-record-picker>summary{padding:10px 0;min-height:48px}.pr-record-picker{border-bottom:1px solid var(--pr-line)}.pr-record-picker:not([open])>summary{border:0}.pr-picker-content{padding-bottom:14px;max-height:45dvh;overflow:auto}.pr-heading{gap:12px;align-items:start}.pr-heading>button{font-size:12px}.pr-step{grid-template-columns:1fr}.pr-map-hint{display:block}.pr-map{max-height:60dvh}.pr-map svg{min-width:680px}.pr-picker-item small{font-size:12px}.pr-related{margin-top:24px}.pr-filter-fields{grid-template-columns:1fr}.pr-branch-actions>[data-pr-selected-count]{flex-basis:auto}}
+ @media(max-width:640px){.personal-research{padding-top:14px}.personal-research h1{font-size:28px}.pr-heading p{font-size:13px;line-height:1.6;max-width:32ch}.pr-heading>button{max-width:64px;line-height:1.4;padding-top:2px}.pr-status{margin:8px 0 12px}.pr-controls{gap:10px;margin-bottom:12px;padding-bottom:16px;flex-wrap:wrap}.pr-search-label{max-width:none;flex:1 1 180px}.pr-filter-menu>summary{font-size:12px;padding:11px 10px}.pr-filter-menu[open]{flex-basis:100%}.pr-filter-fields{grid-template-columns:1fr 1fr;max-width:none}.pr-record-picker>summary{font-size:20px}.pr-inspector{padding:18px 16px}.pr-item-heading{margin-bottom:12px}.pr-item-heading h2{font-size:25px}.pr-text-preview{font-size:16px;-webkit-line-clamp:5;line-height:1.7}.pr-item-actions{gap:8px 18px;margin-bottom:12px}.personal-research [data-pr-add-current]{min-height:44px}.pr-item-actions .pr-source-link{font-size:13px}.pr-branch-head h2{font-size:22px}.pr-branch-head .pr-meta{font-size:12px}.pr-view-choice button{min-height:38px;padding:6px 10px}.pr-branch-actions{gap:8px 14px}.pr-branch-actions>[data-pr-selected-count]{flex-basis:100%}.personal-research [data-pr-create-sequence]{min-height:44px}.pr-connection>button{min-height:44px}.pr-connection-reasons>summary{min-height:44px;padding:10px 0}.pr-sequence-actions{display:grid;grid-template-columns:1fr}.pr-sequence-actions button{min-height:48px}.pr-step-actions{gap:8px 20px}#personalResearchPage{padding:0 16px}#deskPersonal{padding:8px 16px 32px}.desk-personal-top{gap:20px}.desk-personal-top :is(button,a){font-size:12px;min-height:44px}.wrap:has(>.personal-entry-bar){padding:6px 16px 0}.personal-entry-bar{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;padding:8px 0}.personal-entry-bar :is(button,a){font-size:12px;text-align:left;min-height:44px;line-height:1.5}}
+ @media(prefers-reduced-motion:reduce){.personal-research *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
++
++/* Mobile research cards keep the source and actions in reach. */
++@media(max-width:640px){.personal-research h1{font-size:25px}.pr-item-heading h2{font-size:21px;line-height:1.25}.pr-inspector{padding:12px}.pr-text-preview,.pr-saved-text{font-size:16px;line-height:1.6}.pr-item-heading{margin-bottom:8px}.pr-controls{padding-bottom:10px;margin-bottom:10px}.pr-item-actions{gap:4px 14px}.pr-related{margin-top:18px}.pr-branch-head h2{font-size:20px}.pr-connection{padding:10px 0}}

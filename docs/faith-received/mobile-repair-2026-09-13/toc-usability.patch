@@ -1,0 +1,64 @@
+--- a/tools/prdl_reader_prototype/reader_shell.html
++++ b/tools/prdl_reader_prototype/reader_shell.html
+@@ -2263,7 +2263,7 @@
+ </script>
+ <div class="app no-facs nosb" id="app">
+   <aside class="sidebar">
+-    <div class="work"><div class="wt" id="wt">…</div><div class="wmeta" id="wmeta"></div><span class="Z3988" id="coins" title="" aria-hidden="true"></span></div>
++    <div class="work"><div class="wt" id="wt">…</div><div class="wmeta" id="wmeta"></div><span class="Z3988" id="coins" title="" aria-hidden="true"></span><button type="button" class="rc-contents-close" id="contentsClose" aria-label="Close contents" title="Close contents"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+     <div id="reader-source-view" hidden></div>
+     <nav class="nav" id="nav"></nav>
+   </aside>
+@@ -6241,16 +6241,24 @@
+ $("#m-en").onclick=()=>{LN.en=!LN.en;if(!LN.en&&!LN.la)LN.la=true;applyLanes();};
+ $("#m-par").onclick=()=>{LN.la=!LN.la;if(!LN.en&&!LN.la)LN.en=true;applyLanes();};
+ $("#m-study")&&($("#m-study").onclick=()=>{LN.fx=!LN.fx;applyLanes();});
+-$("#sbT").onclick=()=>app.classList.toggle("nosb");   // collapse / show the left contents sidebar
++function setContentsOpen(open,restoreFocus=false){
++  const sidebar=document.querySelector('.sidebar'),focused=document.activeElement;
++  app.classList.toggle('nosb',!open);
++  if(!open&&sidebar?.contains(focused))focused.blur();
++  window.__frThumbSync?.();
++  if(!open&&restoreFocus){const target=document.documentElement.classList.contains('g-mobile')?document.querySelector('.frthumb [data-t="toc"]'):$('#sbT');target?.focus({preventScroll:true});}
++}
++$("#sbT").onclick=()=>setContentsOpen(app.classList.contains('nosb'),true);
++$("#contentsClose").onclick=()=>setContentsOpen(false,true);
+ // mobile: scrim behind the open sidebar + tap-to-dismiss; nav taps auto-close the sheet
+ (function(){const sc=document.createElement("div");sc.id="sbScrim";app.appendChild(sc);
+-  sc.onclick=()=>{app.classList.add("nosb");window.__frThumbSync&&window.__frThumbSync();};
++  sc.onclick=()=>setContentsOpen(false);
+   $("#nav").addEventListener("click",e=>{
+     // Folding a branch changes the outline, not the reading location. A row's
+     // data-page also surrounds its disclosure button, so never use it alone.
+     if(e.target.closest("button.cv,summary,.nav-sech,.fmnav,input"))return;
+     if(matchMedia("(max-width:880px)").matches&&e.target.closest("a[href],.fol[data-page]")){
+-      app.classList.add("nosb");window.__frThumbSync&&window.__frThumbSync();
++      setContentsOpen(false);
+     }
+   });})();
+ /* MOBILE SHELL (ported from Patrologia Graeca, 2026-07-04) — the phone reading model:
+@@ -6288,7 +6296,7 @@
+   B.study.onclick=()=>{LN.fx=!LN.fx;applyLanes();};                   // "Scan" = toggle the facsimile
+   B.find.onclick=()=>{if(window.__frOpenSearch)window.__frOpenSearch();};
+   if(B.ask)B.ask.onclick=()=>{if(window.__openAsk)window.__openAsk("");};
+-  B.toc.onclick=()=>{app.classList.toggle("nosb");window.__frThumbSync&&window.__frThumbSync();};
++  B.toc.onclick=()=>setContentsOpen(app.classList.contains("nosb"),true);
+   B.nb.onclick=()=>{if(window.__frOpenNotebook)window.__frOpenNotebook();};
+   // chrome auto-hide while reading down (phones): accumulate same-direction travel so tiny
+   // jitters don't flap it; near the top it is always shown. A tap on the prose toggles it
+--- a/tools/prdl_reader_prototype/reader-contents.css
++++ b/tools/prdl_reader_prototype/reader-contents.css
+@@ -22,3 +22,13 @@
+  html.g-mobile .rc-contents-actions{gap:0 12px;margin-top:0}
+  html.g-mobile .rc-contents-count{margin-block:0 2px}
+ }
++
++.rc-contents-close{display:none}
++@media(max-width:880px){
++ html.g-mobile .sidebar .work{position:relative;padding-right:60px;min-height:56px}
++ html.g-mobile .rc-contents-close{display:flex;align-items:center;justify-content:center;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:44px;height:44px;padding:10px;border:0;border-radius:5px;color:var(--fg);background:none;cursor:pointer}
++ html.g-mobile .rc-contents-close:hover,html.g-mobile .rc-contents-close:active{background:var(--hl,var(--highlight))}
++ html.g-mobile .rc-contents-close:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
++ html.g-mobile #nav .nav-node .nav-open{flex:1;min-width:0;text-align:left;overflow-wrap:break-word}
++ html.g-mobile #nav .nav-node{scroll-margin-top:calc(var(--rc-tabs-height,48px) + 140px);scroll-margin-bottom:12px}
++}

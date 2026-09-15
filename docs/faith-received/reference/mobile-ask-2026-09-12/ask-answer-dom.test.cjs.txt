@@ -1,0 +1,109 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/ask-workspace.js','utf8');
+
+// A deliberately small DOM fixture for the balanced HTML produced by markdown(). It implements
+// the mutation and node-identity contracts used by reconciliation, without a browser or network.
+class Node{
+  constructor(nodeType,nodeName,data=''){this.nodeType=nodeType;this.nodeName=nodeName;this.childNodes=[];this.parentNode=null;this._data=data;this.appendWrites=0;this.dataWrites=0;this._attributes=new Map();}
+  get firstChild(){return this.childNodes[0]||null;}
+  get nextSibling(){if(!this.parentNode)return null;return this.parentNode.childNodes[this.parentNode.childNodes.indexOf(this)+1]||null;}
+  get data(){return this._data;}
+  set data(value){this._data=value;this.dataWrites++;}
+  appendData(value){this._data+=value;this.appendWrites++;}
+  get attributes(){return [...this._attributes].map(([name,value])=>({name,value}));}
+  hasAttribute(name){return this._attributes.has(name);}
+  getAttribute(name){return this._attributes.get(name)??null;}
+  setAttribute(name,value){this._attributes.set(name,String(value));}
+  removeAttribute(name){this._attributes.delete(name);}
+  appendChild(node){node.remove();node.parentNode=this;this.childNodes.push(node);return node;}
+  replaceChild(fresh,old){fresh.remove();const index=this.childNodes.indexOf(old);assert.ok(index>=0);this.childNodes[index]=fresh;fresh.parentNode=this;old.parentNode=null;return old;}
+  remove(){if(this.parentNode){this.parentNode.childNodes.splice(this.parentNode.childNodes.indexOf(this),1);this.parentNode=null;}}
+  isEqualNode(other){return !!other&&this.nodeType===other.nodeType&&this.nodeName===other.nodeName&&this.data===other.data&&this._attributes.size===other._attributes.size&&this.attributes.every(a=>other.getAttribute(a.name)===a.value)&&this.childNodes.length===other.childNodes.length&&this.childNodes.every((child,i)=>child.isEqualNode(other.childNodes[i]));}
+  get textContent(){return this.nodeType===3?this.data:this.childNodes.map(node=>node.textContent).join('');}
+}
+const decode=value=>value.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos|#39);/gi,(_,entity)=>entity[0]==='#'?String.fromCodePoint(entity[1].toLowerCase()==='x'?parseInt(entity.slice(2),16):Number(entity.slice(1))):({amp:'&',lt:'<',gt:'>',quot:'"',apos:"'"})[entity.toLowerCase()]);
+function parse(html){
+  const root=new Node(11,'#document-fragment'),stack=[root],tokens=html.match(/<!--[\s\S]*?-->|<[^>]+>|[^<]+/g)||[];
+  for(const token of tokens){
+    if(token.startsWith('<!--')){stack.at(-1).appendChild(new Node(8,'#comment',token.slice(4,-3)));continue;}
+    if(token.startsWith('</')){const name=token.slice(2,-1).trim().toUpperCase();assert.equal(stack.at(-1).nodeName,name,'Fixture expects balanced renderer HTML');stack.pop();continue;}
+    if(token.startsWith('<')){
+      const match=/^<([\w-]+)([\s\S]*?)\/?\s*>$/.exec(token);assert.ok(match,token);const node=new Node(1,match[1].toUpperCase());
+      for(const attr of match[2].matchAll(/([\w:-]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g))node.setAttribute(attr[1],decode(attr[2]??attr[3]??attr[4]??''));
+      stack.at(-1).appendChild(node);if(!/^(BR|HR|IMG|INPUT|META|LINK|WBR)$/.test(node.nodeName)&&!token.endsWith('/>'))stack.push(node);
+    }else stack.at(-1).appendChild(new Node(3,'#text',decode(token)));
+  }
+  assert.equal(stack.length,1);return root;
+}
+function all(root,name){return root.childNodes.flatMap(node=>[...(node.nodeName===name?[node]:[]),...all(node,name)]);}
+function fixture(){
+  const window={};window.parent=window;
+  const document={readyState:'loading',addEventListener(){},createElement(name){assert.equal(name,'template');return {set innerHTML(html){this.content=parse(html);}};}};
+  const context=vm.createContext({window,document,FRChatStore:{},URL,matchMedia:()=>({matches:false,addEventListener(){}}),location:{origin:'https://reader.test'}});
+  vm.runInContext(source,context);
+  vm.runInContext(source.slice(source.indexOf('  function reconcileAnswer('),source.indexOf('  function renderThread(')),context);
+  const answer=new Node(1,'DIV');
+  return {answer,markdown:window.FRAsk.markdown,update(html){context.updateAnswer(answer,html);assert.ok(answer.isEqualNode(Object.assign(parse(html),{nodeType:1,nodeName:'DIV'})),'Reconciled tree must match fresh renderer output');},render(text,sources=[]){this.update(this.markdown(text,sources));}};
+}
+
+test('growing answers retain completed paragraphs and clickable citation node identity',()=>{
+  const h=fixture(),sources=[{slug:'work',page:'52:0183A'}];h.render('A complete claim [work/p52:0183A].\n\nA growing',sources);
+  const paragraph=h.answer.firstChild,citation=all(h.answer,'A')[0],growing=h.answer.childNodes[1],text=growing.firstChild;
+  citation.savedListener=()=>true;
+  h.render('A complete claim [work/p52:0183A].\n\nA growing explanation.\n\nA final paragraph.',sources);
+  assert.equal(h.answer.firstChild,paragraph);assert.equal(all(h.answer,'A')[0],citation);assert.equal(citation.savedListener(),true);
+  assert.equal(h.answer.childNodes[1],growing);assert.equal(growing.firstChild,text);assert.equal(text.textContent,'A growing explanation.');
+});
+
+test('prefix text growth appends data to the existing text node',()=>{
+  const h=fixture();h.update('<p>Grace</p>');const text=h.answer.firstChild.firstChild;
+  h.update('<p>Grace and faith</p>');assert.equal(h.answer.firstChild.firstChild,text);assert.equal(text.appendWrites,1);assert.equal(text.dataWrites,0);
+});
+
+test('corrected, shortened, and multilingual text updates retain the text node',()=>{
+  const h=fixture();h.update('<p>Original claim about grace</p>');const text=h.answer.firstChild.firstChild;
+  h.update('<p>χάρις &amp; gratia</p>');h.update('<p>χάρις</p>');assert.equal(h.answer.firstChild.firstChild,text);assert.equal(text.data,'χάρις');assert.equal(text.dataWrites,2);
+});
+
+test('attribute changes keep the citation while removing obsolete attributes',()=>{
+  const h=fixture();h.update('<p><a class="old" title="Old title" target="_blank" rel="noopener" href="/read?w=old#b1-0">Old source</a></p>');
+  const citation=all(h.answer,'A')[0];h.update('<p><a class="fra-cite" href="/read?w=new#b52%3A0183A-0">New source</a></p>');
+  assert.equal(all(h.answer,'A')[0],citation);assert.equal(citation.getAttribute('class'),'fra-cite');assert.equal(citation.getAttribute('href'),'/read?w=new#b52%3A0183A-0');
+  for(const attr of ['title','target','rel'])assert.equal(citation.hasAttribute(attr),false);
+});
+
+test('obsolete trailing elements, text, and comments are removed without replacing the retained prefix',()=>{
+  const h=fixture();h.update('<p>Retained</p><p>Removed</p>trailing<!-- old -->');const first=h.answer.firstChild,removed=h.answer.childNodes.slice(1);
+  h.update('<p>Retained</p>');assert.equal(h.answer.firstChild,first);assert.equal(h.answer.childNodes.length,1);assert.ok(removed.every(node=>node.parentNode===null));
+  h.update('');assert.equal(h.answer.childNodes.length,0);assert.equal(first.parentNode,null);
+});
+
+test('streamed Markdown emphasis changes structure without replacing a completed prefix',()=>{
+  const h=fixture();h.render('Completed [work/p4].\n\nA **strong');const prefix=h.answer.firstChild,citation=all(prefix,'A')[0],changing=h.answer.childNodes[1];
+  h.render('Completed [work/p4].\n\nA **strong claim** followed by ordinary text.');
+  assert.equal(h.answer.firstChild,prefix);assert.equal(all(prefix,'A')[0],citation);assert.equal(h.answer.childNodes[1],changing);assert.equal(all(changing,'STRONG')[0].textContent,'strong claim');
+});
+
+test('paragraph-to-list replacement preserves its unchanged following paragraph',()=>{
+  const h=fixture();h.update('<p>Pending structure</p><p>Retained following text</p>');const replaced=h.answer.firstChild,following=h.answer.childNodes[1];
+  h.update('<ul><li>First item</li><li>Second item</li></ul><p>Retained following text</p>');
+  assert.equal(replaced.parentNode,null);assert.equal(h.answer.childNodes[1],following);assert.equal(h.answer.firstChild.nodeName,'UL');
+});
+
+test('growing Markdown tables preserve existing cells and their citations',()=>{
+  const h=fixture(),begin='| Source | Reading |\n| --- | --- |\n| [work/p4] | Grace |';h.render(begin);
+  const table=all(h.answer,'TABLE')[0],cell=all(h.answer,'TD')[0],citation=all(h.answer,'A')[0];
+  h.render(begin+'\n| [other/p5] | Faith |');assert.equal(all(h.answer,'TABLE')[0],table);assert.equal(all(h.answer,'TD')[0],cell);assert.equal(all(h.answer,'A')[0],citation);assert.equal(all(h.answer,'TR').length,3);
+});
+
+test('a newly resolved named citation can replace literal text while retaining its paragraph',()=>{
+  const h=fixture();h.render('A claim [Named source].');const paragraph=h.answer.firstChild;
+  h.render('A claim [Named source].',[{cit:'Named source',slug:'work',page:'52:0183A'}]);
+  assert.equal(h.answer.firstChild,paragraph);assert.equal(all(paragraph,'A').length,1);assert.ok(all(paragraph,'A')[0].getAttribute('href').includes('#b52%3A0183A-0'));
+});
+
+test('replaying identical HTML leaves every node unchanged',()=>{
+  const h=fixture(),html='<h3>A heading</h3><blockquote><p>Text <a href="/read?w=work#b1-0">source</a>.</p></blockquote>';h.update(html);
+  const flatten=root=>[root,...root.childNodes.flatMap(flatten)],before=flatten(h.answer);h.update(html);const after=flatten(h.answer);
+  assert.equal(before.length,after.length);before.forEach((node,i)=>assert.equal(after[i],node));
+});

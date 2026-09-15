@@ -1,0 +1,32 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const ctx={module:{exports:{}},URL,URLSearchParams};vm.runInNewContext(fs.readFileSync(__dirname+'/connection-evidence.js','utf8'),ctx);const E=ctx.module.exports,plain=x=>JSON.parse(JSON.stringify(x));
+test('view identities separate sources, reception, work scopes and actual directed paths',()=>{
+ const out=E.journeyViewKey(['jansen'],'out');assert.notEqual(out,E.journeyViewKey(['jansen'],'in'));assert.notEqual(out,E.journeyViewKey(['jansen'],'out','volume-1'));assert.notEqual(E.journeyViewKey(['a','b'],'either','','',['a|b']),E.journeyViewKey(['a','b'],'either','','',['b|a']));
+});
+test('a citation view preserves filters, page position, closed folds and safe previews',()=>{
+ const state={scope:['jansen','augustine'],filters:{work:'book',kind:'quotes',query:'grace',target:'held'},workPage:2,recordPages:{book:19},openFolds:[],filterOpen:true,previews:['/read?w=book#b52%3A0183A-0','javascript:bad']};
+ const restored=E.citationViewState(state,state.scope);assert.equal(restored.workPage,2);assert.equal(restored.recordPages.book,19);assert.equal(restored.filters.query,'grace');assert.deepEqual(plain(restored.openFolds),[]);assert.equal(restored.previews.length,1);assert.equal(state.previews.length,2);
+});
+test('state from another directed citation cannot filter a new connection',()=>{
+ const state=E.citationViewState({scope:['a','b'],workPage:9,recordPages:{book:30},filters:{work:'book',query:'grace'}},['b','a']);assert.equal(state.workPage,0);assert.equal(state.filters.work,'');assert.deepEqual(plain(state.recordPages),{});
+});
+test('invalid page positions clamp and the rebuilt shell parses',()=>{
+ const s=E.citationViewState({scope:['a','b'],workPage:-1,recordPages:{x:-3,y:'4.9'}},['a','b']);assert.equal(s.workPage,0);assert.equal(s.recordPages.x,0);assert.equal(s.recordPages.y,4);
+ const html=fs.readFileSync(__dirname+'/web_shell.html','utf8');for(const m of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))if(m[1].trim())new vm.Script(m[1]);
+});
+test('leaving a journey snapshots it, aborts stale listeners and bounds retained views',()=>{
+ const html=fs.readFileSync(__dirname+'/web_shell.html','utf8'),a=html.indexOf('function stashJourney()'),b=html.indexOf('function journeyURL',a),box={journeyViews:new Map(),activeJourney:null};vm.createContext(box);vm.runInContext(html.slice(a,b),box);
+ let stopped=0;for(let i=0;i<20;i++){box.activeJourney={key:String(i),capture:()=>({query:String(i)}),stop:()=>stopped++};box.stashJourney();assert.equal(box.activeJourney,null);}assert.equal(stopped,20);assert.equal(box.journeyViews.size,12);assert.equal(box.journeyViews.get('19').query,'19');assert.equal(box.journeyViews.has('0'),false);
+});
+test('directed route keys survive URL round trips that omit redundant edge directions',()=>{assert.equal(E.journeyViewKey(['a','b'],'out','','',['a|b']),E.journeyViewKey(['a','b'],'out'));assert.equal(E.journeyViewKey(['a','b'],'in','','',['b|a']),E.journeyViewKey(['a','b'],'in'));});
+test('returning to a multi-step path reopens the actual evidence steps in citation direction',()=>{const steps=[{key:'b|a',citing:{a:'B'},target:{a:'A'}},{key:'c|b',citing:{a:'C'},target:{a:'B'}}],html=E.journeyStepFolds(steps,['b|a']);assert.match(html,/data-journey-step="0" open/);assert.doesNotMatch(html,/data-journey-step="1" open/);assert.match(html,/B cites A/);assert.match(html,/C cites B/);});
+
+test('a found mixed path and its URL round trip restore the same directed view',async()=>{
+ const html=fs.readFileSync(__dirname+'/web_shell.html','utf8'),start=html.indexOf('async function openJourney('),end=html.indexOf('/* ── doctrine flow',start),lookups=[];
+ const nodes=[{i:0,s:'a',a:'Earlier'},{i:1,s:'b',a:'Later'}];
+ const box={FRConnectionEvidence:E,NODES:nodes,EDGES:[[1,0,4]],BYS:{a:nodes[0],b:nodes[1]},__PSEQ:0,stashJourney(){},journeyViews:{get(key){lookups.push(key);}},AbortController,history:{pushState(){throw Error('stop before DOM');}},journeyURL(){return '/web';}};
+ vm.createContext(box);vm.runInContext(html.slice(start,end),box);
+ await assert.rejects(box.openJourney(['a','b'],'either'),/stop before DOM/);
+ await assert.rejects(box.openJourney(['a','b'],'either',{via:['b|a']}),/stop before DOM/);
+ assert.equal(lookups.length,2);assert.equal(lookups[0],lookups[1]);assert.equal(JSON.parse(lookups[0])[4][0],'b|a');
+});

@@ -1,0 +1,26 @@
+[
+  {
+    "source": "tools/prdl_reader_prototype/web_shell.html",
+    "file": "web_shell.html.txt",
+    "sha256": "527ffc9558f820031afff95a34c6c9a82f3ff2381674643ea0908418f7d24c3d",
+    "bytes": 112463
+  },
+  {
+    "source": "tools/prdl_reader_prototype/connection-evidence.js",
+    "file": "connection-evidence.js.txt",
+    "sha256": "358a0ca38a6ccb692c868fce55401af2ab4ea09cd430f32d90a2a80e7f498c7d",
+    "bytes": 44995
+  },
+  {
+    "source": "tools/prdl_reader_prototype/constellations.css",
+    "file": "constellations.css.txt",
+    "sha256": "bbbffc1d846b9e8bcc3e37e529f881de181b37e5ee3fabf8838852521a0bb25b",
+    "bytes": 31408
+  },
+  {
+    "source": "tools/prdl_reader_prototype/journey-state.test.cjs",
+    "file": "journey-state.test.cjs.txt",
+    "sha256": "e571e79b0fa9e70a02429f255db1db73dfc5cdc91f2b8bdaa5f383c91de9ec82",
+    "bytes": 3486
+  }
+]

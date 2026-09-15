@@ -1,0 +1,11 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const context={module:{exports:{}}};vm.runInNewContext(fs.readFileSync(__dirname+'/migne-navigation.js','utf8'),context);const api=context.module.exports;
+test('a substantive Latin opening chooses the existing Latin witness',()=>{
+ const text='Constantinus Harmenopulus ad medium duodecimum saeculum refertur a multis, et nominatim a Caveo. Hinc ad jurisprudentiam se contulit doctore Simone Attaliata. Eo magistro juvenis ad eam sapientiae famam pervenit. Cum autem doctrina ejus nota erat, qui haec scripsit in urbe fuit.';
+ assert.equal(api.sourceForOpening(text),'la');
+});
+test('Greek text, bare Latin catalogue headings, and English translations do not force Latin',()=>{
+ assert.equal(api.sourceForOpening('Περὶ τῆς θείας γνώσεως καὶ τῆς ἀληθείας. '.repeat(15)),'grc');
+ assert.equal(api.sourceForOpening('CONSTANTINUS HARMENOPULUS. NOTITIA.'),'grc');
+ assert.equal(api.sourceForOpening('This is an English introduction to the author and his writings, with an account of the books and the circumstances of his life. '.repeat(5)),'grc');
+});

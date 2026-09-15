@@ -1,0 +1,21 @@
+import unittest,xml.etree.ElementTree as E
+from pg_enrich_tei import enrich,T,ID
+class EnrichmentTests(unittest.TestCase):
+ def test_words_ids_and_translation_anchors_survive(self):
+  xml=b'<TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader/><text><body><div><pb n="1467" xml:id="opening"/><milestone unit="column" n="1468" xml:id="column"/><p>Greek body.</p><div type="translation"><p n="1467" corresp="#opening">English one.</p><p>English two.</p></div></div><div type="edition"><p>Alternate Greek.</p></div></body></text></TEI>'
+  after,stats=enrich(xml,'pg-3059');a=E.fromstring(xml);b=E.fromstring(after)
+  self.assertEqual(''.join(a.find('.//'+T('body')).itertext()),''.join(b.find('.//'+T('body')).itertext()));self.assertEqual(stats['status'],'enriched');self.assertEqual(stats['translation_paragraphs_linked'],2)
+  en=b.find('.//'+T('div')+'[@type="translation"]');self.assertIsNone(en[1].get('n'));self.assertEqual(en[0].get('corresp'),'#opening');self.assertTrue(all(p.get(ID) for p in b.iter(T('p'))));self.assertEqual(enrich(after,'pg-3059')[0],after)
+ def test_duplicate_source_ids_are_held_without_renumbering(self):
+  xml=b'<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><p xml:id="x">One.</p><p xml:id="x">Two.</p></body></text></TEI>';out,stats=enrich(xml,'pg-1');self.assertEqual(out,xml);self.assertEqual(stats['status'],'held-duplicate-source-ids')
+ def test_opaque_column_ids_survive(self):
+  xml=b'<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><div><pb n="52:0183A"/><p>Source.</p><div type="translation"><p n="52:0183A">Translation.</p></div></div></body></text></TEI>';out,stats=enrich(xml,'pg-2');r=E.fromstring(out);self.assertEqual(r.find('.//'+T('linkGrp')).get('n'),'52:0183A');self.assertEqual(stats['translation_paragraphs_linked'],1)
+
+class BackfillTests(unittest.TestCase):
+ def test_marked_source_backfill_is_not_lost_inside_an_alternate_witness(self):
+  xml=b'<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><div><pb n="1"/><p>Primary.</p></div><div type="witness"><p>Alternate.</p><pb n="3" resp="#pageview-zone" facs="scan3.jpg"/><milestone unit="column" n="3" resp="#pageview-zone"/><p resp="#pageview-zone">Source addition.</p></div><div type="translation"><p n="3">Translated addition.</p></div></body></text></TEI>'
+  out,stats=enrich(xml,'pg-3');r=E.fromstring(out);self.assertEqual(stats['translation_paragraphs_linked'],1);self.assertEqual(len(list(r.iter(T('p')))),4);self.assertTrue(any(e.get('type')=='supplemental-source' for e in r.iter(T('link'))))
+ def test_new_paragraphs_after_enrichment_receive_identifiers_on_refresh(self):
+  xml=b'<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><div><pb n="1"/><p>Source.</p></div></body></text></TEI>';first,_=enrich(xml,'pg-4');r=E.fromstring(first);E.SubElement(r.find('.//'+T('body')+'/'+T('div')),T('p')).text='Added paragraph.';second,stats=enrich(E.tostring(r),'pg-4');self.assertEqual(stats['status'],'enriched');self.assertTrue(all(p.get(ID) for p in E.fromstring(second).iter(T('p'))));self.assertEqual(enrich(second,'pg-4')[0],second)
+
+if __name__=='__main__':unittest.main()

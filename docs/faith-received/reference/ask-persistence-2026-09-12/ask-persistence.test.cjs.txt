@@ -1,0 +1,19 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+function harness(){const window={};window.parent=window;const ctx=vm.createContext({window,FRChatStore:{},URL,URLSearchParams,matchMedia:()=>({matches:false,addEventListener(){}}),location:{origin:'https://thefaithreceived.vercel.app',hostname:'thefaithreceived.vercel.app'},document:{readyState:'loading',addEventListener(){}}});vm.runInContext(fs.readFileSync(__dirname+'/ask-workspace.js','utf8'),ctx);return window.FRAsk;}
+test('registered citations open a new tab and preserve the original Ask page',()=>{
+ const api=harness(),html=api.markdown('[work/p4]',[{slug:'work',page:4}]);assert.match(html,/target="_blank"/);assert.match(html,/rel="noopener noreferrer"/);
+});
+test('source cards retain an explicit in-place reading option',()=>{
+ const api=harness(),html=api.sourceCard({slug:'work',page:4,title:'Work'});assert.match(html,/target="_blank"/);assert.match(html,/data-preview-source/);assert.match(html,/Read here/);
+});
+test('source return links preserve exact locators and never leak conversation IDs off-origin',()=>{
+ const api=harness();let url=new URL(api.sourceVisitURL('/read?w=work#b52%3A0183A-0','chat-1'));
+ assert.equal(url.searchParams.get('ask_chat'),'chat-1');assert.equal(url.hash,'#b52%3A0183A-0');
+ assert.equal(api.sourceVisitURL('https://outside.invalid/read?w=work','chat-1'),'https://outside.invalid/read?w=work');
+});
+test('modified clicks on a legacy source link keep native browser behavior',async()=>{
+ const window={};window.parent=window;const ctx=vm.createContext({window,FRChatStore:{},URL,URLSearchParams,matchMedia:()=>({matches:false,addEventListener(){}}),location:{origin:'https://thefaithreceived.vercel.app'},document:{readyState:'loading',addEventListener(){}}});
+ const code=fs.readFileSync(__dirname+'/ask-workspace.js','utf8').replace("  if(document.readyState==='loading')","  window.clickTest=handleClick;\n  if(document.readyState==='loading')");vm.runInContext(code,ctx);
+ const link={target:'',href:'https://thefaithreceived.vercel.app/read?w=work#b4-0',hasAttribute:()=>false,closest:s=>s==='a'?link:null};
+ for(const flags of [{ctrlKey:true},{metaKey:true},{shiftKey:true},{button:1}]){let prevented=false;await window.clickTest({target:link,...flags,preventDefault(){prevented=true;}});assert.equal(prevented,false);}
+});

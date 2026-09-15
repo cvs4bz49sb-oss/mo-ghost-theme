@@ -1,0 +1,31 @@
+/* One direct route to each research surface, without intercepting link navigation. */
+(function(){
+ function bind(){
+  if(window.parent!==window||document.querySelector('.fr-explore'))return;
+  const header=document.querySelector('.top,.ph,.topbar,header');if(!header)return;
+  // QUICK LINKS (owner 2026-09-10 "add authors, scripture, topics to the header"): the three research doors sit
+  // in the header itself on pages whose header lacks them (library, reader, desk, notebook, search); the
+  // research pages already carry their own nav.
+  const has=path=>[...header.querySelectorAll('a[href]')].some(a=>{try{return new URL(a.href).pathname.replace(/\.html$/,'')===path;}catch(_){return false;}});
+  // a header that carries its own mode nav (anchor links with data-m — the
+  // constellations page) already gives the reader its doors: adding the
+  // quick trio there doubles Topics/Scripture in the same bar.
+  if(!header.querySelector('a[data-m]')&&!(has('/authors')&&has('/bible')&&has('/topics'))){const quick=document.createElement('nav');quick.className='fr-quick';quick.setAttribute('aria-label','Research');
+    quick.innerHTML=[['/authors','Authors'],['/bible','Scripture'],['/topics','Topics']].map(([h,t])=>`<a href="${h}"${location.pathname.replace(/\.html$/,'')===h?' aria-current="page"':''}>${t}</a>`).join('');header.appendChild(quick);}
+  const menu=document.createElement('details');menu.className='fr-explore';
+  menu.innerHTML='<summary aria-label="Explore the library">Explore</summary><nav aria-label="Library sections"><a href="/">Library</a><a href="/authors">Authors<small>Find an author’s works</small></a><a href="/bible">Scripture<small>Find biblical commentary</small></a><a href="/topics">Topics<small>Explore theological subjects</small></a><a href="/compare">Compare authors</a><a href="/web">Constellations</a><a href="/pins">Notebooks</a><a href="/desk">Writing desk</a><a href="/ask?view=history">Saved questions<small>Return to Ask conversations</small></a></nav>';
+  header.appendChild(menu);
+  const questionId=new URLSearchParams(location.search).get('ask_chat');
+  if(questionId&&/^[A-Za-z0-9_.:-]{1,180}$/.test(questionId)&&/^\/read(?:[/.]|$)/.test(location.pathname)){
+   const askPath='/ask'+(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'.html':'')+'?chat='+encodeURIComponent(questionId);
+   const restoreLink=()=>{const a=header.querySelector('[data-question-return],a[aria-label="Back to the library"],a[aria-label="Back to library"],a[href="/"]');if(a&&a.getAttribute('href')!==askPath){a.dataset.questionReturn='';a.href=askPath;a.textContent='← Question';a.setAttribute('aria-label','Return to saved question');a.title='Return to your saved Ask conversation';}};
+   restoreLink();new MutationObserver(restoreLink).observe(header,{childList:true,subtree:true,attributes:true,attributeFilter:['href']});
+   const a=document.createElement('a');a.href=askPath;a.textContent='Return to saved question';menu.querySelector('nav').prepend(a);
+  }
+
+  menu.querySelectorAll('a').forEach(link=>{if(new URL(link.href).pathname===location.pathname)link.setAttribute('aria-current','page');link.addEventListener('click',()=>{menu.open=false;});});
+  document.addEventListener('pointerdown',event=>{if(menu.open&&!menu.contains(event.target))menu.open=false;});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu.open){event.preventDefault();menu.open=false;menu.querySelector('summary').focus();}});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
+})();

@@ -1,0 +1,6 @@
+import {list} from '@vercel/blob';
+import {writeFile} from 'node:fs/promises';
+const prefixes=['tei/pg/','tei/pgpv/','v1/pgtoc/','v1/pgvtx/','v1/pgzone/','v1/pgen/','v1/pggap/','v1/pgvol/','v1/pgauthors.json'];
+const files=new Map();
+for(const prefix of prefixes){let cursor;do{const page=await list({prefix,limit:1000,...cursor?{cursor}:{}});for(const file of page.blobs)files.set(file.pathname,{path:file.pathname,url:file.url,size:file.size,uploadedAt:file.uploadedAt});cursor=page.hasMore?page.cursor:undefined;}while(cursor);}
+const rows=[...files.values()].sort((a,b)=>a.path.localeCompare(b.path));await writeFile(process.argv[2],JSON.stringify(rows,null,2)+'\n');console.log(JSON.stringify({files:rows.length,bytes:rows.reduce((a,b)=>a+b.size,0),prefixes:Object.fromEntries(prefixes.map(p=>[p,rows.filter(r=>r.path.startsWith(p)).length]))}));

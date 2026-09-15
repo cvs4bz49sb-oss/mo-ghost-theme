@@ -1,0 +1,214 @@
+--- a/tools/prdl_reader_prototype/reader_shell.html
++++ b/tools/prdl_reader_prototype/reader_shell.html
+@@ -2227,6 +2227,7 @@
+ <script defer src="/work-research.js?v=__TOOLS_V__"></script>
+ <script defer src="/reader-bookmarks.js?v=__TOOLS_V__"></script>
+ <script src="/migne-navigation.js?v=__TOOLS_V__"></script>
++<script src="/pg-parallel.js?v=__TOOLS_V__"></script>
+ <script src="/pld-reading.js?v=__TOOLS_V__"></script>
+ <script src="/reader-navigation.js?v=__TOOLS_V__"></script>
+ <script src="/reader-source-outline.js?v=__TOOLS_V__"></script>
+@@ -2254,7 +2255,7 @@
+   window.__frEarly={ws:ws,titles:j(B+"/v1/titles_en.json"+V)};
+   var cm=ws&&ws.match(/^(pld|pg|po)-(\d+)$/);
+   var eb=ws&&ws.match(/^eebo-(\d+)$/);   // canon family: never probe the per-work store
+-  if(cm){window.__frEarly.canon=fetch(B+"/tei/"+cm[1]+"/"+cm[2]+".xml").then(function(r){if(!r.ok)throw 0;return r.text();});
++  if(cm){window.__frEarly.canon=fetch(B+"/tei/"+cm[1]+"/"+cm[2]+".xml"+V).then(function(r){if(!r.ok)throw 0;return r.text();});
+     window.__frEarly.canon.catch(function(){});
+     window.__frEarly.auEn=j(B+"/v1/authors_en.json"+V);window.__frEarly.auEn.catch(function(){});}
+   else if(eb){window.__frEarly.canonEebo=fetch(B+"/eebo/"+eb[1]+".json.gz").then(function(r){if(!r.ok)throw 0;return r;});
+@@ -3702,7 +3703,8 @@
+ // Real reading movement wins over arrival targets and late hydration corrections.
+ (function(){const cancel=e=>{const sc=document.getElementById('scroll');if(!sc?.contains(e.target))return;cancelReaderNavigation();};
+   document.addEventListener('wheel',cancel,{capture:true,passive:true});document.addEventListener('touchmove',cancel,{capture:true,passive:true});
+-  document.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End'].includes(e.key)&&!e.target.closest('input,textarea,select,[contenteditable]'))cancel(e);},true);
++  document.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End'].includes(e.key)&&!e.target.closest('input,textarea,select,[contenteditable]')){if(e.target===document.body||e.target===document.documentElement)cancelReaderNavigation();else cancel(e);}},true);
++  document.getElementById('scroll')?.addEventListener('pointerdown',e=>{if(e.target===e.currentTarget)cancelReaderNavigation();},{passive:true});
+ })();
+ // Citation and research anchors may resolve to a merged Flow row spanning several pages. Start
+ // a row that is taller than the available reading viewport so its cited opening is visible;
+@@ -3810,6 +3812,7 @@
+   if(DATA?.pld_source_view?.combined&&DATA.pld_source_view.hasColumns===false)return 'Section '+n;
+   if(DATA?.pld_source_view?.notes)return DATA.pld_source_view.columnNotes?'Editorial notes, col. '+n:'Notes, section '+n;
+   const corrected=window.FRReaderNavigation?.locator(DATA,n);if(corrected)return corrected;
++  const pgPlace=window.FRPgParallel?.location(DATA,n);if(pgPlace)return pgPlace;
+   if(/^P[LG]\s*\d/i.test(DATA?.volume||""))return "col. "+n;
+   if(DATA&&DATA.has_pages)return "p. "+n;
+   // born-digital: prefer the export-time deep locator (page.loc, body-mined + carried forward),
+@@ -5541,6 +5544,7 @@
+     for(const cur of secs){
+       if(!prev){prev=cur;continue;}
+       if(prev.querySelector(".pld-editorial")||cur.querySelector(".pld-editorial")){prev=cur;continue;}
++      if(DATA.pg_source==="grcla"){prev=cur;continue;}   // preserve aligned source-opening boundaries and their citation IDs
+       if(cur.classList.contains("frontmatter")!==prev.classList.contains("frontmatter")){prev=cur;continue;}
+       const kidsP=[...prev.children].filter(x=>!x.classList.contains("apptog")&&!x.classList.contains("rapp"));
+       const kidsC=[...cur.children].filter(x=>!x.classList.contains("ixchip"));
+@@ -5567,6 +5571,7 @@
+     for(const cur of R.querySelectorAll(".folio")){
+       if(!prev){prev=cur;continue;}
+       if(prev.querySelector(".pld-editorial")||cur.querySelector(".pld-editorial")){prev=cur;continue;}
++      if(DATA.pg_source==="grcla"){prev=cur;continue;}   // preserve aligned source-opening boundaries and their citation IDs
+       const pk=[...prev.children].filter(x=>!x.classList.contains("apptog")&&!x.classList.contains("rapp"));
+       const pr=pk[pk.length-1],cr=[...cur.children].find(x=>!x.classList.contains("ixchip"));
+       if(pr&&cr&&pr.classList.contains("row")&&pr.classList.contains("tail")
+@@ -6209,7 +6214,21 @@
+     nav.querySelectorAll(".nav-node,.fol").forEach(f=>{const fp=String(f.dataset.page);if(outline){if(f.classList.contains("nd-hidden"))return;if(Number.isFinite(Number(fp))&&Number(fp)<=Number(pg.n)&&(!active||Number(fp)>Number(active.dataset.page)))active=f;}else if(fp===String(pg.n))active=f;});
+     nav.querySelectorAll(".nav-node,.fol").forEach(f=>f.classList.toggle("on",f===active));
+   }}}
+-$("#scroll").addEventListener("scroll",()=>{const s=$("#scroll");$("#prog").style.width=(s.scrollTop/(s.scrollHeight-s.clientHeight)*100)+"%";
++// Keep a shareable address for deliberate reading movement. Initial deep-link
++// settling and background reflow must never replace the requested destination.
++let frReadingURLTimer=0;
++function frScheduleReadingURL(){
++  if(frReadingURLTimer)return;
++  frReadingURLTimer=setTimeout(()=>{frReadingURLTimer=0;
++    if(!DATA||!window.__frUserScrolled||window.__readerChoice||window.__readerPendingPosition||window.__readerNavigationSuspended)return;
++    try{
++      const api=window.FRReaderBookmarks;if(!api)return;
++      const url=api.locationURL(location.href,api.capture());
++      if(url&&url!==location.href)history.replaceState(history.state,'',url);
++    }catch(_){/* A temporarily unrendered passage keeps its last known link. */}
++  },400);
++}
++$("#scroll").addEventListener("scroll",()=>{const s=$("#scroll");$("#prog").style.width=(s.scrollTop/(s.scrollHeight-s.clientHeight)*100)+"%";frScheduleReadingURL();
+   if(!_tick){_tick=true;requestAnimationFrame(()=>{pickFolio();_tick=false;});}},{passive:true});
+ // Read · Parallel · Study. Read = English-primary single column; Parallel = EN∥LA (rows are
+ // locus-paired, so the columns stay in sync inherently); Study = Parallel + the source scan.
+@@ -7425,12 +7444,12 @@
+ async function pgZoneSidecar(id){
+   window.__pgzCache=window.__pgzCache||{};
+   if(!(id in window.__pgzCache)){
+-    window.__pgzCache[id]=fetch(BLOB+"/v1/pgzone/"+id+".json").then(r=>r.ok?r.json():null).catch(()=>null);
++    window.__pgzCache[id]=fetch(BLOB+"/v1/pgzone/"+id+".json?v="+encodeURIComponent(window.__FR_VER||"pg-source-20260914")).then(r=>r.ok?r.json():null).catch(()=>null);
+   }
+   return window.__pgzCache[id];
+ }
+ async function loadPgCanon(ws){
+-  const id=ws.slice(3);
++  const id=ws.slice(3),pgVersion="?v="+encodeURIComponent(window.__FR_VER||"pg-source-20260914");
+   let _pgZone=null;   // page-keyed ColGreek zones (set when the body is mixed)
+   const _healGrc=s=>String(s)
+     .replace(/([\u0370-\u03FF\u1F00-\u1FFF])-\s?(?=[\u0370-\u03FF\u1F00-\u1FFF])/g,"$1")
+@@ -7439,24 +7458,24 @@
+   let _zoneReplace=true;   // false = CLEAN body (owner 2026-08-18 pg-3223: dirty vol-34 zones
+                            // were OVERWRITING a 99%-Greek body with Latin+apparatus glue) —
+                            // zones then serve ARBITRATION only (post-walk <0.15 disagreement)
+-  window.__pgAuth=window.__pgAuth||fetch(BLOB+"/v1/pgauthors.json").then(r=>r.ok?r.json():{}).catch(()=>({}));
++  window.__pgAuth=window.__pgAuth||fetch(BLOB+"/v1/pgauthors.json"+pgVersion).then(r=>r.ok?r.json():{}).catch(()=>({}));
+   window.__pgFetchCache=window.__pgFetchCache||{};
+   const _pfc=window.__pgFetchCache[id]=window.__pgFetchCache[id]||{};
+   const _cached=(k,mk)=>(_pfc[k]=_pfc[k]||mk().catch(e=>{delete _pfc[k];throw e;}));
+   const [xml,toc,vtx,pgen,pggap]=await Promise.all([
+-    _cached("xml",()=>((window.__frEarly&&window.__frEarly.canon)?window.__frEarly.canon.catch(()=>fetch(BLOB+"/tei/pg/"+id+".xml").then(r=>{if(!r.ok)throw new Error("canon "+r.status);return r.text();})):fetch(BLOB+"/tei/pg/"+id+".xml").then(r=>{if(!r.ok)throw new Error("canon "+r.status);return r.text();}))),
+-    _cached("toc",()=>fetch(BLOB+"/v1/pgtoc/"+id+".json").then(r=>r.ok?r.json():null).catch(()=>null)),
++    _cached("xml",()=>((window.__frEarly&&window.__frEarly.canon)?window.__frEarly.canon.catch(()=>fetch(BLOB+"/tei/pg/"+id+".xml"+pgVersion).then(r=>{if(!r.ok)throw new Error("canon "+r.status);return r.text();})):fetch(BLOB+"/tei/pg/"+id+".xml"+pgVersion).then(r=>{if(!r.ok)throw new Error("canon "+r.status);return r.text();}))),
++    _cached("toc",()=>fetch(BLOB+"/v1/pgtoc/"+id+".json"+pgVersion).then(r=>r.ok?r.json():null).catch(()=>null)),
+     // the PG site's own cleaned vision transcription, per column (owner 2026-08-17
+     // 'let the reader just copy the page') — staged for mixed works; absent elsewhere
+-    _cached("vtx",()=>fetch(BLOB+"/v1/pgvtx/"+id+".json").then(r=>r.ok?r.json():null).catch(()=>null)),
++    _cached("vtx",()=>fetch(BLOB+"/v1/pgvtx/"+id+".json"+pgVersion).then(r=>r.ok?r.json():null).catch(()=>null)),
+     // EN top-up sidecar (2026-08-17): column-keyed translations for the 28 works the
+     // canon (and the PG site) never carried English for
+-    _cached("pgen",()=>fetch(BLOB+"/v1/pgen/"+id+".json").then(r=>r.ok?r.json():null).catch(()=>null)),
++    _cached("pgen",()=>fetch(BLOB+"/v1/pgen/"+id+".json"+pgVersion).then(r=>r.ok?r.json():null).catch(()=>null)),
+     // BOUNDARY-LOSS sidecar (owner 2026-08-18 'transition between works — one work ending
+     // and another beginning on the same page'): the opening column(s) the canon never
+     // carried, recovered from the volume pageview zones / plate vision (125 works,
+     // pg-105 class — Justin's Apology opened mid-sentence at col 329)
+-    _cached("pggap",()=>fetch(BLOB+"/v1/pggap/"+id+".json").then(r=>r.ok?r.json():null).catch(()=>null))]);
++    _cached("pggap",()=>fetch(BLOB+"/v1/pggap/"+id+".json"+pgVersion).then(r=>r.ok?r.json():null).catch(()=>null))]);
+   // the SITE vtx / gap sidecars are reading surfaces too — heal them like the canon
+   const _healDeep=o=>{if(!o)return o;for(const k in o){const v=o[k];
+     if(typeof v==="string")o[k]=_healGrc(v);
+@@ -7577,6 +7596,7 @@
+     // head block so the aligner can never fuse a division into a paragraph
+     _carveEn(t,enByCol[n]=enByCol[n]||[]);});
+   // page spans (n -> next pb) for span-union of vtx and EN lanes
++  const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=window.FRPgParallel.printedColumns(doc);
+   const _bodyPage={};
+   {let _bp=null;
+    (function bt(node){for(const ch of node.children){
+@@ -7796,7 +7816,8 @@
+       const gl=c.replace(/[^\u0370-\u03FF\u1F00-\u1FFF]/g,"");
+       return c.length>=6&&c.length<=160&&gl.length>=6&&gl===gl.toUpperCase();};
+     let _pairs;
+-    {
++    if(_colLa._aligned){_pairs=_colLa.map((text,i)=>[text,_colEn[i]||" "]);}
++    else {
+       const sE=[[]],hE=[null];
+       _enM.forEach(x=>{if(typeof x==="string"&&x.charCodeAt(0)===1){hE.push(x);sE.push([]);}else sE[sE.length-1].push(x);});
+       const sL=[[]],hL=[null];
+@@ -7906,6 +7927,11 @@
+     // pageview machinery below is Greek-reading-lane authority only (2026-08-18:
+     // it was injecting pageview Greek into the Latin witness on every even column)
+     if(src!=="grc"){_colLa._prune=false;return;}
++    const canonicalOpening=_canonOpenings[String(n)];
++    if(canonicalOpening?.grc&&(window.__pgSpread?.has(n)||Object.keys(canonicalOpening.columns).length===1)){
++      _carveGr(canonicalOpening.grc,_colLa);_colLa._zoned=true;_colLa._prune=false;return;
++    }
++
+     // PAGE-KEYED SOURCE (owner 2026-08-17 'the PG site doesn't have these issues —
+     // everything is keyed by page'): when the volume pageview has this opening's
+     // layout-zoned Greek column, it IS the source text — the mixed vision/OCR body
+@@ -8064,7 +8090,7 @@
+       const pvUrl3=pvW3?((pvW3.textContent.match(/https?:\/\/\S+/)||[])[0]||null):null;
+       if(pvUrl3)try{
+         window.__pgpvCache=window.__pgpvCache||{};
+-        window.__pgpvCache[pvUrl3]=window.__pgpvCache[pvUrl3]||fetch(pvUrl3).then(r=>r.ok?r.text():null).catch(()=>null);
++        window.__pgpvCache[pvUrl3]=window.__pgpvCache[pvUrl3]||fetch(pvUrl3+(pvUrl3.includes("?")?"&":"?")+"v="+encodeURIComponent(window.__FR_VER||"pg-source-20260914")).then(r=>r.ok?r.text():null).catch(()=>null);
+         const pvXml3=await window.__pgpvCache[pvUrl3];
+         if(pvXml3){
+           const pv3=new DOMParser().parseFromString(pvXml3,"application/xml");
+@@ -8075,6 +8101,7 @@
+             if(ch.localName==="div"&&!window.FRMigneNavigation.isReadingDivision(ty3))continue;
+             if(ch.localName==="pb"||(ch.localName==="milestone"&&ch.getAttribute("unit")==="column")){const nn=+ch.getAttribute("n");if(nn)cols3.push(nn);}
+             else if(ch.localName==="div")cw(ch);}})(doc.querySelector("body")||doc.documentElement);
++          cols3.push(...Object.keys(_canonOpenings).map(Number).filter(Boolean));
+           if(!cols3.length)cols3.push(...Object.keys(enByCol).map(Number).filter(Boolean));
+           if(cols3.length){
+             const lo3=Math.min(...cols3)-1,hi3=Math.max(...cols3)+1;
+@@ -8089,6 +8116,9 @@
+               grc:[...sf.querySelectorAll("zone")].filter(z=>(z.getAttribute("type")||"").includes("ColGreek"))
+                 .map(z=>z.textContent.replace(/\s+/g," ").trim()).join(" ").trim()}))
+               .filter(x=>x.n&&(x.lat.length>40||(src==="grcla"&&x.grc.length>40))&&x.n>=lo3&&x.n<=hi3).sort((a,b)=>a.n-b.n);
++            // The source site's vision text is already in the primary TEI columns.
++            // Raw pageview zones are a fallback, never an unconditional replacement.
++            for(const sf of surfs3){const canon=_canonOpenings[String(sf.n)];if(canon?.grc)sf.grc=canon.grcRich||canon.grc;if(canon?.la)sf.lat=canon.laRich||canon.la;}
+             window.__grclaDbg={surfs:surfs3.length,pv:!!pvXml3,cols:cols3.length};
+             if(surfs3.length){
+               _latBuilt=true;
+@@ -8107,16 +8137,19 @@
+                   if(lt===_b4)break;}
+                 lt=lt.replace(/\s[A-E](?=\s+[a-z\u00e6\u0153])/g,"").replace(/\s[A-E](?=\s+[a-z\u00e6\u0153])/g,"");   // Migne margin letters, incl. A B pairs
+                 _colLa=[];_colLa._prune=false;
++                _colEn=[];
++                for(let k3=sf.n;k3<sf.n+2;k3++){if(enByCol[k3]&&enByCol[k3].length){_colEn.push(...enByCol[k3]);(window.__enUsed=window.__enUsed||new Set()).add(k3);}}
+                 if(src==="grcla"){
+-                  // the print's own pairing: Greek authoritative, Migne's Latin beneath it —
+-                  // aligned per paragraph by the same proportional aligner the EN lane uses
+-                  let gt=_healGrc(sf.grc.replace(/^\d+\s+[^\u0370-\u03ff]{0,120}?(?=[\u0370-\u03ff])/,"").replace(/\s+\d+\s*$/,""));
+-                  _alignPair(_paras3(gt),_paras3(lt)).forEach(([g2,l2])=>{
+-                    _colLa.push((g2||"")+(l2?"\u0006"+l2:""));});
++                  const aligned=window.FRPgParallel.alignOpening(_healGrc(sf.grc),lt,_colEn.map(e=>typeof e==="string"&&e.charCodeAt(0)===1?"\u0002"+e.slice(2)+"\u0003":e).join(" "));
++                  // Keep printed headings visible in their own lane, without guessing
++                  // their counterparts. Their opening remains a usable outline target.
++                  const marked=aligned.rows.map(r=>r.en).join(" ");
++                  const heads=[...marked.matchAll(/\u0002([^\u0003]+)\u0003/g)];
++                  const sourceHeads=heads.length?heads:[...sf.grc.matchAll(/\u0002([^\u0003]+)\u0003/g)];
++                  for(const h of sourceHeads){if(!struct.some(x=>x.page===sf.n&&x.title===h[1].slice(0,140)))struct.push({title:h[1].slice(0,140),page:sf.n,depth:2});}
++                  _colLa=aligned.rows.map(r=>r.grc+(r.la?"\u0006"+r.la:""));_colLa._aligned=true;_colEn=aligned.rows.map(r=>r.en);
+                 }else lt.split(/(?<=[.!?])\s+(?=[A-Z\u00c6\u0152]{2,}(?:\s+[A-Z\u00c6\u0152]{2,}\.?)+)/)
+                   .forEach(seg2=>_paras3(seg2).forEach(t2=>_colLa.push(t2)));
+-                _colEn=[];
+-                for(let k3=sf.n;k3<sf.n+2;k3++){if(enByCol[k3]&&enByCol[k3].length){_colEn.push(...enByCol[k3]);(window.__enUsed=window.__enUsed||new Set()).add(k3);}}
+               });
+               flushCol();
+             }
+@@ -8399,6 +8432,7 @@
+   window.__pldCanonDocs={la:laD,en:enD};
+   const _aula=author;author=await _auEn(author);
+   return {slug:ws,title,title_en:title,author:author||author_gr,author_la:_aula&&_aula!==author?_aula:undefined,volume:vol?("PG "+vol):"",
++    pg_columns:_printedColumns,pg_source:src,
+     tradition:"Greek Fathers",has_pages:true,has_tei:true,tei_v:0,en_only:false,
+     n_pages:pages.length,structure:structure,base:null,spine_nav:structure.length>1,
+     pages:pages.map(n=>({n,la:"",en:"",img:facs[n]||null,thumb:facs[n]||null}))};

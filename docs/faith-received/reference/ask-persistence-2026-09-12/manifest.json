@@ -1,0 +1,54 @@
+{
+  "date": "2026-09-12",
+  "kind": "Full Vercel reference source, not installed MereO runtime",
+  "files": [
+    {
+      "source": "tools/ask_workspace/ask-workspace.js",
+      "file": "ask-workspace.js.txt",
+      "bytes": 92149,
+      "sha256": "84c0183f8970603dfc56162f3f006eb513065f06bceaf3eb8df4f30342a6f2ef"
+    },
+    {
+      "source": "tools/ask_workspace/ask-workspace.css",
+      "file": "ask-workspace.css.txt",
+      "bytes": 39213,
+      "sha256": "9243e44b59caed2381129e1f4ea0b15098bef583e44b4557609c3304cf938d65"
+    },
+    {
+      "source": "tools/ask_workspace/ask-store.js",
+      "file": "ask-store.js.txt",
+      "bytes": 2297,
+      "sha256": "e7d3c7adbe5a3ffc8a33e4338522457b2c7f2abf0bbe8a367bc6dd47a57b311d"
+    },
+    {
+      "source": "tools/ask_workspace/ask-persistence.test.cjs",
+      "file": "ask-persistence.test.cjs.txt",
+      "bytes": 2400,
+      "sha256": "f17bf34db7a308ad2333a7e1c5ceeb0ddfb4b1ce3de4c77b575cca57bd9a579b"
+    },
+    {
+      "source": "tools/ask_workspace/ask-source-navigation.test.cjs",
+      "file": "ask-source-navigation.test.cjs.txt",
+      "bytes": 12601,
+      "sha256": "857716e7fe65b5997630266b5804664b3bbd7c77b7761bc28fc2bc6e558ac609"
+    },
+    {
+      "source": "tools/ask_workspace/ask-render.test.cjs",
+      "file": "ask-render.test.cjs.txt",
+      "bytes": 5078,
+      "sha256": "8f774c45d526a52d74b49c0e17a79cc346749a4de16ca60eb8227ac9d185a100"
+    },
+    {
+      "source": "tools/prdl_reader_prototype/site-navigation.js",
+      "file": "site-navigation.js.txt",
+      "bytes": 3604,
+      "sha256": "a2cb4c88a08e2dc32b633d343af86f2e12b1e3126332efe503b8786f63d1f1bf"
+    },
+    {
+      "source": "tools/prdl_reader_prototype/site-navigation.css",
+      "file": "site-navigation.css.txt",
+      "bytes": 2434,
+      "sha256": "2ab4f51e8599fbab86921f3d904267bb08a5ead5e78b9e82dda341cca0a2287b"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "file": "read.html",
+    "local_sha256": "5c69412785d58193725ef359e1f8ef7e975db8bd2e18137f5a8211c012c477e7",
+    "alias_sha256": "5c69412785d58193725ef359e1f8ef7e975db8bd2e18137f5a8211c012c477e7",
+    "match": true
+  },
+  {
+    "file": "reader-core.js",
+    "local_sha256": "c6d04700a6c3d41571a58b4bbbbb1d3e9e7891d9dc1542b2bbb02ce8d1e7fd67",
+    "alias_sha256": "c6d04700a6c3d41571a58b4bbbbb1d3e9e7891d9dc1542b2bbb02ce8d1e7fd67",
+    "match": true
+  },
+  {
+    "file": "reader-contents.js",
+    "local_sha256": "539b0c4ae3fc1299334ea3f5953e0793e6633e1da071d37c30f6f8c0f7f8c758",
+    "alias_sha256": "539b0c4ae3fc1299334ea3f5953e0793e6633e1da071d37c30f6f8c0f7f8c758",
+    "match": true
+  },
+  {
+    "file": "reader-contents.css",
+    "local_sha256": "520235048d2982281912e2bbcba441b5cba97784acc6da84cd01ff04d39f9143",
+    "alias_sha256": "520235048d2982281912e2bbcba441b5cba97784acc6da84cd01ff04d39f9143",
+    "match": true
+  }
+]

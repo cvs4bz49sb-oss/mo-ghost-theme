@@ -1,0 +1,72 @@
+[
+  {
+    "source": "tools/search_page/search.html",
+    "file": "search.html.txt",
+    "sha256": "156b7164dc317931e00004bd363c2beeab8d51106e488e3e7d61ba88c5c734da",
+    "bytes": 186803
+  },
+  {
+    "source": "tools/prdl_reader_prototype/search-tools.js",
+    "file": "search-tools.js.txt",
+    "sha256": "3b2b0ee79c65dd299a4e0d1e128a240bbf73fb0822e615119597538f5ba23341",
+    "bytes": 9586
+  },
+  {
+    "source": "tools/prdl_reader_prototype/search-tools.test.cjs",
+    "file": "search-tools.test.cjs.txt",
+    "sha256": "0754d3cec0ca6ebb1f6608c0e6bc554684b63ca185ded5570907e3d8ac7783c2",
+    "bytes": 8243
+  },
+  {
+    "source": "tools/prdl_reader_prototype/research-tools.js",
+    "file": "research-tools.js.txt",
+    "sha256": "1c9262097855490e3f45ffa6130b1b0aa44673be5aff843912bc06948d72df99",
+    "bytes": 12110
+  },
+  {
+    "source": "tools/prdl_reader_prototype/research-volume-order.test.cjs",
+    "file": "research-volume-order.test.cjs.txt",
+    "sha256": "25b8276e58bb70f075db8382f19293952fd99f9fb4e48923946e4704efbeeb52",
+    "bytes": 4971
+  },
+  {
+    "source": "tools/prdl_reader_prototype/research_shell.html",
+    "file": "research_shell.html.txt",
+    "sha256": "1e25a7c4aa54589d8f0ec3d719b089a3f9005494e24a3f37a30d1fd0d2ac9e3c",
+    "bytes": 301384
+  },
+  {
+    "source": "tools/build_dist.py",
+    "file": "build_dist.py.txt",
+    "sha256": "c25bc2ed2c4d0f2935ceb42f15f05a1781deb626369a2162fbeec1ed21e4af4f",
+    "bytes": 44085
+  },
+  {
+    "source": "tools/prdl_reader_prototype/research-data.js",
+    "file": "research-data.js.txt",
+    "sha256": "f8d6c6eb68ccab4cf6a37bbd691da1b3f1927e717216613eda712858de6d6825",
+    "bytes": 9932,
+    "role": "unchanged test dependency"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/research-data.test.cjs",
+    "file": "research-data.test.cjs.txt",
+    "sha256": "4074334d759399d8741cb0bdf4fff81ca396ba182a1e2e43c0a566311fcade48",
+    "bytes": 4470,
+    "role": "unchanged test dependency"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/research-tools.test.cjs",
+    "file": "research-tools.test.cjs.txt",
+    "sha256": "7f10d8dfb92b695e9b1880e89001009badbcc833ab08fbeb3f4734420ce772be",
+    "bytes": 8794,
+    "role": "unchanged test dependency"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/shelf-constellations.js",
+    "file": "shelf-constellations.js.txt",
+    "sha256": "02a8ec749859d85a932ea663b985a7617bc601ceee1e88f30367125c32ea234c",
+    "bytes": 15857,
+    "role": "unchanged test dependency"
+  }
+]

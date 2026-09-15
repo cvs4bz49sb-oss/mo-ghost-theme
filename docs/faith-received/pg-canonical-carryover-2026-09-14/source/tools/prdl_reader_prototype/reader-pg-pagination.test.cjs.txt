@@ -1,0 +1,21 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/reader_shell.html','utf8');
+const code=source.slice(source.indexOf('function pgDenom(){'),source.indexOf('function setFolio(pg)'));
+function denominator(data){return vm.runInNewContext(code+'\npgDenom()', {DATA:data});}
+test('PG pagination compares printed columns even when source entries restart or repeat',()=>{
+ const data={volume:'PG 94',pages:[{n:521},{n:523},{n:659},{n:521}]},before=JSON.stringify(data);
+ assert.equal(denominator(data).txt,'659');assert.equal(JSON.stringify(data),before);
+});
+test('single-opening PG works retain their printed column and other readers retain their behavior',()=>{
+ assert.equal(denominator({volume:'PG 14',pages:[{n:5}]}).txt,'5');
+ assert.equal(denominator({pages:[{n:1},{n:2},{n:3}]}).txt,'3');
+ assert.equal(denominator({pages:[{n:'52:0183A'},{n:'52:0183B'}]}).txt,'2');
+});
+test('Pullen uses the final printed column even when PL markers occur out of order',()=>{
+ assert.equal(denominator({volume:'PL 186',pages:[{n:639},{n:765},{n:763},{n:1010}]}).txt,'1010');
+});
+test('PL without facsimiles still cites its Migne column instead of a section ordinal',()=>{
+ const locator=source.slice(source.indexOf('function locOf(n){'),source.indexOf('// ---- About:'));
+ const box={DATA:{volume:'PL 210',has_pages:false},window:{}};
+ assert.equal(vm.runInNewContext(locator+';locOf(602)',box),'col. 602');
+});

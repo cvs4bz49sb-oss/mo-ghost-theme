@@ -1,0 +1,130 @@
+TAP version 13
+# Subtest: either printed column reaches its PG opening while exact columns win
+ok 1 - either printed column reaches its PG opening while exact columns win
+  ---
+  duration_ms: 0.4445
+  ...
+# Subtest: opaque compound locators and other corpora are never shifted
+ok 2 - opaque compound locators and other corpora are never shifted
+  ---
+  duration_ms: 0.152583
+  ...
+# Subtest: a selected primary text never concatenates translation or alternative witnesses
+ok 3 - a selected primary text never concatenates translation or alternative witnesses
+  ---
+  duration_ms: 0.796125
+  ...
+# Subtest: both jump inputs use the opening resolver and the reader remains parseable
+ok 4 - both jump inputs use the opening resolver and the reader remains parseable
+  ---
+  duration_ms: 7.720375
+  ...
+# Subtest: the scan opening never replaces a known printed Greek column
+ok 5 - the scan opening never replaces a known printed Greek column
+  ---
+  duration_ms: 11.813375
+  ...
+# Subtest: shared section anchors replace proportional paragraph guesses without dropping words
+ok 6 - shared section anchors replace proportional paragraph guesses without dropping words
+  ---
+  duration_ms: 0.393584
+  ...
+# Subtest: missing shared markers preserve a complete opening rather than guessing sentence matches
+ok 7 - missing shared markers preserve a complete opening rather than guessing sentence matches
+  ---
+  duration_ms: 0.089125
+  ...
+# Subtest: closing quotation marks before section 5 do not hide its alignment anchor
+ok 8 - closing quotation marks before section 5 do not hide its alignment anchor
+  ---
+  duration_ms: 0.050459
+  ...
+# Subtest: canonical columns outrank fallback zones and alternate witnesses are excluded
+ok 9 - canonical columns outrank fallback zones and alternate witnesses are excluded
+  ---
+  duration_ms: 0.990042
+  ...
+# Subtest: crossed source section sequences cannot be presented as paragraph alignment
+ok 10 - crossed source section sequences cannot be presented as paragraph alignment
+  ---
+  duration_ms: 0.0505
+  ...
+# Subtest: scan-backed additions inside a witness survive without appending the alternate edition
+ok 11 - scan-backed additions inside a witness survive without appending the alternate edition
+  ---
+  duration_ms: 0.208375
+  ...
+# Subtest: a facing secondary Latin column joins its shared scan without replacing primary Greek
+ok 12 - a facing secondary Latin column joins its shared scan without replacing primary Greek
+  ---
+  duration_ms: 0.19175
+  ...
+# Subtest: an Arabic source with a Latin heading is not mislabeled as a Latin column
+ok 13 - an Arabic source with a Latin heading is not mislabeled as a Latin column
+  ---
+  duration_ms: 0.30675
+  ...
+# Subtest: canonical headings survive in the combined reading lane without duplicating normal body text
+ok 14 - canonical headings survive in the combined reading lane without duplicating normal body text
+  ---
+  duration_ms: 0.3485
+  ...
+# Subtest: a PG even column uses its preceding opening only when the exact column is absent
+ok 15 - a PG even column uses its preceding opening only when the exact column is absent
+  ---
+  duration_ms: 0.43725
+  ...
+# Subtest: other corpora, opaque keys and stored text are untouched
+ok 16 - other corpora, opaque keys and stored text are untouched
+  ---
+  duration_ms: 0.072542
+  ...
+# Subtest: index labels name their target column, retaining ranges only when their beginning matches
+ok 17 - index labels name their target column, retaining ranges only when their beginning matches
+  ---
+  duration_ms: 0.056292
+  ...
+# Subtest: the actual jump hydrates and scrolls the existing PG opening instead of silently returning
+ok 18 - the actual jump hydrates and scrolls the existing PG opening instead of silently returning
+  ---
+  duration_ms: 2.746542
+  ...
+# Subtest: a substantive Latin opening chooses the existing Latin witness
+ok 19 - a substantive Latin opening chooses the existing Latin witness
+  ---
+  duration_ms: 0.661125
+  ...
+# Subtest: Greek text, bare Latin catalogue headings, and English translations do not force Latin
+ok 20 - Greek text, bare Latin catalogue headings, and English translations do not force Latin
+  ---
+  duration_ms: 0.462042
+  ...
+# Subtest: PG pagination compares printed columns even when source entries restart or repeat
+ok 21 - PG pagination compares printed columns even when source entries restart or repeat
+  ---
+  duration_ms: 1.150375
+  ...
+# Subtest: single-opening PG works retain their printed column and other readers retain their behavior
+ok 22 - single-opening PG works retain their printed column and other readers retain their behavior
+  ---
+  duration_ms: 1.209375
+  ...
+# Subtest: Pullen uses the final printed column even when PL markers occur out of order
+ok 23 - Pullen uses the final printed column even when PL markers occur out of order
+  ---
+  duration_ms: 0.380708
+  ...
+# Subtest: PL without facsimiles still cites its Migne column instead of a section ordinal
+ok 24 - PL without facsimiles still cites its Migne column instead of a section ordinal
+  ---
+  duration_ms: 0.634292
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 56.118792

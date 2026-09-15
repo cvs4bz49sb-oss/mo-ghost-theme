@@ -1,0 +1,14 @@
+// Snapshot published PG text assets with bounded concurrency and per-file hashes.
+import {readFile,mkdir,writeFile,rename,stat} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import path from 'node:path';
+const run=path.resolve(process.argv[2]);const inventory=JSON.parse(await readFile(path.join(run,'blob-pg-inventory.json'),'utf8'));
+const rows=inventory.filter(r=>/^(?:tei\/(?:pg|pgpv)\/\d+\.xml|v1\/(?:pgtoc|pgvtx|pgzone|pgen|pggap|pgvol)\/\d+\.json)$/.test(r.path));
+let next=0,done=0,bytes=0;const result=[],failed=[];const stamp='pg-snapshot-20260914';
+const hash=(b,kind)=>createHash(kind).update(b).digest('hex');
+await Promise.all(Array.from({length:8},async()=>{while(next<rows.length){const r=rows[next++],file=path.join(run,'snapshot',r.path);let body;
+ try{body=await readFile(file);if(body.length!==r.size)body=null;}catch{}
+ if(!body){for(let attempt=0;attempt<3;attempt++){try{const url=new URL(r.url);if(url.hostname!=='0ss8v4l06kodnhp0.public.blob.vercel-storage.com')throw Error('Unexpected origin');url.searchParams.set('snapshot',stamp);const response=await fetch(url,{signal:AbortSignal.timeout(90000)});if(!response.ok)throw Error('HTTP '+response.status);body=Buffer.from(await response.arrayBuffer());if(body.length!==r.size)throw Error('Source size changed');if(r.path.endsWith('.json'))JSON.parse(body.toString());await mkdir(path.dirname(file),{recursive:true});await writeFile(file+'.part',body);await rename(file+'.part',file);break;}catch(e){body=null;if(attempt===2)failed.push({path:r.path,error:String(e.message)});else await new Promise(resolve=>setTimeout(resolve,1000*(attempt+1)));}}}
+ if(body){result.push({...r,md5:hash(body,'md5'),sha256:hash(body,'sha256'),r2Path:r.path.startsWith('tei/')?'v1/'+r.path:r.path});bytes+=body.length;}done++;if(done%500===0)console.log(JSON.stringify({done,total:rows.length,bytes,failed:failed.length}));
+ }}));
+result.sort((a,b)=>a.path.localeCompare(b.path));await writeFile(path.join(run,'snapshot-manifest.json'),JSON.stringify(result,null,2)+'\n');await writeFile(path.join(run,'snapshot-failures.json'),JSON.stringify(failed,null,2)+'\n');console.log(JSON.stringify({complete:done,success:result.length,failed:failed.length,bytes}));if(failed.length)process.exitCode=1;

@@ -1,0 +1,37 @@
+[
+  {
+    "source": "tools/prdl_reader_prototype/web_shell.html",
+    "reference": "source/web_shell.html.txt",
+    "sha256": "da86ca7178b0306814df59aa64f7aab67b03bb0bd54d0aeb40a8ccb5030c2bae"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/connection-evidence.js",
+    "reference": "source/connection-evidence.js.txt",
+    "sha256": "2ee98d511af55a82d1dc6da1465fb308643e2ae292edbf532d9436fbe13a2911"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/connection-evidence.css",
+    "reference": "source/connection-evidence.css.txt",
+    "sha256": "20656c5c1335c942633f48ebd9dd313fddcaa4afb09965407d0738b86329ab41"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/constellations.css",
+    "reference": "source/constellations.css.txt",
+    "sha256": "e1f09f5f9c442fe174c979c77e15a366ece00fe7c498dcbfcd5678f766e679e6"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/connection-evidence.test.cjs",
+    "reference": "source/connection-evidence.test.cjs.txt",
+    "sha256": "ce9bb298273605a344f9c72a9ec30986ae419bb8f0ca12b4e18822dd5dfb0e24"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/journey-state.test.cjs",
+    "reference": "source/journey-state.test.cjs.txt",
+    "sha256": "11187792eeeb8b77f93df6171cdf27373ac0b52aaa983ba7e3157cdebe63a83d"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/constellations.test.cjs",
+    "reference": "source/constellations.test.cjs.txt",
+    "sha256": "73fa7de1ec290e4ed43a516850964e4c052e097c588055ec8176946bcb7594f3"
+  }
+]

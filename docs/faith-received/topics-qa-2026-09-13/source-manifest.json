@@ -1,0 +1,26 @@
+[
+  {
+    "source": "tools/prdl_reader_prototype/research_shell.html",
+    "file": "research_shell.html.txt",
+    "sha256": "706b6ce83a51ce8ccd8ad949ba34d564f54fce30cb63fb9c8c19c558a494f477",
+    "bytes": 305345
+  },
+  {
+    "source": "tools/prdl_reader_prototype/research-tools.js",
+    "file": "research-tools.js.txt",
+    "sha256": "8933185b03123a2d31438071e6f8586084e264f66fc96ab1905aa89ae116ec7f",
+    "bytes": 17186
+  },
+  {
+    "source": "tools/prdl_reader_prototype/research-experience.css",
+    "file": "research-experience.css.txt",
+    "sha256": "01f626bc3dd19dd16dcf9d2a5390daf5795d16743c015dcc0718406971d34fe2",
+    "bytes": 52902
+  },
+  {
+    "source": "tools/prdl_reader_prototype/topic-evidence.test.cjs",
+    "file": "topic-evidence.test.cjs.txt",
+    "sha256": "be3d580824ec0f7ddd8075e56559ed223b7f0556c261e90c46b3ab1d48be5fb3",
+    "bytes": 3244
+  }
+]

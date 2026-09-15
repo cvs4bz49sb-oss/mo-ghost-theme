@@ -1,0 +1,26 @@
+[
+  {
+    "source": "tools/prdl_reader_prototype/reader_shell.html",
+    "file": "reader_shell.html.txt",
+    "sha256": "85962dec40ea1b8d075e2fe689441cd317227206876328dc0c33bed494867743",
+    "bytes": 762328
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-contents.css",
+    "file": "reader-contents.css.txt",
+    "sha256": "520235048d2982281912e2bbcba441b5cba97784acc6da84cd01ff04d39f9143",
+    "bytes": 5171
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-contents.js",
+    "file": "reader-contents.js.txt",
+    "sha256": "539b0c4ae3fc1299334ea3f5953e0793e6633e1da071d37c30f6f8c0f7f8c758",
+    "bytes": 15203
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-contents.test.cjs",
+    "file": "reader-contents.test.cjs.txt",
+    "sha256": "430d8b0ee255cad00e32408b5974deef2764df33a766f0b1bb89f9fc24f281fe",
+    "bytes": 14196
+  }
+]

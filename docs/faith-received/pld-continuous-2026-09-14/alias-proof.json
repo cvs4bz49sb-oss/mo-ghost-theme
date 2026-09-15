@@ -1,0 +1,23 @@
+{
+  "deployment": "dpl_5ufFf1to8pGiV5AFVV4hymtNhxAt",
+  "files": [
+    {
+      "file": "read.html",
+      "local_md5": "b8f2be77848b8d4d991e14288d9bccc7",
+      "live_md5": "b8f2be77848b8d4d991e14288d9bccc7",
+      "match": true
+    },
+    {
+      "file": "reader-core.js",
+      "local_md5": "250a4f084945f5280ff2bcc3079a049c",
+      "live_md5": "250a4f084945f5280ff2bcc3079a049c",
+      "match": true
+    },
+    {
+      "file": "pld-reading.js",
+      "local_md5": "defc2eb92b99b28e770625fbbb49abfb",
+      "live_md5": "defc2eb92b99b28e770625fbbb49abfb",
+      "match": true
+    }
+  ]
+}

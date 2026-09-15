@@ -1,0 +1,15 @@
+// Metadata preflight and full byte read-back for the frozen PG release.
+import {list} from '@vercel/blob';
+import {readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+const run=process.argv[2],mode=process.argv[3]||'preflight',rows=JSON.parse(await readFile(run+'/release-manifest.json','utf8'));
+const digest=b=>createHash('sha256').update(b).digest('hex');
+if(mode==='preflight'){
+ const current=new Map(),prefixes=[...new Set(rows.map(r=>r.path.startsWith('v1/')&&r.path.split('/').length===2?r.path:r.path.slice(0,r.path.lastIndexOf('/')+1)))];for(const prefix of prefixes){let cursor;do{const page=await list({prefix,limit:1000,...cursor?{cursor}:{}});for(const b of page.blobs)current.set(b.pathname,b);cursor=page.hasMore?page.cursor:undefined;}while(cursor);}
+ const changed=[];for(const row of rows){const now=current.get(row.path);if(!now)throw Error('Source disappeared: '+row.path);if(now.size===row.size&&new Date(now.uploadedAt).toISOString()===row.uploadedAt)continue;changed.push(row);}
+ for(const row of changed){const r=await fetch(row.url+'?preflight='+Date.now(),{signal:AbortSignal.timeout(90000)});if(!r.ok)throw Error('Source read failed: '+row.path);const hash=digest(Buffer.from(await r.arrayBuffer()));if(hash!==row.sha256&&hash!==row.final_sha256)throw Error('Source changed; rebase '+row.path);}
+ await writeFile(run+'/blob-preflight.json',JSON.stringify({checked:rows.length,changedMetadata:changed.length,passed:true,date:new Date().toISOString()},null,2)+'\n');console.log('Source preflight passed',rows.length);process.exit();
+}
+const items=rows.filter(r=>r.canonical_enriched),proof=[],failed=[];let next=0,done=0;
+await Promise.all(Array.from({length:8},async()=>{while(next<items.length){const row=items[next++];let hash,error;for(let n=0;n<3;n++){try{const r=await fetch(row.url+'?verify='+Date.now()+'-'+n,{signal:AbortSignal.timeout(90000)});if(!r.ok)throw Error('HTTP '+r.status);hash=digest(Buffer.from(await r.arrayBuffer()));if(hash!==row.final_sha256)throw Error('Byte mismatch');error=null;break;}catch(e){error=e.message;await new Promise(r=>setTimeout(r,1000));}}if(error)failed.push({path:row.path,error});else proof.push({path:row.path,sha256:hash,match:true});done++;if(done%500===0)console.log('Blob verified',done,'/',items.length);}}));
+await writeFile(run+'/blob-rich-proof.json',JSON.stringify({verified:proof.length,failed,files:proof,date:new Date().toISOString()},null,2)+'\n');console.log('Blob proof',proof.length,'failures',failed.length);if(failed.length)process.exitCode=1;

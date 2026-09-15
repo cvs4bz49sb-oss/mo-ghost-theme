@@ -1,0 +1,42 @@
+{
+  "deployment": "dpl_4KuTW4MNw6q8xV19xsTWCVBgqcfW",
+  "alias": "https://thefaithreceived.vercel.app",
+  "files": [
+    {
+      "file": "topics.html",
+      "local_md5": "ddb15e95af9495994d7b077942a559e8",
+      "live_md5": "ddb15e95af9495994d7b077942a559e8",
+      "match": true
+    },
+    {
+      "file": "research-tools.js",
+      "local_md5": "2677ca5ee0e61902e9c671e41adffe37",
+      "live_md5": "2677ca5ee0e61902e9c671e41adffe37",
+      "match": true
+    },
+    {
+      "file": "research-experience.css",
+      "local_md5": "0764c696ba770f358a863a1370e7b339",
+      "live_md5": "0764c696ba770f358a863a1370e7b339",
+      "match": true
+    },
+    {
+      "file": "fathers.html",
+      "local_md5": "ba817973fd34762f1d8b8b1e99d45880",
+      "live_md5": "ba817973fd34762f1d8b8b1e99d45880",
+      "match": true
+    },
+    {
+      "file": "bible.html",
+      "local_md5": "133aea596780b81398e36890e97398fc",
+      "live_md5": "133aea596780b81398e36890e97398fc",
+      "match": true
+    },
+    {
+      "file": "compare.html",
+      "local_md5": "a8e2cb4f77108a6938bc68ef171928f4",
+      "live_md5": "a8e2cb4f77108a6938bc68ef171928f4",
+      "match": true
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+"""Refresh PG staging and download cache from the verified release, retaining preimages."""
+from pathlib import Path
+import hashlib,json,os
+ROOT=Path(__file__).resolve().parents[1]
+RUN=ROOT/'runs/pg_alignment_repair_20260914'
+rows=[r for r in json.loads((RUN/'release-manifest.json').read_text()) if r['canonical_enriched']]
+proof=json.loads((RUN/'blob-rich-proof.json').read_text())
+assert proof['verified']==len(rows) and not proof['failed'], 'Blob read-back must pass first'
+result=[]
+for target in ['out/pgtei_stage/tei/pg','runs/pg_tei_cache']:
+ counts={'updated':0,'already_current':0,'created':0,'held':[]}
+ for row in rows:
+  dest=ROOT/target/Path(row['path']).name
+  final=(RUN/'publish'/row['path']).read_bytes()
+  assert hashlib.sha256(final).hexdigest()==row['final_sha256']
+  old=dest.read_bytes() if dest.exists() else None
+  old_hash=hashlib.sha256(old).hexdigest() if old is not None else None
+  if old_hash==row['final_sha256']:counts['already_current']+=1;continue
+  if target.startswith('out/') and old is not None and old_hash!=row['sha256']:
+   counts['held'].append(str(dest));continue
+  if old is not None:
+   backup=RUN/'local-preimages'/target/dest.name;backup.parent.mkdir(parents=True,exist_ok=True)
+   if backup.exists():assert backup.read_bytes()==old,'A different backup already exists'
+   else:backup.write_bytes(old)
+  dest.parent.mkdir(parents=True,exist_ok=True)
+  temp=dest.with_suffix('.xml.pg-repair-tmp');temp.write_bytes(final);os.replace(temp,dest)
+  assert hashlib.sha256(dest.read_bytes()).hexdigest()==row['final_sha256']
+  counts['created' if old is None else 'updated']+=1
+ result.append({'target':target,**counts})
+(RUN/'local-refresh-proof.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))

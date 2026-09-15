@@ -1,0 +1,44 @@
+[
+  {
+    "source": "tools/ask_workspace/fr-reading-system.css",
+    "reference": "fr-reading-system.css.txt",
+    "bytes": 23854,
+    "sha256": "2525e1eeb0d5bc939c8628c0831c77afe7cb70e77f829e581d697d4d0dd7aec9"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader_shell.html",
+    "reference": "reader_shell.html.txt",
+    "bytes": 763125,
+    "sha256": "bdfae93ccd2f7fe43c40da6842b1aafcf72d59473fd10f75b75df9ee180ea9e1"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/read-tools.js",
+    "reference": "read-tools.js.txt",
+    "bytes": 169740,
+    "sha256": "e1080d39971284c32011edbc8834565876d82bdb999c61f90396c5ea4c228f36"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/work-research.js",
+    "reference": "work-research.js.txt",
+    "bytes": 22925,
+    "sha256": "f3d46b683308f4af7a790bbbf27a099cb70716e9e192b319c5cd9e2eafe09bfa"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/work-research.css",
+    "reference": "work-research.css.txt",
+    "bytes": 7662,
+    "sha256": "ee3d46cf0bced975d23d54944b5759c9dbb56f2c712f8600d91096ce0f583262"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/work-related.test.cjs",
+    "reference": "work-related.test.cjs.txt",
+    "bytes": 4019,
+    "sha256": "867097dff7832383b68311cd3297623fc5f54b7a659b20f5f102955316675bb5"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-research-search.test.cjs",
+    "reference": "reader-research-search.test.cjs.txt",
+    "bytes": 10346,
+    "sha256": "93343be0fe611e264263e2bd667b8955d1c4358843cb88fa5dd3302e7b87f147"
+  }
+]

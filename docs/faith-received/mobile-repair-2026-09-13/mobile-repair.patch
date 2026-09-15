@@ -1,0 +1,65 @@
+--- a/tools/ask_workspace/ask-workspace.js
++++ b/tools/ask_workspace/ask-workspace.js
+@@ -422,7 +422,7 @@
+   }
+   function build(){
+     panel=document.createElement('section');panel.id='fra-workspace';panel.className='fra'+(/^\/ask(?:\.html)?$/.test(location.pathname)?' fra-standalone':'');panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Ask the Library');panel.setAttribute('aria-modal','true');
+-    panel.innerHTML='<div class="fra-history-scrim" data-history-close></div><aside class="fra-sidebar"><div class="fra-brand"><a href="/">The Faith Received</a><button class="fra-icon fra-mobile-only" data-history-close aria-label="Close conversations">'+icon('close')+'</button></div>'+
++    panel.innerHTML='<div class="fra-history-scrim" data-history-close></div><aside class="fra-sidebar" tabindex="-1"><div class="fra-brand"><a href="/">The Faith Received</a><button class="fra-icon fra-mobile-only" data-history-close aria-label="Close conversations">'+icon('close')+'</button></div>'+
+       '<button class="fra-new" id="fra-new">'+icon('plus')+'New conversation</button><label class="fra-history-search">'+icon('search')+'<input id="fra-history-search" type="search" placeholder="Search conversations" aria-label="Search conversations"></label><div class="fra-history-label"><span>Conversations</span><button id="fra-show-archived" aria-pressed="false">Archived</button></div><nav id="fra-history-list" aria-label="Conversations"></nav><div class="fra-sidebar-foot"><a href="/pins">Collections</a><a href="/desk">Open Desk</a><div data-cgpt-link></div><button id="fra-notify" aria-pressed="false">'+icon('bell')+'Completion notifications</button><p>Conversations are saved in this browser. Deep research also saves progress on the server.</p></div></aside>'+
+       '<main class="fra-main"><header class="fra-header"><button class="fra-icon" id="fra-history-toggle" aria-label="Show conversations" aria-expanded="false">'+icon('menu')+'</button><div class="fra-heading"><strong id="fra-title">New conversation</strong><span id="fra-context">Whole library</span></div><button class="fra-icon" id="fra-theme" aria-label="Change reading theme">'+icon('sun')+'</button><button class="fra-icon" id="fra-more-toggle" aria-label="Conversation options" aria-expanded="false">•••</button><a class="fra-home" id="fra-home" href="/" aria-label="Back to library"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>Library</a><button class="fra-icon" id="fra-close" aria-label="Return to reading">'+icon('close')+'</button><div class="fra-menu" id="fra-more" hidden><button id="fra-rename">Rename conversation</button><button id="fra-export">Download conversation</button><button id="fra-archive">Archive conversation</button></div></header>'+
+       '<nav class="fra-reader-bar" id="fra-reader-bar" hidden aria-label="Reader research"><button id="fra-reader-notes">Saved research</button><button id="fra-expand">Expand Ask</button></nav><div class="fra-mobile-tabs" hidden><button id="fra-chat-tab" class="active">Conversation</button><button id="fra-read-tab">Read source</button></div><div class="fra-body"><section class="fra-chat"><div id="fra-feed" class="fra-feed"><div id="fra-welcome" class="fra-welcome"><div class="fra-welcome-mark">'+icon('book')+'</div><h1>Ask the Library</h1><p>Explore an idea, understand a passage, or follow a question through the texts.</p><div class="fra-suggestions"></div></div><div id="fra-thread"></div></div>'+
+@@ -665,7 +665,7 @@
+       case 'fra-expand':expandedReaderAsk=!expandedReaderAsk;syncPresentation();fitInput();break;
+       case 'fra-passage-clear':await S.update(current,c=>{delete c.draftPassage;});await refresh();break;
+       case 'fra-new':await flushDraft();await newConversation();panel.classList.remove('fra-history-open');$('#fra-history-toggle').setAttribute('aria-expanded','false');$('#fra-input').focus();break;
+-      case 'fra-history-toggle':panel.classList.toggle('fra-history-open');b.setAttribute('aria-expanded',String(panel.classList.contains('fra-history-open')));if(panel.classList.contains('fra-history-open'))$('#fra-history-search').focus();break;
++      case 'fra-history-toggle':panel.classList.toggle('fra-history-open');b.setAttribute('aria-expanded',String(panel.classList.contains('fra-history-open')));if(panel.classList.contains('fra-history-open'))focusConversations();break;
+       case 'fra-show-archived':showArchived=!showArchived;b.setAttribute('aria-pressed',String(showArchived));renderHistory();break;
+       case 'fra-mode-toggle':togglePopover('fra-modes');break;
+       case 'fra-scope-toggle':if($('#fra-scope').hidden)openScope();else togglePopover('fra-scope',false);break;
+@@ -683,7 +683,12 @@
+       case 'fra-source-close':returnToConversation();break;
+     }
+   }
+-  function showConversations(){panel.classList.add('fra-history-open');$('#fra-history-toggle').setAttribute('aria-expanded','true');$('#fra-history-search').focus();}
++  function focusConversations(){
++    // Opening the history drawer is navigation. Touch users choose when to type.
++    const target=matchMedia('(max-width:800px), (any-pointer:coarse)').matches?$('.fra-sidebar'):$('#fra-history-search');
++    target.focus({preventScroll:true});
++  }
++  function showConversations(){panel.classList.add('fra-history-open');$('#fra-history-toggle').setAttribute('aria-expanded','true');focusConversations();}
+   async function open(opts={}){
+     if(!opts.id&&!opts.fresh){const sourceChat=new URLSearchParams(location.search).get('ask_chat');if(sourceChat)opts={...opts,id:sourceChat};}
+     if(opts.mode)opts={...opts,mode:researchMode(opts.mode)};
+--- a/tools/ask_workspace/ask-workspace.css
++++ b/tools/ask_workspace/ask-workspace.css
+@@ -14,7 +14,7 @@
+ .fra-sidebar{display:flex;flex-direction:column;min-height:0;padding:22px 14px 14px;background:var(--fra-bg);border-right:1px solid var(--fra-border)}
+ .fra-brand{display:flex;align-items:center;justify-content:space-between;padding:0 8px 24px}.fra-brand a{font-family:'EB Garamond',Georgia,serif;font-size:21px;text-decoration:none;white-space:nowrap}
+ .fra-new{display:flex;align-items:center;gap:10px;min-height:44px!important;padding:10px 12px!important;border:1px solid var(--fra-border)!important;border-radius:8px}.fra-new:hover{background:var(--fra-card)}
+-.fra-history-search{display:flex;align-items:center;gap:9px;margin:20px 5px 16px;color:var(--fra-muted)}.fra-history-search svg{width:16px}.fra-history-search input{width:100%;min-width:0;border:0;background:none;font-size:14px;padding:6px 0;outline-offset:4px}
++.fra-history-search{display:flex;align-items:center;gap:9px;margin:20px 5px 16px;color:var(--fra-muted)}.fra-history-search svg{width:16px}.fra-history-search input{width:100%;min-width:0;border:0;background:none;font-size:16px;padding:6px 0;outline-offset:4px}
+ .fra-history-label{display:flex;justify-content:space-between;align-items:center;padding:8px;font-size:12px;color:var(--fra-muted)}.fra-history-label button{font-size:12px;padding:6px}.fra-history-label button[aria-pressed="true"]{color:var(--fra-fg);text-decoration:underline}
+ #fra-history-list{overflow:auto;flex:1;min-height:80px}.fra-history-row{width:100%;text-align:left;display:flex;flex-direction:column;gap:4px;padding:11px 12px!important;border-radius:7px;min-height:64px}.fra-history-row span{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.fra-history-row small{color:var(--fra-muted);font-size:11px;font-variant-numeric:tabular-nums}.fra-history-row.active{background:var(--fra-hl)}.fra-history-row:hover{background:var(--fra-card)}.fra-empty-history{font-size:13px;color:var(--fra-muted);padding:10px}
+ .fra-sidebar-foot{display:flex;gap:5px;flex-direction:column;border-top:1px solid var(--fra-border);padding:16px 8px 0;margin-top:12px}.fra-sidebar-foot>a{font-size:13px;text-decoration:none;padding:4px 0}.fra-sidebar-foot p{color:var(--fra-muted);font-size:11px;line-height:1.5;margin:6px 0 0}.fra-sidebar-foot>button{display:flex;align-items:center;gap:8px;padding:9px 0;font-size:12px;text-align:left}.fra-sidebar-foot>button svg{width:16px}.fra-sidebar-foot>button[aria-pressed="true"]{text-decoration:underline}
+--- a/tools/prdl_reader_prototype/reader-contents.css
++++ b/tools/prdl_reader_prototype/reader-contents.css
+@@ -8,3 +8,17 @@
+ @media(max-width:880px){.rc-contents-tools{padding-inline:4px}.rc-contents-actions{gap:0 12px}.rc-contents-tools button{font-size:13px}}
+ @media print{.rc-contents-tools{display:none!important}}
+ @media(max-width:880px){.sidebar .work .wt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}}
++
++/* On phones the masthead already identifies the work. Keep the outline in view. */
++@media(max-width:880px){
++ html.g-mobile .sidebar .work{padding:8px 12px}
++ html.g-mobile .sidebar .work .wt{display:block;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;font-size:15px;line-height:1.25}
++ html.g-mobile .sidebar .work .wmeta{margin-top:3px;font-size:12px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
++ html.g-mobile:has(.fr-explore) #nav .nav-home:not(:has(a[href="/#confessions"])){display:none!important}
++ html.g-mobile:has(.fr-explore) #nav .nav-home a:not([href="/#confessions"]){display:none}
++ html.g-mobile #nav .nav-vt{padding:2px;margin-block:0 4px}
++ html.g-mobile #nav .nav-vt button{min-height:44px;padding:8px 4px}
++ html.g-mobile .rc-contents-tools{padding-block:6px 4px;margin-bottom:4px}
++ html.g-mobile .rc-contents-actions{gap:0 12px;margin-top:0}
++ html.g-mobile .rc-contents-count{margin-block:0 2px}
++}

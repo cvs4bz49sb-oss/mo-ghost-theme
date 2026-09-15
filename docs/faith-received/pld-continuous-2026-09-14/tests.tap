@@ -1,0 +1,250 @@
+TAP version 13
+# Subtest: editorial paragraphs retain their own columns and source IDs, including opening prose
+ok 1 - editorial paragraphs retain their own columns and source IDs, including opening prose
+  ---
+  duration_ms: 1.443041
+  ...
+# Subtest: genuine English notes remain available, while identical English echoes are not called translations
+ok 2 - genuine English notes remain available, while identical English echoes are not called translations
+  ---
+  duration_ms: 0.457208
+  ...
+# Subtest: unmapped notes remain explicit and no column number is invented
+ok 3 - unmapped notes remain explicit and no column number is invented
+  ---
+  duration_ms: 0.163291
+  ...
+# Subtest: editorial rendering is labelled, escaped, and outside paired reader rows
+ok 4 - editorial rendering is labelled, escaped, and outside paired reader rows
+  ---
+  duration_ms: 0.147458
+  ...
+# Subtest: the reader source still parses with continuous editorial columns
+ok 5 - the reader source still parses with continuous editorial columns
+  ---
+  duration_ms: 15.112625
+  ...
+# Subtest: unmapped editorial appendices do not replace the existing unpaginated text segments
+ok 6 - unmapped editorial appendices do not replace the existing unpaginated text segments
+  ---
+  duration_ms: 3.836
+  ...
+# Subtest: Etymologies source boundaries preserve both text and note divisions, including the nested second preface
+ok 7 - Etymologies source boundaries preserve both text and note divisions, including the nested second preface
+  ---
+  duration_ms: 1.427875
+  ...
+# Subtest: Alain exact source duplicate uses its complete English paragraph, never a clipped sidecar title
+ok 8 - Alain exact source duplicate uses its complete English paragraph, never a clipped sidecar title
+  ---
+  duration_ms: 0.638667
+  ...
+# Subtest: repeated wording without an exact linked translation never suppresses a heading
+ok 9 - repeated wording without an exact linked translation never suppresses a heading
+  ---
+  duration_ms: 1.969667
+  ...
+# Subtest: Pullen explicit bilingual heads are one heading, across either marker order
+ok 10 - Pullen explicit bilingual heads are one heading, across either marker order
+  ---
+  duration_ms: 0.544209
+  ...
+# Subtest: a wholly bold proposition can add print note numbers; its full paragraph remains untouched
+ok 11 - a wholly bold proposition can add print note numbers; its full paragraph remains untouched
+  ---
+  duration_ms: 0.45675
+  ...
+# Subtest: standalone English heads survive and lookahead never crosses prose to borrow a later column
+ok 12 - standalone English heads survive and lookahead never crosses prose to borrow a later column
+  ---
+  duration_ms: 0.097292
+  ...
+# Subtest: editorial brackets and a leading section sign do not duplicate the same words and numbers
+ok 13 - editorial brackets and a leading section sign do not duplicate the same words and numbers
+  ---
+  duration_ms: 0.249375
+  ...
+# Subtest: wrapper comparison keeps changed dates, chapter numbers, words, and question punctuation distinct
+ok 14 - wrapper comparison keeps changed dates, chapter numbers, words, and question punctuation distinct
+  ---
+  duration_ms: 0.14725
+  ...
+# Subtest: Augustine note numbers can be added without discarding the heading’s Scripture numbers
+ok 15 - Augustine note numbers can be added without discarding the heading’s Scripture numbers
+  ---
+  duration_ms: 1.001958
+  ...
+# Subtest: Pullen guide distinguishes prefatory chapter summaries from actual Book I and Chapter II
+ok 16 - Pullen guide distinguishes prefatory chapter summaries from actual Book I and Chapter II
+  ---
+  duration_ms: 1.324542
+  ...
+# Subtest: all 58 individually reviewed heading pairs match only their frozen source text
+ok 17 - all 58 individually reviewed heading pairs match only their frozen source text
+  ---
+  duration_ms: 7.902833
+  ...
+# Subtest: reviewed contents guides require the exact source heading and body destination
+ok 18 - reviewed contents guides require the exact source heading and body destination
+  ---
+  duration_ms: 2.794333
+  ...
+# Subtest: an exact short chapter title wins over summary paragraphs containing similar words
+ok 19 - an exact short chapter title wins over summary paragraphs containing similar words
+  ---
+  duration_ms: 0.26425
+  ...
+# Subtest: reviewed Anselm note-only columns route to source Notes, preserving other columns
+ok 20 - reviewed Anselm note-only columns route to source Notes, preserving other columns
+  ---
+  duration_ms: 0.937792
+  ...
+# Subtest: a changed or unsupported canonical source is never partitioned by an old review
+ok 21 - a changed or unsupported canonical source is never partitioned by an old review
+  ---
+  duration_ms: 0.542625
+  ...
+# Subtest: all published source ranges are ordered, disjoint, bounded and source-guarded
+ok 22 - all published source ranges are ordered, disjoint, bounded and source-guarded
+  ---
+  duration_ms: 16.311083
+  ...
+# Subtest: source reference URLs retain the editorial layer in saved research
+ok 23 - source reference URLs retain the editorial layer in saved research
+  ---
+  duration_ms: 1.955416
+  ...
+# Subtest: publisher-only notes remain source links, not invented local divisions
+ok 24 - publisher-only notes remain source links, not invented local divisions
+  ---
+  duration_ms: 0.207375
+  ...
+# Subtest: block parser preserves full encoded compound IDs and rejects malformed escapes
+ok 25 - block parser preserves full encoded compound IDs and rejects malformed escapes
+  ---
+  duration_ms: 3.382583
+  ...
+# Subtest: accepted same-work navigation hydrates and lands an exact compound row without document navigation
+ok 26 - accepted same-work navigation hydrates and lands an exact compound row without document navigation
+  ---
+  duration_ms: 4.739833
+  ...
+# Subtest: latest citation wins while earlier targets are still virtualized
+ok 27 - latest citation wins while earlier targets are still virtualized
+  ---
+  duration_ms: 1.797916
+  ...
+# Subtest: a recognized absent nonzero row is accepted and waits instead of jumping to the page top
+ok 28 - a recognized absent nonzero row is accepted and waits instead of jumping to the page top
+  ---
+  duration_ms: 0.733666
+  ...
+# Subtest: page-start citations retain visible seam fallback after the opening row merged
+ok 29 - page-start citations retain visible seam fallback after the opening row merged
+  ---
+  duration_ms: 0.988958
+  ...
+# Subtest: late rebuilds retain exact citation intent through pending and settled captures
+ok 30 - late rebuilds retain exact citation intent through pending and settled captures
+  ---
+  duration_ms: 2.021625
+  ...
+# Subtest: user scrolling cancels the active citation and all pending restoration
+ok 31 - user scrolling cancels the active citation and all pending restoration
+  ---
+  duration_ms: 0.67
+  ...
+# Subtest: source suspension blocks late placements and resumes a saved exact target after showing
+ok 32 - source suspension blocks late placements and resumes a saved exact target after showing
+  ---
+  duration_ms: 0.746375
+  ...
+# Subtest: ordinary saved viewport offsets survive a cancel and restore generation
+ok 33 - ordinary saved viewport offsets survive a cancel and restore generation
+  ---
+  duration_ms: 1.562958
+  ...
+# Subtest: query page requests stay in the current work and preserve existing view options
+ok 34 - query page requests stay in the current work and preserve existing view options
+  ---
+  duration_ms: 1.723958
+  ...
+# Subtest: deferred reader tools delegate source navigation without restarting initial hash landing
+ok 35 - deferred reader tools delegate source navigation without restarting initial hash landing
+  ---
+  duration_ms: 2.963791
+  ...
+# Subtest: search navigation waits for the exact occurrence and keeps public locations canonical
+ok 36 - search navigation waits for the exact occurrence and keeps public locations canonical
+  ---
+  duration_ms: 0.681792
+  ...
+# Subtest: a newer search occurrence cancels old arrival and pending occurrence restoration
+ok 37 - a newer search occurrence cancels old arrival and pending occurrence restoration
+  ---
+  duration_ms: 1.015625
+  ...
+# Subtest: external saved positions restore after occurrence marks disappear
+ok 38 - external saved positions restore after occurrence marks disappear
+  ---
+  duration_ms: 0.717625
+  ...
+# Subtest: source-path TOC navigation hydrates and opens the exact division heading, not another same-page heading
+ok 39 - source-path TOC navigation hydrates and opens the exact division heading, not another same-page heading
+  ---
+  duration_ms: 2.418
+  ...
+# Subtest: unknown or changed source-path targets fail without falling back to a guessed numbered page
+ok 40 - unknown or changed source-path targets fail without falling back to a guessed numbered page
+  ---
+  duration_ms: 0.5025
+  ...
+# Subtest: expanded Part titles and shared question labels resolve their unique canonical source path
+ok 41 - expanded Part titles and shared question labels resolve their unique canonical source path
+  ---
+  duration_ms: 1.501
+  ...
+# Subtest: ambiguous repeated source headings require an exact title match
+ok 42 - ambiguous repeated source headings require an exact title match
+  ---
+  duration_ms: 0.668667
+  ...
+# Subtest: verified Baxter Front Matter opens the existing first page when its label precedes pagination
+ok 43 - verified Baxter Front Matter opens the existing first page when its label precedes pagination
+  ---
+  duration_ms: 1.132834
+  ...
+# Subtest: source arrivals follow the measured mobile header when fonts change its height
+ok 44 - source arrivals follow the measured mobile header when fonts change its height
+  ---
+  duration_ms: 1.361709
+  ...
+# Subtest: heading keys distinguish two chapters in one source division and survive restoration
+ok 45 - heading keys distinguish two chapters in one source division and survive restoration
+  ---
+  duration_ms: 1.826959
+  ...
+# Subtest: identical source headings on different pages cannot land on the wrong mounted instance
+ok 46 - identical source headings on different pages cannot land on the wrong mounted instance
+  ---
+  duration_ms: 0.968958
+  ...
+# Subtest: generic pre-pagination roots require explicit canonical metadata before falling back to page start
+ok 47 - generic pre-pagination roots require explicit canonical metadata before falling back to page start
+  ---
+  duration_ms: 0.559291
+  ...
+# Subtest: page-start placement clears the actual fixed reader header
+ok 48 - page-start placement clears the actual fixed reader header
+  ---
+  duration_ms: 0.594417
+  ...
+1..48
+# tests 48
+# suites 0
+# pass 48
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 138.852792

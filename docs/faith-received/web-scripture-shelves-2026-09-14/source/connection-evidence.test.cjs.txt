@@ -1,0 +1,132 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),vm=require('node:vm');
+const context={module:{exports:{}},URL,URLSearchParams,console};vm.runInNewContext(fs.readFileSync(__dirname+'/connection-evidence.js','utf8'),context);const E=context.module.exports;
+
+test('a path never reverses a citation in a directed journey',()=>{
+ const nodes=[{s:'a'},{s:'b'},{s:'c'}],edges=[[1,0,10],[2,1,8]];
+ assert.equal(JSON.stringify(E.directedPath(nodes,edges,0,2,'in')),JSON.stringify([0,1,2]));
+ assert.equal(E.directedPath(nodes,edges,0,2,'out'),null);
+ assert.equal(JSON.stringify(E.directedPath(nodes,edges,2,0,'out')),JSON.stringify([2,1,0]));
+ assert.equal(JSON.stringify(E.directedPath(nodes,edges,0,2,'either')),JSON.stringify([0,1,2]));
+});
+test('incoming evidence names the citing author, not the selected author',()=>{
+ const from={s:'augustine',a:'Augustine'},to={s:'thomas',a:'Thomas'};
+ const step=E.citationDirection({in:{rows:[{fk:'thomas',n:3}]},out:{rows:[]}},from,to);
+ assert.equal(step.citing,to);assert.equal(step.target,from);
+});
+test('source and shared topic pages preserve volume/column strings',()=>{
+ const a=[{w:'pg-230',p:'52:0183A',t:'Source'},{w:'pg-230',p:'52:0183B'}];
+ const b=[{w:'pg-230',p:'52:0183A'},{w:'pg-230',p:52}];
+ const match=E.sharedPages(a,b);assert.equal(match.length,1);assert.equal(match[0].source.page,'52:0183A');
+ assert.equal(match[0].source.url,'/read?w=pg-230#b52%3A0183A-0');
+ assert.equal(E.source({h:'/read?w=pg-230#b52%3A0183A-0'}).page,'52:0183A');
+});
+test('shared profile chapters distinguish Gospel and numbered letters',()=>{
+ const books=[{book:'John',slug:'john',chapters:[{c:1}]},{book:'1 John',slug:'i-john',chapters:[{c:1}]},{book:'Romans',slug:'romans',chapters:[{c:8}]}];
+ const a=[{t:'John. 1',s:'1,200 citations'},{t:'Rom. 8',s:'80 citations'},{t:'1 John. 1',s:'40 citations'}];
+ const b=[{t:'John 1',s:'100 citations'},{t:'Romans 8',s:'120 citations'}];
+ const rows=E.sharedChapters(a,b,books);assert.equal(rows.length,2);assert.equal(rows[0].book,'john');assert.equal(rows[0].left,1200);assert.equal(rows[1].book,'romans');
+});
+test('verse overlap requires exact work or author identity in source rows',()=>{
+ const chapter={verses:[{v:1,rows:[{a:'John Owen',w:'owen-a'},{a:'John Owen Junior',w:'junior'},{a:'William Ames',w:'ames-a'}]},{v:2,rows:[{a:'John Owen',w:'owen-b'}]}]};
+ assert.equal(E.verseOverlap(chapter,{a:'John Owen'},{a:'William Ames'},'authors').length,1);
+ assert.equal(E.verseOverlap(chapter,{w:'owen-b'},{w:'ames-a'},'works').length,0);
+ assert.equal(E.verseOverlap(chapter,{w:'owen-a'},{w:'ames-a'},'works')[0].v,1);
+});
+test('filters preserve every matching row and do not promote citation kind to agreement',()=>{
+ const rows=[{w:'a',p:1,h:'quotes',loc:'Trinity 1'},{w:'a',p:2,h:'refutes',loc:'Trinity 2'},{w:'b',p:1,h:'quotes',loc:'City of God'}];
+ assert.equal(E.filterCitations(rows,{work:'a'}).length,2);
+ assert.deepEqual(E.filterCitations(rows,{context:'sent',query:'Trinity'},{a:{k:'sent'}}),rows.slice(0,2));
+ assert.deepEqual(E.filterCitations(rows,{kind:'refutes'}),[rows[1]]);
+ assert.equal(E.filterCitations(rows,{kind:'approves'}).length,0);
+});
+test('saved connection carries only provided source evidence, deduplicated by exact URL',()=>{
+ const s=E.source({w:'work',p:'12:003A',t:'Work'}, {},'Author');
+ const note=E.researchNote('citation-journey','Reading path',[s,s],{authors:['Target'],research:{direction:'in'}});
+ assert.equal(note.research.sources.length,1);assert.equal(note.research.sources[0].page,'12:003A');
+ assert.equal(JSON.stringify(note.research.authors),JSON.stringify(['Author','Target']));assert.equal(note.research.direction,'in');assert.equal(note.type,'note');
+});
+test('previews never accept an external or executable URL',()=>{
+ assert.equal(E.safeURL('javascript:alert(1)'),null);assert.equal(E.safeURL('https://example.com/read?w=x'),null);
+ assert.equal(E.safeURL('/read?w=a#b1-0'),'/read?w=a#b1-0');
+});
+
+test('doctrine context keeps section tags separate from page-position tags',()=>{
+ const data={units:[{pages:['52:0183A','52:0183B'],loci:['Grace'],positions:[{page:'52:0183A',claim:'Reported claim',loci:['Faith']},{page:'52:0183B',claim:'Other page',loci:['Law']}],authorities:[{page:'52:0183A',surface:'Augustine'},{page:52,surface:'Other'}]}]};
+ const result=E.pageContext(data,'52:0183A');assert.equal(result.positions.length,1);assert.equal(result.positions[0].claim,'Reported claim');assert.equal(result.authorities.length,1);assert.equal(JSON.stringify(result.sections),'["Grace"]');
+});
+test('resolution never treats an opaque target identifier as a held work',()=>{
+ assert.equal(E.resolutionLabel({tw:'pld-2765'}),'Reference not resolved to a held work');
+ assert.equal(E.resolutionLabel({resolved:{cls:'B',author:'Augustine'}}),'Author identified; held work unresolved');
+ assert.equal(E.resolutionLabel({resolved:{cls:'A',work_slug:'held-work'}}),'Held work identified');
+});
+
+test('multi-target authority references preserve all held targets and exact recorded anchors',async()=>{
+ context.FRResearchData={resolveWork:async id=>id==='opaque'?{status:'unresolved',input:id}:{status:'held',slug:id,url:'/read?w='+id,work:{title:id}}};
+ const rows=await E.resolvedTargets({resolved:{cls:'A',work_slug:'primary'},resolved_multi:[{work_slug:'letter-volume',anchor:'b52:0183A-0',numbering:'maurist-as-printed'},{work_slug:'other-volume'},{work_slug:'opaque'}]});
+ assert.equal(rows.length,3);assert.equal(rows[0].url,'/read?w=letter-volume#b52:0183A-0');assert.equal(rows[0].numbering,'maurist-as-printed');assert.equal(rows[2].slug,'primary');
+ delete context.FRResearchData;
+});
+
+test('only identical identified propositions deduplicate; section contexts and authorities remain',()=>{
+ const p={prop_id:'stable-id',page:'001A',claim:'Claim',loci:['Grace']};
+ const result=E.pageContext({units:[{title:'First section',pages:['001A'],loci:['Grace'],positions:[p,{page:'001A',claim:'Unidentified'}],authorities:[{page:'001A',surface:'Augustine'}]},{title:'Second section',pages:['001A'],loci:['Faith'],positions:[{...p},{...p,claim:'Different payload'},{page:'001A',claim:'Unidentified'}],authorities:[{page:'001A',surface:'Augustine'}]}]},'001A');
+ assert.equal(result.positions.length,4);assert.equal(result.units.length,2);assert.equal(result.authorities.length,2);assert.equal(JSON.stringify(result.sections),'["Grace","Faith"]');
+});
+
+test('source and reception choices preserve the actual citation direction',()=>{
+ const ns=[{i:0,s:'anselm',a:'Anselm'},{i:1,s:'augustine',a:'Augustine'},{i:2,s:'aquinas',a:'Aquinas'}],es=[[0,1,9],[2,0,12],[1,0,2]];
+ const out=E.journeyConnections(ns,es,0,'out');assert.equal(out.length,1);assert.equal(out[0].citing.s,'anselm');assert.equal(out[0].target.s,'augustine');
+ const inc=E.journeyConnections(ns,es,0,'in');assert.equal(inc.length,2);assert.equal(inc[0].citing.s,'aquinas');assert.equal(inc[0].target.s,'anselm');
+ const both=E.journeyConnections(ns,es,0,'either');assert.equal(both.length,3);assert.equal(new Set(both.map(r=>r.key)).size,3);
+ assert.deepEqual(es,[[0,1,9],[2,0,12],[1,0,2]]);
+});
+test('journey choices ignore unavailable graph nodes and never duplicate a self-edge',()=>{
+ const n=[{i:0,s:'a',a:'Author'}];assert.equal(E.journeyConnections(n,[[0,3,2]],0).length,0);
+ assert.equal(E.journeyConnections(n,[[0,0,1]],0,'either').length,1);
+});
+
+test('known citation anchors are never replaced by a whole-work mention search',()=>{
+ const url='/read?w=pld-448#b1097-0';assert.equal(E.withHl(url,'Augustinus'),url);
+ const compound='/read?w=pg-230#b52%3A0183A-0';assert.equal(E.withHl(compound,'Athanasius'),compound);
+ assert.match(E.withHl('/read?w=work','Augustinus'),/hl=Augustinus/);
+});
+
+test('mixed-direction paths retain the selected citation when authors cite one another',()=>{
+ const n=[{s:'a'},{s:'b'}],e=[[0,1,5],[1,0,9]];
+ assert.deepEqual(E.journeyEdge(n,e,0,1,'either','b|a'),e[1]);
+ assert.equal(E.journeyEdge(n,e,0,1,'out','b|a'),null);
+ assert.deepEqual(E.journeyEdge(n,e,0,1,'in'),e[1]);
+ assert.equal(E.journeyEdge(n,e,0,1,'either','missing|b'),null);
+});
+
+test('long citation lists remain fully reachable through bounded work and reference pages',()=>{
+ const rows=Array.from({length:9714},(_,id)=>({id,w:id<8000?'first':'second',p:String(id%701)}));
+ const groups=E.citationGroups(rows);assert.equal(groups.reduce((n,g)=>n+g[1].length,0),9714);assert.equal(E.pageWindow(groups[0][1],0,5).items.length,5);
+ const seen=new Set();for(let i=0;i<1600;i++)for(const r of E.pageWindow(groups[0][1],i,5).items)seen.add(r.id);assert.equal(seen.size,8000);
+ assert.equal(E.pageWindow([],90).page,0);assert.equal(E.pageWindow(rows,99999).end,9714);
+});
+test('compound source locations sort as strings without being collapsed to their volume number',()=>{
+ const groups=E.citationGroups([{w:'pg',p:'52:0184A'},{w:'pg',p:'52:0183B'},{w:'pg',p:'52:0183A'}]);assert.equal(groups[0][1].map(r=>r.p).join('|'),'52:0183A|52:0183B|52:0184A');
+});
+test('save controls reach the delegated handler and source links retain the research page',()=>{
+ const source=fs.readFileSync(__dirname+'/connection-evidence.js','utf8');const save=source.slice(source.indexOf('const saveWorkBtn='),source.indexOf('const ranked=citationGroups',source.indexOf('const saveWorkBtn=')));
+ assert.doesNotMatch(save,/onclick=/);assert.match(source,/href="\$\{esc\(withHl\(s.url,r.sf\)\)\}" target="_blank" rel="noopener">Open source/);
+ assert.match(source,/data-ce-record-page/);assert.match(source,/p\.items\.map\(recordHTML\)/);
+});
+
+test('an explicit Summa question outside the held volume is a target conflict',()=>{
+ const target={work:{title:'Summa Theologica I-II, q. 1-70'}};
+ assert.equal(E.targetLocationConflict({loc:'1.2.q.81.art.3'},target),true);
+ assert.equal(E.targetLocationConflict({loc:'I-II q. 81, art. 3'},target),true);
+ assert.equal(E.targetLocationConflict({loc:'II-II q. 12'},target),true);
+});
+test('Summa range checks preserve valid boundary questions',()=>{
+ const target={work:{title:'Summa Theologica I-II, q. 1–70'}};
+ for(const loc of ['1.2.q.1.art.1','I-II q. 70','I-II q. 25, art. 3'])assert.equal(E.targetLocationConflict({loc},target),false);
+});
+test('ambiguous citations and unrelated title numbers never establish a target conflict',()=>{
+ for(const loc of ['1.2. of this question','third part of St. Thomas, qq. 27–71','q. 81','I-II q. 1-81'])assert.equal(E.targetLocationConflict({loc},{work:{title:'Summa Theologica I-II, q. 1-70'}}),false);
+ assert.equal(E.targetLocationConflict({loc:'I-II q. 81'},{work:{title:'Commentary, Vol. 1-70'}}),false);
+});

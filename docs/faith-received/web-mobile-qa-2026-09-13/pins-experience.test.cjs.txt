@@ -1,0 +1,46 @@
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),vm=require('node:vm'),box={module:{exports:{}},URL};vm.runInNewContext(fs.readFileSync(__dirname+'/pins-experience.js','utf8'),box);const api=box.module.exports;
+test('explicit reader links survive cards and exports with source division and exact paragraph',()=>{
+ const url='https://thefaithreceived.vercel.app/read?w=pld-6037&pldpart=4&section=source#b73-3';
+ const item={type:'note',readingPlace:true,title:'Etymologies',slug:'pld-6037',page:'73',row:'b73-3',text:'',url};
+ const d=api.describe(item);assert.equal(d.href,url);assert.equal(d.title,'Etymologies');assert.equal(d.action,'Resume reading');assert.match(api.markdown(item),/pldpart=4&section=source#b73-3/);
+ assert.doesNotMatch(api.markdown(item),/%23b/);
+});
+test('compound page labels remain strings and whole works do not get false null anchors',()=>{
+ assert.match(api.sourceURL({slug:'volume',page:'52:0183A'}),/#b52:0183A-0$/);
+ assert.equal(api.sourceURL({slug:'work',page:null}),'https://thefaithreceived.vercel.app/read?w=work');
+});
+test('saved Ask answers expose the answer, conversation and original citations',()=>{
+ const item={type:'note',askTurn:'t',chat:'c',askQuestion:'What is grace?',askAnswer:'First paragraph.\n\nSecond paragraph.',askSources:[{slug:'pld-1',page:42,title:'A source'}]};
+ const d=api.describe(item);assert.equal(d.title,'What is grace?');assert.equal(d.body,item.askAnswer);assert.equal(d.action,'Open conversation');assert.match(d.href,/ask\?chat=c$/);assert.match(api.markdown(item),/Second paragraph/);assert.match(api.markdown(item),/#b42-0/);
+});
+test('quote records and working annotations remain visible and searchable',()=>{
+ const item={type:'note',quoteImage:true,slug:'work',text:'A complete quotation',note:'Use in chapter two'};
+ const d=api.describe(item);assert.equal(d.kindLabel,'Saved quote');assert.equal(d.body,item.text);assert.equal(api.matches(item,'chapter two'),true);assert.match(api.markdown(item),/Use in chapter two/);
+});
+test('unsafe URLs are rejected and Desk receives collection and item identity',()=>{
+ assert.equal(api.sourceURL({url:'javascript:alert(1)'}),'');
+ const url=new URL(api.deskURL('notes & sources','reading-place:work:73'),'https://thefaithreceived.vercel.app');
+ assert.equal(url.searchParams.get('notebook'),'notes & sources');assert.equal(url.searchParams.get('item'),'reading-place:work:73');assert.equal(url.searchParams.get('view'),'research');
+});
+test('annotating a saved answer preserves the original question and answer',()=>{
+ const box={module:{exports:{}}};vm.runInNewContext(fs.readFileSync(__dirname+'/research-notebook.js','utf8'),box);const N=box.module.exports;
+ const item={id:'answer',type:'note',askTurn:'turn',text:'Original question and answer',askAnswer:'Complete answer',askQuestion:'Question?'};
+ const values=new Map([['fr_collections_v1',JSON.stringify([{id:'c',name:'Notebook',items:[item]}])],['fr_pincol','c']]);const store={getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)};
+ const result=N.commitNoteEdit('c',{kind:'item',key:N.itemKey(item),index:0,field:'note',before:'',text:'My reading of this answer'},store);
+ const saved=result.collections[0].items[0];assert.equal(saved.askAnswer,'Complete answer');assert.equal(saved.text,item.text);assert.equal(saved.note,'My reading of this answer');
+});
+
+test('Ask notebook saving uses the common save operation with complete answer and sources',async()=>{
+ const source=fs.readFileSync(__dirname+'/../ask_workspace/ask-workspace.js','utf8'),start=source.indexOf('    if(b.dataset.note){'),code=source.slice(start,source.indexOf('\n',start));
+ const calls=[],turn={id:'turn',q:'Question?',src:Array.from({length:30},(_,i)=>({slug:'work-'+i,page:i}))},button={dataset:{note:'turn'},disabled:false},scope={b:button,c:{id:'chat',contextWork:'work',turns:[turn]},contextWork:()=>'',shownAnswer:()=> 'Full answer',window:{FRResearchNotebook:{save:async item=>{calls.push(item);return {collectionName:'My notebook'};}}},toast:()=>{},encodeURIComponent,Date};
+ await vm.runInNewContext('(async()=>{'+code+'})()',scope);
+ assert.equal(calls.length,1);assert.equal(calls[0].askAnswer,'Full answer');assert.equal(calls[0].askSources.length,30);assert.equal(calls[0].url,'/ask?chat=chat');assert.equal(button.disabled,true);
+});
+
+test('saved works and passages retain their edition identity without retitling the work',()=>{
+ const meta={w:{title:'Augustinus',volume:'Complete ed.',author:'Jansen'}};
+ const work=api.describe({slug:'w',page:null},meta);assert.equal(work.title,'Augustinus');assert.equal(work.location,'Complete ed.');
+ const passage=api.describe({slug:'w',page:'52:0183A'},meta);assert.equal(passage.location,'Complete ed. · Location 52:0183A');assert.match(passage.href,/#b52:0183A-0$/);
+ assert.equal(api.describe({slug:'w',page:'6',cite:'Complete ed. · p. 6'},meta).location,'Complete ed. · p. 6');
+});

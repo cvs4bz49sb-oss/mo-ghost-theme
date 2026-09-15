@@ -1,0 +1,21 @@
+[
+  {
+    "file": "read.html",
+    "local_md5": "f7ef010232d0b78ca2edef85841f8dc1",
+    "alias_md5": "f7ef010232d0b78ca2edef85841f8dc1",
+    "match": true,
+    "note": "Initial edge response differed; fresh clean-route read matched byte for byte."
+  },
+  {
+    "file": "reader-core.js",
+    "local_md5": "d135a533f3e5b709da974f2d2a4512b1",
+    "alias_md5": "d135a533f3e5b709da974f2d2a4512b1",
+    "match": true
+  },
+  {
+    "file": "pg-parallel.js",
+    "local_md5": "0c40ed7248fea33b7ed59ec78b92bfd8",
+    "alias_md5": "0c40ed7248fea33b7ed59ec78b92bfd8",
+    "match": true
+  }
+]

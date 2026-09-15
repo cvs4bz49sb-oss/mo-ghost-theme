@@ -1,0 +1,22 @@
+[
+  {
+    "source": "tools/prdl_reader_prototype/reader_shell.html",
+    "reference": "source/reader_shell.html.txt",
+    "sha256": "d1f2439aba00a60c02545d65021984a98868f440e4e3511202c496dea16ec241"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/migne-navigation.js",
+    "reference": "source/migne-navigation.js.txt",
+    "sha256": "01eadc1811ddc5c9d3aa10acf826b1e67e3b503637ce4d359066e56c63dc537c"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/migne-source-ui.test.cjs",
+    "reference": "source/migne-source-ui.test.cjs.txt",
+    "sha256": "d100481ece498dc3f1388730ec3326043abe8268024d0f6460921cb81cdba7ce"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-navigation.test.cjs",
+    "reference": "source/reader-navigation.test.cjs.txt",
+    "sha256": "a8da4bbcb53be4527e5cce333990b7cbbedd6a00d7376d77fedd8e83afb8c67e"
+  }
+]

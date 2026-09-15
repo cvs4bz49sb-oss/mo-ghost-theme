@@ -1,0 +1,200 @@
+TAP version 13
+# Subtest: canonical index covers detached pages outside the mounted and initially loaded page inventory
+ok 1 - canonical index covers detached pages outside the mounted and initially loaded page inventory
+  ---
+  duration_ms: 2.723167
+  ...
+# Subtest: English-only canonical text is searchable without requiring a source lane
+ok 2 - English-only canonical text is searchable without requiring a source lane
+  ---
+  duration_ms: 0.941541
+  ...
+# Subtest: page references preserve compound milestones and only normalize wholly numeric zero padding
+ok 3 - page references preserve compound milestones and only normalize wholly numeric zero padding
+  ---
+  duration_ms: 0.315375
+  ...
+# Subtest: repeated chapter labels include distinct complete page references without duplicating explicit locators
+ok 4 - repeated chapter labels include distinct complete page references without duplicating explicit locators
+  ---
+  duration_ms: 0.469167
+  ...
+# Subtest: plain-text extraction separates blocks while retaining inline word joins and notes
+ok 5 - plain-text extraction separates blocks while retaining inline word joins and notes
+  ---
+  duration_ms: 0.241166
+  ...
+# Subtest: fallback coverage is explicitly loaded text and cannot borrow unrendered legacy data
+ok 6 - fallback coverage is explicitly loaded text and cannot borrow unrendered legacy data
+  ---
+  duration_ms: 0.609875
+  ...
+# Subtest: large indexes yield without truncating matching results
+ok 7 - large indexes yield without truncating matching results
+  ---
+  duration_ms: 1.778833
+  ...
+# Subtest: authoritative source regions label provenance and sort body before contents and front matter without dropping hits
+ok 8 - authoritative source regions label provenance and sort body before contents and front matter without dropping hits
+  ---
+  duration_ms: 0.546708
+  ...
+# Subtest: provenance inherits explicit source metadata but never derives a region from a printed page or contents wording
+ok 9 - provenance inherits explicit source metadata but never derives a region from a printed page or contents wording
+  ---
+  duration_ms: 0.737958
+  ...
+# Subtest: snippets highlight literal terms while escaping source markup and regex characters
+ok 10 - snippets highlight literal terms while escaping source markup and regex characters
+  ---
+  duration_ms: 0.597875
+  ...
+# Subtest: mobile result selection retains query/results and reopens the same Search pane
+ok 11 - mobile result selection retains query/results and reopens the same Search pane
+  ---
+  duration_ms: 0.909708
+  ...
+# Subtest: desktop result selection keeps the rail open and delegates the only navigation
+ok 12 - desktop result selection keeps the rail open and delegates the only navigation
+  ---
+  duration_ms: 0.4445
+  ...
+# Subtest: Contents and Front matter labels are rendered only from retained provenance
+ok 13 - Contents and Front matter labels are rendered only from retained provenance
+  ---
+  duration_ms: 0.603792
+  ...
+# Subtest: editing a query while canonical text loads discards its stale results
+ok 14 - editing a query while canonical text loads discards its stale results
+  ---
+  duration_ms: 0.446125
+  ...
+# Subtest: related candidates preserve opaque page IDs, deduplicate, and omit the current work
+ok 15 - related candidates preserve opaque page IDs, deduplicate, and omit the current work
+  ---
+  duration_ms: 2.246208
+  ...
+# Subtest: legacy patristic vector row anchors never become invented reader page links
+ok 16 - legacy patristic vector row anchors never become invented reader page links
+  ---
+  duration_ms: 0.170125
+  ...
+# Subtest: empty search, missing index, and invalid payloads are distinct
+ok 17 - empty search, missing index, and invalid payloads are distinct
+  ---
+  duration_ms: 0.299042
+  ...
+# Subtest: related search loads only on request, caches repeats, and never refreshes while reading
+ok 18 - related search loads only on request, caches repeats, and never refreshes while reading
+  ---
+  duration_ms: 3.637166
+  ...
+# Subtest: failed replacement searches clear previous results and can be retried
+ok 19 - failed replacement searches clear previous results and can be retried
+  ---
+  duration_ms: 1.436167
+  ...
+# Subtest: sampled panels hand off to all published work records, clear filters, and preserve reading position
+ok 20 - sampled panels hand off to all published work records, clear filters, and preserve reading position
+  ---
+  duration_ms: 38.784917
+  ...
+# Subtest: handoff survives missing or failed sampled overviews without fetching units itself
+ok 21 - handoff survives missing or failed sampled overviews without fetching units itself
+  ---
+  duration_ms: 2.692667
+  ...
+# Subtest: missing categories and unavailable unit files stay explicit and recoverable
+ok 22 - missing categories and unavailable unit files stay explicit and recoverable
+  ---
+  duration_ms: 5.683
+  ...
+# Subtest: overlapping handoffs reuse the pending load and only the latest focuses its category
+ok 23 - overlapping handoffs reuse the pending load and only the latest focuses its category
+  ---
+  duration_ms: 3.982
+  ...
+# Subtest: reader destinations preserve column identifiers, page zero, and encoded work slugs
+ok 24 - reader destinations preserve column identifiers, page zero, and encoded work slugs
+  ---
+  duration_ms: 0.359417
+  ...
+# Subtest: Positions destinations retain the exact roster slug, shelf, and source work
+ok 25 - Positions destinations retain the exact roster slug, shelf, and source work
+  ---
+  duration_ms: 0.49725
+  ...
+# Subtest: author matching never borrows a shared name token or discards exact shelf variants
+ok 26 - author matching never borrows a shared name token or discards exact shelf variants
+  ---
+  duration_ms: 0.272083
+  ...
+# Subtest: Scripture routes use catalogue book slugs and place verse queries inside the hash
+ok 27 - Scripture routes use catalogue book slugs and place verse queries inside the hash
+  ---
+  duration_ms: 0.715375
+  ...
+# Subtest: unresolved Bible names and chapter ranges never become guessed chapter destinations
+ok 28 - unresolved Bible names and chapter ranges never become guessed chapter destinations
+  ---
+  duration_ms: 0.111
+  ...
+# Subtest: complete references retain every matching citation without merging shared pages
+ok 29 - complete references retain every matching citation without merging shared pages
+  ---
+  duration_ms: 0.571583
+  ...
+# Subtest: malformed reference files remain failures instead of plausible empty inventories
+ok 30 - malformed reference files remain failures instead of plausible empty inventories
+  ---
+  duration_ms: 0.194
+  ...
+# Subtest: the two mention-sidecar formats preserve their separate records and page identifiers
+ok 31 - the two mention-sidecar formats preserve their separate records and page identifiers
+  ---
+  duration_ms: 0.122959
+  ...
+# Subtest: missing or mismatched mention wrappers are reported as invalid data
+ok 32 - missing or mismatched mention wrappers are reported as invalid data
+  ---
+  duration_ms: 0.302917
+  ...
+# Subtest: unit alignment and string page identifiers preserve zero and compound columns
+ok 33 - unit alignment and string page identifiers preserve zero and compound columns
+  ---
+  duration_ms: 0.869875
+  ...
+# Subtest: text and raw metadata remain complete, with combined work/page/topic filters
+ok 34 - text and raw metadata remain complete, with combined work/page/topic filters
+  ---
+  duration_ms: 0.310458
+  ...
+# Subtest: summaries never become canonical selected quotations in Ask drafts
+ok 35 - summaries never become canonical selected quotations in Ask drafts
+  ---
+  duration_ms: 0.157916
+  ...
+# Subtest: source links preserve compound pages and page zero
+ok 36 - source links preserve compound pages and page zero
+  ---
+  duration_ms: 0.329667
+  ...
+# Subtest: empty and partial published fields do not invent records or page references
+ok 37 - empty and partial published fields do not invent records or page references
+  ---
+  duration_ms: 0.247125
+  ...
+# Subtest: identical proposition records merge without losing their section contexts
+ok 38 - identical proposition records merge without losing their section contexts
+  ---
+  duration_ms: 8.094459
+  ...
+1..38
+# tests 38
+# suites 0
+# pass 38
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 100.14925

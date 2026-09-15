@@ -1,0 +1,90 @@
+--- a/tools/prdl_reader_prototype/reader_shell.html
++++ b/tools/prdl_reader_prototype/reader_shell.html
+@@ -5772,7 +5772,7 @@
+         if(syn.length>=3){DATA.structure=syn;STRUCT=true;}
+       }catch(e){}
+     }
+-    const nav=$("#nav");window.FRReaderContents?.capture(nav);nav.innerHTML="";
++    const nav=$("#nav");if(window.FRReaderContents?.release)window.FRReaderContents.release(nav);else window.FRReaderContents?.capture(nav);nav.innerHTML="";
+     // NEVER A DEAD END ON A PHONE (owner 2026-08-31 "when I'm in a confession I can't get
+     // out"): the brand home link is hidden on small screens, so the contents sheet opens
+     // with the ways OUT — home, and the section this work belongs to. Library-tab work
+@@ -6244,6 +6244,7 @@
+ function setContentsOpen(open,restoreFocus=false){
+   const sidebar=document.querySelector('.sidebar'),focused=document.activeElement;
+   app.classList.toggle('nosb',!open);
++  if(open)document.documentElement.classList.remove('mh-hide','mh-mini');
+   if(!open&&sidebar?.contains(focused))focused.blur();
+   window.__frThumbSync?.();
+   if(!open&&restoreFocus){const target=document.documentElement.classList.contains('g-mobile')?document.querySelector('.frthumb [data-t="toc"]'):$('#sbT');target?.focus({preventScroll:true});}
+@@ -6306,6 +6307,7 @@
+     sc.addEventListener("scroll",()=>{
+       const mob=mq.matches;
+       const y=sc.scrollTop,d=y-y0;y0=y;
++      if(mob&&!app.classList.contains("nosb")){acc=0;return;}
+       if(y<90){HTML.classList.remove("mh-hide","mh-mini");acc=0;return;}
+       acc=(d>0)===(acc>0)?acc+d:d;
+       if(acc>140)HTML.classList.add(mob?"mh-hide":"mh-mini");
+--- a/tools/prdl_reader_prototype/reader-contents.css
++++ b/tools/prdl_reader_prototype/reader-contents.css
+@@ -1,4 +1,13 @@
+ /* Quiet controls for the reader's existing source-backed outline. */
++.sidebar:has(#nav.rc-has-controls){overflow:hidden}
++#nav.rc-has-controls{min-height:0;padding:0 .55rem 16px;scroll-padding-top:calc(var(--rc-controls-height,0px) + 8px);scroll-padding-bottom:12px}
++.rc-contents-header{position:sticky;top:0;z-index:5;margin:0 -.55rem 8px;padding:8px .55rem 0;background:var(--sidebar-bg,var(--bg));isolation:isolate}
++#nav .rc-contents-header .nav-vt{position:static;top:auto;margin:0 0 4px}
++.rc-contents-header .rc-contents-tools{position:static;top:auto;margin-bottom:0}
++@media(max-width:880px) and (max-height:520px){
++ #nav.rc-has-controls{scroll-padding-top:8px}
++ #nav .rc-contents-header{position:static}
++}
+ .rc-contents-tools{position:sticky;top:var(--rc-tabs-height,0px);z-index:4;padding:10px 4px 8px;background:var(--sidebar-bg,var(--bg));border-bottom:1px solid var(--border);margin:0 0 8px;font:13px/1.45 'Source Serif Pro',Georgia,serif}
+ .rc-contents-query{display:flex;align-items:center;gap:8px}.rc-contents-label{display:block;flex:1;min-width:0}.rc-contents-label input{box-sizing:border-box;display:block;width:100%;min-width:0;min-height:44px;padding:9px 10px;border:1px solid var(--border);border-radius:5px;background:var(--card-bg,var(--card));color:var(--fg);font:16px/1.4 'Source Serif Pro',Georgia,serif}.rc-contents-label input::placeholder{color:var(--muted);opacity:1}
+ .rc-contents-label input::-webkit-search-cancel-button,.rc-contents-label input::-webkit-search-decoration{-webkit-appearance:none;display:none}.rc-contents-tools .rc-contents-clear{min-width:44px}
+@@ -30,5 +39,5 @@
+  html.g-mobile .rc-contents-close:hover,html.g-mobile .rc-contents-close:active{background:var(--hl,var(--highlight))}
+  html.g-mobile .rc-contents-close:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
+  html.g-mobile #nav .nav-node .nav-open{flex:1;min-width:0;text-align:left;overflow-wrap:break-word}
+- html.g-mobile #nav .nav-node{scroll-margin-top:calc(var(--rc-tabs-height,48px) + 140px);scroll-margin-bottom:12px}
++ html.g-mobile #nav .nav-node{scroll-margin-top:8px;scroll-margin-bottom:12px}
+ }
+--- a/tools/prdl_reader_prototype/reader-contents.js
++++ b/tools/prdl_reader_prototype/reader-contents.js
+@@ -54,6 +54,7 @@
+   }
+   function persist(key,state){try{root.sessionStorage?.setItem('fr_contents_v1:'+encodeURIComponent(key),JSON.stringify({v:1,query:state.query,expanded:[...state.expanded]}));}catch(_){} }
+   function capture(nav){return controllers.get(nav)?.capture()||null;}
++  function release(nav){const controller=controllers.get(nav);if(!controller)return null;const saved=controller.capture();controller.destroy();return saved;}
+   function highlight(nav,index){return controllers.get(nav)?.highlight(index)??-1;}
+   function bind(options){
+     const {nav,items,rows,parents,key,onCurrent}=options;if(!nav||!Array.isArray(items)||!Array.isArray(rows)||rows.length!==items.length)throw Error('Contents rows must match their source inventory.');
+@@ -72,8 +73,14 @@
+     const hasBranches=tree.hasChildren.some(Boolean);expand.hidden=collapse.hidden=!hasBranches;
+     const showTools=items.length>8||hasBranches||!!state.query;
+     if(showTools)nav.insertBefore(tools,rows[0]||null);
+-    const tabs=nav.querySelector('.nav-vt'),measureTabs=()=>tools.style.setProperty('--rc-tabs-height',Math.ceil(tabs?.getBoundingClientRect().height||0)+'px');measureTabs();
+-    const resize=tabs&&root.ResizeObserver?new root.ResizeObserver(measureTabs):null;if(resize)resize.observe(tabs);
++    const leading=Array.from(nav.children).filter(node=>node.classList.contains('nav-home')||node.classList.contains('nav-vt'));
++    if(showTools)leading.push(tools);
++    const header=leading.length?create('div','rc-contents-header'):null;
++    if(header){nav.insertBefore(header,leading[0]);leading.forEach(node=>header.appendChild(node));nav.classList.add('rc-has-controls');}
++    let controlsHeight=-1;
++    const measureControls=()=>{const height=Math.ceil(header?.getBoundingClientRect().height||0);if(height!==controlsHeight){controlsHeight=height;nav.style.setProperty('--rc-controls-height',height+'px');}};
++    measureControls();
++    const resize=header&&root.ResizeObserver?new root.ResizeObserver(measureControls):null;if(resize)resize.observe(header);
+     function listen(node,type,handler){node.addEventListener(type,handler);listeners.push(()=>node.removeEventListener(type,handler));}
+     function readCurrent(){try{const index=onCurrent?.();return Number.isInteger(index)&&index>=0&&index<rows.length?index:-1;}catch(_){return -1;}}
+     function markCurrent(index){
+@@ -110,10 +117,10 @@
+     listen(clear,'click',()=>{setQuery('');input.focus({preventScroll:true});});listen(expand,'click',()=>expandAll(true));listen(collapse,'click',()=>expandAll(false));listen(current,'click',showCurrent);
+     const controller={tree,input,tools,setQuery,expandAll,showCurrent,highlight:markCurrent,hasCaptured:()=>state.pending,
+       capture(){state.query=input.value;state.scroll=nav.scrollTop;const focused=doc.activeElement;state.focus=focused===input?{kind:'query',start:input.selectionStart,end:input.selectionEnd,direction:input.selectionDirection}:targets.get(focused)||null;state.pending=true;persist(text(key),state);return {query:state.query,scroll:state.scroll,focus:state.focus,expanded:[...state.expanded]};},
+-      destroy(){destroyed=true;resize?.disconnect();listeners.forEach(stop=>stop());tools.remove();if(controllers.get(nav)===controller)controllers.delete(nav);}};
++      destroy(){destroyed=true;resize?.disconnect();listeners.forEach(stop=>stop());tools.remove();if(header?.parentElement===nav){Array.from(header.children).forEach(node=>nav.insertBefore(node,header));header.remove();}nav.classList.remove('rc-has-controls');nav.style.setProperty('--rc-controls-height','0px');if(controllers.get(nav)===controller)controllers.delete(nav);}};
+     controllers.set(nav,controller);refresh();
+     if(state.pending){const saved={scroll:state.scroll,focus:state.focus},focused=doc.activeElement;state.pending=false;frame(()=>{if(destroyed)return;nav.scrollTop=saved.scroll;if(doc.activeElement!==focused)return;let target=saved.focus?.kind==='query'?input:saved.focus?((saved.focus.kind==='caret'?carets:links)[keyIndex.get(saved.focus.key)]):null;if(target?.getClientRects().length){target.focus({preventScroll:true});if(target===input&&Number.isInteger(saved.focus.start))try{input.setSelectionRange(saved.focus.start,saved.focus.end,saved.focus.direction);}catch(_){}}});}
+     return controller;
+   }
+-  return {bind,capture,highlight,currentIndex,model,filtered,itemsFor:nav=>controllers.get(nav)?.tree.items||null};
++  return {bind,capture,release,highlight,currentIndex,model,filtered,itemsFor:nav=>controllers.get(nav)?.tree.items||null};
+ });

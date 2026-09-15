@@ -1,0 +1,13 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/desk.html','utf8');
+function fixture(fail=false){
+ let documents=[{id:'test',title:'QA paper',ts:1},{id:'keep',title:'Existing paper',ts:1}],rows=[],writes=0;
+ const control=(attrs={})=>({attrs,textContent:'',hidden:true,getAttribute(k){return this.attrs[k]},setAttribute(k,v){this.attrs[k]=v}});
+ const editor={innerHTML:'Existing text'},title={value:'QA paper'};
+ const list={set innerHTML(value){rows=documents.map(d=>{const open=control({'data-id':d.id});open.querySelector=()=>({textContent:d.title});const del=control({'data-del':d.id}),cancel=control();return {open,del,cancel,querySelector:s=>s==='.doc-open'?open:s==='.doc-del'?del:cancel};});}};
+ const box={CUR:documents[0],docDirty:true,savedRange:{},_sv:0,clearTimeout(){},esc:String,docsAll:()=>documents,docsPut:next=>{if(fail)return false;documents=next;writes++;return true;},$:s=>s==='#docList'?list:s==='#ed'?editor:title,document:{querySelectorAll:()=>rows},openDoc(){},wcUpdate(){}};
+ vm.createContext(box);vm.runInContext(source.slice(source.indexOf('function renderDocs(){'),source.indexOf('function wcUpdate()')),box);box.renderDocs();return {box,get rows(){return rows},get documents(){return documents},get writes(){return writes},editor};
+}
+test('first Delete only asks for confirmation, and Cancel preserves all documents',()=>{const h=fixture();h.rows[0].del.onclick();assert.equal(h.writes,0);assert.equal(h.rows[0].cancel.hidden,false);assert.equal(h.rows[0].del.textContent,'Confirm delete');h.rows[0].cancel.onclick();assert.equal(h.documents.length,2);assert.equal(h.writes,0);assert.equal(h.rows[0].del.getAttribute('data-armed'),undefined);});
+test('confirmation removes only the selected document and cancels its pending autosave',()=>{const h=fixture();h.rows[0].del.onclick();h.rows[0].del.onclick();assert.deepEqual(h.documents.map(d=>d.id),['keep']);assert.equal(h.box.CUR,null);assert.equal(h.box.docDirty,false);assert.equal(h.editor.innerHTML,'');});
+test('a failed storage write preserves the document and editor',()=>{const h=fixture(true);h.rows[0].del.onclick();h.rows[0].del.onclick();assert.equal(h.documents.length,2);assert.equal(h.editor.innerHTML,'Existing text');assert.equal(h.box.CUR.id,'test');});

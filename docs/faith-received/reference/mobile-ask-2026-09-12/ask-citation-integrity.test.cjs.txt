@@ -1,0 +1,17 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
+const window={};window.parent=window;
+const ctx=vm.createContext({window,FRChatStore:{},URL,matchMedia:()=>({matches:false,addEventListener(){}}),location:{origin:'https://thefaithreceived.vercel.app'},document:{readyState:'loading',addEventListener(){}}});
+vm.runInContext(fs.readFileSync(__dirname+'/ask-workspace.js','utf8'),ctx);
+test('a known parenthetical PL citation opens its exact registered passage',()=>{
+ assert.match(window.FRAsk.markdown('(PL 186:697)',[{cit:'PL 186:0697',link:'/read?w=pld-8006#b697-0'}]),/href=.*#b697-0/);
+});
+test('an unknown slug and page cannot be rendered as a verified citation',()=>{
+ assert.ok(!window.FRAsk.markdown('[never-retrieved-work/p697]',[]).includes('<a '));
+});
+test('a registered compound location keeps its authoritative source link',()=>{
+ assert.match(window.FRAsk.markdown('[pld-8006/p186:0697A]',[{slug:'pld-8006',page:'186:0697A',link:'/read?w=pld-8006#b697-0'}]),/#b697-0/);
+});
+test('indented source quotations render as quotations rather than literal arrows',()=>{
+ const html=window.FRAsk.markdown('2. Source\n\n   > Actual source wording [work/p1]',[{slug:'work',page:1}]);
+ assert.match(html,/<blockquote>/);assert.ok(!html.includes('&gt;'));assert.match(html,/<ol start="2">/);
+});

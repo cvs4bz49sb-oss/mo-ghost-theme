@@ -1,0 +1,122 @@
+[
+  {
+    "source": "tools/prdl_reader_prototype/pg-parallel.js",
+    "file": "source/tools/prdl_reader_prototype/pg-parallel.js.txt",
+    "bytes": 5122,
+    "sha256": "8317bb30064af6f1b8a7aa4279001f1dd87b5852b8309907d2d20c0893f40613"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/pg-parallel.test.cjs",
+    "file": "source/tools/prdl_reader_prototype/pg-parallel.test.cjs.txt",
+    "bytes": 6215,
+    "sha256": "4ac55a8e82254653af16da89e093fc27610c698460760c283cfa4aaf36b19771"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-pg-pagination.test.cjs",
+    "file": "source/tools/prdl_reader_prototype/reader-pg-pagination.test.cjs.txt",
+    "bytes": 1505,
+    "sha256": "3449904d16b81e9c65fb4e9456237107aba94e8c9667358fa6b87d8c6e35dca7"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-pg-opening-language.test.cjs",
+    "file": "source/tools/prdl_reader_prototype/reader-pg-opening-language.test.cjs.txt",
+    "bytes": 1202,
+    "sha256": "61bef2311fd18880e90c220da8ad9b8f394dd814570eee993eb7add406f0768d"
+  },
+  {
+    "source": "tools/build_dist.py",
+    "file": "source/tools/build_dist.py.txt",
+    "bytes": 45256,
+    "sha256": "2b18d27ed0b429be8931c747e60c0534711be36796cd03a787593627c3b0940a"
+  },
+  {
+    "source": "tools/pg_enrich_tei.py",
+    "file": "source/tools/pg_enrich_tei.py.txt",
+    "bytes": 7583,
+    "sha256": "fad341a12f475c407b7611f9a47cd232d72590dcf1e56616e2776ae62a0dd909"
+  },
+  {
+    "source": "tools/pg_zone_backfill.py",
+    "file": "source/tools/pg_zone_backfill.py.txt",
+    "bytes": 8533,
+    "sha256": "ff89f9783d06a899443d790ecac84ed0edcf07620b411464d6f6986de2578283"
+  },
+  {
+    "source": "tools/pg_tei_reseg.py",
+    "file": "source/tools/pg_tei_reseg.py.txt",
+    "bytes": 10587,
+    "sha256": "d93fd45344bc4142d880a9b8f1320e74a2d7e39d58ac92cebe38619658e8afb1"
+  },
+  {
+    "source": "tools/pg_build_release.py",
+    "file": "source/tools/pg_build_release.py.txt",
+    "bytes": 1561,
+    "sha256": "6d79dde4773d3f598cfb8f30908e3adb1f93c011a1873f2778342e115c2b4de5"
+  },
+  {
+    "source": "tools/pg_publish_shelf.py",
+    "file": "source/tools/pg_publish_shelf.py.txt",
+    "bytes": 2956,
+    "sha256": "40c8a09dccdeaa903961de282b325c2958c1622fdcd68b06bb589c912e018d73"
+  },
+  {
+    "source": "tools/pg_refresh_local_copies.py",
+    "file": "source/tools/pg_refresh_local_copies.py.txt",
+    "bytes": 1797,
+    "sha256": "cd94ba33713ffbc266e119065c8f423070cd778ca6da26aa676b518de24226f2"
+  },
+  {
+    "source": "tools/pg_alignment_census.py",
+    "file": "source/tools/pg_alignment_census.py.txt",
+    "bytes": 4633,
+    "sha256": "e9086adb833c2bd811da91cab460ac75c196fdd014f4708a070b7c81c71a58d3"
+  },
+  {
+    "source": "tools/blob_upload/list_pg_files.mjs",
+    "file": "source/tools/blob_upload/list_pg_files.mjs.txt",
+    "bytes": 852,
+    "sha256": "3e999f0af7774113b22ff7edcdefffdaa9d97151acefe5e4d067d4708a8b22cc"
+  },
+  {
+    "source": "tools/blob_upload/snapshot_pg_files.mjs",
+    "file": "source/tools/blob_upload/snapshot_pg_files.mjs.txt",
+    "bytes": 2271,
+    "sha256": "8ca252f100ed54aee8dbd9adff517621a36cd04f35b9b03f1c60a5f64a9c5d47"
+  },
+  {
+    "source": "tools/blob_upload/verify_pg_release.mjs",
+    "file": "source/tools/blob_upload/verify_pg_release.mjs.txt",
+    "bytes": 2570,
+    "sha256": "9e2d854db75fa5db0eb6477d5c4695e09f73677261b53e6d5b55bbb191c4cd4d"
+  },
+  {
+    "source": "tools/test_pg_enrich_tei.py",
+    "file": "source/tools/test_pg_enrich_tei.py.txt",
+    "bytes": 3102,
+    "sha256": "b87e628abbbb13169668f92f48792ecaaa40e09b58ddba1ed283a6d7df7c24bb"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/dtc.html",
+    "file": "source/tools/prdl_reader_prototype/dtc.html.txt",
+    "bytes": 24015,
+    "sha256": "2b7885b4d2bf6fe740260613fe80c33e8f39ce6c1115cbfd3006f26bb2f05747"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader_shell.html",
+    "file": "source/tools/prdl_reader_prototype/reader_shell.html.txt",
+    "bytes": 772930,
+    "sha256": "0bf48ec25781d7319227d4aa4829c6430884275e1cd9af0c9e155a58ce3fd1f8"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-bookmarks.js",
+    "file": "source/tools/prdl_reader_prototype/reader-bookmarks.js.txt",
+    "bytes": 7867,
+    "sha256": "30d7b00654558015fc9d695c429c7b974060b72ce9ed4086b55a28f16ef1ef6b"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-bookmarks.test.cjs",
+    "file": "source/tools/prdl_reader_prototype/reader-bookmarks.test.cjs.txt",
+    "bytes": 12925,
+    "sha256": "b52a38f370200c62c598df392f56d8455692580ea6a4597d62f07ec6b6fdc89f"
+  }
+]

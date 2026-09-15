@@ -1,0 +1,216 @@
+/* PL presentation metadata derived from canonical TEI. Never rewrite source prose. */
+(function(root){
+  'use strict';
+  const reviewed=/*__FR_PLD_REVIEWED__*/{"version":1,"headings":{},"introductions":{}};
+  const sourceViews=/*__FR_PLD_SOURCE_VIEWS__*/{"version":1,"works":{}};
+  const text=node=>String(node?.textContent||'').replace(/\s+/g,' ').trim();
+  const lang=node=>node?.getAttribute('xml:lang')||'';
+  const column=node=>node?.localName==='milestone'&&node.getAttribute('unit')==='column';
+  const tokens=s=>s.normalize('NFC').toLowerCase().replace(/^\s*§\s*/,'').replace(/[\[\]]/g,'')
+    .match(/[\p{L}\p{M}]+|\p{N}+|[^\s]/gu)||[];
+  const headingTokens=s=>tokens(s).join('\u001f');
+  function repeatsHeading(source,p){
+    if(text(p)===source)return true;
+    // The structural head can omit editorial brackets or the leading section
+    // sign from its paired paragraph. Compare the same word/number/punctuation
+    // sequence; retain the full paragraph, including those editorial marks.
+    if(headingTokens(text(p))===headingTokens(source))return true;
+    // Some PL proposition paragraphs are wholly bold and add print note numbers
+    // absent from the structural head (Alain XIX: 31, 32). Only suppress the
+    // synthetic head; preserve every character of that complete paragraph.
+    const children=Array.from(p?.children||[]),bold=children.length===1&&children[0].localName==='hi'
+      &&children[0].getAttribute('rend')==='bold'&&text(children[0])===text(p);
+    if(!bold)return false;
+    const original=tokens(source),paragraph=tokens(text(p));let i=0,added=false;
+    for(const token of paragraph){
+      if(token===original[i])i++;
+      // Only extra numeral tokens can differ. An original Scripture number,
+      // date or chapter number must still match in its original position.
+      else if(/^\d+$/.test(token)&&!/^\d+$/.test(original[i]||''))added=true;
+      else return false;
+    }
+    return added&&i===original.length;
+  }
+  function heading(head){
+    const source=text(head);let next=head.nextElementSibling,companion=null,rawColumn='';
+    // A translation and column marker can occur in either order before the body.
+    while(next&&(column(next)||(next.localName==='head'&&lang(next)==='en'&&lang(head)!=='en'&&!companion))){
+      if(column(next)){if(!rawColumn)rawColumn=next.getAttribute('n')||'';}
+      else companion=next;
+      next=next.nextElementSibling;
+    }
+    const p=next,translation=p?.nextElementSibling,id=p?.getAttribute('xml:id');
+    const linked=!!(source&&lang(head)!=='en'&&p?.localName==='p'&&lang(p)!=='en'
+      &&id&&translation?.localName==='p'&&lang(translation)==='en'
+      &&translation.getAttribute('corresp')==='#'+id&&text(translation));
+    const record=id&&reviewed.headings[id];
+    const exactReview=record&&record.head===source&&record.paragraph===text(p)&&record.english===text(translation);
+    const repeated=linked&&!!(repeatsHeading(source,p)||exactReview);
+    return {source:lang(head)==='en'?'':source,
+      english:repeated?text(translation):companion?text(companion):lang(head)==='en'?source:'',
+      companion,rawColumn,repeated};
+  }
+  function introduction(heads,toPage,slug,structure=[]){
+    const list=Array.from(heads);
+    const record=reviewed.introductions[slug];
+    if(record){
+      const source=(division,title)=>list.some(h=>h.parentElement?.getAttribute('xml:id')===division&&text(h)===title);
+      const start=structure.find(row=>row.pld_division===record.division);
+      if(!start||!source(record.division,record.head))return null;
+      const targets=[];let end=null;
+      if(record.target_division){
+        const target=structure.find(row=>row.pld_division===record.target_division);
+        if(!target||!source(record.target_division,record.target_head))return null;
+        end=target.page;targets.push({page:target.page,title:target.title,label:record.action});
+      }
+      return {start:start.page,end,label:record.label,note:record.note||'',targets};
+    }
+    if(!list.some(h=>/\bPRAENOTATIONES\b/i.test(text(h))))return null;
+    // A real book heading, not CAP. I in a prefatory paragraph of summaries.
+    const book=list.find(h=>/\bSENTENTIARUM LIBER PRIMUS\b/i.test(text(h)));
+    if(!book)return null;
+    const chapter=list.find(h=>h.parentElement?.parentElement===book.parentElement&&/^CAPUT II\./i.test(text(h)));
+    const target=(h,label)=>{if(!h)return null;const info=heading(h),page=toPage(info.rawColumn);
+      return page?{page,title:info.english||info.source,label}:null;};
+    const start=target(book,'Read Book I');if(!start)return null;
+    return {end:start.page,targets:[start,target(chapter,'Read Chapter II')].filter(Boolean)};
+  }
+  function renderedHeading(scope,title){
+    if(!scope||!title)return null;
+    const fold=s=>String(s||'').normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim().replace(/[.\s]+$/g,'');
+    const wanted=fold(title),matches=[];
+    for(const node of scope.querySelectorAll('.en h3,.en p,.la h3,.la p')){
+      if(fold(node.textContent)!==wanted)continue;
+      const row=node.closest('.row');
+      // A hidden English lane can still identify its visible Latin partner row.
+      if(row?.getClientRects().length&&!matches.includes(row))matches.push(row);
+    }
+    return matches.length===1?matches[0]:null;
+  }
+  // UChicago 6037 has two text divisions, each followed by Notes. The TEI
+  // export nests those boundaries under the preceding chapter. Project a view
+  // from a byte-verified source; never deduplicate or rewrite its paragraphs.
+  const etymologiesHash='3eb893c24e8a7ca281c5fe49872aa4b8156a302b8ac9eccf7e53809a9dba8611';
+  function sourcePart(id){
+    const match=/^#?w6037-b(\d+)$/.exec(id||'');if(!match)return null;
+    const n=Number(match[1]);
+    if(n>=746701&&n<=753620)return '2';
+    if(n>=753622&&n<=753630)return '3';
+    if(n>=753632&&n<=760549)return '4';
+    if(n>=760551&&n<=760559)return '5';
+    return null;
+  }
+  const hasSourceViews=slug=>slug==='pld-6037'||!!sourceViews.works[slug];
+  // The publisher has substantive notes for these two works, but the canonical
+  // export does not. Link to the source instead of manufacturing a local layer.
+  function publisherNotes(slug){
+    const path={'pld-5259':'5259/3/1/1/3','pld-6822':'6822/3'}[slug];
+    return path?{url:'https://artflsrv04.uchicago.edu/philologic5/PLD/navigate/'+path,
+      text:'Editorial notes for this work are available in the PLD source. They are not included in this reader.'}:null;
+  }
+  const numericColumn=value=>{const m=/^(?:\d+:)?0*(\d+)[A-D]?$/i.exec(String(value??''));return m?Number(m[1]):null;};
+  function citationContext(slug,page){
+    const profile=sourceViews.works[slug],column=numericColumn(page);
+    if(!profile?.columnNotes||column===null||!profile.noteColumns.includes(column))return null;
+    return {layer:profile.notesOnly.includes(column)?'editorial-notes':profile.mainKnown===false?'notes-available':'text-and-notes',part:'3',column,
+      source:'https://artflsrv04.uchicago.edu/philologic5/PLD/navigate/'+slug.slice(4)+'/'+profile.part.split(' ').join('/')};
+  }
+  function partitionView(doc,slug,hash,requested,reference){
+    const profile=sourceViews.works[slug];if(!profile||profile.sha256!==hash)return null;
+    const body=doc.querySelector('body');if(!body)return null;
+    const leaves=Array.from(body.querySelectorAll('head,p,milestone')).filter(n=>!n.parentElement?.closest('p,head'));
+    if(leaves.length!==profile.leaves||!Number.isInteger(profile.cut)||profile.cut<=0||profile.cut>=leaves.length)return null;
+    const column=numericColumn(reference),automatic=profile.columnNotes&&column!==null&&profile.notesOnly.includes(column);
+    const selected=requested==='3'||(!requested&&automatic)?'3':'2',notes=selected==='3',positions=new Map(leaves.map((n,i)=>[n,i])),ranges=profile.ranges||[[profile.cut,leaves.length]],inside=i=>ranges.some(([a,b])=>a<=i&&i<b);
+    const copy=node=>{
+      if(positions.has(node))return inside(positions.get(node))===notes?node.cloneNode(true):null;
+      const clone=node.cloneNode(false);
+      for(const child of Array.from(node.children)){const kept=copy(child);if(kept)clone.appendChild(kept);}
+      return clone.children.length?clone:null;
+    };
+    const projected=copy(body);if(!projected)return null;
+    if(notes&&profile.columnNotes){
+      const marker=doc.createElementNS(body.namespaceURI,'milestone');marker.setAttribute('unit','column');marker.setAttribute('n',profile.volume+':'+profile.first);
+      marker.setAttribute('data-reader-origin','verified-notes-opening');projected.insertBefore(marker,projected.firstChild);
+    }
+    const result=doc.cloneNode(true);result.querySelector('body').replaceWith(projected);
+    const options=[{id:'2',label:'Text',start:String(profile.mainFirst||1)},{id:'3',label:'Editorial notes',start:String(profile.columnNotes?profile.first:1)}];
+    return {doc:result,id:selected,label:notes?'Editorial notes':'Text',buttonLabel:notes?'Notes':'Text',options,notes,
+      columnNotes:notes&&profile.columnNotes,sourceName:notes?'Original':null,sourceLinks:notes?(profile.parts||[profile.part]).map((part,i)=>({label:(profile.parts||[]).length>1?'Open source notes '+(i+1):'Open source notes',url:'https://artflsrv04.uchicago.edu/philologic5/PLD/navigate/'+slug.slice(4)+'/'+part.split(' ').join('/')})):null,
+      explanation:notes?(profile.columnNotes?'Editorial notes in the original language, separate from the author’s text. Column labels mark the start of each source block.':'Editorial notes from the source edition, shown in their original language and separate from the author’s text.'):'The main text and the edition’s editorial notes are available as separate views.',
+      source:'https://artflsrv04.uchicago.edu/philologic5/PLD/navigate/'+slug.slice(4)+(notes?'/'+profile.part.split(' ').join('/'):'/table-of-contents')};
+  }
+  function sourceViewPart(doc,slug,hash,requested,reference){
+    if(slug!=='pld-6037')return partitionView(doc,slug,hash,requested,reference);
+
+    if(slug!=='pld-6037'||hash!==etymologiesHash)return null;
+    const options=[{id:'2',label:'PLD text 1'},{id:'3',label:'Notes for text 1 (Latin)'},
+      {id:'4',label:'PLD text 2'},{id:'5',label:'Notes for text 2 (Latin)'}];
+    const selected=options.some(o=>o.id===requested)?requested:'2';
+    const body=doc.querySelector('body');if(!body)return null;
+    const leaves=Array.from(body.querySelectorAll('head,p,milestone')).filter(n=>!n.parentElement?.closest('p,head'));
+    const ownership=new Map();let nextPart=null;
+    for(let i=leaves.length-1;i>=0;i--){
+      const node=leaves[i];let part=null;
+      if(node.localName==='p')part=sourcePart(node.getAttribute('xml:id')||node.getAttribute('corresp'));
+      if(node.localName==='head'){
+        let ancestor=node.parentElement;
+        while(ancestor&&!part){part=/^w6037-d6037_([24])(?:_|$)/.exec(ancestor.getAttribute('xml:id')||'')?.[1]||null;ancestor=ancestor.parentElement;}
+      }
+      // Unnumbered title lines and column markers belong to the following text.
+      if(part)nextPart=part;ownership.set(node,part||nextPart);
+    }
+    if(leaves.some(n=>!ownership.get(n)))return null;
+    const copy=node=>{
+      if(ownership.has(node))return ownership.get(node)===selected?node.cloneNode(true):null;
+      const clone=node.cloneNode(false);
+      for(const child of Array.from(node.children)){const kept=copy(child);if(kept)clone.appendChild(kept);}
+      return clone.children.length?clone:null;
+    };
+    const projected=copy(body);if(!projected)return null;
+    const result=doc.cloneNode(true);result.querySelector('body').replaceWith(projected);
+    const choice=options.find(o=>o.id===selected);
+    return {doc:result,id:selected,label:choice.label,options,notes:selected==='3'||selected==='5',
+      source:'https://artflsrv04.uchicago.edu/philologic5/PLD/navigate/6037/'+selected};
+  }
+  // Editorial material is outside the author's paired reading rows. Its own
+  // source markers determine placement; unmapped notes remain labelled at the end.
+  function editorialEntries(records,first=null,columnNotes=true){
+    let at=columnNotes&&Number.isFinite(Number(first))&&first!=null?String(Number(first)):'editorial',raw='';
+    const out={},originals=new Map(),colonFormat=records.some(r=>r.kind==='milestone'&&r.unit==='column'&&String(r.n).includes(':'));
+    for(const r of records){
+      if(r.kind==='milestone'&&r.unit==='column'&&columnNotes){if(colonFormat&&!String(r.n).includes(':'))continue;const n=numericColumn(r.n);if(n!=null){at=String(n);raw=String(r.n);}continue;}
+      if(r.kind!=='p'&&r.kind!=='head')continue;const body=String(r.text||'').replace(/\s+/g,' ').trim();if(!body)continue;
+      const language=r.lang||'la',id=String(r.id||'');
+      if(language==='en'){const prior=originals.get(String(r.corresp||'').replace(/^#/,''));if(prior&&prior===body)continue;}
+      else if(id)originals.set(id,body);
+      (out[at]||(out[at]=[])).push({kind:r.kind,language,id,text:body,sourceColumn:raw});
+    }
+    return out;
+  }
+  function sourceRecords(doc){return [...doc.querySelectorAll('body head,body p,body milestone')].filter(n=>!n.parentElement?.closest('p,head')).map(n=>({kind:n.localName,unit:n.getAttribute('unit'),n:n.getAttribute('n'),lang:lang(n),id:n.getAttribute('xml:id'),corresp:n.getAttribute('corresp'),text:n.textContent}));}
+  function sourceView(doc,slug,hash,requested,reference){
+    if(requested&&requested!=='all')return sourceViewPart(doc,slug,hash,requested,reference);
+    const main=sourceViewPart(doc,slug,hash,'2',reference);if(!main)return null;
+    const notes=sourceViewPart(doc,slug,hash,'3',reference);if(!notes)return main;
+    let editorial=editorialEntries(sourceRecords(notes.doc),sourceViews.works[slug]?.first,!!notes.columnNotes);
+    if(slug==='pld-6037'){
+      const second=sourceViewPart(doc,slug,hash,'4',reference),secondNotes=sourceViewPart(doc,slug,hash,'5',reference);
+      if(second){const target=main.doc.querySelector('body');for(const child of [...second.doc.querySelector('body').children])target.appendChild(child.cloneNode(true));}
+      if(secondNotes){const more=editorialEntries(sourceRecords(secondNotes.doc),null,false);for(const [key,rows]of Object.entries(more))(editorial[key]||(editorial[key]=[])).push(...rows);}
+    }
+    const paragraphs=Object.values(editorial).flat().filter(r=>r.kind==='p'),english=paragraphs.filter(r=>r.language==='en').length;
+    return {...main,id:'all',label:'Text and editorial notes',buttonLabel:'Text + notes',notes:false,combined:true,editorial,
+      hasMainEnglish:[...main.doc.querySelectorAll('p')].some(n=>lang(n)==='en'&&text(n)),
+      editorialEnglish:english,editorialParagraphs:paragraphs.length,
+      options:[{id:'all',label:'Text and editorial notes',start:main.options?.find(o=>o.id==='2')?.start||String(sourceViews.works[slug]?.mainFirst||1)},...main.options],
+      explanation:'The author’s text and the edition’s notes follow their recorded column order. Editorial material is labelled separately.'+(english?'':' The editorial notes have no English translation in the published text.')};
+  }
+  function editorialHTML(entries,page){
+    if(!entries?.length)return '';const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),hasEnglish=entries.some(r=>r.language==='en'),languages=[...new Set(entries.map(r=>r.language))];
+    return `<section class="pld-editorial" data-page="${esc(page)}" id="editorial-${esc(page)}"><h4>Editorial notes${page==='editorial'?'':' · col. '+esc(page)}</h4><p class="pld-editorial-status">${hasEnglish?'Original and available English text.':languages.length===1&&languages[0]==='la'?'Latin original; English translation not available.':'Original text; English translation not available.'} These notes are separate from the author’s text.${page==='editorial'?' Their column locations are not supplied.':''}</p>${entries.map(r=>`<${r.kind==='head'?'h5':'p'} class="pld-editorial-text" lang="${esc(r.language)}"${r.id?' data-source-id="'+esc(r.id)+'"':''}>${esc(r.text)}</${r.kind==='head'?'h5':'p'}>`).join('')}</section>`;
+  }
+  const api={editorialEntries,editorialHTML,heading,introduction,renderedHeading,sourcePart,sourceView,hasSourceViews,publisherNotes,citationContext,numericColumn,etymologiesHash};
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  root.FRPldReading=api;
+})(typeof window==='object'?window:globalThis);

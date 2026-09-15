@@ -1,0 +1,98 @@
+/* UI-only research helpers. Published counts and identifiers are preserved. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.FRResearch=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
+ 'use strict';
+ const shelves={pl:'Latin Fathers',gf:'Greek Fathers',po:'Eastern Fathers',ed:'English Divines',md:'Medieval',rc:'Roman Catholic',lu:'Lutheran',rf:'Continental Reformed',hl:'Humanism and Law'};
+ const shelfMaps={pl:'latin-fathers',gf:'greek-fathers',po:'eastern-fathers',ed:'english-divines',md:'medieval',rc:'roman-catholic',lu:'lutheran',rf:'reformed',hl:'humanism-and-law'};
+ const topicURL=(slug='',sh='')=>'/topics'+(shelves[sh]?'?sh='+encodeURIComponent(sh):'')+(slug?'#'+encodeURIComponent(slug):'');
+ // Map weights are not page counts. Only the published count label has that meaning.
+ function scopedTopics(topics,nodes){const byName=new Map(nodes.map(n=>[fold(n.a),n]));return topics.flatMap(t=>{const node=byName.get(fold(t.t));if(!node)return [];const m=String(node.sub||'').match(/^([\d,]+) mined pages?$/);return [{...t,n:m?Number(m[1].replace(/,/g,'')):null,na:null}];});}
+ function mergePageRefs(...lists){const rows=new Map();for(const r of lists.flat()){if(!r.w||page(r.p)===null)continue;const key=JSON.stringify([r.w,page(r.p)]);if(!rows.has(key))rows.set(key,{...r,p:page(r.p)});else{const old=rows.get(key);if(String(r.g||'').length>String(old.g||'').length)old.g=r.g;}}return [...rows.values()];}
+ function mapAuthorPages(nodes,topic,author){const n=nodes.find(n=>fold(n.a)===fold(topic)),prefix=author+' · ';return (n?.rows||[]).filter(r=>String(r.t||'').startsWith(prefix)).map(r=>({...r,wt:r.t.slice(prefix.length),a:author}));}
+ const eras={E:'Early patristic',L:'Later patristic',C:'Carolingian',H:'High medieval',R:'Reformation',P:'Seventeenth century',M:'Later authors',U:'Undated'};
+ const fold=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+ const nameWords=value=>fold(value).replace(/[^\p{L}\p{N}]+/gu,' ').trim().replace(/\s+/g,' ');
+ function authorScore(author,query){
+  const q=nameWords(query);if(!q)return 1;const tokens=q.split(' '),compact=q.replace(/ /g,'');
+  const names=[author.a,author.s,...(author.variants||[]).flatMap(v=>[v.a,v.s]),...(author.aliases||[])].filter(v=>typeof v==='string').map(nameWords);
+  let score=0;for(const name of names){const words=name.split(' ');if(name===q)score=Math.max(score,100);else if(words.every(w=>tokens.includes(w))&&tokens.every(t=>words.includes(t)))score=Math.max(score,95);
+    else if(tokens.every(t=>words.some(w=>w.startsWith(t))))score=Math.max(score,80);
+    else if(name.includes(q))score=Math.max(score,65);
+    else if(compact.length>=4&&name.replace(/ /g,'').includes(compact))score=Math.max(score,50);}
+  return score;
+ }
+ /* TOPIC LABELS (09-13) — one rule, the same text in research-tools.js and work-research.js (a parity test
+    holds them together). A value that matches the closed topic index by canonical key links to its topic.
+    Classifier chatter is recovered onto the topic it names ("Marriage is not in the list — see loci_other" →
+    Marriage), a composite onto its parts that are topics ("Merit / Rewards" → Merit), a clean label outside
+    the index stays as plain text ("Simony"), and the rest is dropped. Without the index only the last two apply.
+   An index row's `aliases` (typos, mirrored composites, merged duplicates; tools/mine/topic_registry.json) are keys of the same topic. */
+ const RAW_TOPIC=/loci_other|placeholder|unplaced|\bn\/a\b|(?:[(;,.\u2013\u2014\u2192-]\s*|\bbut\s+|\bor\s+|\bno\s*)use\b|\buse\s+(?:closest|loci)|(?:[(;,.\u2013\u2014\u2192-]\s*|\balso\s+)see\b|\blist(?:ed)?\b|\bcovered\b|\bexcluded\b|-related\b|\bnone\b|\bnot a (?:listed )?locus\b|[;:?\u2013\u2014]/i;
+ const TOPIC_SUBJECT=/^\s*(.+?)\s*(?:\bis\b|\bare\b|\bnot\b|\bimplied\b|\u2192|\u2014|\u2013|\s-\s|-related\b|\(|;|:|\bplaceholder\b|\btopics?\b|\bthemes?\b|$)/i;
+ const isRawTopic=v=>{const s=String(v==null?'':v).trim();return !!s&&(s.length>48||RAW_TOPIC.test(s));};
+ const topicKey=v=>String(v==null?'':v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&/g,' and ').replace(/^the\s+/,'').replace(/[^a-z0-9]+/g,' ').trim().split(' ').map(w=>w.length>3&&/s$/.test(w)&&!/ss$/.test(w)?w.slice(0,-1):w).join(' ');
+ const topicVocabularies=new WeakMap();
+ function topicVocabulary(topics){if(!Array.isArray(topics)||!topics.length)return null;if(topicVocabularies.has(topics))return topicVocabularies.get(topics);const map=new Map();for(const t of topics){const name=String(t&&t.t||'');if(!name)continue;for(const v of [name,...(Array.isArray(t.aliases)?t.aliases:[])]){const k=topicKey(v);if(k&&!map.has(k))map.set(k,name);}}topicVocabularies.set(topics,map);return map;}
+ function topicNames(value,topics){const s=String(value==null?'':value).trim(),vocab=topicVocabulary(topics);if(!s)return [];if(vocab){if(vocab.has(topicKey(s)))return [vocab.get(topicKey(s))];if(!s.includes('?')){const subject=(s.match(TOPIC_SUBJECT)||[s,s])[1].trim();if(subject!==s&&vocab.has(topicKey(subject)))return [vocab.get(topicKey(subject))];const parts=subject.split(/\s*\/\s*|\s+&\s+/).filter(p=>p.trim()),got=[];if(parts.length>1)for(const p of parts){const n=vocab.get(topicKey(p));if(n&&!got.includes(n))got.push(n);}if(got.length)return got;}}return isRawTopic(s)?[]:[s];}
+ function cleanTopics(values,topics){const out=[];for(const v of Array.isArray(values)?values:[])for(const n of topicNames(v,topics))if(!out.includes(n))out.push(n);return out;}
+ /* END TOPIC LABELS */
+ const era=r=>!Number(r.y)?'U':r.y<500?'E':r.y<800?'L':r.y<1100?'C':r.y<1450?'H':r.y<1600?'R':r.y<1700?'P':'M';
+ const page=p=>p===undefined||p===null||p===''?null:String(p);
+ const authorURL=(r,topic)=>'/fathers'+(r.sh?'?sh='+encodeURIComponent(r.sh):'')+'#'+encodeURIComponent(r.s)+(topic?'/'+encodeURIComponent(topic):'');
+ function roster(rows){const groups=new Map();for(const r of rows){if(!r.s)continue;const key=/^(anonymous|unknown|unattributed)$/.test(r.s)?r.s+'|'+r.sh:r.s; if(!groups.has(key))groups.set(key,[]);groups.get(key).push({...r,e:era(r)});}return [...groups.values()].map(variants=>{variants.sort((a,b)=>(b.w||0)-(a.w||0));return {...variants[0],variants};});}
+ function voices(data){const out=new Map();for(const a of data.authors||[]){const key=a.a;if(!out.has(key))out.set(key,{...a,rows:[],variants:[]});out.get(key).variants.push(a);}for(const r of data.pos||[]){const key=r.a||'Unattributed';if(!out.has(key))out.set(key,{a:key,rows:[],variants:[]});out.get(key).rows.push(r);}return [...out.values()].map(a=>a.variants.length>1?{...a,sh:null,s:null,n:null,np:null}:a);}
+ function connections(topics,vocab){const pairs=new Map(),seen=new Set();for(const t of topics){for(const r of [...(t.pages||[]),...(t.pos||[])]){if(!r.w||page(r.p)===null)continue;const names=[...new Set([...(t.t&&!isRawTopic(t.t)?[t.t]:[]),...cleanTopics(r.x,vocab)])];for(let i=0;i<names.length;i++)for(let j=i+1;j<names.length;j++){const [a,b]=[names[i],names[j]].sort();const k=JSON.stringify([a,b]),pk=JSON.stringify([a,b,r.w,page(r.p)]);if(seen.has(pk))continue;seen.add(pk);if(!pairs.has(k))pairs.set(k,{a,b,pages:[]});pairs.get(k).pages.push(r);}}}return [...pairs.values()].sort((a,b)=>b.pages.length-a.pages.length||a.a.localeCompare(b.a));}
+ function safeReaderURL(h){try{const u=new URL(h,'https://thefaithreceived.vercel.app');return u.origin==='https://thefaithreceived.vercel.app'&&/^\/read(?:\.html)?$/.test(u.pathname)&&u.searchParams.get('w')?u.pathname+u.search+u.hash:null;}catch(_){return null;}}
+ function volumeNumber(value){const s=String(value||'').toUpperCase();if(/^\d+$/.test(s))return Number(s);if(!/^(?=.)M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/.test(s))return null;const v={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};return [...s].reduce((n,c,i)=>n+(v[c]<(v[s[i+1]]||0)?-v[c]:v[c]),0);}
+ function seriesRef(value){const text=String(value||'').replace(/\bPatrologia\s+(Latina|Graeca|Orientalis)\b/i,(_,s)=>({latina:'PL',graeca:'PG',orientalis:'PO'}[s.toLowerCase()]));const m=text.match(/\b(PL|PG|PO)\s*(?:(?:vol(?:ume)?\.?|tome|t\.)\s*)?(\d+|[IVXLCDM]+)\b/i);if(m){const volume=volumeNumber(m[2]);if(volume!=null)return {series:m[1].toUpperCase(),volume,rest:text.replace(m[0],' ').trim()};}return /^(PL|PG|PO)$/i.test(text.trim())?{series:text.trim().toUpperCase(),volume:null,rest:''}:null;}
+ function edition(work){const value=work.volume||work.vs||'',ref=seriesRef(value);if(!ref)return value;let label=ref.series+(ref.volume!=null?' '+ref.volume:'');if(ref.series!=='PO'&&Array.isArray(work.cols)&&work.cols.length===2&&work.cols.every(c=>c!=null)){const [a,b]=work.cols.map(String);label+=a===b?', col. '+a:', cols. '+a+'–'+b;}return label;}
+ const volumeLabel=w=>{const ref=seriesRef(w.volume||w.vs);return ref?ref.series+' '+(ref.volume??'volume not recorded'):(w.volume||w.vs||'Volume not recorded');};
+ const collator=new Intl.Collator('en',{numeric:true,sensitivity:'base'});
+ let orderCatalogue={bySlug:new Map(),groups:{works:{},groups:{}}};
+ function setWorkCatalogue(value){orderCatalogue=value||{bySlug:new Map(),groups:{works:{},groups:{}}};}
+ function orderWork(row){const id=row.w||row.slug||'',meta=orderCatalogue.bySlug?.get(id)||{};return {...meta,...row,w:id,volume:row.volume||row.vs||orderCatalogue.groups?.works?.[id]?.display_volume||meta.volume||'',originalTitle:meta.title||row.originalTitle||row.title||row.t||id,po:meta.po??row.po};}
+ function volumeKey(row){const w=orderWork(row),value=String(w.volume||w.w.replace(/-/g,' ')),ref=seriesRef(value);if(ref)return {family:ref.series,numbers:[ref.volume||0],tail:value};
+  const numbers=[],labels=[];const rx=/\b(reihe|series|schriften|tischreden|vol(?:ume)?|tome?|tomus|band|bd|part|pars|pt|teil|abt(?:eilung)?|book|liber)\.?\s*(\d+|[IVXLCDM]+)(?:[.,\s]+(\d+|[IVXLCDM]+)\b)?/gi;let m;
+  while((m=rx.exec(value))){const n=volumeNumber(m[2]);if(n===null)continue;labels.push(fold(m[1]));numbers.push(n);if(m[3]&&volumeNumber(m[3])!==null)numbers.push(volumeNumber(m[3]));}
+  if(!numbers.length){const n=volumeNumber(value.trim());if(n!==null&&n<1000)numbers.push(n);}
+  return {family:labels.join('|'),numbers,tail:value};
+ }
+ function volumeOrder(a,b){const x=volumeKey(a),y=volumeKey(b);for(let i=0;i<Math.max(x.numbers.length,y.numbers.length);i++){const d=(x.numbers[i]||0)-(y.numbers[i]||0);if(d)return d;}return collator.compare(x.tail,y.tail);}
+ function workFamily(row){const w=orderWork(row),rule=orderCatalogue.groups?.works?.[w.w];if(rule?.g)return 'group:'+rule.g;
+  const ref=seriesRef(w.volume);if(ref)return 'series:'+ref.series;
+  return fold(w.originalTitle).replace(/(?:[, ·]+)?\b(?:\d+|[ivxlcdm]+)(?:[. ]+(?:\d+|[ivxlcdm]+))*[. ]+(?:band|volume|tomus)\b.*$/i,'').replace(/\b(?:vol(?:ume)?|tome?|tomus|band|bd|part|pars)\.?\s+(?:\d+|[ivxlcdm]+)\b.*$/i,'').replace(/[ ,·.]+$/,'').trim();
+ }
+ function workOrder(a,b){const x=orderWork(a),y=orderWork(b),ga=orderCatalogue.groups?.works?.[x.w],gb=orderCatalogue.groups?.works?.[y.w];if(ga?.g&&ga.g===gb?.g&&Number.isFinite(ga.n)&&Number.isFinite(gb.n)&&ga.n!==gb.n)return ga.n-gb.n;
+  const xr=seriesRef(x.volume),yr=seriesRef(y.volume);if(xr&&yr){const v=volumeOrder(x,y);if(v)return v;if(x.po!=null&&y.po!=null&&x.po!==y.po)return Number(x.po)-Number(y.po);return collator.compare(String(x.cols?.[0]??''),String(y.cols?.[0]??''))||collator.compare(x.originalTitle,y.originalTitle);}
+  return collator.compare(workFamily(x),workFamily(y))||volumeOrder(x,y)||collator.compare(x.t||x.title||'',y.t||y.title||'')||collator.compare(x.w,y.w);
+ }
+ function orderedWorks(rows,getWork=x=>x){const first=new Map();rows.forEach((row,i)=>{const key=workFamily(getWork(row));if(!first.has(key))first.set(key,i);});return rows.slice().sort((a,b)=>{const x=getWork(a),y=getWork(b),fx=workFamily(x),fy=workFamily(y);return fx===fy?workOrder(x,y):first.get(fx)-first.get(fy);});}
+ const htmlEscape=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function statementHTML(r,o={},ui){
+  const {readerHrefHl,readerHref,pgl,previewBtn,pinBtn}=ui,esc=htmlEscape;
+  // PREVIEW EVERYWHERE (owner 2026-09-11 "see inline the page for each position, also for the compare, also on mobile"):
+  // every statement with a source page gets the peek button (the reader embedded under the row) and its reader links
+  // carry ?hl= with the quote's words so the landed page marks the passage — the positions and comparison views used
+  // to get a bare "Read the passage" link only (the button was gated on o.actions).
+  const hl=r.pageSummary||o.evidenceKind||!r.q?'':String(r.q).replace(/\s+/g,' ').slice(0,120);
+  const title=o.title?o.title(r):(r.wt||r.w||'Source work'),pg=page(r.p),href=(r.w&&pg!==null)?readerHrefHl(r.w,r.p,hl):(safeReaderURL(r.h)||(r.w?readerHref(r.w,r.p):null));
+  const text=r.q||r.g||(r.pageSummary?'Indexed source page. Open the text to read its context.':'');
+  return `<article class="rx-excerpt"${r.id?` data-evidence-id="${esc(r.id)}"`:""}>${o.evidenceKind&&!r.pageSummary?'<span class="rx-evidence-kind">Extracted statement</span>':''}${r.pageSummary?'<span class="rx-evidence-kind">Page summary</span>':''}<p>${esc(text)}</p>${r.q&&r.g?`<details class="rx-context"><summary>Read page annotation</summary><p>${esc(r.g)}</p></details>`:''}<div class="rx-source"><span>${esc(title)}${pg!==null?' · '+pgl(r.w)+' '+esc(String(pg)):''}</span><div>${href?`<a class="rx-text-link" target="_blank" rel="noopener" href="${esc(href)}">Read the passage</a>`:''}${r.w?(pg!==null?previewBtn(r.w,r.p,hl):'')+pinBtn(r.w,r.p,title,r.a||o.author||'',r.q||r.g):''}</div></div>${o.extra?o.extra(r):(o.annotation&&r.s?`<span class="rx-annotation">Annotation: ${esc(r.s)}</span>`:'')}</article>`;}
+function workFoldsHTML(rows,o={},ui){const esc=htmlEscape,fmtR=n=>Number(n).toLocaleString(),{foldOpen,workSaveBtn}=ui,sectionFoldsHTML=ui.sectionFoldsHTML||((rs,render)=>rs.map(render).join(''));const g=new Map();rows.forEach(r=>{const w=r.w||'';if(!g.has(w))g.set(w,[]);g.get(w).push(r);});
+  const ranked=[...g.entries()].sort((x,y)=>y[1].length-x[1].length||String(x[0]).localeCompare(String(y[0]))),largest=ranked[0]?.[0];
+  const groups=orderedWorks(ranked,([w,rs])=>({...rs[0],w,t:o.title?o.title(rs[0]):rs[0].wt||rs[0].t||w}));
+  const render=o.render||(r=>statementHTML(r,o,ui));
+  return groups.map(([w,rs],i)=>{const first=rs[0],title=o.title?o.title(first):(first.wt||first.t||w||'Source work'),given=o.sub?o.sub(first):'',workEdition=edition(orderWork({w})),sub=given||(!title.includes(workEdition)?workEdition:'');
+    return `<details class="cd-work" data-work="${esc(w)}"${w===largest||o.openAll?' open':''}><summary><span><strong>${esc(title)}</strong>${sub?` <small>${esc(sub)}</small>`:''}</span><small class="cd-n">${fmtR(rs.length)}${o.pageCounts?' on this page':''}</small>${w?` ${foldOpen(w,o.evidenceKind?rs.map(r=>({...r,q:''})):rs)}${workSaveBtn(w,title,o.author||first.a||'')}`:''}</summary><div class="cd-fold-body">${o.sections===false?rs.map(render).join(''):sectionFoldsHTML(rs,render,w)}</div></details>`;}).join('');}
+ function topicWindow(rows,pageIndex=0,size=20){const pages=Math.max(1,Math.ceil(rows.length/size)),current=Math.max(0,Math.min(Number(pageIndex)||0,pages-1)),start=current*size;return {page:current,pages,start,end:Math.min(rows.length,start+size),rows:rows.slice(start,start+size)};}
+ function mergeTopicEvidence(state,result,scope){
+  if(result.snapshot_id!==scope.snapshot||result.filters?.topic_id!==scope.topic||result.filters?.author_id!==scope.author||(result.filters?.work_id||'')!==(scope.work||'')||!Array.isArray(result.items)||!Number.isInteger(result.total)||result.total<0)throw Error('Evidence selection changed');
+  if(result.has_more&&(!result.next_cursor||result.next_cursor===state.cursor||state.cursors?.includes(result.next_cursor)))throw Error('The evidence cursor stopped advancing');
+  const rows=state.started?[...(state.rows||[])]:[],seen=new Set(rows.map(r=>r.id));
+  for(const r of result.items){if(!r.id||!r.w||page(r.p)===null||r.author_id!==scope.author||(scope.work&&r.w!==scope.work))throw Error('Evidence source does not match this selection');if(!seen.has(r.id)){seen.add(r.id);rows.push(r);}}
+  if(result.has_more&&rows.length===(state.started?state.rows.length:0))throw Error('The evidence page added no new records');
+  if(rows.length>result.total||(!result.has_more&&rows.length!==result.total))throw Error('The evidence total does not match the loaded records');
+  return {...state,rows,started:true,cursor:result.next_cursor,cursors:[...(state.cursors||[]),...(result.next_cursor?[result.next_cursor]:[])],done:!result.has_more,total:result.total};
+ }
+ return {topicWindow,mergeTopicEvidence,statementHTML,workFoldsHTML,shelves,shelfMaps,topicURL,scopedTopics,mergePageRefs,mapAuthorPages,eras,fold,authorScore,isRawTopic,topicKey,topicNames,topicVocabulary,cleanTopics,era,page,authorURL,roster,voices,connections,safeReaderURL,volumeNumber,seriesRef,edition,volumeLabel,workOrder,workFamily,orderedWorks,setWorkCatalogue,orderWork};
+});

@@ -1,0 +1,38 @@
+[
+  {
+    "file": "read.html",
+    "match": true,
+    "local_md5": "67fa01cdb5a361896780c80c73a6c48c",
+    "live_md5": "67fa01cdb5a361896780c80c73a6c48c"
+  },
+  {
+    "file": "reader-core.js",
+    "match": true,
+    "local_md5": "1bf954bad278ac65150437b9094b2d56",
+    "live_md5": "1bf954bad278ac65150437b9094b2d56"
+  },
+  {
+    "file": "read-tools.js",
+    "match": true,
+    "local_md5": "caa16e751a714b54cc84ee6afe887b09",
+    "live_md5": "caa16e751a714b54cc84ee6afe887b09"
+  },
+  {
+    "file": "reader-navigation.js",
+    "match": true,
+    "local_md5": "256997f2388fedfd466cdbe38a4fff1f",
+    "live_md5": "256997f2388fedfd466cdbe38a4fff1f"
+  },
+  {
+    "file": "reader-contents.css",
+    "match": true,
+    "local_md5": "843b9e2d6d89fb109f72f031b01f12f4",
+    "live_md5": "843b9e2d6d89fb109f72f031b01f12f4"
+  },
+  {
+    "file": "desk.html",
+    "match": true,
+    "local_md5": "ce799c04ac62cbc65efa8adaacf0f0e9",
+    "live_md5": "ce799c04ac62cbc65efa8adaacf0f0e9"
+  }
+]

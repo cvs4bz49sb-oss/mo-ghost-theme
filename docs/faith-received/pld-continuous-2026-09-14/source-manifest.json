@@ -1,0 +1,20 @@
+[
+  {
+    "source": "tools/prdl_reader_prototype/pld-reading.js",
+    "file": "pld-reading.js.txt",
+    "sha256": "c01eadb59ce670f3dd0d5735dc24fe179902157e08e40fd7d7ec39955cd177b3",
+    "bytes": 16485
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader_shell.html",
+    "file": "reader_shell.html.txt",
+    "sha256": "7139c58ccaeba29fe4d5b862435aeb0e19337c4d639f7aec93eb276525062c71",
+    "bytes": 768235
+  },
+  {
+    "source": "tools/prdl_reader_prototype/pld-editorial.test.cjs",
+    "file": "pld-editorial.test.cjs.txt",
+    "sha256": "d87ebbc8906322350a103610d41f504656420ed111342716a5056fef1a8eccd8",
+    "bytes": 3065
+  }
+]

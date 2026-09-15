@@ -1,0 +1,29 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');const ctx={module:{exports:{}}};vm.runInNewContext(fs.readFileSync(__dirname+'/pg-parallel.js','utf8'),ctx);const P=ctx.module.exports;
+test('the scan opening never replaces a known printed Greek column',()=>{const d={pg_columns:{1467:{grc:['1468'],la:['1467']}},pg_source:'grc'};assert.equal(P.location(d,1467),'col. 1468');assert.equal(P.location({...d,pg_source:'la'},1467),'col. 1467');assert.equal(P.location({...d,pg_source:'grcla'},1467),'cols. 1467–1468');assert.equal(P.location(d,1457),null);});
+test('shared section anchors replace proportional paragraph guesses without dropping words',()=>{
+ const g='Πρόλογος. 5. « Καὶ ἐγερθεὶς ». Καὶ διαθέσει.',l='Latin introduction with more words. 5. « Et expergefactus ». Quanquam et affectu.',e='English introduction. 5. And having awakened. Although with affection.';
+ const a=P.alignOpening(g,l,e);assert.equal(a.basis,'shared-section-markers');assert.equal(a.rows.length,2);for(const [k,s]of [['grc',g],['la',l],['en',e]])assert.equal(a.rows.map(r=>r[k]).join(''),s);assert.ok(a.rows[1].grc.startsWith('5.'));assert.ok(a.rows[1].la.startsWith('5.'));assert.ok(a.rows[1].en.startsWith('5.'));
+});
+test('missing shared markers preserve a complete opening rather than guessing sentence matches',()=>{const a=P.alignOpening('Greek paragraph one. Another paragraph.','Short Latin.','English paragraph that is much longer.');assert.equal(a.basis,'printed-opening');assert.equal(a.rows.length,1);assert.equal(a.rows[0].la,'Short Latin.');});
+test('closing quotation marks before section 5 do not hide its alignment anchor',()=>{const a=P.alignOpening('Πρόλογος. » 5. « Καὶ ἐγερθεὶς ».','Introduction. » 5. « Et expergefactus ».',"Introduction.' 5. « And having awakened.");assert.equal(a.rows.length,2);assert.ok(a.rows[1].en.startsWith('5.'));});
+test('canonical columns outrank fallback zones and alternate witnesses are excluded',()=>{
+ const el=(tag,attrs={},children=[],content='')=>({localName:tag,children,textContent:content,getAttribute:k=>attrs[k]??null});
+ const g='Καὶ διαθέσει καὶ στοργῇ γυναῖκα ἡγούμενος. '.repeat(6),l='Quanquam et affectu et amore uxorem suam esse rebatur. '.repeat(6);
+ const body=el('body',{},[el('div',{type:'division'},[el('pb',{n:'1467'}),el('milestone',{unit:'column',n:'1467'}),el('p',{},[],l),el('milestone',{unit:'column',n:'1468'}),el('p',{},[],g)]),el('div',{type:'edition'},[el('pb',{n:'1'}),el('p',{},[],'Alternate witness')])]);const doc={querySelector:()=>body};
+ const data=P.canonicalOpenings(doc);assert.equal(data[1467].grc,g.trim());assert.equal(data[1467].la,l.trim());assert.equal(data[1],undefined);const cols=P.printedColumns(doc);assert.equal(cols[1467].grc[0],'1468');assert.equal(cols[1467].la[0],'1467');
+});
+test('crossed source section sequences cannot be presented as paragraph alignment',()=>{const a=P.alignOpening('1. Alpha. 2. Beta.','2. Latin beta. 1. Latin alpha.','1. English alpha. 2. English beta.');assert.equal(a.basis,'printed-opening');assert.equal(a.rows.length,1);});
+test('scan-backed additions inside a witness survive without appending the alternate edition',()=>{
+ const el=(tag,attrs={},children=[],content='')=>({localName:tag,children,textContent:content,getAttribute:k=>attrs[k]??null});const text='Καὶ διαθέσει καὶ στοργῇ γυναῖκα ἡγούμενος. '.repeat(5);
+ const body=el('body',{},[el('div',{type:'division'},[el('pb',{n:'1'}),el('p',{},[],text)]),el('div',{type:'witness'},[el('p',{},[],'Alternate edition'),el('pb',{n:'3',resp:'#pageview-zone'}),el('milestone',{n:'4',unit:'column',resp:'#pageview-zone'}),el('p',{resp:'#pageview-zone'},[],text)])]);const doc={querySelector:()=>body};const out=P.canonicalOpenings(doc);assert.equal(out[3].grc,text.trim());assert.ok(!JSON.stringify(out).includes('Alternate edition'));assert.equal(P.printedColumns(doc)[3].grc[0],'4');
+});
+test('a facing secondary Latin column joins its shared scan without replacing primary Greek',()=>{const el=(tag,attrs={},children=[],content='')=>({localName:tag,children,textContent:content,getAttribute:k=>attrs[k]??null});const greek='Καὶ διαθέσει καὶ στοργῇ γυναῖκα ἡγούμενος. '.repeat(5),latin='Quanquam et affectu et amore uxorem suam esse rebatur. '.repeat(5);const body=el('body',{},[el('div',{type:'division'},[el('pb',{n:'1',facs:'scan.jpg'}),el('p',{},[],greek)]),el('div',{type:'secondary'},[el('pb',{n:'2',facs:'scan.jpg'}),el('p',{},[],latin)])]);const doc={querySelector:()=>body},out=P.canonicalOpenings(doc);assert.equal(out[1].grc,greek.trim());assert.equal(out[1].la,latin.trim());assert.equal(P.printedColumns(doc)[1].la[0],'2');});
+test('an Arabic source with a Latin heading is not mislabeled as a Latin column',()=>{const el=(tag,attrs={},children=[],content='')=>({localName:tag,children,textContent:content,getAttribute:k=>attrs[k]??null});const body=el('body',{},[el('pb',{n:'1'}),el('p',{},[],'Latin heading '.repeat(12)+'هذا نص عربي مكتوب في المخطوط '.repeat(60))]);const doc={querySelector:()=>body};assert.equal(P.canonicalOpenings(doc)[1].la,'');assert.equal(P.printedColumns(doc)[1],undefined);});
+test('canonical headings survive in the combined reading lane without duplicating normal body text',()=>{
+ const el=(tag,attrs={},children=[],content='')=>({localName:tag,children,textContent:content,getAttribute:k=>attrs[k]??null});
+ const greek='Καὶ διαθέσει καὶ στοργῇ γυναῖκα ἡγούμενος. '.repeat(5);
+ const body=el('body',{},[el('head',{},[],'ΠΡΟΛΟΓΟΣ'),el('pb',{n:'1'}),el('p',{},[],greek),el('head',{},[],'ΚΕΦΑΛΑΙΟΝ'),el('p',{},[],greek)]);
+ const out=P.canonicalOpenings({querySelector:()=>body})[1];assert.equal(out.grc,(greek+greek).replace(/\s+/g,' ').trim());
+ assert.ok(out.grcRich.startsWith('\u0002ΠΡΟΛΟΓΟΣ\u0003 '));assert.ok(out.grcRich.includes('\u0002ΚΕΦΑΛΑΙΟΝ\u0003'));
+ assert.equal(out.grcRich.replace(/\u0002[^\u0003]+\u0003\s*/g,''),out.grc);
+});

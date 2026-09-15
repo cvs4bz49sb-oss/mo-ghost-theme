@@ -1,0 +1,32 @@
+[
+  {
+    "file": "read.html",
+    "local_md5": "5dea126902d13db10e3a3e9a3b6a636b",
+    "alias_md5": "5dea126902d13db10e3a3e9a3b6a636b",
+    "match": true
+  },
+  {
+    "file": "reader-core.js",
+    "local_md5": "ce3f8c4262dfff40a0f401bfa4c029b9",
+    "alias_md5": "ce3f8c4262dfff40a0f401bfa4c029b9",
+    "match": true
+  },
+  {
+    "file": "pg-parallel.js",
+    "local_md5": "0c40ed7248fea33b7ed59ec78b92bfd8",
+    "alias_md5": "0c40ed7248fea33b7ed59ec78b92bfd8",
+    "match": true
+  },
+  {
+    "file": "reader-bookmarks.js",
+    "local_md5": "1f74c546ea9339006e9a8e9fb52f7d5c",
+    "alias_md5": "1f74c546ea9339006e9a8e9fb52f7d5c",
+    "match": true
+  },
+  {
+    "file": "dtc.html",
+    "local_md5": "855d841ef9f8661156107aecbdce05b6",
+    "alias_md5": "855d841ef9f8661156107aecbdce05b6",
+    "match": true
+  }
+]

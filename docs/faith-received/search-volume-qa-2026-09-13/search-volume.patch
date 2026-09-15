@@ -1,0 +1,1146 @@
+--- a/tools/search_page/search.html
++++ b/tools/search_page/search.html
+@@ -1099,38 +1099,80 @@
+ html.po-mobile #displayBar{display:none!important}
+ html.po-mobile .sb-mtoggle,html.po-mobile .study-toggle,html.po-mobile .por-tab{display:none!important}
+ 
++
++/* Library shelves, clear scope, and bounded research results. */
++.matching-sections{margin:0 10px 12px}.matching-sections>summary{min-height:44px;padding:10px 0;font:14px var(--font-ui);cursor:pointer}
++
++.group-controls{display:flex;gap:16px;margin:4px 0 10px}.group-controls[hidden]{display:none}.group-controls button{min-height:44px;border:0;background:none;color:var(--fg);text-decoration:underline;text-underline-offset:4px;font:14px var(--font-ui);cursor:pointer}
++
++.results-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-block:1px solid var(--border);margin:8px 0 12px}.results-pager[hidden]{display:none}.results-pager span{font:13px/1.45 var(--font-ui);text-align:center;color:var(--muted)}
++.results-pager button,.location-pager button,#meaningBroaden{min-height:44px;padding:8px 12px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg);font:14px var(--font-ui);cursor:pointer}.results-pager button:disabled,.location-pager button:disabled{opacity:.45;cursor:default}.location-pager{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0;font:12px var(--font-ui)}#meaningBroaden{margin:0 0 12px}
++
++#searchTheme{margin-left:auto;min-width:44px;min-height:44px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg);font:14px var(--font-ui);cursor:pointer}
++.search-result{border-bottom:1px solid var(--border)}#results .search-result .sr{border-bottom:0;padding-right:12px}
++.search-save{min-height:44px;padding:6px 10px;margin:0 0 8px;border:0;background:none;color:var(--fg);font:13px var(--font-ui);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
++
++.shelf-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:18px 0 12px}
++.shelf-controls>label{display:flex;flex-direction:column;gap:5px;min-width:240px;font:14px/1.4 var(--font-ui);color:var(--muted)}
++.shelf-controls .scope-toggle{display:inline-flex;width:auto;margin:0;min-height:44px;align-items:center;padding:9px 14px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg);font:14px/1.4 var(--font-ui);cursor:pointer}
++#scopeWrap[hidden]{display:none!important}#scopeWrap:not([hidden]){display:block}
++#facets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:0 0 14px}
++#facets label{display:flex;flex-direction:column;gap:5px;min-width:0;font:14px/1.4 var(--font-ui);color:var(--muted)}
++#facets input,#facets select,#fTrad{width:100%;min-height:44px;font:16px/1.4 var(--font-ui);padding:9px 11px;background:var(--card);color:var(--fg);border:1px solid var(--control-border,var(--border));border-radius:5px}
++#fClear{min-height:44px;background:none;color:var(--fg);font:14px var(--font-ui)}
++#q{font-size:18px;min-height:48px}#runSearch{min-width:76px;min-height:48px}
++#results{max-height:min(70dvh,900px);overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:2px 8px 16px 2px}
++#results .sr{margin:0;border:0;border-bottom:1px solid var(--border);border-radius:0;padding:16px 46px 16px 10px}
++#results .sr>div:not(.sr-cite):not(.sr-ex){font-size:19px;line-height:1.4}
++#results .sr-ex{font-size:16px;line-height:1.6}
++.scripture-context,.search-guidance,.search-warning{font:14px/1.6 var(--font-ui);color:var(--muted)}
++.scripture-context{padding:6px 4px 18px}.scripture-context a{text-decoration:underline;text-underline-offset:3px;display:inline-flex;align-items:center;min-height:44px;color:var(--fg)}
++.scripture-work{border-top:1px solid var(--border);padding:0 4px}
++.scripture-work>summary{list-style:disclosure-closed;cursor:pointer;min-height:52px;padding:14px 4px;font:500 19px/1.45 var(--font-body)}
++.scripture-work[open]>summary{list-style:disclosure-open}.scripture-work>summary span{display:block;font:13px/1.5 var(--font-ui);color:var(--muted);margin-top:6px}
++.scripture-more,.sr-more,#retrySearch{min-height:44px;padding:10px 14px;margin:10px 0;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg);font:14px var(--font-ui);cursor:pointer}
++#results .sb-chip{min-height:44px;font-size:16px;white-space:normal}#results .sb-grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}
++.smodes button,.passage-method button,#densityBtn{min-height:44px}#results .pinstar{min-width:44px;min-height:44px}
++@media(max-width:640px){.main{padding:20px 16px}.shelf-controls{gap:8px}.shelf-controls>label{flex:1;min-width:190px}.shelf-controls .scope-toggle{font-size:13px}#facets{grid-template-columns:1fr}#q{font-size:16px}#results{max-height:60dvh}.scripture-work>summary{font-size:18px}}
++@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
++
++.organize-label{display:flex;align-items:center;gap:8px;font:13px var(--font-ui);color:var(--muted)}.organize-label select{min-height:44px;font:14px var(--font-ui);padding:8px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg)}
++.result-shelf{margin:8px 0;border-top:1px solid var(--border)}.result-shelf>summary{font:500 23px/1.3 var(--font-display);padding:14px 4px;cursor:pointer;min-height:48px}
++.result-author{margin:0 0 12px}.result-author>summary{font:600 17px/1.5 var(--font-ui);padding:12px 6px;cursor:pointer;min-height:48px;border-bottom:1px solid var(--border)}
++.result-author>.scripture-work,.result-author>.search-work-block{margin-left:10px}.shelf-controls>label{min-width:200px}.shelf-controls>label[for=fGroup]{min-width:175px}
++@media(max-width:640px){.shelf-controls{display:grid;grid-template-columns:minmax(0,1fr) auto}.shelf-controls>label[for=fTrad]{grid-column:1/-1}.shelf-controls>label,.shelf-controls>label[for=fGroup]{min-width:0}.count-row{flex-wrap:wrap}.count-row #count{width:100%}.organize-label{flex:1;min-width:0}.organize-label select{min-width:0;width:100%;font-size:16px}.result-author>.scripture-work,.result-author>.search-work-block{margin-left:2px}.result-author>summary{font-size:16px}}
++
++.active-search-scope{font:13px/1.5 var(--font-ui);color:var(--muted);margin:0 0 10px}.active-search-scope[hidden]{display:none}
++#facets #fClear{justify-self:start;width:auto}
++/* Keep the first result in reach; advanced scope and ordering controls fold away. */
++.main>h1{font-size:34px;line-height:1.2;margin:12px 0 18px}.search-site-nav{margin-bottom:8px}
++.shelf-controls{display:flex;align-items:end;gap:10px}.shelf-controls>label{flex:1;max-width:330px;min-width:180px}.shelf-controls .scope-toggle{flex:none}
++#facets{grid-template-columns:repeat(2,minmax(0,1fr))}#facets .organize-label{display:flex;align-items:stretch;flex-direction:column;font-size:14px}
++#facets .organize-label select{font-size:16px;width:100%}
++.scripture-context{display:flex;align-items:start;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:0 4px 8px}.scripture-context>a{flex:1;margin:0}.scripture-context details{max-width:100%;font-size:14px}.scripture-context summary,.search-guidance>summary{cursor:pointer;min-height:44px;padding:10px 0}.scripture-context details[open]{flex-basis:100%}
++.group-controls{align-items:center;flex-wrap:wrap;gap:8px 20px}.group-controls #meaningBroaden{margin:0;padding:6px 0;border:0;background:none;text-decoration:underline;text-underline-offset:4px}.search-guidance{margin:0 4px 8px}
++@media(max-width:640px){.main>h1{font-size:28px;margin:10px 0 14px}.search-site-nav{gap:12px}.shelf-controls{display:grid;grid-template-columns:minmax(0,1fr) auto}.shelf-controls>label[for=fTrad]{grid-column:auto;min-width:0}.shelf-controls .scope-toggle{font-size:13px;padding-inline:8px}.shelf-controls #fClear{grid-column:1/-1;justify-self:start}.count-row #count{width:auto;flex:1;font-size:13px;line-height:1.5}.count-row #densityBtn{flex:none}#facets{grid-template-columns:1fr}.group-controls{gap:8px 16px}.group-controls button,.group-controls #meaningBroaden{font-size:13px}.results-pager span{font-size:12px}}
+ </style></head><body><a class="skip-link" href="#main">Skip to text</a><main class="main" id="main"><style>.skip-link{position:absolute;top:-100px;left:0;z-index:9999;background:var(--fg);color:var(--bg);display:inline-flex;align-items:center;min-height:40px;box-sizing:border-box;padding:0 1.2rem;border-radius:0 0 10px 0;font:600 .85rem/1 var(--font-ui,-apple-system,sans-serif);text-decoration:none;transition:top .15s ease}.skip-link:focus{top:0;outline:2px solid #fff;outline-offset:2px}@media(prefers-reduced-motion:reduce){.skip-link{transition:none}}</style>
+-<nav class="search-site-nav" aria-label="Site navigation"><a class="fr-home-link" data-fr-home href="/" aria-label="Back to library"><span class="fr-home-wide">← The Faith Received</span><span class="fr-home-compact"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>Library</span></a><a href="/pins">Collections</a><a href="/dtc">Dictionary</a></nav>
++<nav class="search-site-nav" aria-label="Site navigation"><a class="fr-home-link" data-fr-home href="/" aria-label="Back to library"><span class="fr-home-wide">← The Faith Received</span><span class="fr-home-compact"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>Library</span></a><a href="/pins">Collections</a><a href="/dtc">Dictionary</a><button type="button" id="searchTheme" aria-label="Change reading theme">Theme</button></nav>
+ <h1 style="color:var(--accent);text-wrap:balance">Search The Faith Received</h1>
+ <div class="smodes-wrap"><div class="smodes" role="group" aria-label="Search mode">
+   <button data-m="title" class="active sm-core" aria-pressed="true" title="Find a work, author, or section">Works</button>
+   <button data-m="full" class="sm-core" aria-pressed="false" title="Find passages in the texts">Passages</button>
+-  <button data-m="scripture" class="sm-core" aria-pressed="false" title="Find commentary on a Bible passage">Scripture</button>
++  <button data-m="scripture" class="sm-core" aria-pressed="false" title="Find indexed references to a Bible passage">Scripture</button>
+   <button data-m="ask" class="sm-core" aria-pressed="false" title="Ask a question of the library">Ask</button>
+ </div></div>
+ <div id="passageMethod" class="passage-method" role="group" aria-label="Find passages by" hidden><button type="button" data-passage="full" aria-pressed="true">Exact words</button><button type="button" data-passage="meaning" aria-pressed="false">By idea</button></div>
+-<div class="search-query"><input class="search-box" id="q" placeholder="Find a work or author" aria-label="Search the library" enterkeyhint="search" autocomplete="off" autofocus><button type="button" id="runSearch">Search</button></div>
++<div class="search-query"><input class="search-box" id="q" placeholder="Find a work or author" aria-label="Search the library" enterkeyhint="search" autocomplete="off" type="search"><button type="button" id="runSearch">Search</button></div>
+ <div class="shint" id="hint"></div>
+-</div>
+-<button type="button" class="scope-toggle" id="scopeToggle" aria-expanded="false" hidden>Scope <span class="st-sum" id="stSum"></span> <span class="st-car">▾</span></button>
+-<div class="scope-wrap" id="scopeWrap">
++<div class="shelf-controls"><label for="fTrad">Shelf<select class="fac-sel" id="fTrad" aria-label="Shelf"><option value="">All shelves</option></select></label><button type="button" class="scope-toggle" id="scopeToggle" aria-controls="scopeWrap" aria-expanded="false">Filters &amp; order <span id="stSum"></span></button></div>
++<p class="active-search-scope" id="activeSearchScope" hidden></p>
++<div class="scope-wrap" id="scopeWrap" hidden>
+ <div class="facets" id="facets">
+-  <input class="fac-in" id="fAuthor" list="facAuthors" placeholder="Filter by author…" autocomplete="off">
+-  <datalist id="facAuthors"></datalist>
+-  <input class="fac-in" id="fWork" list="facWorks" placeholder="Filter by work…" autocomplete="off">
+-  <datalist id="facWorks"></datalist>
+-  <select class="fac-sel" id="fTrad" aria-label="Filter by tradition"><option value="">All traditions</option></select>
+-  <button class="fac-x" id="fClear" hidden title="Clear filters">clear ✕</button>
+-</div>
+-<div class="corpus-chips" id="corpusChips" hidden>
+-  <span class="cc-lab">Corpus:</span>
+-  <button type="button" class="cc on" data-c="">All</button>
+-  <button type="button" class="cc" data-c="library" title="The early-modern library — 1,400+ works">Library</button>
+-  <button type="button" class="cc" data-c="pg" title="Greek Fathers (Patrologia Graeca)">Greek Fathers</button>
+-  <button type="button" class="cc" data-c="pld" title="Latin Fathers (Patrologia Latina)">Latin Fathers</button>
+-  <button type="button" class="cc" data-c="po" title="Oriental Fathers (Patrologia Orientalis)">Oriental</button>
+-  <button type="button" class="cc" data-c="eebo" title="Early English Books — 3,800+ divines">EEBO</button>
+-  <button type="button" class="cc" data-c="confessions" title="Creeds and confessions">Confessions</button>
++<label>Author<input class="fac-in" id="fAuthor" list="facAuthors" placeholder="Name or part of a name" autocomplete="off"></label><datalist id="facAuthors"></datalist>
++<label>Work<input class="fac-in" id="fWork" list="facWorks" placeholder="Title or part of a title" autocomplete="off"></label><datalist id="facWorks"></datalist>
++<label>Collection<select class="fac-sel" id="fCollection"><option value="">All works</option><option value="confessions">Confessions</option></select></label>
++<label for="fGroup">Group<select class="fac-sel" id="fGroup"><option value="">All groups</option><option value="westminster">Westminster Divines</option><option value="puritan">Puritans</option><option value="anglican">Anglicans</option></select></label><label class="organize-label">Organize<select id="groupOrder"><option value="shelf">Shelf → author → work</option><option value="author">Author → work</option><option value="relevance">Relevance</option></select></label>
++<button type="button" class="fac-x" id="fClear" hidden>Clear filters</button>
+ </div>
+ <div class="scopebar" id="scopeBar">
+   <input class="scope-in" id="scopeAuthorIn" list="scopeAuthors" placeholder="Scope to author…" autocomplete="off">
+@@ -1140,7 +1182,8 @@
+   <div class="scope-chips" id="scopeChips"></div>
+ </div>
+ </div>
+-<div class="count-row"><div class="shint" id="count" aria-live="polite" aria-atomic="false"></div><button type="button" class="density-btn" id="densityBtn" aria-pressed="false">Compact</button></div><div id="results" aria-live="polite" aria-atomic="false"></div></main>
++<div class="count-row"><div class="shint" id="count" aria-live="polite" aria-atomic="false"></div><button type="button" class="density-btn" id="densityBtn" aria-pressed="false">Compact</button></div><div id="results" role="region" aria-label="Search results"></div></main>
++<script src="/research-tools.js?v=__RESEARCH_V__"></script><script src="/search-tools.js?v=__RESEARCH_V__"></script>
+ <script>
+ function esc(s){var x=document.createElement('div');x.textContent=(s==null?'':s);return x.innerHTML;}
+ function scopeSummary(){
+@@ -1149,10 +1192,10 @@
+   if(cc&&cc.getAttribute('data-c'))bits.push(cc.textContent.trim());
+   if(FAC.author)bits.push(FAC.author);
+   if(FAC.work)bits.push('1 work');
+-  if(FAC.trad)bits.push(FAC.trad);
++  if(FAC.trad)bits.push(FRSearch.label(FAC.trad));if(FAC.collection)bits.push('Confessions');
+   if(typeof SCOPE!=='undefined'&&SCOPE&&SCOPE.author)bits.push(SCOPE.author);
+   var el=document.getElementById('stSum');
+-  if(el)el.textContent=bits.length?('· '+bits.join(' · ')):'· everything';
++  if(el)el.textContent=[FAC.author,FAC.work||FAC.workQuery,FAC.collection,FAC.group].filter(Boolean).length?' · active':'';var scope=document.getElementById('activeSearchScope'),parts=[({westminster:'Westminster Divines',puritan:'Puritans',anglican:'Anglicans'})[FAC.group],FAC.author?'Author: '+FAC.author:'',FAC.work||FAC.workQuery?'Work filter applied':'',FAC.collection?'Confessions':''].filter(Boolean);if(scope){scope.hidden=!parts.length;scope.textContent=parts.join(' · ');}
+ }
+ document.addEventListener('click',function(e){
+   var mo=e.target.closest('#smMore');
+@@ -1161,24 +1204,22 @@
+   if(sg){var q2=sg.getAttribute('data-q');if(q2){if(sg.getAttribute('data-deep'))window.__askDeepOnce=true;qEl.value=q2;renderAsk(q2);}return;}
+   var t=e.target.closest('#scopeToggle');
+   if(t){var w=document.getElementById('scopeWrap');var open=!w.classList.contains('open');
+-    w.classList.toggle('open',open);t.setAttribute('aria-expanded',open?'true':'false');return;}
+-  var b=e.target.closest('#corpusChips .cc');if(!b)return;
+-  FAC.corpus=b.getAttribute('data-c')||'';
+-  document.querySelectorAll('#corpusChips .cc').forEach(function(x){x.classList.toggle('on',x===b);});
+-  scopeSummary();
+-  var qv=document.getElementById('q');if(qv&&qv.value.trim().length>=2)run();
++    w.classList.toggle('open',open);w.hidden=!open;t.setAttribute('aria-expanded',open?'true':'false');return;}
++
+ });
++document.getElementById('searchTheme').onclick=function(){var themes=['light','sepia','dark'],current=document.documentElement.dataset.theme||'light',next=themes[(themes.indexOf(current)+1)%3];document.documentElement.dataset.theme=next;try{localStorage.setItem('fr_theme',next);}catch(_){}this.title='Current theme: '+next;};
++function focusQuery(){if(!matchMedia('(max-width:640px)').matches)qEl.focus();}
+ function mdHeadings(s){return (s||'').replace(/⟦h⟧([\s\S]{1,300}?)⟦\/?h⟧/g,'<b>$1</b>');}
+ var FRB='https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com';
+ var VER='?d='+new Date().toISOString().slice(0,10);   // daily buster on mutable JSON
+-function rdHref(slug,page){return '/read?w='+encodeURIComponent(slug)+(page!=null&&page!==''?('#b'+page+'-0'):'');}
++function rdHref(slug,page){return FRSearch.readerURL(slug,page);}
+ var qEl=document.getElementById('q'),res=document.getElementById('results'),ct=document.getElementById('count'),hint=document.getElementById('hint');
+-var MODE='title',NAV=null,WLIST=null,IDX=null,seq=0;
++var MODE='title',NAV=null,WLIST=null,WORKS_BY_SLUG=null,WORK_ALIASES={},IDX=null,seq=0,CATALOG_ERROR=false,RESULT_PAGE=0,RESTORE_PAGE=null,ORDER='shelf',REDRAW=null,SCOPE_SCHOOLS=null;
+ var HINTS={
+-  title:'Works, authors, and section headings across the whole library (Latin &amp; English).',
++  title:'Find works, authors, and section headings in the selected shelf.',
+   full:'Find words or phrases in the Latin and English texts. For example, “foedus operum”.',
+   meaning:'Describe what you want to find. For example, “how faith unites us to Christ” finds passages even when they use different words.',
+-  scripture:'Enter a Bible reference, such as Romans 8, to find commentary in the library.',
++  scripture:'Search a chapter, verse, or range, such as Romans 8:1–4.',
+   tradition:'One question, the whole tradition: the strongest parallels era by era \u2014 Greek and Latin Fathers, Aquinas, the early-modern library \u2014 in chronological order.',
+   ask:'Ask a question; an answer is composed from the corpus with [work/pN] citations you can click. Press Enter to ask.'};
+ var PH={title:'Find a work, author, or section',full:'Enter words or a phrase',
+@@ -1188,10 +1229,10 @@
+   ask:'Ask a question — e.g. How do the Reformed treat middle knowledge?'};
+ function setMode(m){
+   if(m==='tradition'){
+-    var topic=qEl.value.trim();var opts={mode:'deep',q:topic?'Trace “'+topic+'” through the theological tradition. Compare the authors, show where they agree or differ, and cite the passages.':'Trace the history of a theological idea, comparing the authors and citing the passages.'};
++    var topic=qEl.value.trim();var opts={fresh:true,shelves:FAC.trad?[FRSearch.label(FAC.trad)]:[],mode:'deep',q:topic?'Trace “'+topic+'” through the theological tradition. Compare the authors, show where they agree or differ, and cite the passages.':'Trace the history of a theological idea, comparing the authors and citing the passages.'};
+     setMode('title');if(window.FRAsk)window.FRAsk.open(opts);else window.__FR_ASK_PENDING__=opts;return;
+   }
+-  if(m==='ask'&&window.FRAsk){window.FRAsk.open();return;}MODE=m;
++  if(m==='ask'){if(FAC.group==='westminster'&&!FAC.groupSlugs){ensureSearchGroups().then(function(){setMode('ask');}).catch(function(){searchUnavailable('Westminster group',qEl.value);});return;}var selectedWorks=(FAC.author||FAC.workQuery||FAC.work||FAC.collection||FAC.group)?(WLIST||[]).filter(function(w){return FRSearch.matches(w,FAC);}).map(function(w){return w.slug;}):[];var askOptions={fresh:true,q:qEl.value.trim(),works:selectedWorks,shelves:!selectedWorks.length&&FAC.trad?[FRSearch.label(FAC.trad)]:[]};if(window.FRAsk)window.FRAsk.open(askOptions);else window.__FR_ASK_PENDING__=askOptions;return;}MODE=m;
+   var method=document.getElementById('passageMethod');if(method){method.hidden=m!=='full'&&m!=='meaning';method.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.passage===m));});}
+ 
+   var tip=document.getElementById('smodesHint');if(tip)tip.style.display=(m==='title')?'':'none';   // teaches the modes BEFORE one is chosen; inside a mode the per-mode hint speaks
+@@ -1200,12 +1241,12 @@
+   var st2=document.getElementById('scopeToggle');
+   if(st2){st2.hidden=false;scopeSummary();}document.querySelectorAll('.smodes button').forEach(function(b){var on=b.getAttribute('data-m')===(m==='meaning'?'full':m);b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false');});
+   hint.innerHTML=(m==='ask')?'':HINTS[m];
+-  qEl.placeholder=PH[m];
+-  var fb=document.getElementById('facets');if(fb)fb.style.display=(m==='ask'||m==='tradition'||m==='full')?'none':'';
++  qEl.placeholder=PH[m];qEl.setAttribute('aria-label',m==='scripture'?'Bible reference':'Search the library');
++  var fb=document.getElementById('facets');if(fb)fb.style.display='';
+   var sb=document.getElementById('scopeBar');if(sb)sb.style.display=(m==='ask')?'':'none';   // '' lets the CSS govern: hidden until the ⌖ sheet adopts it
+   {var dh=document.getElementById('sdoorsHost');
+    if(!dh&&res&&res.parentNode){dh=document.createElement('div');dh.id='sdoorsHost';res.parentNode.insertBefore(dh,res);}
+-   if(dh)dh.innerHTML=(m==='scripture'||m==='tradition')?doorRow(m):'';}
++   if(dh)dh.innerHTML='';}
+   if(m==='ask'){askReset();
+     /* CLAUDE-IDIOM (owner 2026-09-05 "should instantly resonate … remind them of claude.com /
+        chatgpt.com"): greeting first, then THE composer beneath it — the one query input moves
+@@ -1215,8 +1256,8 @@
+     document.body.classList.remove('mode-ask');
+   }
+   run();}
+-document.querySelectorAll('.smodes button[data-m]').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-m'));if(b.getAttribute('data-m')!=='ask')qEl.focus();});});
+-document.querySelectorAll('[data-passage]').forEach(function(b){b.onclick=function(){setMode(b.dataset.passage);qEl.focus();};});
++document.querySelectorAll('.smodes button[data-m]').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-m'));if(b.getAttribute('data-m')!=='ask')focusQuery();});});
++document.querySelectorAll('[data-passage]').forEach(function(b){b.onclick=function(){setMode(b.dataset.passage);focusQuery();};});
+ document.getElementById('runSearch').onclick=function(){run();};
+ 
+ /* ---- works map: Blob works-index — every mode's cite/title join ---- */
+@@ -1224,27 +1265,19 @@
+ function navMap(cb){if(NAV)return cb(NAV);
+   if(_navq){_navq.push(cb);return;}
+   _navq=[cb];
+-  fetch(FRB+'/v1/works-index.json'+VER).then(function(r){return r.json();}).then(function(j){
+-    var rows=(j&&j.works)||[];NAV={};WLIST=rows;
+-    rows.forEach(function(w){if(w.slug)NAV[w.slug]={t:w.title||w.slug,a:w.author||'',al:w.author_la||'',v:w.volume||'',tr:w.tradition||'',n:w.n_pages||0};if(w.party)(PARTYSLUGS[w.party]=PARTYSLUGS[w.party]||[]).push(w.slug);});
+-    IDX=rows.filter(function(w){return w.slug;}).map(function(w){return {d:w.slug,k:'work',t:w.title||w.slug,a:w.author||'',al:w.author_la||''};});
+-    buildFacetLists();
+-    var q2=_navq;_navq=null;q2.forEach(function(f){f(NAV);});
+-  }).catch(function(){NAV={};WLIST=[];IDX=[];var q2=_navq||[];_navq=null;q2.forEach(function(f){f(NAV);});});}
+-function docCite(d){var e=NAV&&NAV[d];if(!e)return 'The Faith Received';
+-  return esc(e.a||'')+(e.v?' · '+esc(e.v):'')+(e.tr?' · '+esc(e.tr):'');}
++  Promise.all([FRResearchData.corpus(),FRResearchData.json('/v1/workgroups.json').catch(()=>({})),fetch('/data/workgroups.json',{signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():{}).catch(()=>({}))]).then(function([corpus,published,local]){FRResearch.setWorkCatalogue({bySlug:corpus.works,groups:{works:{...(published.works||{}),...(local.works||{})},groups:{...(published.groups||{}),...(local.groups||{})}}});
++    WORK_ALIASES=corpus.aliases||{};var rows=Array.from(corpus.works.values()).map(function(w){return Object.assign({},w,{author:Array.isArray(w.author)?w.author.join(', '):String(w.author||'')});});NAV={};WLIST=rows;WORKS_BY_SLUG={};
++    rows.forEach(function(w){WORKS_BY_SLUG[w.slug]=w;if(w.slug)NAV[w.slug]={t:w.title_en||w.title||w.slug,a:w.author||'',al:w.author_la||'',v:w.volume||'',tr:w.tradition||'',n:w.n_pages||0};if(w.party)(PARTYSLUGS[w.party]=PARTYSLUGS[w.party]||[]).push(w.slug);});
++    IDX=rows.filter(function(w){return w.slug;}).map(function(w){return {d:w.slug,k:'work',t:w.title_en||w.title||w.slug,o:w.title||'',a:w.author||'',al:w.author_la||''};});
++    buildFacetLists();var q2=_navq;_navq=null;q2.forEach(function(f){f(NAV);});
++  }).catch(function(){CATALOG_ERROR=true;NAV={};WLIST=[];IDX=[];WORKS_BY_SLUG={};var q2=_navq||[];_navq=null;q2.forEach(function(f){f(NAV);});});}
++function docCite(d){var e=NAV&&NAV[d];if(!e)return 'The Faith Received';var parts=[];if(ORDER==='relevance'&&e.a)parts.push(esc(e.a));if(e.v)parts.push(esc(e.v));if(e.tr)parts.push(esc(FRSearch.label(e.tr)));return parts.join(' · ');}
+ function docTitle(d){var e=NAV&&NAV[d];return e?esc(e.t||d):esc(d||'');}
+ 
+ /* ---- Facets: author / work / tradition — narrow any result set ---- */
+-var FAC={author:'',work:'',trad:'',corpus:''};
++var FAC={author:'',work:'',workQuery:'',trad:'',corpus:'',collection:'',group:'',groupSlugs:null};
+ var WORKMAP=null;
+-function facetOk(d){var e=NAV&&NAV[d];
+-  if(FAC.work && String(d)!==String(FAC.work))return false;
+-  if(!e)return true;
+-  if(FAC.author){var _fa=FAC.author.toLowerCase();
+-    if((e.a||'').toLowerCase().indexOf(_fa)<0&&(e.al||'').toLowerCase().indexOf(_fa)<0)return false;}
+-  if(FAC.trad && (e.tr||'')!==FAC.trad)return false;
+-  return true;}
++function facetOk(d){return FRSearch.matches(WORKS_BY_SLUG&&WORKS_BY_SLUG[d],FAC);}
+ function buildFacetLists(){
+   var auth={},trad={};WORKMAP={};var wopts=[];
+   (WLIST||[]).forEach(function(w){if(!w.slug)return;
+@@ -1254,30 +1287,31 @@
+     WORKMAP[label]=w.slug;wopts.push(label);});
+   var authList=Object.keys(auth).sort();wopts.sort();
+   ['facAuthors','scopeAuthors'].forEach(function(id){var dl=document.getElementById(id);
+-    if(dl)dl.innerHTML=authList.map(function(a){return '<option value="'+esc(a)+'">';}).join('');});
++    if(dl)dl.innerHTML=authList.filter(function(a){return !FAC.author||foldQ(a).includes(foldQ(FAC.author));}).slice(0,40).map(function(a){return '<option value="'+esc(a)+'">';}).join('');});
+   ['facWorks','scopeWorks'].forEach(function(id){var dl=document.getElementById(id);
+-    if(dl)dl.innerHTML=wopts.slice(0,4000).map(function(w){return '<option value="'+esc(w)+'">';}).join('');});
++    if(dl)dl.innerHTML=wopts.filter(function(w){return !FAC.workQuery||foldQ(w).includes(foldQ(FAC.workQuery));}).slice(0,40).map(function(w){return '<option value="'+esc(w)+'">';}).join('');});
+   var vs=document.getElementById('fTrad');
+   if(vs&&vs.options.length<=1){
+-    var opts=['<option value="">All traditions</option>'];
+-    Object.keys(trad).sort().forEach(function(v){opts.push('<option value="'+esc(v)+'">'+esc(v)+'</option>');});
+-    vs.innerHTML=opts.join('');}
++    var opts=['<option value="">All shelves</option>'];
++    FRSearch.shelves.forEach(function(v){opts.push('<option value="'+esc(v.value)+'">'+esc(v.label)+'</option>');});
++    vs.innerHTML=opts.join('');vs.value=FAC.trad;}
+ }
+ function facetInit(){
+   navMap(function(){});
+   var fa=document.getElementById('fAuthor'),fw=document.getElementById('fWork'),
+       fv=document.getElementById('fTrad'),fc=document.getElementById('fClear');
+-  function upd(){
++  function upd(event){
+     FAC.author=(fa&&fa.value||'').trim();
+     FAC.trad=(fv&&fv.value||'').trim();
+     var wv=(fw&&fw.value||'').trim();
+-    FAC.work=(wv&&WORKMAP&&WORKMAP[wv])||'';
+-    if(fc)fc.hidden=!(FAC.author||FAC.trad||FAC.work);
+-    run();}
++    FAC.work=(wv&&WORKMAP&&WORKMAP[wv])||'';FAC.workQuery=FAC.work?'':wv;FAC.collection=document.getElementById('fCollection').value;FAC.group=document.getElementById('fGroup').value;buildFacetLists();scopeSummary();
++    if(fc)fc.hidden=!(FAC.author||FAC.trad||FAC.work||FAC.workQuery||FAC.collection||FAC.group);
++    if(event&&event.type==='input'&&MODE!=='title'){seq++;REDRAW=null;setPager(0,0,function(){});res.innerHTML='';ct.textContent='Select Search to apply these filters.';}else run();}
+   if(fa)fa.addEventListener('input',upd);
+   if(fw)fw.addEventListener('input',upd);
+-  if(fv)fv.addEventListener('change',upd);
+-  if(fc)fc.onclick=function(){if(fa)fa.value='';if(fw)fw.value='';if(fv)fv.value='';upd();};}
++  if(fv)fv.addEventListener('change',upd);document.getElementById('fCollection').onchange=upd;document.getElementById('fGroup').onchange=upd;
++  if(fc)fc.onclick=function(){if(fa)fa.value='';if(fw)fw.value='';if(fv)fv.value='';document.getElementById('fCollection').value='';document.getElementById('fGroup').value='';FAC.groupSlugs=null;upd();};}
++document.getElementById('fTrad').innerHTML='<option value="">All shelves</option>'+FRSearch.shelves.map(function(s){return '<option value="'+esc(s.value)+'">'+esc(s.label)+'</option>';}).join('');
+ facetInit();
+ 
+ /* ---- Title mode: works-index first, then the lazy 154k section-heading tier ---- */
+@@ -1289,16 +1323,17 @@
+     var add=rows.map(function(r2){var e=NAV&&NAV[r2[0]]||{};
+       return {d:r2[0],k:'div',t:r2[2],a:e.a||'',page:r2[1]};});
+     IDX=(IDX||[]).concat(add);_hFull=true;_hLoading=false;
+-    if(MODE==='title'){hint.textContent='Searches '+(WLIST||[]).length.toLocaleString()+' works and '+rows.length.toLocaleString()+' section headings.';run();}
++    if(MODE==='title'){hint.textContent='Searches '+(WLIST||[]).length.toLocaleString()+' works and '+rows.length.toLocaleString()+' section headings.';RESTORE_PAGE=RESULT_PAGE;run();}
+   }).catch(function(){_hLoading=false;});}
+ function foldQ(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/v/g,'u').replace(/j/g,'i');}
+ function renderTitle(q){
+-  if(!IDX){res.innerHTML='';ct.innerHTML='<span class="sbusy">loading…</span>';navMap(function(){run();});return;}
+-  loadHeadingsTier();
++  if(CATALOG_ERROR){searchUnavailable('Work catalogue',q);return;}
++  if(!IDX){var waiting=seq,requestedPage=RESULT_PAGE;res.innerHTML='';ct.innerHTML='<span class="sbusy">loading…</span>';navMap(function(){if(waiting===seq){RESTORE_PAGE=requestedPage;run();}});return;}
++  if(q.trim().length>=2)loadHeadingsTier();
+   var toks=foldQ(q).split(/\s+/).filter(function(t2){return t2.length>=2;});
+   var m=IDX.filter(function(e){
+-    var hay=foldQ(e.t+' '+e.a+' '+(e.al||''));
+-    return toks.every(function(t2){return hay.indexOf(t2)>=0;})&&facetOk(e.d);
++    var hay=foldQ(e.t+' '+(e.o||'')+' '+e.a+' '+(e.al||''));
++    return (toks.length||e.k==='work')&&toks.every(function(t2){return hay.indexOf(t2)>=0;})&&facetOk(e.d);
+   });
+   // author-name queries surface the author's OWN works first ("Augustine" = the 143
+   // Augustine works, then works merely mentioning him in the title)
+@@ -1309,7 +1344,7 @@
+   m.sort(function(x,y){return x._au-y._au;});
+   if(!m.length&&window._AUTO_MODE&&q.length>=3){window._AUTO_MODE=false;setMode('full');return;}
+   // question-shaped input in Find mode ("what/why/how…?") → Ask is what they meant
+-  if(MODE==='title'&&/^(what|why|how|did|does|is|are|who|when|where|can|should)\b/i.test(q)&&/\?\s*$/.test(q)){setMode('ask');renderAsk(q);return;}
++  // Work searches never send a paid question automatically; Ask opens a draft.
+   var byDoc={},order=[];
+   m.forEach(function(e){
+     if(!(e.d in byDoc)){byDoc[e.d]={work:null,divs:[]};order.push(e.d);}
+@@ -1317,7 +1352,7 @@
+   });
+   if(!order.length){ct.innerHTML='';res.innerHTML=zeroHtml(q,'title');return;}
+   ct.textContent=order.length+' work'+(order.length===1?'':'s')+(m.length>order.length?(' · '+m.length+' incl. sections'):'');
+-  res.innerHTML=order.slice(0,300).map(function(d){
++  var rankOrder=order.slice(),priorities={},authorCounts={};if(q.trim()){order.forEach(function(d){var e=byDoc[d].work||byDoc[d].divs[0];authorCounts[e.a]=(authorCounts[e.a]||0)+1;});order.forEach(function(d){var e=byDoc[d].work||byDoc[d].divs[0];priorities[d]=e._au*1000000-authorCounts[e.a];});}function paintTitle(page){order=FRSearch.orderWorks(rankOrder,ORDER,WORKS_BY_SLUG,priorities,FRResearch.workOrder);var win=FRSearch.pageWindow(order.length,page);setPager(order.length,win.page,paintTitle,'works');res.innerHTML=order.slice(win.start,win.end).map(function(d){
+     var g=byDoc[d], e=g.work||g.divs[0];
+     var href=rdHref(e.d,e.k==='div'?e.page:null);
+     var nd=g.divs.length;
+@@ -1326,75 +1361,37 @@
+     var first=(!g.work&&e.k==='div')?e.t:(g.work?g.work.t:e.t);
+     var out='<a class="sr" href="'+href+'"><div class="sr-cite">'+docCite(d)+sec+'</div>'+
+       '<div>'+kind+esc(first)+(!g.work?'<span class="nt-meta"> — '+docTitle(d)+'</span>':'')+'</div></a>';
+-    if(g.work&&nd)out+=g.divs.slice(0,3).map(function(dv){
+-      return '<a class="sr" style="padding-left:1.4rem" href="'+rdHref(dv.d,dv.page)+'"><div>§ '+esc(dv.t)+(dv.page?' <span class="nt-meta">· p. '+dv.page+'</span>':'')+'</div></a>';}).join('');
+-    return out;
++    if(nd)out+='<details class="matching-sections"><summary>Browse '+nd+' matching '+(nd===1?'section':'sections')+'</summary><div class="matched-section-list" data-doc="'+esc(d)+'"></div></details>';
++    return '<section class="search-work-block" data-work="'+esc(d)+'">'+out+'</section>';
+   }).join('');
+-  if(order.length>300){var capNote=document.createElement('div');capNote.className='shint';
+-    capNote.style.cssText='margin:.6rem 0 0';
+-    capNote.textContent='300 of '+order.length.toLocaleString()+' works — showing the first 300.';
+-    res.appendChild(capNote);}
++  res.querySelectorAll('.matched-section-list').forEach(function(host){var rows=byDoc[host.dataset.doc].divs;locationPager(host,rows.length,function(start,end,target){rows.slice(start,end).forEach(function(dv){var a=document.createElement('a');a.className='sr';a.href=rdHref(dv.d,dv.page);a.innerHTML='<div>'+esc(dv.t)+'</div><div class="sr-cite">Location '+esc(dv.page)+'</div>';target.appendChild(a);});},10);});organizePage();}REDRAW=paintTitle;paintTitle(RESULT_PAGE);
+ }
+ 
+ /* ---- Full text (Pagefind — Blob multi-bucket, same loader as the landing) ---- */
+-var _pf=null;
++var _pf=null,_pfMissing=[];
+ function pfInit(){if(_pf)return _pf;
+-  _pf=fetch(FRB+'/v1/search/pagefind/manifest.json?v=4').then(function(r){return r.json();}).catch(function(){return {buckets:9};})
++  _pfMissing=[];_pf=fetch(FRB+'/v1/search/pagefind/manifest.json?v=4').then(function(r){if(!r.ok)throw Error('Index manifest unavailable');return r.json();})
+     .then(function(man){
+       var dirs=(man&&man.list&&man.list.length)
+         ? man.list.map(function(e){return e.path.replace(/\/pagefind$/,'');}).filter(function(d){return d!=='b0';})
+         : (function(){var a=[];for(var i=1;i<((man&&man.buckets)||9);i++)a.push('b'+i);return a;})();
+       return import(FRB+'/v1/search/pagefind/b0/pagefind.js?v=4').then(function(p){
+-        return Promise.all(dirs.map(function(d){return p.mergeIndex(FRB+'/v1/search/pagefind/'+d+'/').catch(function(){return null;});}))
++        return Promise.all(dirs.map(function(d){return p.mergeIndex(FRB+'/v1/search/pagefind/'+d+'/').catch(function(){_pfMissing.push(d);return null;});}))
+           .then(function(){return p;});});})
+-    .catch(function(){return null;});
++    .catch(function(){_pf=null;return null;});
+   return _pf;}
+-function renderFull(q){var my=++seq;ct.innerHTML='<span class="sbusy">searching… <span style="font-weight:400">(first search loads the index)</span></span>';
+-  navMap(function(){if(my!==seq)return;
+-    pfInit().then(function(p){if(my!==seq)return;
+-      if(!p){ct.textContent='Full-text index unavailable.';res.innerHTML='';return;}
+-      var filt={};
+-      if(FAC.author)filt.author=FAC.author;
+-      if(FAC.corpus)filt.corpus=FAC.corpus;
+-      var opts=Object.keys(filt).length?{filters:filt}:undefined;
+-      p.search(q,opts).then(function(r){if(my!==seq)return;
+-        /* CHUNKED (owner eval 2026-09-06 "evaluate full text": the list hard-stopped at 60
+-           of 2,294 with no way on) — 60 per batch, a Show-more foot walks the rest. Each
+-           row cite carries its page number, parsed from the deep-link anchor. */
+-        var rfTotal=r.results.length,shown=0,acc=[];
+-        function pageOf(u){var m2=/#b(\d+)-/.exec(u||'');return m2?(' · p. '+m2[1]):'';}
+-        function rowHtml(it){
+-            var meta=it.meta||{},sl=meta.slug||'';
+-            var cite=docCite(sl);
+-            var cpx=/^pg-/.test(sl)?'Greek Fathers':/^pld-/.test(sl)?'Latin Fathers':/^po-/.test(sl)?'Oriental':/^eebo-/.test(sl)?'EEBO':/^(rc|lc)-/.test(sl)?'Confessions':'';
+-            if(cpx&&cite.indexOf(cpx)<0)cite=cite? cite+' · '+cpx : cpx;
+-            var subs=(it.sub_results||[]).slice(0,3).map(function(s){
+-              return '<a class="sr" href="'+s.url+'"><div class="sr-cite">'+cite+pageOf(s.url)+'</div><div>'+esc(meta.title||'')+'</div><div class="sr-ex">'+mdHeadings(s.excerpt||'')+'</div></a>';}).join('');
+-            if(subs)return subs;
+-            return '<a class="sr" href="'+it.url+'"><div class="sr-cite">'+cite+pageOf(it.url)+'</div><div>'+esc(meta.title||it.url)+'</div><div class="sr-ex">'+mdHeadings(it.excerpt||'')+'</div></a>';
+-        }
+-        function batch(){
+-          Promise.all(r.results.slice(shown,shown+60).map(function(x){return x.data();})).then(function(items){if(my!==seq)return;
+-            shown=Math.min(shown+60,r.results.length);
+-            items=items.filter(function(it){var sl=(it.meta&&it.meta.slug)||'';
+-              if(FAC.work&&sl!==FAC.work)return false;
+-              if(FAC.trad){var e=NAV[sl];if(e&&e.tr!==FAC.trad)return false;}
+-              return true;});
+-            acc=acc.concat(items);
+-            if(!acc.length&&shown>=r.results.length){ct.innerHTML='';res.innerHTML=zeroHtml(q,'full');return;}
+-            ct.textContent=(rfTotal>acc.length
+-              ? acc.length.toLocaleString()+' of '+rfTotal.toLocaleString()+' matching pages'
+-              : acc.length.toLocaleString()+' matching page'+(acc.length===1?'':'s'));
+-            res.innerHTML=acc.map(rowHtml).join('')
+-              +(shown<r.results.length?'<button type="button" class="sr-more" id="pfMore">Show more — '+(r.results.length-shown).toLocaleString()+' further pages</button>':'');
+-            var mb=document.getElementById('pfMore');
+-            if(mb)mb.onclick=function(){mb.disabled=true;mb.textContent='Loading\u2026';batch();};
+-          });
+-        }
+-        batch();
+-      });
+-    });
+-  });}
++function renderFull(q){var my=++seq;ct.textContent='Loading the text index…';res.innerHTML='';
++ navMap(function(){if(my!==seq)return;pfInit().then(function(p){if(my!==seq)return;if(!p)throw Error('The text index could not load.');
++  return p.search(q,{filters:FRSearch.pagefindFilters(FAC,WLIST||[])}).then(function(r){if(my!==seq)return;var total=r.results.length,cache=new Map();
++   function href(raw,slug){var ref=FRSearch.readerLink(raw,location.origin);return ref?rdHref(ref.slug,ref.page):WORKS_BY_SLUG[slug]?rdHref(slug):null;}
++   function snippet(s){return mdHeadings(s||'').replace(/<(?!\/?(?:mark|b|strong)\b)[^>]*>/gi,'').replace(/<(mark|b|strong)\b[^>]*>/gi,'<$1>');}
++   function renderItems(items){var grouped=new Map();items.forEach(function(item){var meta=item.meta||{},slug=meta.slug||'',g=grouped.get(slug);if(!g){g={slug:slug,parts:[]};grouped.set(slug,g);}var parts=item.sub_results?.length?item.sub_results:[item];parts.forEach(function(part){var url=href(part.url||item.url,slug);if(url&&!g.parts.some(p=>p.url===url&&p.excerpt===part.excerpt))g.parts.push({url:url,excerpt:part.excerpt||item.excerpt});});});
++    var ordered=FRSearch.orderWorks(Array.from(grouped.values()),ORDER,WORKS_BY_SLUG,{},FRResearch.workOrder);for(const [i,g] of ordered.entries()){var fold=document.createElement('details');fold.className='scripture-work exact-work';fold.dataset.work=g.slug;fold.open=i===0;fold.innerHTML='<summary>'+docTitle(g.slug)+'<span>'+docCite(g.slug)+' · '+g.parts.length+' indexed '+(g.parts.length===1?'excerpt':'excerpts')+' on this page</span></summary><div class="exact-locations"></div>';locationPager(fold.querySelector('.exact-locations'),g.parts.length,function(start,end,host){g.parts.slice(start,end).forEach(function(part){var ref=FRSearch.readerLink(part.url,location.origin),a=document.createElement('a');a.className='sr';a.href=part.url;a.innerHTML='<div class="sr-cite">'+esc(ref?.page!=null?'Location '+ref.page:'Open work')+'</div><div class="sr-ex">'+snippet(part.excerpt)+'</div>';host.appendChild(a);});},3);res.appendChild(fold);}
++   }
++   async function draw(page){var win=FRSearch.pageWindow(total,page);setPager(total,win.page,draw,'indexed sections');ct.textContent='Loading result page…';try{var items=cache.get(win.page);if(!items){items=await Promise.all(r.results.slice(win.start,win.end).map(function(x){return x.data();}));cache.set(win.page,items);}if(my!==seq||win.page!==RESULT_PAGE)return;items=items.filter(function(it){return facetOk(it.meta&&it.meta.slug);});ct.textContent=total.toLocaleString()+' matching indexed sections · groups arrange this page'+(_pfMissing.length?' · incomplete index':'');res.innerHTML=(_pfMissing.length?'<p class="search-warning">Some text-index files could not load. These results are incomplete.</p>':'');renderItems(items);if(!items.length)res.insertAdjacentHTML('beforeend',zeroHtml(q,'full'));organizePage();}catch(e){if(my===seq)searchUnavailable('Full-text search',q);}}
++   REDRAW=draw;return draw(RESULT_PAGE);
++  });
++ }).catch(function(){if(my===seq)searchUnavailable('Full-text search',q);});});}
+ 
+ /* ---- Blob excerpt hydration (meaning + tradition home hits): meta.json → shard → page text ---- */
+ var _exc={};
+@@ -1404,35 +1401,30 @@
+     var f=meta.single?'work.json':(((meta.shards||[]).filter(function(s){return s.from<=page&&page<=s.to;})[0])||{}).file;
+     if(!f)return (_exc[k]=null);
+     return fetch(FRB+'/v1/works/'+slug+'/'+f).then(function(r){return r.json();}).then(function(d){
+-      var pg=(d.pages||[]).filter(function(x){return x.n===page;})[0];
++      var pg=(d.pages||[]).filter(function(x){return String(x.n)===String(page);})[0];
+       var tx=(pg&&(pg.en||pg.la)||'').replace(/\[\^[^\]]*\]:?/g,'').replace(/[#*]+/g,'').replace(/\s+/g,' ').trim();
+       return (_exc[k]=tx?tx.slice(0,220):null);});
+   }).catch(function(){return (_exc[k]=null);});}
+ 
+-function searchUnavailable(label,query){
+-  ct.textContent=label+' is temporarily unavailable. Your search is still here.';
+-  res.innerHTML='<div class="search-recovery"><p>Continue with exact wording, or ask a question of the library.</p><button type="button" data-recover="full">Search full text</button><button type="button" data-recover="ask">Ask the library</button></div>';
+-  res.querySelector('[data-recover="full"]').onclick=function(){qEl.value=query;setMode('full');};
+-  res.querySelector('[data-recover="ask"]').onclick=function(){if(window.FRAsk)window.FRAsk.open({q:query});else setMode('ask');};
+-}
++function searchUnavailable(label,query){setPager(0,0,function(){});ct.textContent=label+' is temporarily unavailable. Your search is still here.';res.innerHTML='<div class="search-recovery"><p>Retry this search, or choose another search mode.</p><button type="button" id="retrySearch">Retry search</button></div>';document.getElementById('retrySearch').onclick=function(){if(CATALOG_ERROR){CATALOG_ERROR=false;NAV=null;IDX=null;}if(MODE==='full')_pf=null;run();};}
+ /* ---- Meaning (hybrid semantic+lexical via /api/vsearch&sparse=1) ---- */
+-function renderMeaning(q){var my=++seq;ct.innerHTML='<span class="sbusy">searching by meaning…</span>';
+-  navMap(function(){if(my!==seq)return;
+-    fetch('/api/vsearch?q='+encodeURIComponent(q)+'&k=40'+((FAC.corpus==='pld'||FAC.corpus==='pg'||FAC.corpus==='po')?'&corpus='+(FAC.corpus==='pld'?'pl':FAC.corpus):'&sparse=1')).then(function(r){return r.ok?r.json():r.json().catch(function(){return {error:'unavailable'};});}).then(function(j){
+-      if(my!==seq)return;var rs=((j&&j.results)||[]).filter(function(p){return p.slug&&facetOk(p.slug);});
+-      if(!rs.length){if(j&&j.error)return searchUnavailable('Search by idea',q);ct.textContent='No passages found.';res.innerHTML='';return;}
+-      ct.textContent=rs.length+' passages by meaning';
+-      res.innerHTML=rs.map(function(p,i){
+-        return '<a class="sr" href="'+rdHref(p.slug,p.page)+'"><div class="sr-cite">'+docCite(p.slug)+(p.page!=null?' · p. '+p.page:'')+'</div>'+
+-          '<div>'+docTitle(p.slug)+'</div><div class="sr-ex" data-ex="'+esc(p.slug)+'|'+p.page+'"></div></a>';}).join('');
+-      Array.prototype.slice.call(res.querySelectorAll('[data-ex]'),0,20).forEach(function(sp){
+-        var kv=sp.getAttribute('data-ex').split('|');
+-        excerpt(kv[0],+kv[1]).then(function(tx){if(tx&&my===seq)sp.textContent=tx+'…';});});
+-    }).catch(function(){if(my!==seq)return;searchUnavailable('Search by idea',q);});
+-  });}
++function renderMeaning(q){var my=++seq,pools=[],expanded=false,expanding=false,groups=[];ct.textContent='Finding related passages…';res.innerHTML='';
++ navMap(function(){if(my!==seq)return;var params=new URLSearchParams({q:q,k:FAC.collection?'80':'25'}),endpoint='/api/xsearch?';if(FAC.collection){endpoint='/api/vsearch?';params.set('collection',FAC.collection);if(FAC.work)params.set('w',FAC.work);}else if(FAC.trad==='English Divines')params.set('c','tfr');else if(FAC.trad==='Medieval')params.set('c','aq,tfr');else if(FAC.trad)params.set('trad',FAC.trad);
++  fetch(endpoint+params,{signal:AbortSignal.timeout(25000)}).then(function(r){if(!r.ok)throw Error('Search unavailable');return r.json();}).then(function(data){if(my!==seq)return;pools=[FRSearch.meaningCandidates(data,WORKS_BY_SLUG)];refresh();}).catch(function(){if(my===seq)searchUnavailable('Search by idea',q);});
++  function refresh(){var rows=FRSearch.fuseMeaning(pools).filter(function(r){return facetOk(r.slug);});groups=FRSearch.meaningGroups(rows);REDRAW=paint;ct.textContent=rows.length+' ranked passages in '+groups.length+' works'+(FAC.trad?' · '+FRSearch.label(FAC.trad):'');paint(RESULT_PAGE);}
++  function paint(page){var ordered=FRSearch.orderWorks(groups,ORDER,WORKS_BY_SLUG,{},FRResearch.workOrder),win=FRSearch.pageWindow(groups.length,page);setPager(groups.length,win.page,paint,'works');res.innerHTML='<details class="search-guidance"><summary>About these ranked results</summary><p>Expand a work to read its indexed passages. Use Search more passages for a broader candidate set. Neither list is an exhaustive match count.</p></details>';
++   ordered.slice(win.start,win.end).forEach(function(g,i){var fold=document.createElement('details');fold.className='scripture-work meaning-work';fold.dataset.work=g.slug;fold.open=i===0;fold.innerHTML='<summary>'+docTitle(g.slug)+'<span>'+docCite(g.slug)+' · '+g.locations.length+' ranked '+(g.locations.length===1?'passage':'passages')+'</span></summary><div class="meaning-locations"></div>';
++    locationPager(fold.querySelector('.meaning-locations'),g.locations.length,function(start,end,host){g.locations.slice(start,end).forEach(function(p){var a=document.createElement('a');a.className='sr';a.href=rdHref(p.slug,p.page);a.innerHTML='<div class="sr-cite">'+esc(p.citation||(p.page!=null?'Location '+p.page:'Work-level match'))+'</div>'+(p.excerpt?'<div class="sr-ex">'+esc(p.excerpt)+'</div>':'<div class="sr-ex"></div>')+'<small>'+esc(p.page==null?'Open work; exact reader location unavailable':'Read passage')+'</small>';host.appendChild(a);if(!p.excerpt&&p.page!=null){var span=a.querySelector('.sr-ex');excerpt(p.slug,p.page).then(function(text){if(my===seq&&span.isConnected&&text)span.textContent=text+'…';});}});},3);res.appendChild(fold);
++   });if(!groups.length)res.insertAdjacentHTML('beforeend','<p>No ranked matches were returned for these filters. Try a broader set, another phrase, or Exact words.</p>');organizePage();
++   var button=document.getElementById('meaningBroaden');if(!button){button=document.createElement('button');button.type='button';button.id='meaningBroaden';document.getElementById('groupControls').appendChild(button);}button.disabled=expanded||expanding;button.textContent=expanding?'Finding more passages…':expanded?'Broader ranked set loaded':'Search more passages';button.onclick=broaden;
++  }
++  async function broaden(){if(expanding||expanded)return;expanding=true;var button=document.getElementById('meaningBroaden');button.disabled=true;button.textContent='Finding more passages…';var selected=FRSearch.shelf(FAC.trad),names=selected?.code==='pl'?['pl']:selected?.code==='gf'?['pg']:selected?.code==='po'?['po']:selected?.code==='md'?['library','aq']:selected?['library']:['library','pl','pg','po','aq'];if(FAC.collection)names=['library'];
++   var settled=await Promise.allSettled(names.map(async function(corpus){var params=new URLSearchParams({q:q,k:'200',corpus:corpus});if(FAC.collection)params.set('collection',FAC.collection);if(FAC.work&&corpus==='library')params.set('w',FAC.work);var response=await fetch('/api/vsearch?'+params,{signal:AbortSignal.timeout(25000)});if(!response.ok)throw Error('Search unavailable');var data=await response.json();return FRSearch.meaningCandidates(Object.assign({},data,{corpus:corpus}),WORKS_BY_SLUG);}));if(my!==seq)return;expanding=false;var good=settled.filter(function(r){return r.status==='fulfilled';});if(!good.length){button.disabled=false;button.textContent='Retry broader search';ct.textContent='The broader search could not load. Your current results are retained.';return;}pools=pools.concat(good.map(function(r){return r.value;}));expanded=true;RESULT_PAGE=0;saveSearchURL();refresh();if(good.length!==settled.length)ct.textContent+=' · some sources could not load';
++  }
++ });}
+ 
+ /* ---- Tradition (cross-corpus timeline via /api/xsearch) — Round-5 scope contract ---- */
+-var CORPUS_BADGE={PG:'Greek Fathers',PL:'Latin Fathers',PO:'Oriental',AQ:'Aquinas',TFR:'Early modern'};
++var CORPUS_BADGE={PG:'Greek Fathers',PL:'Latin Fathers',PO:'Eastern Fathers',AQ:'Aquinas',TFR:'Early modern'};
+ var TRS={c:{pg:1,pl:1,po:1,aq:1,tfr:1},t:{catholic:1,reformed:1,lutheran:1}};
+ try{var _s=JSON.parse(localStorage.getItem('fr_tr_scope'));if(_s&&_s.c)TRS=_s;}catch(e){}
+ function trsSave(){try{localStorage.setItem('fr_tr_scope',JSON.stringify(TRS));}catch(e){}}
+@@ -1449,7 +1441,7 @@
+   d.innerHTML='<span class="trad-scope-lab">Corpora:</span>'
+     +'<button type="button" class="trad-chip tb-pg" data-c="pg" title="Greek Fathers">PG</button>'
+     +'<button type="button" class="trad-chip tb-pl" data-c="pl" title="Latin Fathers">PL</button>'
+-    +'<button type="button" class="trad-chip tb-po" data-c="po" title="Oriental">PO</button>'
++    +'<button type="button" class="trad-chip tb-po" data-c="po" title="Eastern Fathers">PO</button>'
+     +'<button type="button" class="trad-chip tb-aq" data-c="aq" title="Aquinas Opera Omnia">AQ</button>'
+     +'<button type="button" class="trad-chip tb-tfr" data-c="tfr" title="Early-modern reception — this library">TFR</button>'
+     +'<span class="trs-sub"><span class="trad-scope-lab">·</span>'
+@@ -1506,81 +1498,27 @@
+       excerpt(kv[0],+kv[1]).then(function(tx){if(tx&&my===seq)sp.textContent=tx+'…';});});
+   }).catch(function(){if(my!==seq)return;searchUnavailable('Tradition search',q);});}
+ 
+-/* ---- Scripture (chapter landings from v1/scripture.json — the preach-a-text door) ---- */
+-var SCR=null;
+-function sbInit(cb){if(SCR)return cb(SCR);
+-  fetch(FRB+'/v1/scripture.json'+VER).then(function(r){return r.json();}).then(function(j){SCR=j||{};cb(SCR);}).catch(function(){SCR={};cb(SCR);});}
+-var BOOK_ABBR={gen:'genesis',exod:'exodus',ex:'exodus',lev:'leviticus',num:'numbers',deut:'deuteronomy',dt:'deuteronomy',
+-  josh:'joshua',judg:'judges',ruth:'ruth','1sam':'1 samuel','2sam':'2 samuel','1kgs':'1 kings','2kgs':'2 kings',
+-  '1kings':'1 kings','2kings':'2 kings','1chr':'1 chronicles','2chr':'2 chronicles',ezra:'ezra',neh:'nehemiah',
+-  esth:'esther',job:'job',ps:'psalms',psa:'psalms',psalm:'psalms',prov:'proverbs',eccl:'ecclesiastes',
+-  song:'song of songs',cant:'song of songs',isa:'isaiah',jer:'jeremiah',lam:'lamentations',ezek:'ezekiel',
+-  dan:'daniel',hos:'hosea',joel:'joel',amos:'amos',obad:'obadiah',jonah:'jonah',mic:'micah',nah:'nahum',
+-  hab:'habakkuk',zeph:'zephaniah',hag:'haggai',zech:'zechariah',mal:'malachi',matt:'matthew',mt:'matthew',
+-  mk:'mark',mark:'mark',lk:'luke',luke:'luke',jn:'john',john:'john',acts:'acts',rom:'romans',
+-  '1cor':'1 corinthians','2cor':'2 corinthians',gal:'galatians',eph:'ephesians',phil:'philippians',
+-  col:'colossians','1thess':'1 thessalonians','2thess':'2 thessalonians','1tim':'1 timothy','2tim':'2 timothy',
+-  titus:'titus',phlm:'philemon',heb:'hebrews',jas:'james',james:'james','1pet':'1 peter','2pet':'2 peter',
+-  '1john':'1 john','2john':'2 john','3john':'3 john',jude:'jude',rev:'revelation',apoc:'revelation'};
+-function resolveBook(s){if(!SCR)return null;
+-  var raw=s.replace(/\./g,'').trim().toLowerCase().replace(/^([123])\s+/,'$1');
+-  var key=raw.replace(/\s+/g,' ');
+-  if(SCR[key])return key;
+-  if(BOOK_ABBR[raw.replace(/\s+/g,'')])return BOOK_ABBR[raw.replace(/\s+/g,'')];
+-  var ks=Object.keys(SCR);
+-  for(var i=0;i<ks.length;i++)if(ks[i].indexOf(key)===0)return ks[i];
+-  for(var i2=0;i2<ks.length;i2++)if(ks[i2].replace(/^\d+ /,'').indexOf(key.replace(/^\d+ ?/,''))===0&&(/^\d/.test(key)===/^\d/.test(ks[i2])))return ks[i2];
+-  return null;}
+-function parseRef(q){q=q.trim();var m=q.match(/^(.+?)\s+(\d+)\s*(?:[:.,]\s*(\d+))?\s*$/);
+-  if(!m)return null;return {book:m[1],ch:m[2],v:m[3]?parseInt(m[3]):0};}
++/* Scripture searches use the published verse-citation files, not inferred title matches. */
++var SCRIPTURE_BOOKS=null,SCRIPTURE_LAST=null;
++function scriptureChapter(path){if(SCRIPTURE_LAST&&SCRIPTURE_LAST.path===path)return SCRIPTURE_LAST.promise;var promise=FRResearchData.json(path).catch(function(error){if(SCRIPTURE_LAST?.path===path)SCRIPTURE_LAST=null;throw error;});SCRIPTURE_LAST={path:path,promise:promise};return promise;}
++function scriptureBooks(){if(!SCRIPTURE_BOOKS)SCRIPTURE_BOOKS=FRResearchData.books().catch(function(e){SCRIPTURE_BOOKS=null;throw e;});return SCRIPTURE_BOOKS;}
+ function capB(s){return String(s).replace(/\b[a-z]/g,function(c){return c.toUpperCase();});}
+-function renderScripture(q){var my=++seq;var ref=parseRef(q);
+-  if(!ref){ct.textContent='Type a reference — e.g. Rom 8 · Matt 5 · Ps 110.';res.innerHTML='';return;}
+-  sbInit(function(S){if(my!==seq)return;var b=resolveBook(ref.book);
+-    if(!b){ct.textContent='No biblical book matched “'+esc(ref.book)+'”.';res.innerHTML='';return;}
+-    var rows=S[b]&&S[b][String(ref.ch)];
+-    if(!rows||!rows.length){ct.textContent=capB(b)+' '+esc(ref.ch)+' has no commentary landings in the library.';res.innerHTML='';return;}
+-    navMap(function(){if(my!==seq)return;
+-      var hits=rows.filter(function(e){return facetOk(e[0]);});
+-      var label=capB(b)+' '+ref.ch;
+-      ct.textContent=hits.length.toLocaleString()+' commentator landing'+(hits.length===1?'':'s')+' on '+label+(ref.v?' (chapter level — verse '+ref.v+' will be on these pages)':'');
+-      res.innerHTML=hits.slice(0,300).map(function(e){
+-        return '<a class="sr" href="'+rdHref(e[0],e[1])+'"><div class="sr-cite">'+docCite(e[0])+' <span class="sr-n">· p. '+e[1]+'</span></div><div>'+docTitle(e[0])+'</div><div class="sr-ex">'+esc(e[2]||'')+'</div></a>';}).join('')
+-        +(hits.length>300?'<div class="shint">…and '+(hits.length-300).toLocaleString()+' more</div>':'');
+-    });
+-  });}
+-/* RESEARCH DOORS (owner 2026-09-05 "these tabs don't cohere with our constellations — link
+-   deeply"): Scripture and Tradition are windows onto the dedicated surfaces; say so and
+-   link straight in, in the site's own quiet register. */
+-function doorRow(m){
+-  var doors=m==='scripture'
+-    ?[['/bible','Scripture atlas','every citation, book by book, opening on the verse'],
+-      ['/fathers?sh=gf','Author rooms','each author’s topics, positions, and reception']]
+-    :[['/web','The Web of Theology','fifteen centuries of citation as a navigable sky'],
+-      ['/fathers?sh=gf','Author rooms','each author’s topics, positions, and reception'],
+-      ['/topics','Topics','doctrines era by era, with their carrying passages']];
+-  return '<div class="sdoors">'+doors.map(function(d){
+-    return '<a class="sdoor" href="'+d[0]+'"><span class="sd-n">'+d[1]+' →</span><span class="sd-d">'+d[2]+'</span></a>';}).join('')+'</div>';
+-}
+-function scriptureBrowse(){
+-  ct.innerHTML='<span class="sbusy">loading the scripture index…</span>';res.innerHTML='';
+-  sbInit(function(S){
+-    if(qEl.value.trim().length>=2)return;
+-    var flat=[];
+-    Object.keys(S).forEach(function(b){Object.keys(S[b]).forEach(function(c){flat.push({b:b,c:c,n:S[b][c].length});});});
+-    flat.sort(function(a,b2){return b2.n-a.n;});
+-    flat=flat.slice(0,40);
+-    if(!flat.length){ct.textContent='';res.innerHTML='';return;}
+-    ct.textContent='Most-commented chapters — tap one, or type any reference above.';
+-    res.innerHTML='<div class="sb-grid">'+flat.map(function(e){
+-      var ref=capB(e.b)+' '+e.c;
+-      return '<button type="button" class="sb-chip" data-ref="'+esc(ref)+'">'+esc(ref)+' <span class="sr-n">'+e.n+'</span></button>';
+-    }).join('')+'</div>';
+-    Array.prototype.forEach.call(res.querySelectorAll('.sb-chip'),function(btn){
+-      btn.addEventListener('click',function(){qEl.value=btn.getAttribute('data-ref');run();qEl.focus();});
+-    });
++function scriptureAtlas(ref){return FRResearchData.verseURL(ref.book,ref.ch,ref.verses.length===1?ref.verses[0]:null);}
++function renderScripture(q){var my=++seq;ct.textContent='Loading Scripture references…';res.innerHTML='';
++ scriptureBooks().then(async function(books){if(my!==seq)return;var ref=FRSearch.scriptureReference(q,books,FRResearchData.parseReference);
++  if(!ref){var bookRef=FRResearchData.parseReference(q+' 1',books);if(bookRef){renderBibleChapters(books.find(function(b){return b.slug===bookRef.book;}));return;}ct.textContent='Enter a book and chapter, with an optional verse or range, such as Romans 8:1–4.';return;}
++  var sh=FRSearch.shelf(FAC.trad),data;try{data=await scriptureChapter('/v1/bible/'+(sh?sh.code:'all')+'/'+encodeURIComponent(ref.book)+'/'+ref.ch+'.json.gz');}catch(e){if(my!==seq)return;if(e.status===404){ct.textContent='No published Scripture records are available for this passage in the selected shelf.';res.innerHTML='<a class="sr" href="'+scriptureAtlas(ref)+'">Open this passage in Scripture</a>';return;}throw e;}
++  if(my!==seq)return;var records=FRSearch.scriptureRecords(data,ref);navMap(function(){if(my!==seq)return;var groups=FRSearch.scriptureGroups(records.rows,FAC,WORKS_BY_SLUG,WORK_ALIASES),name=(books.find(function(b){return b.slug===ref.book;})||{}).book||ref.book,label=name+' '+ref.ch+(ref.selection?':'+ref.selection:'');
++   var locations=groups.reduce(function(n,g){return n+g.locations.length;},0);ct.textContent=locations.toLocaleString()+' source locations · '+groups.length.toLocaleString()+' works · '+label+(records.partial?' · published selection':'');
++   function paint(page){var ordered=FRSearch.orderWorks(groups,ORDER,WORKS_BY_SLUG,{},FRResearch.workOrder),win=FRSearch.pageWindow(groups.length,page);setPager(groups.length,win.page,paint,'works');res.innerHTML='<div class="scripture-context"><a href="'+scriptureAtlas(ref)+'">Read '+esc(ref.verses.length===1?label:name+' '+ref.ch)+' in Scripture</a><details><summary>Coverage</summary><p>These are indexed citations, including quotations and references. They do not establish agreement or a continuous commentary.</p>'+(records.partial?'<p class="search-warning">The published file contains a selection of the indexed references. These results are not exhaustive.</p>':'')+'</details></div>';
++    ordered.slice(win.start,win.end).forEach(function(g,i){var fold=document.createElement('details');fold.className='scripture-work';fold.dataset.work=g.slug;fold.dataset.author=g.author;fold.dataset.shelf=g.shelf;fold.open=i===0;fold.innerHTML='<summary>'+esc(ORDER==='relevance'&&g.author?g.author+' · ':'')+esc(g.title)+'<span>'+(g.volume?esc(g.volume)+' · ':'')+g.locations.length+' source location'+(g.locations.length===1?'':'s')+' · '+esc(g.shelf)+(g.available?'':' · Work not currently available')+'</span></summary><div class="scripture-locations"></div>';var list=fold.querySelector('.scripture-locations');locationPager(list,g.locations.length,function(start,end,target){g.locations.slice(start,end).forEach(function(loc){var a=document.createElement(g.available?'a':'div');a.className='sr';if(g.available)a.href=rdHref(g.slug,loc.page);a.innerHTML='<div class="sr-cite">'+esc(loc.verses.length?'Verse'+(loc.verses.length>1?'s ':' ')+loc.verses.join(', '):'Chapter reference')+' · '+esc(loc.page)+'</div><div>'+esc(g.title)+'</div>';target.appendChild(a);});},10);res.appendChild(fold);});if(!groups.length)res.insertAdjacentHTML('beforeend','<p>No available records match these filters. Try another shelf or clear the filters.</p>');
++   organizePage();}REDRAW=paint;paint(RESULT_PAGE);
+   });
+-}
++ }).catch(function(error){if(my!==seq)return;if(/requested verse|does not match/.test(error.message)){ct.textContent=error.message;res.innerHTML='';}else searchUnavailable('Scripture search',q);});}
++function renderBibleChapters(book){if(!book)return;ct.textContent='Choose a chapter of '+book.book+'.';res.innerHTML='<div class="sb-grid">'+book.chapters.map(function(c){var label=book.book+' '+c.c;return '<button type="button" class="sb-chip" data-ref="'+esc(label)+'">'+esc(label)+'</button>';}).join('')+'</div>';wireBibleButtons();}
++function wireBibleButtons(){res.querySelectorAll('[data-ref]').forEach(function(b){b.onclick=function(){qEl.value=b.dataset.ref;run();};});}
++function scriptureBrowse(){var my=++seq;ct.textContent='Loading Bible books…';res.innerHTML='';scriptureBooks().then(function(books){if(my!==seq||qEl.value.trim())return;ct.textContent='Choose a book, or enter a passage above.';res.innerHTML='<div class="sb-grid">'+books.map(function(b){return '<button type="button" class="sb-chip" data-book="'+esc(b.slug)+'">'+esc(b.book)+'</button>';}).join('')+'</div>';res.querySelectorAll('[data-book]').forEach(function(b){b.onclick=function(){var book=books.find(function(x){return x.slug===b.dataset.book;});qEl.value=book.book;saveSearchURL();renderBibleChapters(book);};});}).catch(function(){if(my===seq)searchUnavailable('Scripture catalogue','');});}
++function doorRow(m){return m==='scripture'?'<div class="sdoors"><a class="sdoor" href="/bible"><span class="sd-n">Open Scripture</span><span class="sd-d">Read the text, citations, and commentary.</span></a></div>':'';}
+ 
+ /* ---- Ask (RAG via /api/ask, streamed) — TFR stream contract: {"t":"k"/"p"} control
+        frames on their own lines + FIRST non-frame line = {"sources":[…],"graph":…} preamble,
+@@ -1826,7 +1764,7 @@
+   m.innerHTML='<div class="ask-sugg ask-refine">'+chips.map(function(c,i){
+       return '<button data-q="'+esc(c.q)+'"'+(c.deep?' data-deep="1"':'')+'>'+c.t+'</button>';}).join('')
+     +'</div><div class="ask-tools"><button class="ask-new" id="askNew" type="button">New conversation</button><button class="ask-new" id="askMap" type="button" title="See this conversation as a map — its questions, loci, and cited works">⊚ Map</button><a class="ask-new" href="/desk" style="text-decoration:none" title="Write a paper at the Desk — insert your saved answers and notes with citations">✎ Desk</a><span class="ask-cgpt" data-cgpt-link style="margin-left:auto"></span></div>';
+-  var b=res.querySelector('#askNew');if(b)b.onclick=function(){askReset();qEl.value='';qEl.focus();};
++  var b=res.querySelector('#askNew');if(b)b.onclick=function(){askReset();qEl.value='';focusQuery();};
+   var mb=res.querySelector('#askMap');if(mb)mb.onclick=toggleMap;}
+ function renderFallib(turn){var el=turn.querySelector('.ask-fallib');if(!el)return;
+   var date='';try{date=new Date().toISOString().slice(0,10);}catch(e){}
+@@ -1921,25 +1859,25 @@
+   return '<div class="sstart"><div class="sstart-h">Start with what you need</div><div class="sdoors">'
+     +door('title','Find a work','Look up an author, title, or section','Turretin')
+     +door('full','Find a passage','Search the texts for a phrase or an idea','foedus operum')
+-    +door('scripture','Read commentary','Find authors discussing a Bible passage','Romans 8')
++    +door('scripture','Find Scripture references','Find where a Bible passage is cited','Romans 8')
+     +door('ask','Ask the library','Explore a question with cited answers','How did the early church understand the Eucharist?')
+     +'</div></div>';}
+ document.addEventListener('click',function(e){
+   var d=e.target.closest('.sd-mode');if(!d)return;
+   var m=d.getAttribute('data-dm'),q2=d.getAttribute('data-dq')||'';
+   if(m==='ask'){if(window.FRAsk)window.FRAsk.open({q:q2});else{qEl.value=q2;setMode('ask');}return;}
+-  qEl.value=q2;setMode(m);qEl.focus();});
+-function run(){var q=qEl.value.trim();
++  qEl.value=q2;setMode(m);focusQuery();});
++function run(){seq++;REDRAW=null;RESULT_PAGE=RESTORE_PAGE===null?0:RESTORE_PAGE;RESTORE_PAGE=null;setPager(0,0,function(){});document.getElementById('meaningBroaden')?.remove();var groupUI=document.getElementById('groupControls');if(groupUI)groupUI.hidden=true;saveSearchURL();var q=qEl.value.trim();if(FAC.group==='westminster'&&!FAC.groupSlugs){var turn=seq;ct.textContent='Loading the Westminster scope…';res.innerHTML='';ensureSearchGroups().then(function(){if(turn===seq){RESTORE_PAGE=RESULT_PAGE;run();}}).catch(function(){if(turn===seq)searchUnavailable('Westminster group',q);});return;}
+   if(q.length<2){if(MODE==='scripture'){scriptureBrowse();return;}if(MODE==='ask'){if(!res.querySelector('#askThread'))askReset();return;}
+-    if(MODE==='title'&&!FAC.author&&!FAC.work&&!FAC.trad){res.innerHTML=startHtml();ct.textContent='';return;}
+-    res.innerHTML='';ct.textContent='';return;}
++    if(MODE==='title'&&!FAC.author&&!FAC.work&&!FAC.workQuery&&!FAC.collection&&!FAC.group&&!FAC.trad){res.innerHTML=startHtml();ct.textContent='';return;}
++    if(MODE==='title'){renderTitle(q);return;}res.innerHTML='';ct.textContent='';return;}
+   if(MODE==='full')renderFull(q);
+   else if(MODE==='tradition')renderTradition(q);
+   else if(MODE==='meaning')renderMeaning(q);
+   else if(MODE==='ask'){ /* Ask runs on Enter only */ }
+   else if(MODE==='scripture')renderScripture(q);
+   else renderTitle(q);}
+-var _t;qEl.addEventListener('input',function(){if(MODE==='ask')return;clearTimeout(_t);if(MODE==='title'||!qEl.value.trim())_t=setTimeout(run,180);});
++var _t;qEl.addEventListener('input',function(){if(MODE==='ask')return;seq++;clearTimeout(_t);if(MODE!=='title'&&qEl.value.trim()){REDRAW=null;setPager(0,0,function(){});res.innerHTML='';ct.textContent='Select Search to run this query.';}if(MODE==='title'||!qEl.value.trim())_t=setTimeout(run,180);});
+ qEl.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();var q=qEl.value.trim();if(MODE==='ask'){if(q.length>=3){askTurn(q);qEl.value='';}}else run();}});
+ 
+ /* ---- search elevation helpers (donor tail, TFR keys) ---- */
+@@ -1968,14 +1906,30 @@
+   }
+ })();
+ 
++function ensureSearchGroups(){if(FAC.group!=='westminster')return Promise.resolve();if(!SCOPE_SCHOOLS)SCOPE_SCHOOLS=FRResearchData.json('/v1/schools.json').then(function(data){var slugs=data['Westminster Assembly']?.slugs;if(!Array.isArray(slugs)||!slugs.length)throw Error('Westminster membership is unavailable.');return slugs.map(function(s){return s.replace(/^@eebo:/,'eebo-');});}).catch(function(e){SCOPE_SCHOOLS=null;throw e;});return SCOPE_SCHOOLS.then(function(slugs){FAC.groupSlugs=slugs;});}
++function organizePage(){if(ORDER==='relevance'){groupControls();return;}var nodes=Array.from(res.children).filter(function(n){return n.dataset.work;}),shelves=new Map(),authors=new Map();nodes.forEach(function(node){var w=WORKS_BY_SLUG[node.dataset.work]||{},author=w.author||node.dataset.author||'No named author',sh=FRSearch.label(w.tradition||node.dataset.shelf)||'Indexed sources',parent=res;if(ORDER==='shelf'&&!FAC.trad){if(!shelves.has(sh)){var d=document.createElement('details');d.className='result-shelf';d.open=true;var summary=document.createElement('summary');summary.textContent=sh;d.appendChild(summary);res.appendChild(d);shelves.set(sh,d);}parent=shelves.get(sh);}var key=(ORDER==='shelf'?sh:'')+'|'+author;if(!authors.has(key)){var group=document.createElement('details');group.className='result-author';group.open=authors.size===0;var head=document.createElement('summary');head.textContent=author;group.appendChild(head);parent.appendChild(group);authors.set(key,{node:group,head:head,works:new Set()});}var a=authors.get(key);a.works.add(node.dataset.work);a.head.textContent=author+' · '+a.works.size+' '+(a.works.size===1?'work':'works')+' on this page';a.node.appendChild(node);});groupControls();}
++function groupControls(){var host=document.getElementById('groupControls');if(!host){host=document.createElement('div');host.id='groupControls';host.className='group-controls';res.before(host);}host.hidden=!res.querySelector('details');if(!host.childNodes.length){['Expand all','Collapse all'].forEach(function(label,i){var b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-controls','results');b.onclick=function(){res.querySelectorAll('details').forEach(function(d){d.open=i===0;});};host.appendChild(b);});}}
++function setPager(total,page,draw,noun){
++ var host=document.getElementById('resultsPager');if(!host){host=document.createElement('nav');host.id='resultsPager';host.className='results-pager';host.setAttribute('aria-label','Search result pages');res.before(host);}host.hidden=total===0;if(!total)return;
++ var win=FRSearch.pageWindow(total,page);RESULT_PAGE=win.page;var prev=host.querySelector('[data-direction=previous]'),next=host.querySelector('[data-direction=next]'),label=host.querySelector('span');
++ if(!prev){prev=document.createElement('button');next=document.createElement('button');label=document.createElement('span');prev.type=next.type='button';prev.dataset.direction='previous';next.dataset.direction='next';prev.textContent='Previous';next.textContent='Next';host.append(prev,label,next);}
++ prev.disabled=win.page===0;next.disabled=win.page+1===win.pages;label.textContent='Page '+(win.page+1)+' of '+win.pages+' · '+(win.start+1)+'–'+win.end+' of '+total+' '+(noun||'results');
++ function change(n,direction){RESULT_PAGE=n;saveSearchURL();res.scrollTop=0;draw(n);var target=host.querySelector('[data-direction='+direction+']:not(:disabled)')||host.querySelector('button:not(:disabled)');target?.focus({preventScroll:true});}
++ prev.onclick=function(){change(win.page-1,'previous');};next.onclick=function(){change(win.page+1,'next');};saveSearchURL();
++}
++function locationPager(host,total,draw,size){var current=0;function render(){host.replaceChildren();var win=FRSearch.pageWindow(total,current,size);draw(win.start,win.end,host);if(win.pages>1){var nav=document.createElement('div');nav.className='location-pager';var p=document.createElement('button'),n=document.createElement('button'),label=document.createElement('span');p.type=n.type='button';p.textContent='Previous locations';n.textContent='Next locations';p.disabled=current===0;n.disabled=current+1===win.pages;label.textContent=(win.start+1)+'–'+win.end+' of '+total;p.onclick=function(){current--;render();};n.onclick=function(){current++;render();};nav.append(p,label,n);host.appendChild(nav);}}render();}
++
++function saveSearchURL(){var u=new URL(location.href);var values={page:RESULT_PAGE?String(RESULT_PAGE+1):'',group:FAC.group,order:ORDER==='shelf'?'':ORDER,m:MODE,q:qEl.value.trim(),tradition:FAC.trad,author:FAC.author,work:document.getElementById('fWork').value.trim(),collection:FAC.collection};Object.keys(values).forEach(function(k){if(values[k])u.searchParams.set(k,values[k]);else u.searchParams.delete(k);});history.replaceState(history.state,'',u);}
++
++document.getElementById('groupOrder').onchange=function(){ORDER=this.value;RESULT_PAGE=0;saveSearchURL();if(REDRAW)REDRAW(0);};
+ /* deep links: ?q=<query>&m=<mode> + ?author=/?tradition= facet prefills (boot-race-safe:
+    setMode runs the search itself; nav/index loads re-run via their own cbs). */
+ (function(){var VALID={full:1,meaning:1,ask:1,scripture:1,title:1,tradition:1};
+   try{var u=new URL(location.href),m=u.searchParams.get('m'),q=u.searchParams.get('q');
+-    var fa=u.searchParams.get('author'),fv=u.searchParams.get('tradition');
++    var group=u.searchParams.get('group');if(['westminster','puritan','anglican'].includes(group)){FAC.group=group;document.getElementById('fGroup').value=group;}var order=u.searchParams.get('order');if(['shelf','author','relevance'].includes(order)){ORDER=order;document.getElementById('groupOrder').value=order;}RESTORE_PAGE=Math.max(0,(Number(u.searchParams.get('page'))||1)-1);var fa=u.searchParams.get('author'),fv=u.searchParams.get('tradition');if(fv)fv=FRSearch.shelf(fv)?.value||'';var collection=u.searchParams.get('collection'),work=u.searchParams.get('work');if(collection==='confessions'){FAC.collection=collection;document.getElementById('fCollection').value=collection;}if(work){document.getElementById('fWork').value=work;FAC.workQuery=work;}
+     if(fa){var el=document.getElementById('fAuthor');if(el){el.value=fa;FAC.author=fa;}}
+     if(fv){var vs=document.getElementById('fTrad');if(vs){vs.value=fv;FAC.trad=fv;}}
+-    if(q){qEl.value=q;}
++    if(q){qEl.value=q;}document.getElementById('fClear').hidden=!(FAC.author||FAC.workQuery||FAC.trad||FAC.collection||FAC.group);scopeSummary();
+     var chatId=u.searchParams.get('chat'),trad=u.searchParams.get('trad');
+     if(trad)ASKTRAD=trad;   // any shelf name works — the server post-filters by tradition; unlisted shelves just show no active chip
+     window._AUTO_MODE=!VALID[m]&&!!q;
+@@ -2012,17 +1966,9 @@
+ })();
+ /* SAVE TO NOTEBOOK (2026-09-10 "save works … specific passages, on all surfaces"): every result that opens the reader
+    gets a star — a work (no page) or a passage (a page) — through FRResearchNotebook only. */
+-(function(){const N=()=>window.FRResearchNotebook;const strip=v=>String(v||'').replace(/<[^>]+>/g,'');
+-  const deco=root=>{(root.querySelectorAll?root.querySelectorAll('a.sr:not([data-starred])'):[]).forEach(a=>{a.dataset.starred='1';
+-    const m=(a.getAttribute('href')||'').match(/\/read(?:\/|\?w=)([a-z0-9-]+)(?:#b([^-]+)-\d+)?/i);if(!m)return;const slug=m[1];let page=null;try{page=m[2]?decodeURIComponent(m[2]):null;}catch(_){}
+-    const st=document.createElement('button');st.type='button';st.className='pinstar';st.textContent='\u2605';st.setAttribute('aria-label',page?'Save this passage to your notebook':'Save this work for later reading');st.title=st.getAttribute('aria-label');
+-    const on=()=>!!(N()&&N().hasReference&&N().hasReference(slug,page));const paint=()=>{st.classList.toggle('on',on());};paint();
+-    st.onclick=async e=>{e.preventDefault();e.stopPropagation();const n=N();if(!n||!n.saveWork){st.title='The notebook could not load.';return;}st.disabled=true;
+-      try{const title=typeof docTitle==='function'?strip(docTitle(slug)):slug,author=typeof docCite==='function'?strip(docCite(slug)):'';
+-        if(on())await n.unsave(slug,page);else if(page)await n.savePassage({slug,page,title,author,label:(a.querySelector('.sr-ex')||{}).textContent||''});else await n.saveWork({slug,title,author});}
+-      catch(err){st.title=(err&&err.message)||'Could not save';}finally{st.disabled=false;paint();}};
+-    a.style.position='relative';a.appendChild(st);});};
+-  window.addEventListener('fr-notebook-updated',()=>document.querySelectorAll('a.sr[data-starred] .pinstar').forEach(st=>{const a=st.closest('a');const m=(a.getAttribute('href')||'').match(/\/read(?:\/|\?w=)([a-z0-9-]+)(?:#b([^-]+)-\d+)?/i);if(!m)return;let page=null;try{page=m[2]?decodeURIComponent(m[2]):null;}catch(_){}st.classList.toggle('on',!!(N()&&N().hasReference&&N().hasReference(m[1],page)));}));
+-  deco(document);new MutationObserver(ms=>ms.forEach(x=>x.addedNodes.forEach(n=>{if(n.nodeType===1)deco(n);}))).observe(document.body,{childList:true,subtree:true});})();
++(function(){const N=()=>window.FRResearchNotebook;
++function paint(button){const page=button.getAttribute('data-page'),on=!!N()?.hasReference(button.dataset.slug,page);button.setAttribute('aria-pressed',String(on));button.textContent=(on?'Unsave ':'Save ')+(page!=null?'passage':'work');}
++function decorate(root){(root.querySelectorAll?root.querySelectorAll('a.sr:not([data-starred])'):[]).forEach(a=>{a.dataset.starred='1';const ref=FRSearch.readerLink(a.getAttribute('href'),location.origin);if(!ref)return;const wrapper=document.createElement('article');wrapper.className='search-result';a.parentNode.insertBefore(wrapper,a);wrapper.appendChild(a);const button=document.createElement('button');button.type='button';button.className='search-save';button.dataset.slug=ref.slug;if(ref.page!=null)button.dataset.page=ref.page;paint(button);button.onclick=async()=>{const n=N();if(!n)return;button.disabled=true;try{const w=WORKS_BY_SLUG?.[ref.slug]||{},title=w.title_en||w.title||ref.slug,author=w.author||'';if(n.hasReference(ref.slug,ref.page))await n.unsave(ref.slug,ref.page);else if(ref.page!=null)await n.savePassage({slug:ref.slug,page:ref.page,title,author,label:a.querySelector('.sr-ex')?.textContent||'',url:rdHref(ref.slug,ref.page)});else await n.saveWork({slug:ref.slug,title,author});paint(button);}catch(error){button.textContent='Save failed. Try again';button.title=error.message;}finally{button.disabled=false;}};wrapper.appendChild(button);});}
++window.addEventListener('fr-notebook-updated',()=>document.querySelectorAll('.search-save').forEach(paint));decorate(document);new MutationObserver(()=>decorate(res)).observe(res,{childList:true,subtree:true});})();
+ </script>
+ </body></html>--- /dev/null
++++ b/tools/prdl_reader_prototype/search-tools.js
+@@ -0,0 +1,31 @@
++/* Search uses the library's shelf vocabulary and published source identifiers. */
++(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.FRSearch=api;})(typeof window==='undefined'?globalThis:window,function(){
++'use strict';
++const shelves=[['Latin Fathers','pl'],['Greek Fathers','gf'],['Eastern Fathers','po'],['Medieval','md'],['Roman Catholic','rc'],['Continental Reformed','rf'],['English Divines','ed'],['Lutheran','lu'],['Humanism and Law','hl']].map(([label,code])=>({label,code,value:label==='Continental Reformed'?'Reformed':label}));
++const str=v=>v==null?'':String(v),fold=v=>str(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
++const shelf=value=>shelves.find(s=>s.value===value||s.label===value||s.code===value);
++const label=value=>shelf(value)?.label||str(value);
++const confession=w=>/confessions/i.test(w?.collection||'')||/^(rc|lc|cf)-\d/.test(w?.slug||'');
++function matches(w,f={}){if(!w)return !(f.author||f.work||f.workQuery||f.trad||f.collection||f.group);if(f.work&&str(w.slug)!==str(f.work))return false;if(f.trad&&(shelf(w.tradition||w.tr||w.sh)?.value||w.tradition)!==shelf(f.trad)?.value)return false;if(f.collection==='confessions'&&!confession(w))return false;if(f.group==='westminster'&&(!Array.isArray(f.groupSlugs)||!f.groupSlugs.includes(w.slug)))return false;if(f.group==='puritan'&&w.party!=='Puritan')return false;if(f.group==='anglican'&&w.party!=='Anglican')return false;if(f.author&&!fold([w.author,w.author_la,w.a,w.al].join(' ')).includes(fold(f.author)))return false;if(f.workQuery&&!fold([w.title_en,w.title,w.t].join(' ')).includes(fold(f.workQuery)))return false;return true;}
++function readerLink(raw,origin='https://thefaithreceived.vercel.app'){
++ try{const u=new URL(raw,origin);if(u.origin!==new URL(origin).origin||!/^\/read(?:\.html|\/[^/]+)?\/?$/.test(u.pathname))return null;const slug=u.searchParams.get('w')||decodeURIComponent(u.pathname.replace(/^\/read\//,''));if(!slug||slug.startsWith('/'))return null;const m=/^b(.+)-\d+$/.exec(decodeURIComponent(u.hash.slice(1)));return {slug,page:m?m[1]:null};}catch(_){return null;}
++}
++const readerURL=(slug,page)=>'/read?w='+encodeURIComponent(str(slug))+(page!=null&&page!==''?'#b'+encodeURIComponent(str(page))+'-0':'');
++function pagefindFilters(f,rows){const filters={};if(f.trad)filters.tradition=shelf(f.trad)?.value||f.trad;if(f.collection)filters.corpus=f.collection;for(const [field,query] of [['author',f.author],['work',f.workQuery]]){if(!query)continue;const values=[...new Set(rows.filter(w=>fold(field==='author'?w.author:[w.title,w.title_en].join(' ')).includes(fold(query))).map(w=>str(field==='author'?w.author:w.title)).filter(Boolean))];if(values.length)filters[field]={any:values};}if(f.group){const titles=rows.filter(w=>matches(w,{group:f.group,groupSlugs:f.groupSlugs,work:f.work,workQuery:f.workQuery})).map(w=>w.title).filter(Boolean);filters.work={any:[...new Set(titles)]};}else if(f.work){const w=rows.find(w=>w.slug===f.work);if(w)filters.work=w.title;}return filters;}
++function scriptureReference(raw,books,parseBase){const m=str(raw).trim().replace(/([A-Za-z.])(\d)/g,'$1 $2').match(/^(.+?)\s+(\d{1,3}|[ivxlcdm]+)(?:\s*[:.]\s*(\d{1,3}(?:\s*[-–,]\s*\d{1,3})*))?\s*[.;]?$/i);if(!m)return null;const ref=parseBase(m[1]+' '+m[2],books);if(!ref)return null;const verses=[];if(m[3])for(const part of m[3].split(',')){const ends=part.split(/[-–]/).map(v=>Number(v.trim())),a=ends[0],b=ends[1]??a;if(a<1||b<a||b>200||b-a>100)return null;for(let v=a;v<=b;v++)if(!verses.includes(v))verses.push(v);}return {...ref,verses,selection:m[3]?.replace(/\s+/g,'')||''};}
++function scriptureRecords(data,ref){if(!data||data.slug!==ref.book||Number(data.c)!==Number(ref.ch)||!Array.isArray(data.verses))throw Error('The Scripture index does not match this passage.');const wanted=ref.verses.length?ref.verses:data.verses.map(v=>Number(v.v));if(wanted.some(v=>!data.verses.some(r=>Number(r.v)===v)))throw Error('This chapter does not contain the requested verse or range.');const rows=[],coverage=[];for(const verse of data.verses){if(!wanted.includes(Number(verse.v)))continue;if(!Array.isArray(verse.rows))throw Error('The Scripture records could not be read.');coverage.push({verse:Number(verse.v),available:verse.rows.length,indexed:Number(verse.n)||0});for(const row of verse.rows)if(row?.w&&row.p!=null)rows.push({...row,verse:Number(verse.v)});}if(!ref.verses.length)for(const row of data.ch_rows||[])if(row?.w&&row.p!=null)rows.push({...row,verse:null});return {rows,coverage,partial:coverage.some(v=>v.indexed>v.available)};}
++function scriptureGroups(rows,fac,works,aliases={}){const grouped=new Map();for(const original of rows){let slug=original.w,seen=new Set();while(!works[slug]&&typeof aliases[slug]==='string'&&!seen.has(slug)&&seen.size<8){seen.add(slug);slug=aliases[slug];}const r={...original,w:slug},known=works[r.w],w=known?{...known,slug:r.w}:{slug:r.w,title:r.t,author:r.a,tradition:shelf(r.sh)?.value};if(!matches(w,fac))continue;let g=grouped.get(r.w);if(!g){g={slug:r.w,available:!!known,volume:str(w.volume),title:w.title_en||w.title||r.t||r.w,author:w.author||r.a||'',shelf:label(w.tradition||r.sh),locations:new Map()};grouped.set(r.w,g);}const p=str(r.p);let loc=g.locations.get(p);if(!loc){loc={page:p,verses:[],kinds:[]};g.locations.set(p,loc);}if(r.verse&&!loc.verses.includes(r.verse))loc.verses.push(r.verse);if(r.how&&!loc.kinds.includes(r.how))loc.kinds.push(r.how);}return [...grouped.values()].map(g=>({...g,locations:[...g.locations.values()]})).sort((a,b)=>a.author.localeCompare(b.author)||a.title.localeCompare(b.title));}
++function meaningCandidates(data,works){
++ if(Array.isArray(data?.results)&&!data.error){const result=[];for(const p of data.results){let slugs=[];if(p.slug)slugs=[p.slug];else if(p.doc!=null){const key=str(p.doc),prefix={pl:'pld-',pg:'pg-',po:'po-'}[data.corpus];if(prefix)slugs=[key.startsWith(prefix)?key:prefix+key];else if(data.corpus==='aq')slugs=Object.keys(works).filter(s=>s===key||s.startsWith('aq-'+key+'-'));}for(const slug of slugs)if(works[slug])result.push({slug,page:p.slug&&p.page!=null?str(p.page):null,citation:str(p.cit),excerpt:str(p.tx),score:Number(p.score)||0});}return result;}
++ if(!Array.isArray(data?.bands)||data.error)throw Error('Search by idea is temporarily unavailable.');const out=[],seen=new Set();for(const hit of data.bands.flatMap(b=>b.hits||[])){let candidates=[],page=null;let u;try{u=new URL(hit.link,'https://thefaithreceived.vercel.app');}catch(_){continue;}
++ if(hit.corpus==='TFR'){let slug=u.searchParams.get('w');if(slug&&!works[slug]&&/^\d+$/.test(slug)&&works['eebo-'+slug])slug='eebo-'+slug;if(slug)candidates=[slug];page=hit.page==null?readerLink(u.href)?.page:str(hit.page);}
++ else if(hit.corpus==='PG'){const volume=/vol(\d+)\.html/.exec(u.pathname)?.[1],col=/^#c(\d+)/.exec(u.hash)?.[1];if(volume&&col)candidates=Object.values(works).filter(w=>w.tradition==='Greek Fathers'&&Number(str(w.volume).replace(/^PG\s*/i,''))===Number(volume)&&Array.isArray(w.cols)&&Number(w.cols[0])<=Number(col)&&Number(w.cols[1])>=Number(col)).map(w=>w.slug);}
++ else {const key=decodeURIComponent(u.pathname.split('/read/')[1]||'').replace(/\.html$/,'');if(hit.corpus==='PL')candidates=['pld-'+key];if(hit.corpus==='PO')candidates=[key.startsWith('po-')?key:'po-'+key];if(hit.corpus==='AQ')candidates=Object.keys(works).filter(s=>s===key||s.startsWith('aq-'+key+'-'));}
++ for(const slug of candidates){if(!works[slug])continue;const key=slug+'|'+(page==null?str(hit.cit):page);if(seen.has(key))continue;seen.add(key);out.push({slug,page,citation:str(hit.cit).replace(/^(PG|PL|PO)\s+\1\s+/,'$1 '),excerpt:str(hit.tx),score:Number(hit.score)||0});}
++ }return out.sort((a,b)=>b.score-a.score);}
++function fuseMeaning(lists){const map=new Map();for(const list of lists)list.forEach((row,i)=>{const key=row.slug+'|'+(row.page??(row.citation||'')),old=map.get(key);if(old){old.score+=1/(60+i);if(!old.excerpt&&row.excerpt)old.excerpt=row.excerpt;}else map.set(key,{...row,score:1/(60+i)});});return [...map.values()].sort((a,b)=>b.score-a.score);}
++function meaningGroups(rows){const groups=new Map();for(const row of rows){let group=groups.get(row.slug);if(!group){group={slug:row.slug,score:row.score,locations:[]};groups.set(row.slug,group);}group.locations.push(row);group.score=Math.max(group.score,row.score);}return [...groups.values()].sort((a,b)=>b.score-a.score);}
++function pageWindow(total,page,size=10){const count=Math.max(1,Math.ceil(total/size)),current=Math.max(0,Math.min(Number(page)||0,count-1));return {page:current,pages:count,start:current*size,end:Math.min(total,(current+1)*size)};}
++function orderWorks(items,mode,works,priorities={},compareWorks=null){if(mode==='relevance')return items.slice();const meta=item=>works[typeof item==='string'?item:item.slug]||item;const sh=w=>shelves.findIndex(s=>s.value===shelf(w.tradition||w.shelf)?.value);return items.slice().sort((a,b)=>{const x=meta(a),y=meta(b);return (mode==='shelf'?(sh(x)<0?99:sh(x))-(sh(y)<0?99:sh(y)):0)||(priorities[typeof a==='string'?a:a.slug]||0)-(priorities[typeof b==='string'?b:b.slug]||0)||str(x.author).localeCompare(str(y.author))||(compareWorks?compareWorks(x,y):0)||str(x.title_en||x.title).localeCompare(str(y.title_en||y.title))||str(x.volume).localeCompare(str(y.volume),undefined,{numeric:true});});}
++return {shelves,shelf,label,confession,matches,readerLink,readerURL,pagefindFilters,scriptureReference,scriptureRecords,scriptureGroups,meaningCandidates,fuseMeaning,meaningGroups,pageWindow,orderWorks};
++});
+--- /dev/null
++++ b/tools/prdl_reader_prototype/search-tools.test.cjs
+@@ -0,0 +1,25 @@
++const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
++function moduleFor(file){const c={module:{exports:{}},URL,URLSearchParams};vm.runInNewContext(fs.readFileSync(__dirname+'/'+file,'utf8'),c);return c.module.exports;}
++const S=moduleFor('search-tools.js'),D=moduleFor('research-data.js'),plain=x=>JSON.parse(JSON.stringify(x));
++const books=[{slug:'romans',book:'Romans',chapters:[{c:8}]},{slug:'1-john',book:'1 John',chapters:[{c:1}]}];
++test('the nine shelves match the library and preserve the Reformed API value',()=>{assert.equal(S.shelves.length,9);assert.equal(S.shelf('Continental Reformed').value,'Reformed');assert.equal(S.label('Reformed'),'Continental Reformed');assert.equal(S.shelf('gf').label,'Greek Fathers');assert.equal(S.shelf('Oriental'),undefined);assert.equal(S.shelf('Confessions'),undefined);});
++test('scope filters cannot leak another shelf or an unresolved work',()=>{const w={slug:'calvin',title:'Institutes',author:'John Calvin',tradition:'Reformed'};assert.equal(S.matches(w,{trad:'Continental Reformed',author:'calv'}),true);assert.equal(S.matches(w,{trad:'Lutheran'}),false);assert.equal(S.matches(null,{trad:'Reformed'}),false);assert.equal(S.matches(w,{work:'other'}),false);assert.equal(S.matches(w,{workQuery:'inst'}),true);assert.equal(S.matches(w,{collection:'confessions'}),false);assert.equal(S.matches({slug:'rc-012-test',tradition:'Reformed'},{collection:'confessions'}),true);});
++test('Pagefind receives native shelf and OR author filters before result paging',()=>{const rows=[{slug:'a',author:'John Calvin',title:'One'},{slug:'b',author:'John Owen',title:'Two'}];assert.deepEqual(plain(S.pagefindFilters({trad:'Continental Reformed',author:'John',collection:'confessions'},rows)),{tradition:'Reformed',corpus:'confessions',author:{any:['John Calvin','John Owen']}});assert.deepEqual(plain(S.pagefindFilters({work:'b'},rows)),{work:'Two'});});
++test('reader links retain compound identifiers and page zero, and reject external origins',()=>{assert.equal(S.readerURL('a','52:0183A'),'/read?w=a#b52%3A0183A-0');assert.deepEqual(plain(S.readerLink('/read/a#b0-0')),{slug:'a',page:'0'});assert.deepEqual(plain(S.readerLink('/read?w=a#b52%3A0183A-0')),{slug:'a',page:'52:0183A'});assert.equal(S.readerLink('https://other.test/read?w=a#b3-0'),null);});
++test('Scripture parser accepts aliases, Roman chapters, numbered books and bounded verse lists/ranges',()=>{assert.deepEqual(plain(S.scriptureReference('Rom. VIII:1-4,8',books,D.parseReference).verses),[1,2,3,4,8]);assert.equal(S.scriptureReference('1 John 1:2',books,D.parseReference).book,'1-john');for(const q of ['Romans 8:4-1','Romans 8:0','Romans 8:1-201','Romans 9','1 Samuel 1:2'])assert.equal(S.scriptureReference(q,books,D.parseReference),null,q);});
++const chapter={slug:'romans',c:8,verses:[{v:1,n:3,rows:[{w:'a',p:'52:0183A',a:'A',sh:'rf',t:'One',how:'quotation'}]},{v:2,n:1,rows:[{w:'a',p:'52:0183A',a:'A',sh:'rf',t:'One',how:'reference'}]}],ch_rows:[{w:'chapter-only',p:4,sh:'rc',t:'Other'}]};
++test('verse searches exclude chapter-only guesses and disclose capped published records',()=>{const r=S.scriptureRecords(chapter,{book:'romans',ch:8,verses:[1]});assert.equal(r.partial,true);assert.equal(r.rows.length,1);assert.equal(r.rows[0].w,'a');assert.throws(()=>S.scriptureRecords(chapter,{book:'romans',ch:8,verses:[99]}));assert.throws(()=>S.scriptureRecords({...chapter,slug:'numbers'},{book:'romans',ch:8,verses:[1]}));});
++test('Scripture grouping preserves verse membership on a shared source page',()=>{const rows=S.scriptureRecords(chapter,{book:'romans',ch:8,verses:[1,2]}).rows,g=S.scriptureGroups(rows,{trad:'Reformed'},{a:{slug:'a',title:'Canonical title',author:'A',tradition:'Reformed'}});assert.equal(g.length,1);assert.equal(g[0].title,'Canonical title');assert.equal(g[0].locations.length,1);assert.equal(g[0].locations[0].page,'52:0183A');assert.deepEqual(plain(g[0].locations[0].verses),[1,2]);assert.equal(S.scriptureGroups(rows,{trad:'Lutheran'},{}).length,0);});
++test('patristic matches resolve to held works without inventing exact reader anchors',()=>{const works={'pld-42':{slug:'pld-42'},'pg-7':{slug:'pg-7',tradition:'Greek Fathers',volume:'PG 95',cols:[470,480]},'aq-1cor-56':{slug:'aq-1cor-56'},'eebo-123':{slug:'eebo-123'}};const hits=[{corpus:'PL',link:'https://legacy.test/read/42.html#b999',cit:'PL 1:2'},{corpus:'PG',link:'https://legacy.test/read/vol095.html#c473',cit:'PG 95:473'},{corpus:'AQ',link:'https://legacy.test/read/1cor.html#row4'},{corpus:'TFR',link:'/read?w=123#b52%3A0183A-0',page:'52:0183A'}];const rows=S.meaningCandidates({bands:[{hits}]},works);assert.equal(rows.length,4);assert.ok(rows.filter(r=>r.slug!=='eebo-123').every(r=>r.page===null));assert.equal(rows.find(r=>r.slug==='eebo-123').page,'52:0183A');});
++test('idea-service errors do not masquerade as zero matches',()=>{assert.throws(()=>S.meaningCandidates({error:'offline'},{}));assert.deepEqual(plain(S.meaningCandidates({bands:[]},{})),[]);});
++test('search inline scripts parse',()=>{const source=fs.readFileSync(__dirname+'/../search_page/search.html','utf8');for(const m of source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))if(m[1].trim())new vm.Script(m[1]);});
++
++test('page windows are bounded and never grow with navigation',()=>{assert.deepEqual(plain(S.pageWindow(47,0)),{page:0,pages:5,start:0,end:10});assert.deepEqual(plain(S.pageWindow(47,4)),{page:4,pages:5,start:40,end:47});assert.equal(S.pageWindow(47,99).page,4);assert.equal(S.pageWindow(47,-1).page,0);});
++test('broader ranked pools merge duplicates by rank rather than incomparable provider scores',()=>{const rows=S.fuseMeaning([[{slug:'a',page:'0',score:.9},{slug:'b',page:'2',score:.8}],[{slug:'b',page:'2',score:.02},{slug:'c',page:'3',score:.01}]]);assert.equal(rows.length,3);assert.equal(rows[0].slug,'b');assert.equal(S.meaningGroups([{slug:'a',page:'0',score:1},{slug:'a',page:'2',score:.8}]).length,1);});
++test('broader patristic responses keep known works and never convert row IDs into page IDs',()=>{const r=S.meaningCandidates({corpus:'pl',results:[{doc:'42',anchor:'99999',cit:'PL 1:2',tx:'A source excerpt'}]},{'pld-42':{slug:'pld-42'}});assert.equal(r.length,1);assert.equal(r[0].page,null);assert.equal(r[0].excerpt,'A source excerpt');});
++
++test('standard groups use published Westminster membership and exact party metadata',()=>{const w={slug:'held',title:'Book',party:'Puritan',tradition:'English Divines'};assert.equal(S.matches(w,{group:'westminster',groupSlugs:['held']}),true);assert.equal(S.matches(w,{group:'westminster',groupSlugs:['other']}),false);assert.equal(S.matches(w,{group:'puritan'}),true);assert.equal(S.matches(w,{group:'anglican'}),false);assert.equal(S.matches(null,{group:'westminster'}),false);});
++test('group filters reach Pagefind and organization preserves the full result list',()=>{const works={a:{slug:'a',title:'A',author:'Z',tradition:'Reformed',party:'Puritan'},b:{slug:'b',title:'B',author:'A',tradition:'Latin Fathers'},c:{slug:'c',title:'C',author:'B',tradition:'Reformed'}};assert.deepEqual(plain(S.pagefindFilters({group:'westminster',groupSlugs:['a']},Object.values(works))),{work:{any:['A']}});assert.deepEqual(plain(S.orderWorks(['a','b','c'],'shelf',works)),['b','c','a']);assert.deepEqual(plain(S.orderWorks(['a','b','c'],'relevance',works)),['a','b','c']);});
++test('unavailable Scripture works are identified without asserting they have a held reader',()=>{const result=S.scriptureGroups([{w:'missing',p:'4',a:'Author',t:'Missing work',sh:'pl',verse:1}],{},{});assert.equal(result.length,1);assert.equal(result[0].available,false);const alias=S.scriptureGroups([{w:'old',p:'4',verse:1}],{},{held:{slug:'held',title:'Held',author:'A',tradition:'Latin Fathers'}},{old:'held'});assert.equal(alias[0].slug,'held');assert.equal(alias[0].available,true);});
++
++test('separate printed citations in one work remain separate ranked matches',()=>{const F=S,works={'pld-1':{slug:'pld-1'}},bands=[{hits:[{corpus:'PL',link:'/pl/read/1',cit:'PL 1:10',tx:'first'},{corpus:'PL',link:'/pl/read/1',cit:'PL 1:20',tx:'second'},{corpus:'PL',link:'/pl/read/1',cit:'PL 1:10',tx:'first'}]}];assert.equal(F.meaningCandidates({bands},works).length,2);});
+--- a/tools/prdl_reader_prototype/research-tools.js
++++ b/tools/prdl_reader_prototype/research-tools.js
+@@ -20,20 +20,50 @@
+     else if(compact.length>=4&&name.replace(/ /g,'').includes(compact))score=Math.max(score,50);}
+   return score;
+  }
+- const isRawTopic=v=>/\bloci_other\b|\bunplaced\b|\buse closest\b|\bnot (?:(?:in|on)(?: the| a)? (?:(?:closed|canonical) )?list|listed|a (?:listed )?locus)\b|\babsent from (?:the )?list\b/i.test(String(v||''));
++ /* TOPIC LABELS (09-13) — one rule, the same text in research-tools.js and work-research.js (a parity test
++    holds them together). A value that matches the closed topic index by canonical key links to its topic.
++    Classifier chatter is recovered onto the topic it names ("Marriage is not in the list — see loci_other" →
++    Marriage), a composite onto its parts that are topics ("Merit / Rewards" → Merit), a clean label outside
++    the index stays as plain text ("Simony"), and the rest is dropped. Without the index only the last two apply. */
++ const RAW_TOPIC=/loci_other|placeholder|unplaced|\bn\/a\b|(?:[(;,.\u2013\u2014\u2192-]\s*|\bbut\s+|\bor\s+|\bno\s*)use\b|\buse\s+(?:closest|loci)|(?:[(;,.\u2013\u2014\u2192-]\s*|\balso\s+)see\b|\blist(?:ed)?\b|\bcovered\b|\bexcluded\b|-related\b|\bnone\b|\bnot a (?:listed )?locus\b|[;:?\u2013\u2014]/i;
++ const TOPIC_SUBJECT=/^\s*(.+?)\s*(?:\bis\b|\bare\b|\bnot\b|\bimplied\b|\u2192|\u2014|\u2013|\s-\s|-related\b|\(|;|:|\bplaceholder\b|\btopics?\b|\bthemes?\b|$)/i;
++ const isRawTopic=v=>{const s=String(v==null?'':v).trim();return !!s&&(s.length>48||RAW_TOPIC.test(s));};
++ const topicKey=v=>String(v==null?'':v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&/g,' and ').replace(/^the\s+/,'').replace(/[^a-z0-9]+/g,' ').trim().split(' ').map(w=>w.length>3&&/s$/.test(w)&&!/ss$/.test(w)?w.slice(0,-1):w).join(' ');
++ const topicVocabularies=new WeakMap();
++ function topicVocabulary(topics){if(!Array.isArray(topics)||!topics.length)return null;if(topicVocabularies.has(topics))return topicVocabularies.get(topics);const map=new Map();for(const t of topics){const name=String(t&&t.t||'');if(name&&!map.has(topicKey(name)))map.set(topicKey(name),name);}topicVocabularies.set(topics,map);return map;}
++ function topicNames(value,topics){const s=String(value==null?'':value).trim(),vocab=topicVocabulary(topics);if(!s)return [];if(vocab){if(vocab.has(topicKey(s)))return [vocab.get(topicKey(s))];if(!s.includes('?')){const subject=(s.match(TOPIC_SUBJECT)||[s,s])[1].trim();if(subject!==s&&vocab.has(topicKey(subject)))return [vocab.get(topicKey(subject))];const parts=subject.split(/\s*\/\s*|\s+&\s+/).filter(p=>p.trim()),got=[];if(parts.length>1)for(const p of parts){const n=vocab.get(topicKey(p));if(n&&!got.includes(n))got.push(n);}if(got.length)return got;}}return isRawTopic(s)?[]:[s];}
++ function cleanTopics(values,topics){const out=[];for(const v of Array.isArray(values)?values:[])for(const n of topicNames(v,topics))if(!out.includes(n))out.push(n);return out;}
++ /* END TOPIC LABELS */
+  const era=r=>!Number(r.y)?'U':r.y<500?'E':r.y<800?'L':r.y<1100?'C':r.y<1450?'H':r.y<1600?'R':r.y<1700?'P':'M';
+  const page=p=>p===undefined||p===null||p===''?null:String(p);
+  const authorURL=(r,topic)=>'/fathers'+(r.sh?'?sh='+encodeURIComponent(r.sh):'')+'#'+encodeURIComponent(r.s)+(topic?'/'+encodeURIComponent(topic):'');
+  function roster(rows){const groups=new Map();for(const r of rows){if(!r.s)continue;const key=/^(anonymous|unknown|unattributed)$/.test(r.s)?r.s+'|'+r.sh:r.s; if(!groups.has(key))groups.set(key,[]);groups.get(key).push({...r,e:era(r)});}return [...groups.values()].map(variants=>{variants.sort((a,b)=>(b.w||0)-(a.w||0));return {...variants[0],variants};});}
+  function voices(data){const out=new Map();for(const a of data.authors||[]){const key=a.a;if(!out.has(key))out.set(key,{...a,rows:[],variants:[]});out.get(key).variants.push(a);}for(const r of data.pos||[]){const key=r.a||'Unattributed';if(!out.has(key))out.set(key,{a:key,rows:[],variants:[]});out.get(key).rows.push(r);}return [...out.values()].map(a=>a.variants.length>1?{...a,sh:null,s:null,n:null,np:null}:a);}
+- function connections(topics){const pairs=new Map(),seen=new Set();for(const t of topics){for(const r of [...(t.pages||[]),...(t.pos||[])]){if(!r.w||page(r.p)===null)continue;const names=[...new Set([t.t,...(r.x||[])])].filter(x=>x&&!isRawTopic(x));for(let i=0;i<names.length;i++)for(let j=i+1;j<names.length;j++){const [a,b]=[names[i],names[j]].sort();const k=JSON.stringify([a,b]),pk=JSON.stringify([a,b,r.w,page(r.p)]);if(seen.has(pk))continue;seen.add(pk);if(!pairs.has(k))pairs.set(k,{a,b,pages:[]});pairs.get(k).pages.push(r);}}}return [...pairs.values()].sort((a,b)=>b.pages.length-a.pages.length||a.a.localeCompare(b.a));}
++ function connections(topics,vocab){const pairs=new Map(),seen=new Set();for(const t of topics){for(const r of [...(t.pages||[]),...(t.pos||[])]){if(!r.w||page(r.p)===null)continue;const names=[...new Set([...(t.t&&!isRawTopic(t.t)?[t.t]:[]),...cleanTopics(r.x,vocab)])];for(let i=0;i<names.length;i++)for(let j=i+1;j<names.length;j++){const [a,b]=[names[i],names[j]].sort();const k=JSON.stringify([a,b]),pk=JSON.stringify([a,b,r.w,page(r.p)]);if(seen.has(pk))continue;seen.add(pk);if(!pairs.has(k))pairs.set(k,{a,b,pages:[]});pairs.get(k).pages.push(r);}}}return [...pairs.values()].sort((a,b)=>b.pages.length-a.pages.length||a.a.localeCompare(b.a));}
+  function safeReaderURL(h){try{const u=new URL(h,'https://thefaithreceived.vercel.app');return u.origin==='https://thefaithreceived.vercel.app'&&/^\/read(?:\.html)?$/.test(u.pathname)&&u.searchParams.get('w')?u.pathname+u.search+u.hash:null;}catch(_){return null;}}
+  function volumeNumber(value){const s=String(value||'').toUpperCase();if(/^\d+$/.test(s))return Number(s);if(!/^(?=.)M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/.test(s))return null;const v={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};return [...s].reduce((n,c,i)=>n+(v[c]<(v[s[i+1]]||0)?-v[c]:v[c]),0);}
+  function seriesRef(value){const text=String(value||'').replace(/\bPatrologia\s+(Latina|Graeca|Orientalis)\b/i,(_,s)=>({latina:'PL',graeca:'PG',orientalis:'PO'}[s.toLowerCase()]));const m=text.match(/\b(PL|PG|PO)\s*(?:(?:vol(?:ume)?\.?|tome|t\.)\s*)?(\d+|[IVXLCDM]+)\b/i);if(m){const volume=volumeNumber(m[2]);if(volume!=null)return {series:m[1].toUpperCase(),volume,rest:text.replace(m[0],' ').trim()};}return /^(PL|PG|PO)$/i.test(text.trim())?{series:text.trim().toUpperCase(),volume:null,rest:''}:null;}
+  function edition(work){const value=work.volume||work.vs||'',ref=seriesRef(value);if(!ref)return value;let label=ref.series+(ref.volume!=null?' '+ref.volume:'');if(ref.series!=='PO'&&Array.isArray(work.cols)&&work.cols.length===2&&work.cols.every(c=>c!=null)){const [a,b]=work.cols.map(String);label+=a===b?', col. '+a:', cols. '+a+'–'+b;}return label;}
+  const volumeLabel=w=>{const ref=seriesRef(w.volume||w.vs);return ref?ref.series+' '+(ref.volume??'volume not recorded'):(w.volume||w.vs||'Volume not recorded');};
+  const collator=new Intl.Collator('en',{numeric:true,sensitivity:'base'});
+- function volumeOrder(a,b){const key=w=>{const value=volumeLabel(w),ref=seriesRef(value);if(ref)return {label:ref.series,n:ref.volume||0};const m=value.match(/\b(vol(?:ume)?|tome|tomus|band|part|pars)\.?\s+(\d+|[IVXLCDM]+)\b/i);return m&&volumeNumber(m[2])!=null?{label:fold(value.replace(m[0],m[1])),n:volumeNumber(m[2])}:{label:value,n:0};};const x=key(a),y=key(b);return collator.compare(x.label,y.label)||x.n-y.n;}
+- function workOrder(a,b){return volumeOrder(a,b)||collator.compare(String(a.cols?.[0]??''),String(b.cols?.[0]??''))||collator.compare(a.t||a.title||'',b.t||b.title||'')||collator.compare(a.w||a.slug||'',b.w||b.slug||'');}
+- return {shelves,shelfMaps,topicURL,scopedTopics,mergePageRefs,mapAuthorPages,eras,fold,authorScore,isRawTopic,era,page,authorURL,roster,voices,connections,safeReaderURL,volumeNumber,seriesRef,edition,volumeLabel,workOrder};
++ let orderCatalogue={bySlug:new Map(),groups:{works:{},groups:{}}};
++ function setWorkCatalogue(value){orderCatalogue=value||{bySlug:new Map(),groups:{works:{},groups:{}}};}
++ function orderWork(row){const id=row.w||row.slug||'',meta=orderCatalogue.bySlug?.get(id)||{};return {...meta,...row,w:id,volume:row.volume||row.vs||orderCatalogue.groups?.works?.[id]?.display_volume||meta.volume||'',originalTitle:meta.title||row.originalTitle||row.title||row.t||id,po:meta.po??row.po};}
++ function volumeKey(row){const w=orderWork(row),value=String(w.volume||w.w.replace(/-/g,' ')),ref=seriesRef(value);if(ref)return {family:ref.series,numbers:[ref.volume||0],tail:value};
++  const numbers=[],labels=[];const rx=/\b(reihe|series|schriften|tischreden|vol(?:ume)?|tome?|tomus|band|bd|part|pars|pt|teil|abt(?:eilung)?|book|liber)\.?\s*(\d+|[IVXLCDM]+)(?:[.,\s]+(\d+|[IVXLCDM]+)\b)?/gi;let m;
++  while((m=rx.exec(value))){const n=volumeNumber(m[2]);if(n===null)continue;labels.push(fold(m[1]));numbers.push(n);if(m[3]&&volumeNumber(m[3])!==null)numbers.push(volumeNumber(m[3]));}
++  if(!numbers.length){const n=volumeNumber(value.trim());if(n!==null&&n<1000)numbers.push(n);}
++  return {family:labels.join('|'),numbers,tail:value};
++ }
++ function volumeOrder(a,b){const x=volumeKey(a),y=volumeKey(b);for(let i=0;i<Math.max(x.numbers.length,y.numbers.length);i++){const d=(x.numbers[i]||0)-(y.numbers[i]||0);if(d)return d;}return collator.compare(x.tail,y.tail);}
++ function workFamily(row){const w=orderWork(row),rule=orderCatalogue.groups?.works?.[w.w];if(rule?.g)return 'group:'+rule.g;
++  const ref=seriesRef(w.volume);if(ref)return 'series:'+ref.series;
++  return fold(w.originalTitle).replace(/(?:[, ·]+)?\b(?:\d+|[ivxlcdm]+)(?:[. ]+(?:\d+|[ivxlcdm]+))*[. ]+(?:band|volume|tomus)\b.*$/i,'').replace(/\b(?:vol(?:ume)?|tome?|tomus|band|bd|part|pars)\.?\s+(?:\d+|[ivxlcdm]+)\b.*$/i,'').replace(/[ ,·.]+$/,'').trim();
++ }
++ function workOrder(a,b){const x=orderWork(a),y=orderWork(b),ga=orderCatalogue.groups?.works?.[x.w],gb=orderCatalogue.groups?.works?.[y.w];if(ga?.g&&ga.g===gb?.g&&Number.isFinite(ga.n)&&Number.isFinite(gb.n)&&ga.n!==gb.n)return ga.n-gb.n;
++  const xr=seriesRef(x.volume),yr=seriesRef(y.volume);if(xr&&yr){const v=volumeOrder(x,y);if(v)return v;if(x.po!=null&&y.po!=null&&x.po!==y.po)return Number(x.po)-Number(y.po);return collator.compare(String(x.cols?.[0]??''),String(y.cols?.[0]??''))||collator.compare(x.originalTitle,y.originalTitle);}
++  return collator.compare(workFamily(x),workFamily(y))||volumeOrder(x,y)||collator.compare(x.t||x.title||'',y.t||y.title||'')||collator.compare(x.w,y.w);
++ }
++ function orderedWorks(rows,getWork=x=>x){const first=new Map();rows.forEach((row,i)=>{const key=workFamily(getWork(row));if(!first.has(key))first.set(key,i);});return rows.slice().sort((a,b)=>{const x=getWork(a),y=getWork(b),fx=workFamily(x),fy=workFamily(y);return fx===fy?workOrder(x,y):first.get(fx)-first.get(fy);});}
++ return {shelves,shelfMaps,topicURL,scopedTopics,mergePageRefs,mapAuthorPages,eras,fold,authorScore,isRawTopic,topicKey,topicNames,topicVocabulary,cleanTopics,era,page,authorURL,roster,voices,connections,safeReaderURL,volumeNumber,seriesRef,edition,volumeLabel,workOrder,workFamily,orderedWorks,setWorkCatalogue,orderWork};
+ });
+--- /dev/null
++++ b/tools/prdl_reader_prototype/research-volume-order.test.cjs
+@@ -0,0 +1,11 @@
++const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
++function api(){const c={module:{exports:{}}};vm.runInNewContext(fs.readFileSync(__dirname+'/research-tools.js','utf8'),c);return c.module.exports;}
++const romans=['I','II','III','IV','V','VI','VII','VIII','IX','X'];
++test('Leibniz series retain Roman volume order, including the preliminary fifth volume',()=>{const R=api(),rows=[5,3,4,1,2].map(n=>({w:'p'+n,title:'Philosophische Schriften',volume:'Reihe VI · Band '+romans[n-1]+(n===5?' (Vorausedition)':'')}));assert.deepEqual(Array.from(R.orderedWorks(rows),r=>r.w),['p1','p2','p3','p4','p5']);const political=[10,3,9,4,8,5,7,6].map(n=>({w:'p'+n,title:'Politische Schriften',volume:'Reihe IV · Band '+romans[n-1]}));assert.deepEqual(Array.from(R.orderedWorks(political),r=>r.w),['p3','p4','p5','p6','p7','p8','p9','p10']);});
++test('different collected-work series stay separate and subvolumes sort numerically',()=>{const R=api(),rows=[{w:'s2',title:'Werke — Schriften, 31. II. Band',volume:'Schriften 31 II'},{w:'t1',title:'Werke — Tischreden, 1. Band',volume:'Tischreden 1'},{w:'s1',title:'Werke — Schriften, 31. I. Band',volume:'Schriften 31 I'}];assert.deepEqual(Array.from(R.orderedWorks(rows),r=>r.w),['s1','s2','t1']);});
++test('published edition grouping order wins without hiding any witness',()=>{const R=api();R.setWorkCatalogue({bySlug:new Map(),groups:{works:{a:{g:'same',ed:'early',n:1},b:{g:'same',ed:'early',n:2},c:{g:'same',ed:'later',n:3}},groups:{same:{}}}});const rows=[{w:'c',title:'Other translation',volume:'Volume I'},{w:'b',title:'Book',volume:'Volume II'},{w:'a',title:'Book',volume:'Volume I'}],before=JSON.stringify(rows);assert.deepEqual(Array.from(R.orderedWorks(rows),r=>r.w),['a','b','c']);assert.equal(JSON.stringify(rows),before);});
++test('canonical catalogue metadata orders evidence rows whose labels omit volumes',()=>{const R=api();R.setWorkCatalogue({bySlug:new Map([['w1',{title:'Letters',volume:'Band I'}],['w2',{title:'Letters',volume:'Band II'}],['w3',{title:'Letters',volume:'Band III'}]]),groups:{works:{}}});const data=[{w:'w3',t:'An extracted label',p:'52:0183A'},{w:'w1',t:'Different translation',p:0},{w:'w2',t:'Letters',p:'4'}],before=JSON.stringify(data);assert.deepEqual(Array.from(R.orderedWorks(data),r=>r.w),['w1','w2','w3']);assert.equal(JSON.stringify(data),before);});
++test('work folds keep the largest work expanded after ordering its series',()=>{const RX=api();RX.setWorkCatalogue({bySlug:new Map([['w1',{title:'Letters',volume:'Band I'}],['w2',{title:'Letters',volume:'Band II'}],['w3',{title:'Letters',volume:'Band III'}]]),groups:{works:{}}});const source=fs.readFileSync(__dirname+'/research_shell.html','utf8');const code=source.slice(source.indexOf('function workFoldsHTML('),source.indexOf('async function room(',source.indexOf('function workFoldsHTML(')));const box={RX,esc:String,fmtR:String,foldOpen:()=>'',workSaveBtn:()=>'',sectionFoldsHTML:rows=>rows.map(r=>r.p).join('|')};vm.createContext(box);vm.runInContext(code,box);const html=box.workFoldsHTML([{w:'w3',p:'3'},{w:'w3',p:'4'},{w:'w1',p:'1'},{w:'w2',p:'2'}],{title:()=> 'Letters',render:()=>''});assert.ok(html.indexOf('data-work="w1"')<html.indexOf('data-work="w2"'));assert.ok(html.indexOf('data-work="w2"')<html.indexOf('data-work="w3"'));assert.match(html,/data-work="w3" open/);assert.match(html,/Band III/);});
++test('the research shell still parses after shared ordering integration',()=>{const source=fs.readFileSync(__dirname+'/research_shell.html','utf8');for(const m of source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))if(m[1].trim())new vm.Script(m[1]);});
++test('topic redraws register one metadata listener rather than multiplying listeners',()=>{const source=fs.readFileSync(__dirname+'/research_shell.html','utf8'),start=source.indexOf('researchLayout();const draw=()=>',source.indexOf('async function renderTopic(t)')),end=source.indexOf("    for(const id of ['room-tq'",start),code=source.slice(start,end),events=[],nodes=new Map();const $=id=>{if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',hidden:false});return nodes.get(id);};let draws=0;const box={researchLayout(){},RX:{fold:String},$,records:[],run:1,RESEARCH_RUN:1,VIEW:'q',researchEvents:{signal:{}},fmtR:String,statementPane(){draws++;},titles:{},d:{a:'Author'},addEventListener:(type,fn)=>events.push(fn)};vm.createContext(box);vm.runInContext(code+';draw();draw();draw();',box);assert.equal(events.length,1);events[0]();assert.equal(events.length,1);assert.equal(draws,4);});
++test('parts of a volume precede later unsplit volumes',()=>{const R=api(),rows=['Vol. 9','Vol. 6 · Pt. 3','Vol. 5','Vol. 7 · Pt. 2','Vol. 6 · Pt. 1','Vol. 6 · Pt. 2'].map((volume,i)=>({w:'w'+i,title:'Acta Concilii Tridentini',volume}));assert.deepEqual(Array.from(R.orderedWorks(rows),r=>r.volume),['Vol. 5','Vol. 6 · Pt. 1','Vol. 6 · Pt. 2','Vol. 6 · Pt. 3','Vol. 7 · Pt. 2','Vol. 9']);});
+--- a/tools/prdl_reader_prototype/research_shell.html
++++ b/tools/prdl_reader_prototype/research_shell.html
+@@ -77,6 +77,12 @@
+ .bar i{display:block;height:3px;border-radius:0;background:var(--gold);opacity:.85;min-width:2px}
+ .bar span{display:block;font-size:.7rem;color:var(--faint);text-align:right;margin-top:.15rem;font-variant-numeric:tabular-nums}
+ .dot.E{background:var(--era-E)}.dot.L{background:var(--era-L)}.dot.C{background:var(--era-C)}.dot.H{background:var(--era-H)}.dot.R{background:var(--era-R)}.dot.P{background:var(--era-P)}
++.dot.M{background:var(--era-P)}.dot.U{background:transparent;border:1px solid var(--muted)}
++.bible-scope{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px 18px;margin:12px 0}
++.bible-scope .bible-filters{flex:1;min-width:0;margin:0}.bible-scope summary{overflow-wrap:anywhere}.bible-scope>button{min-height:44px}
++.cd-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 8px;min-width:0;max-width:390px}.cd-add>label{grid-column:1/-1}.cd-add #cd-add{min-width:0;width:100%}.cd-add #cd-add-button{min-height:44px;margin:0}.cd-add #cd-add-feedback{grid-column:1/-1}.cd-add #cd-add-feedback{font-size:13px;color:var(--muted);display:block;max-width:32ch}
++.cd-topic-search{display:grid;gap:5px;flex:1 0 100%;margin-bottom:12px}.cd-topic-search input{min-height:44px;width:100%;font:16px/1.5 var(--body);padding:8px 10px;background:var(--card);color:var(--fg);border:1px solid var(--border);border-radius:4px}
++.cd-save-message{padding:10px 0;color:var(--fg)}
+ .legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.74rem;color:var(--muted);margin:.4rem 0 0}
+ .legend .dot{margin-right:.3rem;position:relative;top:0}
+ /* topic index rows */
+@@ -336,7 +342,7 @@
+ @media (max-width:640px){
+   body{overflow-x:hidden}
+   header.site{position:static;flex-wrap:wrap;gap:.15rem .8rem;padding:.55rem .9rem .25rem}   /* chrome scrolls away; the room's own tabs pin instead */
+-  #topnav{width:100%;display:flex;gap:.1rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
++  #topnav{width:100%;display:flex;gap:18px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+   #topnav::-webkit-scrollbar{display:none}
+   #topnav a{padding:.6rem .55rem;font-size:.9rem;flex:0 0 auto;min-height:44px;display:inline-flex;align-items:center}
+   main{padding:1rem .9rem calc(4.5rem + env(safe-area-inset-bottom))}
+@@ -703,7 +709,7 @@
+ // FIRST CITED PAGE of the rows it holds (with the row's words as ?hl=), never at the work's start; "open the work" only when no row has a page
+ const foldOpen=(w,rows)=>{const r=(rows||[]).find(x=>x&&RX.page(x.p)!=null);const pg=r?RX.page(r.p):null;
+   if(pg==null)return `<a class="rx-text-link cd-read" href="${readerHref(w,null)}" onclick="event.stopPropagation()">Open work</a>`;
+-  return `<a class="rx-text-link cd-read" href="${readerHrefHl(w,r.p,r.pageSummary?'':String(r.q||r.g||'').replace(/\s+/g,' ').slice(0,120))}" onclick="event.stopPropagation()" title="Open the reader at the first cited page">open at ${pgl(w)} ${esc(String(pg))}</a>`;};
++  return `<a class="rx-text-link cd-read" href="${readerHrefHl(w,r.p,r.pageSummary||!r.q?'':String(r.q).replace(/\s+/g,' ').slice(0,120))}" onclick="event.stopPropagation()" title="Open the reader at the first cited page">open at ${pgl(w)} ${esc(String(pg))}</a>`;};
+ const previewBtn=(w,p,hl)=>w&&p!=null&&p!==""?`<button class="peekbtn" data-pk="${esc(w)}|${esc(p)}|${esc(hl||'')}" aria-label="Preview source passage" aria-expanded="false">Preview source</button>`:"";
+ const readBtn=(w,p,hl)=>(w&&p!=null&&p!=="")?`<a class="readbtn" target="_blank" rel="noopener" href="${readerHrefHl(w,p,hl)}">Open ↗</a><button class="peekbtn" data-pk="${esc(w)}|${p}|${esc(hl||'')}" aria-label="Preview source passage" aria-expanded="false" title="Read the passage here">Preview</button>`:"";   // owner 2026-09-02 "open inline, peeking, opening in a tab" (supersedes 08-31 never-inline)
+ // PEEK: the passage slides open right under its row — the reader itself, embedded
+@@ -820,9 +826,9 @@
+ const WSH=[["pl","Latin Fathers"],["gf","Greek Fathers"],["po","Eastern Fathers"],["ed","English Divines"],
+            ["md","Medieval"],["rc","Roman Catholic"],["lu","Lutheran"],["rf","Continental Reformed"],["hl","Humanism and Law"]];
+ let WV={q:new URLSearchParams(location.search).get('q')||'',g:'author',sh:(()=>{const sh=new URLSearchParams(location.search).get('sh')||localStorage.getItem('fr_wsh');return RX.shelves[sh]?sh:'pl';})()};
+-let CATALOGUE_PROMISE=null,WORKS_INDEX_RUN=0;
+-function getWorkCatalogue(){if(!CATALOGUE_PROMISE)CATALOGUE_PROMISE=Promise.all([J(BLOB+'/v1/works-index.json'),J(BLOB+'/v1/titles_en.json').catch(()=>({}))]).then(([index,titles])=>({bySlug:new Map(index.works.map(w=>[w.slug,w])),titles,ok:true})).catch(()=>{CATALOGUE_PROMISE=null;return {bySlug:new Map(),titles:{},ok:false};});return CATALOGUE_PROMISE;}
+-function catalogueWork(row,catalogue){const meta=catalogue.bySlug.get(row.w)||{};return {...row,volume:meta.volume||row.vs||'',cols:meta.cols,t:catalogue.titles[row.w]||row.t||meta.title||row.w,originalTitle:row.t||meta.title||'',date:meta.year||'',a:row.a||meta.author||'Author not recorded'};}
++let CATALOGUE_PROMISE=null,WORK_CATALOGUE=null,WORKS_INDEX_RUN=0;
++function getWorkCatalogue(){if(!CATALOGUE_PROMISE)CATALOGUE_PROMISE=Promise.all([J(BLOB+'/v1/works-index.json'),J(BLOB+'/v1/titles_en.json').catch(()=>({})),J(BLOB+'/v1/workgroups.json').catch(()=>({})),fetch('/data/workgroups.json',{signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():{}).catch(()=>({}))]).then(([index,titles,published,local])=>{WORK_CATALOGUE={bySlug:new Map(index.works.map(w=>[w.slug,w])),titles,groups:{works:{...(published.works||{}),...(local.works||{})},groups:{...(published.groups||{}),...(local.groups||{})}},ok:true};RX.setWorkCatalogue(WORK_CATALOGUE);return WORK_CATALOGUE;}).catch(()=>{CATALOGUE_PROMISE=null;return {bySlug:new Map(),titles:{},groups:{works:{},groups:{}},ok:false};});return CATALOGUE_PROMISE;}
++function catalogueWork(row,catalogue){const meta=catalogue.bySlug.get(row.w)||{};return {...row,volume:catalogue.groups?.works?.[row.w]?.display_volume||meta.volume||row.vs||'',cols:meta.cols,t:catalogue.titles[row.w]||row.t||meta.title||row.w,originalTitle:meta.title||row.t||'',po:meta.po,date:meta.year||'',a:row.a||meta.author||'Author not recorded'};}
+ function workRowHTML(w){const reference=RX.edition(w),details=[reference,w.date,(!/^P[LG]\b/.test(reference)&&w.np)?fmtR(w.np)+' indexed pages':''].filter(Boolean);return `<article class="rx-work-row"><div><h3><a href="${readerHref(w.w)}">${esc(w.t)}</a></h3><p class="rx-work-reference">${details.map(esc).join(' · ')||'Edition details not recorded'}</p>${w.ambiguous?`<small>Catalogue entry: ${esc(w.w)}</small>`:''}</div><div class="rx-work-actions"><a class="rx-text-link" href="${readerHref(w.w)}" aria-label="Read ${esc(w.t)}${reference?', '+esc(reference):''}">Read work</a><a class="rx-text-link" href="/fathers#w/${encodeURIComponent(w.w)}" aria-label="Explore ${esc(w.t)}${reference?', '+esc(reference):''}">Explore work</a>${workSaveBtn(w.w,w.t,w.a||w.author||'')}</div></article>`;}
+ // Build only the branches the reader opens. The catalogue and its identifiers stay intact.
+ function mountWorkGroups(host,rows,mode,options={}){
+@@ -1220,14 +1226,15 @@
+ /* BY WORK, COLLAPSED (owner 2026-09-10 "make everything collapsed and organized by work"): statements of any
+    surface grouped under their work in folds, the largest work open; the one renderer behind statementPane */
+ function workFoldsHTML(rows,o={}){const g=new Map();rows.forEach(r=>{const w=r.w||'';if(!g.has(w))g.set(w,[]);g.get(w).push(r);});
+-  const groups=[...g.entries()].sort((x,y)=>y[1].length-x[1].length||String(x[0]).localeCompare(String(y[0])));
++  const ranked=[...g.entries()].sort((x,y)=>y[1].length-x[1].length||String(x[0]).localeCompare(String(y[0]))),largest=ranked[0]?.[0];
++  const groups=RX.orderedWorks(ranked,([w,rs])=>({...rs[0],w,t:o.title?o.title(rs[0]):rs[0].wt||rs[0].t||w}));
+   const render=o.render||(r=>statementHTML(r,o));
+-  return groups.map(([w,rs],i)=>{const first=rs[0],title=o.title?o.title(first):(first.wt||first.t||w||'Source work'),sub=o.sub?o.sub(first):'';
+-    return `<details class="cd-work"${i===0||o.openAll?' open':''}><summary><span><strong>${esc(title)}</strong>${sub?` <small>${esc(sub)}</small>`:''}</span><small class="cd-n">${fmtR(rs.length)}</small>${w?` ${foldOpen(w,rs)}${workSaveBtn(w,title,o.author||first.a||'')}`:''}</summary><div class="cd-fold-body">${sectionFoldsHTML(rs,render,w)}</div></details>`;}).join('');}
++  return groups.map(([w,rs],i)=>{const first=rs[0],title=o.title?o.title(first):(first.wt||first.t||w||'Source work'),given=o.sub?o.sub(first):'',edition=RX.edition(RX.orderWork({w})),sub=given||(!title.includes(edition)?edition:'');
++    return `<details class="cd-work" data-work="${esc(w)}"${w===largest||o.openAll?' open':''}><summary><span><strong>${esc(title)}</strong>${sub?` <small>${esc(sub)}</small>`:''}</span><small class="cd-n">${fmtR(rs.length)}</small>${w?` ${foldOpen(w,rs)}${workSaveBtn(w,title,o.author||first.a||'')}`:''}</summary><div class="cd-fold-body">${sectionFoldsHTML(rs,render,w)}</div></details>`;}).join('');}
+ async function room(slug,arg){
+   const run=researchStart('research-room');
+   const hint=new URLSearchParams(location.search).get('sh')||'';
+-  const roster=await getRoster();if(run!==RESEARCH_RUN)return;
++  const [roster]=await Promise.all([getRoster(),getWorkCatalogue()]);if(run!==RESEARCH_RUN)return;
+   const candidates=roster.rows.filter(r=>r.s===slug).sort((a,b)=>(b.sh===hint)-(a.sh===hint)||(b.w||0)-(a.w||0));
+   let d=null,RSH=candidates[0]?.sh||hint||'pl';
+   for(const r of candidates.length?candidates:[{sh:RSH}]){d=await J(BLOB+`/v1/bible/${r.sh}/rooms/${slug}.json`).catch(()=>null);if(d){RSH=r.sh;break;}}
+@@ -1296,13 +1303,14 @@
+     pbody.innerHTML=`<div class="view"><h2>Works</h2><p class="pane-meta">${fmtR(works.length)} works in this shelf. Open a work to begin reading.</p><div class="rx-filters"><label class="rx-search">Find a work<input id="room-work-q" type="search" placeholder="Search titles"></label><label>Kind of work<select id="room-work-kind"><option value="">All kinds</option>${groups.map(k=>`<option value="${esc(k)}">${esc(KNAME[k]||k)}</option>`).join('')}</select></label><label>Order works<select id="room-work-order"><option value="library">Library order</option><option value="name">Title A–Z</option></select></label></div><p id="room-work-count" class="rx-note" role="status"></p><div id="room-works" class="rx-work-list"></div><button id="room-works-more" class="rx-button rx-more">Show more works</button></div>`;
+     researchLayout();const draw=()=>{const q=RX.fold($('#room-work-q').value),kind=$('#room-work-kind').value;const rows=works.filter(w=>(!q||RX.fold(w.t+' '+w.volume).includes(q))&&(!kind||(kindOf(w.w)||'treatises')===kind));
+     const vn=v=>+(String(v||'').match(/\d+/)||[9999])[0];rows.sort((a,b)=>a.t===b.t&&(a.volume||b.volume)?RX.workOrder(a,b):$('#room-work-order').value==='name'?a.t.localeCompare(b.t):(KORD.indexOf(kindOf(a.w)||'treatises')<0?999:KORD.indexOf(kindOf(a.w)||'treatises'))-(KORD.indexOf(kindOf(b.w)||'treatises')<0?999:KORD.indexOf(kindOf(b.w)||'treatises'))||(kordOf(a.w)||9999)-(kordOf(b.w)||9999)||(b.nc||0)-(a.nc||0));
++    const ordered=RX.orderedWorks(rows);rows.splice(0,rows.length,...ordered);
+     $('#room-work-count').textContent=fmtR(rows.length)+' matching works'+(rows.length>limit?' · showing '+limit:'');$('#room-works-more').hidden=limit>=rows.length;
+     $('#room-works').innerHTML=rows.slice(0,limit).map(workRowHTML).join('')||'<p class="rx-note">No matching works. Try another title or kind.</p>';};$('#room-work-q').oninput=()=>{limit=40;draw();};$('#room-work-kind').onchange=()=>{limit=40;draw();};$('#room-work-order').onchange=()=>{limit=40;draw();};$('#room-works-more').onclick=()=>{limit+=40;draw();};draw();setHash('');
+   }
+   // ---- Positions: topic groups retain coverage even before all indexed rows load. ----
+   const positionState=new Map(),positionOpen=new Set(),positionLimits=new Map();
+   let positionIndex=null,positionTopicLimit=20,positionTopic='',positionPhrase='',positionAnnotation='',positionWork=new URLSearchParams(location.search).get('work')||'';
+-  const roomWorks=new Map((d.works||[]).map(w=>[w.w,w]));
++  const roomWorks=new Map((d.works||[]).map(w=>[w.w,catalogueWork(w,WORK_CATALOGUE||{bySlug:new Map(),titles:{}})]));
+   const workResearchHref=w=>'/read?w='+encodeURIComponent(w)+'&research=work';
+   const positionRoute=t=>'positions'+(t?'/'+encodeURIComponent(t):'');
+   const setPositionWork=()=>{const u=new URL(location.href);if(positionWork)u.searchParams.set('work',positionWork);else u.searchParams.delete('work');history.replaceState(null,'',u.pathname+u.search+u.hash);};
+@@ -1364,10 +1372,10 @@
+     VIEW='p';segOn('p');starSel(null);positionTopic=typeof topicName==='string'?topicName:'';
+     if(positionTopic)positionOpen.add(positionTopic);
+     const listed=topics.filter(t=>(t.npos||0)>0||(t.pos||[]).length);
+-    const workOptions=[...roomWorks.values()].sort((a,b)=>a.t.localeCompare(b.t)||RX.workOrder(a,b));
++    const workOptions=RX.orderedWorks([...roomWorks.values()].sort((a,b)=>a.t.localeCompare(b.t)));
+     pbody.innerHTML=`<div class="view rx-positions"><h2>Positions</h2><p class="pane-meta">Mined statements with their source passages, in the order of the loci. Open a topic and read; the index fills in as you scroll.</p>
+       <details class="rx-position-coverage"><summary>About these statements and their coverage</summary><p>These are extracted statements, sometimes summarized or translated. A statement can report another speaker, an objection, or a rejected view. Read its source before attributing it to ${esc(d.a)}. Each topic opens with the room's selected statements and then draws the complete index page by page.</p></details>
+-      <div class="rx-filters"><label class="rx-search">Find a topic<input id="positions-topic" type="search" placeholder="Grace, baptism, free will" value="${esc(positionTopic)}"></label><label class="rx-primary-filter">Work<select id="positions-work"><option value="">All works in this room</option>${workOptions.map(w=>`<option value="${esc(w.w)}">${esc(w.t)}${w.v?' · '+esc(w.v):''}</option>`).join('')}</select></label><label class="rx-search">Phrase in statements<input id="positions-phrase" type="search" placeholder="Search the loaded statements" value="${esc(positionPhrase)}"></label><label>Stance<select id="positions-annotation"><option value="">All stances</option>${STANCES.filter(x=>x[0]).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label><label>Group statements<select id="positions-group"><option value="work">By work</option><option value="stance">By stance</option></select></label>
++      <div class="rx-filters"><label class="rx-search">Find a topic<input id="positions-topic" type="search" placeholder="Grace, baptism, free will" value="${esc(positionTopic)}"></label><label class="rx-primary-filter">Work<select id="positions-work"><option value="">All works in this room</option>${workOptions.map(w=>`<option value="${esc(w.w)}">${esc(w.t)}${RX.edition(RX.orderWork(w))?' · '+esc(RX.edition(RX.orderWork(w))):''}</option>`).join('')}</select></label><label class="rx-search">Phrase in statements<input id="positions-phrase" type="search" placeholder="Search the loaded statements" value="${esc(positionPhrase)}"></label><label>Stance<select id="positions-annotation"><option value="">All stances</option>${STANCES.filter(x=>x[0]).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label><label>Group statements<select id="positions-group"><option value="work">By work</option><option value="stance">By stance</option></select></label>
+       <label class="rx-search rx-compare-pick">Compare with<input id="positions-compare" type="search" placeholder="Another author’s name" value="${esc(positionCompare?.a||'')}" list="positions-compare-list" autocomplete="off"><datalist id="positions-compare-list"></datalist></label></div>
+       <div id="positions-work-link"></div><div class="rx-results-line"><p id="positions-count" role="status"></p><div class="rx-result-actions"><button class="rx-text-link" id="positions-expand">Open all</button><button class="rx-text-link" id="positions-collapse">Collapse all</button><button class="rx-text-link" id="positions-reset">Reset filters</button></div></div>
+       <nav class="rx-loci-jump" id="positions-jump" aria-label="Loci"></nav>
+@@ -1377,10 +1385,10 @@
+     const otherStatement=r=>statementHTML(r,{author:positionCompare?.a||''});
+     const byStance=rows=>{const g={};rows.forEach(r=>{const k=STANCES.some(x=>x[0]===r.s)?(r.s||''):'';(g[k]=g[k]||[]).push(r);});return STANCES.filter(([k])=>g[k]&&g[k].length).map(([k,label])=>({k,label:label||'Other statements',rows:g[k]}));};
+     const byWork=(rows,works=roomWorks)=>{const g=new Map();rows.forEach(r=>{if(!g.has(r.w))g.set(r.w,[]);g.get(r.w).push(r);});
+-      return [...g.entries()].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0])).map(([w,rs])=>{const wk=works.get(w);return {k:w,w,label:(wk?.t||rs[0].wt||w),sub:wk?.vs||(wk?.v?(/^\d+$/.test(String(wk.v))?'vol. ':'')+wk.v:''),rows:rs.slice().sort((a,b)=>(RX.page(a.p)??0)-(RX.page(b.p)??0))};});};
++      return RX.orderedWorks([...g.entries()].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0])),([w,rs])=>({...works.get(w),w,t:works.get(w)?.t||rs[0].wt||w})).map(([w,rs])=>{const wk=RX.orderWork({...works.get(w),w});return {k:w,w,label:(wk?.t||rs[0].wt||w),sub:RX.edition(wk)||wk?.vs||(wk?.v?(/^\d+$/.test(String(wk.v))?'vol. ':'')+wk.v:''),rows:rs.slice().sort((a,b)=>(RX.page(a.p)??0)-(RX.page(b.p)??0))};});};
+     const grouped=(rows,works)=>positionGroup==='work'?byWork(rows,works):byStance(rows);
+     // collapsed folds per group (work or stance); the first open. Fold state lives on the topic so a redraw keeps it.
+-    const foldsHTML=(groups,render,tkey)=>{const openSet=positionFolds.get(tkey)||(positionFolds.set(tkey,new Set()),positionFolds.get(tkey));if(!openSet.size&&groups.length)openSet.add(groups[0].k);
++    const foldsHTML=(groups,render,tkey)=>{const openSet=positionFolds.get(tkey)||(positionFolds.set(tkey,new Set()),positionFolds.get(tkey));if(!openSet.size&&groups.length)openSet.add(positionGroup==='work'?groups.reduce((a,b)=>b.rows.length>a.rows.length?b:a).k:groups[0].k);
+       return groups.map(g=>`<details class="cd-work" data-position-fold="${esc(tkey)}|${esc(g.k)}"${openSet.has(g.k)?' open':''}><summary><span><strong>${esc(g.label)}</strong>${g.sub?` <small>${esc(g.sub)}</small>`:''}</span><small class="cd-n">${fmtR(g.rows.length)}</small>${g.w?` ${foldOpen(g.w,g.rows)}${workSaveBtn(g.w,g.label,tkey.endsWith('|theirs')?(positionCompare?.a||''):d.a)}`:''}</summary><div class="cd-fold-body">${g.w?sectionFoldsHTML(g.rows,render,g.w):g.rows.map(render).join('')}</div></details>`).join('');};
+     const headOf=t=>{const hk=LOCUS_HEAD[RX.fold(t.t)];return hk?hk[0]:(RX.isRawTopic(t.t)?LOCI_HEADS.length+1:LOCI_HEADS.length);};
+     drawPositions=()=>{
+@@ -1393,10 +1401,10 @@
+       const groups=[];hits.forEach(h=>{const hi=headOf(h.t);const g=groups.find(x=>x.hi===hi)||(groups.push({hi,label:hi<LOCI_HEADS.length?LOCI_HEADS[hi][0]:hi===LOCI_HEADS.length?'Other topics':'Unreviewed extraction labels',items:[]}),groups[groups.length-1]);g.items.push(h);});
+       const cmpLink=positionCompare?` <a class="rx-text-link" href="#${encodeURIComponent(slug)}/with/${encodeURIComponent(positionCompare.s)}">Full comparison with ${esc(positionCompare.a)}</a> · <a class="rx-text-link" href="${cdURL({a:[slug,positionCompare.s],sel:positionTopic?tslugOf(positionTopic):'',g:positionGroup,s:positionAnnotation,q:positionPhrase})}">Open in the comparison desk</a>`:'';
+       $('#positions-work-link').dataset.cmp=cmpLink;
+-      $('#positions-count').textContent=fmtR(hits.length)+' topics · '+fmtR(hits.reduce((n,x)=>n+x.t.npos||0,0))+' indexed positions · '+fmtR(hits.reduce((n,x)=>n+x.rows.length,0))+' statements loaded'+(positionCompare?' · compared with '+positionCompare.a:'');
++      $('#positions-count').textContent=fmtR(hits.length)+(hits.length===1?' topic · ':' topics · ')+fmtR(hits.reduce((n,x)=>n+x.t.npos||0,0))+' indexed positions · '+fmtR(hits.reduce((n,x)=>n+x.rows.length,0))+' statements loaded'+(positionCompare?' · compared with '+positionCompare.a:'');
+       $('#positions-work-link').innerHTML=(positionWork?`<a class="rx-text-link" href="${workResearchHref(positionWork)}">Explore this work in the reader</a>`:'')+cmpLink;
+       $('#positions-jump').innerHTML=groups.map(g=>`<a href="#loci-${g.hi}" data-jump="${g.hi}">${esc(g.label)}<small>${fmtR(g.items.reduce((n,x)=>n+(x.t.npos||0),0))}</small></a>`).join('');
+-      $('#positions-list').innerHTML=groups.map(g=>`<section class="rx-loci-group" id="loci-${g.hi}"><h3 class="rx-loci-head">${esc(g.label)}<small>${fmtR(g.items.length)} topics · ${fmtR(g.items.reduce((n,x)=>n+(x.t.npos||0),0))} positions</small></h3>${g.items.map(({t,rows})=>{
++      $('#positions-list').innerHTML=groups.map(g=>`<section class="rx-loci-group" id="loci-${g.hi}"><h3 class="rx-loci-head">${esc(g.label)}<small>${fmtR(g.items.length)} ${g.items.length===1?'topic':'topics'} · ${fmtR(g.items.reduce((n,x)=>n+(x.t.npos||0),0))} positions</small></h3>${g.items.map(({t,rows})=>{
+         const i=topics.indexOf(t),state=positionState.get(t.t)||{},total=state.author?.np??t.npos,open=positionOpen.has(t.t);
+         const cmp=positionCompare?positionCompare.state.get(t.t):null,cmpTopic=positionCompare?(positionCompare.topics||[]).find(x=>x.key===t.key):null;
+         const coverage=state.started?fmtR(state.indexedRows.length)+' of '+fmtR(total)+' indexed loaded':(total!=null?fmtR(total)+' indexed positions':'');
+@@ -1450,23 +1458,23 @@
+     const [full,globalTopics]=await Promise.all([roomTopicFull(RSH,slug,t),J(BLOB+'/v1/mine/topic2-all/index.json').catch(()=>({topics:[]}))]);
+     const globalTopic=(globalTopics.topics||[]).find(x=>RX.fold(x.t)===RX.fold(t.t));
+     if(token!==roomViewRun||run!==RESEARCH_RUN)return;
+-    const src=full||t,titles=Object.fromEntries((d.works||[]).map(w=>[w.w,w.t])),seen=new Set(),records=[];
++    const src=full||t,titles=Object.fromEntries((d.works||[]).map(w=>[w.w,WORK_CATALOGUE?.titles[w.w]||w.t])),seen=new Set(),records=[];
+     for(const r of [...(src.pos||[]).map(r=>({...r,type:'Position'})),...(src.pages||[]).map(r=>({...r,type:'Page annotation'}))]){const key=JSON.stringify([r.w,RX.page(r.p),r.q||r.g]);if(seen.has(key))continue;seen.add(key);if(r.q||r.g)records.push(r);}
+-    const works=[...new Set(records.map(r=>r.w))],cross=[...new Set(records.flatMap(r=>r.x||[]))].filter(x=>x!==t.t&&!RX.isRawTopic(x)).sort(),stances=[...new Set(records.map(r=>r.s).filter(Boolean))].sort();let limit=24;
++    const works=RX.orderedWorks([...new Set(records.map(r=>r.w))],w=>({w,t:titles[w]||w})),cross=[...new Set(records.flatMap(r=>r.x||[]))].filter(x=>x!==t.t&&!RX.isRawTopic(x)).sort(),stances=[...new Set(records.map(r=>r.s).filter(Boolean))].sort();let limit=24;
+     pbody.innerHTML=`<div class="view"><div class="rx-section-head"><h2>${esc(t.t)}</h2>${globalTopic?`<a class="rx-text-link" href="/topics#${encodeURIComponent(globalTopic.s)}">Compare across authors</a>`:''}</div><p class="pane-meta">${fmtR(t.np)} indexed pages · ${fmtR(t.npos)} recorded positions · ${fmtR(records.length)} available entries</p><p class="rx-note">Mined excerpts and page annotations. Open the source to check its speaker, context, and translation.${t.full&&!full?' The larger export could not load; the room’s sample is shown.':''}</p>
+-    <div class="rx-filters"><label class="rx-search">Search this topic<input type="search" id="room-tq" placeholder="Find a phrase"></label><label>Work<select id="room-tw"><option value="">All available works</option>${works.map(w=>`<option value="${esc(w)}">${esc(titles[w]||w)}</option>`).join('')}</select></label><label>Also discusses<select id="room-tx"><option value="">All connected topics</option>${cross.map(x=>`<option>${esc(x)}</option>`).join('')}</select></label>${stances.length?`<label>Annotation<select id="room-ts"><option value="">All annotations</option>${stances.map(x=>`<option>${esc(x)}</option>`).join('')}</select></label>`:''}</div>${globalTopic?`<a class="rx-text-link" href="/fathers?sh=${RSH}#${slug}/positions/${encodeURIComponent(t.t)}">Browse this author’s indexed positions</a>`:''}<p class="rx-note">Connections mean topics tagged on the same passage. Annotation types describe local statements, not agreement or disagreement with the topic.</p><p id="room-topic-count" role="status"></p><div id="room-topic-evidence"></div><button class="rx-button rx-more" id="room-topic-more">Show more passages</button>
++    <div class="rx-filters"><label class="rx-search">Search this topic<input type="search" id="room-tq" placeholder="Find a phrase"></label><label>Work<select id="room-tw"><option value="">All available works</option>${works.map(w=>`<option value="${esc(w)}">${esc(titles[w]||w)}${RX.edition(RX.orderWork({w}))?' · '+esc(RX.edition(RX.orderWork({w}))):''}</option>`).join('')}</select></label><label>Also discusses<select id="room-tx"><option value="">All connected topics</option>${cross.map(x=>`<option>${esc(x)}</option>`).join('')}</select></label>${stances.length?`<label>Annotation<select id="room-ts"><option value="">All annotations</option>${stances.map(x=>`<option>${esc(x)}</option>`).join('')}</select></label>`:''}</div>${globalTopic?`<a class="rx-text-link" href="/fathers?sh=${RSH}#${slug}/positions/${encodeURIComponent(t.t)}">Browse this author’s indexed positions</a>`:''}<p class="rx-note">Connections mean topics tagged on the same passage. Annotation types describe local statements, not agreement or disagreement with the topic.</p><p id="room-topic-count" role="status"></p><div id="room-topic-evidence"></div><button class="rx-button rx-more" id="room-topic-more">Show more passages</button>
+     ${(src.migne||[]).length?`<details class="rx-historical"><summary>Read Migne’s index · ${fmtR(src.migne.length)} entries</summary>${src.migne.map(r=>`<article class="rx-excerpt"><p>${esc(r.q||'Index reference')}</p>${RX.safeReaderURL(r.h)?`<a class="rx-text-link" href="${esc(RX.safeReaderURL(r.h))}">Read PL ${esc(r.v)}, column ${esc(r.c)}</a>`:''}</article>`).join('')}</details>`:''}</div>`;
+     researchLayout();const draw=()=>{const q=RX.fold($('#room-tq').value),w=$('#room-tw').value,x=$('#room-tx').value,s=$('#room-ts')?.value;const rows=records.filter(r=>(!w||r.w===w)&&(!x||(r.x||[]).includes(x))&&(!s||r.s===s)&&(!q||RX.fold((r.q||'')+' '+(r.g||'')).includes(q)));
++    $('#room-topic-count').textContent=fmtR(rows.length)+' matching entries';$('#room-topic-more').hidden=true;
++    statementPane($('#room-topic-evidence'),rows,{title:r=>titles[r.w]||r.wt||r.w,author:d.a,actions:true,extra:r=>`<p class="rx-annotation">${esc(r.type)}${r.s?' · '+esc(r.s):''}${RX.cleanTopics(r.x,[...__TREG.values()]).length?' · Also discusses '+RX.cleanTopics(r.x,[...__TREG.values()]).map(esc).join(', '):''}</p>`,empty:'No matching passages. Clear a filter or try another phrase.'});};
+     addEventListener('fr-sections-ready',()=>{if(run===RESEARCH_RUN&&VIEW==='q')draw();},{signal:researchEvents.signal});
+-    $('#room-topic-count').textContent=fmtR(rows.length)+' matching entries';$('#room-topic-more').hidden=true;
+-    statementPane($('#room-topic-evidence'),rows,{title:r=>titles[r.w]||r.wt||r.w,author:d.a,actions:true,extra:r=>`<p class="rx-annotation">${esc(r.type)}${r.s?' · '+esc(r.s):''}${(r.x||[]).length?' · Also discusses '+r.x.map(esc).join(', '):''}</p>`,empty:'No matching passages. Clear a filter or try another phrase.'});};
+     for(const id of ['room-tq','room-tw','room-tx','room-ts']){const el=$('#'+id);if(el)el.addEventListener(id==='room-tq'?'input':'change',()=>draw());}draw();pbody.scrollTop=0;setHash(encodeURIComponent(t.t));
+   }
+   function renderConnections(){
+     VIEW='c';segOn('c');starSel(null);++roomViewRun;setHash('connections');
+     // MASTER–DETAIL (owner 2026-09-10 "this is collapsed by work too"): every connection in a bounded
+     // list pane; the chosen one's shared pages on the right, grouped by work in folds. No "show more".
+-    const pairs=RX.connections(topics);let sel=null;
++    const pairs=RX.connections(topics,[...__TREG.values()]);let sel=null;if(!__TREG.size)topicSlugs().then(()=>{if(run===RESEARCH_RUN&&VIEW==='c'&&__TREG.size)renderConnections();});
+     pbody.innerHTML=`<div class="view rx-connections"><h2>Connected topics</h2><p class="pane-meta">Where subjects meet in ${esc(d.a)}’s available passages.</p><p class="rx-note">Each connection counts distinct pages tagged with both topics in this room’s sample. This reveals places to read together; it does not establish agreement, influence, or a complete account of the author’s theology.</p><label class="rx-search">Find a connection<input id="connection-q" type="search" placeholder="Grace, sin, free will"></label><p id="connection-count" role="status"></p>
+       <div class="rx-md rx-conn-md"><div class="rx-md-list rx-pane" id="room-connections" role="tablist" aria-label="Connections"></div><div class="rx-md-detail" id="connection-detail"><p class="rx-note">Choose a connection to read its shared pages, grouped by work.</p></div></div></div>`;
+     const showPair=p=>{sel=p;$('#room-connections').querySelectorAll('[data-pair]').forEach(b=>{const on=+b.dataset.pair===pairs.indexOf(p);b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on));});
+@@ -1539,7 +1547,7 @@
+       const vns=Object.keys(asv.verses).map(Number).sort((x,y)=>x-y);
+       body2=vns.map(v2=>{
+         const rows=byv[v2]||[];
+-        return `<div class="vs2${rows.length?" cited":""}"${rows.length?` data-verse="${v2}"`:""}><span class="vn">${v2}</span><span class="vtx">${esc(asv.verses[String(v2)])}</span>${rows.length?`<button class="vex" data-vx="${v2}" aria-expanded="false" aria-label="Show ${rows.length} comments on verse ${v2}">${rows.length}</button>`:""}</div>`+
++        return `<div class="vs2${rows.length?" cited":""}"${rows.length?` data-verse="${v2}"`:""}><span class="vn">${v2}</span><span class="vtx">${esc(asv.verses[String(v2)])}</span>${rows.length?`<button class="vex" data-vx="${v2}" aria-expanded="false" aria-label="Show ${rows.length} ${rows.length===1?'comment':'comments'} on verse ${v2}">${rows.length}</button>`:""}</div>`+
+           (rows.length?`<div class="vcits" data-vfor="${v2}" hidden>${scriptureCitations(rows)}</div>`:"");
+       }).join("");
+       const un=(byv[0]||[]);
+@@ -1578,7 +1586,7 @@
+       if(posH.length)out.push('<h2 class="sect">Recorded statements</h2>'+workFoldsHTML(posH.map(({t,p})=>({...p,topicLabel:t.t})),{title:titleOf,author:d.a,annotation:true,extra:r=>'<p class="rx-note">'+esc(r.topicLabel)+'</p>'}));
+       if(pagH.length)out.push('<h2 class="sect">Indexed passages</h2>'+workFoldsHTML(pagH.map(({t,p})=>({...p,topicLabel:t.t,pageSummary:!p.q})),{title:titleOf,author:d.a,extra:r=>'<p class="rx-note">'+esc(r.topicLabel)+'</p>'}));
+       const wH=d.works.filter(x=>RX.fold(x.t).includes(RX.fold(q))).slice(0,10);
+-      if(wH.length)out.push('<h2 class="sect">Works</h2>'+wH.map(x=>workRowHTML({...x,a:d.a})).join(''));
++      if(wH.length)out.push('<h2 class="sect">Works</h2>'+RX.orderedWorks(wH).map(x=>workRowHTML({...x,a:d.a})).join(''));
+       sres.classList.add('rx-pane');sres.innerHTML='<p class="rx-note">Searches the evidence loaded for this author. Showing up to 30 statements, 30 indexed passages, and 10 works. Open Positions for the complete topic index.</p>'+(out.join('')||'<p class="rx-note">No matches in the loaded evidence. Try another phrase, browse Positions, or ask about this author’s works.</p>');
+     };
+     let lT=null;
+@@ -2086,8 +2094,8 @@
+   let cur=findTopic(state.sel)||topics[0]||null;if(cur)state.sel=cur.tslug;
+   const stanceOpts=STANCES.filter(x=>x[0]).map(([k,v])=>`<option value="${k}"${state.s===k?' selected':''}>${v}</option>`).join('');
+   host.classList.add('cd');
+-  host.innerHTML=`<div class="cd-authors" role="group" aria-label="Authors compared">${authors.map((au,i)=>`<span class="cd-chip"><a href="${RX.authorURL(au.r)}">${esc(au.a)}</a><small>${esc(whenOf(au))}</small><button type="button" class="cd-x" data-cd-remove="${i}" aria-label="Remove ${esc(au.a)}">×</button></span>`).join('')}${authors.length<4?`<label class="rx-search cd-add">Add an author<input type="search" id="cd-add" placeholder="${authors.length?'Another name':'An author’s name'}" list="cd-add-list" autocomplete="off"><datalist id="cd-add-list"></datalist><button type="button" class="rx-button" id="cd-add-button">Add author</button><span id="cd-add-feedback" role="status"></span></label>`:'<span class="rx-note">Four authors is the desk’s width. Remove one to add another.</span>'}</div>
+-  ${authors.length?`<div class="rx-filters cd-tools"><label>Group statements<select id="cd-group"><option value="work"${state.g==='work'?' selected':''}>By work · most statements first</option><option value="canon"${state.g==='canon'?' selected':''}>By work · library order</option></select></label><label>Stance<select id="cd-stance"><option value="">All stances</option>${stanceOpts}</select></label><label class="rx-search">Phrase in statements<input type="search" id="cd-q" placeholder="Search every column" value="${esc(state.q)}"></label><label>View<select id="cd-view"><option value="columns"${state.v!=='meet'?' selected':''}>Columns, oldest author first</option><option value="meet"${state.v==='meet'?' selected':''}>Where they meet</option></select></label><button type="button" class="rx-button cd-export" id="cd-export" title="Every statement on screen, cited, as a Desk draft">Export to Desk</button>${opts.embedded?`<button type="button" class="rx-button cd-savebtn" id="cd-save-view" aria-pressed="false" title="Keep this view: these authors, this topic, this mode and filters">Save view</button>`:""}${opts.embedded?`<a class="rx-text-link cd-open" href="${cdURL(state)}">Open in the comparison desk</a>`:''}</div>
++  host.innerHTML=`<div class="cd-authors" role="group" aria-label="Authors compared">${authors.map((au,i)=>`<span class="cd-chip"><a href="${RX.authorURL(au.r)}">${esc(au.a)}</a><small>${esc(whenOf(au))}</small><button type="button" class="cd-x" data-cd-remove="${i}" aria-label="Remove ${esc(au.a)}">×</button></span>`).join('')}${authors.length<4?`<div class="rx-search cd-add"><label for="cd-add">Add an author</label><input type="search" id="cd-add" aria-label="Add an author" placeholder="${authors.length?'Another name':'An author’s name'}" list="cd-add-list" autocomplete="off"><datalist id="cd-add-list"></datalist><button type="button" class="rx-button" id="cd-add-button">Add author</button><span id="cd-add-feedback" role="status"></span></div>`:'<span class="rx-note">Four authors is the desk’s width. Remove one to add another.</span>'}</div>
++  ${authors.length?`<div class="rx-filters cd-tools"><label>Group statements<select id="cd-group"><option value="work"${state.g==='work'?' selected':''}>By work · most statements first</option><option value="canon"${state.g==='canon'?' selected':''}>By work · library order</option></select></label><label>Stance<select id="cd-stance"><option value="">All stances</option>${stanceOpts}</select></label><label class="rx-search">Phrase in statements<input type="search" id="cd-q" placeholder="Search every column" value="${esc(state.q)}"></label><label>View<select id="cd-view"><option value="columns"${state.v!=='meet'?' selected':''}>Columns, oldest author first</option><option value="meet"${state.v==='meet'?' selected':''}>Where they meet</option></select></label><button type="button" class="rx-button cd-export" id="cd-export" title="Export the loaded statements and their citations as a Desk draft">Export to Desk</button>${opts.embedded?`<button type="button" class="rx-button cd-savebtn" id="cd-save-view" aria-pressed="false" title="Keep this view: these authors, this topic, this mode and filters">Save view</button>`:""}${opts.embedded?`<a class="rx-text-link cd-open" href="${cdURL(state)}">Open in the comparison desk</a>`:''}</div>
+   <details class="cd-topic-picker"><summary>Choose topic<span id="cd-selected-topic"></span></summary><div class="cd-topics"><div class="cd-topics-head"><label class="rx-search cd-topic-search">Find a topic<input type="search" id="cd-topic-search" placeholder="Topic or doctrine"></label><label class="rx-note">${fmtR(topics.filter(t=>t.locus).length)} loci · <select id="cd-order" aria-label="Order topics"><option value="shared"${state.o==='shared'?' selected':''}>in loci order</option><option value="n"${state.o==='n'?' selected':''}>most statements</option><option value="denies"${state.o==='denies'?' selected':''}>most denial</option></select></label><p class="rx-note cd-legend"><span>${['asserts','denies','reports','other'].map(k=>`<i style="background:${STANCE_C[k]}"></i>${k==='other'?'qualifies / other':k}`).join(' ')}</span><span>Bars from each room’s selection, one per author in column order · pick a tile</span></p></div><div class="cd-groups" id="cd-mosaic" role="tablist" aria-label="Topics" style="--cols:${authors.length}"></div><div id="cd-tail"></div></div></details>
+   <div class="cd-detail"><div class="cd-topic-head"><h3 id="cd-topic-title"></h3><p class="rx-note" id="cd-topic-links"></p></div><p class="cd-mobile-hint">Swipe between authors. Each column keeps its own reading place.</p><div class="cd-columns" id="cd-columns" style="--cols:${authors.length}"></div><div class="cd-dis-view" id="cd-dis" hidden><div class="rx-filters cd-meet-tools"><label>Pairs<select id="cd-match"><option value="any"${state.m!=='opposite'&&state.m!=='assert'?' selected':''}>Any stance</option><option value="opposite"${state.m==='opposite'?' selected':''}>Opposite stances</option><option value="assert"${state.m==='assert'?' selected':''}>Both assert</option></select></label></div><div id="cd-meet-body"></div></div></div>`:`<p class="rx-note">Add an author to begin. Two to four authors compare side by side, topic by topic.</p>`}`;
+   // add / remove authors
+@@ -2095,7 +2103,7 @@
+   const dl=host.querySelector('#cd-add-list'),inp=host.querySelector('#cd-add');
+   if(dl&&inp){const fill=q=>{const f=RX.fold(q||'');dl.innerHTML=rows.filter(r=>!f||RX.authorScore(r,f)>0).sort((a,b)=>RX.authorScore(b,f)-RX.authorScore(a,f)).slice(0,30).map(r=>`<option value="${esc(r.a)}">${esc(RX.shelves[r.sh])} · ${fmtR(r.w)} works</option>`).join('');};fill('');
+     const go=r=>{state.a=[...authors.map(x=>x.s),r.s];emit();compareDesk(host,state,opts);};
+-    let adding=false;const choose=r=>{if(adding)return;adding=true;go(r);};
++    let adding=false;const choose=r=>{if(adding)return;adding=true;inp.disabled=true;const button=host.querySelector('#cd-add-button');button.disabled=true;button.textContent='Adding…';go(r);};
+     inp.oninput=e=>fill(e.target.value);
+     inp.onchange=e=>{const hit=rows.filter(r=>RX.fold(r.a)===RX.fold(e.target.value));if(hit.length===1)choose(hit[0]);};
+     const addTyped=()=>{const hits=rows.filter(r=>RX.authorScore(r,inp.value)>0).sort((a,b)=>RX.authorScore(b,inp.value)-RX.authorScore(a,inp.value));if(inp.value.trim()&&(hits.length===1||hits.length>1&&RX.authorScore(hits[0],inp.value)>RX.authorScore(hits[1],inp.value)))choose(hits[0]);else host.querySelector('#cd-add-feedback').textContent=hits.length?'Choose a more specific author name from the suggestions.':'No matching author. Try another name.';};
+@@ -2176,6 +2184,7 @@
+   function paintMeet(){const box=host.querySelector('#cd-meet-body');if(!box||host.querySelector('#cd-dis')?.hidden||!cur)return;
+     const pool=authors.map(au=>{const cell=cells.get(au.s);return {au,cell,rows:(cell?.rows||[]).filter(matches)};});
+     const all=pool.flatMap((p,pi)=>p.rows.map(r=>({r,pi})));const N=all.length;
++    if(state.s&&(state.m==='opposite'||state.m==='assert'&&state.s!=='asserts')){box.innerHTML='<p class="rx-note">The stance filter excludes the pairs requested here. <button type="button" class="rx-text-link" data-cd-clear-stance>Clear stance filter</button></p>';box.querySelector('[data-cd-clear-stance]').onclick=()=>{state.s='';host.querySelector('#cd-stance').value='';emit();redraw();};host.__meet={groups:[],N,total:0};return;}
+     const post=new Map();all.forEach((x,k)=>termsOf(x.r).forEach(w=>{let l=post.get(w);if(!l)post.set(w,l=[]);l.push(k);}));
+     const idf=w=>{const d=(post.get(w)||[]).length;return d>N*0.25?0:Math.log((N+1)/(d+0.5));};   // the topic's own vocabulary weighs nothing
+     const WT=new Map();const weight=k=>{let v=WT.get(k);if(v===undefined){v=0;termsOf(all[k].r).forEach(w=>{v+=idf(w)**2;});v=Math.sqrt(v)||1;WT.set(k,v);}return v;};
+@@ -2197,32 +2206,34 @@
+       ${top.length?`<div class="rx-pane cd-dis-pane">${[...groups.values()].map(g=>`<section class="cd-dis-group"><h4>${esc(g.A.a)} and ${esc(g.B.a)}${pairHead(g.A,g.B)}</h4>${g.items.map(p=>`<article class="cd-dis"><div class="cd-dis-cols">${side(p.left)}${side(p.right)}</div><p class="rx-note cd-dis-terms">Shared terms: ${p.shared.map(esc).join(', ')}</p></article>`).join('')}</section>`).join('')}</div>`:`<p class="rx-note">${N?'No two loaded statements from different authors share enough rare vocabulary'+(state.m!=='any'?' with these stances':'')+' to pair.':'No statements loaded yet.'}</p>`}`;
+     box.querySelectorAll('[data-cd-jump]').forEach(b=>b.onclick=()=>{const el=document.getElementById(b.dataset.cdJump)||document.getElementById('pair-ba');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});
+     host.__meet={groups:[...groups.values()],N,total:pairs.length};}
+-  /* ── export: the view on screen as a Desk draft, every statement a cited blockquote ── */
++  /* Export loaded extraction records with citations; they are not verified quotations. */
+   const cellGroups=(au,cell)=>{const rowsF=cell.rows.filter(matches);const W=cell.byw||{};const groups=[];
+     if(state.g==='stance'){const g={};rowsF.forEach(r=>{const k=STANCES.some(x=>x[0]===r.s)?(r.s||''):'';(g[k]=g[k]||[]).push(r);});STANCES.forEach(([k,label])=>{if(g[k]&&g[k].length)groups.push({k:'s:'+k,label:label||'Other statements',rows:g[k]});});}
+     else{const g=new Map();rowsF.forEach(r=>{if(!g.has(r.w))g.set(r.w,[]);g.get(r.w).push(r);});groups.push(...[...g.entries()].sort((x,y)=>{if(state.g!=='canon'){const d=((W[y[0]]||0)-(W[x[0]]||0))||(y[1].length-x[1].length);if(d)return d;}const wa=au.works.get(x[0]),wb=au.works.get(y[0]);return wa&&wb?RX.workOrder(wa,wb):(wa?-1:wb?1:y[1].length-x[1].length);}).map(([w,rs])=>{const wk=au.works.get(w);return {k:'w:'+w,w,label:(wk?.t||rs[0].wt||w),sub:wk?.vs||(wk?.v?(/^\d+$/.test(String(wk.v))?'vol. ':'')+wk.v:''),rows:rs.slice().sort((a,b)=>(RX.page(a.p)??0)-(RX.page(b.p)??0))};}));}
+     return groups;};
+   async function exportDesk(){const btn=host.querySelector('#cd-export');if(!cur||!btn)return;const say=t=>{btn.textContent=t;};
+     if(!window.FRResearchNotebook?.createDeskDraft){say('Desk drafts unavailable here');setTimeout(()=>say('Export to Desk'),2500);return;}
+-    say('Preparing…');
++    btn.disabled=true;say('Preparing…');
++    const sources=[];
+     const abs=h=>h?(/^https?:/.test(h)?h:location.origin+h):'';const names=authors.map(au=>au.a);const viewURL=location.origin+cdURL({...state,a:authors.map(x=>x.s),sel:cur.tslug});
+-    const quote=(r,au)=>{const t=au.works.get(r.w)?.t||r.wt||r.w||'Source work',pg=RX.page(r.p),href=abs(RX.safeReaderURL(r.h)||(r.w?readerHref(r.w,r.p):''));
+-      return `<blockquote>${href?`<a class="rx-qlink" target="_blank" rel="noopener" href="${esc(href)}" title="Open the passage in a new tab"><p>${esc(r.q||r.g||'')}</p></a>`:`<p>${esc(r.q||r.g||'')}</p>`}${r.q&&r.g?`<p><small>Page annotation: ${esc(r.g)}</small></p>`:''}<p><cite>${esc(au.a)}, <em>${esc(t)}</em>${pg!==null?', '+pgl(r.w)+' '+esc(String(pg)):''}${r.s?' · '+esc(r.s):''}${href?` · <a href="${esc(href)}" target="_blank" rel="noopener">Read the passage</a>`:''}</cite></p></blockquote>`;};
++    const exportedStatement=(r,au)=>{const t=au.works.get(r.w)?.t||r.wt||r.w||'Source work',pg=RX.page(r.p),href=abs(RX.safeReaderURL(r.h)||(r.w?readerHref(r.w,r.p):''));
++      sources.push({slug:r.w||'',page:pg,url:href,title:t,author:au.a,statement:r.q||r.g||'',annotation:r.s||'',kind:'extracted-statement',sourceChecked:false});
++      return `<div class="cd-export-statement">${href?`<a class="rx-qlink" target="_blank" rel="noopener" href="${esc(href)}" title="Open the passage in a new tab"><p>${esc(r.q||r.g||'')}</p></a>`:`<p>${esc(r.q||r.g||'')}</p>`}${r.q&&r.g?`<p><small>Page annotation: ${esc(r.g)}</small></p>`:''}<p><cite>${esc(au.a)}, <em>${esc(t)}</em>${pg!==null?', '+pgl(r.w)+' '+esc(String(pg)):''}${r.s?' · '+esc(r.s):''}${href?` · <a href="${esc(href)}" target="_blank" rel="noopener">Read the passage</a>`:''}</cite></p></div>`;};
+     const filters=[state.s?'stance '+state.s:'',state.q?'phrase “'+state.q+'”':''].filter(Boolean).join(', ');
+     let body='',n=0;
+     if(state.v==='meet'){const dis=host.__meet||{groups:[],N:0,total:0};
+       body+=`<h2>Where they meet · ${esc(MATCH[state.m||'any'])}</h2><p>Statements from different authors that share rare vocabulary, found among ${fmtR(dis.N)} loaded statements. The pairing is lexical; whether the two passages agree or differ is for the reader to judge.</p>`;
+-      dis.groups.forEach(g=>{body+=`<h3>${esc(g.A.a)} and ${esc(g.B.a)}</h3>`;g.items.forEach(p=>{n+=2;body+=`<p><strong>${esc(p.left.au.a)} ${esc(p.left.r.s||'')}</strong></p>${quote(p.left.r,p.left.au)}<p><strong>${esc(p.right.au.a)} ${esc(p.right.r.s||'')}</strong></p>${quote(p.right.r,p.right.au)}<p><small>Shared terms: ${p.shared.map(esc).join(', ')}</small></p>`;});});
++      dis.groups.forEach(g=>{body+=`<h3>${esc(g.A.a)} and ${esc(g.B.a)}</h3>`;g.items.forEach(p=>{n+=2;body+=`<p><strong>${esc(p.left.au.a)} ${esc(p.left.r.s||'')}</strong></p>${exportedStatement(p.left.r,p.left.au)}<p><strong>${esc(p.right.au.a)} ${esc(p.right.r.s||'')}</strong></p>${exportedStatement(p.right.r,p.right.au)}<p><small>Shared terms: ${p.shared.map(esc).join(', ')}</small></p>`;});});
+       if(!dis.groups.length)body+='<p>No pairs were on screen.</p>';}
+     else{for(const au of authors){const cell=cells.get(au.s);if(!cell)continue;const groups=cellGroups(au,cell);const shown=groups.reduce((s,g)=>s+g.rows.length,0);n+=shown;
+         body+=`<h2>${esc(au.a)} <small>${esc(whenOf(au))}</small></h2><p>${fmtR(shown)} ${shown===1?'statement':'statements'}${cell.total>cell.rows.length?` of ${fmtR(cell.total)} in the index (${fmtR(cell.rows.length)} loaded at export)`:cell.rows.length!==shown?` shown of ${fmtR(cell.rows.length)} loaded`:''}${filters?' · '+esc(filters):''}${cell.noIndex?' · room selection only':''}</p>`;
+-        groups.forEach(g=>{body+=`<h3>${esc(g.label)}${g.sub?' <small>'+esc(g.sub)+'</small>':''} <small>${fmtR(g.rows.length)}</small></h3>`+g.rows.map(r=>quote(r,au)).join('');});}}
++        groups.forEach(g=>{body+=`<h3>${esc(g.label)}${g.sub?' <small>'+esc(g.sub)+'</small>':''} <small>${fmtR(g.rows.length)}</small></h3>`+g.rows.map(r=>exportedStatement(r,au)).join('');});}}
+     const title=`${names.join(', ')} on ${cur.label}`;
+     const html=`<h1>${esc(title)}</h1><p>A comparison from The Faith Received, exported ${new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})} · ${fmtR(n)} cited statements · <a href="${esc(viewURL)}">open the live view</a></p><p><em>These are extracted statements, sometimes summarized or translated, not quotations. A statement can report another speaker, an objection, or a rejected view. Read each source before attributing it to its author.</em></p>${body}`;
+-    try{const result=await FRResearchNotebook.createDeskDraft({title,html,research:{kind:'comparison-view',sources:[],topics:[cur.label],authors:names,url:viewURL}});say('Opening the Desk…');location.assign(result.url);}
+-    catch(e){say((e&&e.message)||'The draft could not be saved');setTimeout(()=>say('Export to Desk'),4000);}}
++    try{const result=await FRResearchNotebook.createDeskDraft({title,html,research:{kind:'comparison-view',sources,topics:[cur.label],authors:names,url:viewURL,filters:{phrase:state.q||'',stance:state.s||'',view:state.v||'columns'},coverage:authors.map(au=>{const cell=cells.get(au.s);return {author:au.a,slug:au.s,loaded:cell?.rows.length||0,indexTotal:cell?.total||0,complete:!!cell?.done};})}});if(!active())return;say('Opening the Desk…');location.assign(result.url);}
++    catch(e){say((e&&e.message)||'The draft could not be saved');setTimeout(()=>say('Export to Desk'),4000);}finally{btn.disabled=false;}}
+   host.querySelector('#cd-export').onclick=exportDesk;
+-  const inlineSave=host.querySelector('#cd-save-view');if(inlineSave)inlineSave.onclick=async()=>{const b=host.querySelector('#cd-save-view');b.disabled=true;const st={...state,a:authors.map(x=>x.s)};let r;try{r=await cdSaveView(st,{names:authors.map(x=>x.a),topic:cur?cur.label:''});}catch(error){cdNotice(host,error.message);return;}finally{b.disabled=false;}paintSave();b.textContent='Saved '+r.where;setTimeout(paintSave,3000);if(opts.onSaved)opts.onSaved(r.entry);};
++  const inlineSave=host.querySelector('#cd-save-view');if(inlineSave)inlineSave.onclick=async()=>{const b=host.querySelector('#cd-save-view');b.disabled=true;const st={...state,a:authors.map(x=>x.s)};let r;try{r=await cdSaveView(st,{names:authors.map(x=>x.a),topic:cur?cur.label:''});}catch(error){cdNotice(host,error.message);return;}finally{b.disabled=false;}if(!active())return;paintSave();b.textContent='Saved '+r.where;setTimeout(paintSave,3000);if(opts.onSaved)opts.onSaved(r.entry);};
+   addEventListener('fr-compare-views',paintSave,{signal:researchEvents.signal});paintSave();
+   host.addEventListener('click',e=>{const b=e.target.closest('[data-cd-retry]');if(!b)return;const au=authors.find(x=>x.s===b.dataset.cdRetry),cell=au&&cells.get(au.s);if(cell){cell.halted=false;cell.failures=0;pageCell(au,cell);}});
+   const redraw=()=>{authors.forEach(au=>{const cell=cells.get(au.s);if(cell)drawCell(au,cell);});if(state.v==='meet')drawMeet();};
+@@ -2257,11 +2268,11 @@
+ async function comparePage(){
+   const run=researchStart('research-compare');
+   const state=cdParse(location.hash);
+-  const write=st=>{const h=cdHash(st);if(location.hash!==h)history.replaceState(null,'',location.pathname+location.search+h);};
++  const write=st=>{const h=cdHash(st);if(location.hash!==h)history.replaceState(null,'',location.pathname+location.search+h);const button=$('#cd-save');if(button)button.disabled=!st.a.length;};
+   page.innerHTML=`<div class="crumbs"><a href="/topics">Topics</a> · <a href="/authors">Authors</a></div>
+   <div class="research-intro cd-intro"><div><h1>Compare</h1><p>Compare authors on a topic, read the passages grouped by work, and bring your findings into the writing desk.</p></div></div>
+-  <div class="cd-viewbar"><button type="button" class="rx-button" id="cd-save">Save this view</button><details class="rx-fold cd-saved"><summary><span><strong>Saved views</strong><small id="cd-saved-count"></small></span></summary><div id="cd-saved-list" class="rx-fold-body"></div></details></div>
+-  <div id="cd-host"></div>`;
++  <div class="cd-viewbar"><button type="button" class="rx-button" id="cd-save" disabled>Save this view</button><details class="rx-fold cd-saved"><summary><span><strong>Saved views</strong><small id="cd-saved-count"></small></span></summary><div id="cd-saved-list" class="rx-fold-body"></div></details></div>
++  <div id="cd-host"><p class="rx-note" role="status">Loading the comparison directory…</p></div>`;
+   const host=$('#cd-host');
+   const drawSaved=()=>{const v=cdViews.read(),viewError=cdViews.lastError,here=cdURL(cdParse(location.hash));$('#cd-saved-count').textContent=v.length?fmtR(v.length)+' in this browser':'none yet';
+     $('#cd-saved-list').innerHTML=viewError?'<p class="rx-note" role="status">'+esc(viewError)+'</p>':v.length?v.map(x=>`<div class="cd-saved-row${x.url===here?' on':''}" data-cd-row="${esc(x.id)}"><a href="${esc(x.url)}">${esc(x.name)}</a><small>${esc((x.authors||[]).join(' · '))}${x.topic?' · '+esc(x.topic):''}${x.url===here?' · this view':''}</small><span class="cd-saved-actions"><button type="button" class="rx-text-link" data-cd-rename="${esc(x.id)}">Rename</button><button type="button" class="rx-text-link" data-cd-del="${esc(x.id)}">Remove</button></span></div>`).join(''):'<p class="rx-note">Save a view to keep a shortcut here and a copy in the selected notebook.</p>';
+@@ -2269,10 +2280,10 @@
+     $('#cd-saved-list').querySelectorAll('[data-cd-rename]').forEach(b=>b.onclick=()=>{const row=b.closest('[data-cd-row]'),x=cdViews.read().find(y=>y.id===b.dataset.cdRename);if(!row||!x)return;row.innerHTML=`<form class="cd-rename"><input type="text" value="${esc(x.name)}" aria-label="Name for this view" maxlength="120"><button type="submit" class="rx-button">Save name</button><button type="button" class="rx-text-link" data-cd-cancel>Cancel</button></form>`;const inp=row.querySelector('input');inp.focus();inp.select();
+       row.querySelector('form').onsubmit=e=>{e.preventDefault();const name=inp.value.trim()||x.name;try{cdViews.write(cdViews.read().map(y=>y.id===x.id?{...y,name}:y));drawSaved();}catch(error){cdNotice(page,error.message);}};row.querySelector('[data-cd-cancel]').onclick=drawSaved;});};
+   drawSaved();addEventListener('fr-compare-views',drawSaved,{signal:researchEvents.signal});addEventListener('hashchange',drawSaved,{signal:researchEvents.signal});
+-  $('#cd-save').onclick=async()=>{const st=cdParse(location.hash);if(!st.a.length){$('#cd-save').textContent='Add authors first';setTimeout(()=>{$('#cd-save').textContent='Save this view';},2000);return;}
++  $('#cd-save').onclick=async()=>{const button=$('#cd-save'),st=cdParse(location.hash);if(!st.a.length){button.textContent='Add authors first';setTimeout(()=>{button.textContent='Save this view';},2000);return;}
+     const names=[...host.querySelectorAll('.cd-chip a')].map(a=>a.textContent),topic=host.querySelector('#cd-topic-title')?.childNodes[0]?.textContent?.trim()||st.sel;
+-    $('#cd-save').disabled=true;let r;try{r=await cdSaveView(st,{names,topic});}catch(error){cdNotice(page,error.message);return;}finally{$('#cd-save').disabled=false;}$('#cd-save').textContent='Saved '+r.where;$('.cd-saved')?.setAttribute('open','');drawSaved();
+-    setTimeout(()=>{$('#cd-save').textContent='Save this view';},3000);};
++    button.disabled=true;let r;try{r=await cdSaveView(st,{names,topic});}catch(error){cdNotice(page,error.message);return;}finally{button.disabled=false;}if(run!==RESEARCH_RUN)return;button.textContent='Saved '+r.where;$('.cd-saved')?.setAttribute('open','');drawSaved();
++    setTimeout(()=>{button.textContent='Save this view';},3000);};
+   if(!state.a.length&&state.sel){ // /compare#t=<registry slug>: suggest the topic's top contributors
+     const ex=await cdExport(state.sel).catch(()=>null);if(run!==RESEARCH_RUN)return;
+     const top=(ex?.authors||[]).filter(a=>a.s&&a.sh&&a.np>0).sort((a,b)=>(b.np||0)-(a.np||0)).slice(0,12);
+@@ -2306,13 +2317,14 @@
+   // every statement with a source page gets the peek button (the reader embedded under the row) and its reader links
+   // carry ?hl= with the quote's words so the landed page marks the passage — the positions and comparison views used
+   // to get a bare "Read the passage" link only (the button was gated on o.actions).
+-  const hl=r.pageSummary?'':String(r.q||r.g||'').replace(/\s+/g,' ').slice(0,120);
++  const hl=r.pageSummary||!r.q?'':String(r.q).replace(/\s+/g,' ').slice(0,120);
+   const title=o.title?o.title(r):(r.wt||r.w||'Source work'),pg=RX.page(r.p),href=(r.w&&pg!==null)?readerHrefHl(r.w,r.p,hl):(RX.safeReaderURL(r.h)||(r.w?readerHref(r.w,r.p):null));
+   const text=r.q||r.g||(r.pageSummary?'Indexed source page. Open the text to read its context.':'');
+   return `<article class="rx-excerpt">${r.pageSummary?'<span class="rx-evidence-kind">Page summary</span>':''}<p>${esc(text)}</p>${r.q&&r.g?`<details class="rx-context"><summary>Read page annotation</summary><p>${esc(r.g)}</p></details>`:''}<div class="rx-source"><span>${esc(title)}${pg!==null?' · '+pgl(r.w)+' '+esc(String(pg)):''}</span><div>${href?`<a class="rx-text-link" target="_blank" rel="noopener" href="${esc(href)}">Read the passage</a>`:''}${r.w?(pg!==null?previewBtn(r.w,r.p,hl):'')+pinBtn(r.w,r.p,title,r.a||o.author||'',r.q||r.g):''}</div></div>${o.extra?o.extra(r):(o.annotation&&r.s?`<span class="rx-annotation">Annotation: ${esc(r.s)}</span>`:'')}</article>`;}
+-function statementPane(box,rows,o={}){if(!rows.length){box.classList.remove('rx-pane');box.innerHTML=`<p class="rx-note">${esc(o.empty||'No statements.')}</p>`;return box;}
++const STATEMENT_PANES=new WeakMap();
++function statementPane(box,rows,o={}){const serial=(STATEMENT_PANES.get(box)||0)+1;STATEMENT_PANES.set(box,serial);if(!rows.length){box.classList.remove('rx-pane');box.innerHTML=`<p class="rx-note">${esc(o.empty||'No statements.')}</p>`;return box;}
+   if(o.byWork===false)return paneList(box,rows,r=>statementHTML(r,o),o.chunk||60);
+-  box.classList.add('rx-pane');box.innerHTML=workFoldsHTML(rows,o);return box;}
++  box.classList.add('rx-pane');box.innerHTML=workFoldsHTML(rows,o);if(!WORK_CATALOGUE)getWorkCatalogue().then(()=>{if(!box.isConnected||STATEMENT_PANES.get(box)!==serial)return;const y=box.scrollTop,opened=new Map([...box.querySelectorAll('.cd-work[data-work]')].map(d=>[d.dataset.work,d.open]));box.innerHTML=workFoldsHTML(rows,o);box.querySelectorAll('.cd-work[data-work]').forEach(d=>{if(opened.has(d.dataset.work))d.open=opened.get(d.dataset.work);});box.scrollTop=y;});return box;}
+ /* commentary contexts for the shared citation module (same map the citation web builds) */
+ let __COMMS=null;async function comms(){if(__COMMS)return __COMMS;const d=await J(BLOB+'/v1/commentaries.json').catch(()=>null);const m={};if(d){(d.sentences||[]).forEach(c=>m[c.w]={l:'Commentary on Peter Lombard’s Sentences'+(c.bk?' · Book '+c.bk:''),k:'sent'});(d.summa||[]).forEach(c=>m[c.w]={l:'Commentary on Thomas Aquinas’s Summa'+(c.p?' · '+c.p:''),k:'sum'});(d.bible||[]).forEach(c=>m[c.w]={l:'Scripture commentary: '+String(c.bk||'').replace(/-/g,' ').replace(/\b\w/g,x=>x.toUpperCase()),k:'bib'});(d.compilations||[]).forEach(c=>m[c.w]={l:'Compilation · a reference may belong to a collected source',k:'comp'});}__COMMS={map:m,raw:d||{}};return __COMMS;}
+ /* registry slugs for topic labels: /topics#<slug> and /web#t=<slug> both want the topic2-all slug, never the label */
+@@ -2443,7 +2455,7 @@
+       const ev=await esvChapter(bookName,ch);
+       if(ev){asv=asv&&asv.verses?{...asv,verses:{...asv.verses,...ev}}:{verses:ev};}}
+     const byvA={},byvB={};(bycA[ch]||[]).forEach(r=>(byvA[r.v||0]=byvA[r.v||0]||[]).push(r));(bycB[ch]||[]).forEach(r=>(byvB[r.v||0]=byvB[r.v||0]||[]).push(r));
+-    const cits=(rows,name,cls)=>rows.length?`<div class="psb-cits ${cls}"><b class="psb-who">${esc(name)}</b>${rows.map(r=>`<a class="psb-cit" href="${esc(r.h||'#')}"><span class="psb-w">${esc(r.t||r.w)}</span>${r.p?` <span class="psb-p">p. ${esc(String(r.p))}</span>`:''}${r.g?`<span class="psb-g">${escQ(String(r.g).slice(0,220))}</span>`:''}</a>`).join('')}</div>`:'';
++    const cits=(input,name,cls)=>{const rows=RX.orderedWorks(input,r=>({w:r.w,t:r.t}));return rows.length?`<div class="psb-cits ${cls}"><b class="psb-who">${esc(name)}</b>${rows.map(r=>`<a class="psb-cit" href="${esc(r.h||'#')}"><span class="psb-w">${esc(r.t||r.w)}</span>${r.p?` <span class="psb-p">p. ${esc(String(r.p))}</span>`:''}${r.g?`<span class="psb-g">${escQ(String(r.g).slice(0,220))}</span>`:''}</a>`).join('')}</div>`:'';}
+     let body='';
+     if(asv&&asv.verses){
+       const vns=Object.keys(asv.verses).map(Number).sort((x,y)=>x-y);
+@@ -2499,7 +2511,7 @@
+   if(seg[1]==="with"){pairPage(seg[0],seg[2]||"",seg[3]==="topic"?seg.slice(4).join("/"):"").catch(()=>{if(token===RESEARCH_RUN)researchError("This comparison could not load");});return;}
+   room(seg[0],seg.slice(1).join("/")).catch(()=>{if(token===RESEARCH_RUN)researchError("This author could not load");});
+ }
+-document.addEventListener('keydown',e=>{const tab=e.target.closest('[role="tab"]');if(tab&&['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){const tabs=[...tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]')].filter(t=>t.style.display!=='none');const i=tabs.indexOf(tab),next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;e.preventDefault();tabs[next].click();tabs[next].focus();}const verse=e.target.closest('.vs2[role="button"]');if(verse&&e.target===verse&&['Enter',' '].includes(e.key)){e.preventDefault();verse.click();}});
++document.addEventListener('keydown',e=>{const tab=e.target.closest('[role="tab"]');if(tab&&['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){const tabs=[...tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]')].filter(t=>t.getClientRects().length&&!t.disabled);if(!tabs.length)return;const i=tabs.indexOf(tab),next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;e.preventDefault();tabs[next].click();tabs[next].focus();}const verse=e.target.closest('.vs2[role="button"]');if(verse&&e.target===verse&&['Enter',' '].includes(e.key)){e.preventDefault();verse.click();}});
+ addEventListener("hashchange",route);
+ addEventListener("popstate",route);
+ route();
+--- a/tools/build_dist.py
++++ b/tools/build_dist.py
+@@ -572,8 +572,17 @@
+         shutil.copy2(str(real), str(out))
+         print(f"  wrote {out.relative_to(ROOT)}  ({out.stat().st_size:,} bytes) [from {real}]")
+     except (OSError, FileNotFoundError) as exc:
+-        print(f"  WARN: prdl-system.css symlink broken ({exc}); writing empty placeholder")
+-        out.write_text("/* prdl-system.css missing — symlink broken at build time */\n", encoding="utf-8")
++        # Never publish an empty design system during a File Provider outage.
++        # This snapshot matches the production alias on 2026-09-13 byte for byte.
++        # The canonical Dropbox symlink above remains the preferred source.
++        import hashlib
++        recovery = sym.with_name("prdl-system.recovery.css")
++        expected = "773f88d15ebcac8e350408a207ff6e52df4f73bbe4ac95a80b5665ffe5a0dc8c"
++        data = recovery.read_bytes()
++        if hashlib.sha256(data).hexdigest() != expected:
++            raise RuntimeError("Shared stylesheet unavailable and recovery checksum failed") from exc
++        out.write_bytes(data)
++        print(f"  WARN: canonical shared stylesheet unavailable ({exc}); used verified recovery snapshot ({len(data):,} bytes)")
+ 
+ 
+ # ── secrets gate ──────────────────────────────────────────────────────────────
+@@ -663,7 +672,7 @@
+     else:
+         print("  WARNING: research_shell.html missing — /bible /fathers /topics NOT emitted")
+ 
+-    for name in ("pins-experience.js", "research-data.js", "research-notebook.js", "site-navigation.js", "site-navigation.css", "desk-workflow.js", "desk-workflow.css", "reader-margins.js", "reader-margins.css", "reader-footnotes.js", "reader-footnotes.css", "reader-bookmarks.js", "reader-scripture-preview.js", "reader-scripture-preview.css", "verse-research.js", "verse-research.css", "connection-evidence.js", "connection-evidence.css", "personal-research.js", "personal-research.css", "migne-navigation.js", "pld-reading.js", "reader-navigation.js", "reader-source-outline.js", "reader-contents.js", "reader-contents.css", "work-research.js", "work-research.css", "work-research-sources.js", "work-research-sources.css", "scripture-tools.js", "scripture-navigation.css", "constellations.css", "research-tools.js", "research-experience.css", "shelf-constellations.js", "shelf-constellations.css"):
++    for name in ("search-tools.js", "pins-experience.js", "research-data.js", "research-notebook.js", "site-navigation.js", "site-navigation.css", "desk-workflow.js", "desk-workflow.css", "reader-margins.js", "reader-margins.css", "reader-footnotes.js", "reader-footnotes.css", "reader-bookmarks.js", "reader-scripture-preview.js", "reader-scripture-preview.css", "verse-research.js", "verse-research.css", "connection-evidence.js", "connection-evidence.css", "personal-research.js", "personal-research.css", "migne-navigation.js", "pld-reading.js", "reader-navigation.js", "reader-source-outline.js", "reader-contents.js", "reader-contents.css", "work-research.js", "work-research.css", "work-research-sources.js", "work-research-sources.css", "scripture-tools.js", "scripture-navigation.css", "constellations.css", "research-tools.js", "research-experience.css", "shelf-constellations.js", "shelf-constellations.css"):
+         source = ROOT / "tools" / "prdl_reader_prototype" / name
+         if name == "pld-reading.js":
+             registry = json.loads((source.parent / "pld-reading-reviewed.json").read_text(encoding="utf-8"))

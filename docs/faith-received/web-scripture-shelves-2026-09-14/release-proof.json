@@ -1,0 +1,47 @@
+{
+  "date": "2026-09-14",
+  "deployment": "dpl_6pTvVXJ6PQJWFRcpPfx1GbQSLXhb",
+  "alias": "https://thefaithreceived.vercel.app",
+  "checks": [
+    {
+      "asset": "web.html",
+      "localMd5": "0770de78fd99132f77f43fcf381b215a",
+      "aliasMd5": "0770de78fd99132f77f43fcf381b215a",
+      "match": true,
+      "sameExceptBuildVersion": true,
+      "liveBuildVersion": "1789363485",
+      "localBuildVersion": "1789363485"
+    },
+    {
+      "asset": "scripture-tools.js",
+      "localMd5": "52a3e2a5ac626f02696de9ff5e29d191",
+      "aliasMd5": "52a3e2a5ac626f02696de9ff5e29d191",
+      "match": true
+    },
+    {
+      "asset": "shelf-constellations.js",
+      "localMd5": "bbb2117ebb50c8503103c8503dc07c40",
+      "aliasMd5": "bbb2117ebb50c8503103c8503dc07c40",
+      "match": true
+    },
+    {
+      "asset": "shelf-constellations.css",
+      "localMd5": "860cef98e8b743858e6a955df7278bcd",
+      "aliasMd5": "860cef98e8b743858e6a955df7278bcd",
+      "match": true
+    },
+    {
+      "asset": "constellations.css",
+      "localMd5": "1eea5d47a7419fb87378e16256b205c7",
+      "aliasMd5": "1eea5d47a7419fb87378e16256b205c7",
+      "match": true
+    },
+    {
+      "asset": "connection-evidence.js",
+      "localMd5": "41b46a85b37b47c4cfa41141c0dba147",
+      "aliasMd5": "41b46a85b37b47c4cfa41141c0dba147",
+      "match": true
+    }
+  ],
+  "note": "A later build updated the shared deploy tree during verification. The first HTML mismatch contained only the build-version stamp; the shared JavaScript and CSS matched exactly."
+}

@@ -1,0 +1,111 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/read-tools.js','utf8');
+const helpers=source.slice(source.indexOf('function frReaderSearchText('),source.indexOf('// End research rail search index helpers.'));
+const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const text=value=>({nodeType:3,nodeValue:value});
+const node=(localName,...children)=>({nodeType:1,localName,childNodes:children.map(child=>typeof child==='string'?text(child):child)});
+function pure(){const box={esc,setTimeout};vm.createContext(box);vm.runInContext(helpers,box);return box;}
+
+test('canonical index covers detached pages outside the mounted and initially loaded page inventory',async()=>{
+  const box=pure(),tei={en:{1:[node('p','Opening words')],500:[node('p','Grace in the final chapter')]}},before=JSON.stringify(tei);
+  const index=await box.frBuildReaderSearchIndex({tei,pages:[{n:1}],loaded:[]});
+  assert.equal(index.kind,'canonical');assert.equal(index.pages,2);assert.equal(box.frSearchReaderIndex(index,'grace').hits[0].page,'500');assert.equal(JSON.stringify(tei),before);
+});
+
+test('English-only canonical text is searchable without requiring a source lane',async()=>{
+  const box=pure(),index=await box.frBuildReaderSearchIndex({tei:{en:{4:[node('p','Faith received')]}},pages:[]});
+  assert.deepEqual([...index.lanes],['English']);assert.equal(box.frSearchReaderIndex(index,'faith received').hits.length,1);
+});
+
+test('page references preserve compound milestones and only normalize wholly numeric zero padding',async()=>{
+  const box=pure(),tei={en:{'0004':[node('p','Grace')],'52:0183A':[node('p','Grace in a compound reference')]}};
+  const index=await box.frBuildReaderSearchIndex({tei,pages:[{n:4},{n:'52:0183A'}]});
+  assert.deepEqual(Array.from(index.records,record=>record.page),['4','52:0183A']);assert.equal(box.frReaderSearchPageKey('52:0183A'),'52:0183A');
+});
+
+test('repeated chapter labels include distinct complete page references without duplicating explicit locators',()=>{
+  const box=pure();
+  assert.equal(box.frReaderSearchResultLabel('107','ch. II'),'ch. II · p. 107');
+  assert.equal(box.frReaderSearchResultLabel('167','ch. II'),'ch. II · p. 167');
+  assert.equal(box.frReaderSearchResultLabel('52:0183A','ch. II'),'ch. II · p. 52:0183A');
+  assert.equal(box.frReaderSearchResultLabel('107','p. 107'),'p. 107');
+  assert.equal(box.frReaderSearchResultLabel('52:0183A','col. 52:0183A'),'col. 52:0183A');
+  assert.equal(box.frReaderSearchResultLabel('107','p. 1070'),'p. 1070 · p. 107');
+});
+
+test('plain-text extraction separates blocks while retaining inline word joins and notes',()=>{
+  const box=pure(),content=[node('p','justi',node('hi','fication')),node('list',node('item','Grace'),node('item','Faith')),node('note','A note'),node('fw','Catchword')];
+  assert.equal(box.frReaderSearchText(content),'justification Grace Faith A note');
+});
+
+test('fallback coverage is explicitly loaded text and cannot borrow unrendered legacy data',async()=>{
+  const box=pure(),index=await box.frBuildReaderSearchIndex({tei:null,pages:[{n:9,en:'Hidden legacy words'}],loaded:[{page:'5',nodes:[node('p','Visible words')]}]});
+  assert.equal(index.kind,'loaded');assert.equal(index.pages,1);assert.equal(box.frSearchReaderIndex(index,'hidden').hits.length,0);assert.equal(box.frSearchReaderIndex(index,'visible').hits[0].page,'5');
+});
+
+test('large indexes yield without truncating matching results',async()=>{
+  const box=pure(),tei={en:Object.fromEntries(Array.from({length:129},(_,i)=>[String(i),[node('p','Common grace')]]))};let yields=0;
+  const index=await box.frBuildReaderSearchIndex({tei},async()=>{yields++;});
+  assert.ok(yields>=4);assert.equal(box.frSearchReaderIndex(index,'grace').hits.length,129);
+});
+
+test('authoritative source regions label provenance and sort body before contents and front matter without dropping hits',async()=>{
+  const box=pure(),entry=(region,path,value)=>Object.assign(node('p',value),{getAttribute:name=>({'data-source-region':region,'data-source-path':path})[name]||null});
+  const tei={en:{1:[entry('frontmatter','0.1','Women in the dedication')],11:[entry('contents','0.2.2','Q32. Women. p. 805')],12:[entry('contents','0.2.3','Women in another contents entry')],86:[entry('body','1.5','Duties of women')],87:[entry('body','1.6','Women and their duties')]}};
+  const index=await box.frBuildReaderSearchIndex({tei}),order=index.records.map(record=>record.page),hits=box.frSearchReaderIndex(index,'women').hits;
+  assert.deepEqual(Array.from(hits,hit=>hit.page),['86','87','11','12','1']);assert.equal(hits.length,5);assert.deepEqual(index.records.map(record=>record.page),order);
+  assert.equal(hits[2].sourceRegion,'contents');assert.equal(hits[2].sourcePath,'0.2.2');assert.equal(hits[2].text,'Q32. Women. p. 805');
+});
+
+test('provenance inherits explicit source metadata but never derives a region from a printed page or contents wording',async()=>{
+  const box=pure(),parent={getAttribute:name=>name==='data-source-region'?'contents':name==='data-source-path'?'0.2':null},child=Object.assign(node('item','Women, p. 805'),{parentElement:parent});
+  assert.equal(box.frReaderSearchPassages([child],'en')[0].sourceRegion,'contents');assert.equal(box.frReaderSearchPassages([child],'en')[0].sourcePath,'0.2');
+  const index=await box.frBuildReaderSearchIndex({tei:{en:{805:[node('p','Women in the table of contents')],11:[Object.assign(node('p','Women'),{getAttribute:name=>name==='data-source-region'?'contents':null})]}}});
+  const hits=box.frSearchReaderIndex(index,'women').hits;assert.equal(hits[0].page,'805');assert.equal(hits[0].sourceRegion,'');assert.equal(hits[1].sourceRegion,'contents');
+});
+
+test('snippets highlight literal terms while escaping source markup and regex characters',()=>{
+  const box=pure();assert.equal(box.frReaderSearchMarkup('<script> a+b & grace',['a+b','grace']),'&lt;script&gt; <mark>a+b</mark> &amp; <mark>grace</mark>');
+  assert.ok(box.frReaderSearchSnippet('x'.repeat(300)+' grace '+ 'z'.repeat(300),['grace']).includes('grace'));
+});
+
+function ui({mobile=false,pending=null}={}){
+  const nodes=new Map(),navigation=[],highlight=[],closed=[];
+  const $=selector=>{if(!nodes.has(selector))nodes.set(selector,{value:'',textContent:'',innerHTML:'',hidden:false,attributes:{},setAttribute(k,v){this.attributes[k]=v;},removeAttribute(k){delete this.attributes[k];},blur(){},focus(){}});return nodes.get(selector);};
+  const box={esc,setTimeout,URL,location:{href:'https://reader.test/read?w=book#b1-0'},window:{__SRCNAME:'Latin',__teiHydrating:pending,__frNavigateReaderAnchor:url=>{navigation.push(url);return true;}},TEI_ON:true,TEI_PAGES:{en:{'52:0183A':[node('p','Faith and grace in the text')]}},DATA:{pages:[{n:'52:0183A'}]},reading:{querySelectorAll(){throw Error('Canonical search must not inspect the mounted window');}},sideMedia:{matches:!mobile},notebook:{querySelector:selector=>$(selector)},activeResearchTab:'work',readerSearchMode:'work',relatedResearch:null,locOf:page=>'p. '+page,$,findSet:(terms,options)=>highlight.push({terms:[...terms],options}),closeNotebook:restore=>closed.push(restore),renderConversations(){},ensureWorkResearch(){}};
+  vm.createContext(box);vm.runInContext(helpers,box);
+  box.findReadSearchResult=(hit,terms)=>{navigation.push({hit,terms:[...terms]});highlight.push({terms:[...terms],options:{open:true}});return Promise.resolve(true);};
+  const start=source.indexOf('  let readerSearchIndex='),end=source.indexOf("\n  for(const [key,id] of [['work','WorkPanel']",start);
+  vm.runInContext(source.slice(start,end),box);
+  return {box,$,nodes,navigation,highlight,closed,async search(query){$('#nbWorkSearchQuery').value=query;await box.runReaderSearch();},select(){ $('#nbWorkSearchResults').onclick({target:{closest:()=>({dataset:{readerSearchResult:'0'}})}});}};
+}
+
+test('mobile result selection retains query/results and reopens the same Search pane',async()=>{
+  const h=ui({mobile:true});h.box.researchTab('search');await h.search('grace');const results=h.$('#nbWorkSearchResults').innerHTML;
+  h.select();assert.deepEqual(h.closed,[false]);assert.equal(h.navigation[0].hit.page,'52:0183A');assert.equal(h.navigation[0].hit.lane,'en');assert.deepEqual(h.navigation[0].terms,['grace']);
+  assert.equal(h.$('#nbWorkSearchQuery').value,'grace');assert.ok(h.$('#nbWorkSearchResults').innerHTML.includes('grace'));
+  assert.ok(results.includes('p. 52:0183A'));assert.equal(h.highlight.at(-1).options.open,true);
+  h.box.researchTab();assert.equal(h.$('#nbWorkSearch').hidden,false);assert.equal(h.$('#nbWorkSearchLibrary').href,'/search?q=grace');
+  assert.equal(h.$('.nb-project').hidden,true);h.box.researchTab('passage');assert.equal(h.$('.nb-project').hidden,false);
+});
+
+test('desktop result selection keeps the rail open and delegates the only navigation',async()=>{
+  const h=ui();await h.search('faith');h.select();assert.deepEqual(h.closed,[]);assert.equal(h.navigation.length,1);assert.equal(h.highlight.length,1);
+});
+
+test('Contents and Front matter labels are rendered only from retained provenance',async()=>{
+  const h=ui();h.box.TEI_PAGES.en['52:0183A'][0].getAttribute=name=>name==='data-source-region'?'contents':null;await h.search('faith');assert.ok(h.$('#nbWorkSearchResults').innerHTML.includes(' · Contents'));
+  h.box.TEI_PAGES={en:{9:[Object.assign(node('p','faith'),{getAttribute:name=>name==='data-source-region'?'frontmatter':null})]}};await h.search('faith');assert.ok(h.$('#nbWorkSearchResults').innerHTML.includes(' · Front matter'));
+});
+
+test('editing a query while canonical text loads discards its stale results',async()=>{
+  let release;const h=ui({pending:new Promise(resolve=>release=resolve)});h.$('#nbWorkSearchQuery').value='grace';const first=h.box.runReaderSearch();
+  h.$('#nbWorkSearchQuery').value='faith';h.$('#nbWorkSearchQuery').oninput();release();await first;
+  assert.equal(h.$('#nbWorkSearchResults').innerHTML,'');assert.ok(!h.$('#nbWorkSearchStatus').textContent.includes('matching'));
+  await h.search('faith');assert.ok(h.$('#nbWorkSearchStatus').textContent.includes('1 matching page'));assert.ok(h.$('#nbWorkSearchStatus').textContent.includes('Canonical English'));
+});
+
+test('Ask about this work starts a clean work-scoped draft rather than reusing an old passage',()=>{
+ const h=ui(),calls=[];h.box.WORK_SLUG='essenius-triumphus-crucis';h.box.window.FRAsk={open:options=>calls.push(options)};
+ h.$('#nbWorkAsk').onclick();assert.equal(calls.length,1);assert.equal(calls[0].fresh,true);assert.equal(calls[0].contextWork,'essenius-triumphus-crucis');assert.deepEqual(Array.from(calls[0].works),['essenius-triumphus-crucis']);
+});

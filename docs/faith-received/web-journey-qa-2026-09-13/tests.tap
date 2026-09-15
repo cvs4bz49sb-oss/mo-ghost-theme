@@ -1,0 +1,160 @@
+TAP version 13
+# Subtest: a path never reverses a citation in a directed journey
+ok 1 - a path never reverses a citation in a directed journey
+  ---
+  duration_ms: 1.388208
+  ...
+# Subtest: incoming evidence names the citing author, not the selected author
+ok 2 - incoming evidence names the citing author, not the selected author
+  ---
+  duration_ms: 0.103625
+  ...
+# Subtest: source and shared topic pages preserve volume/column strings
+ok 3 - source and shared topic pages preserve volume/column strings
+  ---
+  duration_ms: 0.286708
+  ...
+# Subtest: shared profile chapters distinguish Gospel and numbered letters
+ok 4 - shared profile chapters distinguish Gospel and numbered letters
+  ---
+  duration_ms: 0.370666
+  ...
+# Subtest: verse overlap requires exact work or author identity in source rows
+ok 5 - verse overlap requires exact work or author identity in source rows
+  ---
+  duration_ms: 0.13625
+  ...
+# Subtest: filters preserve every matching row and do not promote citation kind to agreement
+ok 6 - filters preserve every matching row and do not promote citation kind to agreement
+  ---
+  duration_ms: 0.570041
+  ...
+# Subtest: saved connection carries only provided source evidence, deduplicated by exact URL
+ok 7 - saved connection carries only provided source evidence, deduplicated by exact URL
+  ---
+  duration_ms: 0.3295
+  ...
+# Subtest: previews never accept an external or executable URL
+ok 8 - previews never accept an external or executable URL
+  ---
+  duration_ms: 0.230042
+  ...
+# Subtest: doctrine context keeps section tags separate from page-position tags
+ok 9 - doctrine context keeps section tags separate from page-position tags
+  ---
+  duration_ms: 0.573875
+  ...
+# Subtest: resolution never treats an opaque target identifier as a held work
+ok 10 - resolution never treats an opaque target identifier as a held work
+  ---
+  duration_ms: 0.340583
+  ...
+# Subtest: multi-target authority references preserve all held targets and exact recorded anchors
+ok 11 - multi-target authority references preserve all held targets and exact recorded anchors
+  ---
+  duration_ms: 0.36575
+  ...
+# Subtest: only identical identified propositions deduplicate; section contexts and authorities remain
+ok 12 - only identical identified propositions deduplicate; section contexts and authorities remain
+  ---
+  duration_ms: 0.12825
+  ...
+# Subtest: source and reception choices preserve the actual citation direction
+ok 13 - source and reception choices preserve the actual citation direction
+  ---
+  duration_ms: 0.155375
+  ...
+# Subtest: journey choices ignore unavailable graph nodes and never duplicate a self-edge
+ok 14 - journey choices ignore unavailable graph nodes and never duplicate a self-edge
+  ---
+  duration_ms: 0.036459
+  ...
+# Subtest: known citation anchors are never replaced by a whole-work mention search
+ok 15 - known citation anchors are never replaced by a whole-work mention search
+  ---
+  duration_ms: 0.50225
+  ...
+# Subtest: mixed-direction paths retain the selected citation when authors cite one another
+ok 16 - mixed-direction paths retain the selected citation when authors cite one another
+  ---
+  duration_ms: 0.063084
+  ...
+# Subtest: long citation lists remain fully reachable through bounded work and reference pages
+ok 17 - long citation lists remain fully reachable through bounded work and reference pages
+  ---
+  duration_ms: 91.671292
+  ...
+# Subtest: compound source locations sort as strings without being collapsed to their volume number
+ok 18 - compound source locations sort as strings without being collapsed to their volume number
+  ---
+  duration_ms: 0.107583
+  ...
+# Subtest: save controls reach the delegated handler and source links retain the research page
+ok 19 - save controls reach the delegated handler and source links retain the research page
+  ---
+  duration_ms: 0.278625
+  ...
+# Subtest: a path starting at a cited author opens the citing author’s evidence
+ok 20 - a path starting at a cited author opens the citing author’s evidence
+  ---
+  duration_ms: 0.375416
+  ...
+# Subtest: a path in citation direction preserves its source and target
+ok 21 - a path in citation direction preserves its source and target
+  ---
+  duration_ms: 0.106167
+  ...
+# Subtest: missing evidence does not invent a citation
+ok 22 - missing evidence does not invent a citation
+  ---
+  duration_ms: 0.111875
+  ...
+# Subtest: bidirectional citation uses the displayed outgoing row consistently
+ok 23 - bidirectional citation uses the displayed outgoing row consistently
+  ---
+  duration_ms: 0.091916
+  ...
+# Subtest: view identities separate sources, reception, work scopes and actual directed paths
+ok 24 - view identities separate sources, reception, work scopes and actual directed paths
+  ---
+  duration_ms: 0.579416
+  ...
+# Subtest: a citation view preserves filters, page position, closed folds and safe previews
+ok 25 - a citation view preserves filters, page position, closed folds and safe previews
+  ---
+  duration_ms: 0.715042
+  ...
+# Subtest: state from another directed citation cannot filter a new connection
+ok 26 - state from another directed citation cannot filter a new connection
+  ---
+  duration_ms: 0.067458
+  ...
+# Subtest: invalid page positions clamp and the rebuilt shell parses
+ok 27 - invalid page positions clamp and the rebuilt shell parses
+  ---
+  duration_ms: 2.323708
+  ...
+# Subtest: leaving a journey snapshots it, aborts stale listeners and bounds retained views
+ok 28 - leaving a journey snapshots it, aborts stale listeners and bounds retained views
+  ---
+  duration_ms: 0.671208
+  ...
+# Subtest: directed route keys survive URL round trips that omit redundant edge directions
+ok 29 - directed route keys survive URL round trips that omit redundant edge directions
+  ---
+  duration_ms: 0.053125
+  ...
+# Subtest: returning to a multi-step path reopens the actual evidence steps in citation direction
+ok 30 - returning to a multi-step path reopens the actual evidence steps in citation direction
+  ---
+  duration_ms: 0.177416
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 142.360375

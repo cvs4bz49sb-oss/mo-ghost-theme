@@ -1,0 +1,204 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/reader_shell.html','utf8');
+const code=source.slice(source.indexOf('function rememberReaderChoice('),source.indexOf('function jump('));
+
+function harness(href='https://reader.test/read?w=book#b1-0'){
+  let now=0,serial=0;const timers=[],nodes=new Map(),placed=[],events=[],listeners={},hydrated=[],loads=[];
+  const location=new URL(href),sc={scrollTop:0,clientHeight:600,visible:true,getClientRects(){return this.visible?[{}]:[];},getBoundingClientRect:()=>({top:64,height:600}),contains:()=>true};
+  const reading={querySelectorAll:()=>[...nodes.values()].filter(n=>n.id?.startsWith('b'))},app={classList:{add(){},remove(){}}};
+  nodes.set('scroll',sc);nodes.set('reading',reading);nodes.set('app',app);
+  const schedule=(fn,delay=0)=>{timers.push({fn,time:now+delay,serial:++serial});};
+  const window={__readerBuilt:true,dispatchEvent:e=>events.push(e),__ensurePage:page=>{hydrated.push(page);return true;}};
+  const box={window,location,URL,URLSearchParams,CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail;}},DATA:{slug:'book',pages:[]},cur:'1',
+    history:{state:{kept:true},replaceState(state,title,url){this.state=state;location.href=String(url);}},
+    document:{getElementById:id=>nodes.get(id),querySelectorAll:selector=>[...nodes.values()].filter(n=>selector.includes('data-source-path')?n.kind==='rhead':selector.includes('.pganchor')?n.kind==='pganchor':n.kind==='folio'),addEventListener:(name,fn)=>listeners[name]=fn},
+    requestAnimationFrame:fn=>schedule(fn),setTimeout:schedule,setFolio(){},jump(page){loads.push(page);return null;}};
+  vm.createContext(box);vm.runInContext(code,box);
+  function row(id,{top=800,height=100,page=box.frReaderBlockReference(id)?.page||'1',kind='row'}={}){
+    const node={id,kind,isConnected:true,dataset:{page},top,height,classList:{contains:cls=>cls===kind,add(){},remove(){}},
+      getClientRects:()=>sc.visible?[{}]:[],getBoundingClientRect(){return {top:this.top-sc.scrollTop,bottom:this.top-sc.scrollTop+this.height,height:this.height};},
+      querySelector(){return {textContent:this.textContent||''};},closest:selector=>selector==='.folio'?{dataset:{page}}:null,
+      scrollIntoView({block}){placed.push(id);sc.scrollTop=this.top-(block==='start'?64:64+sc.clientHeight/2-this.height/2);}};
+    nodes.set(id,node);if(!box.DATA.pages.some(p=>p.n===page))box.DATA.pages.push({n:page});return node;
+  }
+  function advance(ms=2000){const end=now+ms;let limit=2000;while(timers.length&&limit--){timers.sort((a,b)=>a.time-b.time||a.serial-b.serial);if(timers[0].time>end)break;const task=timers.shift();now=task.time;task.fn();}assert.ok(limit>0);now=end;}
+  return {box,window,nodes,sc,location,placed,events,listeners,hydrated,loads,row,advance};
+}
+
+test('block parser preserves full encoded compound IDs and rejects malformed escapes',()=>{
+  const h=harness(),r=h.box.frReaderBlockReference('#b52%3A0183A-7');
+  assert.equal(r.id,'b52:0183A-7');assert.equal(r.page,'52:0183A');assert.equal(r.index,'7');
+  assert.equal(h.box.frReaderBlockReference('#b%ZZ-0'),null);
+});
+
+test('accepted same-work navigation hydrates and lands an exact compound row without document navigation',()=>{
+  const h=harness();h.row('b52:0183A-7');
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book#b52%3A0183A-7'),true);h.advance();
+  assert.deepEqual(h.placed,['b52:0183A-7']);assert.ok(h.hydrated.every(p=>p==='52:0183A'));assert.deepEqual(h.loads,[]);
+  assert.equal(decodeURIComponent(h.location.hash),'#b52:0183A-7');assert.equal(h.box.history.state.kept,true);
+  assert.equal(h.events.length,1);assert.equal(h.events[0].type,'fr-reader-navigation');
+  assert.equal(h.events[0].detail.state,'landed');assert.equal(h.events[0].detail.page,'52:0183A');assert.equal(h.events[0].detail.id,'b52:0183A-7');
+});
+
+test('latest citation wins while earlier targets are still virtualized',()=>{
+  const h=harness();h.window.__frNavigateReaderAnchor('/read?w=book#b10-3');h.advance(150);
+  h.window.__frNavigateReaderAnchor('/read?w=book#b20-5');h.row('b10-3');h.row('b20-5');h.advance();
+  assert.deepEqual(h.placed,['b20-5']);assert.equal(h.window.__frCaptureReaderPosition().id,'b20-5');
+});
+
+test('a recognized absent nonzero row is accepted and waits instead of jumping to the page top',()=>{
+  const h=harness();h.row('b20-0');
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book#b20-5'),true);h.advance(360);
+  assert.deepEqual(h.placed,[]);assert.deepEqual(h.loads,[]);
+  h.row('b20-5');h.advance();assert.deepEqual(h.placed,['b20-5']);
+});
+
+test('page-start citations retain visible seam fallback after the opening row merged',()=>{
+  const h=harness();h.row('seam-52:0183A',{page:'52:0183A',kind:'pganchor'});
+  h.window.__frNavigateReaderAnchor('/read?w=book#b52%3A0183A-0');h.advance();
+  assert.deepEqual(h.placed,['seam-52:0183A']);assert.equal(h.events[0].detail.id,'b52:0183A-0');
+});
+
+test('late rebuilds retain exact citation intent through pending and settled captures',()=>{
+  for(const beforeLanding of [true,false]){
+    const h=harness();h.window.__frNavigateReaderAnchor('/read?w=book#b9-4');
+    if(!beforeLanding){h.row('b9-4');h.advance();}
+    const position=h.window.__frCaptureReaderPosition();assert.equal(position.id,'b9-4');assert.equal(position.anchor,true);
+    h.nodes.delete('b9-4');h.box.restoreReaderPosition(position);h.advance(120);
+    h.row('b9-4',{top:1900});h.advance();assert.equal(h.placed.at(-1),'b9-4');assert.deepEqual(h.loads,[]);
+  }
+});
+
+test('user scrolling cancels the active citation and all pending restoration',()=>{
+  const h=harness(),row=h.row('b9-4');h.window.__frNavigateReaderAnchor('/read?w=book#b9-4');
+  h.listeners.touchmove({target:row});h.advance();assert.deepEqual(h.placed,[]);assert.equal(h.window.__readerChoice,null);
+});
+
+test('source suspension blocks late placements and resumes a saved exact target after showing',()=>{
+  const h=harness();h.window.__frNavigateReaderAnchor('/read?w=book#b9-4');
+  const position=h.window.__frCaptureReaderPosition();h.window.__frCancelReaderNavigation();h.sc.visible=false;h.row('b9-4');
+  h.box.restoreReaderPosition(position);h.advance();assert.deepEqual(h.placed,[]);
+  assert.equal(h.window.__frCaptureReaderPosition().id,'b9-4');h.sc.visible=true;
+  assert.equal(h.window.__frRestoreReaderPosition(position),true);h.advance();assert.deepEqual(h.placed,['b9-4']);
+});
+
+test('ordinary saved viewport offsets survive a cancel and restore generation',()=>{
+  const h=harness(),row=h.row('b5-2',{top:220,page:'5'});h.sc.scrollTop=80;h.box.cur='5';
+  const position=h.window.__frCaptureReaderPosition();assert.equal(position.offset,76);
+  h.window.__frCancelReaderNavigation();row.top=900;h.sc.scrollTop=0;
+  h.window.__frRestoreReaderPosition(position);h.advance();assert.equal(row.getBoundingClientRect().top,140);assert.deepEqual(h.placed,[]);
+});
+
+test('query page requests stay in the current work and preserve existing view options',()=>{
+  const h=harness('https://reader.test/read.html?w=book&src=parallel#b1-0');h.row('b52:0183A-0');
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book&p=52%3A0183A'),true);h.advance();
+  assert.equal(h.location.searchParams.get('src'),'parallel');assert.equal(h.location.searchParams.has('p'),false);assert.deepEqual(h.placed,['b52:0183A-0']);
+  for(const url of ['/read?w=other#b1-0','https://other.test/read?w=book#b1-0','/read?w=book&src=latin#b1-0','/search?w=book#b1-0','/read?w=book#b%ZZ-0'])assert.equal(h.window.__frNavigateReaderAnchor(url),false,url);
+});
+
+test('deferred reader tools delegate source navigation without restarting initial hash landing',()=>{
+  const tools=fs.readFileSync(__dirname+'/read-tools.js','utf8');
+  const line=tools.split('\n').find(line=>line.includes('window.FRReaderResearch={'));
+  const calls=[],window={__frNavigateReaderAnchor:url=>{calls.push(url);return true;}};
+  vm.runInNewContext(line,{window,openNotebook(){},closeNotebook(){},passage:null});
+  assert.equal(window.FRReaderResearch.navigate('/read?w=book#b30-9'),true);assert.deepEqual(calls,['/read?w=book#b30-9']);
+  assert.equal(tools.includes('setTimeout(seek,300)'),false,'deferred tools must not revive the original citation');
+});
+
+test('search navigation waits for the exact occurrence and keeps public locations canonical',()=>{
+  const h=harness(),row=h.row('b52:0183A-7',{top:200,height:1800,page:'52:0183A'});
+  h.window.__frRestoreReaderPosition({page:'52:0183A',id:row.id,focusId:'fr-find-1-5',anchor:true,choice:true,offset:null});h.advance(240);
+  assert.deepEqual(h.placed,[],'The body row must not stand in for a pending matching word');
+  h.row('fr-find-1-5',{top:1400,height:22,page:'52:0183A'});h.advance();
+  assert.deepEqual(h.placed,['fr-find-1-5']);
+  assert.equal(h.events[0].detail.id,'b52:0183A-7');assert.equal(h.location.hash,'#b1-0');
+  const internal=h.box.captureReaderPosition(),saved=h.window.__frCaptureReaderPosition();
+  assert.equal(internal.focusId,'fr-find-1-5');assert.equal(saved.focusId,undefined);assert.equal(saved.id,row.id);assert.equal(saved.anchor,false);
+  assert.equal(saved.offset,row.getBoundingClientRect().top-h.sc.getBoundingClientRect().top);
+});
+
+test('a newer search occurrence cancels old arrival and pending occurrence restoration',()=>{
+  const h=harness();h.row('b9-0');h.row('b20-0');
+  h.window.__frNavigateReaderAnchor('/read?w=book#b9-0');
+  h.window.__frRestoreReaderPosition({page:'20',id:'b20-0',focusId:'fr-find-latest',anchor:true,choice:true,offset:null});
+  h.row('fr-find-latest',{top:1200,page:'20'});h.advance();
+  assert.deepEqual(h.placed,['fr-find-latest']);assert.equal(h.window.__frCaptureReaderPosition().id,'b20-0');
+});
+
+test('external saved positions restore after occurrence marks disappear',()=>{
+  const h=harness(),row=h.row('b5-0',{top:300,height:1700,page:'5'});h.row('fr-find-read',{top:1200,height:20,page:'5'});
+  h.window.__frRestoreReaderPosition({page:'5',id:row.id,focusId:'fr-find-read',anchor:true,choice:true,offset:null});h.advance();
+  const saved=h.window.__frCaptureReaderPosition(),before=row.getBoundingClientRect().top;h.nodes.delete('fr-find-read');row.top=900;h.sc.scrollTop=0;
+  h.window.__frRestoreReaderPosition(saved);h.advance();assert.equal(row.getBoundingClientRect().top,before);assert.equal(h.window.__readerPendingPosition,null);
+});
+
+function sourceHead(path,title){return {nodeType:1,localName:'head',textContent:title,childNodes:[],getAttribute:name=>name==='data-source-path'?path:null};}
+test('source-path TOC navigation hydrates and opens the exact division heading, not another same-page heading',()=>{
+  const h=harness();h.box.DATA.nav_source_version='eebo-path-v1';h.box.DATA.pages=[{n:805}];
+  h.box.TEI_PAGES={en:{'805':[sourceHead('20.45','Q.32. Doth Baptism enter the Universal Church?'),sourceHead('20.46','Q.33. Whether Infants should be Baptized?')]}};
+  h.box.readerDisplayOutline=()=>[{page:804,title:'Question 32',navSourcePath:'20.45',navSourceText:'Q.32. Doth Baptism enter the Universal Church?'}];
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book&p=804&section=20.45#b804-0'),true);h.advance(240);assert.deepEqual(h.placed,[]);
+  const other=h.row('h2-other',{kind:'rhead',page:'805'});other.dataset.sourcePath='20.46';other.textContent='Q.33. Whether Infants should be Baptized?';
+  const target=h.row('h3-exact',{kind:'rhead',page:'805'});target.dataset.sourcePath='20.45';target.textContent='Q.32. Doth Baptism enter the Universal Church?';h.advance();
+  assert.deepEqual(h.placed,['h3-exact']);assert.equal(target.getBoundingClientRect().top,64);assert.equal(h.location.searchParams.get('p'),'805');assert.equal(h.location.searchParams.get('section'),'20.45');
+  const position=h.window.__frCaptureReaderPosition();assert.equal(position.sourcePath,'20.45');assert.equal(position.id,'b805-0');
+  h.row('b806-0');h.window.__frNavigateReaderAnchor('/read?w=book#b806-0');h.advance();assert.equal(h.location.searchParams.has('section'),false);
+});
+test('unknown or changed source-path targets fail without falling back to a guessed numbered page',()=>{
+  const h=harness();h.box.DATA.nav_source_version='eebo-path-v1';h.box.TEI_PAGES={en:{1:[sourceHead('1','Part')]}};h.box.readerDisplayOutline=()=>[];
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book&p=1&section=../1#b1-0'),false);
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book&p=1&section=8.8#b1-0'),false);assert.deepEqual(h.placed,[]);
+});
+test('expanded Part titles and shared question labels resolve their unique canonical source path',()=>{
+  for(const [path,source,label]of [['11','Part','Part II. Christian Oeconomicks'],['20.40','Quest. 26. Church Canons. Quest. 27. Unity and Concord.','Quest. 27. Unity and Concord.']]){
+    const h=harness();h.box.DATA.nav_source_version='eebo-path-v1';h.box.DATA.pages=[{n:469}];
+    h.box.TEI_PAGES={en:{469:[sourceHead(path,source)]}};h.box.readerDisplayOutline=()=>[{navSourcePath:path,navSourceText:label}];
+    const target=h.row('h-source',{kind:'rhead',page:'469'});target.dataset.sourcePath=path;target.textContent=source;
+    assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book&section='+path),true);h.advance();
+    assert.deepEqual(h.placed,['h-source']);assert.equal(h.location.searchParams.get('section'),path);
+  }
+});
+test('ambiguous repeated source headings require an exact title match',()=>{
+  const h=harness();h.box.DATA.nav_source_version='eebo-path-v1';h.box.TEI_PAGES={en:{1:[sourceHead('1','First'),sourceHead('1','Second')]}};
+  assert.equal(h.box.frSourceHeadingRecord('1','Expanded heading'),null);
+  assert.equal(h.box.frSourceHeadingRecord('1','Second').text,'Second');
+});
+test('verified Baxter Front Matter opens the existing first page when its label precedes pagination',()=>{
+  const h=harness('https://reader.test/read?w=eebo-34087');h.box.DATA.slug='eebo-34087';h.box.DATA.nav_source_version='eebo-path-v1';h.box.DATA.pages=[{n:1}];h.box.TEI_PAGES={en:{1:[]}};
+  h.box.readerDisplayOutline=()=>[{title:'Front Matter',navSourcePath:'0'}];h.row('b1-0');
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=eebo-34087&section=0'),true);h.advance();assert.deepEqual(h.placed,['b1-0']);assert.equal(h.location.searchParams.has('section'),false);
+  h.box.DATA.slug='another-work';assert.equal(h.window.__frNavigateReaderAnchor('/read?w=eebo-34087&section=0'),false);
+});
+test('source arrivals follow the measured mobile header when fonts change its height',()=>{
+  const h=harness();h.box.DATA.nav_source_version='eebo-path-v1';h.box.TEI_PAGES={en:{805:[sourceHead('20.45','Question 32')]}};h.box.readerDisplayOutline=()=>[{navSourcePath:'20.45',navSourceText:'Question 32'}];
+  let bottom=83;h.box.document.querySelector=()=>({getBoundingClientRect:()=>({bottom})});
+  const target=h.row('h-source',{kind:'rhead',page:'805'});target.dataset.sourcePath='20.45';target.textContent='Question 32';
+  h.window.__frNavigateReaderAnchor('/read?w=book&section=20.45');h.advance(120);bottom=108;h.advance();
+  assert.equal(target.getBoundingClientRect().top,122);
+});
+test('heading keys distinguish two chapters in one source division and survive restoration',()=>{
+  const h=harness();h.window.FRSourceOutline={targetKey:(page,text)=>page+':'+text.replace(/ /g,'')};h.box.DATA.nav_source_version='eebo-path-v1';h.box.DATA.pages=[{n:'5'}];
+  h.box.TEI_PAGES={en:{5:[sourceHead('1','Chapter I'),sourceHead('1','Chapter II')]}};
+  h.box.readerDisplayOutline=()=>[{title:'Chapter I',navSourcePath:'1',navSourceText:'Chapter I',navSourceKey:'5:ChapterI'},{title:'Chapter II',navSourcePath:'1',navSourceText:'Chapter II',navSourceKey:'5:ChapterII'}];
+  for(const [id,title]of [['first','Chapter I'],['second','Chapter II']]){const row=h.row(id,{kind:'rhead',page:'5'});row.dataset.sourcePath='1';row.dataset.sourceKeys='5:'+title.replace(/ /g,'');row.textContent=title;}
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book&section=1&heading='+encodeURIComponent('5:ChapterII')),true);h.advance();assert.deepEqual(h.placed,['second']);
+  const saved=h.window.__frCaptureReaderPosition();assert.equal(saved.sourceKey,'5:ChapterII');assert.equal(h.location.searchParams.get('heading'),'5:ChapterII');
+  h.window.__frRestoreReaderPosition(saved);h.advance();assert.equal(h.placed.at(-1),'second');
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book&section=1&heading=changed'),false);
+  h.row('b8-0');h.window.__frNavigateReaderAnchor('/read?w=book#b8-0');h.advance();assert.equal(h.location.searchParams.has('heading'),false);
+});
+test('identical source headings on different pages cannot land on the wrong mounted instance',()=>{
+  const h=harness();h.window.FRSourceOutline={targetKey:(page,text)=>page+':same'};h.box.DATA.nav_source_version='eebo-path-v1';h.box.DATA.pages=[{n:'4'},{n:'7'}];
+  h.box.TEI_PAGES={en:{4:[sourceHead('1','Chapter')],7:[sourceHead('1','Chapter')]}};h.box.readerDisplayOutline=()=>[];
+  for(const page of ['4','7']){const row=h.row('head-'+page,{kind:'rhead',page});row.dataset.sourcePath='1';row.dataset.sourceKeys=page+':same';row.textContent='Chapter';}
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book&section=1&heading=7%3Asame'),true);h.advance();assert.deepEqual(h.placed,['head-7']);
+});
+test('generic pre-pagination roots require explicit canonical metadata before falling back to page start',()=>{
+  const h=harness();h.box.DATA.nav_source_version='eebo-path-v1';h.box.DATA.pages=[{n:1}];h.box.DATA.eebo_source_outline=[{path:'0',beforeFirstPage:true}];h.box.TEI_PAGES={en:{1:[]}};h.box.readerDisplayOutline=()=>[{title:'Title page',navSourcePath:'0',navPageStart:'1'}];h.row('b1-0');
+  assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book&section=0'),true);h.advance();assert.deepEqual(h.placed,['b1-0']);
+  h.box.DATA.eebo_source_outline[0].beforeFirstPage=false;assert.equal(h.window.__frNavigateReaderAnchor('/read?w=book&section=0'),false);
+});
+
+test('page-start placement clears the actual fixed reader header',()=>{
+ const begin=source.indexOf('window.__frPlaceReaderAnchor='),end=source.indexOf('window.__frAnchorBlock=',begin),sc={scrollTop:0,contains:()=>true,getBoundingClientRect:()=>({top:0})},target={getBoundingClientRect:()=>({top:400-sc.scrollTop}),scrollIntoView:()=>{sc.scrollTop=400;}},box={window:{},document:{getElementById:()=>sc,querySelector:()=>({getBoundingClientRect:()=>({bottom:86})})},frAnchorBlock:()=> 'start'};vm.runInNewContext(source.slice(begin,end),box);box.window.__frPlaceReaderAnchor(target);assert.equal(target.getBoundingClientRect().top,98);
+});

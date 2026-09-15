@@ -1,0 +1,30 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/web_shell.html','utf8');
+const snippet=source.slice(source.indexOf('function citationStep('),source.indexOf('async function openPath('));
+// Exercise the production wrapper with its actual browser dependency loaded.
+// Keep this suite's original attribution checks independent of helper unit tests.
+const context=vm.createContext({URL,URLSearchParams});
+vm.runInContext(fs.readFileSync(__dirname+'/connection-evidence.js','utf8'),context);
+const {citationStep}=vm.runInContext(snippet+';({citationStep})',context);
+const augustine={s:'augustine'},aquinas={s:'aquinas'};
+test('a path starting at a cited author opens the citing author’s evidence',()=>{
+ const data={in:{rows:[{fk:'aquinas',n:12,sm:[{cw:'aq-1cor-56',p:'52:0183A'}]}]}};
+ const step=citationStep(data,augustine,aquinas);
+ assert.equal(step.citing.s,'aquinas');assert.equal(step.target.s,'augustine');
+ assert.equal(step.row.sm[0].p,'52:0183A');
+});
+test('a path in citation direction preserves its source and target',()=>{
+ const step=citationStep({out:{rows:[{fk:'augustine',n:12}]}},aquinas,augustine);
+ assert.equal(step.citing.s,'aquinas');assert.equal(step.target.s,'augustine');
+});
+test('missing evidence does not invent a citation',()=>{
+ assert.equal(citationStep({},augustine,aquinas),null);
+ assert.equal(citationStep({out:{rows:[{fk:'jerome'}]}},augustine,aquinas),null);
+});
+test('bidirectional citation uses the displayed outgoing row consistently',()=>{
+ const step=citationStep({out:{rows:[{fk:'aquinas',n:3}]},in:{rows:[{fk:'aquinas',n:9}]}},augustine,aquinas);
+ assert.equal(step.citing.s,'augustine');assert.equal(step.row.n,3);
+});

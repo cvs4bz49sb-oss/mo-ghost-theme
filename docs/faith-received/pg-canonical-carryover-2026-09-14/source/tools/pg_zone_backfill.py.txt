@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+"""PG ZONE BACKFILL (owner 2026-09-04 "get this" — the pg-2380 class): 416 works carry
+English for openings whose Greek the canon body never had (multi-text works: TEXTUS
+ALTER/TERTIUS; vol-store-mapped works like pg-3542 whose whole Greek is absent). The
+volume pageview (tei/pgpv/{vol}.xml) transcribes every opening — surfaces keyed by the
+opening's odd column, MainText_ColGreek zones, facs = the scan JPG.
+
+Deterministic extraction, no LLM: for each missing opening take the surface's ColGreek
+text and insert <pb n facs> + <milestone unit="column"> + <p> into the TEI body in
+column order (before the first existing column anchor with a higher n). The reader then
+paginates and pairs it like native canon — no gap-fill machinery involved.
+
+GATES per work: output well-formed; removing the inserted elements (resp marker) gives
+back the original body text EXACTLY (whitespace-normalized) — existing text is
+untouchable. Zone accepted only if >=100 Greek chars and Greek > Latin. Ledger
+runs/pg_zone_backfill.json (resumable). Input/output = out/pgtei_stage/tei/pg/{id}.xml
+(the v2 staged truth; re-upload diffs afterwards).
+
+  python3 tools/pg_zone_backfill.py --ids 2380,3542    # dry sample first (measure twice)
+  python3 tools/pg_zone_backfill.py --all
+"""
+import argparse, json, pathlib, re, sys, urllib.request
+import xml.etree.ElementTree as ET
+
+ROOT = pathlib.Path('/Users/speter/Davenant')
+STAGE = ROOT / 'out/pgtei_stage/tei/pg'
+PGEN = ROOT / 'out/pgen_stage/v1/pgen'
+PVCACHE = ROOT / 'runs/pgpv_cache'
+LEDGER = ROOT / 'runs/pg_zone_backfill.json'
+NS = 'http://www.tei-c.org/ns/1.0'
+ET.register_namespace('', NS)
+T = lambda tag: f'{{{NS}}}{tag}'
+RESP = '#pageview-zone'
+PVCACHE.mkdir(parents=True, exist_ok=True)
+norm = lambda s: re.sub(r'\s+', ' ', s or '').strip()
+GR = re.compile(r'[Ͱ-Ͽἀ-῿]')
+LA = re.compile(r'[A-Za-z]')
+
+_pv_mem = {}
+
+
+def load_pv(url):
+    if url in _pv_mem:
+        return _pv_mem[url]
+    key = re.sub(r'\W+', '_', url.rsplit('/', 2)[-2] + '_' + url.rsplit('/', 1)[-1])
+    c = PVCACHE / key
+    if c.exists() and c.stat().st_size > 1000:
+        txt = c.read_text()
+    else:
+        txt = urllib.request.urlopen(url, timeout=180).read().decode('utf-8', 'ignore')
+        c.write_text(txt)
+    surfs = {}
+    try:
+        pv = ET.fromstring(txt)
+    except Exception:
+        _pv_mem[url] = {}
+        return {}
+    for sf in pv.iter(T('surface')):
+        try:
+            n = int(sf.get('n') or 0)
+        except ValueError:
+            continue
+        if not n:
+            continue
+        grc = ' '.join(norm(''.join(z.itertext())) for z in sf.iter(T('zone'))
+                       if 'ColGreek' in (z.get('type') or ''))
+        lat = ' '.join(norm(''.join(z.itertext())) for z in sf.iter(T('zone'))
+                       if 'ColLatin' in (z.get('type') or ''))
+        surfs[n] = {'grc': grc.strip(), 'lat': lat.strip(), 'facs': sf.get('facs') or ''}
+    _pv_mem[url] = surfs
+    return surfs
+
+
+def witness_divs(root):
+    return {id(d) for d in root.iter(T('div'))
+            if d.get('type') in ('translation', 'secondary', 'diplomatic', 'witness', 'edition')}
+
+
+def body_text_stripped(root):
+    """reading-body text with witness divs and our inserted elements removed"""
+    import copy
+    r = copy.deepcopy(root)
+    # drop witness divs and inserted elements everywhere
+    def prune(el):
+        for ch in list(el):
+            if ch.tag == T('div') and ch.get('type') in ('translation', 'secondary', 'diplomatic', 'witness', 'edition'):
+                el.remove(ch)
+            elif ch.get('resp') == RESP:
+                el.remove(ch)
+            else:
+                prune(ch)
+    prune(r)
+    return norm(''.join(r.itertext()))
+
+
+def rework(wid):
+    f = STAGE / f'{wid}.xml'
+    try:
+        xml = f.read_text()
+        root = ET.fromstring(xml)
+        pgen = json.loads((PGEN / f'{wid}.json').read_text())
+    except Exception as e:
+        return wid, f'SKIP {e.__class__.__name__}'
+    wd = witness_divs(root)
+    # column anchors in reading order: (n, parent, elem)
+    anchors = []
+    covered = set()
+
+    def walk(el, inside_wit):
+        for ch in list(el):
+            iw = inside_wit or (ch.tag == T('div') and ch.get('type') in ('translation', 'secondary', 'diplomatic', 'witness', 'edition'))
+            if not iw and ch.tag in (T('pb'), T('milestone')) and (ch.tag == T('pb') or ch.get('unit') == 'column'):
+                try:
+                    n = int(re.sub(r'^\D*?(\d+).*$', r'\1', ch.get('n') or ''))
+                except ValueError:
+                    n = 0
+                if n:
+                    anchors.append((n, el, ch))
+                    covered.add(n)
+            if ch.tag == T('div'):
+                walk(ch, iw)
+    body = root.find(f'.//{T("body")}')
+    if body is None:
+        return wid, 'SKIP nobody'
+    walk(body, False)
+    keys = sorted(int(k) for k in pgen if str(k).isdigit())
+    missing = [k for k in keys if k not in covered and k + 1 not in covered and k - 1 not in covered]
+    if not missing:
+        return wid, {'missing': 0, 'inserted': 0}
+    # pageview
+    m = re.search(r'<witness[^>]*xml:id="pageview"[^>]*>(.*?)</witness>', xml, re.S)
+    u = re.search(r'https?://\S+', m.group(1)) if m else None
+    if not u:
+        return wid, {'missing': len(missing), 'inserted': 0, 'why': 'no-pageview'}
+    surfs = load_pv(u.group(0))
+    if not surfs:
+        return wid, {'missing': len(missing), 'inserted': 0, 'why': 'pv-empty'}
+    before = body_text_stripped(root)
+    gr_before = len(GR.findall(before))
+
+    def mkblock(n, sf):
+        pb = ET.Element(T('pb'), {'n': str(n), 'resp': RESP})
+        if sf['facs']:
+            pb.set('facs', sf['facs'])
+        ms = ET.Element(T('milestone'), {'unit': 'column', 'n': str(n), 'ana': '#left', 'resp': RESP})
+        p = ET.Element(T('p'), {'resp': RESP})
+        p.text = sf['grc']
+        return [pb, ms, p]
+
+    # group missing openings by their insertion anchor (first anchor with n' > n)
+    inserted = 0
+    anchors_sorted = anchors  # already document order; ns may be non-monotonic (bound texts) — use numeric best-fit
+    for n in sorted(missing):
+        sf = surfs.get(n) or surfs.get(n - 1)
+        if not sf:
+            continue
+        # prefer the Greek column; a Latin-original section of PG (vol 84 class) has
+        # ColLatin only — that IS the source lane there, insert it instead
+        txt = None
+        if len(GR.findall(sf['grc'])) >= 100 and len(GR.findall(sf['grc'])) >= len(LA.findall(sf['grc'])):
+            txt = sf['grc']
+        elif len(LA.findall(sf.get('lat', ''))) >= 100:
+            txt = sf['lat']
+        if not txt:
+            continue
+        sf = dict(sf, grc=txt)
+        after = [(an, par, el) for (an, par, el) in anchors_sorted if an > n]
+        if after:
+            an, par, el = min(after, key=lambda t: t[0])
+            idx = list(par).index(el)
+        else:
+            an, par, el = anchors_sorted[-1] if anchors_sorted else (0, body, None)
+            idx = len(list(par))
+        blk = mkblock(n, sf)
+        for k, e in enumerate(blk):
+            par.insert(idx + k, e)
+        inserted += 1
+    if not inserted:
+        return wid, {'missing': len(missing), 'inserted': 0, 'why': 'no-usable-surface'}
+    out = ET.tostring(root, encoding='unicode')
+    ET.fromstring(out.encode())  # well-formed gate
+    # untouched-text gate
+    after_txt = body_text_stripped(root)
+    if after_txt != before or len(GR.findall(after_txt)) != gr_before:
+        return wid, 'SKIP gate-original-changed'
+    f.write_text('<?xml version="1.0" encoding="UTF-8"?>\n' + out)
+    return wid, {'missing': len(missing), 'inserted': inserted}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--ids', default='')
+    ap.add_argument('--all', action='store_true')
+    a = ap.parse_args()
+    todo = json.loads((ROOT / 'runs/pg_zone_backfill_todo.json').read_text())
+    led = json.loads(LEDGER.read_text()) if LEDGER.exists() else {}
+    ids = a.ids.split(',') if a.ids else [r[0] for r in todo if r[0] not in led]
+    print(f'{len(ids)} works')
+    for i, wid in enumerate(ids):
+        wid, st = rework(wid)
+        led[wid] = st
+        print(f'  {wid}: {st}', flush=True)
+        if i % 10 == 0:
+            LEDGER.write_text(json.dumps(led))
+    LEDGER.write_text(json.dumps(led))
+    ok = sum(v.get('inserted', 0) for v in led.values() if isinstance(v, dict))
+    print(f'DONE · {ok} openings inserted')
+
+
+if __name__ == '__main__':
+    main()

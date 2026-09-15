@@ -1,0 +1,66 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const box={module:{exports:{}},URLSearchParams};require('node:vm').runInNewContext(require('node:fs').readFileSync(__dirname+'/scripture-tools.js','utf8'),box);const s=box.module.exports;
+test('reader destinations preserve string volume-column anchors and page zero',()=>{
+ assert.equal(s.readerURL('pg-123','52:0183A'),'/read?w=pg-123#b52%3A0183A-0');
+ assert.equal(s.readerURL('work',0),'/read?w=work#b0-0');
+ assert.equal(s.readerURL('work',null),'/read?w=work');
+});
+test('verse and annotation views can be reloaded and shared',()=>{
+ assert.equal(s.bibleURL('romans',8,28),'/bible#b/romans/8?v=28');
+ assert.equal(s.bibleURL('romans',8,null,'annotations'),'/bible#b/romans/8?view=annotations');
+});
+test('chapter lookup stays inside the requested book section',()=>{
+ const meta={structure:[{title:'According to Matthew',depth:2,page:30},{title:'CHAPTER VIII.',depth:3,page:295},{title:'According to Mark',depth:2,page:410},{title:'Chapter IX.',depth:3,page:430}]};
+ assert.equal(s.locate(meta,'matthew',8).page,295);
+ assert.equal(s.locate(meta,'matthew',9).kind,'book');
+ assert.equal(s.locate(meta,'mark',9).page,430);
+ assert.equal(s.locate(meta,'romans',8),null);
+});
+test('a whole-Bible label does not turn Old Testament chapters into Romans links',()=>{
+ const meta={structure:[{title:'The Bible Illustrated of the Old Testament',depth:1,page:2},{title:'Annotations on Judith.',depth:2,page:18},{title:'Chapter VIII.',depth:4,page:24},{title:'Notes on the Book of Wisdom of Solomon',depth:2,page:33}]};
+ assert.equal(s.locate(meta,'romans',8),null);
+ assert.equal(s.locate(meta,'judith',8).page,24);
+});
+test('Gospel of John does not match the numbered epistles',()=>{
+ assert.equal(s.bookMatch('First John','john'),false);
+ assert.equal(s.bookMatch('Annotations on 1 John','john'),false);
+ assert.equal(s.bookMatch('According to John','john'),true);
+});
+test('volume families use the existing slug stem',()=>{
+ assert.equal(s.family('hugo-grotius-annotationes-in-novum-testamentum-vol-1-matthew-113'),s.family('hugo-grotius-annotationes-in-novum-testamentum-vol-4-gospels-cont'));
+});
+test('Psalm headings resolve exact psalms without borrowing a different psalm',()=>{
+ const meta={structure:[{title:'Psalm XXIII.',depth:2,page:'52:0030A'},{title:'Psalm XXIV.',depth:2,page:'52:0032B'}]};
+ assert.equal(s.locate(meta,'psalms',23).page,'52:0030A');
+ assert.equal(s.locate(meta,'psalms',22),null);
+});
+test('reference jump keeps Isaiah intact and supports numbered epistles and Jude',()=>{
+ const html=require('node:fs').readFileSync(__dirname+'/research_shell.html','utf8');
+ const code=html.slice(html.indexOf('const JABBR='),html.indexOf('let BIBLE_STATE='));
+ const context={};require('node:vm').runInNewContext(code,context);
+ const books=[{book:'Isaiah',slug:'isaiah',chapters:[{c:8}]},{book:'II Timothy',slug:'ii-timothy',chapters:[{c:1},{c:2}]},{book:'Jude',slug:'jude',chapters:[{c:1}]},{book:'Romans',slug:'romans',chapters:[{c:8}]}];
+ assert.equal(context.jumpParse('Isaiah 8:2',books).slug,'isaiah');
+ assert.equal(context.jumpParse('2 Tim 2:3',books).slug,'ii-timothy');
+ assert.equal(context.jumpParse('Jude 5',books).v,5);
+ assert.equal(context.jumpParse('2 Rom 8',books),null);
+});
+test('missing contents use a citation in the correct volume, without claiming it is a chapter heading',async()=>{
+ box.fetch=async url=>String(url).endsWith('works-index.json')?{ok:true,json:async()=>({works:[{slug:'eebo-one',title:'Annotations. Vol. I',author:'A'},{slug:'eebo-two',title:'Annotations. Vol. II',author:'A'}]})}:{ok:false};
+ const rows=await s.volumes({w:'eebo-one',t:'Annotations. Vol. I',a:'A'},'romans',8,[{w:'eebo-two',p:'52:0183A'}]);
+ assert.equal(rows[0].slug,'eebo-two');assert.equal(rows[0].hit.kind,'citation');assert.equal(rows[0].hit.page,'52:0183A');
+ assert.equal(rows.find(r=>r.slug==='eebo-one').hit,null);
+});
+
+test('verse evidence keeps every record and every work behind an author',()=>{
+ const groups=s.verseGroups([{a:'Luther',w:'vol20',p:318},{a:'Luther',w:'vol20',p:318},{a:'Luther',w:'vol21',p:'52:0183A'},{a:'Baxter',w:'baxter',p:0}],new Map([['vol20',{title:'Writings',volume:'20'}]]));
+ assert.equal(groups.length,2);assert.equal(groups[0].records,3);assert.equal(groups[0].works.length,2);assert.equal(groups[0].works[0].pages[0][1],2);assert.equal(groups[0].works[1].pages[0][0],'52:0183A');assert.equal(groups[1].works[0].pages[0][0],'0');
+});
+test('verse grouping keeps witnesses separate and sorts opaque source locations',()=>{
+ const groups=s.verseGroups([{a:'A',w:'first',p:'52:0183B'},{a:'A',w:'second',p:'52:0183A'},{a:'A',w:'first',p:'52:0183A'}]);
+ assert.equal(groups[0].works.length,2);assert.equal(groups[0].works[0].pages.map(p=>p[0]).join(','),'52:0183A,52:0183B');
+});
+test('Web verse URLs preserve the selected verse and accented author search',()=>{
+ const url=s.webVerseURL('romans',8,{verse:11,author:'Gabriel Vásquez',query:'grace & mercy',page:2});
+ const query=new URLSearchParams(url.split('?')[1]);assert.equal(query.get('verse'),'11');assert.equal(query.get('author'),'Gabriel Vásquez');assert.equal(query.get('q'),'grace & mercy');assert.equal(query.get('page'),'2');
+});

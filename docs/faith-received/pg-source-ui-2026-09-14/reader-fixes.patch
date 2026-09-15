@@ -1,0 +1,173 @@
+--- a/tools/prdl_reader_prototype/reader_shell.html
++++ b/tools/prdl_reader_prototype/reader_shell.html
+@@ -2077,6 +2077,9 @@
+ html:not(.fr-plain) .fr-reader-head .aamob{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px}
+ html:not(.fr-plain) .fr-reader-head .aamob button,.reader-jump-form button,.reader-witnesses button{border:1px solid var(--border);background:none;color:var(--fg);border-radius:5px;padding:8px 10px;font:13px var(--font-body);min-height:40px;cursor:pointer}
+ .reader-jump-form{margin:0 0 14px}.reader-jump-form label,.reader-witnesses>span{display:block;font:13px/1.5 var(--font-body);margin-bottom:6px;color:var(--muted)}.reader-jump-form>div{display:flex;gap:8px}.reader-jump-form input{width:0;min-width:0;flex:1;min-height:40px;border:1px solid var(--border);background:var(--bg);color:var(--fg);border-radius:5px;padding:6px 10px;font:16px var(--font-body)}.reader-jump-form p{font:12px/1.5 var(--font-body);color:var(--muted);margin:5px 0}.reader-jump-form p:empty{display:none}.reader-witnesses{border-top:1px solid var(--border);padding-top:12px;margin-top:12px}.reader-witnesses>div{display:flex;flex-wrap:wrap;gap:6px}.reader-witnesses button[aria-pressed=true]{background:var(--fg);color:var(--bg)}
++html:not(.fr-plain) .ph.fr-reader-head:has(>.reader-witnesses){flex-wrap:wrap!important}
++.fr-reader-head>.reader-witnesses{display:flex;align-items:center;flex-basis:100%;gap:8px;width:100%;margin:4px 0 0;padding:6px 0 0}.fr-reader-head>.reader-witnesses>span{margin:0;color:var(--muted);font-size:12px}.fr-reader-head>.reader-witnesses>div{gap:6px}.fr-reader-head>.reader-witnesses button{min-height:44px;font-size:13px;padding:7px 10px}.fr-reader-head>.reader-witnesses button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
++
+ html:not(.fr-plain) .fr-reader-head :focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+ @media(min-width:881px) and (max-width:1180px){html:not(.fr-plain) .ph.fr-reader-head{gap:12px;padding-inline:16px}.fr-reader-head .mh-home span{display:none}html:not(.fr-plain) .fr-reader-head .ctr{gap:6px}html:not(.fr-plain) .fr-reader-head .seg button{padding-inline:7px}html:not(.fr-plain) .fr-reader-head h1{font-size:18px}}
+ @media(max-width:880px){
+@@ -6343,7 +6346,7 @@
+     B.en.classList.toggle("on",!!(window.LN&&LN.en&&!LN.fx));
+     B.par.classList.toggle("on",!!(window.LN&&LN.la&&!LN.fx));
+     {const lb=B.par.querySelector(".lb");const SN=window.__SRCNAME||"Latin";
+-     if(lb)lb.textContent=(window.LN&&LN.la&&!LN.en)?(SN+" only"):(window.LN&&LN.la)?"∥ Both":("+ "+SN);}
++     if(lb)lb.textContent=SN==="Greek \u00b7 Latin"?(window.LN&&LN.la?"Sources":"+ Sources"):(window.LN&&LN.la&&!LN.en)?(SN+" only"):(window.LN&&LN.la)?"∥ Both":("+ "+SN);B.par.setAttribute("aria-label",(window.LN&&LN.la?"Hide ":"Show ")+SN+" source text");}
+     B.study.classList.toggle("on",!!(window.LN&&LN.fx));
+     B.toc.classList.toggle("on",!app.classList.contains("nosb"));
+     for(const key of ["en","par","study"])B[key].setAttribute("aria-pressed",String(B[key].classList.contains("on")));
+@@ -6362,7 +6365,7 @@
+     const jumpBox=document.createElement('form');jumpBox.className='reader-jump-form';
+     jumpBox.innerHTML='<label id="reader-jump-label" for="reader-jump">Go to page</label><div><input id="reader-jump" type="text" autocomplete="off" aria-describedby="reader-jump-status"><button type="submit">Go</button></div><p id="reader-jump-status" role="status"></p>';
+     pop.prepend(jumpBox);
+-    jumpBox.onsubmit=e=>{e.preventDefault();const value=$('#reader-jump').value.trim(),pg=DATA?.pages.find(p=>String(p.n)===value);if(pg){pop.classList.remove('on');$('#reader-jump').blur();$('#aaBtn').setAttribute('aria-expanded','false');$('#reader-jump-status').textContent='';goReaderReference(pg);}else{$('#reader-jump-status').textContent='That reference is not available in this work.';}};
++    jumpBox.onsubmit=e=>{e.preventDefault();const value=$('#reader-jump').value.trim(),opening=window.FRMigneNavigation?.openingKey(DATA,value)??value,pg=DATA?.pages.find(p=>String(p.n)===String(opening));if(pg){pop.classList.remove('on');$('#reader-jump').blur();$('#aaBtn').setAttribute('aria-expanded','false');$('#reader-jump-status').textContent='';goReaderReference(pg);}else{$('#reader-jump-status').textContent='That reference is not available in this work.';}};
+     $('#reader-location').onclick=e=>{e.stopPropagation();$('#reader-jump').value=String(cur??'');pop.classList.add('on');$('#aaBtn').setAttribute('aria-expanded','true');$('#reader-jump').focus();$('#reader-jump').select();};
+     pop.insertBefore(row,pop.firstChild);
+     row.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+@@ -6997,7 +7000,7 @@
+    if(nx){rememberReaderChoice(nx.n);window.__folioLock=Date.now()+1600;jump(nx.n);setTimeout(()=>setFolio(nx),80);
+      if(window.__jumpSettle)setTimeout(()=>window.__jumpSettle(nx.n),900);}};
+  if(a)a.onclick=()=>stepScan(-1);if(b)b.onclick=()=>stepScan(1);}   // page-turn from the scan header (the only nav on a phone's full-screen scan)
+-{const pj=$("#pgJump");if(pj){const go=e=>{const value=e.target.value.trim(),exact=DATA&&DATA.pages.find(x=>String(x.n)===value),p=/^\d+$/.test(value)?Number(value):null;
++{const pj=$("#pgJump");if(pj){const go=e=>{const value=e.target.value.trim(),opening=window.FRMigneNavigation?.openingKey(DATA,value)??value,exact=DATA&&DATA.pages.find(x=>String(x.n)===String(opening)),p=/^\d+$/.test(value)?Number(value):null;
+    if(exact)goReaderReference(exact);   // exact printed label; a new choice replaces the arrival target
+    else if(p&&DATA&&p>=1&&p<=(DATA.n_pages||0)){
+      // folio lives in a shard that hasn't loaded yet (large works stream in chunks):
+@@ -7492,7 +7495,7 @@
+     let _lat=0,_grc=0;
+     (function _cnt(node){for(const ch of node.children){
+       const ty=ch.getAttribute?ch.getAttribute("type"):null;
+-      if(ch.localName==="div"&&(ty==="translation"||ty==="secondary"||ty==="diplomatic"))continue;
++      if(ch.localName==="div"&&!window.FRMigneNavigation.isReadingDivision(ty))continue;
+       if(ch.localName==="p"){const t=ch.textContent;
+         _lat+=(t.match(/[A-Za-z]/g)||[]).length;_grc+=(t.match(/[Ͱ-Ͽἀ-῿]/g)||[]).length;}
+       else if(ch.localName==="div")_cnt(ch);}})(doc.querySelector("body")||doc.documentElement);
+@@ -7505,7 +7508,7 @@
+     let firstColumn=null,finished=false;const opening=[];
+     const visit=node=>{for(const child of node.children){
+       if(finished)return;const type=child.getAttribute?.('type'),tag=child.localName;
+-      if(tag==='div'&&['translation','secondary','diplomatic','contents'].includes(type))continue;
++      if(tag==='div'&&(!window.FRMigneNavigation.isReadingDivision(type)||type==='contents'))continue;
+       if(tag==='pb'||tag==='milestone'&&child.getAttribute('unit')==='column'){
+         const n=child.getAttribute('n');if(!/^\d+$/.test(n||''))continue;
+         if(firstColumn==null)firstColumn=n;else if(n!==firstColumn&&opening.length){finished=true;return;}
+@@ -7578,7 +7581,7 @@
+   {let _bp=null;
+    (function bt(node){for(const ch of node.children){
+      const ty=ch.getAttribute?ch.getAttribute("type"):null;
+-     if(ch.localName==="div"&&(ty==="translation"||ty==="secondary"||ty==="diplomatic"))continue;
++     if(ch.localName==="div"&&!window.FRMigneNavigation.isReadingDivision(ty))continue;
+      if(ch.localName==="pb"||(ch.localName==="milestone"&&ch.getAttribute("unit")==="column")){const nn=+ch.getAttribute("n");if(nn)_bp=nn;}
+      else if(ch.localName==="p"&&_bp!=null){const t=ch.textContent.replace(/\s+/g," ").trim();
+        if(t)_bodyPage[_bp]=(_bodyPage[_bp]?_bodyPage[_bp]+" ":"")+t;}
+@@ -7587,7 +7590,7 @@
+    const pbs=[];
+    (function pw(node){for(const ch of node.children){
+      const ty=ch.getAttribute?ch.getAttribute("type"):null;
+-     if(ch.localName==="div"&&(ty==="translation"||ty==="secondary"||ty==="diplomatic"))continue;
++     if(ch.localName==="div"&&!window.FRMigneNavigation.isReadingDivision(ty))continue;
+      if(ch.localName==="pb"||(ch.localName==="milestone"&&ch.getAttribute("unit")==="column")){const nn=+ch.getAttribute("n");if(nn)pbs.push(nn);}
+      else if(ch.localName==="div")pw(ch);}})(doc.querySelector("body")||doc.documentElement);
+    for(let i=0;i<pbs.length;i++){if(window.__pgPbNext[pbs[i]]!==undefined)continue;
+@@ -7627,7 +7630,7 @@
+   {const pbOnly=[];
+    (function pspd(node){for(const ch of node.children){
+      const ty=ch.getAttribute?ch.getAttribute("type"):null;
+-     if(ch.localName==="div"&&(ty==="translation"||ty==="secondary"||ty==="diplomatic"))continue;
++     if(ch.localName==="div"&&!window.FRMigneNavigation.isReadingDivision(ty))continue;
+      if(ch.localName==="pb"){const nn=+ch.getAttribute("n");if(nn&&!pbOnly.includes(nn))pbOnly.push(nn);}
+      else if(ch.localName==="div")pspd(ch);}})(doc.querySelector("body")||doc.documentElement);
+    if(pbOnly.length>=5){
+@@ -7652,7 +7655,7 @@
+       const bodyEl=doc.querySelector("body");
+       if(bodyEl){
+         const clone=bodyEl.cloneNode(true);
+-        clone.querySelectorAll('div[type="translation"],div[type="secondary"],div[type="diplomatic"]').forEach(d=>d.remove());
++        clone.querySelectorAll('div[type="translation"],div[type="secondary"],div[type="diplomatic"],div[type="witness"],div[type="edition"]').forEach(d=>d.remove());
+         const t=clone.textContent;
+         const g=(t.match(/[\u0370-\u03ff\u1f00-\u1fff]/g)||[]).length;
+         const l=(t.match(/[A-Za-z]/g)||[]).length;
+@@ -7695,7 +7698,7 @@
+     }
+     const bodyCols=new Set();
+     [...doc.querySelectorAll("body pb, body milestone")].forEach(x=>{
+-      if(x.closest&&x.closest('div[type="translation"],div[type="secondary"],div[type="diplomatic"]'))return;
++      if(x.closest&&x.closest('div[type="translation"],div[type="secondary"],div[type="diplomatic"],div[type="witness"],div[type="edition"]'))return;
+       const n=+x.getAttribute("n");if(n)bodyCols.add(n);});
+     const gaps=Object.keys(enByCol).map(Number).filter(n=>!bodyCols.has(n)).sort((a,b)=>a-b);
+     const pvW=[...doc.querySelectorAll("witness")].find(w=>w.getAttribute("xml:id")==="pageview");
+@@ -7926,7 +7929,7 @@
+         const refMap={};let curN=null;const pbList=[];
+         (function bw(node){for(const ch of node.children){
+           const ty=ch.getAttribute?ch.getAttribute("type"):null;
+-          if(ch.localName==="div"&&(ty==="translation"||ty==="secondary"||ty==="diplomatic"))continue;
++          if(ch.localName==="div"&&!window.FRMigneNavigation.isReadingDivision(ty))continue;
+           if(ch.localName==="pb"||(ch.localName==="milestone"&&ch.getAttribute("unit")==="column")){const nn=+ch.getAttribute("n");if(nn){curN=nn;if(!pbList.includes(nn))pbList.push(nn);}}
+           else if(ch.localName==="p"&&curN)refMap[curN]=(refMap[curN]||"")+" "+ch.textContent;
+           else if(ch.localName==="div")bw(ch);}})(doc.querySelector("body")||doc.documentElement);
+@@ -8008,7 +8011,7 @@
+   // FRACTION of the columns (every other page rendered English-only). When the body
+   // carries clearly more column anchors than the chosen witness, the body is the source.
+   const _witColsN=(sel)=>[...doc.querySelectorAll(`div[type="${sel}"] pb, div[type="${sel}"] milestone`)].length;
+-  const _bodyColsN=[...doc.querySelectorAll("body pb, body milestone")].filter(x=>!(x.closest&&x.closest('div[type="translation"],div[type="secondary"],div[type="diplomatic"]'))).length;
++  const _bodyColsN=[...doc.querySelectorAll("body pb, body milestone")].filter(x=>!(x.closest&&x.closest('div[type="translation"],div[type="secondary"],div[type="diplomatic"],div[type="witness"],div[type="edition"]'))).length;
+   const _witRicher=(sel)=>_bodyColsN<=_witColsN(sel)*1.2;
+   if((src==="la"&&hasSecondary&&_witRicher("secondary"))||(src==="ocr"&&hasDipl&&_witRicher("diplomatic"))){
+     const walk2=(node,depth)=>{for(const ch of node.children){
+@@ -8025,7 +8028,7 @@
+     const body=doc.querySelector("body");
+     const walk=(node,depth)=>{for(const ch of node.children){
+       const ln=ch.localName,ty=ch.getAttribute?ch.getAttribute("type"):null;
+-      if(ln==="div"&&(ty==="translation"||ty==="secondary"||ty==="diplomatic"))continue;
++      if(ln==="div"&&!window.FRMigneNavigation.isReadingDivision(ty))continue;
+       if(ln==="pb")addPb(+ch.getAttribute("n"));
+       else if(ln==="milestone"&&ch.getAttribute("unit")==="column")addPb(+ch.getAttribute("n"));
+       else if(ln==="head")addHead(ch.textContent.replace(/\s+/g," ").trim(),depth);
+@@ -8069,7 +8072,7 @@
+           const cols3=[];
+           (function cw(node){for(const ch of node.children){
+             const ty3=ch.getAttribute?ch.getAttribute("type"):null;
+-            if(ch.localName==="div"&&(ty3==="translation"||ty3==="secondary"||ty3==="diplomatic"))continue;
++            if(ch.localName==="div"&&!window.FRMigneNavigation.isReadingDivision(ty3))continue;
+             if(ch.localName==="pb"||(ch.localName==="milestone"&&ch.getAttribute("unit")==="column")){const nn=+ch.getAttribute("n");if(nn)cols3.push(nn);}
+             else if(ch.localName==="div")cw(ch);}})(doc.querySelector("body")||doc.documentElement);
+           if(!cols3.length)cols3.push(...Object.keys(enByCol).map(Number).filter(Boolean));
+@@ -8369,7 +8372,7 @@
+       b.textContent=label;b.title=title;
+       b.classList.toggle("srcon",src===ps);
+       b.setAttribute("aria-pressed",src===ps?"true":"false");
+-      b.onclick=()=>{if(src===ps)return;
++      b.onclick=()=>{if(src===ps){if(mp.getAttribute("aria-pressed")==="false")mp.click();return;}
+         if(window.__switchSrc)window.__switchSrc(ps);
+         else{const u=new URL(location.href);u.searchParams.set("src",ps);location.href=u.toString();}};
+       return b;};
+@@ -8378,7 +8381,7 @@
+     mkPill("m-wit","la","Latin","Migne's facing Latin column — the other half of the printed page");
+     mkPill("m-wit0","grc","Greek","The Greek reading text");
+     let choices=document.getElementById('reader-witnesses');
+-    if(!choices){choices=document.createElement('div');choices.id='reader-witnesses';choices.className='reader-witnesses';choices.innerHTML='<span>Source edition</span><div role="group" aria-label="Source edition"></div>';document.getElementById('aaPop').appendChild(choices);}
++    if(!choices){choices=document.createElement('div');choices.id='reader-witnesses';choices.className='reader-witnesses';choices.innerHTML='<span>Source</span><div role="group" aria-label="Source language"></div>';mp.closest('header').appendChild(choices);}
+     for(const id of ['m-wit0','m-wit','m-wit2'])choices.querySelector('div').appendChild(document.getElementById(id));
+     if(typeof DATA!=='undefined'&&DATA)syncReaderHeader(cur||DATA.pages[0]?.n);
+   },800);
+--- a/tools/prdl_reader_prototype/migne-navigation.js
++++ b/tools/prdl_reader_prototype/migne-navigation.js
+@@ -2,6 +2,7 @@
+ (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.FRMigneNavigation=api;})(typeof window==='undefined'?globalThis:window,function(){
+   'use strict';
+   const key=value=>String(value??'').trim();
++  const isReadingDivision=type=>!['translation','secondary','diplomatic','witness','edition'].includes(String(type||''));
+   function openingKey(data,column){
+     const wanted=key(column),pages=data?.pages||[];
+     const exact=pages.find(page=>key(page.n)===wanted);if(exact)return key(exact.n);
+@@ -23,5 +24,5 @@
+     const words=new Set(text.toLowerCase().match(/\b(?:et|quod|qui|quae|cum|autem|enim|sunt|ejus|eius|atque|igitur|haec|fuit|erat)\b/g)||[]);
+     return latin>=200&&latin>greek*10&&words.size>=3?'la':'grc';
+   }
+-  return {openingKey,indexLabel,sourceForOpening};
++  return {isReadingDivision,openingKey,indexLabel,sourceForOpening};
+ });

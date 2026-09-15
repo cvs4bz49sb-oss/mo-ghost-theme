@@ -1,0 +1,46 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
+const window={};window.parent=window;
+const ctx=vm.createContext({window,FRChatStore:{},URL,matchMedia:()=>({matches:false,addEventListener(){}}),location:{origin:'https://thefaithreceived.vercel.app'},document:{readyState:'loading',addEventListener(){}}});vm.runInContext(fs.readFileSync(__dirname+'/ask-workspace.js','utf8'),ctx);const {markdown,readURL}=window.FRAsk;
+test('citation page ranges open the first page without truncating vol:col anchors',()=>{assert.match(readURL('work','1591–1592'),/#b1591-0$/);assert.match(readURL('work','1591-1592'),/#b1591-0$/);assert.match(readURL('work','52:0183A'),/#b52%3A0183A-0$/);});
+test('model HTML and executable URLs remain inert',()=>{const html=markdown('<img src=x onerror=alert(1)>\n\n[bad](javascript:alert(1))');assert.ok(!html.includes('<img'));assert.ok(!html.includes('href="javascript:'));assert.match(html,/&lt;img/);});
+test('source citations and linked editions retain canonical destinations',()=>{assert.match(markdown('[PG 52:183]',[{cit:'PG 52:183',link:'https://example.com/read#c183'}]),/href="https:\/\/example.com\/read#c183"/);assert.match(markdown('[Wwork:1591–1592]',[{slug:'work',page:'1591–1592'}]),/#b1591-0/);});
+test('tables and multilingual quotes remain readable',()=>{const html=markdown('| Greek | Latin |\n| --- | --- |\n| χάρις | gratia |\n\n> A quotation.');assert.match(html,/<table>/);assert.match(html,/χάρις/);assert.match(html,/<blockquote>/);});
+test('routing labels work with an older live worker without changing worker identity',()=>{
+ const label=window.FRAsk.turnModeLabel;
+ assert.equal(label({mode:'ask',steps:[{label:'Using Deep research for this question'}]}),'Deep research · Selected for this question');
+ assert.equal(label({mode:'ask',steps:[]}), 'Ask');
+ assert.equal(label({mode:'deep',approach:{automatic:false},steps:[]}), 'Deep research');
+ assert.equal(label({mode:'agent',steps:[]}), 'Deep research');
+ assert.equal(label({mode:'scan',steps:[]}), 'Deep research');
+});
+test('Deep is an explicit next action, never offered for an error or out-of-scope response',()=>{
+ assert.equal(window.FRAsk.offersDeep({mode:'ask',status:'complete',a:'A concise answer.'}),true);
+ assert.equal(window.FRAsk.offersDeep({mode:'ask',status:'error',a:''}),false);
+ assert.equal(window.FRAsk.offersDeep({mode:'deep',status:'complete',a:'A report.'}),false);
+ assert.equal(window.FRAsk.offersDeep({mode:'ask',status:'complete',outOfScope:true}),false);
+});
+test('older worker delivery and Load failed errors are corrected by the current UI',()=>{
+ assert.equal(window.FRAsk.deliveryIncomplete({status:'complete',steps:[{label:'Preparing the response'}]}),true);
+ assert.equal(window.FRAsk.deliveryIncomplete({status:'complete',steps:[{label:'Preparing the response'},{label:'Answer received'}]}),false);
+ assert.match(window.FRAsk.shownError({error:'Load failed'}),/connection was interrupted/i);
+ assert.equal(window.FRAsk.shownAnswer({status:'error',a:'The library hit an error answering this.'}),'');
+});
+test('source cards use canonical fallback when link is missing or empty',()=>{
+ for(const link of [undefined,null,'','   '])assert.equal(window.FRAsk.sourceHref({link,slug:'jansenius-augustinus',page:'52:0183A'}),'/read?w=jansenius-augustinus#b52%3A0183A-0');
+ assert.equal(window.FRAsk.sourceHref({title:'Unlocated source'}),'');
+ assert.ok(!window.FRAsk.sourceCard({title:'Unlocated source'}).includes('href='));
+ assert.match(window.FRAsk.sourceCard({slug:'work',page:0}),/href="\/read\?w=work#b0-0"/);
+});
+test('grouped citation references each remain independently clickable',()=>{
+ const html=markdown('[jansen-jansenius-augustinus-vol-1/p3, jansen-jansenius-augustinus-vol-1/p4, jansen-jansenius-augustinus-vol-2/p5]',[{slug:'jansen-jansenius-augustinus-vol-1',page:3},{slug:'jansen-jansenius-augustinus-vol-1',page:4},{slug:'jansen-jansenius-augustinus-vol-2',page:5}]);
+ assert.equal((html.match(/class="fra-cite"/g)||[]).length,3);
+ assert.match(html,/#b3-0/);assert.match(html,/#b4-0/);assert.match(html,/#b5-0/);
+ assert.equal((markdown('[work/p52:0183A; other/p0]',[{slug:'work',page:'52:0183A'},{slug:'other',page:0}]).match(/class="fra-cite"/g)||[]).length,2);
+});
+test('long quotations form one block with preserved paragraphs and working following citations',()=>{
+ const html=markdown('> First line.\n> Continuation with χάρις.\n>\n> Second paragraph.\n\n[Source](/read?w=work#b52%3A0183A-0)');
+ assert.equal((html.match(/<blockquote>/g)||[]).length,1);assert.match(html,/<p>First line.<br>Continuation with χάρις.<\/p><p>Second paragraph.<\/p>/);assert.match(html,/#b52%3A0183A-0/);
+});
+test('escaped markup in exact quotations stays literal, including apparent source markers',()=>{
+ const html=markdown('> \\[work/p1\\] and \\*words\\* remain text.');assert.ok(!html.includes('fra-cite'));assert.ok(!html.includes('<em>'));assert.match(html,/\[work\/p1\] and \*words\*/);
+});

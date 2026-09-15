@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""Read-only PG alignment census. Flags are candidates, never automatic verdicts."""
+import argparse, collections, csv, hashlib, json, re, time
+from pathlib import Path
+import xml.etree.ElementTree as E
+ROOT=Path('/Users/speter/Davenant');T=lambda s:'{http://www.tei-c.org/ns/1.0}'+s
+ALT={'translation','secondary','diplomatic','witness','edition'}
+GR=re.compile('[Ͱ-Ͽἀ-῿]');LA=re.compile('[A-Za-z]')
+def txt(e):return ' '.join(''.join(e.itertext()).split())
+def primary(e):
+ for c in e:
+  if c.tag==T('div') and c.get('type') in ALT:continue
+  yield c
+  yield from primary(c)
+def main():
+ ap=argparse.ArgumentParser();ap.add_argument('--run',default='runs/pg_alignment_repair_20260914');a=ap.parse_args();run=ROOT/a.run;run.mkdir(parents=True,exist_ok=True)
+ roster=[w for w in json.loads((run/'baseline/works-index.json').read_text())['works'] if str(w.get('slug','')).startswith('pg-')]
+ records=[];start=time.time()
+ for i,w in enumerate(roster):
+  slug=w['slug'];f=ROOT/'out/pgtei_stage/tei/pg'/(slug[3:]+'.xml');r={'slug':slug,'title':w.get('title_en')or w.get('title'),'volume':w.get('volume'),'path':str(f.relative_to(ROOT)),'status':'unavailable'}
+  if f.exists() and f.stat().st_size:
+   try:
+    data=f.read_bytes();root=E.fromstring(data);body=root.find('.//'+T('body'));elems=list(primary(body)) if body is not None else [];ps=[e for e in elems if e.tag==T('p')];ids={p.get('{http://www.w3.org/XML/1998/namespace}id') for p in ps if p.get('{http://www.w3.org/XML/1998/namespace}id')};translations=[p for d in root.iter(T('div')) if d.get('type')=='translation' for p in d.iter(T('p'))];greek=' '.join(txt(p) for p in ps)
+    r.update(status='parsed',sha256=hashlib.sha256(data).hexdigest(),primary_paragraphs=len(ps),openings=len({e.get('n') for e in elems if e.tag==T('pb')}),column_markers=len({e.get('n') for e in elems if e.tag in [T('pb'),T('milestone')]}),translation_paragraphs=len(translations),explicit_paragraph_links=sum((p.get('corresp')or'').lstrip('#') in ids for p in translations),alternative_witnesses=sum(d.get('type') in ['witness','edition'] for d in root.iter(T('div'))),greek_chars=len(GR.findall(greek)),latin_chars=len(LA.findall(greek)),large_primary_paragraphs=sum(len(txt(p))>5000 for p in ps))
+   except Exception as e:r.update(status='parse-error',error=type(e).__name__)
+  records.append(r)
+  if (i+1)%400==0:print('work census',i+1,'/',len(roster),flush=True)
+ (run/'work-census.json').write_text(json.dumps(records,ensure_ascii=False,indent=2)+'\n')
+ flags=[];volumes=[]
+ for f in sorted((ROOT/'runs/pgpv_cache').glob('*')):
+  if not f.is_file() or not f.stat().st_size:continue
+  try:root=E.parse(f).getroot()
+  except Exception:continue
+  sfcount=0
+  for sf in root.iter(T('surface')):
+   sfcount+=1
+   for z in sf.iter(T('zone')):
+    text=txt(z);kind=z.get('type','');reasons=[];g=len(GR.findall(text));l=len(LA.findall(text))
+    if 'Marginalia' in kind and re.search(r'(?:^|\s)\d{1,3}\.\s*[«ι•]?\s*[Α-ΩἈ-Ὧ][^\n]{15,160}',text):reasons.append('possible-main-rubric-in-notes')
+    if 'ColGreek' in kind and l>max(100,g*.3):reasons.append('latin-heavy-greek-zone')
+    if 'ColLatin' in kind and g>max(100,l*.3):reasons.append('greek-heavy-latin-zone')
+    if 'ColGreek' in kind and any(x in text for x in ['εὐσε Γείας','αυτ τὴν','αὐτ τὴν','πρω τύτοκον']):reasons.append('reported-greek-ocr-pattern')
+    if reasons:flags.append({'file':str(f.relative_to(ROOT)),'opening':sf.get('n'),'zone':kind,'reasons':reasons,'sample':text[:200]})
+  volumes.append({'path':str(f.relative_to(ROOT)),'surfaces':sfcount})
+ (run/'zone-candidates.json').write_text(json.dumps(flags,ensure_ascii=False,indent=2)+'\n');(run/'pageview-census.json').write_text(json.dumps(volumes,indent=2)+'\n')
+ summary={'basis':'Current live catalogue joined to local staged TEI and cached pageviews; local files are not assumed identical to live. Flags require source verification.','catalogue_pg_entries':len(roster),'work_status':dict(collections.Counter(r['status'] for r in records)),'cached_pageview_files':len(volumes),'cached_surfaces':sum(v['surfaces'] for v in volumes),'entries_without_explicit_paragraph_links':sum(r.get('translation_paragraphs',0)>0 and not r.get('explicit_paragraph_links') for r in records),'zone_candidate_count':len(flags),'zone_candidate_reasons':dict(collections.Counter(k for f in flags for k in f['reasons'])),'elapsed_seconds':round(time.time()-start,1)}
+ (run/'census-summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2),flush=True)
+if __name__=='__main__':main()

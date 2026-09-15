@@ -1,0 +1,43 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),vm=require('node:vm');
+const context={module:{exports:{}},URLSearchParams,AbortController,setTimeout,clearTimeout};
+vm.runInNewContext(fs.readFileSync(__dirname+'/work-research.js','utf8'),context);const R=context.module.exports;
+const plain=x=>JSON.parse(JSON.stringify(x));
+
+test('related candidates preserve opaque page IDs, deduplicate, and omit the current work',()=>{
+ const rows=R.relatedCandidates({works:[{slug:'here',page:1},{slug:'other',page:'52:0183A'},{slug:'other',page:'52:0183A'},{slug:'other',page:0},null,{slug:'https://external.test',page:3}]},'here');
+ assert.deepEqual(plain(rows),[{slug:'other',page:'52:0183A',citation:''},{slug:'other',page:'0',citation:''}]);
+});
+test('legacy patristic vector row anchors never become invented reader page links',()=>{
+ const rows=R.relatedCandidates({works:[],fathers:[{src:'PL',doc:'3686',anchor:'416928',cit:'PL 99:0291'},{src:'PG',doc:'pg-4',anchor:'99'},null]},'here');
+ assert.deepEqual(plain(rows),[{slug:'pld-3686',page:null,citation:'PL 99:0291'},{slug:'pg-4',page:null,citation:''}]);
+});
+test('empty search, missing index, and invalid payloads are distinct',()=>{
+ assert.deepEqual(plain(R.relatedCandidates({results:[]},'here')),[]);
+ assert.deepEqual(plain(R.relatedCandidates({works:[],missing:true},'here')),[]);
+ for(const data of [null,{}, {error:'service unavailable',works:[]}])assert.throws(()=>R.relatedCandidates(data,'here'));
+});
+function harness(request){
+ const elements=new Map();const el=()=>({textContent:'',innerHTML:'',value:'',attrs:{},setAttribute(k,v){this.attrs[k]=v},removeAttribute(k){delete this.attrs[k]},replaceChildren(){this.innerHTML=''}});
+ const host={innerHTML:'',querySelector(key){if(!elements.has(key))elements.set(key,el());return elements.get(key)}};
+ let page='52:0183A';
+ const view=R.mountRelated(host,{slug:'here',page:()=>page,location:p=>'Column '+p,request,resolve:async slug=>({status:'held',slug,url:'/read?w='+slug,work:{title:'A <great> work',author:'Author'}})});
+ return {view,elements,setPage:p=>{page=p;view.setPage();}};
+}
+const settle=()=>new Promise(resolve=>setImmediate(resolve));
+test('related search loads only on request, caches repeats, and never refreshes while reading',async()=>{
+ const calls=[];const h=harness(async url=>{calls.push(url);return {ok:true,json:async()=>({works:[{slug:'other',page:'52:0183A'}]})}});
+ assert.equal(calls.length,0);h.view.open();h.view.open();await settle();assert.equal(calls.length,1);
+ assert.match(calls[0],/p=52%3A0183A/);h.view.open();await settle();assert.equal(calls.length,1);
+ h.setPage('12');assert.equal(calls.length,1);assert.match(h.elements.get('[data-related-page]').textContent,/Update from current passage · Column 12/);
+ h.elements.get('[data-related-page]').onclick();await settle();assert.equal(calls.length,2);
+ assert.match(h.elements.get('[data-related-results]').innerHTML,/#b52%3A0183A-0/);assert.match(h.elements.get('[data-related-results]').innerHTML,/A &lt;great&gt; work/);
+ h.setPage('52:0183A');h.elements.get('[data-related-page]').onclick();await settle();assert.equal(calls.length,2);h.view.destroy();
+});
+test('failed replacement searches clear previous results and can be retried',async()=>{
+ let failing=false;const h=harness(async()=>({ok:!failing,status:503,json:async()=>({works:[{slug:'other',page:2}]})}));
+ h.view.open();await settle();assert.match(h.elements.get('[data-related-results]').innerHTML,/other/);
+ failing=true;h.elements.get('[data-related-query]').value='mercy';h.elements.get('form').onsubmit({preventDefault(){}});await settle();
+ assert.equal(h.elements.get('[data-related-results]').innerHTML,'');assert.match(h.elements.get('[data-related-status]').textContent,/could not load/);
+ failing=false;h.elements.get('form').onsubmit({preventDefault(){}});await settle();assert.match(h.elements.get('[data-related-status]').textContent,/1 related work for “mercy”/);h.view.destroy();
+});

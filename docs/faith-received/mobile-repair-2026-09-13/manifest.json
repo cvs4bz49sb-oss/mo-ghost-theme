@@ -1,0 +1,30 @@
+[
+  {
+    "source": "tools/ask_workspace/ask-workspace.js",
+    "file": "ask-workspace.js.txt",
+    "bytes": 92871,
+    "sha256": "32f626be5ff76f92d4812baa71aa0fb6e61f9300a690d0959ac5354add763780",
+    "state": "Vercel deployed dpl_Baf6BmjVFHatA4WKYnti4N4KyLBb; MereO reference awaiting integration"
+  },
+  {
+    "source": "tools/ask_workspace/ask-workspace.css",
+    "file": "ask-workspace.css.txt",
+    "bytes": 39605,
+    "sha256": "657b046628ea8cd52bc647ef0eb6ae471a30e2c0c63bb70116396c0f781e9c11",
+    "state": "Vercel deployed dpl_Baf6BmjVFHatA4WKYnti4N4KyLBb; MereO reference awaiting integration"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader-contents.css",
+    "file": "reader-contents.css.txt",
+    "bytes": 4565,
+    "sha256": "7521f55f79f24f4bef6ea1d041032db07dc9730c50fa377b068e6f60de8cd0cf",
+    "state": "Vercel deployed dpl_Baf6BmjVFHatA4WKYnti4N4KyLBb; MereO reference awaiting integration"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/reader_shell.html",
+    "file": "reader_shell.html.txt",
+    "bytes": 762114,
+    "sha256": "27cab8b2db85fff6bd1e9264f1feb274a4084fa8fb3af3d50d0721f9537f38ce",
+    "state": "Vercel deployed dpl_Baf6BmjVFHatA4WKYnti4N4KyLBb; MereO reference awaiting integration"
+  }
+]

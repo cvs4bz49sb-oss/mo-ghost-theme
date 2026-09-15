@@ -1,0 +1,118 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const script=fs.readFileSync(__dirname+'/reader-bookmarks.js','utf8');
+const scope={module:{exports:{}},URL};vm.runInNewContext(script,scope);const api=scope.module.exports;
+const clean=value=>JSON.parse(JSON.stringify(value));
+
+function node({id='',page='7',top=80,bottom=280,milestone=false,note=false,shown=true,boundaries=[]}={}){
+  return {id,dataset:milestone?{page}:{},matches(selector){return selector==='.pganchor[data-page]'?milestone:true;},closest(selector){if(selector==='.folio')return {dataset:{page}};return note?{}:null;},getClientRects:()=>shown?[{}]:[],getBoundingClientRect:()=>({top,bottom}),querySelectorAll:()=>boundaries};
+}
+function reader({rows=[],snapshot={},marks={}}={}){
+  const reading={contains:n=>rows.includes(n)||rows.some(r=>r.querySelectorAll().includes(n)),querySelectorAll:()=>rows};
+  const scroll={clientHeight:700,getBoundingClientRect:()=>({top:100,bottom:800})};
+  const byId=new Map(rows.filter(r=>r.id).map(r=>[r.id,r]));for(const [id,value]of Object.entries(marks))byId.set(id,value);
+  return {location:{origin:'https://bookmarks.invalid',pathname:'/read'},document:{getElementById:id=>id==='reading'?reading:id==='scroll'?scroll:byId.get(id)},__frCaptureReaderPosition:()=>snapshot};
+}
+
+test('captures a stable body row and retains compound page identity',()=>{
+  const body=node({id:'b52:0183A-2',page:'52:0183A'}),environment=reader({rows:[body],snapshot:{id:body.id,page:'52:0183A',serial:912}});
+  const place=api.capture({},environment);assert.equal(place.row,'b52:0183A-2');assert.equal(place.page,'52:0183A');assert.equal(place.position.offset,-20);assert.equal(place.position.serial,undefined);
+  const record=api.makeRecord({slug:'volume',title:'Work title',author:'Author',pageLabel:p=>'Column '+p},place,environment);
+  const url=new URL(record.url);assert.equal(url.searchParams.get('p'),'52:0183A');assert.equal(decodeURIComponent(url.hash.slice(1)),'b52:0183A-2');assert.equal(record.research.sources[0].row,record.row);assert.equal(record.research.sources[0].cite,'Work title, Column 52:0183A');assert.equal(record.type,'note');assert.equal(record.research.kind,'reference');
+});
+
+test('temporary find marks are never persisted as bookmark anchors',()=>{
+  const body=node({id:'b119-3',page:'119'}),mark={id:'fr-find-42',matches:()=>false,closest:()=>body};
+  const environment=reader({rows:[body],snapshot:{id:'fr-find-42',page:'119'},marks:{'fr-find-42':mark}});
+  const place=api.capture({},environment);assert.equal(place.row,'b119-3');assert.equal(place.page,'119');assert.ok(!JSON.stringify(place).includes('fr-find'));
+  assert.throws(()=>api.makeRecord({slug:'work',title:'Work'},{page:'119',row:'reader-find-hit-1'},environment),/identified/);
+});
+
+test('a preceding inline page milestone wins over a merged Flow host row',()=>{
+  const earlier=node({page:'52:0183A',top:20,bottom:30,milestone:true}),later=node({page:'52:0184B',top:320,bottom:330,milestone:true});
+  const body=node({id:'b52:0182A-0',page:'52:0182A',boundaries:[earlier,later]});
+  const place=api.capture({},reader({rows:[body],snapshot:{page:'52:0182A',id:body.id}}));
+  assert.equal(place.page,'52:0183A');assert.equal(place.row,'b52:0183A-0');
+});
+
+test('hidden lanes and apparatus cannot become the saved reading place',()=>{
+  const hidden=node({id:'b2-0',shown:false}),apparatus=node({id:'b3-0',note:true}),body=node({id:'b4-0',page:'4'});
+  const place=api.capture({},reader({rows:[hidden,apparatus,body],snapshot:{id:apparatus.id}}));assert.equal(place.row,'b4-0');
+  assert.throws(()=>api.capture({},reader({rows:[hidden,apparatus]})),/visible passage/);
+});
+
+test('page zero is valid and a stable reading place has an idempotent notebook identity',()=>{
+  const environment=reader({rows:[node({id:'b0-0',page:'0'})]}),place=api.capture({},environment);
+  const first=api.makeRecord({slug:'work',title:'Work'},place,environment),second=api.makeRecord({slug:'work',title:'Work'},{...place,position:{...place.position,offset:-70}},environment);
+  assert.equal(first.page,'0');assert.equal(first.id,second.id);assert.equal(new URL(first.url).searchParams.get('p'),'0');
+});
+
+test('Etymologies source divisions retain distinct bookmark links and identities',()=>{
+  const context={slug:'pld-6037',title:'Etymologies'},place={page:'73',row:'b73-0',position:{}};
+  const bookmark=part=>api.makeRecord(context,place,{location:{origin:'https://bookmarks.invalid',pathname:'/read',href:'https://bookmarks.invalid/read?w=pld-6037&pldpart='+part}});
+  const first=bookmark('2'),second=bookmark('4');assert.notEqual(first.id,second.id);
+  assert.equal(new URL(second.url).searchParams.get('pldpart'),'4');assert.equal(second.research.sources[0].url,second.url);
+  assert.notEqual(bookmark('3').id,bookmark('5').id);
+  const plain=api.makeRecord({slug:'another-work',title:'Another work'},place,{location:{href:'https://bookmarks.invalid/read?w=pld-6037&pldpart=4'}});
+  assert.equal(new URL(plain.url).searchParams.get('pldpart'),null);
+});
+
+test('EEBO source-heading bookmarks remain stable when sequential rendered heading IDs change',()=>{
+  const sourcePath='body/div[2]/div[3]',sourceText='Of the grace of God.';
+  const bookmark=id=>{const heading=node({id,page:'86'}),environment=reader({rows:[heading],snapshot:{id,page:'86',sourcePath,sourceText,serial:99,focusId:'fr-find-temporary'}});return api.makeRecord({slug:'eebo-34087',title:'Source work'},api.capture({},environment),environment);};
+  const first=bookmark('h1-grace'),later=bookmark('h57-grace');
+  assert.equal(first.row,'b86-0');assert.equal(later.row,'b86-0');assert.equal(first.id,later.id);assert.equal(first.url,later.url);
+  assert.equal(first.readerPosition.sourcePath,sourcePath);assert.equal(first.readerPosition.sourceText,sourceText);assert.equal(new URL(first.url).searchParams.get('section'),sourcePath);assert.equal(new URL(first.url).hash,'#b86-0');
+  assert.equal(first.research.sources[0].sourceText,sourceText);assert.ok(!JSON.stringify(first).includes('h1-grace'));assert.ok(!JSON.stringify(later).includes('h57-grace'));assert.equal(first.readerPosition.focusId,undefined);assert.equal(first.readerPosition.serial,undefined);
+});
+
+test('distinct source headings on one page keep distinct bookmark identities',()=>{
+  const environment=reader(),context={slug:'eebo-34087',title:'Work'},place={page:'86',row:'h12-heading',position:{sourcePath:'body/2',sourceText:'First heading'}};
+  const first=api.makeRecord(context,place,environment),second=api.makeRecord(context,{...place,position:{sourcePath:'body/3',sourceText:'Second heading'}},environment);
+  assert.equal(first.row,'b86-0');assert.notEqual(first.id,second.id);assert.notEqual(first.url,second.url);
+});
+test('headings sharing a canonical division retain separate saved links and notebook identities',()=>{
+  const context={slug:'eebo-1',title:'Source'},place={page:'5',row:'b5-0',position:{sourcePath:'1',sourceText:'Chapter I',sourceKey:'first'}};
+  const a=api.makeRecord(context,place,reader()),b=api.makeRecord(context,{...place,position:{...place.position,sourceText:'Chapter II',sourceKey:'second'}},reader());
+  assert.notEqual(a.id,b.id);assert.equal(new URL(a.url).searchParams.get('heading'),'first');assert.equal(new URL(b.url).searchParams.get('heading'),'second');
+  assert.equal(b.readerPosition.sourceKey,'second');assert.equal(b.research.sources[0].sourceKey,'second');
+});
+
+test('generated headings without durable paths use canonical page anchors, including compound pages',()=>{
+  const heading=node({id:'h9-chapter',page:'52:0183A'}),environment=reader({rows:[heading],snapshot:{id:heading.id,page:'52:0183A'}});
+  const record=api.makeRecord({slug:'work',title:'Work'},api.capture({},environment),environment);assert.equal(record.row,'b52:0183A-0');assert.equal(new URL(record.url).searchParams.get('section'),null);assert.equal(record.readerPosition.sourcePath,undefined);
+});
+
+test('saving uses the existing selected notebook and stores no separate bookmark state',async()=>{
+  const environment=reader({rows:[node({id:'b7-2',page:'7'})]}),calls=[];
+  environment.FRResearchNotebook={save:async(item,options)=>{calls.push({item,options});return {created:true,item,collectionId:options.collectionId,collectionName:'My paper'};}};
+  const result=await api.save({slug:'work',title:'Work',collectionId:'paper-notebook'},environment);
+  assert.equal(calls.length,1);assert.equal(calls[0].options.collectionId,'paper-notebook');assert.equal(result.item.readerPosition.id,'b7-2');assert.equal(result.item.research.sources.length,1);
+  environment.FRResearchNotebook.save=async()=>{throw Error('Storage is full');};await assert.rejects(api.save({slug:'work',title:'Work'},environment),/Storage is full/);
+});
+
+test('real notebook commits preserve other research and distinguish multiple places on one page',()=>{
+  const box={module:{exports:{}}};vm.runInNewContext(fs.readFileSync(__dirname+'/research-notebook.js','utf8'),box);const notebook=box.module.exports;
+  const values=new Map([['fr_collections_v1',JSON.stringify([{id:'paper',name:'Paper',items:[{id:'existing-note',type:'note',text:'Keep this working note'}]}])],['fr_pincol','paper'],['fr_lastread','{"work":{"page":"9"}}']]);
+  const store={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value)},environment=reader({rows:[]}),context={slug:'work',title:'Work'};
+  const first=api.makeRecord(context,{page:'7',row:'b7-1',position:{}},environment),second=api.makeRecord(context,{page:'7',row:'b7-2',position:{}},environment);
+  assert.equal(notebook.commitSave(first,store,'paper').created,true);assert.equal(notebook.commitSave(second,store,'paper').created,true);assert.equal(notebook.commitSave(first,store,'paper').created,false);
+  const saved=JSON.parse(values.get('fr_collections_v1'))[0].items;assert.equal(saved.length,3);assert.equal(saved[0].text,'Keep this working note');assert.deepEqual(saved.slice(1).map(item=>item.row),['b7-1','b7-2']);assert.equal(values.get('fr_lastread'),'{"work":{"page":"9"}}');assert.deepEqual([...values.keys()].sort(),['fr_collections_v1','fr_lastread','fr_pincol']);
+});
+
+test('the action saves without a text selection and opens the existing Saved rail',async()=>{
+  const environment=reader({rows:[node({id:'b7-2',page:'7'})]}),events=new Map(),openEvents=new Map(),button={disabled:false,addEventListener:(type,fn)=>events.set(type,fn),removeEventListener:type=>events.delete(type)},openButton={hidden:true,addEventListener:(type,fn)=>openEvents.set(type,fn),removeEventListener:type=>openEvents.delete(type)},feedback={textContent:''};let opened;
+  environment.FRResearchNotebook={save:async item=>({item,created:true,collectionName:'Notebook',collectionId:'notebook'})};
+  const context={window:environment,module:{exports:{}},URL};vm.runInNewContext(script,context);const dispose=context.module.exports.bind(button,{getContext:()=>({slug:'work',title:'Work'}),feedback,openSavedButton:openButton,onOpenSaved:result=>{opened=result;}});
+  await events.get('click')({preventDefault(){}});assert.equal(button.disabled,false);assert.equal(openButton.hidden,false);assert.match(feedback.textContent,/Reading place saved in Notebook/);openEvents.get('click')({preventDefault(){}});assert.equal(opened.collectionId,'notebook');dispose();assert.equal(events.size,0);assert.equal(openEvents.size,0);
+});
+
+test('scrolling links preserve the edition and mounted route while retiring stale heading targets',()=>{
+ const url=new URL(api.locationURL('https://library.invalid/the-faith-received/read/?w=pld-6037&src=la&pldpart=4&research=work&section=1.2&heading=old&p=73#b73-0',{page:'52:0183A',row:'b52:0183A-2'}));
+ assert.equal(url.pathname,'/the-faith-received/read/');assert.equal(url.searchParams.get('src'),'la');assert.equal(url.searchParams.get('pldpart'),'4');assert.equal(url.searchParams.get('research'),'work');assert.equal(url.searchParams.get('p'),'52:0183A');assert.equal(url.hash,'#b52:0183A-2');assert.equal(url.searchParams.get('section'),null);assert.equal(url.searchParams.get('heading'),null);
+});
+test('scrolling links never adopt a transient search result and accept page zero',()=>{
+ assert.equal(api.locationURL('https://library.invalid/read',{page:'1',row:'fr-find-2'}),null);assert.equal(api.locationURL('https://library.invalid/read',null),null);assert.equal(new URL(api.locationURL('https://library.invalid/read?w=work',{page:0,row:'b0-0'})).hash,'#b0-0');
+});
+test('the current reading place excludes a paragraph obscured by the sticky header',()=>{
+ const hidden=node({id:'b1-0',page:'1',top:100,bottom:180}),visible=node({id:'b2-0',page:'2',top:185,bottom:450});const env=reader({rows:[hidden,visible],snapshot:{id:'b1-0'}});env.document.querySelector=()=>({getBoundingClientRect:()=>({bottom:200})});assert.equal(api.capture({},env).row,'b2-0');
+});

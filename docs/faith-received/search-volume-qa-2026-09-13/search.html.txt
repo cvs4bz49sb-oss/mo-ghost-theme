@@ -1,0 +1,1974 @@
+<!doctype html><html lang="en" data-site="the-faith-received"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com" crossorigin>
+<title>Search — The Faith Received</title><link rel="stylesheet" href="prdl-system.css"><style>
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap');
+/* ═══ ACADEMIC MONOCHROME v3 (owner 2026-09-05 "/search needs to be brought to our design
+   language") — the search page joins the b/w journal system: stone under white sheet, ink
+   accents, EB Garamond identity. Sepia below stays the warm opt-in; dark is graphite. ═══ */
+:root{--bg:#F0F0ED;--bg-warm:#E8E8E4;--fg:#1C1C1A;--accent:#1C1C1A;--accent2:#3A3A36;--muted:#5A5A56;
+--border:#D8D8D3;--card:#FFFFFF;--sidebar:#F0F0ED;--latin:#1C1C1A;--col:#8A8A85;--hl:#E7E7E2;
+--font-display:'EB Garamond','Source Serif Pro',Georgia,serif;
+--font-body:'EB Garamond','Source Serif Pro',Palatino,Georgia,serif;
+--font-ui:'Source Serif Pro',Georgia,serif;
+--ease:cubic-bezier(.22,1,.36,1);}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--font-body);
+background:var(--bg);color:var(--fg);line-height:1.72;font-size:19px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.app{display:flex;min-height:100vh}
+.sidebar{width:340px;min-width:300px;max-width:400px;background:var(--sidebar);
+border-right:1px solid var(--border);overflow-y:auto;position:sticky;top:0;height:100vh;
+padding:1.2rem 1rem;font-size:0.85rem;scrollbar-width:thin}
+.sidebar::-webkit-scrollbar{width:6px}.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.main{flex:1;min-width:0;padding:2rem 3rem;max-width:840px}
+.sb-head{font-size:0.85rem;margin-bottom:0.6rem;padding-bottom:0.6rem;border-bottom:1px solid var(--border)}
+.scope-toggle{display:none}
+@media (max-width:640px){
+  .scope-toggle{display:flex;align-items:center;gap:.4rem;width:100%;border:1px solid var(--border);
+    background:var(--card);border-radius:8px;padding:.55rem .8rem;font:600 .82rem/1 inherit;
+    color:var(--muted);cursor:pointer;margin:.4rem 0 .2rem;min-height:42px}
+  .scope-toggle .st-sum{font-weight:400;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60vw}
+  .scope-toggle .st-car{margin-left:auto;transition:transform .18s}
+  .scope-toggle[aria-expanded="true"] .st-car{transform:rotate(180deg)}
+  .scope-wrap{display:none}
+  .scope-wrap.open{display:block}
+}
+.sm-more{display:none}
+@media (max-width:640px){
+  .sm-more{display:block}
+  .smodes:not(.sm-open) .sm-adv:not(.active){display:none}
+  .smodes.sm-open .sm-more{display:none}
+}
+.corpus-chips{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin:.45rem 0 .2rem}
+.corpus-chips[hidden]{display:none}
+.corpus-chips .cc-lab{font-size:.75rem;color:var(--muted)}
+.corpus-chips .cc{border:1px solid var(--border);background:var(--card);border-radius:7px;padding:.2rem .65rem;font:inherit;font-size:.76rem;color:var(--muted);cursor:pointer}
+.corpus-chips .cc.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+[data-theme="dark"] .corpus-chips .cc.on{color:#0e1c1b}
+@media (pointer:coarse){
+  .smodes button{min-height:44px}
+  .corpus-chips .cc{min-height:36px;padding:.3rem .8rem}
+  .fac-in,.fac-sel,.scope-in{min-height:42px}
+  .sr{padding:.7rem .6rem}
+}
+/* axis tabs */
+.axis-tabs{display:flex;gap:0.3rem;margin-bottom:0.8rem}
+.axis-tabs button{flex:1;padding:0.4rem;border:1px solid var(--border);border-radius:5px;
+background:var(--card);cursor:pointer;font-family:inherit;font-size:0.82rem}
+.axis-tabs button.active{background:var(--fg);color:var(--bg);border-color:var(--accent)}
+.nav-loading{color:var(--muted);font-style:italic;padding:0.5rem 0;font-size:0.85rem}
+/* tree */
+.nt details>summary{cursor:pointer;list-style:none;padding:0.18rem 0;display:flex;
+align-items:flex-start;gap:0.25rem}
+.nt details>summary::-webkit-details-marker{display:none}
+.nt details>summary::before{content:'\25B8';font-size:0.72em;color:var(--muted);
+transition:transform .12s;margin-top:0.3em;width:0.7em;flex-shrink:0}
+.nt details[open]>summary::before{transform:rotate(90deg)}
+.nt-vol>summary,.nt-auth>summary{font-weight:700;color:var(--accent)}
+.nt-doc{margin-left:0.6rem}
+.nt-doc>summary{font-weight:600}
+.nt-doc>summary a{color:inherit}
+.nt-children{margin-left:0.55rem;border-left:1px solid var(--border);padding-left:0.4rem}
+.nt-div{display:block;padding:0.13rem 0 0.13rem 0.8rem;color:var(--muted);
+text-decoration:none;border-left:2px solid transparent;font-size:0.95em}
+.nt-div:hover{color:var(--accent);border-left-color:var(--accent)}
+.nt-meta{color:var(--muted);font-size:0.85em;font-weight:400}
+/* full spine TOC rows (volume axis): two-path links — digitized / OCR-column / scanned-pending */
+.nt-voltoc{font-size:.9em}
+.nt-t{display:flex;align-items:baseline;gap:.35rem;padding:.08rem 0;line-height:1.3}
+.nt-t a{text-decoration:none;color:var(--muted)}
+.nt-t a:hover{color:var(--accent)}
+.nt-t-h{font-weight:600;margin-top:.18rem}
+.nt-t-h a{color:var(--fg)}
+.nt-t-s{padding-left:.7rem}
+.nt-tcol{flex:0 0 2.3rem;text-align:right;color:var(--muted);font-size:.72em;font-variant-numeric:tabular-nums;opacity:.7}
+.k-dig a{color:var(--accent2)}
+.k-dig.nt-t-h a{color:var(--accent2)}
+/* non-digitized rows are NOT lesser: every spine entry opens (facsimile + OCR page-view). Give ocr/scan titles a clear, clickable colour instead of inheriting the muted grey above — no disabled look, no quality ladder. */
+.k-ocr.nt-t-s a,.k-scan.nt-t-s a{color:color-mix(in oklab,var(--fg) 76%,var(--muted))}
+.k-ocr.nt-t-s a:hover,.k-scan.nt-t-s a:hover{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+/* OCR-work badge: same pill family as the green 'clean text' and accent 'page scan' tags, in a friendly amber — so the OCR layer is labelled, not blank */
+.nt-tag-ocr{font-size:.58rem;font-weight:700;margin-left:.35rem;padding:.01rem .3rem;border-radius:4px;border:1px solid color-mix(in oklab,#b9740a 45%,transparent);background:color-mix(in oklab,#b9740a 9%,transparent);color:#b9740a;letter-spacing:.03em;white-space:nowrap}
+.nt-tag-dig{font-size:.58rem;font-weight:700;margin-left:.35rem;padding:.01rem .3rem;border-radius:4px;border:1px solid color-mix(in oklab,#1a7f37 45%,transparent);background:color-mix(in oklab,#1a7f37 10%,transparent);color:#1a7f37;letter-spacing:.03em;white-space:nowrap}
+/* legacy: 'pending' rows are NEVER greyed/italic now — every entry is a live facsimile+OCR path. Kept clickable in case any stale data re-emits the class. */
+.nt-pend a,.nt-pend{color:color-mix(in oklab,var(--fg) 76%,var(--muted));font-style:normal;cursor:pointer}
+.nt-pend a:hover{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.nt-fac{font-size:.72em;color:var(--accent);text-decoration:none;white-space:nowrap}
+.nt-t.nt-cur>a{color:var(--accent);font-weight:600}
+/* reading page */
+.page-header{border-bottom:1px solid var(--border);padding-bottom:1rem;margin-bottom:1.5rem}
+.page-header h1{margin:0;font-family:var(--font-display);font-size:2.05rem;line-height:1.12;color:var(--fg);font-weight:400;letter-spacing:-.01em;text-wrap:balance}
+.page-header .meta{color:var(--muted);font-size:0.92rem;margin-top:0.5rem}
+.nav-strip{display:flex;justify-content:space-between;gap:0.5rem;font-size:0.85rem;margin-bottom:1rem;
+font-family:var(--font-ui)}
+.nav-strip a{padding:0.3rem 0.7rem;border:1px solid var(--border);border-radius:4px}
+.cont-card{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;margin:2.2rem 0 1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-radius:8px;background:var(--accent-tint);font:600 .95rem/1.4 var(--font-ui)}
+.cont-card a{color:var(--accent)}
+.cont-card .cc-vol{margin-left:auto;font-weight:500;font-size:.85rem;opacity:.85}
+.division{margin-bottom:2.5rem;scroll-margin-top:3rem}
+h2.div-head{all:unset}
+.div-head{display:block;font-family:var(--font-display);font-size:1.7rem;font-weight:400;color:var(--accent2);letter-spacing:-.005em;text-wrap:balance;border-top:1px solid var(--border);
+padding-top:0.9rem;margin:2.4rem 0 1rem;scroll-margin-top:1rem}
+.src-note{font-size:.84rem;line-height:1.5;border-radius:9px;padding:.55rem .8rem;margin:.3rem 0 1.4rem;display:flex;gap:.5rem;align-items:baseline;color:var(--fg)}
+.src-note.ocr{background:color-mix(in oklab,#d89020 15%,var(--bg));border:1px solid color-mix(in oklab,#d89020 42%,transparent)}
+.src-note .src-ic{color:#b9740a;font-size:1rem;flex:0 0 auto;transform:translateY(.05em)}
+.src-note b{font-weight:700}
+.nt-ocr-tag{font-size:.6rem;font-weight:700;margin-left:.4rem;padding:.01rem .28rem;border-radius:4px;border:1px solid color-mix(in oklab,#d89020 45%,transparent);color:#b9740a;letter-spacing:.03em}
+.work-toc{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1.5rem;padding:.6rem .8rem;
+background:var(--sidebar);border:1px solid var(--border);border-radius:6px;
+font:.86rem/1.35 var(--font-ui)}
+.work-toc a{padding:.15rem .5rem;border:1px solid var(--border);border-radius:4px;background:var(--card)}
+.work-toc .ssub-miss{padding:.15rem .5rem;border:1px dashed var(--border);border-radius:4px;
+color:var(--muted,#9a9a9a);opacity:.62;cursor:help}
+.work-badge{display:inline-block;font:600 .6rem/1 -apple-system,sans-serif;text-transform:uppercase;
+letter-spacing:.05em;color:var(--col);border:1px solid var(--col);border-radius:3px;
+padding:.15rem .35rem;margin-left:.6rem;vertical-align:middle}
+/* A-Z strip for alphabetical index/glossary works */
+.az-strip{position:sticky;top:var(--ctrl-h,0);z-index:40;display:flex;flex-wrap:wrap;gap:.2rem;margin:0 0 1.5rem;
+padding:.5rem .6rem;background:rgba(250,248,244,.95);backdrop-filter:blur(6px);
+border:1px solid var(--border);border-radius:6px}
+.az-strip a{display:inline-block;width:1.5rem;text-align:center;padding:.15rem 0;border-radius:4px;
+font:600 .85rem/1 -apple-system,sans-serif;color:var(--accent)}
+.az-strip a:hover{background:var(--fg);color:var(--bg);text-decoration:none}
+.alpha-head{font:700 1.6rem/1 Georgia,serif;color:var(--accent);border-bottom:2px solid var(--accent);
+margin:2rem 0 1rem;padding-bottom:.3rem;scroll-margin-top:3.5rem}
+/* bare column-range markers between sections */
+.col-range{font:.7rem/1 -apple-system,sans-serif;color:var(--col);margin:.3rem 0;opacity:.7;font-variant-numeric:tabular-nums}
+.col-range a.mg-scan,.col-range a.mg-ocr{margin-left:.45rem;padding:.06rem .42rem;border:1px solid var(--border);border-radius:5px;text-decoration:none;font-weight:600;letter-spacing:.01em;transition:background .14s,color .14s,border-color .14s}
+.col-range a.mg-scan{color:var(--accent)}.col-range a.mg-ocr{color:var(--muted)}
+.col-range a.mg-scan:hover,.col-range a.mg-ocr:hover{background:var(--fg);color:var(--bg);border-color:var(--accent)}
+/* user translations: side-by-side only when present (no wasted space) */
+.blk .tx{display:block}
+.blk.has-tr{display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;align-items:start}
+.blk-tr{color:var(--muted);font-style:italic;border-left:1px solid var(--border);
+padding-left:1rem;position:relative}
+.blk-tr .tr-edit{position:absolute;top:0;right:0;border:none;background:none;cursor:pointer;
+color:var(--muted);font-size:.8rem;opacity:0;transition:opacity .15s}
+.blk-tr:hover .tr-edit{opacity:1}
+.tr-pencil{position:absolute;border:1px solid var(--border);background:var(--card);border-radius:50%;
+width:26px;height:26px;cursor:pointer;color:var(--accent);font-size:.85rem;line-height:1;
+box-shadow:0 1px 4px rgba(0,0,0,.12);display:none;z-index:60;padding:0}
+.tr-pencil.show{display:block}
+.tr-pencil::before{content:'';position:absolute;inset:-7px;border-radius:50%}
+.tr-editor{grid-column:1/-1;margin:.4rem 0;display:flex;flex-direction:column;gap:.4rem}
+.tr-editor textarea{width:100%;min-height:70px;padding:.5rem;border:1px solid var(--accent);
+border-radius:6px;font-family:inherit;font-size:.95rem;line-height:1.5;background:var(--bg);resize:vertical}
+.tr-editor .tr-row{display:flex;gap:.4rem;justify-content:flex-end}
+.tr-editor button{padding:.3rem .8rem;border:1px solid var(--border);border-radius:5px;cursor:pointer;
+font-family:inherit;font-size:.82rem;background:var(--card)}
+.tr-editor button.primary{background:var(--fg);color:var(--bg);border-color:var(--accent)}
+.blk-note{position:relative;margin:.3rem 0 .1rem;padding:.45rem .7rem;background:var(--hl,#fff4cc);border:1px solid #e3cf93;border-radius:6px;font-size:.92rem;line-height:1.55}
+.blk-note .note-by{display:block;font:600 .66rem/1 -apple-system,sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7a5a10;margin-bottom:.25rem}
+[data-theme="dark"] .blk-note .note-by{color:#d4a843}
+.blk-note .note-edit{position:absolute;top:.3rem;right:.4rem;border:none;background:none;cursor:pointer;color:var(--muted);font-size:.8rem;opacity:0;transition:opacity .15s}
+.blk-note:hover .note-edit{opacity:1}
+.note-editor{margin:.4rem 0;display:flex;flex-direction:column;gap:.4rem}
+.note-editor textarea{width:100%;min-height:70px;padding:.5rem;border:1px solid #d4a843;border-radius:6px;font-family:inherit;font-size:.95rem;line-height:1.5;background:var(--bg);resize:vertical}
+.note-editor .note-row2{display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--muted)}
+.note-editor .note-doc{flex:1;padding:.3rem .5rem;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:.85rem;background:var(--bg)}
+.note-editor .note-row{display:flex;gap:.4rem;justify-content:flex-end}
+.note-editor button{padding:.3rem .8rem;border:1px solid var(--border);border-radius:5px;cursor:pointer;font-family:inherit;font-size:.82rem;background:var(--card)}
+.note-editor button.primary{background:#d4a843;color:#fff;border-color:#d4a843}
+.note-pencil{position:absolute;border:1px solid var(--border);background:var(--card);border-radius:50%;width:26px;height:26px;cursor:pointer;color:#b5862b;font-size:.8rem;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.12);display:none;z-index:60;padding:0}
+.note-pencil.show{display:block}
+.note-pencil::before{content:'';position:absolute;inset:-7px;border-radius:50%}
+.study-toggle{position:fixed;right:0;top:120px;z-index:130;background:var(--fg);color:var(--bg);border:none;border-radius:6px 0 0 6px;padding:.6rem .35rem;cursor:pointer;writing-mode:vertical-rl;font:600 .8rem/1 inherit;box-shadow:0 1px 6px rgba(0,0,0,.15);transition:right .2s}
+.study-toggle.open{right:min(330px,88vw)}
+.study-backdrop{position:fixed;inset:0;z-index:79;background:rgba(40,30,20,.22);opacity:0;pointer-events:none;transition:opacity .2s}
+.study-backdrop.on{opacity:1;pointer-events:auto}
+.study-panel{position:fixed;right:0;top:0;height:100vh;width:330px;max-width:88vw;background:var(--card);border-left:1px solid var(--border);box-shadow:-2px 0 12px rgba(0,0,0,.1);z-index:80;transform:translateX(100%);transition:transform .2s;overflow-y:auto;padding:calc(var(--authh,0px) + 1rem) 1.1rem 1rem}
+.study-panel.open{transform:none}
+.study-panel h3{margin:.2rem 0 .45rem;font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+.sp-close{position:sticky;top:.2rem;float:right;z-index:2;border:1px solid var(--border);background:var(--card);width:36px;height:36px;border-radius:50%;font-size:1.05rem;line-height:1;cursor:pointer;color:var(--muted);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.sp-sec{margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.7rem}
+.sp-item{display:block;padding:.3rem .4rem;border-radius:5px;color:inherit;text-decoration:none;font-size:.84rem;line-height:1.4;cursor:pointer}
+.sp-item:hover{background:var(--bg)}
+.sp-item .sp-ref{color:var(--accent);font-weight:600;font-size:.77rem}
+.sp-item .sp-snip{color:var(--muted);display:block}
+.sp-empty{color:var(--muted);font-size:.82rem;font-style:italic}
+.sp-filter{display:flex;align-items:center;gap:.5rem;padding:.25rem 0;font-size:.86rem;cursor:pointer}
+.filt-no-hl .blk[data-hl]{background:transparent!important}
+.filt-no-notes .blk-note{display:none!important}
+.filt-no-tr .blk-tr{display:none!important}.filt-no-tr .blk.has-tr{grid-template-columns:1fr}
+.filt-no-mt .blk-mt{display:none!important}.filt-no-mt .blk.has-mt{grid-template-columns:1fr}
+mark.rep{background:#ffe9a8;border-radius:2px;padding:0 1px}
+.blk.has-mt{display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;align-items:start}
+.blk-mt{color:var(--muted);border-left:1px solid var(--border);padding-left:1rem;position:relative}
+.blk-mt .mt-by{display:block;font:600 .62rem/1 -apple-system,sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7a8a4b;margin-bottom:.25rem}
+.blk-mt .mt-edit{position:absolute;top:0;right:0;border:none;background:none;cursor:pointer;color:var(--muted);font-size:.8rem;opacity:0;transition:opacity .15s}
+.blk-mt:hover .mt-edit{opacity:1}
+@media(max-width:700px){.blk.has-mt{grid-template-columns:1fr}.blk-mt{border-left:none;border-top:1px solid var(--border);padding:.5rem 0 0;margin-top:.5rem}}
+@media(max-width:700px){.blk.has-tr{grid-template-columns:1fr}.blk-tr{border-left:none;
+border-top:1px solid var(--border);padding:.5rem 0 0;margin-top:.5rem}}
+.blk{position:relative;margin:0.7rem 0;padding-left:0;text-wrap:pretty}
+.blk.heading{font-weight:700;color:var(--accent2);font-size:1.15rem;margin-top:1.5rem;text-wrap:balance}
+/* parallel Latin / apparatus / front-matter: kept but hidden by default for readable Greek */
+.blk-sec{display:none}
+body.show-sec .blk-sec{display:block;opacity:0.62;font-size:0.86em;border-left:2px solid var(--border);padding-left:0.7rem}
+.src-badge{display:inline-block;font-size:0.68rem;padding:0.05rem 0.4rem;border-radius:10px;font-weight:600;white-space:nowrap}
+@media(max-width:640px){.src-badge{white-space:normal}}
+.ssub{scroll-margin-top:5rem}
+/* page view (5th mode) */
+#pageView{display:none}
+.g-page #pageView{display:block}
+.g-page .blk,.g-page .foliomark,.g-page .work-toc{display:none!important}
+.pv-page{margin:1.8rem 0;padding:1.5rem 1.9rem 1.2rem;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.05);content-visibility:auto;contain-intrinsic-size:auto 1400px}
+#pageView{container-type:inline-size}
+.pv-head{display:flex;gap:.8rem;align-items:baseline;margin-bottom:.4rem}
+.pv-fol{margin-left:auto;font-style:italic;color:var(--accent2);font-size:.8rem;font-variant-numeric:tabular-nums}
+.pv-chip{font-size:.62rem;font-weight:700;letter-spacing:.05em;padding:.1rem .5rem;border-radius:9px;background:#e7f0e7;color:#2e6b2e;text-transform:uppercase}
+.pv-chip.pv-draft{background:#fdeeda;color:#9a5b00}
+.pv-chip.pv-recovered{background:#e8ecf7;color:#2f4b8f}
+.pv-bdraft{border-left:3px solid #d89020;padding-left:.7rem;opacity:.93}
+.pv-bdraft-tag{display:block;font:700 .6rem/1.8 var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:#9a5b00}
+.pv-running{font-variant:small-caps;letter-spacing:.14em;color:var(--muted);text-align:center;font-size:.8rem;margin:.1rem 0 .9rem;padding-bottom:.55rem;border-bottom:1px solid var(--border)}
+.pv-title{font-weight:700;text-align:center;letter-spacing:.02em;margin:.7rem 8% .9rem;line-height:1.45;font-size:calc(var(--read-fs,19px)*1.05);text-wrap:balance}
+.pv-spread{position:relative;display:grid;grid-template-columns:1fr;gap:0 3rem}
+.pv-spread.pv-two{grid-template-columns:1fr 1fr}
+.pv-spread.pv-two:before{content:'';position:absolute;left:50%;top:.2rem;bottom:.2rem;border-left:1px solid var(--border)}
+.pv-col p,.pv-un p{margin:0 0 .9em;text-align:left;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty;line-height:1.72;font-size:var(--read-fs,19px)}
+@container (min-width:560px){.pv-col p,.pv-un p{text-align:justify}}
+.pv-gk{font-family:var(--font-greek,'GFS Didot',Georgia,serif)}
+/* multi-script non-Latin columns: Syriac/Hebrew/Arabic (RTL) + Coptic, script-appropriate fonts */
+.pv-col[lang=syr],.pv-inlmin[lang=syr]{font-family:"Noto Sans Syriac","Estrangelo Edessa","Segoe UI Historic",serif;direction:rtl}
+.pv-col[lang=heb],.pv-inlmin[lang=heb]{font-family:"Noto Serif Hebrew","SBL Hebrew","Times New Roman",serif;direction:rtl}
+.pv-col[lang=ara],.pv-inlmin[lang=ara]{font-family:"Noto Naskh Arabic","Segoe UI",serif;direction:rtl}
+.pv-col[lang=cop]{font-family:"Noto Sans Coptic","New Athena Unicode",'GFS Didot',serif}
+.pv-col[lang=syr] p,.pv-col[lang=heb] p,.pv-col[lang=ara] p,
+.pv-inlmin[lang=syr] p,.pv-inlmin[lang=heb] p,.pv-inlmin[lang=ara] p{text-align:right;direction:rtl}
+@container (min-width:560px){.pv-col[lang=syr] p,.pv-col[lang=heb] p,.pv-col[lang=ara] p{text-align:right}}
+.pv-un{margin-top:.4rem}
+.pv-grp+.pv-grp{margin-top:.5rem}
+.pv-fnblock{margin-top:1.2rem;font-size:.8rem;color:var(--muted);line-height:1.55}
+.pv-fnrule{border-top:1px solid var(--border);width:30%;margin-bottom:.5rem}
+.pv-fnline{margin:.22rem 0;text-align:justify;hyphens:auto}
+.pv-verseblk{white-space:pre-line;text-align:left!important;hyphens:none!important;line-height:1.66}
+.pv-inlmin{margin-top:.5rem;padding-left:.7rem;border-left:2px solid var(--border);opacity:.92}
+.pv-empty{color:var(--muted);font-style:italic;padding:1rem}
+@media(max-width:880px){.pv-spread.pv-two{grid-template-columns:1fr}.pv-spread.pv-two:before{display:none}.pv-spread.pv-two .pv-lt{margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--border)}}
+@container (max-width:620px){.pv-spread.pv-two{grid-template-columns:1fr}.pv-spread.pv-two:before{display:none}.pv-spread.pv-two .pv-lt{margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--border)}}
+/* page-view workbench: sticky toolbar — column filter (Both/Greek/Latin) + page-by-page nav */
+.pv-bar{position:sticky;top:var(--ctrl-h,0);z-index:6;display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;padding:.45rem .65rem;margin:0 0 1.2rem;background:color-mix(in oklch,var(--bg) 86%,transparent);backdrop-filter:blur(7px);border:1px solid var(--border);border-radius:9px}
+.pv-seg{display:inline-flex;border:1px solid var(--border);border-radius:7px;overflow:hidden}
+.pv-seg button{padding:.32rem .85rem;border:0;border-left:1px solid var(--border);background:var(--card);cursor:pointer;font:inherit;font-size:.82rem;color:var(--muted);transition:background .14s,color .14s,transform .14s}
+.pv-seg button:first-child{border-left:0}
+.pv-seg button.active{background:var(--fg);color:var(--bg)}
+.pv-seg button:hover:not(.active){color:var(--accent2)}
+.pv-seg button:active:not(.active){transform:scale(.96)}
+.pv-nav{display:inline-flex;align-items:center;gap:.45rem;font-size:.82rem;color:var(--muted)}
+.pv-nav button{padding:.3rem .7rem;border:1px solid var(--border);border-radius:6px;background:var(--card);cursor:pointer;font:inherit;color:var(--fg);transition:background .14s,color .14s,transform .14s}
+.pv-nav button:hover{background:var(--fg);color:var(--bg);border-color:var(--accent)}
+/* ── OCR-lane column filter (the pv-bar Greek/Latin buttons toggle these on <html>) ── */
+html.pvcol-gk .pv-page .pv-col.pv-lt,html.pvcol-gk .pv-page .pv-inlmin{display:none}
+html.pvcol-lt .pv-page .pv-col.pv-gk,html.pvcol-lt .pv-page .pv-spread:first-of-type .pv-inlmin{display:none}
+html.pvcol-gk .pv-page .pv-spread.pv-two,html.pvcol-lt .pv-page .pv-spread.pv-two{grid-template-columns:1fr}
+html.pvcol-gk .pv-page .pv-spread.pv-two:before,html.pvcol-lt .pv-page .pv-spread.pv-two:before{display:none}
+html.pvcol-lt .pv-page .pv-spread.pv-two .pv-lt{margin-top:0;padding-top:0;border-top:0}
+/* ── RAW (flat) OCR mode: collapse the parallel columns into one continuous flow ── */
+html.pv-flat .pv-page .pv-spread,html.pv-flat .pv-page .pv-spread.pv-two{display:block;grid-template-columns:1fr}
+html.pv-flat .pv-page .pv-spread.pv-two:before{display:none}
+html.pv-flat .pv-page .pv-spread.pv-two .pv-lt{margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--border)}
+html.pv-flat .pv-page{padding:1.2rem 1.4rem}.pv-seg .pvl-on{font-variant:small-caps}
+.pv-nav button:active{transform:scale(.96)}
+#pvPageInd{min-width:7em;text-align:center;font-variant-numeric:tabular-nums;font-family:var(--font-ui)}
+html.pvcol-gk #pageView .pv-lt,html.pvcol-gk #pageView .pv-spread.pv-two:before{display:none}
+html.pvcol-gk #pageView .pv-spread.pv-two{grid-template-columns:1fr}
+html.pvcol-lt #pageView .pv-gk,html.pvcol-lt #pageView .pv-spread.pv-two:before{display:none}
+html.pvcol-lt #pageView .pv-spread.pv-two{grid-template-columns:1fr}
+.src-clean{background:#e3f0e0;color:#2e6b2e}
+.src-ocr{background:#f3ead6;color:#8a6d1f}
+.src-vision{background:#e1e8f6;color:#39548c}
+.blk .col-marker{display:inline-block;font-family:-apple-system,sans-serif;font-size:0.66rem;
+color:var(--col);background:var(--sidebar);border:1px solid var(--border);border-radius:3px;
+padding:0 0.25rem;margin-right:0.4rem;vertical-align:middle;user-select:all;cursor:pointer;font-variant-numeric:tabular-nums}
+.blk sup.note-ref{color:var(--col);font-size:0.7em;font-weight:600}
+.blk i{font-style:italic}
+.scroll-top{position:fixed;bottom:2rem;right:2rem;background:var(--fg);color:var(--bg);border:none;
+border-radius:50%;width:44px;height:44px;font-size:1.2rem;cursor:pointer;display:none;z-index:100;
+box-shadow:0 2px 8px rgba(0,0,0,.2)}
+/* landing */
+.hero{text-align:center;padding:2.6rem 0 2.2rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
+.hero h1{font-family:var(--font-display);font-size:clamp(2.4rem,5vw,3.4rem);line-height:1.05;color:var(--fg);margin:0 0 .35rem;font-weight:400;letter-spacing:-.015em;text-wrap:balance}
+.hero .sub{color:var(--accent2);font-style:italic;font-size:1.08rem}
+.hero .stats{margin-top:1.3rem;display:flex;gap:2.2rem;justify-content:center;font-size:.9rem;color:var(--muted)}
+.hero .n{font-family:var(--font-display);font-weight:400;font-size:1.55rem;display:block;color:var(--accent)}
+.vol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:.5rem}
+.vol-cell{display:block;text-align:center;padding:.6rem .2rem;border:1px solid var(--border);
+border-radius:6px;background:var(--card);font-size:.85rem}
+.vol-cell:hover{background:var(--sidebar);text-decoration:none}
+.vol-cell .vn{font-weight:700;color:var(--accent)}
+.vol-cell .vc{display:block;font-size:.7rem;color:var(--muted)}
+.search-box{width:100%;padding:.6rem 1rem;border:1px solid var(--border);border-radius:6px;
+font-size:1rem;font-family:inherit;background:var(--card)}
+.search-box:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklch,var(--fg) 9%,transparent)}
+[data-theme="dark"] .search-box{border-color:#4A4A44}   /* the resting box VANISHED on graphite (owner eval 09-06) */
+.search-box::placeholder{color:var(--muted)}
+/* ═══ ASK MODE = A CONVERSATION (owner 2026-09-05 "literally copy claude.ai … composer on
+   the bottom … same design everywhere"): greeting + quiet suggestions centered in the empty
+   space; ONE composer card pinned sticky at the foot with its round ↑ send; the ⌖ Scope
+   sheet opens upward from the composer, exactly like the landing overlay. ═══ */
+body.mode-ask .search-box{display:none}   /* the page search box yields to the composer */
+body.mode-ask .shint,body.mode-ask #displayControls,body.mode-ask .display-controls,body.mode-ask .count-row{display:none}
+body.mode-ask #results{display:flex;flex-direction:column;min-height:calc(100dvh - 250px)}
+.ask-empty{flex:1;display:flex;flex-direction:column;justify-content:center;gap:.5rem;padding-bottom:2rem}
+body.mode-ask .ask-welcome .aw-word{text-align:center}
+.askbox{position:sticky;bottom:.9rem;margin-top:auto;z-index:40;width:100%;max-width:46rem;align-self:center;
+  background:var(--card);border:1px solid color-mix(in oklch,var(--fg) 18%,var(--border));border-radius:16px;
+  padding:.7rem 3.1rem .5rem .95rem;box-shadow:0 1px 2px rgba(0,0,0,.05),0 16px 44px -20px rgba(0,0,0,.4)}
+.askbox textarea{width:100%;border:0 !important;background:none !important;outline:0 !important;box-shadow:none !important;resize:none;color:var(--fg);
+  font:1.04rem/1.45 var(--font-body);padding:.15rem 0 .1rem;min-height:1.7rem;max-height:180px;border-radius:0}
+.askbox textarea::placeholder{color:var(--muted)}
+.askgo{position:absolute;right:.6rem;bottom:.6rem;width:36px;height:36px;border-radius:50%;border:0;
+  background:var(--fg);color:var(--bg);font-size:1.1rem;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.askgo:disabled{opacity:.35;cursor:default}
+.askbox-tools{display:flex;align-items:center;gap:.3rem;color:var(--muted);font:.78rem/1 var(--font-ui,inherit);margin:.15rem 0 0 -.35rem}
+.askbox-t{display:inline-flex;align-items:center;gap:.3rem;color:var(--muted);font:500 .78rem/1 var(--font-ui,inherit);padding:.4rem .5rem;border-radius:7px;cursor:pointer}
+.askbox-t:hover{color:var(--fg)}
+.askbox-t input{appearance:none;-webkit-appearance:none;width:0;height:0;margin:0;border:0;position:absolute;left:-9999px;outline:none;pointer-events:none}
+.askbox-t:has(input:checked){color:var(--fg);font-weight:700}
+.askbox-t:has(input:checked)::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--fg)}
+.ask-scopewrap{position:absolute;bottom:calc(100% + 10px);left:0;right:0;background:var(--card);
+  border:1px solid var(--border);border-radius:12px;padding:.7rem .8rem;
+  box-shadow:0 18px 50px -14px rgba(20,20,18,.35)}
+body.mode-ask .ask-corpora{flex-wrap:wrap;justify-content:center;overflow:visible}
+body.mode-ask #scopeBar{display:none}
+body.mode-ask .ask-scopewrap #scopeBar{display:flex;justify-content:center;margin-top:.4rem}
+.sr{padding:.6rem .8rem;border-bottom:1px solid var(--border);display:block;color:var(--fg)}
+.pinstar{position:absolute;right:.6rem;top:.55rem;border:0;background:none;font-size:1rem;line-height:1;color:var(--border);cursor:pointer;padding:.2rem .3rem}.pinstar:hover{color:var(--fg)}.pinstar.on{color:var(--fg)}.pinstar:disabled{opacity:.5}
+.sr:hover{background:var(--sidebar)}
+.sr .sr-cite{font-size:.78rem;color:var(--muted)}
+.sr .sr-hl{background:var(--hl)}
+.sb-mtoggle{display:none;position:fixed;left:0;top:120px;z-index:94;background:var(--fg);color:var(--bg);border:none;border-radius:0 6px 6px 0;padding:.6rem .35rem;cursor:pointer;writing-mode:vertical-rl;font:600 .8rem/1 inherit;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+.sb-backdrop{position:fixed;inset:0;z-index:95;background:rgba(40,30,20,.25);display:none}
+@media(max-width:900px){.sidebar{display:none}.main{padding:1rem 1.2rem}
+.sb-mtoggle{display:block}
+body.sb-open .sb-backdrop{display:block}
+body.sb-open .sidebar{display:block;position:fixed;left:0;top:0;height:100vh;width:min(85vw,340px);min-width:0;overflow-y:auto;z-index:96;box-shadow:2px 0 16px rgba(0,0,0,.3);padding-top:calc(var(--authh,0px) + .8rem)}}
+/* === alive navigation + motion polish (palette-adaptive, reduced-motion aware) === */
+:root{--ease:cubic-bezier(.22,1,.36,1);--accent-tint:color-mix(in srgb,var(--accent) 9%,transparent)}
+.read-progress{position:fixed;top:0;left:0;height:3px;width:100%;transform:scaleX(0);transform-origin:left;background:var(--accent);z-index:200;transition:transform .08s linear;will-change:transform}
+.nt-div{transition:color .2s var(--ease),background .2s var(--ease),border-left-color .2s var(--ease),transform .2s var(--ease)}
+.nt-div:hover{transform:translateX(3px)}
+.nt-div.active{color:var(--accent);background:var(--accent-tint);border-left-color:var(--accent);font-weight:600}
+.vol-cell{transition:transform .2s var(--ease),box-shadow .2s var(--ease),background .2s var(--ease)}
+.vol-cell:hover{transform:translateY(-2px);box-shadow:0 5px 16px color-mix(in srgb,var(--accent) 24%,transparent)}
+.nav-strip a,.work-toc a{transition:transform .18s var(--ease),background .18s var(--ease),color .18s var(--ease),border-color .18s var(--ease)}
+.nav-strip a:hover,.work-toc a:hover{transform:translateY(-1px);border-color:var(--accent)}
+.nav-strip a:active,.work-toc a:active{transform:scale(.96)}
+.scroll-top{transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.scroll-top:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.scroll-top:active{transform:scale(.96)}
+.sr{transition:background .15s var(--ease),transform .15s var(--ease)}.sr:hover{transform:translateX(4px)}
+.div-head{transition:color .2s var(--ease)}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}.read-progress{display:none}}
+/* ── In-work Find bar + match highlight ─────────────────────────────────────
+   Uses the site's existing custom properties (--card, --border, --fg, --accent,
+   --radius-md/--radius). If a token is absent it falls back to a sane value. */
+.findbar{position:fixed;z-index:120;right:1rem;bottom:1rem;display:flex;align-items:center;gap:.3rem;
+  background:var(--card,#fff);border:1px solid var(--border,rgba(0,0,0,.15));
+  border-radius:12px;padding:.35rem .4rem;box-shadow:0 6px 24px rgba(0,0,0,.18),0 1px 3px rgba(0,0,0,.1)}
+.findbar[hidden]{display:none}
+.findbar .find-q{border:0;background:transparent;color:var(--fg,#1a1a1a);font:inherit;font-size:.92rem;
+  padding:.25rem .4rem;min-width:13rem;outline:none}
+.findbar .find-count{font:600 .72rem/1 var(--font-ui,-apple-system,sans-serif);color:var(--muted,#888);
+  font-variant-numeric:tabular-nums;min-width:4.5rem;text-align:right;white-space:nowrap}
+.findbar button{border:0;background:transparent;color:var(--accent,#7a4a2b);cursor:pointer;
+  width:1.9rem;height:1.9rem;border-radius:7px;font-size:.95rem;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;transition:background .14s,transform .14s}
+.findbar button:hover{background:var(--hl,rgba(0,0,0,.06))}
+.findbar button:active{transform:scale(.96)}
+@media(max-width:560px){.findbar{left:1rem;right:1rem}.findbar .find-q{min-width:0;flex:1}}
+mark.find-hit{background:#ffe9a8;color:inherit;border-radius:2px;padding:0 .03em;
+  box-shadow:0 0 0 1px rgba(0,0,0,.04)}
+mark.find-hit.active{background:#ffb54d;box-shadow:0 0 0 2px var(--accent,#d4863f);scroll-margin-top:130px}
+[data-theme="dark"] mark.find-hit{background:#7a6a2e;color:#fff}
+[data-theme="dark"] mark.find-hit.active{background:#b08a2e}
+
+@import url('https://fonts.cdnfonts.com/css/gfs-didot');
+:root{--font-greek:'GFS Didot','Old Standard TT','Source Serif Pro',Palatino,serif;}
+.tx{font-family:var(--font-greek);font-size:1.03em}
+.blk.par{display:grid;grid-template-columns:1fr 1fr;gap:1.8rem;align-items:start}
+.blk.par .tx{margin:0}
+.blk .la{font-family:var(--font-body);color:var(--latin);font-style:italic;font-size:.95em;line-height:1.66}
+html.g-greek .blk.par{grid-template-columns:1fr}html.g-greek .blk .la{display:none}
+html.g-latin .blk.par{grid-template-columns:1fr}html.g-latin .blk .tx{display:none}
+.blk.latin-only .la{font-style:normal;color:var(--fg);margin:0}     /* Latin-only page reads as primary */
+html.g-greek .blk.latin-only{display:none}
+/* Latin-primary works (Latin dissertation w/ scattered Greek quotes): Latin reads as primary, Greek is an
+   inline companion note. Toggle: Greek-only hides the Latin; Latin-only hides the Greek note. */
+.blk.latprim .la-primary{display:block;font-family:var(--font-body);color:var(--fg);line-height:1.8;max-width:37em}
+.blk.latprim .gk-note{display:block;font-family:var(--font-greek);color:var(--muted);font-size:.95em;margin:.25rem 0 0;line-height:1.7}
+html.g-latin .blk.latprim .gk-note{display:none}
+html.g-greek .blk.latprim .la-primary{display:none}
+html.g-greek .blk.latprim .gk-note{color:var(--fg)}
+html.g-ocr .blk.latprim .la-primary,html.g-ocr .blk.latprim .gk-note{display:none}
+/* OCR view: the raw Migne OCR, Greek & Latin colour-coded so you can inspect it directly */
+html.g-ocr .blk.par{grid-template-columns:1fr}
+html.g-ocr .blk .tx,html.g-ocr .blk .la,html.g-ocr .blk.latin-only .la{display:none}
+.ocr-raw{display:none;white-space:pre-wrap;line-height:1.7;font-size:.95em;font-family:var(--font-greek)}
+html.g-ocr .ocr-raw{display:block}
+.ocr-raw .gk{color:#1f6e5e}.ocr-raw .lt{color:var(--accent2)}.ocr-raw .xx{color:var(--muted)}
+.ocr-src{display:none}
+/* OCR-only columns (a truncated clean edition's missing extent, e.g. PG76 Libri III-X): hidden in every
+   text lane, surface only in the OCR lane so it reads as one continuous OCR scroll with no clean text */
+.blk.ocronly{display:none}
+html.g-ocr .blk.ocronly{display:block}
+.blk.ocronly .ocr-col{display:none}
+html.g-ocr .blk.ocronly .ocr-col{display:block;font-size:.7rem;color:var(--muted);letter-spacing:.04em;margin:.1rem 0 .25rem;font-family:var(--font-ui,inherit)}
+/* polytonic reading typography: room for diacritics + a comfortable single-column measure */
+.tx{line-height:1.8}
+.blk:not(.par) .tx,.blk.latin-only .la{max-width:37em}
+.oov{cursor:help}                                     /* OCR word not in the reference lexicon */
+html.show-oov:not(.g-ocr) .oov{border-bottom:1px dotted #cdb89c}   /* opt-in flagging, off by default */
+#oovBtn{padding:.25rem .7rem;border:1px solid var(--border);border-radius:5px;background:var(--card);cursor:pointer;font-family:inherit;font-size:.8rem;color:var(--muted);transition:background .14s,color .14s,border-color .14s,transform .14s}
+#oovBtn.active{background:var(--fg);color:var(--bg);border-color:var(--accent)}
+#oovBtn:active{transform:scale(.96)}
+.modeseg{display:inline-flex;border:1px solid var(--border);border-radius:5px;overflow:hidden}
+.modeseg button{border:0;border-right:1px solid var(--border);background:var(--card);padding:.25rem .7rem;cursor:pointer;font-family:inherit;font-size:.8rem;color:var(--muted)}
+.modeseg button:last-child{border-right:0}.modeseg button.active{background:var(--fg);color:var(--bg)}
+[data-theme="dark"] .modeseg button.active,[data-theme="dark"] .axis-tabs button.active{color:#0e1c1b}
+#facsBtn{padding:.25rem .7rem;border:1px solid var(--border);border-radius:5px;background:var(--card);cursor:pointer;font-family:inherit;font-size:.8rem;color:var(--muted)}
+#facsBtn.active{background:var(--fg);color:var(--bg);border-color:var(--accent)}
+.app.with-facs .main{margin-right:var(--facs-w,420px)}
+/* facsimile — Faith-Received styling: paper ground, bordered + sepia scan, fol/source head, citation
+   foot, a drag-resizer with a grip, and click-to-zoom lightbox */
+.facs{position:fixed;top:0;right:0;bottom:0;width:var(--facs-w,440px);background:#efe7d6;border-left:1px solid var(--border);display:flex;flex-direction:column;z-index:35;box-shadow:-18px 0 50px -34px rgba(45,41,39,.4);transition:transform .3s var(--ease)}
+.app:not(.with-facs) .facs{transform:translateX(101%)}
+.facs-head{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid var(--border)}
+#facsFol{font-family:var(--font-ui);font-size:.82rem;color:var(--fg)}
+.facs-head .lbl{font-family:var(--font-ui);font-size:.66rem;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.facs-stage{flex:1;overflow:auto;display:grid;place-items:start center;padding:1rem;cursor:grab}
+.facs-stage.grabbing{cursor:grabbing}
+.facs-stage img{width:var(--imz,100%);max-width:none;height:auto;border:1px solid var(--border);border-radius:2px;background:#fff;cursor:inherit;filter:sepia(.12);box-shadow:0 6px 22px -12px rgba(45,41,39,.45);transition:opacity .3s;outline:1px solid rgba(0,0,0,.1);outline-offset:-1px}
+.facs-foot{padding:.6rem 1rem;border-top:1px solid var(--border);font:.78rem/1.4 var(--font-ui);color:var(--muted)}
+.facs-resizer{position:fixed;top:0;bottom:0;width:11px;right:var(--facs-w,440px);z-index:36;cursor:col-resize;touch-action:none}
+.app:not(.with-facs) .facs-resizer{display:none}
+.facs-resizer::before{content:"";position:absolute;inset:0 4px;border-radius:3px;background:var(--border);opacity:0;transition:opacity .15s}
+.facs-resizer:hover::before,.facs-resizer.drag::before{opacity:.9;background:var(--accent)}
+.facs-resizer::after{content:"\22EE";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--muted);font-size:13px;opacity:.5;pointer-events:none}
+.facs-light{position:fixed;inset:0;z-index:90;background:rgba(45,41,39,.85);display:none;place-items:center;padding:4vh;backdrop-filter:blur(3px);cursor:zoom-out}
+.facs-light.open{display:grid}
+.facs-light img{max-height:92vh;max-width:96vw;border-radius:3px;box-shadow:0 30px 80px -20px #000;outline:1px solid rgba(0,0,0,.1);outline-offset:-1px}
+.facs-close{display:none;border:0;background:none;cursor:pointer;font-size:1rem;line-height:1;color:var(--muted);padding:.1rem .35rem;margin-right:.2rem;border-radius:4px}
+.facs-close:hover{background:var(--sidebar);color:var(--fg)}
+@media(max-width:1100px){.app.with-facs .main{margin-right:0}.facs{width:90vw;--facs-w:90vw}.facs-resizer{display:none}.facs-close{display:inline-block}}
+/* sidebar TOC search (by author or work) */
+.nt-search{display:block;width:calc(100% - 1.2rem);margin:.5rem .6rem .3rem;padding:.45rem .7rem;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:.85rem;background:var(--card);color:var(--fg)}
+.nt-search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-tint,rgba(193,89,60,.14))}
+.nt-result{display:block;padding:.38rem .8rem;text-decoration:none;color:var(--fg);border-bottom:1px solid var(--border);line-height:1.3}
+.nt-result:hover{background:var(--bg-warm)}
+.nt-result .nt-rt{display:block;font-weight:600;font-size:.9rem}
+.nt-result .nt-meta{display:block;font-size:.74rem;color:var(--muted)}
+/* controls wrap instead of overflowing on narrow screens */
+.display-controls{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .5rem}
+/* phones: stack the Greek/Latin columns (side-by-side is too cramped under ~640px) */
+@media(max-width:640px){
+  .blk.par{grid-template-columns:1fr;gap:.35rem}
+  .blk .la{border-top:1px solid var(--border);padding-top:.3rem;margin-top:.1rem}
+}
+/* ===== graeca consolidation (design-audit 2026-06-08): controls read as ONE toolbar; chrome recedes; text leads ===== */
+/* display-controls become a single calm toolbar card — not loose form fields floating over the text */
+/* STICKY reading toolbar — lane + OCR-view + Contents switching stays reachable while scrolling a long
+   work (or the whole-volume scroll). Frosted so the text reads through it; offsets the inner sticky bars
+   (page-view bar, A–Z index strip) below itself via the measured --ctrl-h. */
+.display-controls{background:color-mix(in oklch,var(--sidebar,#f1e0c9) 92%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:9px;padding:.5rem .7rem;margin:0 0 1.5rem;gap:.5rem .55rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -14px rgba(0,0,0,.35);position:sticky;top:var(--authh,0px);z-index:120}
+/* Compact sticky mode while reading: once scrolled past the header the bar tightens to one dense row —
+   the lane switch (Clean·OCR·Facsimile·Page) and the OCR sub-filters (Greek·Latin·Raw·Page) stay reachable
+   mid-scroll; the rarer controls (size, zoom, export, print) tuck away until you scroll back up. */
+html.dc-compact .display-controls{padding:.3rem .55rem;gap:.3rem .45rem}
+html.dc-compact .display-controls>label,
+html.dc-compact .display-controls #szDn,html.dc-compact .display-controls #szUp,
+html.dc-compact .display-controls #szRange,html.dc-compact .display-controls .izc,
+html.dc-compact .display-controls #mdBtn,
+html.dc-compact .display-controls button[onclick*="print"]{display:none}
+html.dc-compact .display-controls .modeseg button,html.dc-compact .display-controls .layerseg button{padding:.18rem .55rem}
+/* segmented language axis + facsimile toggle: tactile press + clearer hover (matches the pld seg) */
+.modeseg button,#facsBtn{transition:background .14s,color .14s,border-color .14s,transform .14s cubic-bezier(.22,1,.36,1)}
+.modeseg button:active,#facsBtn:active{transform:scale(.96)}
+.modeseg button:hover:not(.active),#facsBtn:hover:not(.active){background:color-mix(in oklch,var(--accent) 9%,transparent);color:var(--accent2)}
+.modeseg button:focus-visible,#facsBtn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+/* sister-sites + By Volume/Author recede — the work tree and the reading lead, not the wayfinding chrome */
+.sb-fam{opacity:.7;font-size:.7rem!important;border-top:1px solid var(--border);margin-top:.5rem;padding-top:.55rem!important}
+.axis-tabs{margin-bottom:.65rem}
+.axis-tabs button{font-size:.78rem;color:var(--muted);transition:background .14s,color .14s,transform .14s cubic-bezier(.22,1,.36,1)}
+.axis-tabs button:active{transform:scale(.96)}
+/* page-header: tighter, display hierarchy + tabular meta, consistent with the siblings */
+.page-header{padding-bottom:.85rem;margin-bottom:1.25rem}
+.page-header h1{letter-spacing:-.015em}
+.page-header .meta{font-variant-numeric:tabular-nums}
+/* continuous reading-size slider (replaces the old A/A/A/A discrete buttons), persisted; !important so it
+   supersedes study.css's .font-sm/md/lg/xl class sizing */
+.main{font-size:var(--read-fs,19px)!important}
+#szRange{width:104px;accent-color:var(--accent);cursor:pointer;vertical-align:middle;margin:0 .35rem}
+.szb{border:1px solid var(--border);border-radius:5px;background:var(--card);cursor:pointer;font-family:inherit;color:var(--muted);padding:.12rem .5rem;line-height:1.1;transition:color .14s,border-color .14s,transform .14s}
+#szDn{font-size:.72rem}#szUp{font-size:1.02rem}
+.szb:hover{color:var(--accent);border-color:var(--accent)}
+.szb:active{transform:scale(.96)}
+.meta .auth-gr{opacity:.75;font-style:italic;margin-left:.15rem}
+/* Facsimile is an independent side-panel toggle, not one of the exclusive reading lanes — give it a
+   divider + outline treatment so two "active" pills never read as a contradiction. */
+.layerseg #layFacs{margin-left:.45rem;position:relative}
+.layerseg #layFacs::before{content:"";position:absolute;left:-.3rem;top:15%;bottom:15%;border-left:1px solid var(--border)}
+.layerseg #layFacs.active{background:transparent;color:var(--accent2,#1d6a62);box-shadow:inset 0 0 0 1.5px var(--accent2,#1d6a62)}
+
+/* ── ENGLISH lane (machine translation, page-keyed) ────────────────────────── */
+html.g-en .main .blk,html.g-en #textModes,html.g-en #ocrModes{display:none!important}
+#enLane{display:none}
+html.g-en #enLane{display:block}
+.en-lane{max-width:var(--read-w,72ch);margin:0 auto;padding:.4rem .2rem 3rem;font-size:var(--read-fs,19px);line-height:1.72;font-family:var(--font-read,Georgia,serif)}
+.en-prov{font:600 .74rem/1.5 var(--font-ui,system-ui);letter-spacing:.03em;color:var(--muted,#8a7d68);border-bottom:1px solid var(--rule,#e4ddd0);padding:.3rem 0 .55rem;margin-bottom:1rem}
+.en-work{font:700 1.05rem/1.4 var(--font-ui,system-ui);letter-spacing:.04em;color:var(--accent,#c1593c);margin:2.2rem 0 .6rem;text-transform:uppercase}
+.en-page{position:relative;margin:0 0 1.25rem}
+.en-colhead{font:600 .7rem/1.4 var(--font-ui,system-ui);letter-spacing:.05em;color:var(--muted,#8a7d68);margin:.9rem 0 .25rem}
+.en-colhead a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--rule,#d8cfc0)}
+.en-h{font:700 .95rem/1.45 var(--font-ui,system-ui);letter-spacing:.05em;margin:1.3rem 0 .5rem;color:var(--ink,#2b2420);text-transform:uppercase}
+.en-anch{color:var(--accent,#c1593c);font-weight:700;font-size:.68em;margin:0 .12em;cursor:default}
+.en-note{color:var(--muted,#8a7d68);font-style:italic;font-size:.9em}
+.en-cites{margin:.45rem 0 0;display:flex;flex-wrap:wrap;gap:.3rem}
+.en-cite{font:600 .68rem/1.5 var(--font-ui,system-ui);color:var(--muted,#6b6258);border:1px solid var(--rule,#e0d8ca);border-radius:.6rem;padding:.02rem .45rem;background:color-mix(in srgb,var(--bg,#fbf9f6) 88%,var(--accent,#c1593c) 12%)}
+.facs-en .en-h{font-size:.85rem}.facs-en{font-size:.92rem;line-height:1.65}
+
+/* ── SPLIT mode: text lane ‖ English (sticky column-synced pane) ‖ facsimile ── */
+html.g-split #enLane{display:block;position:sticky;top:calc(var(--authh,0px) + 3.2rem);float:right;
+  width:46%;max-height:84vh;overflow-y:auto;margin:0 0 1rem 1.4rem;padding:.2rem 1rem .8rem;
+  border-left:2px solid var(--rule,#e4ddd0);background:var(--bg,#fbf9f6);font-size:calc(var(--read-fs,19px)*.92)}
+html.g-split .main .blk{max-width:50%}
+html.g-split #enLane .en-prov{position:sticky;top:0;background:var(--bg,#fbf9f6);z-index:2}
+html.g-split.g-en #enLane{position:static;float:none;width:auto;max-height:none}
+@media (max-width:1100px){html.g-split #enLane{float:none;width:auto;position:static;max-height:none;border-left:0}}
+
+/* ── reading themes (Davenant port): light (default) · sepia · dark — cycled by the ◐ toggle,
+   persisted as pg-theme. Concatenated LAST so these re-assertions win the var cascade (pg.css
+   loads after prdl-system.css, whose [data-theme=dark] block our :root would otherwise clobber).
+   Accent stays with prdl-system's :root[data-theme][data-site=graeca] rules (higher specificity). ── */
+[data-theme="sepia"]{--bg:#EFE6D2;--bg-warm:#E9DFC8;--fg:#43372A;--muted:#665440;--border:#D8C7A6;
+--card:#F3EBD9;--sidebar:#E9DFC8;--latin:#43372A;--col:#8A6D42;--hl:#E8D9B8;--facs-bg:#E7DCC2}
+[data-theme="dark"]{--bg:#1A1A18;--bg-warm:#232320;--fg:#E9E9E5;--muted:#A2A29C;--border:#3B3B36;
+--card:#232320;--sidebar:#1F1F1D;--latin:#E9E9E5;--col:#8F8F89;--hl:#33332F;--facs-bg:#1F1F1D;
+--accent:#E9E9E5;--accent2:#C9C9C4}   /* monochrome: accent IS the ink — it must flip with the theme (the h1 vanished on graphite) */
+/* dark re-tones for the annotation colors + chrome that study.css hardcodes for light paper */
+[data-theme="dark"] .blk[data-hl=yellow]{background:#4D3B1C}
+[data-theme="dark"] .blk[data-hl=blue]{background:#27323F}
+[data-theme="dark"] .blk[data-hl=green]{background:#2C3A2A}
+[data-theme="dark"] .blk[data-hl=pink]{background:#46282F}
+[data-theme="dark"] .sel-popup,[data-theme="dark"] .nb-panel,[data-theme="dark"] .modal-box{background:var(--card);color:var(--fg)}
+[data-theme="dark"] .modal-ta,[data-theme="dark"] .nb-tools input,[data-theme="dark"] .nb-tools select,
+[data-theme="dark"] .note-editor textarea,[data-theme="dark"] .tr-editor textarea{background:#241F1A;color:var(--fg);border-color:var(--border)}
+[data-theme="dark"] .blk-note,[data-theme="dark"] .blk-tr{background:#322A20}
+/* the scan itself is never filtered by theme (authentic facsimile, Davenant rule); pane chrome adapts */
+.facs{background:var(--facs-bg,#efe7d6)}
+/* theme toggle */
+.theme-fab{border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--muted);cursor:pointer;font-family:inherit;font-size:.95rem;padding:.18rem .6rem;vertical-align:middle;position:relative;transition:color .14s,border-color .14s,transform .14s}
+.theme-fab:hover{color:var(--accent);border-color:var(--accent)}
+.theme-fab:active{transform:scale(.96)}
+.theme-fab::before{content:'';position:absolute;inset:-6px}
+/* Faith-Received page boundaries: a labelled, clickable divider at every facsimile-page transition.
+   The chip belongs to the page BELOW it (generous top margin, tight bottom — Davenant rhythm). */
+.foliomark{display:flex;align-items:center;gap:.7rem;margin:2.2rem 0 .7rem;cursor:pointer}
+.foliomark:first-of-type{margin-top:.3rem}
+.foliomark .ff{font:italic .95rem/1 var(--font-display);color:var(--accent);border:1px solid color-mix(in oklab,var(--accent) 38%,transparent);border-radius:7px;padding:.18rem .7rem;white-space:nowrap;font-variant-numeric:tabular-nums;transition:background .14s,color .14s}
+.foliomark:hover .ff,.foliomark:focus-visible .ff{background:color-mix(in oklab,var(--accent) 10%,transparent)}
+.foliomark .fr{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.foliomark .fm{font:.68rem/1 var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media print{.foliomark{display:none}}
+/* facsimile browser (read/facs{vol}.html): the volume's page scans, scrollable, col-anchored */
+.facs-pg{display:block;width:min(var(--imz,100%),300%);max-width:none;margin:.2rem auto 0;border:1px solid var(--border);border-radius:3px;background:#fff;box-shadow:0 8px 26px -16px rgba(45,41,39,.45);aspect-ratio:1000/1545;height:auto;object-fit:contain;cursor:zoom-in;outline:1px solid rgba(0,0,0,.1);outline-offset:-1px}
+.facs-chip{font:italic 1.05rem/1.3 var(--font-display);color:var(--accent2);margin:1.6rem 0 .2rem;text-wrap:balance}
+/* a work begins on this page — chips link to its reading text (clean where digitized, transcription otherwise) */
+a.facs-chip-l{display:flex;align-items:baseline;gap:.6rem;text-decoration:none;border-bottom:1px solid color-mix(in oklab,var(--accent2) 28%,transparent);padding-bottom:.18rem;transition:color .14s}
+a.facs-chip-l:hover{color:var(--accent)}
+.facs-chip-go{margin-left:auto;font:600 .62rem/1 var(--font-ui);letter-spacing:.04em;text-transform:uppercase;color:var(--accent);border:1px solid color-mix(in oklab,var(--accent) 45%,transparent);border-radius:7px;padding:.2rem .6rem;white-space:nowrap;flex:0 0 auto;align-self:center;transition:background .14s,color .14s}
+a.facs-chip-l:hover .facs-chip-go{background:var(--fg);color:var(--bg);border-color:var(--accent)}
+.fm-static{cursor:default;scroll-margin-top:3.2rem}
+.fm-static .ff{cursor:default}
+#facsOpt{display:none;text-decoration:none;font-size:.8rem;padding:.25rem .6rem}
+.fk-ocr{border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--muted);cursor:pointer;font:.66rem/1.1 var(--font-ui);padding:.14rem .5rem;letter-spacing:.04em;transition:color .14s,border-color .14s,transform .14s}
+.fk-ocr:hover,.fk-ocr.active{color:var(--accent);border-color:var(--accent)}
+.fk-ocr:active{transform:scale(.96)}
+/* per-page "text →" link in the facsimile browser: every scan column opens its reading text */
+a.fk-txt{text-decoration:none;color:var(--accent2);border-color:color-mix(in oklab,var(--accent2) 40%,transparent);font-weight:600}
+a.fk-txt:hover{color:#fff;background:var(--accent2);border-color:var(--accent2)}
+/* in-work Contents drawer — the work's natural subdivisions (Book/Chapter/§, letters, fragments) */
+#contBtn{border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--muted);cursor:pointer;font-family:inherit;font-size:.82rem;padding:.2rem .62rem;transition:color .14s,border-color .14s}
+#contBtn:hover{color:var(--accent);border-color:var(--accent)}
+.ct-overlay{position:fixed;inset:0;background:rgba(20,16,12,.34);opacity:0;pointer-events:none;transition:opacity .2s;z-index:300}
+.ct-overlay.open{opacity:1;pointer-events:auto}
+.ct-panel{position:fixed;top:0;left:0;height:100%;width:min(390px,86vw);background:var(--card);border-right:1px solid var(--border);box-shadow:0 0 44px -10px rgba(0,0,0,.45);transform:translateX(-102%);transition:transform .22s var(--ease,ease-out);z-index:301;display:flex;flex-direction:column}
+.ct-panel.open{transform:none}
+.ct-head{display:flex;align-items:center;gap:.6rem;padding:.8rem 1rem;border-bottom:1px solid var(--border)}
+.ct-head b{font-family:var(--font-display);font-size:1.08rem;color:var(--accent2)}
+.ct-count{font:.64rem/1 var(--font-ui);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.ct-close{margin-left:auto;border:none;background:none;font-size:1.5rem;line-height:1;color:var(--muted);cursor:pointer;padding:0 .2rem}
+.ct-close:hover{color:var(--accent)}
+.ct-list{overflow-y:auto;overscroll-behavior:contain;padding:.3rem 0;counter-reset:ct;scrollbar-width:thin}
+.ct-list::-webkit-scrollbar{width:7px}.ct-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+a.ct-item{display:block;padding:.44rem 1rem .44rem 2.4rem;position:relative;font-family:var(--font-greek);font-size:.95rem;line-height:1.45;color:var(--fg);text-decoration:none;border-bottom:1px solid color-mix(in oklab,var(--border) 45%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;counter-increment:ct;box-shadow:inset 0 0 0 var(--accent);transition:background .12s,color .12s,box-shadow .14s var(--ease)}
+a.ct-item::before{content:counter(ct);position:absolute;left:0;width:2rem;text-align:right;color:var(--muted);font-family:var(--font-ui);font-size:.72rem;font-variant-numeric:tabular-nums}
+a.ct-item:hover{background:var(--hl);color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+a.ct-item.ct-cur{background:var(--accent-tint);color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+/* ΚΛΕΙΣ chapter entries already carry their own enumerator (α'/β'/section name) — drop the redundant
+   gutter counter and let a long chapter rubric wrap to two lines instead of a hard one-line ellipsis. */
+a.ct-item.ct-kleis{padding-left:1rem;white-space:normal;text-overflow:clip;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+a.ct-item.ct-kleis::before{content:none}
+/* primary layer switch — Reading · Facsimile · Page (the text sub-modes sit under Reading) */
+.layerseg{display:inline-flex;border:1px solid var(--accent);border-radius:8px;overflow:hidden;margin-right:.55rem;vertical-align:middle}
+.layerseg button{border:none;border-right:1px solid color-mix(in oklab,var(--accent) 35%,transparent);background:var(--card);color:var(--muted);cursor:pointer;font:600 .82rem/1.1 var(--font-ui);padding:.34rem .82rem;transition:background .14s,color .14s}
+.layerseg button:last-child{border-right:none}
+.layerseg button.active{background:var(--fg);color:var(--bg)}
+.layerseg button:not(.active):hover{color:var(--accent);background:var(--hl)}
+.facs-ocr{max-width:920px;margin:.4rem auto .8rem;padding:.8rem 1rem;border:1px solid var(--border);border-radius:8px;background:var(--card)}
+.facs-vis-txt{white-space:pre-wrap;line-height:1.85;font-family:var(--font-greek);font-size:1.02em;color:var(--ink)}
+.facs-hint{font:italic .72rem/1.45 var(--font-ui);color:var(--muted);padding:.35rem .9rem;border-top:1px solid var(--border)}
+.nt-tag-facs{font-size:.58rem;font-weight:700;margin-left:.35rem;padding:.01rem .3rem;border-radius:4px;border:1px solid color-mix(in oklab,var(--accent) 40%,transparent);background:color-mix(in oklab,var(--accent) 10%,transparent);color:var(--accent);letter-spacing:.03em;white-space:nowrap}
+/* spine subheadings, placed at their Migne columns — the work keeps its printed articulation */
+.spine-sub{font-family:var(--font-display);font-size:1.22rem;font-weight:400;color:var(--accent2);margin:1.9rem 0 .6rem;padding-top:.5rem;border-top:1px dotted var(--border);text-wrap:balance;scroll-margin-top:3rem}
+/* permalink arrival: the targeted paragraph flashes (Faith-Received anchor-flash) */
+@keyframes pg-anchor{0%,45%{background:var(--hl)}100%{background:transparent}}
+.blk.anchor-flash{animation:pg-anchor 2.2s var(--ease);border-radius:5px}
+/* print: chrome recedes, text leads */
+@media print{.sidebar,.display-controls,.facs,.facs-resizer,.nav-strip,.sel-popup,.nb-toggle,.scroll-top,.sidebar-toggle{display:none!important}.app .main{margin:0!important;max-width:100%!important}}
+/* resume chip */
+.resume-chip{position:fixed;bottom:1.1rem;left:50%;transform:translateX(-50%);z-index:250;background:var(--card);border:1px solid var(--accent);border-radius:7px;padding:.4rem 1rem;font:.85rem/1.2 var(--font-ui);color:var(--accent);cursor:pointer;box-shadow:0 8px 26px -12px rgba(45,41,39,.5);transition:transform .14s,background .14s}
+.resume-chip:hover{background:var(--hl)}
+.resume-chip:active{transform:translateX(-50%) scale(.96)}
+/* PLD-style "you are here" on the sidebar spine TOC (driven by the facsimile scrollspy) */
+.nt-t.nt-here{background:var(--hl);border-radius:7px;box-shadow:inset 3px 0 0 var(--accent)}
+.nt-t.nt-here a{color:var(--accent)}
+/* facsimile paged navigation (‹ n / N ›, ←/→) */
+.facs-nav{display:flex;align-items:center;gap:.3rem}
+.facs-nav button{border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--muted);cursor:pointer;font-size:1rem;line-height:1.1;padding:.05rem .5rem;font-family:inherit;transition:color .14s,border-color .14s,transform .14s}
+.facs-nav button:hover:not(:disabled){color:var(--accent);border-color:var(--accent)}
+.facs-nav button:disabled{opacity:.35;cursor:default}
+.facs-nav button:active:not(:disabled){transform:scale(.96)}
+#facsPageNum{font:.72rem/1 var(--font-ui);color:var(--muted);min-width:3.4rem;text-align:center;font-variant-numeric:tabular-nums}
+#imzRange{width:84px;accent-color:var(--accent);cursor:pointer;vertical-align:middle}
+/* FR-style masthead pill for the facsimile zoom slider */
+.sld{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 inherit;color:var(--muted);border:1px solid var(--border);border-radius:7px;background:var(--card);padding:0 10px;height:30px}
+.sld input[type=range]{width:84px;accent-color:var(--accent);cursor:pointer}
+.facs-toolbar{position:sticky;top:.4rem;z-index:40;display:flex;justify-content:flex-end;margin:.2rem 0 .6rem;pointer-events:none}
+.facs-toolbar .sld{pointer-events:auto;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+@media(max-width:640px){.sld.izc{display:none}}
+/* image-outline dark-mode inversion: pure white tint replaces the light-mode black tint */
+[data-theme="dark"] .facs-stage img,[data-theme="dark"] .facs-pg,[data-theme="dark"] .facs-light img{outline-color:rgba(255,255,255,.1)}
+/* ── keyboard accessibility: a single, consistent focus ring (was missing site-wide). Mouse users see
+   nothing (:focus-visible), keyboard users get a clear accent ring on every interactive element. ── */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,
+summary:focus-visible,[tabindex]:focus-visible,[role="button"]:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+/* segmented controls sit inside a bordered group → ring hugs the cell, not the whole group */
+.layerseg button:focus-visible,.pv-seg button:focus-visible,.modeseg button:focus-visible{outline-offset:-2px;border-radius:0}
+.ct-item:focus-visible{outline-offset:-2px}
+.layerseg button:focus-visible{position:relative;z-index:1}
+/* respect reduced-transparency / forced-colors users */
+@media (forced-colors:active){.layerseg button.active,.pv-seg button.active{forced-color-adjust:none}}
+
+.main{max-width:900px;margin:0 auto}.app{display:block}
+.shint{color:var(--muted);font-size:.85rem;margin:.4rem 0;text-wrap:pretty}
+/* mode tabs = quiet small-caps text with an ink underline (the boxed segmented control is
+   retired with the design language — owner 2026-09-05 "totally redone") */
+.smodes{display:inline-flex;gap:1.15rem;border:0;border-radius:0;overflow:visible;margin:.4rem 0 .2rem;box-shadow:none}
+.smodes button{font:600 .8rem/1 var(--font-ui,inherit);letter-spacing:.09em;text-transform:uppercase;background:none;border:0;border-bottom:2px solid transparent;padding:.5rem .1rem .45rem;cursor:pointer;color:color-mix(in oklab,var(--muted) 70%,var(--fg));transition:color .14s,border-color .14s}
+.smodes button.active{background:none;color:var(--fg);border-bottom-color:var(--fg)}
+.smodes button:hover:not(.active){background:none;color:var(--fg)}.smodes button:active{transform:none}
+.sr-ex{color:var(--fg);font-size:.92rem;line-height:1.55;margin-top:.2rem;text-wrap:pretty}
+.sr-ex mark{background:#ffe9a8;border-radius:2px;padding:0 1px}
+.sr-n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.8rem}
+.sbusy{color:var(--muted);font-style:italic}
+/* durable conversations + corpus chips + conversation map (owner 2026-08-19) */
+.ask-corpora{display:flex;gap:.4rem;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:.15rem .1rem .45rem;scrollbar-width:none}
+.ask-corpora::-webkit-scrollbar{display:none}
+/* quiet chips, the landing's language: muted hairline; selected = ink border + bold, never a solid slab */
+.ask-corpora button{flex:0 0 auto;font:500 .78rem/1 var(--sans);padding:.42rem .7rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer}
+.ask-corpora button:hover{color:var(--fg);border-color:var(--fg)}
+.ask-corpora button.on{background:transparent;border-color:var(--fg);color:var(--fg);font-weight:600}
+.chat-recent{margin:.7rem 0 .2rem}
+.chat-recent-h{font:600 .72rem/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0 0 .4rem}
+.chat-row{display:flex;align-items:baseline;gap:.55rem;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:.5rem .1rem;cursor:pointer;font:400 .86rem/1.4 var(--sans);color:var(--fg)}
+.chat-row:hover{color:var(--accent)}
+.chat-row .cr-t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-row .cr-m{flex:0 0 auto;color:var(--muted);font-size:.72rem}
+.ask-map{margin:.6rem 0;border:1px solid var(--line);border-radius:10px;background:var(--bg);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ask-map svg{display:block;width:100%;min-width:620px;height:auto}
+.ask-map .amn{cursor:pointer}
+.ask-map .amn:hover text{fill:var(--accent)}
+.ask-map-x{float:right;border:0;background:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:.3rem .6rem}
+.ask-ans{font-size:1.04rem;line-height:1.72;color:var(--fg);text-wrap:pretty;margin:.4rem 0 1rem}
+.ask-ans p{margin:.55em 0}
+.ask-ans .ask-h{font:600 .92rem/1.35 var(--font-ui,inherit);margin:1em 0 .3em;color:var(--fg)}
+.ask-ans .ask-ul{margin:.4em 0 .6em 1.15em;padding:0}
+.ask-ans .ask-ul li{margin:.25em 0}
+.ask-welcome{text-align:center;margin:2.2rem 0 1rem}
+.ask-welcome .aw-word{font:400 2.4rem/1.2 var(--font-serif,Georgia,serif);color:var(--fg);letter-spacing:.01em}
+.ask-welcome .aw-sub{font:.9rem/1.5 var(--font-ui,inherit);color:var(--muted);margin-top:.45rem;text-wrap:balance}
+/* suggestions read as quiet invitations, not boxed pills (owner 2026-09-05) */
+.ask-sugg{display:flex;flex-wrap:wrap;gap:.2rem .6rem;justify-content:center;margin:.9rem auto .4rem;max-width:44rem}
+.ask-scope-t-row{text-align:center;margin:.15rem 0 .1rem}
+.ask-scope-t{border:0;background:none;color:var(--muted);font:500 .78rem/1 var(--font-ui,inherit);cursor:pointer;padding:.4rem .6rem;border-radius:7px}
+.ask-scope-t:hover{color:var(--fg)}
+.ask-scope-t[aria-expanded="true"]{color:var(--fg);font-weight:700}
+.ask-scopewrap{max-width:44rem;margin:.3rem auto .5rem;padding:.7rem .8rem;border:1px solid var(--border);border-radius:12px;background:var(--card)}
+.asw-note{font:italic .82rem/1.5 var(--font-body);color:var(--muted);margin:0 0 .5rem;text-align:center}
+.wsc-grp{border-top:1px solid var(--border);margin-top:.45rem;padding-top:.4rem}
+.wsc-grp summary{cursor:pointer;font:600 .7rem/1 var(--font-ui,inherit);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);list-style:none;display:flex;align-items:center;gap:.4rem;padding:.3rem 0;justify-content:center}
+.wsc-grp summary::-webkit-details-marker{display:none}
+.wsc-grp summary::before{content:"▸";font-size:.72em;transition:transform .15s ease}
+.wsc-grp[open] summary::before{transform:rotate(90deg)}
+.asw-sub{margin:.55rem 0 .1rem;text-align:center}
+.asw-sublb{display:block;font:italic .76rem/1.4 var(--font-body);color:var(--muted);margin:0 0 .3rem}
+.ask-sugg button{border:1px solid var(--border);background:var(--card);border-radius:7px;padding:.5rem .9rem;
+  font:inherit;font-size:.82rem;color:var(--fg);cursor:pointer;min-height:40px}
+.ask-sugg button:hover{border-color:var(--accent);color:var(--accent)}
+.ask-refine{justify-content:flex-start;margin:.5rem 0 .3rem}
+.ask-refine button{font-size:.78rem;min-height:36px;padding:.4rem .75rem}
+.ask-save{border:1px solid var(--border);background:none;border-radius:6px;padding:.28rem .65rem;
+  font:600 .74rem/1 var(--font-ui,inherit);color:var(--muted);cursor:pointer;margin:.2rem 0 .1rem}
+.ask-save:hover{color:var(--accent);border-color:var(--accent)}
+.ask-save.saved{color:var(--accent);border-color:var(--accent)}
+.ask-thread{display:flex;flex-direction:column}
+.ask-turn{margin:0 0 1.5rem;padding-bottom:1.3rem;border-bottom:1px solid var(--border)}
+.ask-turn:last-child{border-bottom:0;margin-bottom:.4rem}
+.ask-q{background:var(--accent-tint,rgba(0,0,0,.05));border-radius:.65rem;padding:.6rem .9rem;
+  font:600 1.02rem/1.5 var(--font-ui,inherit);color:var(--fg);margin:0 0 .8rem;text-wrap:pretty}
+.ask-more{display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;padding:.1rem 0 .5rem}
+.ask-hint{font:.83rem/1.4 var(--font-ui,inherit);color:var(--muted);text-wrap:pretty}
+.ask-new{font:600 .8rem var(--font-ui,inherit);color:var(--accent);background:none;border:1px solid var(--border);
+  border-radius:.5rem;padding:0 .85rem;min-height:36px;cursor:pointer;white-space:nowrap;
+  transition:background .12s ease,scale .1s ease}
+.ask-new:hover{background:var(--accent-tint,rgba(0,0,0,.05))}.ask-new:active{scale:.96}
+@media (prefers-reduced-motion:reduce){.ask-new:active{scale:1}}
+.ask-tools{display:flex;justify-content:flex-end;padding:.15rem 0 .55rem;gap:.9rem;flex-wrap:wrap}
+.ask-deep{display:inline-flex;align-items:center;gap:.45rem;font:600 .8rem/1 var(--font-ui,inherit);
+  color:var(--muted);cursor:pointer;user-select:none}
+.ask-deep input{accent-color:var(--accent);width:.95rem;height:.95rem;cursor:pointer}
+.ask-deep i{font:400 .72rem/1 var(--font-ui,inherit);font-style:normal;color:var(--muted);opacity:.75}
+.ask-deep:has(input:checked){color:var(--accent)}
+.ask-deepline{font:.8rem/1.5 var(--font-ui,inherit);color:var(--muted);margin:.1rem 0 .8rem;text-wrap:pretty}
+.ask-deepline:empty{display:none}
+.ask-deepline .ag-h{margin-right:.5rem}
+.ask-fallib{font:.76rem/1.5 var(--font-ui,inherit);color:var(--muted);margin:.7rem 0 .2rem;text-wrap:pretty}
+.ask-fallib:empty{display:none}
+.ask-fallib a{color:var(--muted);text-decoration:underline}
+/* ── Early-modern reception strip (X-TFR) — a SEPARATE corpus, tinted apart from PG sources ── */
+.ask-tfr{margin:1rem 0 .2rem}
+.ask-tfr:empty{display:none}
+.ask-tfr-h{font:600 .68rem/1 var(--font-ui,inherit);text-transform:uppercase;letter-spacing:.08em;color:#5b7186;margin:0 0 .45rem;padding-top:.8rem;border-top:1px dashed var(--border,rgba(0,0,0,.2))}
+.tfr-row{display:block;padding:.5rem .7rem;margin:.35rem 0;border-radius:8px;background:color-mix(in oklch,#5b7186 7%,transparent);border-left:3px solid #5b7186;color:var(--fg);text-decoration:none;transition:background .14s}
+a.tfr-row:hover{background:color-mix(in oklch,#5b7186 14%,transparent);text-decoration:none}
+.tfr-cite{display:block;font:600 .78rem/1.35 var(--font-ui,inherit);color:#46596b}
+.tfr-snip{display:block;font-size:.86rem;line-height:1.5;color:var(--muted);text-wrap:pretty}
+.tfr-go{font:.74rem/1 var(--font-ui,inherit);color:#5b7186;white-space:nowrap}
+.tfr-note{font:italic .72rem/1.4 var(--font-ui,inherit);color:var(--muted);margin-top:.3rem}
+.ask-ans .cite-lnk{color:var(--accent);text-decoration:none;font-variant-numeric:tabular-nums;white-space:nowrap;border-bottom:1px solid var(--accent-tint,rgba(0,0,0,.15))}
+.ask-ans .cite-lnk:hover{background:var(--accent-tint,rgba(0,0,0,.05))}
+.ask-src-h{font:600 .68rem/1 var(--font-ui,inherit);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:1.2rem 0 .5rem;padding-top:.8rem;border-top:1px solid var(--border)}
+.ask-focus{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.1rem 0 1rem}
+.ask-focus:empty{display:none}
+.focus-h{font:600 .6rem/1 var(--font-ui,inherit);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.focus-chip{display:inline-flex;align-items:center;gap:.4rem;padding:.22rem .6rem;border-radius:7px;background:var(--accent-tint,rgba(0,0,0,.05));color:var(--fg);font:500 .78rem/1.2 var(--font-ui,inherit)}
+.focus-chip i{font-style:normal;font-variant-numeric:tabular-nums;color:var(--muted);font-size:.68rem}
+.ask-graph{margin:.1rem 0 1rem;font:.82rem/1.6 var(--font-ui,inherit);color:var(--muted);font-variant-numeric:tabular-nums}
+.ask-graph:empty{display:none}
+.ag-h{font:600 .6rem/1 var(--font-ui,inherit);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 .35rem}
+.ag-badge{display:inline-block;font:600 .66rem/1 var(--font-ui,inherit);text-transform:uppercase;letter-spacing:.07em;color:var(--accent);border:1px solid var(--accent-tint,rgba(0,0,0,.15));border-radius:7px;padding:.24rem .6rem;margin:0 0 .45rem}
+.ag-verse{display:block;color:var(--muted);text-decoration:none;padding:.3rem 0;border-bottom:1px dashed var(--border);text-wrap:pretty;transition:color .12s}
+.ag-verse:hover{color:var(--fg)}
+.ag-verse b{color:var(--accent);font-weight:600;font-variant-caps:small-caps;letter-spacing:.02em}
+.ag-eras{color:var(--muted);font-size:.72rem;letter-spacing:.03em;cursor:help}
+.ag-go{color:var(--accent);font-size:.74rem;white-space:nowrap}
+.ag-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.55rem 0 0}
+.ag-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.24rem .62rem;border-radius:7px;background:var(--accent-tint,rgba(0,0,0,.05));color:var(--fg);font:500 .76rem/1.2 var(--font-ui,inherit);text-decoration:none;font-variant-numeric:tabular-nums;transition:background .12s}
+a.ag-chip:hover{background:var(--fg);color:var(--bg)}
+.ag-chip i{font-style:normal;color:var(--muted);font-size:.68rem}
+a.ag-chip:hover i{color:rgba(255,255,255,.75)}
+.ag-chip.ag-subj{background:none;border:1px dashed var(--border);color:var(--muted)}
+.facets{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.55rem 0 .2rem}
+.fac-in,.fac-sel{font:.84rem/1 var(--font-ui,inherit);padding:.45rem .6rem;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--fg);min-height:38px}
+.fac-in{min-width:190px}
+.fac-x{font:.78rem/1 var(--font-ui,inherit);padding:.45rem .7rem;border:1px solid var(--border);border-radius:8px;background:none;color:var(--muted);cursor:pointer;min-height:38px;transition:color .14s,border-color .14s,transform .14s}
+.fac-x:hover{color:var(--accent);border-color:var(--accent)}.fac-x:active{transform:scale(.96)}
+/* ── scope bar (Ask mode): author/work pickers that narrow the corpus consulted ── */
+.scopebar{display:none;flex-wrap:wrap;align-items:center;gap:.4rem;margin:.5rem 0 .2rem}
+.scope-in{font:.84rem/1 var(--font-ui,inherit);padding:.45rem .6rem;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--fg);min-width:190px;min-height:38px}
+.scope-chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.scope-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .3rem .2rem .6rem;border-radius:7px;background:var(--accent-tint,rgba(0,0,0,.06));color:var(--fg);font:500 .78rem/1.2 var(--font-ui,inherit)}
+.scope-chip button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:.9rem;line-height:1;width:20px;height:20px;border-radius:50%;transition:color .12s,background .12s}
+.scope-chip button:hover{color:var(--accent);background:rgba(0,0,0,.06)}
+
+/* Tradition mode: the doctrine timeline across four corpora */
+.trad-intro{margin:.4rem 0 1rem;color:var(--muted);font-size:.85rem;max-width:60ch}
+.trad-era{margin:1.4rem 0 .5rem;font:700 .74rem/1.2 var(--font-ui,system-ui);letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.7rem}
+.trad-era::after{content:'';flex:1;height:1px;background:var(--border)}
+.trad-scope{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin:0 0 .9rem;font:.78rem var(--font-ui,system-ui)}
+.trad-scope-lab{color:var(--muted);font-weight:600}
+.trad-scope-hint{color:var(--muted);font-size:.7rem;margin-left:.2rem}
+.trad-chip{font:600 .72rem var(--font-ui,system-ui);padding:.28rem .6rem;border-radius:7px;cursor:pointer;
+  background:transparent;border:1px solid var(--border);color:var(--muted);opacity:.55;transition:opacity 160ms ease-out,border-color 160ms ease-out}
+.trad-chip.on{opacity:1;border-width:1.5px}
+.trad-chip.tb-pg.on{color:#33629c;border-color:#33629c}.trad-chip.tb-pl.on{color:#8f2d22;border-color:#8f2d22}
+.trad-chip.tb-po.on{color:#9a7b1f;border-color:#9a7b1f}.trad-chip.tb-tfr.on{color:#5b7186;border-color:#5b7186}
+.trad-chip:active{transform:scale(.96)}
+.trs-sub{display:inline-flex;align-items:center;gap:.35rem;margin-left:.3rem}
+.trad-chip.trs-t{border-radius:6px;font-size:.68rem}
+.trad-chip.trs-t.on{color:#5b7186;border-color:#5b7186}
+.tr-trad{font:600 .62rem/1 var(--font-ui,system-ui);letter-spacing:.04em;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:.14rem .38rem;margin-left:.4rem;vertical-align:1px}
+.trad-badge{display:inline-block;font:700 .64rem/1 var(--font-ui,system-ui);letter-spacing:.05em;
+  padding:.18rem .5rem;border-radius:7px;border:1px solid;vertical-align:1px;margin-right:.3rem}
+.tb-pg{color:var(--accent);border-color:var(--accent)}
+.tb-pl{color:#7c5cbf;border-color:#7c5cbf}
+.tb-po{color:#2e8b8b;border-color:#2e8b8b}
+.tb-aq{color:#8b4513;border-color:#8b4513}.tb-tfr{color:#b8860b;border-color:#b8860b}
+.trad-chip.tb-aq.on{color:#8b4513;border-color:#8b4513}
+[data-theme="dark"] .trad-chip.tb-pl.on{color:#d9836f;border-color:#d9836f}
+[data-theme="dark"] .trad-chip.tb-po.on{color:#e0c17a;border-color:#e0c17a}
+[data-theme="dark"] .trad-chip.tb-aq.on{color:#d69b6b;border-color:#d69b6b}
+[data-theme="dark"] .trad-chip.tb-tfr.on{color:#9fb6cc;border-color:#9fb6cc}
+[data-theme="dark"] .trad-chip.trs-t.on{color:#9fb6cc;border-color:#9fb6cc}
+[data-theme="dark"] .tb-pl{color:#b39ddb;border-color:#b39ddb}
+[data-theme="dark"] .tb-po{color:#5fc0c0;border-color:#5fc0c0}
+[data-theme="dark"] .tb-aq{color:#d69b6b;border-color:#d69b6b}
+[data-theme="dark"] .tb-tfr{color:#e0b74a;border-color:#e0b74a}
+
+/* Keep the search shell legible when Ask changes the shared reading theme. */
+@media(prefers-color-scheme:dark){:root[data-site="the-faith-received"]:not([data-theme="light"]):not([data-theme="sepia"]){--bg:#131312;--card:#1C1B1A;--fg:#E9E9E5;--accent:#E9E9E5;--accent2:#E9E9E5;--muted:#96918A;--border:#3A3835;--hl:#292826;--latin:#E9E9E5}}
+:root[data-site="the-faith-received"][data-theme="dark"]{--bg:#131312;--card:#1C1B1A;--fg:#E9E9E5;--accent:#E9E9E5;--accent2:#E9E9E5;--muted:#96918A;--border:#3A3835;--hl:#292826;--latin:#E9E9E5}
+</style><script>(function(){try{var t=localStorage.getItem("fr_theme");if(t&&t!=="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})()</script>
+<style>
+/* ── PO search elevation (2026-07-09) ── */
+.count-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap}
+.density-btn{font:600 .74rem/1 var(--font-ui,inherit);color:var(--muted);background:none;
+  border:1px solid var(--border);border-radius:7px;padding:.32rem .7rem;cursor:pointer;
+  min-height:40px;transition:border-color .14s,color .14s}
+.density-btn:hover{border-color:var(--accent);color:var(--accent)}
+.density-btn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-tint,rgba(0,0,0,.05))}
+.sr-compact .sr{padding:.35rem .5rem}
+.sr-compact .sr-ex{display:none}
+.sr-more{display:block;width:100%;margin:.8rem 0 0;border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:8px;padding:.7rem;font:600 .82rem/1 var(--font-ui,inherit);cursor:pointer}
+.sr-more:hover{border-color:var(--fg)}
+.sr-more:disabled{opacity:.5;cursor:default}
+.sr-zero{padding:1.4rem .2rem;color:var(--muted)}
+.sr-zero p{margin:.25rem 0;font-size:.92rem;line-height:1.55}
+.sr-zero-tip{font-size:.84rem}
+.smodes-wrap{position:relative}
+/* right-edge fade + chevron CHIP (mobsearch P2: the old bare '\203A\203A' glyph sat directly on the
+   clipped tab label and read as a rendering glitch, not an affordance). The wrap is NOT the
+   scroller, so both pseudo-elements anchor stably at its right edge. */
+.smodes-wrap.smodes-more::before{content:'';position:absolute;right:0;top:1px;bottom:1px;width:34px;
+  pointer-events:none;border-radius:0 10px 10px 0;
+  background:linear-gradient(to left,color-mix(in srgb,var(--fg,#2d2927) 14%,transparent),transparent)}
+.smodes-wrap.smodes-more::after{content:'\203A';position:absolute;right:5px;top:50%;
+  transform:translateY(-50%);width:1.35rem;height:1.35rem;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;background:var(--fg);color:var(--bg);
+  font:700 .74rem/1 var(--font-ui,inherit);box-shadow:0 1px 3px rgba(0,0,0,.25);
+  pointer-events:none;opacity:.95}
+@media(min-width:641px){.smodes-wrap.smodes-more::before,.smodes-wrap.smodes-more::after{display:none}}
+/* iOS snap-zoom guard + tap-target floor (mobsearch P1/P2): the sub-filter fields shipped at
+   .84rem/38px — Safari pinch-zooms the page on focusing any text control under 16px. */
+.fac-in,.fac-sel{font-size:16px!important;min-height:44px}
+/* (mobsearch P1 float-overlap fix superseded 2026-07-15 by the family standard: cgpt-link.js no
+   longer floats at all — the link lives only in [data-cgpt-link] slots.) */
+.cgptl-x{position:relative}
+.cgptl-x::before{content:'';position:absolute;inset:-12px}
+@media(max-width:640px){.smodes{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;max-width:100%}.smodes::-webkit-scrollbar{display:none}}
+.sstart{margin:1.6rem 0}
+.sstart-h{font:600 .78rem/1 var(--font-ui,inherit);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 .2rem}
+.sd-mode{cursor:pointer;text-align:left;font-family:inherit}
+.sd-ex{font:.76rem/1.4 var(--font-ui,inherit);color:color-mix(in oklab,var(--muted) 80%,var(--fg));margin-top:.15rem}
+.sdoors{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.6rem;max-width:52rem;margin:.9rem auto .4rem}
+.sdoor{display:flex;flex-direction:column;gap:.15rem;border:1px solid var(--border);border-radius:8px;padding:.65rem .85rem;text-decoration:none;background:var(--card)}
+.sdoor:hover{border-color:var(--fg)}
+.sd-n{font:600 .74rem/1.3 var(--font-ui,inherit);letter-spacing:.07em;text-transform:uppercase;color:var(--fg)}
+.sd-d{font:italic .82rem/1.45 var(--font-body);color:var(--muted)}
+.smodes-hint{font:.78rem/1.4 var(--font-ui,inherit);color:var(--muted);margin:.3rem 0 .6rem;
+  display:flex;align-items:center;gap:.3rem}
+.smodes-hint span{flex:1}
+.smodes-hint button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1.05rem;
+  line-height:1;width:40px;height:40px;border-radius:8px;flex:none}
+.smodes-hint button:hover{color:var(--accent);background:var(--accent-tint,rgba(0,0,0,.05))}
+.sb-grid{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0 1rem}
+.sb-chip{font:600 .78rem/1 var(--font-ui,inherit);padding:.4rem .8rem;border-radius:7px;
+  border:1px solid var(--border);background:var(--card);color:var(--fg);cursor:pointer;
+  min-height:40px;transition:border-color .14s,color .14s,transform .12s}
+.sb-chip:hover{border-color:var(--accent);color:var(--accent)}
+.sb-chip:active{transform:scale(.96)}
+@media(prefers-reduced-motion:reduce){.sb-chip:active{transform:none}}
+.ask-src-block{margin:0}
+.ask-src-block:empty{display:none}
+.ask-src-block summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:.4rem;
+  -webkit-tap-highlight-color:transparent;min-height:40px}
+.ask-src-block summary::-webkit-details-marker{display:none}
+.ask-src-block summary::before{content:'\25B8';display:inline-block;font-size:.75em;color:inherit;
+  transition:transform .18s ease}
+.ask-src-block[open] summary::before{transform:rotate(90deg)}
+.ask-src-block summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.ask-src-block summary::before{transition:none}}
+</style><style>
+/* ═════════════════════════════════════════════════════════════════════════════
+   PO EDITORIAL LAYER — soft-editorial design elevation (2026-07).
+   Appended to pg.css (index + reader pages link it) and injected as an inline
+   <style> into search.html / notebook.html (they inline their sheet copy and
+   never link pg.css). ask.html carries its own copy of these tokens.
+   CSS + microinteraction polish ONLY — no DOM contract is touched.
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+/* ── motion + surface tokens: ONE warm top light source; shadows drawn from the
+      paper/ink golds of PO's own palette — never pure black in the light themes ── */
+:root{
+  --ease-premium:cubic-bezier(.32,.72,0,1);   /* house curve — drawers, panels, anything that travels */
+  --ease-out:cubic-bezier(.23,1,.32,1);       /* strong ease-out — entrances */
+  --ease-spring:cubic-bezier(.34,1.56,.64,1); /* gentle-overshoot spring — MICRO interactions only:
+    pills/toasts/popovers arriving (≤200ms) and the :active press on primary CTAs. Never on panels
+    (those keep --ease-premium — a spring on something that travels far reads as jelly, not quality). */
+  --shadow-sm:0 1px 2px rgba(60,45,15,.05);
+  --shadow-md:0 2px 6px rgba(60,45,15,.05),0 10px 28px -18px rgba(60,45,15,.22);
+  --shadow-lg:0 4px 10px rgba(60,45,15,.06),0 18px 44px -22px rgba(60,45,15,.3);
+  --bezel-hi:inset 0 1px 0 rgba(255,255,255,.55);   /* print-shop matting: faint top highlight inside the hairline ring */
+}
+/* quiet the muted-text tier from 5.15:1 to ~4.86:1 against --bg (measured; stays ≥4.6, never
+   below) — scoped to PO only, light theme only (dark's 8:1 baseline is a much larger jump to
+   move and this is unverified without a live rebuild, so it is left as-is by design). */
+:root[data-site="the-faith-received"]{--muted:#5A5A56}
+[data-theme="dark"]{
+  --shadow-sm:0 1px 2px rgba(0,0,0,.28);
+  --shadow-md:0 2px 6px rgba(0,0,0,.26),0 10px 28px -18px rgba(0,0,0,.55);
+  --shadow-lg:0 4px 10px rgba(0,0,0,.3),0 18px 44px -22px rgba(0,0,0,.65);
+  --bezel-hi:inset 0 1px 0 rgba(255,255,255,.045);
+}
+
+/* ── paper grain — one fixed film to break digital flatness (pointer-events:none,
+      never on a scrolling container; hidden in print) ── */
+body::after{
+  content:""; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+}
+[data-theme="dark"] body::after{opacity:.035}
+@media print{body::after{display:none}}
+
+/* ── shadow audit: every pure-black rgba on the light themes → warm ink, one top light ── */
+.scroll-top{box-shadow:0 2px 8px rgba(60,45,15,.24)}
+.scroll-top:hover{box-shadow:0 6px 18px rgba(60,45,15,.32)}
+.study-toggle,.sb-mtoggle{box-shadow:0 1px 6px rgba(60,45,15,.2)}
+.study-panel{box-shadow:-2px 0 12px rgba(60,45,15,.12)}
+.sp-close,.tr-pencil,.note-pencil{box-shadow:0 1px 4px rgba(60,45,15,.16)}
+.ct-panel{box-shadow:0 0 44px -10px rgba(45,35,12,.42)}
+.findbar{box-shadow:0 6px 24px rgba(45,35,12,.18),0 1px 3px rgba(45,35,12,.09)}
+.facs-toolbar .sld{box-shadow:0 2px 8px rgba(60,45,15,.14)}
+body.sb-open .sidebar{box-shadow:2px 0 16px rgba(45,35,12,.28)}
+/* study.css ties (it loads after pg.css) — body-prefixed so these win without !important */
+body .sel-popup{box-shadow:var(--shadow-lg),var(--bezel-hi);border-radius:9px}
+body .nb-toggle{box-shadow:0 2px 8px rgba(60,45,15,.2)}
+body .nb-panel{box-shadow:-4px 0 20px rgba(60,45,15,.14)}
+body .modal-box{box-shadow:var(--shadow-lg)}
+/* modal/lightbox scrims: warm near-black instead of flat #000 (still reads as "dimmed") */
+body .modal-overlay{background:rgba(20,14,4,.42)}
+body .facs-light img{box-shadow:0 30px 80px -20px rgba(20,14,4,.55)}
+body .pv-page{box-shadow:0 1px 4px rgba(60,45,15,.07)}
+
+/* ── quiet double-bezel matting on the key panels: hairline ring + inset top highlight
+      + one diffuse warm shadow — print-shop matting, never tech glass ── */
+body .dash-card{box-shadow:var(--bezel-hi),var(--shadow-md)}
+body .hsearch{box-shadow:var(--bezel-hi),0 1px 2px rgba(60,45,15,.05),0 6px 20px rgba(60,45,15,.08)}
+body .hsearch:focus-within{box-shadow:var(--bezel-hi),0 0 0 3px var(--accent-tint,color-mix(in srgb,var(--accent) 16%,transparent)),0 8px 24px rgba(60,45,15,.12)}
+body .qc,body .tc{background:var(--card);box-shadow:var(--bezel-hi),var(--shadow-sm)}
+body #semResults .sr{box-shadow:var(--bezel-hi),var(--shadow-sm)}
+
+/* ── motion: the premium curve on everything that travels; exits FASTER than enters ── */
+.facs{transition:transform .3s var(--ease-premium)}
+.ct-panel{transition:transform .19s var(--ease-premium)}
+.ct-panel.open{transition-duration:.26s}
+.study-panel{transition:transform .19s var(--ease-premium)}
+.study-panel.open{transition-duration:.26s}
+.study-toggle{transition:right .24s var(--ease-premium)}
+body .nb-panel{transition:right .19s var(--ease-premium)}
+body .nb-panel.open{transition-duration:.26s}
+.ct-overlay{transition:opacity .15s var(--ease-out)}
+.ct-overlay.open{transition-duration:.22s}
+.study-backdrop{transition:opacity .15s var(--ease-out)}
+.study-backdrop.on{transition-duration:.22s}
+
+/* ── press feedback: unified tactile scale(.96) (house standard), added where missing ── */
+.auth-x:active{transform:scale(.96)}
+.tabbar button,.mode-tabs button{transition:color .15s var(--ease),border-color .15s var(--ease),transform .14s var(--ease)}
+.tabbar button:active,.mode-tabs button:active,.entoggle button:active{transform:scale(.96)}
+.dash-chip:active{transform:scale(.96)}
+.vol-cell:active{transform:translateY(0) scale(.97)}
+body .nbp-tools button:active,body .pass-add button:active,body .nb-tools button:active,
+body .sel-popup button:active,body .display-controls button:active{transform:scale(.96)}
+body .qc-acts button:hover,body .tc-actions button:hover,body .nb-item-actions button:hover{color:var(--accent)}
+
+/* ── primary-CTA press: the one place the spring shows — a hair of overshoot on release,
+      never on the many quiet secondary controls above (those stay the calm .96/--ease house feel) ── */
+body .pri,body .modal-save.primary,body .auth-g,body .comp-send{
+  transition:transform .18s var(--ease-spring),background .14s,border-color .14s}
+body .pri:active,body .modal-save.primary:active,body .auth-g:active,body .comp-send:active{transform:scale(.97)}
+
+/* ── micro-pop: gentle-overshoot entrance for small elements that ARRIVE (pills, toasts,
+      popovers) — an animation (not a transition) so it fires the instant display flips on,
+      no two-frame dance required. ≤200ms, motion-gated, opacity+scale only. ── */
+@media (prefers-reduced-motion: no-preference){
+  @keyframes po-pop-in{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+  .po-pop-in{animation:po-pop-in .16s var(--ease-spring)}
+}
+
+/* ── a11y: focus rings on the remaining interactives (select/textarea) ── */
+:where(select,textarea):focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--radius-sm,5px)}
+
+/* ── loading states shimmer softly instead of sitting flat (reduced-motion keeps
+      the plain text; body-prefixed to win each page's own colour without !important) ── */
+@media (prefers-reduced-motion: no-preference){
+  body .sbusy,body .loading,body .nav-loading{
+    background:linear-gradient(90deg,var(--muted) 38%,var(--accent) 50%,var(--muted) 62%);
+    background-size:220% 100%;-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+    animation:po-shimmer 2.4s linear infinite;
+  }
+  @keyframes po-shimmer{from{background-position:130% 0}to{background-position:-130% 0}}
+}
+
+/* ── entrance reveal (classes set by the PO reveal script via IntersectionObserver;
+      transform/opacity only; the hidden state exists ONLY when motion is welcome) ── */
+@media (prefers-reduced-motion: no-preference){
+  .rv{opacity:0;transform:translateY(13px)}
+  .rv.rv-in{opacity:1;transform:none;
+    transition:opacity .55s var(--ease-out),transform .55s var(--ease-out);
+    transition-delay:var(--rv-d,0ms)}
+}
+/* smooth scrolling opts out with the user (pg.css sets html{scroll-behavior:smooth}) */
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* ── landing whitespace: the hero + card grids breathe a step more (calm-expensive pass,
+      DENSITY 3) — +35%/+36% over pg.css's base 2.6rem/2.2rem. Sized to still clear the fold
+      at 1440×900 and 390×844 (the hero's own content is short) — re-check against the live
+      rebuild before shipping; dial back to +25% (3.25rem/2.75rem) if it doesn't. Chrome only —
+      the reading column (.po-wrap/.dt-*) is deliberately NOT touched by this rule. ── */
+body .hero{padding:3.5rem 0 3rem}
+body .dash-grid{gap:1.35rem}
+body .dash-card{padding:1.2rem 1.35rem}
+
+/* ── typography: display presence, balanced heads, tidy numerals ── */
+.hero h1{font-size:clamp(2.5rem,5.2vw,3.7rem);letter-spacing:-.02em}
+.hero .sub{text-wrap:balance}
+.hq-src,.hq-en{hanging-punctuation:first}
+/* the credits colophon reads as one settled paragraph, not a full-bleed strip */
+.credits-note{max-width:70ch;margin-left:auto;margin-right:auto}
+main>h1{font-family:var(--font-display);font-weight:400;font-size:clamp(1.85rem,4vw,2.5rem);
+  line-height:1.12;letter-spacing:-.015em;text-wrap:balance;margin:.4rem 0 .7rem}
+.shint,.doc-intro,.nb-empty,.cs-empty,.sem-status,.pass-msg{text-wrap:pretty}
+.pf-section h2,.sem-section h2{text-wrap:balance}
+.vol-cell .vc{font-variant-numeric:tabular-nums}
+/* citation examples + shortcut keys read as quiet print chips */
+code{font-family:var(--font-ui);font-size:.85em;background:color-mix(in oklch,var(--fg) 6%,transparent);
+  border:1px solid var(--border);border-radius:5px;padding:.05em .34em;white-space:nowrap}
+kbd{font:600 .78em var(--font-ui);background:var(--card);border:1px solid var(--border);
+  border-bottom-width:2px;border-radius:5px;padding:.08em .42em;white-space:nowrap;box-shadow:var(--bezel-hi)}
+
+/* ── optical: comfortable hit areas on the small close/step controls (pseudo-element
+      extension — the visual stays quiet, the target grows) ── */
+.ct-close,.nb-close,.facs-close,.findbar button{position:relative}
+.ct-close::after,.nb-close::after,.facs-close::after{content:"";position:absolute;inset:-8px}
+.findbar button::after{content:"";position:absolute;inset:-5px}
+
+/* ── PO DESKTOP CONTROL POLISH (TFR parity, 2026-07-04) ── */
+#displayBar .dt-modeseg button,#displayBar #facsBtn,#displayBar button{height:32px;box-sizing:border-box;border-radius:7px}
+#displayBar .dt-modeseg{border-radius:7px}
+#displayBar #facsBtn:not(.active){border-color:transparent;background:none}
+#displayBar #facsBtn:not(.active):hover{border-color:var(--border)}
+.dt-pn,.facs-pages,.facs-nav,.dt-cite,.rel-cit{font-variant-numeric:tabular-nums}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+
+/* ── PO READING TYPOGRAPHY (design pass 2026-07-04) ── */
+.main,.po-wrap{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-optical-sizing:auto}
+#poText .dt-src,#poText .dt-tr{text-wrap:pretty}
+.po-rhead h1{text-wrap:balance}
+.po-wrap a{text-underline-offset:.15em;text-decoration-thickness:1px}
+::selection{background:color-mix(in oklch,var(--accent,#9a7b1f) 22%,transparent)}
+/* the phone reads at an editorial article size (TGC / Christianity Today model):
+   a smaller, tighter measure than desktop — calm and compact, never ballooned. */
+html.po-mobile #poText{font-size:15px;line-height:1.6}
+html.po-mobile #poText .dt-pg{margin-bottom:1rem;padding-top:.9rem}
+html.po-mobile .po-rhead h1{font-size:1.02rem;line-height:1.3}
+/* Phone = a reading web-app: the bottom thumb bar IS the navigation (mode via
+   _poSetMode, Contents, Find, Search). Retire the full desktop control panel and the
+   edge pull-tabs so the reading surface owns the screen. */
+html.po-mobile #displayBar{display:none!important}
+html.po-mobile .sb-mtoggle,html.po-mobile .study-toggle,html.po-mobile .por-tab{display:none!important}
+
+
+/* Library shelves, clear scope, and bounded research results. */
+.matching-sections{margin:0 10px 12px}.matching-sections>summary{min-height:44px;padding:10px 0;font:14px var(--font-ui);cursor:pointer}
+
+.group-controls{display:flex;gap:16px;margin:4px 0 10px}.group-controls[hidden]{display:none}.group-controls button{min-height:44px;border:0;background:none;color:var(--fg);text-decoration:underline;text-underline-offset:4px;font:14px var(--font-ui);cursor:pointer}
+
+.results-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-block:1px solid var(--border);margin:8px 0 12px}.results-pager[hidden]{display:none}.results-pager span{font:13px/1.45 var(--font-ui);text-align:center;color:var(--muted)}
+.results-pager button,.location-pager button,#meaningBroaden{min-height:44px;padding:8px 12px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg);font:14px var(--font-ui);cursor:pointer}.results-pager button:disabled,.location-pager button:disabled{opacity:.45;cursor:default}.location-pager{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0;font:12px var(--font-ui)}#meaningBroaden{margin:0 0 12px}
+
+#searchTheme{margin-left:auto;min-width:44px;min-height:44px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg);font:14px var(--font-ui);cursor:pointer}
+.search-result{border-bottom:1px solid var(--border)}#results .search-result .sr{border-bottom:0;padding-right:12px}
+.search-save{min-height:44px;padding:6px 10px;margin:0 0 8px;border:0;background:none;color:var(--fg);font:13px var(--font-ui);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+.shelf-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:18px 0 12px}
+.shelf-controls>label{display:flex;flex-direction:column;gap:5px;min-width:240px;font:14px/1.4 var(--font-ui);color:var(--muted)}
+.shelf-controls .scope-toggle{display:inline-flex;width:auto;margin:0;min-height:44px;align-items:center;padding:9px 14px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg);font:14px/1.4 var(--font-ui);cursor:pointer}
+#scopeWrap[hidden]{display:none!important}#scopeWrap:not([hidden]){display:block}
+#facets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:0 0 14px}
+#facets label{display:flex;flex-direction:column;gap:5px;min-width:0;font:14px/1.4 var(--font-ui);color:var(--muted)}
+#facets input,#facets select,#fTrad{width:100%;min-height:44px;font:16px/1.4 var(--font-ui);padding:9px 11px;background:var(--card);color:var(--fg);border:1px solid var(--control-border,var(--border));border-radius:5px}
+#fClear{min-height:44px;background:none;color:var(--fg);font:14px var(--font-ui)}
+#q{font-size:18px;min-height:48px}#runSearch{min-width:76px;min-height:48px}
+#results{max-height:min(70dvh,900px);overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:2px 8px 16px 2px}
+#results .sr{margin:0;border:0;border-bottom:1px solid var(--border);border-radius:0;padding:16px 46px 16px 10px}
+#results .sr>div:not(.sr-cite):not(.sr-ex){font-size:19px;line-height:1.4}
+#results .sr-ex{font-size:16px;line-height:1.6}
+.scripture-context,.search-guidance,.search-warning{font:14px/1.6 var(--font-ui);color:var(--muted)}
+.scripture-context{padding:6px 4px 18px}.scripture-context a{text-decoration:underline;text-underline-offset:3px;display:inline-flex;align-items:center;min-height:44px;color:var(--fg)}
+.scripture-work{border-top:1px solid var(--border);padding:0 4px}
+.scripture-work>summary{list-style:disclosure-closed;cursor:pointer;min-height:52px;padding:14px 4px;font:500 19px/1.45 var(--font-body)}
+.scripture-work[open]>summary{list-style:disclosure-open}.scripture-work>summary span{display:block;font:13px/1.5 var(--font-ui);color:var(--muted);margin-top:6px}
+.scripture-more,.sr-more,#retrySearch{min-height:44px;padding:10px 14px;margin:10px 0;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg);font:14px var(--font-ui);cursor:pointer}
+#results .sb-chip{min-height:44px;font-size:16px;white-space:normal}#results .sb-grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}
+.smodes button,.passage-method button,#densityBtn{min-height:44px}#results .pinstar{min-width:44px;min-height:44px}
+@media(max-width:640px){.main{padding:20px 16px}.shelf-controls{gap:8px}.shelf-controls>label{flex:1;min-width:190px}.shelf-controls .scope-toggle{font-size:13px}#facets{grid-template-columns:1fr}#q{font-size:16px}#results{max-height:60dvh}.scripture-work>summary{font-size:18px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+.organize-label{display:flex;align-items:center;gap:8px;font:13px var(--font-ui);color:var(--muted)}.organize-label select{min-height:44px;font:14px var(--font-ui);padding:8px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg)}
+.result-shelf{margin:8px 0;border-top:1px solid var(--border)}.result-shelf>summary{font:500 23px/1.3 var(--font-display);padding:14px 4px;cursor:pointer;min-height:48px}
+.result-author{margin:0 0 12px}.result-author>summary{font:600 17px/1.5 var(--font-ui);padding:12px 6px;cursor:pointer;min-height:48px;border-bottom:1px solid var(--border)}
+.result-author>.scripture-work,.result-author>.search-work-block{margin-left:10px}.shelf-controls>label{min-width:200px}.shelf-controls>label[for=fGroup]{min-width:175px}
+@media(max-width:640px){.shelf-controls{display:grid;grid-template-columns:minmax(0,1fr) auto}.shelf-controls>label[for=fTrad]{grid-column:1/-1}.shelf-controls>label,.shelf-controls>label[for=fGroup]{min-width:0}.count-row{flex-wrap:wrap}.count-row #count{width:100%}.organize-label{flex:1;min-width:0}.organize-label select{min-width:0;width:100%;font-size:16px}.result-author>.scripture-work,.result-author>.search-work-block{margin-left:2px}.result-author>summary{font-size:16px}}
+
+.active-search-scope{font:13px/1.5 var(--font-ui);color:var(--muted);margin:0 0 10px}.active-search-scope[hidden]{display:none}
+#facets #fClear{justify-self:start;width:auto}
+/* Keep the first result in reach; advanced scope and ordering controls fold away. */
+.main>h1{font-size:34px;line-height:1.2;margin:12px 0 18px}.search-site-nav{margin-bottom:8px}
+.shelf-controls{display:flex;align-items:end;gap:10px}.shelf-controls>label{flex:1;max-width:330px;min-width:180px}.shelf-controls .scope-toggle{flex:none}
+#facets{grid-template-columns:repeat(2,minmax(0,1fr))}#facets .organize-label{display:flex;align-items:stretch;flex-direction:column;font-size:14px}
+#facets .organize-label select{font-size:16px;width:100%}
+.scripture-context{display:flex;align-items:start;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:0 4px 8px}.scripture-context>a{flex:1;margin:0}.scripture-context details{max-width:100%;font-size:14px}.scripture-context summary,.search-guidance>summary{cursor:pointer;min-height:44px;padding:10px 0}.scripture-context details[open]{flex-basis:100%}
+.group-controls{align-items:center;flex-wrap:wrap;gap:8px 20px}.group-controls #meaningBroaden{margin:0;padding:6px 0;border:0;background:none;text-decoration:underline;text-underline-offset:4px}.search-guidance{margin:0 4px 8px}
+@media(max-width:640px){.main>h1{font-size:28px;margin:10px 0 14px}.search-site-nav{gap:12px}.shelf-controls{display:grid;grid-template-columns:minmax(0,1fr) auto}.shelf-controls>label[for=fTrad]{grid-column:auto;min-width:0}.shelf-controls .scope-toggle{font-size:13px;padding-inline:8px}.shelf-controls #fClear{grid-column:1/-1;justify-self:start}.count-row #count{width:auto;flex:1;font-size:13px;line-height:1.5}.count-row #densityBtn{flex:none}#facets{grid-template-columns:1fr}.group-controls{gap:8px 16px}.group-controls button,.group-controls #meaningBroaden{font-size:13px}.results-pager span{font-size:12px}}
+</style></head><body><a class="skip-link" href="#main">Skip to text</a><main class="main" id="main"><style>.skip-link{position:absolute;top:-100px;left:0;z-index:9999;background:var(--fg);color:var(--bg);display:inline-flex;align-items:center;min-height:40px;box-sizing:border-box;padding:0 1.2rem;border-radius:0 0 10px 0;font:600 .85rem/1 var(--font-ui,-apple-system,sans-serif);text-decoration:none;transition:top .15s ease}.skip-link:focus{top:0;outline:2px solid #fff;outline-offset:2px}@media(prefers-reduced-motion:reduce){.skip-link{transition:none}}</style>
+<nav class="search-site-nav" aria-label="Site navigation"><a class="fr-home-link" data-fr-home href="/" aria-label="Back to library"><span class="fr-home-wide">← The Faith Received</span><span class="fr-home-compact"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>Library</span></a><a href="/pins">Collections</a><a href="/dtc">Dictionary</a><button type="button" id="searchTheme" aria-label="Change reading theme">Theme</button></nav>
+<h1 style="color:var(--accent);text-wrap:balance">Search The Faith Received</h1>
+<div class="smodes-wrap"><div class="smodes" role="group" aria-label="Search mode">
+  <button data-m="title" class="active sm-core" aria-pressed="true" title="Find a work, author, or section">Works</button>
+  <button data-m="full" class="sm-core" aria-pressed="false" title="Find passages in the texts">Passages</button>
+  <button data-m="scripture" class="sm-core" aria-pressed="false" title="Find indexed references to a Bible passage">Scripture</button>
+  <button data-m="ask" class="sm-core" aria-pressed="false" title="Ask a question of the library">Ask</button>
+</div></div>
+<div id="passageMethod" class="passage-method" role="group" aria-label="Find passages by" hidden><button type="button" data-passage="full" aria-pressed="true">Exact words</button><button type="button" data-passage="meaning" aria-pressed="false">By idea</button></div>
+<div class="search-query"><input class="search-box" id="q" placeholder="Find a work or author" aria-label="Search the library" enterkeyhint="search" autocomplete="off" type="search"><button type="button" id="runSearch">Search</button></div>
+<div class="shint" id="hint"></div>
+<div class="shelf-controls"><label for="fTrad">Shelf<select class="fac-sel" id="fTrad" aria-label="Shelf"><option value="">All shelves</option></select></label><button type="button" class="scope-toggle" id="scopeToggle" aria-controls="scopeWrap" aria-expanded="false">Filters &amp; order <span id="stSum"></span></button></div>
+<p class="active-search-scope" id="activeSearchScope" hidden></p>
+<div class="scope-wrap" id="scopeWrap" hidden>
+<div class="facets" id="facets">
+<label>Author<input class="fac-in" id="fAuthor" list="facAuthors" placeholder="Name or part of a name" autocomplete="off"></label><datalist id="facAuthors"></datalist>
+<label>Work<input class="fac-in" id="fWork" list="facWorks" placeholder="Title or part of a title" autocomplete="off"></label><datalist id="facWorks"></datalist>
+<label>Collection<select class="fac-sel" id="fCollection"><option value="">All works</option><option value="confessions">Confessions</option></select></label>
+<label for="fGroup">Group<select class="fac-sel" id="fGroup"><option value="">All groups</option><option value="westminster">Westminster Divines</option><option value="puritan">Puritans</option><option value="anglican">Anglicans</option></select></label><label class="organize-label">Organize<select id="groupOrder"><option value="shelf">Shelf → author → work</option><option value="author">Author → work</option><option value="relevance">Relevance</option></select></label>
+<button type="button" class="fac-x" id="fClear" hidden>Clear filters</button>
+</div>
+<div class="scopebar" id="scopeBar">
+  <input class="scope-in" id="scopeAuthorIn" list="scopeAuthors" placeholder="Scope to author…" autocomplete="off">
+  <datalist id="scopeAuthors"></datalist>
+  <input class="scope-in" id="scopeWorkIn" list="scopeWorks" placeholder="Scope to work…" autocomplete="off">
+  <datalist id="scopeWorks"></datalist>
+  <div class="scope-chips" id="scopeChips"></div>
+</div>
+</div>
+<div class="count-row"><div class="shint" id="count" aria-live="polite" aria-atomic="false"></div><button type="button" class="density-btn" id="densityBtn" aria-pressed="false">Compact</button></div><div id="results" role="region" aria-label="Search results"></div></main>
+<script src="/research-tools.js?v=__RESEARCH_V__"></script><script src="/search-tools.js?v=__RESEARCH_V__"></script>
+<script>
+function esc(s){var x=document.createElement('div');x.textContent=(s==null?'':s);return x.innerHTML;}
+function scopeSummary(){
+  var bits=[];
+  var cc=document.querySelector('#corpusChips .cc.on');
+  if(cc&&cc.getAttribute('data-c'))bits.push(cc.textContent.trim());
+  if(FAC.author)bits.push(FAC.author);
+  if(FAC.work)bits.push('1 work');
+  if(FAC.trad)bits.push(FRSearch.label(FAC.trad));if(FAC.collection)bits.push('Confessions');
+  if(typeof SCOPE!=='undefined'&&SCOPE&&SCOPE.author)bits.push(SCOPE.author);
+  var el=document.getElementById('stSum');
+  if(el)el.textContent=[FAC.author,FAC.work||FAC.workQuery,FAC.collection,FAC.group].filter(Boolean).length?' · active':'';var scope=document.getElementById('activeSearchScope'),parts=[({westminster:'Westminster Divines',puritan:'Puritans',anglican:'Anglicans'})[FAC.group],FAC.author?'Author: '+FAC.author:'',FAC.work||FAC.workQuery?'Work filter applied':'',FAC.collection?'Confessions':''].filter(Boolean);if(scope){scope.hidden=!parts.length;scope.textContent=parts.join(' · ');}
+}
+document.addEventListener('click',function(e){
+  var mo=e.target.closest('#smMore');
+  if(mo){document.querySelector('.smodes').classList.add('sm-open');mo.setAttribute('aria-expanded','true');return;}
+  var sg=e.target.closest('.ask-sugg button');
+  if(sg){var q2=sg.getAttribute('data-q');if(q2){if(sg.getAttribute('data-deep'))window.__askDeepOnce=true;qEl.value=q2;renderAsk(q2);}return;}
+  var t=e.target.closest('#scopeToggle');
+  if(t){var w=document.getElementById('scopeWrap');var open=!w.classList.contains('open');
+    w.classList.toggle('open',open);w.hidden=!open;t.setAttribute('aria-expanded',open?'true':'false');return;}
+
+});
+document.getElementById('searchTheme').onclick=function(){var themes=['light','sepia','dark'],current=document.documentElement.dataset.theme||'light',next=themes[(themes.indexOf(current)+1)%3];document.documentElement.dataset.theme=next;try{localStorage.setItem('fr_theme',next);}catch(_){}this.title='Current theme: '+next;};
+function focusQuery(){if(!matchMedia('(max-width:640px)').matches)qEl.focus();}
+function mdHeadings(s){return (s||'').replace(/⟦h⟧([\s\S]{1,300}?)⟦\/?h⟧/g,'<b>$1</b>');}
+var FRB='https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com';
+var VER='?d='+new Date().toISOString().slice(0,10);   // daily buster on mutable JSON
+function rdHref(slug,page){return FRSearch.readerURL(slug,page);}
+var qEl=document.getElementById('q'),res=document.getElementById('results'),ct=document.getElementById('count'),hint=document.getElementById('hint');
+var MODE='title',NAV=null,WLIST=null,WORKS_BY_SLUG=null,WORK_ALIASES={},IDX=null,seq=0,CATALOG_ERROR=false,RESULT_PAGE=0,RESTORE_PAGE=null,ORDER='shelf',REDRAW=null,SCOPE_SCHOOLS=null;
+var HINTS={
+  title:'Find works, authors, and section headings in the selected shelf.',
+  full:'Find words or phrases in the Latin and English texts. For example, “foedus operum”.',
+  meaning:'Describe what you want to find. For example, “how faith unites us to Christ” finds passages even when they use different words.',
+  scripture:'Search a chapter, verse, or range, such as Romans 8:1–4.',
+  tradition:'One question, the whole tradition: the strongest parallels era by era \u2014 Greek and Latin Fathers, Aquinas, the early-modern library \u2014 in chronological order.',
+  ask:'Ask a question; an answer is composed from the corpus with [work/pN] citations you can click. Press Enter to ask.'};
+var PH={title:'Find a work, author, or section',full:'Enter words or a phrase',
+  meaning:'Describe the idea you want to find',
+  scripture:'Enter a Bible reference, such as Romans 8',
+  tradition:'A doctrine — e.g. the descent of Christ into hell · the worship of images…',
+  ask:'Ask a question — e.g. How do the Reformed treat middle knowledge?'};
+function setMode(m){
+  if(m==='tradition'){
+    var topic=qEl.value.trim();var opts={fresh:true,shelves:FAC.trad?[FRSearch.label(FAC.trad)]:[],mode:'deep',q:topic?'Trace “'+topic+'” through the theological tradition. Compare the authors, show where they agree or differ, and cite the passages.':'Trace the history of a theological idea, comparing the authors and citing the passages.'};
+    setMode('title');if(window.FRAsk)window.FRAsk.open(opts);else window.__FR_ASK_PENDING__=opts;return;
+  }
+  if(m==='ask'){if(FAC.group==='westminster'&&!FAC.groupSlugs){ensureSearchGroups().then(function(){setMode('ask');}).catch(function(){searchUnavailable('Westminster group',qEl.value);});return;}var selectedWorks=(FAC.author||FAC.workQuery||FAC.work||FAC.collection||FAC.group)?(WLIST||[]).filter(function(w){return FRSearch.matches(w,FAC);}).map(function(w){return w.slug;}):[];var askOptions={fresh:true,q:qEl.value.trim(),works:selectedWorks,shelves:!selectedWorks.length&&FAC.trad?[FRSearch.label(FAC.trad)]:[]};if(window.FRAsk)window.FRAsk.open(askOptions);else window.__FR_ASK_PENDING__=askOptions;return;}MODE=m;
+  var method=document.getElementById('passageMethod');if(method){method.hidden=m!=='full'&&m!=='meaning';method.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.passage===m));});}
+
+  var tip=document.getElementById('smodesHint');if(tip)tip.style.display=(m==='title')?'':'none';   // teaches the modes BEFORE one is chosen; inside a mode the per-mode hint speaks
+  var chips=document.getElementById('corpusChips');
+  if(chips)chips.hidden=(m!=='full'&&m!=='meaning');
+  var st2=document.getElementById('scopeToggle');
+  if(st2){st2.hidden=false;scopeSummary();}document.querySelectorAll('.smodes button').forEach(function(b){var on=b.getAttribute('data-m')===(m==='meaning'?'full':m);b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false');});
+  hint.innerHTML=(m==='ask')?'':HINTS[m];
+  qEl.placeholder=PH[m];qEl.setAttribute('aria-label',m==='scripture'?'Bible reference':'Search the library');
+  var fb=document.getElementById('facets');if(fb)fb.style.display='';
+  var sb=document.getElementById('scopeBar');if(sb)sb.style.display=(m==='ask')?'':'none';   // '' lets the CSS govern: hidden until the ⌖ sheet adopts it
+  {var dh=document.getElementById('sdoorsHost');
+   if(!dh&&res&&res.parentNode){dh=document.createElement('div');dh.id='sdoorsHost';res.parentNode.insertBefore(dh,res);}
+   if(dh)dh.innerHTML='';}
+  if(m==='ask'){askReset();
+    /* CLAUDE-IDIOM (owner 2026-09-05 "should instantly resonate … remind them of claude.com /
+       chatgpt.com"): greeting first, then THE composer beneath it — the one query input moves
+       under the welcome word in ask mode and home again for every other mode. */
+    document.body.classList.add('mode-ask');   // #q hides; the composer owns the ask
+  }else{
+    document.body.classList.remove('mode-ask');
+  }
+  run();}
+document.querySelectorAll('.smodes button[data-m]').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-m'));if(b.getAttribute('data-m')!=='ask')focusQuery();});});
+document.querySelectorAll('[data-passage]').forEach(function(b){b.onclick=function(){setMode(b.dataset.passage);focusQuery();};});
+document.getElementById('runSearch').onclick=function(){run();};
+
+/* ---- works map: Blob works-index — every mode's cite/title join ---- */
+var _navq=null;
+function navMap(cb){if(NAV)return cb(NAV);
+  if(_navq){_navq.push(cb);return;}
+  _navq=[cb];
+  Promise.all([FRResearchData.corpus(),FRResearchData.json('/v1/workgroups.json').catch(()=>({})),fetch('/data/workgroups.json',{signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():{}).catch(()=>({}))]).then(function([corpus,published,local]){FRResearch.setWorkCatalogue({bySlug:corpus.works,groups:{works:{...(published.works||{}),...(local.works||{})},groups:{...(published.groups||{}),...(local.groups||{})}}});
+    WORK_ALIASES=corpus.aliases||{};var rows=Array.from(corpus.works.values()).map(function(w){return Object.assign({},w,{author:Array.isArray(w.author)?w.author.join(', '):String(w.author||'')});});NAV={};WLIST=rows;WORKS_BY_SLUG={};
+    rows.forEach(function(w){WORKS_BY_SLUG[w.slug]=w;if(w.slug)NAV[w.slug]={t:w.title_en||w.title||w.slug,a:w.author||'',al:w.author_la||'',v:w.volume||'',tr:w.tradition||'',n:w.n_pages||0};if(w.party)(PARTYSLUGS[w.party]=PARTYSLUGS[w.party]||[]).push(w.slug);});
+    IDX=rows.filter(function(w){return w.slug;}).map(function(w){return {d:w.slug,k:'work',t:w.title_en||w.title||w.slug,o:w.title||'',a:w.author||'',al:w.author_la||''};});
+    buildFacetLists();var q2=_navq;_navq=null;q2.forEach(function(f){f(NAV);});
+  }).catch(function(){CATALOG_ERROR=true;NAV={};WLIST=[];IDX=[];WORKS_BY_SLUG={};var q2=_navq||[];_navq=null;q2.forEach(function(f){f(NAV);});});}
+function docCite(d){var e=NAV&&NAV[d];if(!e)return 'The Faith Received';var parts=[];if(ORDER==='relevance'&&e.a)parts.push(esc(e.a));if(e.v)parts.push(esc(e.v));if(e.tr)parts.push(esc(FRSearch.label(e.tr)));return parts.join(' · ');}
+function docTitle(d){var e=NAV&&NAV[d];return e?esc(e.t||d):esc(d||'');}
+
+/* ---- Facets: author / work / tradition — narrow any result set ---- */
+var FAC={author:'',work:'',workQuery:'',trad:'',corpus:'',collection:'',group:'',groupSlugs:null};
+var WORKMAP=null;
+function facetOk(d){return FRSearch.matches(WORKS_BY_SLUG&&WORKS_BY_SLUG[d],FAC);}
+function buildFacetLists(){
+  var auth={},trad={};WORKMAP={};var wopts=[];
+  (WLIST||[]).forEach(function(w){if(!w.slug)return;
+    if(w.author)auth[w.author]=1;
+    if(w.tradition)trad[w.tradition]=1;
+    var label=(w.title||w.slug)+(w.author?' — '+w.author:'')+(w.volume?' ('+w.volume+')':'');
+    WORKMAP[label]=w.slug;wopts.push(label);});
+  var authList=Object.keys(auth).sort();wopts.sort();
+  ['facAuthors','scopeAuthors'].forEach(function(id){var dl=document.getElementById(id);
+    if(dl)dl.innerHTML=authList.filter(function(a){return !FAC.author||foldQ(a).includes(foldQ(FAC.author));}).slice(0,40).map(function(a){return '<option value="'+esc(a)+'">';}).join('');});
+  ['facWorks','scopeWorks'].forEach(function(id){var dl=document.getElementById(id);
+    if(dl)dl.innerHTML=wopts.filter(function(w){return !FAC.workQuery||foldQ(w).includes(foldQ(FAC.workQuery));}).slice(0,40).map(function(w){return '<option value="'+esc(w)+'">';}).join('');});
+  var vs=document.getElementById('fTrad');
+  if(vs&&vs.options.length<=1){
+    var opts=['<option value="">All shelves</option>'];
+    FRSearch.shelves.forEach(function(v){opts.push('<option value="'+esc(v.value)+'">'+esc(v.label)+'</option>');});
+    vs.innerHTML=opts.join('');vs.value=FAC.trad;}
+}
+function facetInit(){
+  navMap(function(){});
+  var fa=document.getElementById('fAuthor'),fw=document.getElementById('fWork'),
+      fv=document.getElementById('fTrad'),fc=document.getElementById('fClear');
+  function upd(event){
+    FAC.author=(fa&&fa.value||'').trim();
+    FAC.trad=(fv&&fv.value||'').trim();
+    var wv=(fw&&fw.value||'').trim();
+    FAC.work=(wv&&WORKMAP&&WORKMAP[wv])||'';FAC.workQuery=FAC.work?'':wv;FAC.collection=document.getElementById('fCollection').value;FAC.group=document.getElementById('fGroup').value;buildFacetLists();scopeSummary();
+    if(fc)fc.hidden=!(FAC.author||FAC.trad||FAC.work||FAC.workQuery||FAC.collection||FAC.group);
+    if(event&&event.type==='input'&&MODE!=='title'){seq++;REDRAW=null;setPager(0,0,function(){});res.innerHTML='';ct.textContent='Select Search to apply these filters.';}else run();}
+  if(fa)fa.addEventListener('input',upd);
+  if(fw)fw.addEventListener('input',upd);
+  if(fv)fv.addEventListener('change',upd);document.getElementById('fCollection').onchange=upd;document.getElementById('fGroup').onchange=upd;
+  if(fc)fc.onclick=function(){if(fa)fa.value='';if(fw)fw.value='';if(fv)fv.value='';document.getElementById('fCollection').value='';document.getElementById('fGroup').value='';FAC.groupSlugs=null;upd();};}
+document.getElementById('fTrad').innerHTML='<option value="">All shelves</option>'+FRSearch.shelves.map(function(s){return '<option value="'+esc(s.value)+'">'+esc(s.label)+'</option>';}).join('');
+facetInit();
+
+/* ---- Title mode: works-index first, then the lazy 154k section-heading tier ---- */
+var _hFull=false,_hLoading=false;
+function loadHeadingsTier(){
+  if(_hFull||_hLoading)return;_hLoading=true;
+  fetch(FRB+'/v1/headings.json'+VER).then(function(r){return r.json();}).then(function(j){
+    var rows=(j&&j.h)||[];
+    var add=rows.map(function(r2){var e=NAV&&NAV[r2[0]]||{};
+      return {d:r2[0],k:'div',t:r2[2],a:e.a||'',page:r2[1]};});
+    IDX=(IDX||[]).concat(add);_hFull=true;_hLoading=false;
+    if(MODE==='title'){hint.textContent='Searches '+(WLIST||[]).length.toLocaleString()+' works and '+rows.length.toLocaleString()+' section headings.';RESTORE_PAGE=RESULT_PAGE;run();}
+  }).catch(function(){_hLoading=false;});}
+function foldQ(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/v/g,'u').replace(/j/g,'i');}
+function renderTitle(q){
+  if(CATALOG_ERROR){searchUnavailable('Work catalogue',q);return;}
+  if(!IDX){var waiting=seq,requestedPage=RESULT_PAGE;res.innerHTML='';ct.innerHTML='<span class="sbusy">loading…</span>';navMap(function(){if(waiting===seq){RESTORE_PAGE=requestedPage;run();}});return;}
+  if(q.trim().length>=2)loadHeadingsTier();
+  var toks=foldQ(q).split(/\s+/).filter(function(t2){return t2.length>=2;});
+  var m=IDX.filter(function(e){
+    var hay=foldQ(e.t+' '+(e.o||'')+' '+e.a+' '+(e.al||''));
+    return (toks.length||e.k==='work')&&toks.every(function(t2){return hay.indexOf(t2)>=0;})&&facetOk(e.d);
+  });
+  // author-name queries surface the author's OWN works first ("Augustine" = the 143
+  // Augustine works, then works merely mentioning him in the title)
+  m.forEach(function(e){var ah=foldQ(e.a+' '+(e.al||''));
+    var hit=toks.length&&toks.every(function(t2){return ah.indexOf(t2)>=0;});
+    // 0 = the author's own works · 1 = dubia ("Uncertain author (Augustine?)") · 2 = title-only
+    e._au=hit?(/^(uncertain|various|anonymous|auctor|auctores)/i.test(e.a)?1:0):2;});
+  m.sort(function(x,y){return x._au-y._au;});
+  if(!m.length&&window._AUTO_MODE&&q.length>=3){window._AUTO_MODE=false;setMode('full');return;}
+  // question-shaped input in Find mode ("what/why/how…?") → Ask is what they meant
+  // Work searches never send a paid question automatically; Ask opens a draft.
+  var byDoc={},order=[];
+  m.forEach(function(e){
+    if(!(e.d in byDoc)){byDoc[e.d]={work:null,divs:[]};order.push(e.d);}
+    if(e.k==='work')byDoc[e.d].work=e; else byDoc[e.d].divs.push(e);
+  });
+  if(!order.length){ct.innerHTML='';res.innerHTML=zeroHtml(q,'title');return;}
+  ct.textContent=order.length+' work'+(order.length===1?'':'s')+(m.length>order.length?(' · '+m.length+' incl. sections'):'');
+  var rankOrder=order.slice(),priorities={},authorCounts={};if(q.trim()){order.forEach(function(d){var e=byDoc[d].work||byDoc[d].divs[0];authorCounts[e.a]=(authorCounts[e.a]||0)+1;});order.forEach(function(d){var e=byDoc[d].work||byDoc[d].divs[0];priorities[d]=e._au*1000000-authorCounts[e.a];});}function paintTitle(page){order=FRSearch.orderWorks(rankOrder,ORDER,WORKS_BY_SLUG,priorities,FRResearch.workOrder);var win=FRSearch.pageWindow(order.length,page);setPager(order.length,win.page,paintTitle,'works');res.innerHTML=order.slice(win.start,win.end).map(function(d){
+    var g=byDoc[d], e=g.work||g.divs[0];
+    var href=rdHref(e.d,e.k==='div'?e.page:null);
+    var nd=g.divs.length;
+    var sec=nd>0?'<span class="sr-sec"> · '+nd+' section'+(nd>1?'s':'')+' match</span>':'';
+    var kind=(!g.work&&e.k==='div')?'§ ':'';
+    var first=(!g.work&&e.k==='div')?e.t:(g.work?g.work.t:e.t);
+    var out='<a class="sr" href="'+href+'"><div class="sr-cite">'+docCite(d)+sec+'</div>'+
+      '<div>'+kind+esc(first)+(!g.work?'<span class="nt-meta"> — '+docTitle(d)+'</span>':'')+'</div></a>';
+    if(nd)out+='<details class="matching-sections"><summary>Browse '+nd+' matching '+(nd===1?'section':'sections')+'</summary><div class="matched-section-list" data-doc="'+esc(d)+'"></div></details>';
+    return '<section class="search-work-block" data-work="'+esc(d)+'">'+out+'</section>';
+  }).join('');
+  res.querySelectorAll('.matched-section-list').forEach(function(host){var rows=byDoc[host.dataset.doc].divs;locationPager(host,rows.length,function(start,end,target){rows.slice(start,end).forEach(function(dv){var a=document.createElement('a');a.className='sr';a.href=rdHref(dv.d,dv.page);a.innerHTML='<div>'+esc(dv.t)+'</div><div class="sr-cite">Location '+esc(dv.page)+'</div>';target.appendChild(a);});},10);});organizePage();}REDRAW=paintTitle;paintTitle(RESULT_PAGE);
+}
+
+/* ---- Full text (Pagefind — Blob multi-bucket, same loader as the landing) ---- */
+var _pf=null,_pfMissing=[];
+function pfInit(){if(_pf)return _pf;
+  _pfMissing=[];_pf=fetch(FRB+'/v1/search/pagefind/manifest.json?v=4').then(function(r){if(!r.ok)throw Error('Index manifest unavailable');return r.json();})
+    .then(function(man){
+      var dirs=(man&&man.list&&man.list.length)
+        ? man.list.map(function(e){return e.path.replace(/\/pagefind$/,'');}).filter(function(d){return d!=='b0';})
+        : (function(){var a=[];for(var i=1;i<((man&&man.buckets)||9);i++)a.push('b'+i);return a;})();
+      return import(FRB+'/v1/search/pagefind/b0/pagefind.js?v=4').then(function(p){
+        return Promise.all(dirs.map(function(d){return p.mergeIndex(FRB+'/v1/search/pagefind/'+d+'/').catch(function(){_pfMissing.push(d);return null;});}))
+          .then(function(){return p;});});})
+    .catch(function(){_pf=null;return null;});
+  return _pf;}
+function renderFull(q){var my=++seq;ct.textContent='Loading the text index…';res.innerHTML='';
+ navMap(function(){if(my!==seq)return;pfInit().then(function(p){if(my!==seq)return;if(!p)throw Error('The text index could not load.');
+  return p.search(q,{filters:FRSearch.pagefindFilters(FAC,WLIST||[])}).then(function(r){if(my!==seq)return;var total=r.results.length,cache=new Map();
+   function href(raw,slug){var ref=FRSearch.readerLink(raw,location.origin);return ref?rdHref(ref.slug,ref.page):WORKS_BY_SLUG[slug]?rdHref(slug):null;}
+   function snippet(s){return mdHeadings(s||'').replace(/<(?!\/?(?:mark|b|strong)\b)[^>]*>/gi,'').replace(/<(mark|b|strong)\b[^>]*>/gi,'<$1>');}
+   function renderItems(items){var grouped=new Map();items.forEach(function(item){var meta=item.meta||{},slug=meta.slug||'',g=grouped.get(slug);if(!g){g={slug:slug,parts:[]};grouped.set(slug,g);}var parts=item.sub_results?.length?item.sub_results:[item];parts.forEach(function(part){var url=href(part.url||item.url,slug);if(url&&!g.parts.some(p=>p.url===url&&p.excerpt===part.excerpt))g.parts.push({url:url,excerpt:part.excerpt||item.excerpt});});});
+    var ordered=FRSearch.orderWorks(Array.from(grouped.values()),ORDER,WORKS_BY_SLUG,{},FRResearch.workOrder);for(const [i,g] of ordered.entries()){var fold=document.createElement('details');fold.className='scripture-work exact-work';fold.dataset.work=g.slug;fold.open=i===0;fold.innerHTML='<summary>'+docTitle(g.slug)+'<span>'+docCite(g.slug)+' · '+g.parts.length+' indexed '+(g.parts.length===1?'excerpt':'excerpts')+' on this page</span></summary><div class="exact-locations"></div>';locationPager(fold.querySelector('.exact-locations'),g.parts.length,function(start,end,host){g.parts.slice(start,end).forEach(function(part){var ref=FRSearch.readerLink(part.url,location.origin),a=document.createElement('a');a.className='sr';a.href=part.url;a.innerHTML='<div class="sr-cite">'+esc(ref?.page!=null?'Location '+ref.page:'Open work')+'</div><div class="sr-ex">'+snippet(part.excerpt)+'</div>';host.appendChild(a);});},3);res.appendChild(fold);}
+   }
+   async function draw(page){var win=FRSearch.pageWindow(total,page);setPager(total,win.page,draw,'indexed sections');ct.textContent='Loading result page…';try{var items=cache.get(win.page);if(!items){items=await Promise.all(r.results.slice(win.start,win.end).map(function(x){return x.data();}));cache.set(win.page,items);}if(my!==seq||win.page!==RESULT_PAGE)return;items=items.filter(function(it){return facetOk(it.meta&&it.meta.slug);});ct.textContent=total.toLocaleString()+' matching indexed sections · groups arrange this page'+(_pfMissing.length?' · incomplete index':'');res.innerHTML=(_pfMissing.length?'<p class="search-warning">Some text-index files could not load. These results are incomplete.</p>':'');renderItems(items);if(!items.length)res.insertAdjacentHTML('beforeend',zeroHtml(q,'full'));organizePage();}catch(e){if(my===seq)searchUnavailable('Full-text search',q);}}
+   REDRAW=draw;return draw(RESULT_PAGE);
+  });
+ }).catch(function(){if(my===seq)searchUnavailable('Full-text search',q);});});}
+
+/* ---- Blob excerpt hydration (meaning + tradition home hits): meta.json → shard → page text ---- */
+var _exc={};
+function excerpt(slug,page){var k=slug+'|'+page;
+  if(k in _exc)return Promise.resolve(_exc[k]);
+  return fetch(FRB+'/v1/works/'+slug+'/meta.json').then(function(r){return r.json();}).then(function(meta){
+    var f=meta.single?'work.json':(((meta.shards||[]).filter(function(s){return s.from<=page&&page<=s.to;})[0])||{}).file;
+    if(!f)return (_exc[k]=null);
+    return fetch(FRB+'/v1/works/'+slug+'/'+f).then(function(r){return r.json();}).then(function(d){
+      var pg=(d.pages||[]).filter(function(x){return String(x.n)===String(page);})[0];
+      var tx=(pg&&(pg.en||pg.la)||'').replace(/\[\^[^\]]*\]:?/g,'').replace(/[#*]+/g,'').replace(/\s+/g,' ').trim();
+      return (_exc[k]=tx?tx.slice(0,220):null);});
+  }).catch(function(){return (_exc[k]=null);});}
+
+function searchUnavailable(label,query){setPager(0,0,function(){});ct.textContent=label+' is temporarily unavailable. Your search is still here.';res.innerHTML='<div class="search-recovery"><p>Retry this search, or choose another search mode.</p><button type="button" id="retrySearch">Retry search</button></div>';document.getElementById('retrySearch').onclick=function(){if(CATALOG_ERROR){CATALOG_ERROR=false;NAV=null;IDX=null;}if(MODE==='full')_pf=null;run();};}
+/* ---- Meaning (hybrid semantic+lexical via /api/vsearch&sparse=1) ---- */
+function renderMeaning(q){var my=++seq,pools=[],expanded=false,expanding=false,groups=[];ct.textContent='Finding related passages…';res.innerHTML='';
+ navMap(function(){if(my!==seq)return;var params=new URLSearchParams({q:q,k:FAC.collection?'80':'25'}),endpoint='/api/xsearch?';if(FAC.collection){endpoint='/api/vsearch?';params.set('collection',FAC.collection);if(FAC.work)params.set('w',FAC.work);}else if(FAC.trad==='English Divines')params.set('c','tfr');else if(FAC.trad==='Medieval')params.set('c','aq,tfr');else if(FAC.trad)params.set('trad',FAC.trad);
+  fetch(endpoint+params,{signal:AbortSignal.timeout(25000)}).then(function(r){if(!r.ok)throw Error('Search unavailable');return r.json();}).then(function(data){if(my!==seq)return;pools=[FRSearch.meaningCandidates(data,WORKS_BY_SLUG)];refresh();}).catch(function(){if(my===seq)searchUnavailable('Search by idea',q);});
+  function refresh(){var rows=FRSearch.fuseMeaning(pools).filter(function(r){return facetOk(r.slug);});groups=FRSearch.meaningGroups(rows);REDRAW=paint;ct.textContent=rows.length+' ranked passages in '+groups.length+' works'+(FAC.trad?' · '+FRSearch.label(FAC.trad):'');paint(RESULT_PAGE);}
+  function paint(page){var ordered=FRSearch.orderWorks(groups,ORDER,WORKS_BY_SLUG,{},FRResearch.workOrder),win=FRSearch.pageWindow(groups.length,page);setPager(groups.length,win.page,paint,'works');res.innerHTML='<details class="search-guidance"><summary>About these ranked results</summary><p>Expand a work to read its indexed passages. Use Search more passages for a broader candidate set. Neither list is an exhaustive match count.</p></details>';
+   ordered.slice(win.start,win.end).forEach(function(g,i){var fold=document.createElement('details');fold.className='scripture-work meaning-work';fold.dataset.work=g.slug;fold.open=i===0;fold.innerHTML='<summary>'+docTitle(g.slug)+'<span>'+docCite(g.slug)+' · '+g.locations.length+' ranked '+(g.locations.length===1?'passage':'passages')+'</span></summary><div class="meaning-locations"></div>';
+    locationPager(fold.querySelector('.meaning-locations'),g.locations.length,function(start,end,host){g.locations.slice(start,end).forEach(function(p){var a=document.createElement('a');a.className='sr';a.href=rdHref(p.slug,p.page);a.innerHTML='<div class="sr-cite">'+esc(p.citation||(p.page!=null?'Location '+p.page:'Work-level match'))+'</div>'+(p.excerpt?'<div class="sr-ex">'+esc(p.excerpt)+'</div>':'<div class="sr-ex"></div>')+'<small>'+esc(p.page==null?'Open work; exact reader location unavailable':'Read passage')+'</small>';host.appendChild(a);if(!p.excerpt&&p.page!=null){var span=a.querySelector('.sr-ex');excerpt(p.slug,p.page).then(function(text){if(my===seq&&span.isConnected&&text)span.textContent=text+'…';});}});},3);res.appendChild(fold);
+   });if(!groups.length)res.insertAdjacentHTML('beforeend','<p>No ranked matches were returned for these filters. Try a broader set, another phrase, or Exact words.</p>');organizePage();
+   var button=document.getElementById('meaningBroaden');if(!button){button=document.createElement('button');button.type='button';button.id='meaningBroaden';document.getElementById('groupControls').appendChild(button);}button.disabled=expanded||expanding;button.textContent=expanding?'Finding more passages…':expanded?'Broader ranked set loaded':'Search more passages';button.onclick=broaden;
+  }
+  async function broaden(){if(expanding||expanded)return;expanding=true;var button=document.getElementById('meaningBroaden');button.disabled=true;button.textContent='Finding more passages…';var selected=FRSearch.shelf(FAC.trad),names=selected?.code==='pl'?['pl']:selected?.code==='gf'?['pg']:selected?.code==='po'?['po']:selected?.code==='md'?['library','aq']:selected?['library']:['library','pl','pg','po','aq'];if(FAC.collection)names=['library'];
+   var settled=await Promise.allSettled(names.map(async function(corpus){var params=new URLSearchParams({q:q,k:'200',corpus:corpus});if(FAC.collection)params.set('collection',FAC.collection);if(FAC.work&&corpus==='library')params.set('w',FAC.work);var response=await fetch('/api/vsearch?'+params,{signal:AbortSignal.timeout(25000)});if(!response.ok)throw Error('Search unavailable');var data=await response.json();return FRSearch.meaningCandidates(Object.assign({},data,{corpus:corpus}),WORKS_BY_SLUG);}));if(my!==seq)return;expanding=false;var good=settled.filter(function(r){return r.status==='fulfilled';});if(!good.length){button.disabled=false;button.textContent='Retry broader search';ct.textContent='The broader search could not load. Your current results are retained.';return;}pools=pools.concat(good.map(function(r){return r.value;}));expanded=true;RESULT_PAGE=0;saveSearchURL();refresh();if(good.length!==settled.length)ct.textContent+=' · some sources could not load';
+  }
+ });}
+
+/* ---- Tradition (cross-corpus timeline via /api/xsearch) — Round-5 scope contract ---- */
+var CORPUS_BADGE={PG:'Greek Fathers',PL:'Latin Fathers',PO:'Eastern Fathers',AQ:'Aquinas',TFR:'Early modern'};
+var TRS={c:{pg:1,pl:1,po:1,aq:1,tfr:1},t:{catholic:1,reformed:1,lutheran:1}};
+try{var _s=JSON.parse(localStorage.getItem('fr_tr_scope'));if(_s&&_s.c)TRS=_s;}catch(e){}
+function trsSave(){try{localStorage.setItem('fr_tr_scope',JSON.stringify(TRS));}catch(e){}}
+function trsParams(){
+  var cs=Object.keys(TRS.c).filter(function(k){return TRS.c[k];});
+  var p2='';
+  if(cs.length&&cs.length<5)p2+='&c='+cs.join(',');
+  if(TRS.c.tfr){var tt=Object.keys(TRS.t).filter(function(k){return TRS.t[k];});
+    if(tt.length&&tt.length<3)p2+='&trad='+tt.map(function(x){return x.charAt(0).toUpperCase()+x.slice(1);}).join(',');}
+  return p2;}
+function ensureTrScope(){
+  if(document.getElementById('trScope'))return;
+  var d=document.createElement('div');d.id='trScope';d.className='trad-scope';
+  d.innerHTML='<span class="trad-scope-lab">Corpora:</span>'
+    +'<button type="button" class="trad-chip tb-pg" data-c="pg" title="Greek Fathers">PG</button>'
+    +'<button type="button" class="trad-chip tb-pl" data-c="pl" title="Latin Fathers">PL</button>'
+    +'<button type="button" class="trad-chip tb-po" data-c="po" title="Eastern Fathers">PO</button>'
+    +'<button type="button" class="trad-chip tb-aq" data-c="aq" title="Aquinas Opera Omnia">AQ</button>'
+    +'<button type="button" class="trad-chip tb-tfr" data-c="tfr" title="Early-modern reception — this library">TFR</button>'
+    +'<span class="trs-sub"><span class="trad-scope-lab">·</span>'
+    +'<button type="button" class="trad-chip trs-t" data-t="catholic">Catholic</button>'
+    +'<button type="button" class="trad-chip trs-t" data-t="reformed">Reformed</button>'
+    +'<button type="button" class="trad-chip trs-t" data-t="lutheran">Lutheran</button></span>'
+    +'<span class="trad-scope-hint">one or all</span>';
+  res.parentNode.insertBefore(d,res);
+  function paint(){
+    d.querySelectorAll('[data-c]').forEach(function(b){b.classList.toggle('on',!!TRS.c[b.dataset.c]);});
+    d.querySelectorAll('[data-t]').forEach(function(b){b.classList.toggle('on',!!TRS.t[b.dataset.t]);});
+    d.querySelector('.trs-sub').style.display=TRS.c.tfr?'':'none';
+  }
+  d.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    if(b.dataset.c){var on=Object.keys(TRS.c).filter(function(k){return TRS.c[k];});
+      if(TRS.c[b.dataset.c]&&on.length===1)return;
+      TRS.c[b.dataset.c]=TRS.c[b.dataset.c]?0:1;}
+    else if(b.dataset.t){var tn=Object.keys(TRS.t).filter(function(k){return TRS.t[k];});
+      if(TRS.t[b.dataset.t]&&tn.length===1)return;
+      TRS.t[b.dataset.t]=TRS.t[b.dataset.t]?0:1;}
+    trsSave();paint();
+    var v=qEl.value?qEl.value.trim():'';
+    if(v&&v.length>=3)renderTradition(v);
+  });
+  paint();
+}
+function renderTradition(q){var my=++seq;
+  ct.innerHTML='<span class="sbusy">tracing across the tradition…</span>';
+  res.innerHTML='';ensureTrScope();res.parentNode.insertBefore(document.getElementById('trScope'),res);
+  navMap(function(){});
+  fetch('/api/xsearch?q='+encodeURIComponent(q)+'&k=14'+trsParams()).then(function(r){return r.json();}).then(function(j){
+    if(my!==seq)return;
+    if(!j||j.error||!j.bands||!j.bands.length){if(!j||j.error)return searchUnavailable('Tradition search',q);ct.textContent='No witnesses found.';return;}
+    ct.textContent=j.n+' witnesses across '+j.bands.length+' periods · chronological';
+    Array.prototype.slice.call(res.querySelectorAll('.trad-band,.trad-intro')).forEach(function(n){n.remove();});
+    res.insertAdjacentHTML('beforeend','<div class="trad-intro">One question, the whole tradition: the strongest parallels in each period, '+
+      'Fathers and Reformers interleaved in time. Every entry opens at its exact place.</div>'+
+      j.bands.map(function(b){
+        return '<div class="trad-band"><div class="trad-era">'+esc(b.band)+'</div>'+
+          b.hits.map(function(h){
+            var home=(h.corpus==='TFR');
+            var open='<a class="sr trad-hit trad-'+h.corpus.toLowerCase()+'"'+(h.link?' href="'+esc(h.link)+'"'+(home?'':' target="_blank" rel="noopener"'):'')+'>';
+            var slm=home&&h.link?(h.link.match(/w=([a-z0-9-]+)/)||[]):null;
+            return open+'<div class="sr-cite"><span class="trad-badge tb-'+h.corpus.toLowerCase()+'">'+(CORPUS_BADGE[h.corpus]||h.corpus)+'</span> '+
+              esc(h.cit||'')+(h.trad?' <span class="tr-trad">'+esc(h.trad)+'</span>':'')+(h.corpus==='PL'?' <span class="trad-badge" style="color:var(--muted);border-color:var(--border)" title="A companion site that currently asks for sign-in">companion · sign-in</span>':'')+' <span class="sr-n">· '+Math.round((h.score||0)*100)+'%</span></div>'+
+              (h.tx?('<div class="sr-ex">'+esc(h.tx)+'…</div>')
+                :(home&&slm&&slm[1]?('<div class="sr-ex" data-ex="'+esc(slm[1])+'|'+(h.page||'')+'"></div>')
+                :(h.page?('<div class="sr-ex">p. '+h.page+'</div>'):'')))+'</a>';
+          }).join('')+'</div>';
+      }).join(''));
+    Array.prototype.slice.call(res.querySelectorAll('[data-ex]'),0,20).forEach(function(sp){
+      var kv=sp.getAttribute('data-ex').split('|');if(!kv[0]||!kv[1])return;
+      excerpt(kv[0],+kv[1]).then(function(tx){if(tx&&my===seq)sp.textContent=tx+'…';});});
+  }).catch(function(){if(my!==seq)return;searchUnavailable('Tradition search',q);});}
+
+/* Scripture searches use the published verse-citation files, not inferred title matches. */
+var SCRIPTURE_BOOKS=null,SCRIPTURE_LAST=null;
+function scriptureChapter(path){if(SCRIPTURE_LAST&&SCRIPTURE_LAST.path===path)return SCRIPTURE_LAST.promise;var promise=FRResearchData.json(path).catch(function(error){if(SCRIPTURE_LAST?.path===path)SCRIPTURE_LAST=null;throw error;});SCRIPTURE_LAST={path:path,promise:promise};return promise;}
+function scriptureBooks(){if(!SCRIPTURE_BOOKS)SCRIPTURE_BOOKS=FRResearchData.books().catch(function(e){SCRIPTURE_BOOKS=null;throw e;});return SCRIPTURE_BOOKS;}
+function capB(s){return String(s).replace(/\b[a-z]/g,function(c){return c.toUpperCase();});}
+function scriptureAtlas(ref){return FRResearchData.verseURL(ref.book,ref.ch,ref.verses.length===1?ref.verses[0]:null);}
+function renderScripture(q){var my=++seq;ct.textContent='Loading Scripture references…';res.innerHTML='';
+ scriptureBooks().then(async function(books){if(my!==seq)return;var ref=FRSearch.scriptureReference(q,books,FRResearchData.parseReference);
+  if(!ref){var bookRef=FRResearchData.parseReference(q+' 1',books);if(bookRef){renderBibleChapters(books.find(function(b){return b.slug===bookRef.book;}));return;}ct.textContent='Enter a book and chapter, with an optional verse or range, such as Romans 8:1–4.';return;}
+  var sh=FRSearch.shelf(FAC.trad),data;try{data=await scriptureChapter('/v1/bible/'+(sh?sh.code:'all')+'/'+encodeURIComponent(ref.book)+'/'+ref.ch+'.json.gz');}catch(e){if(my!==seq)return;if(e.status===404){ct.textContent='No published Scripture records are available for this passage in the selected shelf.';res.innerHTML='<a class="sr" href="'+scriptureAtlas(ref)+'">Open this passage in Scripture</a>';return;}throw e;}
+  if(my!==seq)return;var records=FRSearch.scriptureRecords(data,ref);navMap(function(){if(my!==seq)return;var groups=FRSearch.scriptureGroups(records.rows,FAC,WORKS_BY_SLUG,WORK_ALIASES),name=(books.find(function(b){return b.slug===ref.book;})||{}).book||ref.book,label=name+' '+ref.ch+(ref.selection?':'+ref.selection:'');
+   var locations=groups.reduce(function(n,g){return n+g.locations.length;},0);ct.textContent=locations.toLocaleString()+' source locations · '+groups.length.toLocaleString()+' works · '+label+(records.partial?' · published selection':'');
+   function paint(page){var ordered=FRSearch.orderWorks(groups,ORDER,WORKS_BY_SLUG,{},FRResearch.workOrder),win=FRSearch.pageWindow(groups.length,page);setPager(groups.length,win.page,paint,'works');res.innerHTML='<div class="scripture-context"><a href="'+scriptureAtlas(ref)+'">Read '+esc(ref.verses.length===1?label:name+' '+ref.ch)+' in Scripture</a><details><summary>Coverage</summary><p>These are indexed citations, including quotations and references. They do not establish agreement or a continuous commentary.</p>'+(records.partial?'<p class="search-warning">The published file contains a selection of the indexed references. These results are not exhaustive.</p>':'')+'</details></div>';
+    ordered.slice(win.start,win.end).forEach(function(g,i){var fold=document.createElement('details');fold.className='scripture-work';fold.dataset.work=g.slug;fold.dataset.author=g.author;fold.dataset.shelf=g.shelf;fold.open=i===0;fold.innerHTML='<summary>'+esc(ORDER==='relevance'&&g.author?g.author+' · ':'')+esc(g.title)+'<span>'+(g.volume?esc(g.volume)+' · ':'')+g.locations.length+' source location'+(g.locations.length===1?'':'s')+' · '+esc(g.shelf)+(g.available?'':' · Work not currently available')+'</span></summary><div class="scripture-locations"></div>';var list=fold.querySelector('.scripture-locations');locationPager(list,g.locations.length,function(start,end,target){g.locations.slice(start,end).forEach(function(loc){var a=document.createElement(g.available?'a':'div');a.className='sr';if(g.available)a.href=rdHref(g.slug,loc.page);a.innerHTML='<div class="sr-cite">'+esc(loc.verses.length?'Verse'+(loc.verses.length>1?'s ':' ')+loc.verses.join(', '):'Chapter reference')+' · '+esc(loc.page)+'</div><div>'+esc(g.title)+'</div>';target.appendChild(a);});},10);res.appendChild(fold);});if(!groups.length)res.insertAdjacentHTML('beforeend','<p>No available records match these filters. Try another shelf or clear the filters.</p>');
+   organizePage();}REDRAW=paint;paint(RESULT_PAGE);
+  });
+ }).catch(function(error){if(my!==seq)return;if(/requested verse|does not match/.test(error.message)){ct.textContent=error.message;res.innerHTML='';}else searchUnavailable('Scripture search',q);});}
+function renderBibleChapters(book){if(!book)return;ct.textContent='Choose a chapter of '+book.book+'.';res.innerHTML='<div class="sb-grid">'+book.chapters.map(function(c){var label=book.book+' '+c.c;return '<button type="button" class="sb-chip" data-ref="'+esc(label)+'">'+esc(label)+'</button>';}).join('')+'</div>';wireBibleButtons();}
+function wireBibleButtons(){res.querySelectorAll('[data-ref]').forEach(function(b){b.onclick=function(){qEl.value=b.dataset.ref;run();};});}
+function scriptureBrowse(){var my=++seq;ct.textContent='Loading Bible books…';res.innerHTML='';scriptureBooks().then(function(books){if(my!==seq||qEl.value.trim())return;ct.textContent='Choose a book, or enter a passage above.';res.innerHTML='<div class="sb-grid">'+books.map(function(b){return '<button type="button" class="sb-chip" data-book="'+esc(b.slug)+'">'+esc(b.book)+'</button>';}).join('')+'</div>';res.querySelectorAll('[data-book]').forEach(function(b){b.onclick=function(){var book=books.find(function(x){return x.slug===b.dataset.book;});qEl.value=book.book;saveSearchURL();renderBibleChapters(book);};});}).catch(function(){if(my===seq)searchUnavailable('Scripture catalogue','');});}
+function doorRow(m){return m==='scripture'?'<div class="sdoors"><a class="sdoor" href="/bible"><span class="sd-n">Open Scripture</span><span class="sd-d">Read the text, citations, and commentary.</span></a></div>':'';}
+
+/* ---- Ask (RAG via /api/ask, streamed) — TFR stream contract: {"t":"k"/"p"} control
+       frames on their own lines + FIRST non-frame line = {"sources":[…],"graph":…} preamble,
+       then the answer text. Citations in the answer are [slug/pN] → reader links. ---- */
+function linkifyCites(txt){
+  /* structured answer rendering (owner 2026-08-19 'formatted, like qaf'): the model emits
+     light markdown — honor headings, bold, italics, lists, and paragraphs instead of a
+     <br> wall; then link the [slug/pN] citations. */
+  var h=esc(txt);
+  h=h.replace(/^#{2,4}\s+(.+)$/gm,'<h4 class="ask-h">$1</h4>');
+  h=h.replace(/^\s*[-•]\s+(.+)$/gm,'<li>$1</li>');
+  h=h.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g,'<ul class="ask-ul">$1</ul>');
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  h=h.replace(/(^|[\s(>])\*([^*\n]+)\*(?=[\s).,;:!?<]|$)/g,'$1<em>$2</em>');
+  h=mdHeadings(h);
+  h=h.replace(/\[([a-z0-9-]{4,})\/p(\d+)\]/g,function(full,s,p){
+    var lab=(NAV&&NAV[s]&&NAV[s].a)?NAV[s].a.split(' ').pop()+', p.'+p:s.split('-').slice(0,2).join('-')+'/p'+p;
+    return '<a class="cite-lnk" href="'+rdHref(s,p)+'">['+esc(lab)+']</a>';});
+  h=h.replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>');
+  h='<p>'+h+'</p>';
+  h=h.replace(/<p>\s*(<h4)/g,'$1').replace(/(<\/h4>)\s*<\/p>/g,'$1')
+     .replace(/<p>\s*(<ul)/g,'$1').replace(/(<\/ul>)\s*<\/p>/g,'$1')
+     .replace(/<p>\s*<\/p>/g,'').replace(/(<br>\s*)+<\/p>/g,'</p>');
+  return h;}
+function renderSources(el,sources){if(!sources||!sources.length){el.innerHTML='';return;}
+  el.innerHTML='<details class="ask-src-block"'+(sources.length<=6?' open':'')+'><summary class="ask-src-h">Passages cited · '+sources.length+'</summary>'+sources.map(function(s){
+    return '<a class="sr" href="'+rdHref(s.slug,s.page)+'"><div class="sr-cite">'+docCite(s.slug)+(s.page!=null?' · p. '+s.page:'')+'</div><div>'+docTitle(s.slug)+'</div></a>';}).join('')+'</details>';}
+
+var SCOPE={authors:[],works:[]};
+function renderScopeChips(){
+  var el=document.getElementById('scopeChips');if(!el)return;
+  var chips=[];
+  SCOPE.authors.forEach(function(a,i){chips.push('<span class="scope-chip">within <b>'+esc(a)+'</b><button type="button" data-k="a" data-i="'+i+'" title="Clear">×</button></span>');});
+  SCOPE.works.forEach(function(w,i){chips.push('<span class="scope-chip">within <b>'+esc(w.label||w.id)+'</b><button type="button" data-k="w" data-i="'+i+'" title="Clear">×</button></span>');});
+  el.innerHTML=chips.join('');
+  el.querySelectorAll('button[data-k]').forEach(function(b){b.onclick=function(){
+    var k=b.getAttribute('data-k'),i=+b.getAttribute('data-i');
+    if(k==='a')SCOPE.authors.splice(i,1);else SCOPE.works.splice(i,1);
+    renderScopeChips();};});
+}
+function scopeSlugs(){   // ask.mjs contract: {scope:{tfr:[slugs]}} — authors expand to their works
+  var slugs=SCOPE.works.map(function(w){return w.id;});
+  SCOPE.authors.forEach(function(a){(WLIST||[]).forEach(function(w){
+    if((w.author||'')===a&&w.slug&&slugs.indexOf(w.slug)<0)slugs.push(w.slug);});});
+  return slugs.slice(0,60);}
+(function(){
+  var ain=document.getElementById('scopeAuthorIn'),win=document.getElementById('scopeWorkIn');
+  if(ain)ain.addEventListener('change',function(){
+    var v=ain.value.trim();if(!v)return;
+    if(SCOPE.authors.indexOf(v)<0)SCOPE.authors.push(v);
+    ain.value='';renderScopeChips();});
+  if(win)win.addEventListener('change',function(){
+    var v=win.value.trim();if(!v||!WORKMAP)return;var id=WORKMAP[v];if(!id)return;
+    if(!SCOPE.works.some(function(w){return w.id===id;}))SCOPE.works.push({id:id,label:v});
+    win.value='';renderScopeChips();});
+})();
+
+var askConv=[];
+/* ── DURABLE CONVERSATIONS (owner 2026-08-19 'connect chats to work'): every completed
+   answer persists to localStorage fr_chats; threads survive reload, list under the welcome,
+   restore with full citations, and tag the works they cite. Reader-rail asks share the store. */
+var CHAT={id:null};
+function chatAll(){try{var d=JSON.parse(localStorage.getItem('fr_chats'))||{};return Array.isArray(d.chats)?d.chats:[];}catch(e){return [];}}
+function chatPut(list){try{localStorage.setItem('fr_chats',JSON.stringify({v:1,chats:list.slice(0,20)}));
+  if(window._frSyncChats)try{window._frSyncChats(JSON.parse(localStorage.getItem('fr_chats')));}catch(e){}}catch(e){}}
+function chatSave(q,answer,src,gr){
+  var list=chatAll();var c=CHAT.id?list.filter(function(x){return x.id===CHAT.id;})[0]:null;
+  if(!c){c={id:'c'+Date.now(),ts:Date.now(),t:q.slice(0,90),turns:[]};CHAT.id=c.id;list.unshift(c);}
+  c.turns.push({q:q,a:String(answer).slice(0,16000),src:(src||[]).slice(0,14).map(function(s2){return {slug:s2.slug,page:s2.page};}),
+    graph:gr&&gr.loci?{loci:(gr.loci||[]).slice(0,5)}:null,ts:Date.now()});
+  c.ts=Date.now();
+  list=[c].concat(list.filter(function(x){return x.id!==c.id;}));
+  chatPut(list);}
+function chatRestore(id){
+  var c=chatAll().filter(function(x){return x.id===id;})[0];if(!c)return;
+  askReset();CHAT.id=c.id;askConv=[];
+  var aw=res.querySelector('.ask-empty')||res.querySelector('.ask-welcome');if(aw)aw.remove();
+  var sg0=res.querySelector('.ask-sugg:not(.ask-refine)');if(sg0)sg0.remove();
+  var cr=res.querySelector('.chat-recent');if(cr)cr.remove();
+  var thread=res.querySelector('#askThread');
+  var lastQ='',lastTd=null;
+  c.turns.forEach(function(t2){
+    askConv.push({role:'user',content:t2.q});askConv.push({role:'assistant',content:t2.a});
+    var turn=document.createElement('div');turn.className='ask-turn';
+    turn.innerHTML='<div class="ask-q">'+esc(t2.q)+'</div><div class="ask-ans">'+linkifyCites(t2.a)+'</div><div class="ask-src"></div><div class="ask-fallib"></div>';
+    thread.appendChild(turn);
+    var srcFull=(t2.src||[]).map(function(s2){return {slug:s2.slug,page:s2.page};});
+    renderSources(turn.querySelector('.ask-src'),srcFull);renderFallib(turn);
+    lastQ=t2.q;lastTd={src:srcFull,graph:t2.graph};});
+  if(askConv.length>16)askConv=askConv.slice(-16);
+  if(lastQ)askHint(lastQ,lastTd||{});
+  var last=thread.lastElementChild;if(last)last.scrollIntoView({block:'start'});}
+/* ── CORPUS SCOPE CHIPS (owner: 'cross corpora AI search for each section — PO, PG, PL,
+   Lutheran, Reformed, Roman Catholic'): one tap scopes the ask to a shelf; the server
+   already understands filters.tradition (Latin/Greek/Eastern Fathers route their own
+   vector namespaces). Sticky for the conversation until changed. */
+var ASKTRAD='';var ASKPARTY='';var PARTYSLUGS={};
+var ASK_CORPORA=[['','Whole library'],['Latin Fathers','Latin Fathers'],['Greek Fathers','Greek Fathers'],['Eastern Fathers','Eastern Fathers'],['Medieval','Medieval'],['Roman Catholic','Roman Catholic'],['Reformed','Reformed'],['English Divines','English Divines'],['Lutheran','Lutheran'],['Humanism and Law','Humanism and Law']];   /* all NINE shelves, named as the landing names them (owner 2026-09-05 "wheres english divines … match with landing") */
+var ASKNB=false;
+function nbPayload(){   // the reader's own gathered evidence, offered to the model (server filters.nb contract)
+  try{
+    var notes=JSON.parse(localStorage.getItem('fr_notes'))||{};
+    var ks=Object.keys(notes).sort(function(x,y){return (notes[y].ts||0)-(notes[x].ts||0);}).slice(0,40);
+    if(!ks.length)return null;
+    var items=[],texts=[];
+    ks.forEach(function(k){var e=notes[k]||{};
+      if(k.indexOf('ask|')===0){texts.push(String(e.t||'').slice(0,400));return;}
+      items.push({t:(e.work||'')+(e.page?' p.'+e.page:''),l:String(e.t||'').slice(0,140)});});
+    return {name:'My notebook',items:items.slice(0,40),notes:texts.slice(0,12)};
+  }catch(e){return null;}}
+function corporaRow(){
+  var main=ASK_CORPORA.filter(function(c2){return c2[0]!=='English Divines';});
+  return '<details class="wsc-grp" open><summary>Shelves</summary><div class="ask-corpora" id="askCorp">'
+    +main.map(function(c2){
+      return '<button type="button" data-tr="'+esc(c2[0])+'"'+(ASKTRAD===c2[0]?' class="on"':'')+'>'+esc(c2[1])+'</button>';}).join('')
+    +'</div><div class="asw-sub"><span class="asw-sublb">English Divines</span><div class="ask-corpora">'
+    +'<button type="button" data-tr="English Divines"'+(ASKTRAD==='English Divines'?' class="on"':'')+'>All divines</button>'
+    +['Puritan','Anglican'].map(function(p2){return '<button type="button" data-py="'+p2+'"'+(ASKPARTY===p2?' class="on"':'')+'>'+p2+'s</button>';}).join('')
+    +'</div></div>'
+    +'<div class="ask-corpora" style="margin-top:.4rem"><button type="button" id="askNb"'+(ASKNB?' class="on"':'')+' title="Give the answer your saved notes and highlights">📓 With my notebook</button></div></details>';}
+function wireCorpora(){var el=res.querySelector('.wsc-grp')||res.querySelector('#askCorp');if(!el)return;
+  el.querySelectorAll('button[data-tr]').forEach(function(b2){b2.onclick=function(){
+    var v=b2.getAttribute('data-tr')||'';
+    ASKTRAD=(ASKTRAD===v&&v)?'':v;ASKPARTY='';
+    el.querySelectorAll('button[data-tr]').forEach(function(x){x.classList.toggle('on',x===b2&&!!ASKTRAD);});
+    el.querySelectorAll('button[data-py]').forEach(function(x){x.classList.remove('on');});};});
+  el.querySelectorAll('button[data-py]').forEach(function(b2){b2.onclick=function(){
+    var v=b2.getAttribute('data-py')||'';
+    ASKPARTY=(ASKPARTY===v)?'':v;ASKTRAD='';
+    el.querySelectorAll('button[data-py]').forEach(function(x){x.classList.toggle('on',x===b2&&!!ASKPARTY);});
+    el.querySelectorAll('button[data-tr]').forEach(function(x){x.classList.remove('on');});};});
+  var nb=el.querySelector('#askNb');
+  if(nb)nb.onclick=function(){ASKNB=!ASKNB;nb.classList.toggle('on',ASKNB);};}
+/* ── CONVERSATION MAP (owner: 'conversations visualized as graphs'): the thread as a map —
+   questions on the spine, the graph's loci left, the cited works right; every node is a
+   door (works open the reader, authors filter the library). Pure SVG, theme-aware. */
+function chatMap(){
+  var c=chatAll().filter(function(x){return x.id===CHAT.id;})[0];
+  if(!c||!c.turns.length)return null;
+  var W=800,rowH=150,pad=26,H=c.turns.length*rowH+pad*2;
+  var out=['<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">'];
+  var qx=W/2,esc2=function(t2){return String(t2).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');};
+  var wrap=function(t2,n2){t2=String(t2);return t2.length>n2?t2.slice(0,n2-1)+'…':t2;};
+  c.turns.forEach(function(t2,i){
+    var qy=pad+i*rowH+30;
+    if(i>0)out.push('<line x1="'+qx+'" y1="'+(qy-rowH+16)+'" x2="'+qx+'" y2="'+(qy-16)+'" stroke="var(--line)" stroke-width="2"/>');
+    out.push('<g><rect x="'+(qx-150)+'" y="'+(qy-16)+'" width="300" height="34" rx="17" fill="var(--accent)" opacity="0.92"/>'
+      +'<text x="'+qx+'" y="'+(qy+5)+'" text-anchor="middle" font-size="12.5" fill="#fff">'+esc2(wrap(t2.q,44))+'</text></g>');
+    (t2.graph&&t2.graph.loci||[]).slice(0,3).forEach(function(l2,j){
+      var ly=qy-14+j*30,lx=140;
+      out.push('<path d="M'+(qx-150)+' '+qy+' Q '+(lx+130)+' '+qy+' '+(lx+95)+' '+ly+'" stroke="var(--line)" fill="none"/>');
+      out.push('<g><rect x="'+(lx-95)+'" y="'+(ly-12)+'" width="190" height="24" rx="12" fill="none" stroke="var(--accent2,var(--accent))"/>'
+        +'<text x="'+lx+'" y="'+(ly+4)+'" text-anchor="middle" font-size="11" fill="var(--fg)">'+esc2(wrap(String(l2),30))+'</text></g>');});
+    var byW={};(t2.src||[]).forEach(function(s2){byW[s2.slug]=byW[s2.slug]||{n:0,p:s2.page};byW[s2.slug].n++;});
+    var _au=function(sl){var e2=NAV&&NAV[sl];return (e2&&e2.a)||'~';};
+    Object.keys(byW).sort(function(x,y){var ax=_au(x),ay=_au(y);
+      return ax===ay?(byW[y].n-byW[x].n):(ax<ay?-1:1);}).slice(0,4).forEach(function(sl,j){
+      var wy=qy-24+j*30,wx=662;
+      var e=NAV&&NAV[sl];var lab=(e&&e.a?e.a.split(' ').pop()+' · ':'')+wrap((e&&e.t)||sl,20);
+      out.push('<path d="M'+(qx+150)+' '+qy+' Q '+(wx-130)+' '+qy+' '+(wx-95)+' '+wy+'" stroke="var(--line)" fill="none"/>');
+      out.push('<a href="'+esc2(rdHref(sl,byW[sl].p))+'" class="amn"><g><rect x="'+(wx-95)+'" y="'+(wy-12)+'" width="190" height="24" rx="6" fill="var(--highlight,rgba(0,0,0,.05))"/>'
+        +'<text x="'+wx+'" y="'+(wy+4)+'" text-anchor="middle" font-size="11" fill="var(--fg)">'+esc2(wrap(lab,32))+'</text></g></a>');});
+  });
+  out.push('</svg>');
+  return out.join('');}
+function toggleMap(){
+  var ex=res.querySelector('.ask-map');if(ex){ex.remove();return;}
+  var svg=chatMap();if(!svg)return;
+  var d=document.createElement('div');d.className='ask-map';
+  d.innerHTML='<button type="button" class="ask-map-x" title="Close the map">✕</button>'+svg;
+  d.querySelector('.ask-map-x').onclick=function(){d.remove();};
+  var thread=res.querySelector('#askThread');thread.parentNode.insertBefore(d,thread);
+  d.scrollIntoView({block:'nearest'});}
+function askReset(){askConv=[];CHAT.id=null;ct.textContent='';
+  var recent=chatAll().slice(0,4);
+  /* CHAT EMPTY STATE (owner 2026-09-05 "looks nothing like a chat interface"): greeting,
+     the composer (moved in by setMode), three QUIET suggestions — and nothing else. The
+     corpora row, notebook toggle, and author/work scope all live behind one ⌖ Scope
+     control; by default the AI scopes from the question. */
+  res.innerHTML='<div class="ask-empty">'
+    +'<div class="ask-welcome"><div class="aw-word">Ask the Library</div></div>'
+    +'<div class="ask-sugg">'
+    +'<button data-q="What did the early church believe about the real presence in the Eucharist?">Real presence in the fathers</button>'
+    +'<button data-q="How do Reformed and Lutheran theologians differ on the imputation of Christ\'s righteousness?">Imputation: Reformed vs Lutheran</button>'
+    +'<button data-q="What is the covenant of works and where is it first taught?">The covenant of works</button>'
+    +'</div>'
+    +(recent.length?'<div class="chat-recent"><div class="chat-recent-h">Recent conversations</div>'
+      +recent.map(function(c2){var when=new Date(c2.ts);var m2=(c2.turns||[]).length;
+        return '<button type="button" class="chat-row" data-cid="'+esc(c2.id)+'"><span class="cr-t">'+esc(c2.t||'Conversation')+'</span><span class="cr-m">'+m2+(m2===1?' turn':' turns')+'</span></button>';}).join('')+'</div>':'')
+    +'</div>'
+    +'<div class="ask-thread" id="askThread"></div><div class="ask-more" id="askMore"></div>'
+    /* the composer sits LAST and sticky at the foot — a conversation, the same shell as the
+       landing overlay (owner 2026-09-05 "on the bottom … same design everywhere") */
+    +'<div class="askbox">'
+    +'<div class="ask-scopewrap" id="askScopeWrap" hidden>'
+    +'<div class="asw-note">Optional — narrow where to search. By default the whole library is searched.</div>'
+    +corporaRow()+'</div>'
+    +'<textarea id="askTa" rows="1" placeholder="Ask anything" aria-label="Ask a question"></textarea>'
+    +'<button type="button" id="askGo" class="askgo" aria-label="Ask" disabled>↑</button>'
+    +'<div class="askbox-tools">'
+    +'<button type="button" id="askScopeT" class="ask-scope-t" aria-expanded="false">⌖ Scope</button>'
+    +'<label class="askbox-t" title="Slower, more thorough: a second retrieval pass fills gaps"><input type="checkbox" id="askDeep">Deep</label>'
+    +'</div></div>';
+  wireCorpora();
+  {var st3=res.querySelector('#askScopeT'),sw3=res.querySelector('#askScopeWrap');
+   if(st3&&sw3)st3.onclick=function(){sw3.hidden=!sw3.hidden;st3.setAttribute('aria-expanded',String(!sw3.hidden));
+     var sb3=document.getElementById('scopeBar');if(sb3&&!sw3.contains(sb3))sw3.appendChild(sb3);};}
+  /* the composer's own send (owner 2026-09-05 "where's the ask button — literally copy
+     claude.ai"): textarea autosizes, ↑ enables at 3 chars, Enter sends (Shift+Enter breaks) */
+  {var ta3=res.querySelector('#askTa'),go3=res.querySelector('#askGo');
+   if(ta3&&go3){
+     var fit3=function(){ta3.style.height='auto';ta3.style.height=Math.min(ta3.scrollHeight,180)+'px';go3.disabled=ta3.value.trim().length<3;};
+     ta3.addEventListener('input',fit3);
+     var send3=function(){var v=ta3.value.trim();if(v.length>2){ta3.value='';fit3();askTurn(v);}};
+     go3.onclick=send3;
+     ta3.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send3();}});
+     setTimeout(function(){try{ta3.focus();}catch(e){}},60);
+   }}
+  res.querySelectorAll('.chat-row').forEach(function(r2){r2.onclick=function(){chatRestore(r2.getAttribute('data-cid'));};});
+
+  try{if(window.cgptLink)cgptLink.mount();}catch(e){}
+  var cb=document.getElementById('askDeep');
+  try{if(cb)cb.checked=localStorage.getItem('fr_ask_deep')==='1';}catch(e){}
+  if(cb)cb.onchange=function(){try{localStorage.setItem('fr_ask_deep',cb.checked?'1':'0');}catch(e){}};}
+function askHint(lastQ,turnData){var m=res.querySelector('#askMore');if(!m)return;
+  /* GUIDED REFINEMENT (owner 2026-08-19): the next-step options come from what the answer
+     itself surfaced — its most-cited authors, the loci the graph routed, the traditions in
+     play — not from a settings panel. One tap composes the follow-up. */
+  var chips=[];
+  var td=turnData||{};
+  var ac={};(td.src||[]).forEach(function(s2){var e=NAV&&NAV[s2.slug];var a2=e&&e.a;if(a2)ac[a2]=(ac[a2]||0)+1;});
+  Object.keys(ac).sort(function(x,y){return ac[y]-ac[x];}).slice(0,2).forEach(function(a2){
+    var last=a2.split(' ').pop();
+    chips.push({t:'More from '+esc(last),q:'What does '+a2+' in particular argue here, and in which works?'});});
+  var trads={};(td.src||[]).forEach(function(s2){var e=NAV&&NAV[s2.slug];if(e&&e.tr)trads[e.tr]=1;});
+  var allTr=['Reformed','Lutheran','Roman Catholic','Greek Fathers','Latin Fathers','Medieval'];
+  var absent=allTr.filter(function(t2){return !trads[t2];});
+  if(Object.keys(trads).length&&absent.length)
+    chips.push({t:'How do the '+esc(absent[0])+' answer?',q:'How would the '+absent[0]+' tradition answer the same question?'});
+  ((td.graph&&td.graph.loci)||[]).slice(0,1).forEach(function(l2){
+    chips.push({t:'Deeper on '+esc(String(l2)),q:'Go deeper on '+String(l2)+' — the key distinctions and the classic passages.'});});
+  chips.push({t:'⟲ Research deeper',deep:true,q:lastQ});
+  m.innerHTML='<div class="ask-sugg ask-refine">'+chips.map(function(c,i){
+      return '<button data-q="'+esc(c.q)+'"'+(c.deep?' data-deep="1"':'')+'>'+c.t+'</button>';}).join('')
+    +'</div><div class="ask-tools"><button class="ask-new" id="askNew" type="button">New conversation</button><button class="ask-new" id="askMap" type="button" title="See this conversation as a map — its questions, loci, and cited works">⊚ Map</button><a class="ask-new" href="/desk" style="text-decoration:none" title="Write a paper at the Desk — insert your saved answers and notes with citations">✎ Desk</a><span class="ask-cgpt" data-cgpt-link style="margin-left:auto"></span></div>';
+  var b=res.querySelector('#askNew');if(b)b.onclick=function(){askReset();qEl.value='';focusQuery();};
+  var mb=res.querySelector('#askMap');if(mb)mb.onclick=toggleMap;}
+function renderFallib(turn){var el=turn.querySelector('.ask-fallib');if(!el)return;
+  var date='';try{date=new Date().toISOString().slice(0,10);}catch(e){}
+  el.innerHTML='AI synthesis over exact witnesses — verify against the linked passages'+(date?' · '+esc(date):'');}
+function askTurn(q){if(window.__FR_ASK_WORKSPACE__&&!window.FRAsk){window.__FR_ASK_PENDING__={q:q,autoSend:true};return;}if(window.FRAsk){window.FRAsk.open({q:q,autoSend:true});return;}var my=++seq;ct.textContent='';
+  if(!res.querySelector('#askThread'))askReset();
+  var thread=res.querySelector('#askThread'),mEl=res.querySelector('#askMore');if(mEl)mEl.innerHTML='';
+  var dcb=document.getElementById('askDeep'),deepOn=!!(dcb&&dcb.checked)||!!window.__askDeepOnce;window.__askDeepOnce=false;
+  var aw=res.querySelector('.ask-empty')||res.querySelector('.ask-welcome');if(aw)aw.remove();
+  var sg0=res.querySelector('.ask-sugg:not(.ask-refine)');if(sg0)sg0.remove();
+  var turn=document.createElement('div');turn.className='ask-turn';
+  turn.innerHTML='<div class="ask-q">'+esc(q)+(deepOn?' <span class="ag-badge">deep</span>':'')+'</div><div class="ask-focus"></div><div class="ask-ans"><span class="sbusy">'+(deepOn?'deep research — reading, finding the gaps, searching again…':'reading the corpus…')+'</span></div><div class="ask-src"></div><div class="ask-fallib"></div>';
+  thread.appendChild(turn);askConv.push({role:'user',content:q});
+  var focEl=turn.querySelector('.ask-focus'),ansEl=turn.querySelector('.ask-ans'),srcEl=turn.querySelector('.ask-src');
+  turn.scrollIntoView({behavior:'smooth',block:'nearest'});
+  navMap(function(){if(my!==seq)return;
+    var body={messages:askConv.slice(-16),progress:true};
+    if(deepOn)body.deep=true;
+    if(ASKTRAD)body.filters={tradition:ASKTRAD};
+    if(ASKNB){var _nb=nbPayload();if(_nb){body.filters=body.filters||{};body.filters.nb=_nb;}}
+    var sl=scopeSlugs();if(sl.length)body.scope={tfr:sl};
+    if(ASKPARTY&&PARTYSLUGS[ASKPARTY])body.filters=Object.assign(body.filters||{},{allowSlugs:PARTYSLUGS[ASKPARTY].slice(0,600)});
+    /* stream frame stripper (landing contract): whole-line {"t":"k"|"p"…} frames are control,
+       swallowed anywhere in the stream; line-buffered so a frame split across chunks still dies. */
+    var FRAME=/^\{"t":"[kp]"[^\n]*\}$/,FPFX='{"t":"';
+    var couldBeFrame=function(s2){return (s2.length<FPFX.length)?FPFX.indexOf(s2)===0:s2.indexOf(FPFX)===0;};
+    var fbuf='',atLine=true;
+    var prog=function(m2){if(!srcShown)ansEl.innerHTML='<span class="sbusy">'+esc(m2)+'</span>';};
+    var strip=function(chunk,last){
+      fbuf+=chunk;var out='';
+      for(;;){
+        var nl=fbuf.indexOf('\n');if(nl<0)break;
+        var line=fbuf.slice(0,nl);fbuf=fbuf.slice(nl+1);
+        if(atLine&&FRAME.test(line)){
+          var pj=null;try{pj=JSON.parse(line);}catch(e){}
+          if(pj&&pj.t==='p'&&pj.m)prog(pj.m);
+          continue;}
+        out+=line+'\n';atLine=true;
+      }
+      if(fbuf){
+        if(last){if(!(atLine&&FRAME.test(fbuf)))out+=fbuf;fbuf='';}
+        else if(!(atLine&&couldBeFrame(fbuf))){out+=fbuf;fbuf='';atLine=false;}
+      }
+      return out;};
+    var head2='',answer='',srcShown=false,src=[],gr=null;
+    var feed=function(clean){
+      if(!clean)return;
+      if(!srcShown){
+        head2+=clean;
+        var nl=head2.indexOf('\n');if(nl<0)return;
+        var pj=null;try{pj=JSON.parse(head2.slice(0,nl));}catch(e){}
+        src=(pj&&pj.sources)||[];gr=(pj&&pj.graph)||null;
+        if(gr&&gr.authorScope&&focEl)focEl.innerHTML='<span class="focus-h">Scoped to</span><span class="focus-chip">'+esc(String(gr.authorScope))+'</span>';
+        answer=head2.slice(nl+1);head2='';srcShown=true;
+        ansEl.innerHTML=linkifyCites(answer);
+      }else{answer+=clean;ansEl.innerHTML=linkifyCites(answer);}
+    };
+    fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){
+      if(my!==seq)return;
+      if(!r.ok||!r.body){ansEl.textContent='Ask is unavailable right now.';return;}
+      var rd=r.body.getReader(),dc=new TextDecoder();
+      (function pump(){return rd.read().then(function(o){if(my!==seq)return;
+        if(o.done){feed(strip(dc.decode(),true));
+          ansEl.innerHTML=linkifyCites(answer);renderSources(srcEl,src);renderFallib(turn);
+          /* save the whole cited answer into the SAME notebook the reader syncs (fr_notes —
+             key ask|ts so reader rows never collide; shows up beside highlights) */
+          (function(){var sv=document.createElement('button');sv.className='ask-save';sv.textContent='☆ Save to notebook';
+            sv.onclick=function(){try{
+              var m={};try{m=JSON.parse(localStorage.getItem('fr_notes'))||{};}catch(e){}
+              var k='ask|'+Date.now();
+              m[k]={t:'Q: '+q+'\n\n'+answer,cite:'Ask the library',work:'Ask',page:'',ts:Date.now()};
+              localStorage.setItem('fr_notes',JSON.stringify(m));
+              if(window._frSyncNotes)try{window._frSyncNotes(m);}catch(e){}
+              sv.textContent='★ Saved';sv.classList.add('saved');sv.disabled=true;
+            }catch(e){sv.textContent='Could not save';}};
+            srcEl.parentNode.insertBefore(sv,srcEl.nextSibling);})();
+          askConv.push({role:'assistant',content:answer});if(askConv.length>16)askConv=askConv.slice(-16);
+          chatSave(q,answer,src,gr);
+          askHint(q,{src:src,graph:gr});return;}
+        feed(strip(dc.decode(o.value,{stream:true}),false));return pump();});})();
+    }).catch(function(){if(my!==seq)return;ansEl.textContent='Ask is unavailable right now.';});
+  });}
+function renderAsk(q){askTurn(q);}
+
+function startHtml(){
+  /* the empty state was DEAD SPACE (owner 2026-09-06 "upgrade /search") — it becomes the
+     map: one door per way of searching, each with a worked example that runs on click */
+  function door(m,name,desc,ex){
+    return '<button type="button" class="sdoor sd-mode" data-dm="'+m+'" data-dq="'+esc(ex)+'">'
+      +'<span class="sd-n">'+name+' \u2192</span><span class="sd-d">'+desc+'</span>'
+      +'<span class="sd-ex">e.g. \u201c'+esc(ex)+'\u201d</span></button>';}
+  return '<div class="sstart"><div class="sstart-h">Start with what you need</div><div class="sdoors">'
+    +door('title','Find a work','Look up an author, title, or section','Turretin')
+    +door('full','Find a passage','Search the texts for a phrase or an idea','foedus operum')
+    +door('scripture','Find Scripture references','Find where a Bible passage is cited','Romans 8')
+    +door('ask','Ask the library','Explore a question with cited answers','How did the early church understand the Eucharist?')
+    +'</div></div>';}
+document.addEventListener('click',function(e){
+  var d=e.target.closest('.sd-mode');if(!d)return;
+  var m=d.getAttribute('data-dm'),q2=d.getAttribute('data-dq')||'';
+  if(m==='ask'){if(window.FRAsk)window.FRAsk.open({q:q2});else{qEl.value=q2;setMode('ask');}return;}
+  qEl.value=q2;setMode(m);focusQuery();});
+function run(){seq++;REDRAW=null;RESULT_PAGE=RESTORE_PAGE===null?0:RESTORE_PAGE;RESTORE_PAGE=null;setPager(0,0,function(){});document.getElementById('meaningBroaden')?.remove();var groupUI=document.getElementById('groupControls');if(groupUI)groupUI.hidden=true;saveSearchURL();var q=qEl.value.trim();if(FAC.group==='westminster'&&!FAC.groupSlugs){var turn=seq;ct.textContent='Loading the Westminster scope…';res.innerHTML='';ensureSearchGroups().then(function(){if(turn===seq){RESTORE_PAGE=RESULT_PAGE;run();}}).catch(function(){if(turn===seq)searchUnavailable('Westminster group',q);});return;}
+  if(q.length<2){if(MODE==='scripture'){scriptureBrowse();return;}if(MODE==='ask'){if(!res.querySelector('#askThread'))askReset();return;}
+    if(MODE==='title'&&!FAC.author&&!FAC.work&&!FAC.workQuery&&!FAC.collection&&!FAC.group&&!FAC.trad){res.innerHTML=startHtml();ct.textContent='';return;}
+    if(MODE==='title'){renderTitle(q);return;}res.innerHTML='';ct.textContent='';return;}
+  if(MODE==='full')renderFull(q);
+  else if(MODE==='tradition')renderTradition(q);
+  else if(MODE==='meaning')renderMeaning(q);
+  else if(MODE==='ask'){ /* Ask runs on Enter only */ }
+  else if(MODE==='scripture')renderScripture(q);
+  else renderTitle(q);}
+var _t;qEl.addEventListener('input',function(){if(MODE==='ask')return;seq++;clearTimeout(_t);if(MODE!=='title'&&qEl.value.trim()){REDRAW=null;setPager(0,0,function(){});res.innerHTML='';ct.textContent='Select Search to run this query.';}if(MODE==='title'||!qEl.value.trim())_t=setTimeout(run,180);});
+qEl.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();var q=qEl.value.trim();if(MODE==='ask'){if(q.length>=3){askTurn(q);qEl.value='';}}else run();}});
+
+/* ---- search elevation helpers (donor tail, TFR keys) ---- */
+function zeroHtml(q,mode){
+  var alt=mode==='full'?'By idea (under Passages) or Ask for a cited answer':'Passages to search the texts, or Ask for a cited answer';
+  return '<div class="sr-zero"><p>No '+(mode==='full'?'passages':'works')+' match “'+esc(q)+'”.</p>'
+    +'<p class="sr-zero-tip">Try '+alt+' instead, or broaden the phrase.</p></div>';
+}
+(function(){
+  var db=document.getElementById('densityBtn');if(!db)return;
+  var on=false;try{on=localStorage.getItem('fr_search_density')==='compact';}catch(e){}
+  function paint(){res.classList.toggle('sr-compact',on);db.setAttribute('aria-pressed',on?'true':'false');db.textContent=on?'Detailed':'Compact';}
+  paint();
+  db.addEventListener('click',function(){on=!on;try{localStorage.setItem('fr_search_density',on?'compact':'full');}catch(e){}paint();});
+})();
+(function(){
+  var wrap=document.querySelector('.smodes-wrap');if(!wrap)return;
+  var sm=wrap.querySelector('.smodes');
+  function paintScroll(){if(!sm)return;wrap.classList.toggle('smodes-more',
+    (sm.scrollWidth-sm.clientWidth)>4 && (sm.scrollWidth-sm.clientWidth-sm.scrollLeft)>4);}
+  if(sm){sm.addEventListener('scroll',paintScroll);window.addEventListener('resize',paintScroll);setTimeout(paintScroll,80);}
+  var hint2=document.getElementById('smodesHint'),hx=document.getElementById('smodesHintX');
+  if(hint2){
+    try{if(localStorage.getItem('fr_smodes_hint_seen'))hint2.style.display='none';}catch(e){}
+    if(hx)hx.addEventListener('click',function(){hint2.style.display='none';try{localStorage.setItem('fr_smodes_hint_seen','1');}catch(e){}});
+  }
+})();
+
+function ensureSearchGroups(){if(FAC.group!=='westminster')return Promise.resolve();if(!SCOPE_SCHOOLS)SCOPE_SCHOOLS=FRResearchData.json('/v1/schools.json').then(function(data){var slugs=data['Westminster Assembly']?.slugs;if(!Array.isArray(slugs)||!slugs.length)throw Error('Westminster membership is unavailable.');return slugs.map(function(s){return s.replace(/^@eebo:/,'eebo-');});}).catch(function(e){SCOPE_SCHOOLS=null;throw e;});return SCOPE_SCHOOLS.then(function(slugs){FAC.groupSlugs=slugs;});}
+function organizePage(){if(ORDER==='relevance'){groupControls();return;}var nodes=Array.from(res.children).filter(function(n){return n.dataset.work;}),shelves=new Map(),authors=new Map();nodes.forEach(function(node){var w=WORKS_BY_SLUG[node.dataset.work]||{},author=w.author||node.dataset.author||'No named author',sh=FRSearch.label(w.tradition||node.dataset.shelf)||'Indexed sources',parent=res;if(ORDER==='shelf'&&!FAC.trad){if(!shelves.has(sh)){var d=document.createElement('details');d.className='result-shelf';d.open=true;var summary=document.createElement('summary');summary.textContent=sh;d.appendChild(summary);res.appendChild(d);shelves.set(sh,d);}parent=shelves.get(sh);}var key=(ORDER==='shelf'?sh:'')+'|'+author;if(!authors.has(key)){var group=document.createElement('details');group.className='result-author';group.open=authors.size===0;var head=document.createElement('summary');head.textContent=author;group.appendChild(head);parent.appendChild(group);authors.set(key,{node:group,head:head,works:new Set()});}var a=authors.get(key);a.works.add(node.dataset.work);a.head.textContent=author+' · '+a.works.size+' '+(a.works.size===1?'work':'works')+' on this page';a.node.appendChild(node);});groupControls();}
+function groupControls(){var host=document.getElementById('groupControls');if(!host){host=document.createElement('div');host.id='groupControls';host.className='group-controls';res.before(host);}host.hidden=!res.querySelector('details');if(!host.childNodes.length){['Expand all','Collapse all'].forEach(function(label,i){var b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-controls','results');b.onclick=function(){res.querySelectorAll('details').forEach(function(d){d.open=i===0;});};host.appendChild(b);});}}
+function setPager(total,page,draw,noun){
+ var host=document.getElementById('resultsPager');if(!host){host=document.createElement('nav');host.id='resultsPager';host.className='results-pager';host.setAttribute('aria-label','Search result pages');res.before(host);}host.hidden=total===0;if(!total)return;
+ var win=FRSearch.pageWindow(total,page);RESULT_PAGE=win.page;var prev=host.querySelector('[data-direction=previous]'),next=host.querySelector('[data-direction=next]'),label=host.querySelector('span');
+ if(!prev){prev=document.createElement('button');next=document.createElement('button');label=document.createElement('span');prev.type=next.type='button';prev.dataset.direction='previous';next.dataset.direction='next';prev.textContent='Previous';next.textContent='Next';host.append(prev,label,next);}
+ prev.disabled=win.page===0;next.disabled=win.page+1===win.pages;label.textContent='Page '+(win.page+1)+' of '+win.pages+' · '+(win.start+1)+'–'+win.end+' of '+total+' '+(noun||'results');
+ function change(n,direction){RESULT_PAGE=n;saveSearchURL();res.scrollTop=0;draw(n);var target=host.querySelector('[data-direction='+direction+']:not(:disabled)')||host.querySelector('button:not(:disabled)');target?.focus({preventScroll:true});}
+ prev.onclick=function(){change(win.page-1,'previous');};next.onclick=function(){change(win.page+1,'next');};saveSearchURL();
+}
+function locationPager(host,total,draw,size){var current=0;function render(){host.replaceChildren();var win=FRSearch.pageWindow(total,current,size);draw(win.start,win.end,host);if(win.pages>1){var nav=document.createElement('div');nav.className='location-pager';var p=document.createElement('button'),n=document.createElement('button'),label=document.createElement('span');p.type=n.type='button';p.textContent='Previous locations';n.textContent='Next locations';p.disabled=current===0;n.disabled=current+1===win.pages;label.textContent=(win.start+1)+'–'+win.end+' of '+total;p.onclick=function(){current--;render();};n.onclick=function(){current++;render();};nav.append(p,label,n);host.appendChild(nav);}}render();}
+
+function saveSearchURL(){var u=new URL(location.href);var values={page:RESULT_PAGE?String(RESULT_PAGE+1):'',group:FAC.group,order:ORDER==='shelf'?'':ORDER,m:MODE,q:qEl.value.trim(),tradition:FAC.trad,author:FAC.author,work:document.getElementById('fWork').value.trim(),collection:FAC.collection};Object.keys(values).forEach(function(k){if(values[k])u.searchParams.set(k,values[k]);else u.searchParams.delete(k);});history.replaceState(history.state,'',u);}
+
+document.getElementById('groupOrder').onchange=function(){ORDER=this.value;RESULT_PAGE=0;saveSearchURL();if(REDRAW)REDRAW(0);};
+/* deep links: ?q=<query>&m=<mode> + ?author=/?tradition= facet prefills (boot-race-safe:
+   setMode runs the search itself; nav/index loads re-run via their own cbs). */
+(function(){var VALID={full:1,meaning:1,ask:1,scripture:1,title:1,tradition:1};
+  try{var u=new URL(location.href),m=u.searchParams.get('m'),q=u.searchParams.get('q');
+    var group=u.searchParams.get('group');if(['westminster','puritan','anglican'].includes(group)){FAC.group=group;document.getElementById('fGroup').value=group;}var order=u.searchParams.get('order');if(['shelf','author','relevance'].includes(order)){ORDER=order;document.getElementById('groupOrder').value=order;}RESTORE_PAGE=Math.max(0,(Number(u.searchParams.get('page'))||1)-1);var fa=u.searchParams.get('author'),fv=u.searchParams.get('tradition');if(fv)fv=FRSearch.shelf(fv)?.value||'';var collection=u.searchParams.get('collection'),work=u.searchParams.get('work');if(collection==='confessions'){FAC.collection=collection;document.getElementById('fCollection').value=collection;}if(work){document.getElementById('fWork').value=work;FAC.workQuery=work;}
+    if(fa){var el=document.getElementById('fAuthor');if(el){el.value=fa;FAC.author=fa;}}
+    if(fv){var vs=document.getElementById('fTrad');if(vs){vs.value=fv;FAC.trad=fv;}}
+    if(q){qEl.value=q;}document.getElementById('fClear').hidden=!(FAC.author||FAC.workQuery||FAC.trad||FAC.collection||FAC.group);scopeSummary();
+    var chatId=u.searchParams.get('chat'),trad=u.searchParams.get('trad');
+    if(trad)ASKTRAD=trad;   // any shelf name works — the server post-filters by tradition; unlisted shelves just show no active chip
+    window._AUTO_MODE=!VALID[m]&&!!q;
+    setMode(chatId?'ask':(VALID[m]?m:'title'));
+    if(chatId){chatRestore(chatId);}
+    else{
+      if((fa||fv)&&!q){qEl.value=fa||'';run();}
+      if(q&&MODE==='ask'){renderAsk(q);}}
+  }catch(e){setMode('title');}})();
+</script>
+<script src="cgpt-link.js" defer></script>
+<script>
+/* reveal — gentle staggered fade-up on static furniture (family design elevation).
+   Dynamic surfaces (results, ask turns) are never revealed. */
+(function(){
+  'use strict';
+  if(!('IntersectionObserver' in window))return;
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var SEL=['.search-box','.smodes-wrap'].join(',');
+  var els;
+  try{els=Array.prototype.slice.call(document.querySelectorAll(SEL));}catch(e){return;}
+  els=els.filter(function(el){return el.offsetWidth||el.offsetHeight;});
+  if(!els.length)return;
+  var io=new IntersectionObserver(function(entries){
+    var seen=0;
+    entries.forEach(function(en){
+      if(!en.isIntersecting)return;
+      en.target.style.setProperty('--rv-d',Math.min(seen*75,450)+'ms');seen++;
+      en.target.classList.add('rv-in');
+      io.unobserve(en.target);
+    });
+  },{rootMargin:'0px 0px -7% 0px',threshold:.04});
+  els.forEach(function(el){el.classList.add('rv');io.observe(el);});
+})();
+/* SAVE TO NOTEBOOK (2026-09-10 "save works … specific passages, on all surfaces"): every result that opens the reader
+   gets a star — a work (no page) or a passage (a page) — through FRResearchNotebook only. */
+(function(){const N=()=>window.FRResearchNotebook;
+function paint(button){const page=button.getAttribute('data-page'),on=!!N()?.hasReference(button.dataset.slug,page);button.setAttribute('aria-pressed',String(on));button.textContent=(on?'Unsave ':'Save ')+(page!=null?'passage':'work');}
+function decorate(root){(root.querySelectorAll?root.querySelectorAll('a.sr:not([data-starred])'):[]).forEach(a=>{a.dataset.starred='1';const ref=FRSearch.readerLink(a.getAttribute('href'),location.origin);if(!ref)return;const wrapper=document.createElement('article');wrapper.className='search-result';a.parentNode.insertBefore(wrapper,a);wrapper.appendChild(a);const button=document.createElement('button');button.type='button';button.className='search-save';button.dataset.slug=ref.slug;if(ref.page!=null)button.dataset.page=ref.page;paint(button);button.onclick=async()=>{const n=N();if(!n)return;button.disabled=true;try{const w=WORKS_BY_SLUG?.[ref.slug]||{},title=w.title_en||w.title||ref.slug,author=w.author||'';if(n.hasReference(ref.slug,ref.page))await n.unsave(ref.slug,ref.page);else if(ref.page!=null)await n.savePassage({slug:ref.slug,page:ref.page,title,author,label:a.querySelector('.sr-ex')?.textContent||'',url:rdHref(ref.slug,ref.page)});else await n.saveWork({slug:ref.slug,title,author});paint(button);}catch(error){button.textContent='Save failed. Try again';button.title=error.message;}finally{button.disabled=false;}};wrapper.appendChild(button);});}
+window.addEventListener('fr-notebook-updated',()=>document.querySelectorAll('.search-save').forEach(paint));decorate(document);new MutationObserver(()=>decorate(res)).observe(res,{childList:true,subtree:true});})();
+</script>
+</body></html>

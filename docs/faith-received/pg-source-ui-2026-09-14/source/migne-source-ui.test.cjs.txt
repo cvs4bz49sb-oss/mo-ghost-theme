@@ -1,0 +1,16 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const context={module:{exports:{}}};vm.runInNewContext(fs.readFileSync(__dirname+'/migne-navigation.js','utf8'),context);const M=context.module.exports;
+test('either printed column reaches its PG opening while exact columns win',()=>{
+ const data={slug:'pg-3059',pages:[{n:1467},{n:1469}]};assert.equal(M.openingKey(data,'1468'),'1467');assert.equal(M.openingKey({...data,pages:[{n:1467},{n:1468}]},'1468'),'1468');assert.equal(M.openingKey(data,'1478'),'1478');
+});
+test('opaque compound locators and other corpora are never shifted',()=>{
+ assert.equal(M.openingKey({slug:'pg-123',pages:[{n:'52:0183A'}]},'52:0183A'),'52:0183A');assert.equal(M.openingKey({slug:'pld-123',pages:[{n:1467}]},'1468'),'1468');assert.equal(M.openingKey({slug:'english-work',pages:[{n:1}]},'2'),'2');
+});
+test('a selected primary text never concatenates translation or alternative witnesses',()=>{
+ const divisions=[{type:'division',text:'primary Greek'},{type:'translation',text:'English'},{type:'witness',text:'second Greek'},{type:'edition',text:'critical Greek'},{type:'diplomatic',text:'OCR'},{type:'secondary',text:'Latin'}];
+ assert.deepEqual(divisions.filter(d=>M.isReadingDivision(d.type)).map(d=>d.text),['primary Greek']);assert.equal(M.isReadingDivision('section'),true);assert.equal(M.isReadingDivision(null),true);assert.equal(divisions.length,6);
+});
+test('both jump inputs use the opening resolver and the reader remains parseable',()=>{
+ const html=fs.readFileSync(__dirname+'/reader_shell.html','utf8');assert.match(html,/value=\$\('#reader-jump'\)\.value\.trim\(\),opening=window\.FRMigneNavigation\?\.openingKey/);assert.match(html,/value=e\.target\.value\.trim\(\),opening=window\.FRMigneNavigation\?\.openingKey/);
+ for(const m of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))if(m[1].trim())new vm.Script(m[1]);
+});

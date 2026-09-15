@@ -1,0 +1,52 @@
+[
+  {
+    "source": "tools/prdl_reader_prototype/web_shell.html",
+    "reference": "source/web_shell.html.txt",
+    "sha256": "59e13fc22033d706ba4ff6c3e8dcfb33bbbc1347b76ff6e9e7a81d2810e46331"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/scripture-tools.js",
+    "reference": "source/scripture-tools.js.txt",
+    "sha256": "103b1fa220f0eab369583f4548f4ca338863322f8b09de00b06caeeea64248de"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/shelf-constellations.js",
+    "reference": "source/shelf-constellations.js.txt",
+    "sha256": "91bd279cbbf4874c5c044f7a5a8efb65b60e9da938302feff5212f2fab0ffb5b"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/shelf-constellations.css",
+    "reference": "source/shelf-constellations.css.txt",
+    "sha256": "4810b0739b0fa607e7e80677c620d451b4d2ccc785c75a5582b5d9a1d27848a0"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/constellations.css",
+    "reference": "source/constellations.css.txt",
+    "sha256": "44041063b9a5d90fd17f526b2ed8deb7968e3e3044bc39dd341d37b6ab6a45cb"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/connection-evidence.js",
+    "reference": "source/connection-evidence.js.txt",
+    "sha256": "0b5ebf0bf6e833abe1b4fe23fce54defe59a3bec12769443e302ad3d0dd80fca"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/scripture-tools.test.cjs",
+    "reference": "source/scripture-tools.test.cjs.txt",
+    "sha256": "35376563bcafd1b264f1e940999ab0de22d0d45d0d0bdbe19be1a69894d1e0b2"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/connection-evidence.test.cjs",
+    "reference": "source/connection-evidence.test.cjs.txt",
+    "sha256": "ce9bb298273605a344f9c72a9ec30986ae419bb8f0ca12b4e18822dd5dfb0e24"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/journey-state.test.cjs",
+    "reference": "source/journey-state.test.cjs.txt",
+    "sha256": "11187792eeeb8b77f93df6171cdf27373ac0b52aaa983ba7e3157cdebe63a83d"
+  },
+  {
+    "source": "tools/prdl_reader_prototype/constellations.test.cjs",
+    "reference": "source/constellations.test.cjs.txt",
+    "sha256": "73fa7de1ec290e4ed43a516850964e4c052e097c588055ec8176946bcb7594f3"
+  }
+]
