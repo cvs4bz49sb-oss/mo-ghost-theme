@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-15T17:04:27.533Z",
+  "generated_at": "2026-09-15T21:25:47.460Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 317,
-      "plays": 72070,
+      "plays": 72115,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -169,7 +169,7 @@
         {
           "date": "2026-03-04",
           "title": "The Spirituality of Aliens",
-          "plays": 151
+          "plays": 152
         },
         {
           "date": "2026-03-11",
@@ -179,7 +179,7 @@
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 337
+          "plays": 339
         },
         {
           "date": "2026-03-25",
@@ -219,7 +219,7 @@
         {
           "date": "2026-05-13",
           "title": "The Desecration of Man with Dr. Carl Trueman",
-          "plays": 1181
+          "plays": 1182
         },
         {
           "date": "2026-05-20",
@@ -279,7 +279,7 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2998
+          "plays": 3000
         },
         {
           "date": "2026-08-12",
@@ -289,22 +289,22 @@
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3775
+          "plays": 3782
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3636
+          "plays": 3639
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3485
+          "plays": 3491
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3011
+          "plays": 3025
         }
       ],
       "per_episode": [
@@ -325,7 +325,7 @@
         },
         {
           "month": "2017-09",
-          "avg": 22,
+          "avg": 23,
           "episodes": 3
         },
         {
@@ -445,7 +445,7 @@
         },
         {
           "month": "2019-11",
-          "avg": 17,
+          "avg": 18,
           "episodes": 3
         },
         {
@@ -480,7 +480,7 @@
         },
         {
           "month": "2020-06",
-          "avg": 13,
+          "avg": 14,
           "episodes": 4
         },
         {
@@ -585,7 +585,7 @@
         },
         {
           "month": "2022-03",
-          "avg": 38,
+          "avg": 39,
           "episodes": 3
         },
         {
@@ -800,7 +800,7 @@
         },
         {
           "month": "2026-03",
-          "avg": 208,
+          "avg": 209,
           "episodes": 4
         },
         {
@@ -810,7 +810,7 @@
         },
         {
           "month": "2026-05",
-          "avg": 2320,
+          "avg": 2321,
           "episodes": 4
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3447,
+          "avg": 3450,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3248,
+          "avg": 3258,
           "episodes": 2
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 51,
-      "plays": 19264,
+      "plays": 19279,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -973,7 +973,7 @@
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 174
+          "plays": 175
         },
         {
           "date": "2026-04-02",
@@ -1013,7 +1013,7 @@
         {
           "date": "2026-05-21",
           "title": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw",
-          "plays": 817
+          "plays": 818
         },
         {
           "date": "2026-05-28",
@@ -1023,7 +1023,7 @@
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 936
+          "plays": 938
         },
         {
           "date": "2026-06-11",
@@ -1053,7 +1053,7 @@
         {
           "date": "2026-07-16",
           "title": "Jack London: An American Classic with Elizabeth Stice",
-          "plays": 773
+          "plays": 774
         },
         {
           "date": "2026-07-23",
@@ -1068,12 +1068,12 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 963
+          "plays": 964
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 741
+          "plays": 742
         },
         {
           "date": "2026-08-20",
@@ -1083,17 +1083,17 @@
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 819
+          "plays": 821
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 830
+          "plays": 834
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 629
+          "plays": 631
         }
       ],
       "per_episode": [
@@ -1144,7 +1144,7 @@
         },
         {
           "month": "2026-05",
-          "avg": 497,
+          "avg": 498,
           "episodes": 5
         },
         {
@@ -1159,12 +1159,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 848,
+          "avg": 849,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 730,
+          "avg": 733,
           "episodes": 2
         }
       ]
