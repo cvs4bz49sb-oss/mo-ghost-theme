@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-15T04:59:19.779Z",
+  "generated_at": "2026-09-15T11:50:49.374Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 317,
-      "plays": 71942,
+      "plays": 71989,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -179,7 +179,7 @@
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 336
+          "plays": 337
         },
         {
           "date": "2026-03-25",
@@ -264,7 +264,7 @@
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3025
+          "plays": 3027
         },
         {
           "date": "2026-07-22",
@@ -284,27 +284,27 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3373
+          "plays": 3376
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3760
+          "plays": 3765
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3625
+          "plays": 3629
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3472
+          "plays": 3476
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 2953
+          "plays": 2976
         }
       ],
       "per_episode": [
@@ -360,12 +360,12 @@
         },
         {
           "month": "2018-05",
-          "avg": 12,
+          "avg": 13,
           "episodes": 3
         },
         {
           "month": "2018-06",
-          "avg": 18,
+          "avg": 19,
           "episodes": 1
         },
         {
@@ -525,7 +525,7 @@
         },
         {
           "month": "2021-03",
-          "avg": 16,
+          "avg": 17,
           "episodes": 6
         },
         {
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3342,
+          "avg": 3343,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3439,
+          "avg": 3442,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3213,
+          "avg": 3226,
           "episodes": 2
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 51,
-      "plays": 19240,
+      "plays": 19246,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -888,7 +888,7 @@
         {
           "date": "2025-09-11",
           "title": "C. S. Lewis - That Hideous Strength with Philip D. Bunn and Ronni Kurtz",
-          "plays": 147
+          "plays": 149
         },
         {
           "date": "2025-09-18",
@@ -933,17 +933,17 @@
         {
           "date": "2026-01-29",
           "title": "America 250: Books American Christians Should Read | Season 2 Preview",
-          "plays": 84
+          "plays": 85
         },
         {
           "date": "2026-02-05",
           "title": "Narrative of the Life of Frederick Douglass with Shilo Brooks | America 250",
-          "plays": 95
+          "plays": 96
         },
         {
           "date": "2026-02-12",
           "title": "The Education of Henry Adams with Leah Libresco Sargeant | America 250",
-          "plays": 61
+          "plays": 62
         },
         {
           "date": "2026-02-19",
@@ -988,7 +988,7 @@
         {
           "date": "2026-04-16",
           "title": "The Scarlet Letter by Nathaniel Hawthorne with Jeff Bilbro | American 250",
-          "plays": 109
+          "plays": 110
         },
         {
           "date": "2026-04-23",
@@ -1124,12 +1124,12 @@
         },
         {
           "month": "2026-01",
-          "avg": 84,
+          "avg": 85,
           "episodes": 1
         },
         {
           "month": "2026-02",
-          "avg": 81,
+          "avg": 82,
           "episodes": 4
         },
         {
@@ -1139,7 +1139,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 134,
+          "avg": 135,
           "episodes": 4
         },
         {
