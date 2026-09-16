@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-16T17:04:33.813Z",
+  "generated_at": "2026-09-16T21:22:34.696Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 318,
-      "plays": 73762,
+      "plays": 74048,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -29,7 +29,7 @@
         {
           "date": "2025-07-02",
           "title": "The Deep Weird of the Book of Daniel",
-          "plays": 71
+          "plays": 72
         },
         {
           "date": "2025-07-09",
@@ -44,7 +44,7 @@
         {
           "date": "2025-07-23",
           "title": "Can You Really Read The Bible Like That?!",
-          "plays": 113
+          "plays": 114
         },
         {
           "date": "2025-08-13",
@@ -54,7 +54,7 @@
         {
           "date": "2025-08-20",
           "title": "Are We Disenchanted? Should We Be Enchanted?",
-          "plays": 138
+          "plays": 139
         },
         {
           "date": "2025-08-27",
@@ -74,7 +74,7 @@
         {
           "date": "2025-09-17",
           "title": "The Tabernacle, The Temple, and the Church",
-          "plays": 74
+          "plays": 75
         },
         {
           "date": "2025-09-24",
@@ -89,7 +89,7 @@
         {
           "date": "2025-10-08",
           "title": "Do You Need Penal Substitution?",
-          "plays": 292
+          "plays": 293
         },
         {
           "date": "2025-10-15",
@@ -109,12 +109,12 @@
         {
           "date": "2025-11-05",
           "title": "Jesus and The Law of Moses with Paul T. Sloan",
-          "plays": 141
+          "plays": 142
         },
         {
           "date": "2025-11-12",
           "title": "How Do We Change Our Minds?",
-          "plays": 130
+          "plays": 131
         },
         {
           "date": "2025-11-19",
@@ -129,7 +129,7 @@
         {
           "date": "2025-12-03",
           "title": "The World Is The Wrong Shape For Women with Leah Sargeant",
-          "plays": 221
+          "plays": 222
         },
         {
           "date": "2026-01-21",
@@ -164,12 +164,12 @@
         {
           "date": "2026-03-04",
           "title": "The Spirituality of Aliens",
-          "plays": 152
+          "plays": 153
         },
         {
           "date": "2026-03-11",
           "title": "Delighting In The Ten Commandments",
-          "plays": 123
+          "plays": 124
         },
         {
           "date": "2026-03-18",
@@ -264,7 +264,7 @@
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3420
+          "plays": 3421
         },
         {
           "date": "2026-07-29",
@@ -274,37 +274,37 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 3004
+          "plays": 3005
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3389
+          "plays": 3391
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3803
+          "plays": 3804
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3674
+          "plays": 3680
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3537
+          "plays": 3543
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3118
+          "plays": 3133
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 1382
+          "plays": 1600
         }
       ],
       "per_episode": [
@@ -320,7 +320,7 @@
         },
         {
           "month": "2017-04",
-          "avg": 19,
+          "avg": 20,
           "episodes": 4
         },
         {
@@ -620,7 +620,7 @@
         },
         {
           "month": "2022-10",
-          "avg": 52,
+          "avg": 53,
           "episodes": 2
         },
         {
@@ -700,22 +700,22 @@
         },
         {
           "month": "2024-02",
-          "avg": 24,
+          "avg": 25,
           "episodes": 3
         },
         {
           "month": "2024-03",
-          "avg": 29,
+          "avg": 30,
           "episodes": 3
         },
         {
           "month": "2024-04",
-          "avg": 38,
+          "avg": 39,
           "episodes": 4
         },
         {
           "month": "2024-05",
-          "avg": 41,
+          "avg": 42,
           "episodes": 4
         },
         {
@@ -725,12 +725,12 @@
         },
         {
           "month": "2024-08",
-          "avg": 47,
+          "avg": 48,
           "episodes": 4
         },
         {
           "month": "2024-09",
-          "avg": 37,
+          "avg": 38,
           "episodes": 3
         },
         {
@@ -745,12 +745,12 @@
         },
         {
           "month": "2024-12",
-          "avg": 63,
+          "avg": 64,
           "episodes": 3
         },
         {
           "month": "2025-05",
-          "avg": 104,
+          "avg": 105,
           "episodes": 1
         },
         {
@@ -760,12 +760,12 @@
         },
         {
           "month": "2025-07",
-          "avg": 82,
+          "avg": 83,
           "episodes": 4
         },
         {
           "month": "2025-08",
-          "avg": 110,
+          "avg": 111,
           "episodes": 3
         },
         {
@@ -785,7 +785,7 @@
         },
         {
           "month": "2025-12",
-          "avg": 221,
+          "avg": 222,
           "episodes": 1
         },
         {
@@ -800,7 +800,7 @@
         },
         {
           "month": "2026-03",
-          "avg": 209,
+          "avg": 210,
           "episodes": 4
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3468,
+          "avg": 3470,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2679,
+          "avg": 2759,
           "episodes": 3
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 51,
-      "plays": 19369,
+      "plays": 19391,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -878,7 +878,7 @@
         {
           "date": "2025-08-28",
           "title": "The Nicene Creed with Shawn Wilhite and Coleman Ford",
-          "plays": 95
+          "plays": 96
         },
         {
           "date": "2025-09-04",
@@ -903,7 +903,7 @@
         {
           "date": "2025-10-02",
           "title": "Flannery O'Connor - A Good Man Is Hard To Find with Jon Parrish Peede",
-          "plays": 125
+          "plays": 126
         },
         {
           "date": "2025-10-09",
@@ -1073,27 +1073,27 @@
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 745
+          "plays": 746
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 876
+          "plays": 877
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 829
+          "plays": 830
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 846
+          "plays": 851
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 661
+          "plays": 673
         }
       ],
       "per_episode": [
@@ -1164,7 +1164,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 754,
+          "avg": 762,
           "episodes": 2
         }
       ]

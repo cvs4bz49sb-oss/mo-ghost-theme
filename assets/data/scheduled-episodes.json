@@ -1,4 +1,18 @@
 {
   "mere-fidelity": null,
-  "christians-reading-classics": null
+  "christians-reading-classics": {
+    "id": 19811179,
+    "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
+    "slug": "brideshead-revisited-by-evelyn-waugh-with-daniel-mcinerny",
+    "pubDate": "2026-09-17T06:00:00.000-04:00",
+    "episode": 33,
+    "season": 2,
+    "description": "The complicated struggle of faith is no new phenomenon. Philosopher and novelist Daniel McInerny joins today to revisit Evelyn Waugh’s Brideshead Revisited and ask why this Catholic classic still feels like it is describing our own age, our own friendships, and our own hunger for beauty. Along the way, we tackle a surprisingly practical question for readers and writers alike: what is a classic, really? Not just a book that tells timeless truths, but a work that pushes a tradition forward and deepens the conversation about what a human being is for.&nbsp;",
+    "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+    "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19811179-brideshead-revisited-by-evelyn-waugh-with-daniel-mcinerny.mp3",
+    "link": "https://mereorthodoxy.com/podcasts/christians-reading-classics/",
+    "embedUrl": "https://www.buzzsprout.com/2612793/19811179?client_source=small_player&iframe=true",
+    "hasTranscript": true,
+    "transcriptUrl": "/transcript/christians-reading-classics/brideshead-revisited-by-evelyn-waugh-with-daniel-mcinerny/"
+  }
 }
