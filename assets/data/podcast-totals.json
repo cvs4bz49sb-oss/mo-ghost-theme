@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-16T21:22:34.696Z",
+  "generated_at": "2026-09-17T04:57:48.405Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 318,
-      "plays": 74048,
+      "plays": 74357,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -39,7 +39,7 @@
         {
           "date": "2025-07-16",
           "title": "AI, The Infinite Work Day, And The Finite Pastor",
-          "plays": 92
+          "plays": 93
         },
         {
           "date": "2025-07-23",
@@ -69,7 +69,7 @@
         {
           "date": "2025-09-08",
           "title": "Are You Scared Of Ambition?",
-          "plays": 59
+          "plays": 60
         },
         {
           "date": "2025-09-17",
@@ -89,7 +89,7 @@
         {
           "date": "2025-10-08",
           "title": "Do You Need Penal Substitution?",
-          "plays": 293
+          "plays": 294
         },
         {
           "date": "2025-10-15",
@@ -134,7 +134,7 @@
         {
           "date": "2026-01-21",
           "title": "Paul and the Resurrection of Israel with Dr. Jason Staples",
-          "plays": 156
+          "plays": 158
         },
         {
           "date": "2026-01-28",
@@ -174,7 +174,7 @@
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 342
+          "plays": 343
         },
         {
           "date": "2026-03-25",
@@ -204,7 +204,7 @@
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 484
+          "plays": 485
         },
         {
           "date": "2026-05-06",
@@ -219,7 +219,7 @@
         {
           "date": "2026-05-20",
           "title": "The Christian Life with Kelly Kapic",
-          "plays": 3628
+          "plays": 3629
         },
         {
           "date": "2026-05-27",
@@ -244,7 +244,7 @@
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3631
+          "plays": 3632
         },
         {
           "date": "2026-07-01",
@@ -279,32 +279,32 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3391
+          "plays": 3393
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3804
+          "plays": 3810
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3680
+          "plays": 3688
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3543
+          "plays": 3553
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3133
+          "plays": 3154
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 1600
+          "plays": 1841
         }
       ],
       "per_episode": [
@@ -585,12 +585,12 @@
         },
         {
           "month": "2022-03",
-          "avg": 39,
+          "avg": 40,
           "episodes": 3
         },
         {
           "month": "2022-04",
-          "avg": 43,
+          "avg": 44,
           "episodes": 3
         },
         {
@@ -770,7 +770,7 @@
         },
         {
           "month": "2025-09",
-          "avg": 69,
+          "avg": 70,
           "episodes": 4
         },
         {
@@ -790,7 +790,7 @@
         },
         {
           "month": "2026-01",
-          "avg": 123,
+          "avg": 124,
           "episodes": 2
         },
         {
@@ -805,7 +805,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 247,
+          "avg": 248,
           "episodes": 5
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3470,
+          "avg": 3474,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2759,
+          "avg": 2849,
           "episodes": 3
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 51,
-      "plays": 19391,
+      "plays": 19413,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -853,7 +853,7 @@
         {
           "date": "2025-08-12",
           "title": "A. A. Milne - Winnie the Pooh with Ivana D. Greco and Dixie Dillon Lane",
-          "plays": 129
+          "plays": 130
         },
         {
           "date": "2025-08-12",
@@ -888,7 +888,7 @@
         {
           "date": "2025-09-11",
           "title": "C. S. Lewis - That Hideous Strength with Philip D. Bunn and Ronni Kurtz",
-          "plays": 152
+          "plays": 153
         },
         {
           "date": "2025-09-18",
@@ -1038,7 +1038,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1307
+          "plays": 1309
         },
         {
           "date": "2026-07-02",
@@ -1063,7 +1063,7 @@
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 893
+          "plays": 894
         },
         {
           "date": "2026-08-06",
@@ -1073,12 +1073,12 @@
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 746
+          "plays": 747
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 877
+          "plays": 879
         },
         {
           "date": "2026-08-27",
@@ -1088,12 +1088,12 @@
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 851
+          "plays": 856
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 673
+          "plays": 682
         }
       ],
       "per_episode": [
@@ -1149,7 +1149,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 1066,
+          "avg": 1067,
           "episodes": 4
         },
         {
@@ -1159,12 +1159,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 855,
+          "avg": 856,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 762,
+          "avg": 769,
           "episodes": 2
         }
       ]
