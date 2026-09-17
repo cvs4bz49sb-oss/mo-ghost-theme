@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-17T17:04:50.534Z",
+  "generated_at": "2026-09-17T21:26:47.056Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 318,
-      "plays": 74706,
+      "plays": 74857,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -74,7 +74,7 @@
         {
           "date": "2025-09-17",
           "title": "The Tabernacle, The Temple, and the Church",
-          "plays": 75
+          "plays": 76
         },
         {
           "date": "2025-09-24",
@@ -129,7 +129,7 @@
         {
           "date": "2025-12-03",
           "title": "The World Is The Wrong Shape For Women with Leah Sargeant",
-          "plays": 222
+          "plays": 227
         },
         {
           "date": "2026-01-21",
@@ -174,7 +174,7 @@
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 344
+          "plays": 345
         },
         {
           "date": "2026-03-25",
@@ -194,7 +194,7 @@
         {
           "date": "2026-04-15",
           "title": "Replay: Protestants & History with Paul Gutacker",
-          "plays": 178
+          "plays": 179
         },
         {
           "date": "2026-04-22",
@@ -249,7 +249,7 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3462
+          "plays": 3463
         },
         {
           "date": "2026-07-08",
@@ -269,42 +269,42 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2904
+          "plays": 2905
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 3005
+          "plays": 3006
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3394
+          "plays": 3396
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3818
+          "plays": 3826
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3697
+          "plays": 3705
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3572
+          "plays": 3578
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3175
+          "plays": 3191
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 2105
+          "plays": 2200
         }
       ],
       "per_episode": [
@@ -390,7 +390,7 @@
         },
         {
           "month": "2018-11",
-          "avg": 12,
+          "avg": 13,
           "episodes": 1
         },
         {
@@ -785,7 +785,7 @@
         },
         {
           "month": "2025-12",
-          "avg": 222,
+          "avg": 227,
           "episodes": 1
         },
         {
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3345,
+          "avg": 3346,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3479,
+          "avg": 3483,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2951,
+          "avg": 2990,
           "episodes": 3
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 52,
-      "plays": 19770,
+      "plays": 19859,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -933,7 +933,7 @@
         {
           "date": "2026-01-29",
           "title": "America 250: Books American Christians Should Read | Season 2 Preview",
-          "plays": 85
+          "plays": 86
         },
         {
           "date": "2026-02-05",
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1167
+          "plays": 1168
         },
         {
           "date": "2026-06-25",
@@ -1063,12 +1063,12 @@
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 896
+          "plays": 898
         },
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 968
+          "plays": 969
         },
         {
           "date": "2026-08-13",
@@ -1078,27 +1078,27 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 881
+          "plays": 886
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 833
+          "plays": 836
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 861
+          "plays": 864
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 697
+          "plays": 705
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 313
+          "plays": 378
         }
       ],
       "per_episode": [
@@ -1129,7 +1129,7 @@
         },
         {
           "month": "2026-01",
-          "avg": 85,
+          "avg": 86,
           "episodes": 1
         },
         {
@@ -1159,17 +1159,17 @@
         },
         {
           "month": "2026-07",
-          "avg": 851,
+          "avg": 852,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 857,
+          "avg": 860,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 624,
+          "avg": 649,
           "episodes": 3
         }
       ]
