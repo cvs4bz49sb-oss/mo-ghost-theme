@@ -9,7 +9,10 @@
   const readerURL=(slug,page)=>'/the-faith-received/read/?w='+encodeURIComponent(slug)+(sourceContext(slug,page)?.layer==='editorial-notes'?'&pldpart=3':'')+(page!=null&&page!==''?'#b'+encodeURIComponent(String(page))+'-0':'');
   // A citation anchor outranks a surface-name search. Translated names may occur only on another page.
   const withHl=(url,hl)=>{if(!url||!hl||/#b[^#]+-\d+$/.test(url))return url;const i=url.indexOf('#');return (i<0?url:url.slice(0,i))+(url.includes('?')?'&':'?')+'hl='+encodeURIComponent(String(hl).slice(0,120))+(i<0?'':url.slice(i));};
-  function safeURL(value){if(typeof value!=='string'||!value.trim())return null;try{const u=new URL(value,'https://thefaithreceived.vercel.app');return u.origin==='https://thefaithreceived.vercel.app'&&/^(?:\/|\/(?:read|bible|web|fathers|topics|search)(?:\.html)?)$/.test(u.pathname)?u.pathname+u.search+u.hash:null;}catch(_){return null;}}
+    /* SITE ADAPTATION (2026-09-19): resolved against THIS site's origin and its routes — the port's links say
+     /the-faith-received/read/?w=… and /bible/, and the corpus guard (^/read, the vercel origin) refused every one of
+     them, so no citation carried its inline preview. The corpus forms stay accepted for data that still carries them. */
+  function safeURL(value){if(typeof value!=='string'||!value.trim())return null;try{const here=location.origin;const u=new URL(value,here);if(u.origin===here&&/^\/(?:the-faith-received\/(?:read|reader|web|author|topics|search)\/?|bible\/?)(?:[?#]|$)/.test(u.pathname+(u.search?'?':'')+(u.hash?'#':'')))return u.pathname+u.search+u.hash;const v=new URL(value,'https://thefaithreceived.vercel.app');return v.origin==='https://thefaithreceived.vercel.app'&&/^(?:\/|\/(?:read|bible|web|fathers|topics|search)(?:\.html)?(?:[?#]|$))/.test(v.pathname+(v.search?'?':'')+(v.hash?'#':''))?v.pathname+v.search+v.hash:null;}catch(_){return null;}}
   function source(row,works={},author=''){
     let slug=String(row.w||row.cw||''),page=row.p==null?null:String(row.p);
     if(!slug&&row.h){try{const u=new URL(row.h,'https://thefaithreceived.vercel.app');slug=u.searchParams.get('w')||'';const m=u.hash.match(/^#b(.+)-\d+$/);if(m)page=decodeURIComponent(m[1]);}catch(_){}}
@@ -113,7 +116,7 @@
     if(!pending.has(path))pending.set(path,(async()=>{const response=await fetch(BLOB+path,{signal:AbortSignal.timeout(25000)});if(!response.ok)throw Error('The published index could not load.');if(path.endsWith('.gz')){const _b=new Uint8Array(await response.arrayBuffer());if(_b[0]===31&&_b[1]===139)return JSON.parse(await new Response(new Blob([_b]).stream().pipeThrough(new DecompressionStream('gzip'))).text());return JSON.parse(new TextDecoder().decode(_b));}return response.json();})().catch(e=>{pending.delete(path);throw e;}));
     return pending.get(path);
   }
-  function preview(url){const safe=safeURL(url);return safe&&/^\/(?:read|bible)(?:\.html)?[?#]/.test(safe)?`<details class="ce-preview" data-ce-preview="${esc(safe)}"><summary>Read passage here</summary><div></div></details>`:'';}
+  function preview(url){const safe=safeURL(url);return safe&&/^\/(?:read|bible|the-faith-received\/read\/|bible\/)(?:\.html)?[?#]/.test(safe)?`<details class="ce-preview" data-ce-preview="${esc(safe)}"><summary>Read passage here</summary><div></div></details>`:'';}
   function bindPreviews(host){host.querySelectorAll('[data-ce-preview]').forEach(d=>d.addEventListener('toggle',()=>{if(!d.open||d.querySelector('iframe'))return;const frame=document.createElement('iframe');frame.src=safeURL(d.dataset.cePreview);frame.title='Source passage';frame.loading='lazy';d.querySelector('div').appendChild(frame);}));}
   function pageContextHTML(s){return s.page!=null?`<details class="ce-page-context" data-ce-page="${esc(JSON.stringify(s))}"><summary>Topics and sources on this page</summary><div></div></details>`:'';}
   function bindPageContexts(host){host.querySelectorAll('[data-ce-page]').forEach(details=>{

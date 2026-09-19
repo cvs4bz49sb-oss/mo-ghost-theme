@@ -1,143 +1,81 @@
 {{!< default}}
 {{#contentFor "moHead"}}
-<title>Author &mdash; The Faith Received</title>
-<meta name="description" content="An author in The Faith Received: their dates, tradition, a short life, the scripture they quoted most, and every work of theirs the library holds." />
-<meta property="og:title" content="Author — The Faith Received" />
-<meta property="og:description" content="An author in The Faith Received: their dates, tradition, a short life, the scripture they quoted most, and every work of theirs the library holds." />
-<meta name="twitter:title" content="Author — The Faith Received" />
-<meta name="twitter:description" content="An author in The Faith Received: their dates, tradition, a short life, the scripture they quoted most, and every work of theirs the library holds." />
+<title>Authors | The Faith Received | Mere Orthodoxy</title>
+<meta name="description" content="Every author in the library, by shelf, and each author’s own room: their works, positions, Scripture, topics, reception and connections, with the passages behind each." />
+{{!-- The family identity the engine reads before it starts, and our
+     masthead's height as --mo-head, so anything fixed can sit under it.
+     Same two jobs as on the ported reader; must load first. --}}
+<script src="{{asset "js/page/faith-port-read-boot.js"}}"></script>
+{{!-- Nothing in this port goes to Vercel Blob (owner 2026-09-10); any
+     Blob address that arrives inside data is rebased onto the library
+     worker at the fetch boundary. Before any module that can fetch. --}}
+<script src="{{asset "js/port/fr-noblob.js"}}&amp;frv=a66e16a29a40a4eb"></script>
+<link rel=preconnect href="https://fonts.googleapis.com"><link rel=preconnect href="https://fonts.gstatic.com" crossorigin>
+<link rel=stylesheet href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Source+Serif+Pro:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="{{asset "css/port/authors.in01.css"}}&amp;frv=ea09e07f6aa0429a">
+<link rel="stylesheet" href="{{asset "css/port/scripture-navigation.css"}}&amp;frv=7be6dc0e2f11ae7c">
+<link rel="stylesheet" href="{{asset "css/port/research-experience.css"}}&amp;frv=01ed7f5c4ddf5c2e">
+<script src="{{asset "js/port/research-tools.js"}}&amp;frv=f9f1901f4fa12a78"></script>
+<script src="{{asset "js/port/authors.in01.js"}}&amp;frv=67421059140e7e6c"></script><link rel="stylesheet" href="{{asset "css/port/fr-reading-system.css"}}&amp;frv=f508895e8935d018"><link rel="stylesheet" href="{{asset "css/port/ask-workspace.css"}}&amp;frv=8618bdf9072bb354"><script defer src="{{asset "js/port/ask-store.js"}}&amp;frv=adef8dbf17b627ad"></script><script defer src="{{asset "js/port/ask-workspace.js"}}&amp;frv=5f86e66ececf64a0"></script><script src="{{asset "js/port/research-data.js"}}&amp;frv=7a8a8dc3e166283a"></script><script src="{{asset "js/port/research-notebook.js"}}&amp;frv=215f1ef6dc2e579f"></script>{{!-- ?a=<folded-name> → the room's slug hash; external, the CSP forbids inline scripts. --}}
+<script src="{{asset "js/port/author-address.js"}}&amp;frv=931bd1d8e0c3a6a4"></script>
+{{!-- Our colour, loaded last so it wins; then the offsets that start
+     this page under our masthead. Keep both last. --}}
+<link rel="stylesheet" href="{{asset "css/faith-port-reader-skin.css"}}">
+<link rel="stylesheet" href="{{asset "css/faith-port-surfaces.css"}}">
 {{/contentFor}}
-{{!-- /the-faith-received/author/?a=<folded-name>
 
-     One page per author, rendered at read time by faith-author.js.
-     There are well over fourteen thousand names across the seven
-     collections and they change whenever the source republishes, so
-     generating a template each is not the shape of this problem.
+{{!-- /the-faith-received/author/ — every author's room, ported.
 
-     Built on the room hero so an author reads as a place in the
-     library rather than as a search result. --}}
+     THE CORPUS SITE'S /authors AND /fathers INSIDE THIS SITE, at the
+     address this site already gave an author. The research shell in its
+     Authors mode: the directory by shelf when there is no hash, and one
+     author's room when there is — Works, Positions, Scripture, Topics,
+     Reception, Connections, Search, and the topic and comparison
+     sub-views — driven by authors.in03.js, the shell's whole engine.
+     Extends `default`; the home link and the bridge bar are gone; the
+     shell's own bar stays — the page name (#pgname, which the router
+     writes), its theme button (#thBtn) and its mode navigation —
+     restyled to sit under our masthead. Every byte of data comes from
+     the library worker on R2: the rooms, the reception shards, the
+     mined positions. Nothing here reaches Blob.
 
-<main class="faith-received faith-author-page">
+     ?a=<folded-name>, the address this site's own links use, is mapped
+     to the room's slug by the shim in the head (fold-matched against
+     the nine shelf rosters); the corpus site's own form,
+     ?sh=<shelf>#<slug>, works as it is.
 
-  <section class="bhero bhero--tool bhero--author">
-    <div class="bhero-inner container">
-      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/browse/">Author</a></p>
-      <h1 data-faith-author-name>Loading&hellip;</h1>
-    </div>
-  </section>
-
-  <section class="bband faith-author-body">
-    <div class="container" data-faith-author data-fr-bookmark-rows>
-      <p class="faith-author-empty">Loading&hellip;</p>
-    </div>
-  </section>
-
-  {{!-- Positions was here: "what this writer is recorded as holding,
-       doctrine by doctrine", a doctrine picker over the mined statement
-       set. Removed from the author page on Ian's instruction,
-       2026-09-11.
-
-       The reason it could not stay is the standing rule that the
-       library quotes and never paraphrases. Every statement in that
-       data is a paraphrase — the mined set carries no verbatim text
-       anywhere — and the panel said so itself, in a standing caveat
-       telling the reader to go and check the passage before
-       attributing any of it to the author. A feature that has to warn
-       you not to trust it is not one this library should be running.
-
-       The data and faith-positions.js are untouched and still serve
-       /the-faith-received/doctrines/ and the topic pages. Only the
-       author-page mount is gone. --}}
-
-  {{!-- BETA GATE. The life and the shelf are open to everyone: an
-       author page is the library's own catalogue and a reader who
-       cannot yet see it has nothing to sign in for. The research
-       panels are the gated part, and they are gated by NOT LOADING
-       THEIR SCRIPTS at the foot of this page, inside a
-       {{#if @member}}. Nothing draws them, so there is no markup to
-       hide and no flash to avoid. That is the server gate the contract
-       in partials/faith-received/_beta-gate.hbs asks for, in the only
-       shape a page whose body is built by JS can take it.
-
-       "Account" here means ANY signed-in Ghost member, free included. --}}
-  {{> "faith-received/_beta-gate"}}
-
-{{> "faith-received/_beta-band"}}
-</main>
-{{!-- Sitewide membership CTA. The partial's own rule is "hide for paid
-     and comped"; during the beta this page wants it hidden for every
-     signed-in member, free included, because a free member is using
-     the research panels above right now. Same wrapper and same
-     reasoning as /the-faith-received/ask/ and /search/. --}}
-<div data-tfr-gate="signed-out">{{> "faith-received/_library-cta"}}</div>
-
-
-
-<meta name="tfr-library-base" content="https://mo-tfr-library.mo-podcast-feed.workers.dev" />
-<script src="{{asset "js/faith-corpora.js"}}"></script>
-<script src="{{asset "js/faith-century.js"}}"></script>
-
-{{!-- ── The research panels, member-only for the beta ──────────────
-     Search this author, the scripture fingerprint, reception and the
-     topic index. All four are drawn by these scripts into
-     [data-faith-author] at read time, so not loading them IS the
-     server gate: a signed-out visitor is served no panel markup, no
-     panel CSS state and no fetch, and the beta-gate box above stands
-     where they would have been.
-
-     faith-author.js below asks for each of these with a
-     `window.MO…` guard and draws the life and the shelf without any
-     of them, which is what makes this branch safe to take. Do not
-     move faith-author.js inside it.
-
-     ORDER MATTERS in one place only: faith-author-panels.js defines
-     the fold the other three build into, so it goes first. --}}
-{{#if @member}}
-<script src="{{asset "js/faith-author-panels.js"}}"></script>
-{{!-- Search this author. Power Search is the first mode and the one
-     the box opens on: the same semantic search as the Research desk,
-     with the library narrowed to this author's own works. The two
-     older modes stay beside it, and the scripture one is load-bearing
-     rather than legacy: the fingerprint's verse figures call
-     MOAuthorSearch.find() and answer inside this panel.
-
-     faith-text.js is the one way to get the text of a work whatever
-     collection it is in; faith-corpus-search.js is Find over a set of
-     them, which is what the word-or-phrase mode walks. --}}
-<script src="{{asset "js/faith-text.js"}}"></script>
-<script src="{{asset "js/faith-corpus-search.js"}}"></script>
-<script src="{{asset "js/faith-author-power.js"}}"></script>
-<script src="{{asset "js/faith-author-search.js"}}"></script>
-{{!-- The scripture fingerprint: what this author quoted, from the
-     generated index, drawn above the search panel and driving it. --}}
-<script src="{{asset "js/faith-author-scripture.js"}}"></script>
-{{!-- Reception: who else in the library cites this author, and who
-     this author cites in turn. Draws beside the fingerprint, both
-     fetched once faith-author.js has resolved the author's name. --}}
-<script src="{{asset "js/faith-author-reception.js"}}"></script>
-{{!-- The topic index: the same mined topics the Compare desk offers,
-     for this one author, with the count of recorded statements and
-     the works they sit in. Counts and links only. --}}
-<script src="{{asset "js/faith-author-topics.js"}}"></script>
-{{!-- The submit button in the search panel carries
-     data-feature-gate="ask". Today that tier is "any signed-in
-     member" and the modal never fires; when the beta ends it becomes
-     member-tier and this is the only thing that tells a free
-     subscriber why the search did nothing. --}}
-<script src="{{asset "js/feature-gate.js"}}"></script>
-{{!-- faith-positions.js is not loaded here any more; see the note where
-     its band used to be. It still runs on the doctrines and topic
-     pages. --}}
-{{/if}}
-
-<script src="{{asset "js/faith-author.js"}}"></script>
-{{!-- Bookmark a work from its row. The store first: it is the same
-     mo-kit bookmark the reader's Save button and the Bookmark button at
-     the foot of a section write, so a work saved here and a section
-     saved inside it are one record, not two. --}}
-<script src="{{asset "js/lib/faith-work-bookmarks.js"}}"></script>
-<script src="{{asset "js/faith-work-bookmark-rows.js"}}"></script>
-
-{{!-- Claims the TFR / TFR-Beta Kit tags for a signed-in member. Hides
-     and reveals nothing; see the file header. --}}
-<script src="{{asset "js/faith-beta-gate.js"}}"></script>
+     Owner 2026-09-19: "a perfect port of the author page and all its
+     surfaces". That brings back the Positions surface, which was taken
+     off the previous author page on 2026-09-11 because its statements
+     are the mine's paraphrases; here they are shown as the corpus site
+     shows them, each with the page behind it. --}}
+<script src="{{asset "js/page/faith-port-surface-boot.js"}}" data-body-class="research-page"></script>
+<!-- DIRECTION CONTRACT
+THESIS: A research library that leads from authors and questions to inspectable passages.
+OWN-WORLD: Inherit Academic Monochrome, EB Garamond, Source Serif Pro, ruled stone sheets, and the shared black dark theme.
+STORY: Find an author or topic, compare available evidence, follow actual connections, and open or save the source.
+FIRST VIEWPORT: Clear page identity above a searchable directory; author rooms pair a compact topic rail with a reading workspace. Phones use native tabs and stacked evidence. Topic comparison has a persistent selection action.
+FORM: Code-led extension of the established library; no new visual-world seed. Counts keep their units; samples disclose coverage; uncertain attributions remain separate. Scripture navigation is preserved.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+-->
+<script src="{{asset "js/port/authors.in02.js"}}&amp;frv=d8b85f9e53267406"></script>
+<header class="site">
+  <div class="brand"><span class="research-page-name"> · <span id="pgname" style="font-style:italic">Latin Fathers</span></span> <button id="thBtn" aria-label="Change reading theme" title="Light / dark" style="font:inherit;background:none;border:0;cursor:pointer;color:var(--muted);padding:.1rem .3rem">☾</button></div>
+  <nav id="topnav" aria-label="Research navigation">
+    <a href="/bible/" data-p="bible">Scripture</a>
+    <a href="/the-faith-received/author/" data-p="fathers">Authors</a>
+    <a href="/the-faith-received/author/#works" data-p="works">Works</a>
+    <a href="/the-faith-received/doctrines/" data-p="topics">Topics</a>
+    <a href="/the-faith-received/web/" data-p="web">Web</a>
+    <a href="/the-faith-received/compare/" data-p="compare">Compare</a>
+    <a href="/the-faith-received/pins/">Notebook</a>
+  </nav><button id="research-ask" type="button">Ask</button>
+</header>
+<script src="{{asset "js/port/scripture-tools.js"}}&amp;frv=a2d1172c59c08a2a"></script>
+<link rel="stylesheet" href="{{asset "css/port/verse-research.css"}}&amp;frv=36c580339a9e6d52">
+<script src="{{asset "js/port/verse-research.js"}}&amp;frv=ece7d3e92915d12e"></script>
+<link rel="stylesheet" href="{{asset "css/port/connection-evidence.css"}}&amp;frv=20656c5c1335c942">
+<script src="{{asset "js/port/connection-evidence.js"}}&amp;frv=f515167b2a7f376b"></script>
+<main id="page"><p class="loading">…</p></main>
+<script src="{{asset "js/port/authors.in03.js"}}&amp;frv=4b5f1de971466ca3"></script>
+<script src="{{asset "js/port/authors.in04.js"}}&amp;frv=8d00fd258d7820ab"></script>

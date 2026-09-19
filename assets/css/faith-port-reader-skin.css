@@ -1472,3 +1472,20 @@ html[data-lh] .app #reading :is(.row:not(.rapp) > .en, .row:not(.rapp) > .la,
     font-size: 13px;
   }
 }
+
+/* ── The Research drawer in the dark scheme (09-19) ──────────────────
+   Ian's site sheet inks every notebook control — "Search this work",
+   "Ask about this book", "Start a conversation", the work-overview
+   links, the destinations, the selection popover — with --tfr-btn and
+   falls back to --color-dark (#2d2927), a token the dark scheme never
+   changes. On the near-black drawer that ink is invisible (contrast
+   1.03). Scoped to the drawer and the popover, never :root (see the
+   note above #aboutOv): the drawer only exists on reader pages, whose
+   dark scheme is real. */
+:root[data-theme="dark"] #notebook,
+:root[data-theme="dark"] #selpop {
+  --tfr-btn: var(--fg);
+  --tfr-btn-ink: var(--bg);
+  --color-dark: var(--fg);
+}
+:root[data-theme="dark"] #notebook a:not([class]) { color: var(--fg); }

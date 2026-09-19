@@ -80,3 +80,30 @@ body.research-page header.site.glass { top: var(--mo-head, 85px); }
   .faith-port-desk-page #docs,
   .faith-port-desk-page #rail { top: var(--mo-head, 85px); }
 }
+
+/* ── When the masthead hides, the pinned bar follows it to the top ──────
+   header-behaviors.js puts .is-hidden on the masthead as you scroll down
+   and slides it out of the window. The bars above are pinned at
+   --mo-head, the masthead's height, so without this an 85px band of the
+   page scrolled past ABOVE the bar while the bar hung mid-window (the
+   author room, 2026-09-19). The bar is a later sibling of the masthead,
+   so the masthead's own class is the whole signal — the reader rail
+   does the same. Matched to the masthead's transition so the two move
+   as one gesture; parked when the reader has asked for no motion. */
+body.web-page .site-header.is-hidden ~ header.site,
+body.research-page .site-header.is-hidden ~ header.site,
+body.research-page .site-header.is-hidden ~ header.site.glass,
+.faith-port-desk-page .site-header.is-hidden ~ #docs,
+.faith-port-desk-page .site-header.is-hidden ~ #rail { top: 0; }
+body.web-page header.site,
+body.research-page header.site,
+body.research-page header.site.glass,
+.faith-port-desk-page #docs,
+.faith-port-desk-page #rail { transition: top 0.25s ease; }
+@media (prefers-reduced-motion: reduce) {
+  body.web-page header.site,
+  body.research-page header.site,
+  body.research-page header.site.glass,
+  .faith-port-desk-page #docs,
+  .faith-port-desk-page #rail { transition: none; }
+}
