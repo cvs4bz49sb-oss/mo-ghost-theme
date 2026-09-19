@@ -996,8 +996,8 @@ mark.fr-hlx[data-hl="slate"] { background: #e5ecf3; }
    an amber chip that means "remove amber" reads as "apply amber". */
 #selpop button.sw.is-clear {
   background: transparent;
-  border: 1px solid var(--color-dark, #2d2927);
-  color: var(--color-dark, #2d2927);
+  border: 1px solid var(--fg);
+  color: var(--fg);
 }
 #selpop button.sw.is-clear:hover {
   border-color: var(--color-secondary, #c1593c);
@@ -1155,10 +1155,10 @@ html.mh-mini .faith-port-read-page { height: 100dvh; }
   box-sizing: border-box;
   height: 40px;
   min-height: 40px;
-  border: 1px solid var(--color-dark, #2d2927);
+  border: 1px solid var(--fg);
   border-radius: 3px;
   background: transparent;
-  color: var(--color-dark, #2d2927);
+  color: var(--fg);
 }
 
 /* One box, dividers inside it. The parts give up their own radius so the
@@ -1177,7 +1177,7 @@ html.mh-mini .faith-port-read-page { height: 100dvh; }
   color: inherit;
 }
 #app .ph.fr-reader-head .ctr > .seg.pnav > button + button {
-  border-left: 1px solid var(--color-dark, #2d2927);
+  border-left: 1px solid var(--fg);
 }
 #app .ph.fr-reader-head .ctr > .seg.lanes { gap: 6px; }
 /* The page field IS the group's box. A bordered input inside a bordered
@@ -1185,7 +1185,7 @@ html.mh-mini .faith-port-read-page { height: 100dvh; }
    has to be answered in kind or three sides come out terracotta and the
    fourth stays tan. */
 #app .ph.fr-reader-head .ctr > .seg.pgjump {
-  border-right: 1px solid var(--color-dark, #2d2927) !important;
+  border-right: 1px solid var(--fg) !important;
   padding: 0 8px;
   gap: 4px;
 }
@@ -1195,10 +1195,13 @@ html.mh-mini .faith-port-read-page { height: 100dvh; }
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--color-dark, #2d2927);
+  color: var(--fg);
 }
+/* --fg, not the site's --color-dark: that ink is light-only, and in the dark scheme it set the page
+   box and its total near-black on a near-black bar — '/ 698' unreadable (owner, 2026-09-19). The
+   skin's own ink flips with the scheme; in light it is the same #2d2927. Same for the borders above. */
 #app .ph.fr-reader-head .ctr .pgjump .pg-total {
-  color: var(--color-dark, #2d2927);
+  color: var(--muted);
 }
 /* The arrows sat in a group pulled 10px into its neighbour, which reads
    as kerning when the group has no edge and as a collision once it has. */
