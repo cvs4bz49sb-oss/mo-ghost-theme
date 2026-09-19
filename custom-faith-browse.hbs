@@ -1,7 +1,7 @@
 {{!< default}}
 {{#contentFor "moHead"}}
 <title>Browse &mdash; The Faith Received</title>
-<meta name="description" content="Browse the creeds, confessions, catechisms, the classics, the fathers, and sixty-eight thousand works of Latin divinity, most of it in English for the first time." />
+<meta name="description" content="Browse the creeds, confessions, catechisms, the classics, the fathers, and thirty thousand works of divinity in Latin, Greek, Syriac and English, most of it in English for the first time." />
 <meta property="og:title" content="Browse — The Faith Received" />
 <meta name="twitter:title" content="Browse — The Faith Received" />
 {{/contentFor}}
@@ -84,7 +84,7 @@
 <div class="btrad">
   <h3>Medieval</h3>
   <ul class="blist"><li><a href="/the-faith-received/reader/?w=duns-scotus-in-librum-quartum-sententiarum"><span class="brow-t">On the Fourth Book of the Sentences</span><span class="brow-m">John Duns Scotus</span></a></li><li><a href="/the-faith-received/reader/?w=dionysius-cartusiensis-in-sententias"><span class="brow-t">On the Four Books of the Sentences</span><span class="brow-la">In Quatuor Libros Sententiarum</span><span class="brow-m">Denys the Carthusian</span></a></li><li><a href="/the-faith-received/reader/?w=albertus-magnus-summa-theologiae"><span class="brow-t">A Summa of Theology</span><span class="brow-la">Summa Theologiae</span><span class="brow-m">Albert the Great</span></a></li><li><a href="/the-faith-received/reader/?w=bonaventure-in-primum-librum-sententiarum"><span class="brow-t">Commentary on the Sentences, Book I</span><span class="brow-m">Bonaventure</span></a></li><li><a href="/the-faith-received/reader/?w=aq-camatt-69"><span class="brow-t">Catena Aurea on Matthew</span><span class="brow-m">Thomas Aquinas</span></a></li></ul>
-  <a class="btrad-all" href="/the-faith-received/latin-library/?tradition=Medieval">All 323 works <span aria-hidden="true">&rarr;</span></a>
+  <a class="btrad-all" href="/the-faith-received/latin-library/?tradition=Medieval">All 357 works <span aria-hidden="true">&rarr;</span></a>
 </div>
 <div class="btrad">
   <h3>Roman Catholic</h3>
@@ -136,43 +136,86 @@
 <section class="bband">
   <div class="container">
     <header class="bhead"><p class="blabel">The whole library</p>
-      <h2>Six collections, sixty-eight thousand works.</h2></header>
-    <div class="bcolls">
+      <h2>Eleven shelves, thirty thousand works.</h2></header>
+    {{!-- Rewritten 2026-09-19 (owner): Early English Books broken into the parties the catalogue files its divines under — Puritan, Anglican,
+         and the Westminster Assembly (v1/schools.json, roster rebuilt the same day: 88 members, 936 works); the Latin Library shown as its four
+         traditions; Patrologia Orientalis named for what it is. The three English cards open the all-works room cut to the party
+         (?denomination=English+Divines&party=…, faith-room.js FAMILY) — owner, later the same day: "they should be subsets of English
+         Divines" — and their counts are the room's, the number the reader lands on (2,936 · 1,687 · 934 once the room holds exactly the Early English Books the library holds, each filed as an English divine with its party beside it, PR #29; earlier 2,530 · 1,129 · 919 after the Latin Library's divines were re-placed by the EEBO author map on 2026-09-19 — works-index `party` had every one of them Puritan, Andrewes and Hall included; the room reads the parties off Ian's
+         author lists for Early English Books and off works-index `party` for the Latin Library, and the Assembly off schools.json keyed
+         corpus|id, 919 of 936 resolving). The four Latin shelves count works-index `tradition`, Migne the catalogues. Fifteen and a half
+         thousand Early English Books stay in their room; only the placed ones are on a party shelf. --}}
+    <div class="bcolls bcolls--grouped">
+<p class="blabel bcoll-group"><a href="/the-faith-received/all-works/?collection=all&amp;tradition=Protestant&amp;denomination=English+Divines">English Divines</a></p>
       <article class="bcoll">
-        <h3 class="bcoll-name"><a href="/the-faith-received/early-english-books/">Early English Books</a></h3>
-        <p class="bcoll-n">15,569 works</p>
-        <p class="bcoll-what">Theological and devotional printing in English between 1473 and 1700, drawn out of the wider record of everything the presses produced. Sermons, catechisms, controversies and practical divinity, in the spelling they were set in.</p>
-        <p class="bcoll-who">Richard Baxter, John Owen, Richard Sibbes, William Perkins, John Bunyan, Jeremy Taylor, Lancelot Andrewes, Richard Hooker, James Ussher, George Fox</p>
+        <h3 class="bcoll-name"><a href="/the-faith-received/all-works/?collection=all&amp;tradition=Protestant&amp;denomination=English+Divines&amp;party=Puritan">Puritan</a></h3>
+        <p class="bcoll-n">2,936 works</p>
+        <p class="bcoll-what">The English Reformed line from Perkins to Owen, 1580&ndash;1700. Sermons, casuistry, controversy, practical divinity. Early English Books and our own editions, in the spelling they were printed in.</p>
+        <p class="bcoll-who">William Perkins, Richard Sibbes, Richard Baxter, John Owen, Thomas Manton, Thomas Brooks, Jeremiah Burroughs, Joseph Caryl, Samuel Rutherford, John Bunyan</p>
       </article>
+      <article class="bcoll">
+        <h3 class="bcoll-name"><a href="/the-faith-received/all-works/?collection=all&amp;tradition=Protestant&amp;denomination=English+Divines&amp;party=Anglican">Anglican</a></h3>
+        <p class="bcoll-n">1,687 works</p>
+        <p class="bcoll-what">The Church of England&rsquo;s divines from Jewel and Hooker to Tillotson. The case against Rome, the case against the Puritans, the sermons and the prayer book.</p>
+        <p class="bcoll-who">Richard Hooker, Lancelot Andrewes, Joseph Hall, Jeremy Taylor, Henry Hammond, Simon Patrick, Edward Stillingfleet, John Tillotson, Gilbert Burnet, Richard Allestree</p>
+      </article>
+      <article class="bcoll">
+        <h3 class="bcoll-name"><a href="/the-faith-received/all-works/?collection=all&amp;tradition=Protestant&amp;denomination=English+Divines&amp;party=Westminster+Assembly">Westminster Assembly</a></h3>
+        <p class="bcoll-n">934 works</p>
+        <p class="bcoll-what">The divines who sat at Westminster, 1643&ndash;1653, and the Assembly&rsquo;s own minutes. Eighty-eight members are held here; their works also stand on the Puritan shelf.</p>
+        <p class="bcoll-who">William Twisse, Stephen Marshall, Edmund Calamy, Thomas Goodwin, Edward Reynolds, Thomas Gataker, Jeremiah Burroughs, William Gouge, Samuel Rutherford, George Gillespie</p>
+      </article>
+<p class="tfr-browse-all"><a class="btrad-all" href="/the-faith-received/early-english-books/">All 15,569 Early English Books <span aria-hidden="true">&rarr;</span></a></p>
+<p class="blabel bcoll-group">The Fathers</p>
       <article class="bcoll">
         <h3 class="bcoll-name"><a href="/the-faith-received/patrologia-latina/">Patrologia Latina</a></h3>
         <p class="bcoll-n">8,967 works</p>
-        <p class="bcoll-what">Migne's Latin fathers and the writers who followed them, running from Tertullian to the thirteenth century. It was the standard edition of the Western tradition before the modern critical texts, and for a great many of these works it is still the only place they can be read.</p>
-        <p class="bcoll-who">Augustine of Hippo, Jerome of Stridon, Ambrose of Milan, Gregory the Great, Bede the Venerable, Bernard of Clairvaux, Anselm of Canterbury, Peter Damian, Rabanus Maurus, Walahfrid Strabo</p>
+        <p class="bcoll-what">Migne&rsquo;s Latin fathers, Tertullian to Innocent III, in 217 volumes. For many of these works it is still the only edition.</p>
+        <p class="bcoll-who">Augustine of Hippo, Jerome of Stridon, Ambrose of Milan, Gregory the Great, Bede the Venerable, Bernard of Clairvaux, Anselm of Canterbury, Peter Damian, Rabanus Maurus, Rupert of Deutz</p>
       </article>
       <article class="bcoll">
         <h3 class="bcoll-name"><a href="/the-faith-received/patrologia-graeca/">Patrologia Graeca</a></h3>
         <p class="bcoll-n">2,976 works</p>
-        <p class="bcoll-what">Migne's Greek fathers, from the apostolic writers to the end of the Byzantine east, printed with a Latin translation beside them.</p>
+        <p class="bcoll-what">Migne&rsquo;s Greek fathers, the apostolic writers to the fall of Constantinople, Greek with the Latin facing.</p>
         <p class="bcoll-who">John Chrysostom, Origen, Athanasius, Basil the Great, Gregory of Nyssa, Gregory of Nazianzus, Eusebius of Caesarea, Cyril of Alexandria, John of Damascus, Theodoret of Cyrrhus</p>
       </article>
       <article class="bcoll">
-        <h3 class="bcoll-name"><a href="/the-faith-received/latin-library/">The Latin Library</a></h3>
-        <p class="bcoll-n">2,296 works</p>
-        <p class="bcoll-what">Scholastic and post-Reformation divinity in Latin, most of it carried into English here for the first time. These are the disputations, commentaries and systems the schools of Europe argued through between the thirteenth century and the eighteenth.</p>
-        <p class="bcoll-who">Thomas Aquinas, Albert the Great, John Duns Scotus, Francisco Suárez, Martin Luther, Philipp Melanchthon, John Calvin, Abraham Calov, Richard Baxter, William Perkins</p>
-      </article>
-      <article class="bcoll">
-        <h3 class="bcoll-name"><a href="/the-faith-received/patrologia-orientalis/">Patrologia Orientalis</a></h3>
+        <h3 class="bcoll-name"><a href="/the-faith-received/patrologia-orientalis/">Eastern Fathers</a></h3>
         <p class="bcoll-n">400 works</p>
-        <p class="bcoll-what">The Christian East in Syriac, Coptic, Armenian, Arabic and Ge&#8217;ez, each with a translation facing it. Lives of the martyrs, liturgies, chronicles and the theology of churches that wrote in neither Greek nor Latin.</p>
-        <p class="bcoll-who">Severus of Antioch, Philoxenus of Mabbug, Jacob of Edessa, Barhebraeus, Mark of Ephesus</p>
+        <p class="bcoll-what">The churches that wrote in Syriac, Coptic, Armenian, Arabic and Ge&#8217;ez, each text with a facing translation. Lives of the martyrs, liturgies, chronicles, theology.</p>
+        <p class="bcoll-who">Severus of Antioch, Philoxenus of Mabbug, Jacob of Edessa, Aphrahat, Ephrem of Nisibis, Barhebraeus, Mark of Ephesus</p>
+      </article>
+<p class="blabel bcoll-group">Latin divinity, 1100&ndash;1750</p>
+      <article class="bcoll">
+        <h3 class="bcoll-name"><a href="/the-faith-received/latin-library/?tradition=Medieval">Medieval</a></h3>
+        <p class="bcoll-n">357 works</p>
+        <p class="bcoll-what">The schoolmen: Sentences commentaries, summas, disputed questions, the canon law. Latin with English.</p>
+        <p class="bcoll-who">Thomas Aquinas, Albert the Great, John Duns Scotus, Bonaventure, William of Ockham, Henry of Ghent, Johannes Capreolus, Denys the Carthusian, Gratian, Hostiensis</p>
       </article>
       <article class="bcoll">
-        <h3 class="bcoll-name"><a href="/the-faith-received/confessions/">Creeds, Confessions, &amp; Catechisms</a></h3>
+        <h3 class="bcoll-name"><a href="/the-faith-received/latin-library/?tradition=Roman+Catholic">Roman Catholic</a></h3>
+        <p class="bcoll-n">514 works</p>
+        <p class="bcoll-what">Trent and the schools after it: the Jesuits, the Dominicans, the Salamanca Carmelites, the manuals down to the twentieth century. Latin with English.</p>
+        <p class="bcoll-who">Robert Bellarmine, Francisco Su&aacute;rez, Cornelius a Lapide, the Salamanticenses, John of St Thomas, Denis P&eacute;tau, Alfonso Salmer&oacute;n, Honor&eacute; Tournely, Caesar Baronius, the Council of Trent</p>
+      </article>
+      <article class="bcoll">
+        <h3 class="bcoll-name"><a href="/the-faith-received/latin-library/?tradition=Reformed">Reformed</a></h3>
+        <p class="bcoll-n">426 works</p>
+        <p class="bcoll-what">Calvin and the Reformed orthodox, 1536&ndash;1750: the systems, the disputations, the commentaries. Latin with English.</p>
+        <p class="bcoll-who">John Calvin, Heinrich Bullinger, Theodore Beza, Girolamo Zanchi, Franciscus Junius, Amandus Polanus, Gisbertus Voetius, Johannes Cocceius, Francis Turretin, Johann Heinrich Heidegger</p>
+      </article>
+      <article class="bcoll">
+        <h3 class="bcoll-name"><a href="/the-faith-received/latin-library/?tradition=Lutheran">Lutheran</a></h3>
+        <p class="bcoll-n">280 works</p>
+        <p class="bcoll-what">Luther and the Lutheran dogmaticians, 1517&ndash;1750: the Concord line from Chemnitz to Calov and Quenstedt. Latin with English.</p>
+        <p class="bcoll-who">Martin Luther, Philipp Melanchthon, Martin Chemnitz, Johann Gerhard, Abraham Calov, Johannes Andreas Quenstedt, Balthasar Meisner, Matthias Flacius Illyricus, Jesper Brochmand, Johann Franz Budde</p>
+      </article>
+<p class="blabel bcoll-group">The churches&rsquo; own words</p>
+      <article class="bcoll">
+        <h3 class="bcoll-name"><a href="/the-faith-received/confessions/">Creeds, Confessions &amp; Catechisms</a></h3>
         <p class="bcoll-n">260 documents</p>
-        <p class="bcoll-what">What the churches said when they were asked to state plainly what they believe. The catechisms written to teach it sit beside them.</p>
-        <p class="bcoll-who">The Apostolic and Ancient Creeds, Chalcedon, Trent, the Augsburg Confession, the First Helvetic Confession, the Belgic Confession, the Heidelberg Catechism, the Thirty-nine Articles, the Canons of Dort, the Formula of Concord, the Westminster Assembly, the London Baptist Confession, the Savoy Declaration</p>
+        <p class="bcoll-what">What the churches said when asked to state what they believe, and the catechisms written to teach it. The Apostles&rsquo; Creed to the Savoy Declaration.</p>
+        <p class="bcoll-who">The Ancient Creeds, Chalcedon, Trent, Augsburg, the First Helvetic, the Belgic, Heidelberg, the Thirty-nine Articles, Dort, the Formula of Concord, Westminster, the London Baptist Confession, Savoy</p>
       </article>
     </div>
   </div>

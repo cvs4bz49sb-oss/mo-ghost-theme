@@ -17204,3 +17204,9 @@ a.fr-btn:hover,
 #notebook .nb-destinations a {
   color: var(--tfr-btn, var(--color-dark));
 }
+
+/* Browse: the collections grid carries group labels (2026-09-19 — English Divines / The Fathers / Latin divinity / the churches' own
+   words) and one "All … Early English Books" line; both span the grid rather than sit in a card's cell. */
+.bcolls--grouped .bcoll-group{grid-column:1/-1;margin:.9rem 0 .1rem}
+.bcolls--grouped .bcoll-group:first-child{margin-top:0}
+.bcolls--grouped .tfr-browse-all{grid-column:1/-1;margin:-.4rem 0 .4rem}

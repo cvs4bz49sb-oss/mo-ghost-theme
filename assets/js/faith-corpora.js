@@ -798,7 +798,7 @@
     },
     {
       id: "po",
-      label: "Patrologia Orientalis",
+      label: "Eastern Fathers",
       short: "Syriac, Coptic, Armenian, Ge'ez & Arabic Fathers",
       base: "https://patrologia-orientalis.vercel.app",
       catalogue: "/data/nav.json",
