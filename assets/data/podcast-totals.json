@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-19T04:42:36.655Z",
+  "generated_at": "2026-09-19T11:06:46.168Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 318,
-      "plays": 75677,
+      "plays": 75759,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -259,7 +259,7 @@
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3028
+          "plays": 3029
         },
         {
           "date": "2026-07-22",
@@ -269,42 +269,42 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2910
+          "plays": 2911
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 3009
+          "plays": 3011
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3402
+          "plays": 3403
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3843
+          "plays": 3845
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3730
+          "plays": 3732
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3615
+          "plays": 3620
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3258
+          "plays": 3271
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 2536
+          "plays": 2572
         }
       ],
       "per_episode": [
@@ -365,22 +365,22 @@
         },
         {
           "month": "2018-06",
-          "avg": 19,
+          "avg": 20,
           "episodes": 1
         },
         {
           "month": "2018-07",
-          "avg": 17,
+          "avg": 18,
           "episodes": 1
         },
         {
           "month": "2018-08",
-          "avg": 13,
+          "avg": 14,
           "episodes": 1
         },
         {
           "month": "2018-09",
-          "avg": 13,
+          "avg": 14,
           "episodes": 3
         },
         {
@@ -510,12 +510,12 @@
         },
         {
           "month": "2020-12",
-          "avg": 26,
+          "avg": 27,
           "episodes": 5
         },
         {
           "month": "2021-01",
-          "avg": 25,
+          "avg": 26,
           "episodes": 2
         },
         {
@@ -675,7 +675,7 @@
         },
         {
           "month": "2023-09",
-          "avg": 45,
+          "avg": 46,
           "episodes": 3
         },
         {
@@ -685,12 +685,12 @@
         },
         {
           "month": "2023-11",
-          "avg": 34,
+          "avg": 35,
           "episodes": 3
         },
         {
           "month": "2023-12",
-          "avg": 43,
+          "avg": 44,
           "episodes": 3
         },
         {
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3349,
+          "avg": 3350,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3496,
+          "avg": 3498,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3136,
+          "avg": 3154,
           "episodes": 3
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 52,
-      "plays": 20148,
+      "plays": 20160,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1170
+          "plays": 1171
         },
         {
           "date": "2026-06-25",
@@ -1078,7 +1078,7 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 894
+          "plays": 895
         },
         {
           "date": "2026-08-27",
@@ -1093,12 +1093,12 @@
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 728
+          "plays": 729
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 515
+          "plays": 524
         }
       ],
       "per_episode": [
@@ -1169,7 +1169,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 707,
+          "avg": 710,
           "episodes": 3
         }
       ]
