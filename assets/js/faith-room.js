@@ -610,23 +610,35 @@
     // which is how a tome is divided and how it is cited. A series with
     // neither gets no gutter at all rather than an empty one.
     const c = w.columns;
-    const cite = c ? `${num ? `${num}:` : ""}${c[0]}${c[1] !== c[0] ? `\u2013${c[1]}` : ""}` : "";
-    const loc = cite || (w.fasc ? `fasc. ${w.fasc}` : "");
+    const range = c ? `${c[0]}${c[1] !== c[0] ? `\u2013${c[1]}` : ""}` : "";
+    // The volume number is set lighter than the columns: it is the same on
+    // every row of the page and the head has already said it; the columns
+    // are what the row is for.
+    const cite = range ? `${num ? `<span class="brow-c-v">${num}:</span>` : ""}${escapeHtml(range)}` : "";
+    const loc = cite || (w.fasc ? escapeHtml(`fasc. ${w.fasc}`) : "");
+    // Every row keeps its gutter cell, filled or not: a row with nothing to
+    // cite (an index, an admonition) otherwise slid into the gutter column
+    // and its title wrapped there five words tall (PL 3, 2026-09-19).
     const col = loc
-      ? `<span class="brow-c"${cite ? ' title="Migne columns"' : ""}>${escapeHtml(loc)}</span>` : "";
+      ? `<span class="brow-c"${cite ? ' title="Migne columns"' : ""}>${loc}</span>`
+      : `<span class="brow-c brow-c--blank" aria-hidden="true"></span>`;
     const second = w.titleLatin && w.titleLatin !== w.title ? w.titleLatin : "";
     const la = second ? `<span class="brow-la">${escapeHtml(second)}</span>` : "";
     const name = (w.author || "").trim();
     // One author's volume says so once, in the head. Printing "— Gregory of
     // Nyssa" against all twenty-four of his own entries is noise.
+    // The dash and the space are in the text, not in a ::before, so a copied
+    // row reads "Acts — Council of Carthage" rather than "ActsCouncil of Carthage".
     const who = name && !oneAuthor && !NO_NAME.test(name)
-      ? `<span class="brow-a">${escapeHtml(name)}</span>` : "";
-    const kind = w.editorial ? `<span class="brow-kind">Editorial</span>` : "";
+      ? ` <span class="brow-a">\u2014 ${escapeHtml(name)}</span>` : "";
+    const kind = w.editorial ? ` <span class="brow-kind">Editorial</span>` : "";
     const inner = `${col}<span class="brow-t">${escapeHtml(w.title || w.id)}${who}${kind}</span>${la}`;
+    // Migne's own apparatus is set a step quieter than the father it surrounds.
+    const cls = w.editorial ? ' class="is-editorial"' : "";
     if (w.readable !== false && w.url) {
-      return `<li><a href="${escapeHtml(w.url)}">${inner}</a></li>`;
+      return `<li${cls}><a href="${escapeHtml(w.url)}">${inner}</a></li>`;
     }
-    return `<li class="faith-room-pending"><span class="faith-room-row">${inner}</span></li>`;
+    return `<li class="faith-room-pending${w.editorial ? " is-editorial" : ""}"><span class="faith-room-row">${inner}</span></li>`;
   }
 
   // One block per author, laid out two across, exactly as the traditions

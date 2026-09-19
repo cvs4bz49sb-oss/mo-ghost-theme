@@ -6844,6 +6844,28 @@ mark.faith-find-hit.is-current {
 .faith-room-printed--loc .brow-la,
 .faith-room-printed--loc .brow-m { grid-column: 2; }
 
+/* The printed volume, set to read down the page (2026-09-19). The gutter is
+   a column of numbers: tabular, the volume prefix a shade lighter than the
+   columns, and an empty cell where a row has nothing to cite so the titles
+   stay in their own column. Migne's apparatus — prefaces, indexes, the
+   editors' dissertations — is a step quieter than the fathers' own works,
+   which is what a reader running down the volume is looking for. */
+.faith-room-printed .brow-c { font-size: 13.5px; padding-top: 3px; color: var(--color-muted); }
+.faith-room-printed .brow-c-v { opacity: 0.72; letter-spacing: 0.02em; }
+.faith-room-printed .brow-c--blank::after { content: "\00b7"; opacity: 0.35; }
+.faith-room-printed .brow-t { font-size: 19px; line-height: 1.25; }
+.faith-room-printed .brow-a { font-family: var(--font-body); font-size: 14px; color: var(--color-muted); white-space: normal; }
+.faith-room-printed .brow-kind { margin-left: 4px; font-size: 10.5px; letter-spacing: 0.16em; vertical-align: 0.12em; }
+.faith-room-printed li.is-editorial .brow-t { font-size: 17px; color: color-mix(in srgb, currentColor 72%, var(--color-muted)); }
+.faith-room-printed li.is-editorial .brow-la { font-size: 14px; }
+.faith-room-printed li:hover { background: color-mix(in srgb, var(--color-card-border) 22%, transparent); }
+.faith-room-printed a { margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-radius: 6px; }
+.faith-room-printed--loc a { grid-template-columns: 92px minmax(0, 1fr); }
+@media (max-width: 640px) {
+  .faith-room-printed .brow-c--blank { display: none; }
+  .faith-room-printed a { margin: 0; padding-left: 0; padding-right: 0; }
+}
+
 /* The volume's byline: whose works Migne bound here. */
 .faith-room-vol-by {
   margin: 4px 0 0;
@@ -6855,7 +6877,8 @@ mark.faith-find-hit.is-current {
   font-size: 0.75em;
   color: var(--color-muted);
 }
-.brow-a::before { content: "\2014"; margin: 0 0.35em 0 0.5em; }
+/* The dash is in the row's own text now (faith-room.js volRow, 2026-09-19), so it copies with the name. */
+.brow-a { margin-left: 0.1em; }
 /* Migne's own apparatus — a preface, a notice, an admonition — as against
    the father it surrounds. Named, not hidden: it is part of the volume. */
 .brow-kind {
