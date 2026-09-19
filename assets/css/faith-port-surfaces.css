@@ -80,3 +80,17 @@ body.research-page header.site.glass { top: var(--mo-head, 85px); }
   .faith-port-desk-page #docs,
   .faith-port-desk-page #rail { top: var(--mo-head, 85px); }
 }
+
+/* ── The dictionary ──────────────────────────────────────────────────
+   The corpus page laid itself out as a flex column on the body — its
+   top bar, the search band, then two panes that fill the rest of the
+   window and scroll inside themselves. Inside this site the body is
+   Ghost's, so the template wraps the page and the wrapper takes the
+   column: the window's height less our masthead, which is fixed above
+   it. The panes scroll within it, as they did. */
+.faith-port-dtc-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--mo-head, 85px));
+  min-height: 0;
+}
