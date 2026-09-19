@@ -6188,6 +6188,18 @@ mark.faith-find-hit.is-current {
   height: 1px;
   background: var(--color-secondary);
 }
+/* The parties within English Divines: a second row of tabs directly
+   under By author / By year — one rule between the two rows, not two —
+   with the count set small beside each name, as the corpus site sets it. */
+.faith-room-views + .faith-room-parties { margin-top: -28px; border-top: 0; }
+.faith-room-parties[hidden] { display: none; }
+.faith-room-party-n {
+  font-style: normal;
+  font-size: var(--tfr-micro);
+  color: var(--color-muted);
+  margin-left: 4px;
+}
+.faith-view-toggle-tab.is-active .faith-room-party-n { color: var(--color-primary); }
 .faith-view-toggle-tab--link::before {
   content: "→";
   display: inline-block;
@@ -7390,6 +7402,21 @@ mark.faith-find-hit.is-current {
   color: var(--color-muted);
   margin: 0;
 }
+/* A search that found a name is drawn in two sections — the authors it
+   named, then the other works it matched by title — under headings set
+   like the count line, so the page keeps one voice. */
+.faith-room-section {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 22px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-card-border);
+}
+.faith-room-section:first-child { padding-top: 0; border-top: 0; }
 
 /* The rail reads as a line of type, not a row of buttons. */
 .faith-room-letters {
@@ -16745,6 +16772,21 @@ body[data-member-status] [data-tfr-gate="signed-out"] { display: none !important
   font-size: var(--tfr-micro); font-style: italic; color: var(--color-muted);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+/* A shelf's subsets — the parties within English Divines — set under the
+   shelf's own link as a line of small doors, each into the room cut to
+   that party. Inline, so the shelf's block link rule does not make them
+   rows of their own. */
+.fro-shelf-subs {
+  display: block; margin: -6px 0 14px;
+  font-size: var(--tfr-micro); letter-spacing: 0.04em; color: var(--color-muted);
+}
+.fro-shelf-subs-l { text-transform: uppercase; letter-spacing: 0.16em; margin-right: 10px; }
+.fro-shelf .fro-shelf-sub {
+  display: inline; padding: 0; color: var(--color-dark);
+  border-bottom: 1px solid var(--color-rule);
+}
+.fro-shelf .fro-shelf-sub:hover { color: var(--color-primary); border-color: var(--color-primary); }
+.fro-shelf-sub b { color: var(--color-primary); font-weight: 600; }
 
 @media (max-width: 640px) {
   .faith-room-openers { margin-bottom: 40px; }

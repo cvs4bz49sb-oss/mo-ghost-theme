@@ -7,8 +7,8 @@
  *
  * Sorted by author, then by title within an author, so an author's
  * works sit together without a heading interrupting the list. Fifty to
- * a page, an A-Z rail keyed on the author's surname, and a box that
- * searches authors and titles at once.
+ * a page, an A-Z rail keyed on the author's surname, and one box that
+ * searches authors first and titles second (see tierOf).
  *
  * This replaced the author-card view, which showed a count and the
  * first five titles and repeated itself wherever an author had a
@@ -89,12 +89,12 @@
   let collection = params.get("in") || "";
   let filter = params.get("q") || "";
   let letter = params.get("letter") || "";
-  // What the box searches. "All" is the old behaviour and stays the
-  // default; the others exist because a search for a name that is also
-  // a common word — Baxter, whose name is in the title of everything
-  // written against him — buries the man under the argument.
-  const SCOPES = { all: "All", author: "Author", title: "Title", keyword: "Keyword" };
-  let scope = SCOPES[params.get("scope")] ? params.get("scope") : "all";
+  // The third level under English Divines: Puritan, Anglican, or the
+  // Westminster Assembly's roster. See FAMILY below.
+  let party = params.get("party") || "";
+  // A ?scope= written by the old "Search in" select is read and dropped:
+  // the box now searches authors first and titles second on its own
+  // (see tierOf), which is what the select was for.
   let page = Math.max(1, parseInt(params.get("page"), 10) || 1);
 
   // ── The shelf a collection is cited by ───────────────────────────
@@ -295,6 +295,23 @@
         if (vol || params.get("view") === shelf.view) view = shelf.view;
       }
     }
+    // An address written before English Divines had parties: a tradition
+    // or denomination of Puritan or Anglican means the family, with the
+    // party kept as the third level.
+    if (FAMILY[tradition] || FAMILY[denomination]) {
+      party = FAMILY[tradition] ? tradition : denomination;
+      denomination = ENGLISH;
+      tradition = "";
+    }
+    // A denomination named without its parent, in a room that offers more
+    // than one tradition, would filter the list and hide the select that
+    // says so. Its parent is whatever the works under it file at.
+    if (denomination && !tradition) {
+      const tops = new Set(works.map(topTrad).filter(Boolean));
+      const w0 = tops.size > 1 ? works.find((w) => denomOf(w) === denomination) : null;
+      if (w0) tradition = topTrad(w0);
+    }
+    if (works.some((w) => denomOf(w) === ENGLISH)) loadRoster();
     rebuildShelfOrder();
     render();
   });
@@ -446,6 +463,96 @@
     return w._tp || t;
   }
 
+  // ── English Divines and their parties ────────────────────────────
+  //
+  // The English shelves come labelled two ways. Early English Books files
+  // each work by the party of its author, Puritan or Anglican; the Latin
+  // Library files the same men under "English Divines" and carries the
+  // party in a second field. On the all-works page that stood Puritan,
+  // Anglican and English Divines side by side as three denominations of
+  // the one body of English Protestant divinity, and a reader choosing
+  // Anglican lost the Anglicans of the Latin Library. Owner, 2026-09-19:
+  // English Divines subsumes Anglican; within it are the Puritans, the
+  // Anglicans and the Westminster Assembly.
+  //
+  // So the denomination a work files under is its FAMILY where it has
+  // one, and the party is a third level beneath that. The Assembly is
+  // not a party but a body: its roster is v1/schools.json's explicit list
+  // of works by its members, most of them Puritan, so a work can be both.
+  const FAMILY = { Puritan: "English Divines", Anglican: "English Divines" };
+  const ENGLISH = "English Divines";
+  const ASSEMBLY = "Westminster Assembly";
+  const PARTIES = ["Puritan", "Anglican", ASSEMBLY];
+  function denomOf(w) {
+    const t = trad(w);
+    return FAMILY[t] && topTrad(w) === "Protestant" ? FAMILY[t] : t;
+  }
+  // The party a work carries itself: Early English Books says it as the
+  // tradition, the Latin Library in a field of its own.
+  function partyOf(w) {
+    if (denomOf(w) !== ENGLISH) return "";
+    return FAMILY[trad(w)] ? trad(w) : String(w.party || "").trim();
+  }
+  // The Assembly's roster, keyed the way a loaded record is, `corpus|id`.
+  // An Early English Books slug in the roster is `eebo-30376`; the room's
+  // record for it is corpus "eebo", id "30376". Everything else in the
+  // roster is a Latin Library slug. Empty until schools.json lands.
+  const roster = new Set();
+  // The roster's members by name as well, because that is the corpus
+  // site's rule (build_lf_bible.py: a work is the Assembly's if its slug
+  // is on the roster OR its author is a member), and the two sites should
+  // file the same work the same way. Early English Books writes a name
+  // inverted with dates — "Twisse, William, 1578?-1646" — so the name is
+  // turned round before it is folded.
+  const rosterAuthors = new Set();
+  let rosterState = "";
+  function rosterKey(slug) {
+    const m = /^eebo-(\d+)$/.exec(slug);
+    return m ? `eebo|${m[1]}` : `tfr|${slug}`;
+  }
+  function directName(raw) {
+    const t = String(raw || "").trim().replace(/^\[+/, "").replace(/\]+$/, "").trim();
+    const parts = t.split(",").map((x) => x.trim()).filter(Boolean);
+    if (parts.length < 2) return t;
+    const named = parts.filter((x) => !/^(?:b\.|d\.|ca\.|fl\.|active\s)?\s*\d{3,4}\??(?:\s*[-\u2013]\s*\d{0,4}\??)?$/i.test(x));
+    if (named.length < 2) return named[0] || t;
+    return `${named[1]} ${named[0]}`;
+  }
+  function inAssembly(w) {
+    if (roster.has(`${w.corpus}|${w.id}`)) return true;
+    if (w._ra === undefined) w._ra = fold(directName(w.author));
+    return rosterAuthors.has(w._ra);
+  }
+  function inParty(w, p) { return p === ASSEMBLY ? inAssembly(w) : partyOf(w) === p; }
+  function loadRoster() {
+    if (rosterState) return;
+    rosterState = "loading";
+    const tfr = window.MOCorpora.get("tfr");
+    fetch(`${(tfr && tfr.base) || ""}/v1/schools.json`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d) => {
+        const e = d && d[ASSEMBLY];
+        ((e && e.slugs) || []).forEach((slug) => roster.add(rosterKey(String(slug))));
+        ((e && e.authors) || []).forEach((a) => rosterAuthors.add(fold(a)));
+        rosterState = "ready";
+        render();
+      })
+      .catch(() => { rosterState = "failed"; render(); });
+  }
+  // Which parties the works in hand can answer, with counts. Asked of the
+  // English Divines actually present, so a room with no Anglicans offers
+  // no Anglican option.
+  function partiesUnder(list) {
+    const c = new Map();
+    list.forEach((w) => {
+      if (denomOf(w) !== ENGLISH) return;
+      const p = partyOf(w);
+      if (p) c.set(p, (c.get(p) || 0) + 1);
+      if (inAssembly(w)) c.set(ASSEMBLY, (c.get(ASSEMBLY) || 0) + 1);
+    });
+    return PARTIES.filter((p) => c.get(p)).map((p) => [p, c.get(p)]);
+  }
+
   // What the second level is called depends on what it holds. Under
   // Protestant it is a denomination; under The Fathers it is one of
   // Migne's series and calling those a denomination is nonsense.
@@ -463,7 +570,7 @@
     const seen = new Map();
     list.forEach((w) => {
       if (topTrad(w) !== parent) return;
-      const t = trad(w);
+      const t = denomOf(w);
       // A work sitting on the parent itself (a pan-Protestant union
       // document) has no denomination and adds no option.
       if (!t || t === parent) return;
@@ -477,41 +584,48 @@
     return w._c === undefined ? (w._c = window.MOCentury ? window.MOCentury.of(w) : 0) : w._c;
   }
 
+  // The filters. The box is answered separately, by tierOf, because a
+  // search is not a filter: it has an order.
   function matches(w) {
     if (tradition && topTrad(w) !== tradition) return false;
-    if (denomination && trad(w) !== denomination) return false;
+    if (denomination && denomOf(w) !== denomination) return false;
+    if (party && !inParty(w, party)) return false;
     if (century && cent(w) !== century) return false;
     if (collection && w.corpus !== collection) return false;
-    if (!filter) return true;
-    // Folded on both sides, so a reader who types the name the way it
-    // is usually written finds it however the catalogue spells it:
-    // "leblanc" reaches "Louis Le Blanc de Beaulieu", "sanchez" reaches
-    // "Sánchez", "a lasco" reaches "à Lasco". Jake searched LeBlanc,
-    // got nothing, and reasonably concluded the man was missing.
-    const q = fold(filter);
-    if (!q) return true;
-    if (scope === "author") {
-      if (w._qa === undefined) w._qa = fold(w.author || "");
-      return w._qa.includes(q);
+    return true;
+  }
+
+  // ── The box ──────────────────────────────────────────────────────
+  //
+  // One box, no "Search in". It works the way the corpus site's library
+  // search does: the words are tried against the AUTHOR first, then the
+  // title, then the catalogue's own words — subject, shelf, volume. A
+  // work answers with the best tier it reaches, and the page is drawn in
+  // that order: the authors whose name matched, each with their whole
+  // shelf, and under them the other works whose title did. That is what
+  // the "Search in" select was for. Baxter's name is in the title of
+  // everything written against him, and one flat list buried the man
+  // under the argument; ranking the author above the title keeps him on
+  // top without asking the reader to choose a scope first. The
+  // catalogue's own words count only when neither a name nor a title
+  // answered, or "puritan" would list the shelf.
+  //
+  // Folded on both sides, so a reader who types the name the way it is
+  // usually written finds it however the catalogue spells it: "leblanc"
+  // reaches "Louis Le Blanc de Beaulieu", "sanchez" reaches "Sánchez",
+  // "a lasco" reaches "à Lasco". Jake searched LeBlanc, got nothing, and
+  // reasonably concluded the man was missing.
+  const AUTHOR = 0, TITLE = 1, KEYWORD = 2, NONE = -1;
+  function tierOf(w, q) {
+    if (w._qa === undefined) w._qa = fold(w.author || "");
+    if (w._qa.includes(q)) return AUTHOR;
+    if (w._qt === undefined) w._qt = fold(`${w.title || ""} ${w.titleLatin || ""}`);
+    if (w._qt.includes(q)) return TITLE;
+    if (w._qk === undefined) {
+      w._qk = fold([w.subject, w.topic, w.tradition, w.school, w.eyebrow, w.volume]
+        .filter(Boolean).join(" "));
     }
-    if (scope === "title") {
-      if (w._qt === undefined) w._qt = fold(`${w.title || ""} ${w.titleLatin || ""}`);
-      return w._qt.includes(q);
-    }
-    // Keyword reaches past the catalogue line into what the work is
-    // about: the subject and the shelf it sits on, which is the only
-    // description the library holds for most of these.
-    if (scope === "keyword") {
-      if (w._qk === undefined) {
-        w._qk = fold([w.title, w.titleLatin, w.subject, w.topic, w.tradition,
-          w.school, w.eyebrow, w.volume].filter(Boolean).join(" "));
-      }
-      return w._qk.includes(q);
-    }
-    if (w._q === undefined) {
-      w._q = fold(`${w.title || ""} ${w.author || ""} ${w.titleLatin || ""}`);
-    }
-    return w._q.includes(q);
+    return w._qk.includes(q) ? KEYWORD : NONE;
   }
 
   // Lowercase, strip accents, drop everything that is not a letter or a
@@ -528,9 +642,9 @@
     const q = new URLSearchParams();
     q.set("collection", collectionId);
     if (filter) q.set("q", filter);
-    if (scope !== "all") q.set("scope", scope);
     if (tradition) q.set("tradition", tradition);
     if (denomination) q.set("denomination", denomination);
+    if (party) q.set("party", party);
     if (century) q.set("century", String(century));
     if (collection) q.set("in", collection);
     if (letter) q.set("letter", letter);
@@ -764,7 +878,7 @@
     // what a shelf IS. A signature rather than one field: moving from Puritan to
     // Medieval changes which second view the works can answer, and so does
     // changing collection or century.
-    const sig = [collection, tradition, denomination, century].join("\u0000");
+    const sig = [collection, tradition, denomination, party, century].join("\u0000");
     if (sig !== shelfSig) {
       shelfSig = sig;
       const next = shelfFor(denomination);
@@ -783,7 +897,26 @@
       }
       rebuildShelfOrder();
     }
-    const filtered = works.filter(matches);
+    const facet = works.filter(matches);
+    // The box. Every work in hand answers with its tier; the catalogue's
+    // own words count only when neither a name nor a title did.
+    const q = fold(filter);
+    let tiers = null;
+    let filtered = facet;
+    if (q) {
+      tiers = new Map();
+      let best = NONE;
+      facet.forEach((w) => {
+        const t = tierOf(w, q);
+        if (t === NONE) return;
+        tiers.set(w, t);
+        if (best === NONE || t < best) best = t;
+      });
+      if (best !== NONE && best < KEYWORD) {
+        tiers.forEach((t, w) => { if (t === KEYWORD) tiers.delete(w); });
+      }
+      filtered = facet.filter((w) => tiers.has(w));
+    }
     // Three states, not two. By author is the page as it has always
     // been; the volume view is either the grid of volumes or one volume
     // opened, and on the grid there is no list of works to page
@@ -824,6 +957,12 @@
       if (!g.seen.has(key)) { g.seen.add(key); g.works.push(w); }
     });
 
+    // The authors whose name matched come first, whole; then the other
+    // works, under their authors. Stable, so each half keeps its A-Z.
+    const authorHit = (g) => Boolean(tiers) && g.works.some((w) => tiers.get(w) === AUTHOR);
+    const anyAuthor = Boolean(tiers) && allGroups.some(authorHit);
+    if (anyAuthor) allGroups.sort((a, b) => Number(authorHit(b)) - Number(authorHit(a)));
+
     const pages = inVolume ? 1 : Math.max(1, Math.ceil(allGroups.length / PAGE_SIZE));
     if (page > pages) page = pages;
     const groups = allGroups.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -852,6 +991,14 @@
     // Denominations are offered only once their parent is chosen, and
     // only where that parent actually has children here.
     const denoms = tradition ? denomsUnder(works, tradition) : [];
+    // The parties are offered where English Divines is the denomination
+    // in hand: chosen, or the only one the room has (Early English Books
+    // offers no tradition select, so nothing is ever "chosen" there).
+    const inHand = works.filter((w) => (!tradition || topTrad(w) === tradition)
+      && (!collection || w.corpus === collection));
+    const englishOnly = !denomination && inHand.length > 0
+      && inHand.every((w) => { const d = denomOf(w); return !d || d === ENGLISH; });
+    const parties = denomination === ENGLISH || englishOnly ? partiesUnder(inHand) : [];
 
     function select(name, label, all, options, current) {
       if (options.length < 2) return "";
@@ -929,19 +1076,36 @@
         // flow on their own: opening an author in the left one pushes
         // only what is below it, and the right one does not move at
         // all. On a phone they collapse back into one run in order.
-        const half = Math.ceil(groups.length / 2);
         const col = (list) => `<div class="btrads-col">${list
           .map((g) => block(g.name, g.works, onShelf ? shelf.mark : null))
           .join("")}</div>`;
+        const blocks = (list) => {
+          const half = Math.ceil(list.length / 2);
           return `<div class="btrads faith-room-blocks faith-room-blocks--fold">`
-            + `${col(groups.slice(0, half))}${col(groups.slice(half))}</div>`;
+            + `${col(list.slice(0, half))}${col(list.slice(half))}</div>`;
+        };
+        if (!anyAuthor) return blocks(groups);
+        // A search that found a name is drawn in two sections: the
+        // authors it named, then the other works it matched by title.
+        const named = groups.filter(authorHit);
+        const others = groups.filter((g) => !authorHit(g));
+        return (named.length ? `<h3 class="faith-room-section">Matching authors</h3>${blocks(named)}` : "")
+          + (others.length ? `<h3 class="faith-room-section">Other matching works</h3>${blocks(others)}` : "");
         })()
         : `<p class="faith-room-status">Nothing matches that. Try another name or title.</p>`;
     // An address that names no volume in this collection is the one
     // case where a reader can arrive holding something we cannot open,
     // so it says so and puts the grid back within reach.
     let body = list;
-    if (onGrid) {
+    if (party === ASSEMBLY && rosterState !== "ready") {
+      // The Assembly is its roster, and the roster is a second file. A
+      // reader arriving on ?party=Westminster+Assembly asked for it
+      // before that file had landed; an empty list would read as an
+      // empty shelf, so the page says what it is waiting for.
+      body = `<p class="faith-room-status">${rosterState === "failed"
+        ? "The Westminster Assembly&rsquo;s roster could not be loaded. Reload the page to try again."
+        : "Loading the Westminster Assembly&rsquo;s roster&hellip;"}</p>`;
+    } else if (onGrid) {
       body = volGrid(filtered);
     } else if (onShelf && chosen) {
       body = volHead(chosen, printed) + list;
@@ -959,17 +1123,28 @@
     // Denomination filter can hand the reader a series after that. A nav
     // that was never written cannot be shown later, so it is written and
     // hidden, and the block below keeps its name and its state in step.
-    const views = shelf || isAll
+    const views = (shelf || isAll
       ? `<nav class="faith-view-toggle faith-room-views" role="tablist" aria-label="How to browse this collection"${shelf ? "" : " hidden"}>`
         + `<button type="button" class="faith-view-toggle-tab" data-room-view="author" role="tab">By author</button>`
         + `<button type="button" class="faith-view-toggle-tab" data-room-shelf-tab data-room-view="${shelf ? shelf.view : "volume"}" role="tab">${escapeHtml(shelf ? shelf.tab : "By volume")}</button>`
         + `</nav>`
-      : "";
+      : "")
+      // The parties within English Divines, as a row of tabs under the
+      // views — the corpus site's own control for that shelf (All ·
+      // Puritan · Anglican · Westminster Assembly, each with its count).
+      // Written into the shell once and filled by render, like the
+      // views; shown only where English Divines is the denomination in
+      // hand.
+      + `<nav class="faith-view-toggle faith-room-parties" role="tablist" aria-label="Within English Divines" hidden></nav>`;
 
     // What the count reports is whatever the reader is looking at: the
     // works in the collection, the volumes on the shelf, or the works
     // in the one volume they have opened.
-    let counted = `${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}`;
+    // A search says what it matched; a party says which it is.
+    const matching = filter ? ` matching &ldquo;${escapeHtml(filter)}&rdquo;` : "";
+    const within = party ? ` &middot; ${escapeHtml(party)}` : "";
+    let counted = `${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"}${matching} in ${escapeHtml(label)}${within}`;
+    if (party === ASSEMBLY && rosterState !== "ready") counted = "";
     if (onGrid) {
       const shelved = new Set();
       filtered.forEach((w) => {
@@ -977,14 +1152,14 @@
         if (v) shelved.add(v);
       });
       counted = `${shelved.size.toLocaleString()} ${shelved.size === 1 ? shelf.one : shelf.many}`
-        + ` &middot; ${filtered.length.toLocaleString()} work${filtered.length === 1 ? "" : "s"} in ${escapeHtml(label)}`;
+        + ` &middot; ${filtered.length.toLocaleString()} work${filtered.length === 1 ? "" : "s"}${matching} in ${escapeHtml(label)}${within}`;
     } else if (onShelf && chosen) {
       counted = `${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(shelf.name(chosen))}`;
     } else if (onShelf) {
       // An address that names nothing here. The collection's own total
       // is the true thing to print: a bare zero beside its name would
       // read as an empty shelf rather than a bad link.
-      counted = `${filtered.length.toLocaleString()} work${filtered.length === 1 ? "" : "s"} in ${escapeHtml(label)}`;
+      counted = `${filtered.length.toLocaleString()} work${filtered.length === 1 ? "" : "s"}${matching} in ${escapeHtml(label)}${within}`;
     }
 
     // The search box and the selects are built once and left alone.
@@ -992,9 +1167,7 @@
     // under the reader: an open dropdown vanished the moment it was
     // touched, because choosing an option rebuilt the element.
     if (!root.querySelector("[data-room-shell]")) {
-      const scopeOpts = Object.keys(SCOPES).map((k) =>
-        `<option value="${k}"${k === scope ? " selected" : ""}>${SCOPES[k]}</option>`).join("");
-      root.innerHTML = `<div data-room-shell>${views}<div class="faith-room-head"><div class="faith-room-searchbar"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><label class="faith-room-scope"><span class="faith-room-scope-label">Search in</span><select data-room-scope aria-label="What to search">${scopeOpts}</select></label></div><p class="faith-room-count" data-room-count></p></div><div data-room-controls>${filters}</div><div data-room-rail></div><div data-room-list></div><div data-room-pager></div></div>`;
+      root.innerHTML = `<div data-room-shell>${views}<div class="faith-room-head"><div class="faith-room-searchbar"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection by author or title" /></div><p class="faith-room-count" data-room-count></p></div><div data-room-controls>${filters}</div><div data-room-rail></div><div data-room-list></div><div data-room-pager></div></div>`;
       wireOnce();
     }
 
@@ -1043,6 +1216,23 @@
       const dSpan = root.querySelector("[data-room-denom-label]");
       if (dSpan && dSpan.textContent !== dLabel) dSpan.textContent = dLabel;
       dWrap.hidden = !denoms.length;
+    }
+    // The party tabs: rewritten only when the set differs, marked for the
+    // party in hand, hidden when there is none to offer.
+    const pNav = root.querySelector(".faith-room-parties");
+    if (pNav) {
+      const all = inHand.filter((w) => denomOf(w) === ENGLISH).length;
+      const tab = (key, label, n) => `<button type="button" class="faith-view-toggle-tab" data-room-party-tab="${escapeHtml(key)}" role="tab">${escapeHtml(label)} <em class="faith-room-party-n">${n.toLocaleString()}</em></button>`;
+      const want = parties.length
+        ? tab("", "All English Divines", all) + parties.map(([p, n]) => tab(p, p, n)).join("")
+        : "";
+      if (pNav.innerHTML !== want) pNav.innerHTML = want;
+      pNav.hidden = !parties.length;
+      pNav.querySelectorAll("[data-room-party-tab]").forEach((b) => {
+        const on = b.getAttribute("data-room-party-tab") === party;
+        b.classList.toggle("is-active", on);
+        b.setAttribute("aria-selected", on ? "true" : "false");
+      });
     }
 
     // Keep the selects in step with the state without replacing them.
@@ -1130,8 +1320,23 @@
     onPick("cent", (v) => { century = parseInt(v, 10) || 0; });
     // Changing the tradition drops any denomination under the old one,
     // which would otherwise filter to nothing.
-    onPick("trad", (v) => { tradition = v; denomination = ""; });
-    onPick("denom", (v) => { denomination = v; });
+    onPick("trad", (v) => { tradition = v; denomination = ""; party = ""; });
+    onPick("denom", (v) => { denomination = v; party = ""; });
+    // The party tabs are rebuilt by render, so the click is caught on
+    // the nav, which is not.
+    const pNav = root.querySelector(".faith-room-parties");
+    if (pNav) {
+      pNav.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-room-party-tab]");
+        if (!b) return;
+        const next = b.getAttribute("data-room-party-tab") || "";
+        if (next === party) return;
+        party = next;
+        letter = "";
+        page = 1;
+        render();
+      });
+    }
     // Switching views drops the other view's place in the shelf: a
     // letter means nothing inside a volume, and a volume means nothing
     // under an A-Z.
@@ -1146,22 +1351,6 @@
         render();
       });
     });
-    const scopeEl = root.querySelector("[data-room-scope]");
-    if (scopeEl) {
-      scopeEl.addEventListener("change", () => {
-        scope = SCOPES[scopeEl.value] ? scopeEl.value : "all";
-        const box = root.querySelector("[data-room-filter]");
-        if (box) {
-          box.placeholder = scope === "author" ? "Search an author\u2026"
-            : scope === "title" ? "Search a title\u2026"
-              : scope === "keyword" ? "Search a subject or tradition\u2026"
-                : "Search an author or a title\u2026";
-        }
-        letter = "";
-        page = 1;
-        render();
-      });
-    }
   }
 
   function wireList() {

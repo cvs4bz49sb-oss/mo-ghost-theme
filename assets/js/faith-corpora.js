@@ -348,6 +348,12 @@
     eebo: {
       Anglican: "Protestant",
       Puritan: "Protestant",
+      // Since 2026-09-19 every Early English Book files as English
+      // Divines, the corpus site's shelf for them, with Puritan or
+      // Anglican as its PARTY rather than its tradition (see the
+      // collection's `partyByAuthor`). The two names above stay for any
+      // record that still carries them.
+      "English Divines": "Protestant",
     },
     // Migne's two series, Patrologia Orientalis and the Augustine
     // collection are one thing wearing four labels. Gathered under a
@@ -362,7 +368,16 @@
     // and a fourth top-level row beside the series they already belong
     // to. moTradition() below sorts each work into Migne's own two
     // series instead; both hang here, as pld and pg do.
-    mo: { "Latin Fathers": "The Fathers", "Greek Fathers": "The Fathers" },
+    mo: {
+      "Latin Fathers": "The Fathers", "Greek Fathers": "The Fathers",
+      // The English editions' own confessions and catechisms — the
+      // Westminster catechisms, the Thirty-nine Articles, the Prayer
+      // Book, Augsburg — file under Protestant with the rest. Left at
+      // the top they stood beside Protestant as "Anglican (2)",
+      // "Reformed (8)", "Lutheran (2)": the same denominations twice.
+      Reformed: "Protestant", Lutheran: "Protestant", Anglican: "Protestant",
+      "Reformed Baptist": "Protestant", Evangelical: "Protestant",
+    },
   };
 
   // The Latin Library carries eight Greek Fathers of its own, and they
@@ -478,6 +493,10 @@
         // rejected the whole load and emptied every room.
         volume: String(w.volume == null ? "" : w.volume).trim(),
         tradition: w.tradition || "",
+        // The party of an English divine, Puritan or Anglican, which the
+        // catalogue carries beside the tradition. The rooms file the
+        // English shelves by it (faith-room.js, FAMILY).
+        party: String(w.party || "").trim(),
         // Corrected where the catalogue has filed a work under a man
         // who did not write it. See WORK_AUTHOR.
         author: correctAuthor(w.slug, w.author),
@@ -533,15 +552,19 @@
       // proclamations, ballads, weaving manuals and murder pamphlets;
       // a theological library has no use for them and carrying
       // them makes the library harder to search.
-      short: "Theological and devotional printing, 1473–1700",
+      short: "The English divines the library holds, 1473–1700",
       base: "https://eebo-backup.vercel.app",
       catalogue: "/data/catalogue.json",
-      // 15,569 of 53,831, selected by scripts/build-eebo-theological.mjs
-      // on scripture density, title vocabulary, and whether the author
-      // is a divine. The id list ships with the theme (117 KB); if it
-      // fails to load the filter opens rather than closes, so a missing
-      // file shows too much instead of an empty shelf.
-      filterIds: "/assets/data/faith-received/eebo-theological.json",
+      // Exactly the Early English Books the library itself holds — the
+      // corpus site's English Divines shelf, v1/works-index.json's eebo-
+      // rows (3,873 on 2026-09-19). Owner: "match what I report for
+      // EEBO" — the room shows what the corpus site shows, no more. The
+      // theological cut of the whole catalogue (eebo-theological.json,
+      // 15,569 by scripture density and title vocabulary) stays in the
+      // tree for the builder; nothing reads it now. If this list fails
+      // to load the filter opens rather than closes, so a missing file
+      // shows too much instead of an empty shelf.
+      filterIds: "/assets/data/faith-received/eebo-held.json",
       pick: (d) => (Array.isArray(d) ? d : d.works || []),
       indexes: { scripture: "/data/scripture.json", facets: "/data/facets.json" },
       // Curated facet lists the source site ships.
@@ -564,8 +587,14 @@
       // Puritan and 980 Anglican; the remaining 81.3% are anonymous,
       // pre-Reformation, continental, or by authors nobody has placed.
       // They are left unassigned rather than invented.
-      tradition: () => "",
-      traditionByAuthor: {
+      // Every one of these is an English divine — that is what the
+      // theological filter selects for — so the whole room files under
+      // the corpus site's shelf for them, English Divines. Before this
+      // (2026-09-19) only the 18.7% on the two author lists had any
+      // tradition at all, as "Puritan" or "Anglican", and the rest
+      // vanished from every tradition filter.
+      tradition: () => "English Divines",
+      partyByAuthor: {
         Puritan: "/data/puritans.json",
         Anglican: "/data/anglicans.json",
       },
@@ -965,9 +994,9 @@
   const authorTraditions = new Map();
 
   function loadAuthorTraditions(c) {
-    if (!c.traditionByAuthor) return Promise.resolve(null);
+    if (!c.partyByAuthor) return Promise.resolve(null);
     if (authorTraditions.has(c.id)) return authorTraditions.get(c.id);
-    const entries = Object.entries(c.traditionByAuthor);
+    const entries = Object.entries(c.partyByAuthor);
     const p = Promise.all(entries.map(([label, path]) =>
       fetch(c.base + path)
         .then((r) => (r.ok ? r.json() : []))
@@ -1033,8 +1062,11 @@
           // tradition in normalize, and tfr's two paths are identical,
           // so nothing else changes shape here.
           if (!w.tradition && c.tradition) w.tradition = c.tradition(raw) || "";
-          if (!w.tradition && byAuthor && w.author) {
-            w.tradition = byAuthor.get(w.author) || "";
+          // The party — Puritan, Anglican — is the second level under
+          // English Divines, read off the author lists. It used to be
+          // written as the tradition, which split one shelf in three.
+          if (!w.party && byAuthor && w.author) {
+            w.party = byAuthor.get(w.author) || "";
           }
           return w;
         })
