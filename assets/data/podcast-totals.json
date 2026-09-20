@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-19T20:46:08.439Z",
+  "generated_at": "2026-09-20T04:58:40.784Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 318,
-      "plays": 75902,
+      "plays": 75975,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -74,7 +74,7 @@
         {
           "date": "2025-09-17",
           "title": "The Tabernacle, The Temple, and the Church",
-          "plays": 79
+          "plays": 80
         },
         {
           "date": "2025-09-24",
@@ -149,7 +149,7 @@
         {
           "date": "2026-02-11",
           "title": "The Great Evangelical Hand-Off (That Never Happened) with Jake Meador",
-          "plays": 113
+          "plays": 114
         },
         {
           "date": "2026-02-18",
@@ -249,12 +249,12 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3470
+          "plays": 3471
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3922
+          "plays": 3924
         },
         {
           "date": "2026-07-15",
@@ -279,32 +279,32 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3406
+          "plays": 3407
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3846
+          "plays": 3847
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3736
+          "plays": 3737
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3630
+          "plays": 3639
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3296
+          "plays": 3309
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 2641
+          "plays": 2676
         }
       ],
       "per_episode": [
@@ -490,7 +490,7 @@
         },
         {
           "month": "2020-08",
-          "avg": 18,
+          "avg": 19,
           "episodes": 4
         },
         {
@@ -640,7 +640,7 @@
         },
         {
           "month": "2023-02",
-          "avg": 37,
+          "avg": 38,
           "episodes": 3
         },
         {
@@ -670,7 +670,7 @@
         },
         {
           "month": "2023-08",
-          "avg": 137,
+          "avg": 138,
           "episodes": 1
         },
         {
@@ -750,7 +750,7 @@
         },
         {
           "month": "2025-05",
-          "avg": 109,
+          "avg": 110,
           "episodes": 1
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3500,
+          "avg": 3501,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3189,
+          "avg": 3208,
           "episodes": 3
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 52,
-      "plays": 20242,
+      "plays": 20272,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -853,12 +853,12 @@
         {
           "date": "2025-08-12",
           "title": "A. A. Milne - Winnie the Pooh with Ivana D. Greco and Dixie Dillon Lane",
-          "plays": 133
+          "plays": 134
         },
         {
           "date": "2025-08-12",
           "title": "Ignazio Silone - Bread and Wine with Geoffrey Kurtz",
-          "plays": 63
+          "plays": 64
         },
         {
           "date": "2025-08-12",
@@ -898,7 +898,7 @@
         {
           "date": "2025-09-25",
           "title": "Sinclair Lewis - It Couldn't Happen Here with Daniel K. Williams",
-          "plays": 57
+          "plays": 58
         },
         {
           "date": "2025-10-02",
@@ -973,7 +973,7 @@
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 184
+          "plays": 185
         },
         {
           "date": "2026-04-02",
@@ -1003,7 +1003,7 @@
         {
           "date": "2026-05-07",
           "title": "The Great Gatsby with Katy Carl",
-          "plays": 220
+          "plays": 221
         },
         {
           "date": "2026-05-14",
@@ -1023,12 +1023,12 @@
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 947
+          "plays": 949
         },
         {
           "date": "2026-06-11",
           "title": "James Fenimore Cooper with Dr. Wayne Franklin",
-          "plays": 855
+          "plays": 856
         },
         {
           "date": "2026-06-18",
@@ -1093,12 +1093,12 @@
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 736
+          "plays": 738
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 558
+          "plays": 578
         }
       ],
       "per_episode": [
@@ -1139,7 +1139,7 @@
         },
         {
           "month": "2026-03",
-          "avg": 128,
+          "avg": 129,
           "episodes": 4
         },
         {
@@ -1154,7 +1154,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 1072,
+          "avg": 1073,
           "episodes": 4
         },
         {
@@ -1169,7 +1169,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 724,
+          "avg": 732,
           "episodes": 3
         }
       ]
