@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-20T11:31:33.128Z",
+  "generated_at": "2026-09-20T16:12:24.813Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 318,
-      "plays": 76021,
+      "plays": 76081,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -149,7 +149,7 @@
         {
           "date": "2026-02-11",
           "title": "The Great Evangelical Hand-Off (That Never Happened) with Jake Meador",
-          "plays": 114
+          "plays": 115
         },
         {
           "date": "2026-02-18",
@@ -209,7 +209,7 @@
         {
           "date": "2026-05-06",
           "title": "Virtues For Living Well with Dr. Alan Noble",
-          "plays": 735
+          "plays": 736
         },
         {
           "date": "2026-05-13",
@@ -244,7 +244,7 @@
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3637
+          "plays": 3638
         },
         {
           "date": "2026-07-01",
@@ -279,32 +279,32 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3407
+          "plays": 3408
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3847
+          "plays": 3850
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3741
+          "plays": 3744
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3640
+          "plays": 3648
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3321
+          "plays": 3334
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 2702
+          "plays": 2727
         }
       ],
       "per_episode": [
@@ -470,7 +470,7 @@
         },
         {
           "month": "2020-04",
-          "avg": 26,
+          "avg": 27,
           "episodes": 4
         },
         {
@@ -795,7 +795,7 @@
         },
         {
           "month": "2026-02",
-          "avg": 155,
+          "avg": 156,
           "episodes": 4
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3502,
+          "avg": 3504,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3221,
+          "avg": 3236,
           "episodes": 3
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 52,
-      "plays": 20279,
+      "plays": 20289,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -1013,7 +1013,7 @@
         {
           "date": "2026-05-21",
           "title": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw",
-          "plays": 824
+          "plays": 825
         },
         {
           "date": "2026-05-28",
@@ -1038,7 +1038,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1315
+          "plays": 1316
         },
         {
           "date": "2026-07-02",
@@ -1058,7 +1058,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 978
+          "plays": 979
         },
         {
           "date": "2026-07-29",
@@ -1088,7 +1088,7 @@
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 879
+          "plays": 880
         },
         {
           "date": "2026-09-10",
@@ -1098,7 +1098,7 @@
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 581
+          "plays": 587
         }
       ],
       "per_episode": [
@@ -1169,7 +1169,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 733,
+          "avg": 736,
           "episodes": 3
         }
       ]
