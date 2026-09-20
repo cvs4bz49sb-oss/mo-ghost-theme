@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-20T16:12:24.813Z",
+  "generated_at": "2026-09-20T20:53:20.185Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 318,
-      "plays": 76081,
+      "plays": 76132,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -144,12 +144,12 @@
         {
           "date": "2026-02-04",
           "title": "Spiritual Formation: A Close Examination",
-          "plays": 266
+          "plays": 267
         },
         {
           "date": "2026-02-11",
           "title": "The Great Evangelical Hand-Off (That Never Happened) with Jake Meador",
-          "plays": 115
+          "plays": 116
         },
         {
           "date": "2026-02-18",
@@ -259,12 +259,12 @@
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3029
+          "plays": 3030
         },
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3422
+          "plays": 3424
         },
         {
           "date": "2026-07-29",
@@ -274,7 +274,7 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 3012
+          "plays": 3013
         },
         {
           "date": "2026-08-12",
@@ -284,27 +284,27 @@
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3850
+          "plays": 3851
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3744
+          "plays": 3746
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3648
+          "plays": 3652
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3334
+          "plays": 3346
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 2727
+          "plays": 2750
         }
       ],
       "per_episode": [
@@ -380,7 +380,7 @@
         },
         {
           "month": "2018-09",
-          "avg": 14,
+          "avg": 15,
           "episodes": 3
         },
         {
@@ -820,30 +820,30 @@
         },
         {
           "month": "2026-07",
-          "avg": 3351,
+          "avg": 3352,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3504,
+          "avg": 3505,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3236,
+          "avg": 3249,
           "episodes": 3
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 52,
-      "plays": 20289,
+      "plays": 20302,
       "earliest": "2025-07-24",
       "recent": [
         {
           "date": "2025-07-24",
           "title": "Introducing: Christians Reading Classics",
-          "plays": 153
+          "plays": 154
         },
         {
           "date": "2025-08-12",
@@ -893,12 +893,12 @@
         {
           "date": "2025-09-18",
           "title": "The Heart of a Dog - Mikhail Bulgakov with Vika Pechersky",
-          "plays": 60
+          "plays": 61
         },
         {
           "date": "2025-09-25",
           "title": "Sinclair Lewis - It Couldn't Happen Here with Daniel K. Williams",
-          "plays": 58
+          "plays": 59
         },
         {
           "date": "2025-10-02",
@@ -1058,7 +1058,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 979
+          "plays": 980
         },
         {
           "date": "2026-07-29",
@@ -1098,13 +1098,13 @@
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 587
+          "plays": 596
         }
       ],
       "per_episode": [
         {
           "month": "2025-07",
-          "avg": 153,
+          "avg": 154,
           "episodes": 1
         },
         {
@@ -1114,7 +1114,7 @@
         },
         {
           "month": "2025-09",
-          "avg": 90,
+          "avg": 91,
           "episodes": 4
         },
         {
@@ -1169,7 +1169,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 736,
+          "avg": 739,
           "episodes": 3
         }
       ]

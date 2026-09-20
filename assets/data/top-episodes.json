@@ -19,10 +19,22 @@
       "pubDate": "2026-08-19T05:00:00.000-04:00",
       "episode": 28,
       "season": 3,
-      "plays": 3850,
+      "plays": 3851,
       "embedUrl": "https://www.buzzsprout.com/2612792/19665503?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/what-is-a-man/"
+    },
+    {
+      "id": 19702000,
+      "title": "Postliberal Theology, Explained",
+      "slug": "postliberal-theology-explained",
+      "pubDate": "2026-08-26T04:00:00.000-04:00",
+      "episode": 29,
+      "season": 3,
+      "plays": 3746,
+      "embedUrl": "https://www.buzzsprout.com/2612792/19702000?client_source=small_player&iframe=true",
+      "hasTranscript": true,
+      "transcriptUrl": "/transcript/mere-fidelity/postliberal-theology-explained/"
     },
     {
       "id": 19242937,
@@ -35,18 +47,6 @@
       "embedUrl": "https://www.buzzsprout.com/2612792/19242937?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/idolatry-and-the-shape-of-worship/"
-    },
-    {
-      "id": 19702000,
-      "title": "Postliberal Theology, Explained",
-      "slug": "postliberal-theology-explained",
-      "pubDate": "2026-08-26T04:00:00.000-04:00",
-      "episode": 29,
-      "season": 3,
-      "plays": 3744,
-      "embedUrl": "https://www.buzzsprout.com/2612792/19702000?client_source=small_player&iframe=true",
-      "hasTranscript": true,
-      "transcriptUrl": "/transcript/mere-fidelity/postliberal-theology-explained/"
     },
     {
       "id": 19356094,
@@ -105,7 +105,7 @@
       "pubDate": "2026-07-23T05:00:00.000-04:00",
       "episode": 25,
       "season": 2,
-      "plays": 979,
+      "plays": 980,
       "embedUrl": "https://www.buzzsprout.com/2612793/19519735?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/the-idiot-by-fyodor-dostoevsky-with-maria-baer/"
