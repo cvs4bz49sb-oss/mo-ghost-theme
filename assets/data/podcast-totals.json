@@ -1,16 +1,11 @@
 {
-  "generated_at": "2026-09-23T04:50:20.430Z",
+  "generated_at": "2026-09-23T11:45:21.289Z",
   "shows": {
     "mere-fidelity": {
-      "episodes": 318,
-      "plays": 76882,
+      "episodes": 319,
+      "plays": 77853,
       "earliest": "2017-02-15",
       "recent": [
-        {
-          "date": "2025-06-04",
-          "title": "Your Vocation Isn't Radical Enough",
-          "plays": 60
-        },
         {
           "date": "2025-06-11",
           "title": "The Counterculture That Became The Culture",
@@ -104,7 +99,7 @@
         {
           "date": "2025-10-29",
           "title": "Replay: Reading Advice",
-          "plays": 141
+          "plays": 142
         },
         {
           "date": "2025-11-05",
@@ -169,7 +164,7 @@
         {
           "date": "2026-03-11",
           "title": "Delighting In The Ten Commandments",
-          "plays": 126
+          "plays": 127
         },
         {
           "date": "2026-03-18",
@@ -184,7 +179,7 @@
         {
           "date": "2026-04-01",
           "title": "Replay: The Age of AI with Jason Thacker",
-          "plays": 167
+          "plays": 168
         },
         {
           "date": "2026-04-08",
@@ -254,7 +249,7 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3935
+          "plays": 3936
         },
         {
           "date": "2026-07-15",
@@ -264,7 +259,7 @@
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3429
+          "plays": 3430
         },
         {
           "date": "2026-07-29",
@@ -279,32 +274,37 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3421
+          "plays": 3423
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3877
+          "plays": 3879
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3796
+          "plays": 3811
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3708
+          "plays": 3723
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3422
+          "plays": 3446
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3093
+          "plays": 3147
+        },
+        {
+          "date": "2026-09-23",
+          "title": "Why Is The Gospel of John So Unique?",
+          "plays": 849
         }
       ],
       "per_episode": [
@@ -465,7 +465,7 @@
         },
         {
           "month": "2020-03",
-          "avg": 15,
+          "avg": 16,
           "episodes": 5
         },
         {
@@ -530,7 +530,7 @@
         },
         {
           "month": "2021-04",
-          "avg": 31,
+          "avg": 32,
           "episodes": 4
         },
         {
@@ -800,7 +800,7 @@
         },
         {
           "month": "2026-03",
-          "avg": 213,
+          "avg": 214,
           "episodes": 4
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3528,
+          "avg": 3533,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3408,
-          "episodes": 3
+          "avg": 2791,
+          "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 52,
-      "plays": 20586,
+      "plays": 20608,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -928,7 +928,7 @@
         {
           "date": "2025-11-06",
           "title": "Reading Ancient Pagans As Modern Christians",
-          "plays": 113
+          "plays": 114
         },
         {
           "date": "2026-01-29",
@@ -968,12 +968,12 @@
         {
           "date": "2026-03-18",
           "title": "Mansfield Park by Jane Austen with Beatrice Scudeler",
-          "plays": 138
+          "plays": 139
         },
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 188
+          "plays": 190
         },
         {
           "date": "2026-04-02",
@@ -1013,7 +1013,7 @@
         {
           "date": "2026-05-21",
           "title": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw",
-          "plays": 827
+          "plays": 828
         },
         {
           "date": "2026-05-28",
@@ -1033,17 +1033,17 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1180
+          "plays": 1181
         },
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1325
+          "plays": 1329
         },
         {
           "date": "2026-07-02",
           "title": "The Declaration of Independence with Matthew Spalding and Jake Meador",
-          "plays": 858
+          "plays": 859
         },
         {
           "date": "2026-07-09",
@@ -1058,7 +1058,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 988
+          "plays": 990
         },
         {
           "date": "2026-07-29",
@@ -1078,27 +1078,27 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 906
+          "plays": 907
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 854
+          "plays": 856
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 897
+          "plays": 899
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 759
+          "plays": 760
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 676
+          "plays": 679
         }
       ],
       "per_episode": [
@@ -1124,7 +1124,7 @@
         },
         {
           "month": "2025-11",
-          "avg": 113,
+          "avg": 114,
           "episodes": 1
         },
         {
@@ -1139,7 +1139,7 @@
         },
         {
           "month": "2026-03",
-          "avg": 132,
+          "avg": 133,
           "episodes": 4
         },
         {
@@ -1154,22 +1154,22 @@
         },
         {
           "month": "2026-06",
-          "avg": 1079,
+          "avg": 1080,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 858,
+          "avg": 859,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 874,
+          "avg": 875,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 777,
+          "avg": 779,
           "episodes": 3
         }
       ]
