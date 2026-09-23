@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-23T17:09:04.186Z",
+  "generated_at": "2026-09-23T21:33:30.873Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 319,
-      "plays": 78547,
+      "plays": 78826,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -44,7 +44,7 @@
         {
           "date": "2025-08-13",
           "title": "Should I Stay Or Should I Go (From My Denomination)?",
-          "plays": 138
+          "plays": 139
         },
         {
           "date": "2025-08-20",
@@ -84,7 +84,7 @@
         {
           "date": "2025-10-08",
           "title": "Do You Need Penal Substitution?",
-          "plays": 299
+          "plays": 300
         },
         {
           "date": "2025-10-15",
@@ -129,7 +129,7 @@
         {
           "date": "2026-01-21",
           "title": "Paul and the Resurrection of Israel with Dr. Jason Staples",
-          "plays": 165
+          "plays": 166
         },
         {
           "date": "2026-01-28",
@@ -169,7 +169,7 @@
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 350
+          "plays": 351
         },
         {
           "date": "2026-03-25",
@@ -204,7 +204,7 @@
         {
           "date": "2026-05-06",
           "title": "Virtues For Living Well with Dr. Alan Noble",
-          "plays": 739
+          "plays": 740
         },
         {
           "date": "2026-05-13",
@@ -249,7 +249,7 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3936
+          "plays": 3939
         },
         {
           "date": "2026-07-15",
@@ -274,37 +274,37 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3424
+          "plays": 3426
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3883
+          "plays": 3884
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3817
+          "plays": 3829
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3736
+          "plays": 3742
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3459
+          "plays": 3469
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3169
+          "plays": 3182
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 1476
+          "plays": 1700
         }
       ],
       "per_episode": [
@@ -725,7 +725,7 @@
         },
         {
           "month": "2024-08",
-          "avg": 49,
+          "avg": 50,
           "episodes": 4
         },
         {
@@ -750,7 +750,7 @@
         },
         {
           "month": "2025-05",
-          "avg": 112,
+          "avg": 113,
           "episodes": 1
         },
         {
@@ -790,7 +790,7 @@
         },
         {
           "month": "2026-01",
-          "avg": 129,
+          "avg": 130,
           "episodes": 2
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3536,
+          "avg": 3540,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2960,
+          "avg": 3023,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 52,
-      "plays": 20633,
+      "plays": 20643,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -943,7 +943,7 @@
         {
           "date": "2026-02-12",
           "title": "The Education of Henry Adams with Leah Libresco Sargeant | America 250",
-          "plays": 66
+          "plays": 67
         },
         {
           "date": "2026-02-19",
@@ -993,7 +993,7 @@
         {
           "date": "2026-04-23",
           "title": "Thomas Aquinas For Protestants with Miles Smith",
-          "plays": 186
+          "plays": 188
         },
         {
           "date": "2026-05-01",
@@ -1083,7 +1083,7 @@
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 856
+          "plays": 857
         },
         {
           "date": "2026-09-03",
@@ -1098,7 +1098,7 @@
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 687
+          "plays": 693
         }
       ],
       "per_episode": [
@@ -1134,7 +1134,7 @@
         },
         {
           "month": "2026-02",
-          "avg": 86,
+          "avg": 87,
           "episodes": 4
         },
         {
@@ -1164,12 +1164,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 875,
+          "avg": 876,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 784,
+          "avg": 786,
           "episodes": 3
         }
       ]
