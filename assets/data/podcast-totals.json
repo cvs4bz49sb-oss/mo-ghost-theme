@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-24T04:58:37.888Z",
+  "generated_at": "2026-09-24T11:53:51.303Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 319,
-      "plays": 79109,
+      "plays": 79296,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -14,7 +14,7 @@
         {
           "date": "2025-06-18",
           "title": "This Is Bavinck's Moment with Dr. John Bolt",
-          "plays": 57
+          "plays": 58
         },
         {
           "date": "2025-06-25",
@@ -179,7 +179,7 @@
         {
           "date": "2026-04-01",
           "title": "Replay: The Age of AI with Jason Thacker",
-          "plays": 169
+          "plays": 170
         },
         {
           "date": "2026-04-08",
@@ -249,7 +249,7 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3940
+          "plays": 3941
         },
         {
           "date": "2026-07-15",
@@ -274,7 +274,7 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3428
+          "plays": 3429
         },
         {
           "date": "2026-08-19",
@@ -284,27 +284,27 @@
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3835
+          "plays": 3840
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3745
+          "plays": 3751
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3483
+          "plays": 3492
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3200
+          "plays": 3219
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 1919
+          "plays": 2062
         }
       ],
       "per_episode": [
@@ -755,7 +755,7 @@
         },
         {
           "month": "2025-06",
-          "avg": 67,
+          "avg": 68,
           "episodes": 4
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3542,
+          "avg": 3543,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3087,
+          "avg": 3131,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
-      "episodes": 52,
-      "plays": 20666,
+      "episodes": 53,
+      "plays": 20813,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -903,7 +903,7 @@
         {
           "date": "2025-10-02",
           "title": "Flannery O'Connor - A Good Man Is Hard To Find with Jon Parrish Peede",
-          "plays": 135
+          "plays": 136
         },
         {
           "date": "2025-10-09",
@@ -973,7 +973,7 @@
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 190
+          "plays": 191
         },
         {
           "date": "2026-04-02",
@@ -1068,7 +1068,7 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 980
+          "plays": 981
         },
         {
           "date": "2026-08-13",
@@ -1088,17 +1088,22 @@
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 903
+          "plays": 905
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 763
+          "plays": 764
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
           "plays": 702
+        },
+        {
+          "date": "2026-09-24",
+          "title": "Howard Thurman For Our Time with Myles Werntz",
+          "plays": 141
         }
       ],
       "per_episode": [
@@ -1169,8 +1174,8 @@
         },
         {
           "month": "2026-09",
-          "avg": 789,
-          "episodes": 3
+          "avg": 628,
+          "episodes": 4
         }
       ]
     }
