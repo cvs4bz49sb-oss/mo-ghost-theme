@@ -932,8 +932,11 @@
     const preview=window.MOCollectedContents?.preview(w.id)||"";
     const details=window.MOCollectedContents?.disclosure(w.id)||"";
     const inner = `<span class="brow-t">${escapeHtml(w.title || w.id)}</span>${sub}${second2}${vol}${preview}`;
+    // Facsimile or digital text, and the other edition's volume, when the work is
+    // held both ways (faith-editions.js; outside the link — the slot holds links).
+    const edition = window.MOEditions ? window.MOEditions.slot(w.url) : "";
     if (w.readable !== false && w.url) {
-      return `<li${contents?' class="frcw-volume"':""}><a href="${escapeHtml(w.url)}">${inner}</a>${details}</li>`;
+      return `<li${contents?' class="frcw-volume"':""}><a href="${escapeHtml(w.url)}">${inner}</a>${edition}${details}</li>`;
     }
     return `<li class="faith-room-pending"><span class="faith-room-row">${inner}</span></li>`;
   }

@@ -6828,6 +6828,30 @@ mark.faith-find-hit.is-current {
   text-transform: uppercase; color: var(--color-muted); margin-top: 3px; }
 .bband--dark .brow-m { color: #ffffff8a; }
 
+/* ── Two editions of one work (faith-editions.js, 2026-09-22) ──────────
+   A work held both as a facsimile and as a born-digital text says which
+   edition this row is, and links the other edition's matching volume. The
+   line sits under the row's link, never inside it. */
+.fr-ed:empty { display: none; }
+/* In a bookmarkable row (li.frb-row: the link, then the bookmark button, on one
+   flex line) the edition line takes a line of its own under both. */
+.frb-row:has(> .fr-ed:not(:empty)) { flex-wrap: wrap; }
+.frb-row > .fr-ed { flex: 1 0 100%; order: 3; margin-top: -4px; }
+.fr-ed { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px;
+  margin: -6px 0 12px; font-family: var(--font-body); font-size: 12px;
+  line-height: 1.4; color: var(--color-muted); }
+.fr-ed-chip { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--color-dark); border: 1px solid var(--color-card-border); padding: 1px 6px; }
+.fr-ed-chip.fac { border-style: double; border-width: 3px; padding: 0 5px; }
+/* .blist a is a whole-row link (a block, or a grid in the folded room lists, whose
+   rule comes later in this file); these are small inline links inside the row, so
+   the selector outranks both rather than relying on order. */
+.fr-ed .fr-ed-also a, .blist .fr-ed .fr-ed-also a { display: inline; padding: 0;
+  color: var(--color-dark); text-decoration: underline; text-underline-offset: 3px; }
+.fr-ed-also a:hover { color: var(--color-secondary); }
+.bband--dark .fr-ed, .bband--dark .fr-ed-chip, .bband--dark .fr-ed-also a { color: #ffffffb3; }
+.bband--dark .fr-ed-chip { border-color: #ffffff4d; }
+
 /* ── A volume, in the order it was printed ─────────────────────────────
    The contents of one Patrologia volume are not an index of names but a
    printed object with a sequence, so the row carries what a reader holding

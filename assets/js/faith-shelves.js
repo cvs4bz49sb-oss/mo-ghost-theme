@@ -290,6 +290,14 @@
       ((relations && relations.duplicates) || []).forEach((grp) => {
         (grp.others || []).forEach((s) => drop.add(s));
       });
+      // A born-digital text of a work held in facsimile is a second EDITION, not a
+      // copy (corpus owner, 2026-09-05 and 2026-09-22): both stay on the shelf and
+      // faith-editions.js marks which is which. witnesses.json still lists some of
+      // these digital editions (Gerhard's Confessio, Liber I, among them), so the
+      // edition pairs are taken back out of the fold here. True copies still fold.
+      ((relations && relations.complementary_witnesses) || []).forEach((grp) => {
+        [...(grp.fac || []), ...(grp.dig || [])].forEach((s) => drop.delete(s));
+      });
       return drop;
     });
     return dupSetPromise;
@@ -341,7 +349,8 @@
     const meta = w.pages ? `<span class="brow-m">${w.pages.toLocaleString()} pp.</span>` : "";
     const blurb = w.blurb ? `<span class="brow-blurb">${escapeHtml(w.blurb)}</span>` : "";
     const inner = `<span class="brow-t">${escapeHtml(w.title)}</span>${blurb}${meta}`;
-    return `<li><a href="${escapeHtml(w.url)}">${inner}</a></li>`;
+    const edition = window.MOEditions ? window.MOEditions.slot(w.url) : "";
+    return `<li><a href="${escapeHtml(w.url)}">${inner}</a>${edition}</li>`;
   }
 
   // An author heading carries their page total alongside their name
