@@ -27,7 +27,7 @@
      emails/weekly-digest-tool/ in the MOCA repo. Changes there should
      be mirrored here in assets/js/digest/. The two diverge only by
      the moDigestAsset() lookup added to email-template.jsx and the
-     window-global lookup in app.jsx. --}}
+     window-global lookup in app-v2.jsx. --}}
 
 <main class="admin-page admin-workspace">
 
@@ -83,7 +83,7 @@
           window.MODigestStore.ready() before mounting. Builder state lives
           in D1 via mo-admin; localStorage is only a cache. --}}
     <script src="{{asset "js/digest/store-sync.js"}}"></script>
-    <script src="{{asset "js/digest/app.js"}}"></script>
+    <script src="{{asset "js/digest/app-v2.js"}}"></script>
 
   {{else}}
     {{> "admin-denied"}}

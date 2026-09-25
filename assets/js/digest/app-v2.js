@@ -833,6 +833,52 @@
       })
     }
   };
+  const RECOVERED_EMAILS = [
+    {
+      // Source: "The Faith Received Launch Email Marketing" (Google Doc),
+      // Email #1. Kit subject: "NEW RESOURCE: The treasures of church
+      // history have been opened".
+      id: "recovered_tfr_launch_1",
+      label: "TFR Launch \xB7 Email #1",
+      content: {
+        ...DEFAULT_CONTENT,
+        issueNumber: "",
+        dateStr: "September 28, 2026",
+        mastheadTitle: "",
+        editorTitle: "Introducing \u2018The Faith Received\u2019",
+        editorBody: [
+          "**I don\u2019t know if I\u2019ve ever been more excited to tell you about something than I am right now.**",
+          "Today, Mere Orthodoxy is releasing a brand new resource called [The Faith Received](https://thefaithreceived.com). I want to tell you the story behind it but I might need to save that for another time.",
+          "[The Faith Received](https://thefaithreceived.com) is an online library with over 30,000 primary sources across tradition and the history of the church\u2014thousands of which are translated into English for the first time ever\u2014made publicly available, practically usable, and beautifully readable.",
+          "Augustine, Aquinas, Calvin, Melanchton, Polanus, Suarez, the Church Fathers, and so *so many more*.",
+          "Every work has been fully indexed and organized by scripture, topic, author, and tradition. It includes premium research tools designed to make the primary sources easily accessible for laity, pastors, and academics alike.",
+          "**We believe that the Christian tradition is the Christian\u2019s inheritance, and the tradition wasn\u2019t meant to sit on a shelf, but to be read, used, passed on, and treasured.**",
+          "I truly don\u2019t think I can do this resource justice in a launch email. You\u2019ll just have to see for yourself.",
+          "Features include full scripture and topic indexes, keyword search, and Research tools such as Ask, power search, compare, connections, English/Latin or Greek/Page Scan side-by-side, author pages, and, well, much much more.",
+          "[The Faith Received](https://thefaithreceived.com) is launching today in beta. We\u2019re making the Research tools free for subscribers with limited use. When the beta is over, the Research tools will be for Members only and the usage capacity will significantly increase.",
+          "We made this resource for the **pastors** who want to bring the riches of the whole tradition to their church, for those with **doubts** who want to know what the church has taught on any given subject, for the **academics** who want an easy way to explore primary sources for their research, for the **bible study and small group leaders** who want to prepare their lessons with depth and breadth, and for the **anyone** who is trying to find their place in the faith.",
+          "We hope this resource serves the Church today and for generations to come.",
+          "Please take a look at [The Faith Received](https://thefaithreceived.com), the newest resource from Mere Orthodoxy today."
+        ].join("\n\n"),
+        signatureKey: "ian",
+        // Full default order with everything but the letter and signature
+        // switched off. A short order would have the missing keys spliced
+        // back in on the next load, with no `false` to keep them hidden.
+        sectionOrder: [...DEFAULT_SECTION_ORDER],
+        sections: {
+          letter: true,
+          membership: false,
+          sponsorTop: false,
+          essays: false,
+          podcasts: false,
+          dailyLiturgy: false,
+          sponsorBottom: false,
+          signature: true
+        },
+        customBlocks: []
+      }
+    }
+  ];
   function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onPushKit, onTemplate, onSave, onRestore, onHistory, savedAt, justSaved }) {
     const Tab = ({ active, onClick, children }) => /* @__PURE__ */ React.createElement("button", { onClick, style: {
       background: active ? "#2d2927" : "transparent",
@@ -1085,7 +1131,16 @@
           marginBottom: 8,
           background: i === 0 ? "#f5ecdb" : "#fff"
         } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("p", { style: { margin: 0, fontSize: 14, fontWeight: 700, color: "#2d2927" } }, label(c), i === 0 ? /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, fontWeight: 700, color: "#1d9e75", letterSpacing: "0.08em", textTransform: "uppercase", marginLeft: 6 } }, "Latest") : null), sub ? /* @__PURE__ */ React.createElement("p", { style: { margin: "2px 0 0", fontSize: 12.5, color: "#6b6660", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, sub) : null, /* @__PURE__ */ React.createElement("p", { style: { margin: "4px 0 0", fontSize: 11, color: "#9a8773" } }, "Saved ", fmt(h.savedAt))), /* @__PURE__ */ React.createElement("button", { onClick: () => onRestore(h.id), style: { background: "#ee7d51", color: "#fff", border: "none", padding: "8px 14px", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: 9, cursor: "pointer", whiteSpace: "nowrap" } }, "Use this"), /* @__PURE__ */ React.createElement("button", { onClick: () => onDelete(h.id), title: "Delete this saved version", style: { background: "transparent", color: "#9a8773", border: "1.5px solid #d8c4a3", padding: "8px 10px", fontSize: 11, fontWeight: 700, borderRadius: 9, cursor: "pointer" } }, "Delete"));
-      })))
+      }), RECOVERED_EMAILS.length ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("p", { style: { margin: "18px 4px 8px", fontSize: 11, fontWeight: 700, color: "#9a8773", letterSpacing: "0.12em", textTransform: "uppercase" } }, "Recovered emails"), RECOVERED_EMAILS.map((r) => /* @__PURE__ */ React.createElement("div", { key: r.id, style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        padding: "12px",
+        borderRadius: 10,
+        border: "1px dashed #d8c4a3",
+        marginBottom: 8,
+        background: "#fff"
+      } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ React.createElement("p", { style: { margin: 0, fontSize: 14, fontWeight: 700, color: "#2d2927" } }, r.label), /* @__PURE__ */ React.createElement("p", { style: { margin: "2px 0 0", fontSize: 12.5, color: "#6b6660", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, r.content.editorTitle), /* @__PURE__ */ React.createElement("p", { style: { margin: "4px 0 0", fontSize: 11, color: "#9a8773" } }, "Never saved here. Click Save after opening it to keep your edits.")), /* @__PURE__ */ React.createElement("button", { onClick: () => onRestore(r.id), style: { background: "#ee7d51", color: "#fff", border: "none", padding: "8px 14px", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: 9, cursor: "pointer", whiteSpace: "nowrap" } }, "Use this")))) : null))
     );
   }
   function loadSavedContent() {
@@ -1212,10 +1267,12 @@
       setContent(JSON.parse(JSON.stringify(prev.content)));
     };
     const handleRestoreVersion = (id) => {
-      const entry = history.find((h) => h.id === id);
+      const recovered = RECOVERED_EMAILS.find((r) => r.id === id);
+      const entry = recovered || history.find((h) => h.id === id);
       if (!entry) return;
       if (!window.confirm("Use this saved version as your current draft? This replaces what you have now.")) return;
       setContent(JSON.parse(JSON.stringify(entry.content)));
+      if (recovered && typeof window.resetKitDraftId === "function") window.resetKitDraftId();
       setHistoryOpen(false);
     };
     const handleDeleteVersion = (id) => {

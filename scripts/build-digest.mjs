@@ -38,7 +38,8 @@ const SOURCES = [
   "content-editor-v2.jsx",
   "export-html.jsx",
   "kit-push.jsx",
-  "app.jsx",
+  // -v2 for the same reason as content-editor-v2 above.
+  "app-v2.jsx",
 ];
 
 const checkMode = process.argv.includes("--check");
