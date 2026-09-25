@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-24T21:34:21.080Z",
+  "generated_at": "2026-09-25T05:03:46.403Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 319,
-      "plays": 79647,
+      "plays": 79784,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -149,7 +149,7 @@
         {
           "date": "2026-02-18",
           "title": "Replay: Put Social Media In Its Place with Andy Crouch",
-          "plays": 89
+          "plays": 90
         },
         {
           "date": "2026-02-25",
@@ -159,7 +159,7 @@
         {
           "date": "2026-03-04",
           "title": "The Spirituality of Aliens",
-          "plays": 154
+          "plays": 155
         },
         {
           "date": "2026-03-11",
@@ -179,7 +179,7 @@
         {
           "date": "2026-04-01",
           "title": "Replay: The Age of AI with Jason Thacker",
-          "plays": 170
+          "plays": 171
         },
         {
           "date": "2026-04-08",
@@ -249,7 +249,7 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3942
+          "plays": 3943
         },
         {
           "date": "2026-07-15",
@@ -264,7 +264,7 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2915
+          "plays": 2916
         },
         {
           "date": "2026-08-05",
@@ -274,37 +274,37 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3433
+          "plays": 3435
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3889
+          "plays": 3891
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3849
+          "plays": 3852
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3761
+          "plays": 3764
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3507
+          "plays": 3511
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3247
+          "plays": 3270
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 2302
+          "plays": 2395
         }
       ],
       "per_episode": [
@@ -650,7 +650,7 @@
         },
         {
           "month": "2023-04",
-          "avg": 55,
+          "avg": 56,
           "episodes": 2
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3548,
+          "avg": 3550,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3204,
+          "avg": 3235,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 53,
-      "plays": 21060,
+      "plays": 21134,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -878,7 +878,7 @@
         {
           "date": "2025-08-28",
           "title": "The Nicene Creed with Shawn Wilhite and Coleman Ford",
-          "plays": 100
+          "plays": 101
         },
         {
           "date": "2025-09-04",
@@ -888,7 +888,7 @@
         {
           "date": "2025-09-11",
           "title": "C. S. Lewis - That Hideous Strength with Philip D. Bunn and Ronni Kurtz",
-          "plays": 168
+          "plays": 169
         },
         {
           "date": "2025-09-18",
@@ -978,7 +978,7 @@
         {
           "date": "2026-04-02",
           "title": "Moby Dick by Herman Melville with Christina Bieber Lake",
-          "plays": 155
+          "plays": 156
         },
         {
           "date": "2026-04-09",
@@ -1018,7 +1018,7 @@
         {
           "date": "2026-05-28",
           "title": "Augustine's Confessions with Joey Sherrard",
-          "plays": 1111
+          "plays": 1112
         },
         {
           "date": "2026-06-04",
@@ -1038,12 +1038,12 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1330
+          "plays": 1332
         },
         {
           "date": "2026-07-02",
           "title": "The Declaration of Independence with Matthew Spalding and Jake Meador",
-          "plays": 859
+          "plays": 860
         },
         {
           "date": "2026-07-09",
@@ -1058,7 +1058,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 994
+          "plays": 996
         },
         {
           "date": "2026-07-29",
@@ -1083,27 +1083,27 @@
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 865
+          "plays": 867
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 913
+          "plays": 914
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 777
+          "plays": 779
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 720
+          "plays": 722
         },
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 334
+          "plays": 392
         }
       ],
       "per_episode": [
@@ -1149,7 +1149,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 142,
+          "avg": 143,
           "episodes": 4
         },
         {
@@ -1159,7 +1159,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 1081,
+          "avg": 1082,
           "episodes": 4
         },
         {
@@ -1169,12 +1169,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 879,
+          "avg": 880,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 686,
+          "avg": 702,
           "episodes": 4
         }
       ]
