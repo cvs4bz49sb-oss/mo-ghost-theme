@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-25T05:03:46.403Z",
+  "generated_at": "2026-09-25T11:56:24.413Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 319,
-      "plays": 79784,
+      "plays": 79860,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -24,7 +24,7 @@
         {
           "date": "2025-07-02",
           "title": "The Deep Weird of the Book of Daniel",
-          "plays": 74
+          "plays": 75
         },
         {
           "date": "2025-07-09",
@@ -104,7 +104,7 @@
         {
           "date": "2025-11-05",
           "title": "Jesus and The Law of Moses with Paul T. Sloan",
-          "plays": 146
+          "plays": 147
         },
         {
           "date": "2025-11-12",
@@ -174,7 +174,7 @@
         {
           "date": "2026-03-25",
           "title": "The Fall Before The Fall with Philip G. Porter",
-          "plays": 223
+          "plays": 224
         },
         {
           "date": "2026-04-01",
@@ -184,7 +184,7 @@
         {
           "date": "2026-04-08",
           "title": "Between Nature and Grace",
-          "plays": 181
+          "plays": 182
         },
         {
           "date": "2026-04-15",
@@ -199,12 +199,12 @@
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 491
+          "plays": 492
         },
         {
           "date": "2026-05-06",
           "title": "Virtues For Living Well with Dr. Alan Noble",
-          "plays": 742
+          "plays": 743
         },
         {
           "date": "2026-05-13",
@@ -214,7 +214,7 @@
         {
           "date": "2026-05-20",
           "title": "The Christian Life with Kelly Kapic",
-          "plays": 3637
+          "plays": 3638
         },
         {
           "date": "2026-05-27",
@@ -264,7 +264,7 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2916
+          "plays": 2917
         },
         {
           "date": "2026-08-05",
@@ -274,7 +274,7 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3435
+          "plays": 3436
         },
         {
           "date": "2026-08-19",
@@ -289,22 +289,22 @@
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3764
+          "plays": 3766
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3511
+          "plays": 3516
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3270
+          "plays": 3276
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 2395
+          "plays": 2444
         }
       ],
       "per_episode": [
@@ -435,7 +435,7 @@
         },
         {
           "month": "2019-09",
-          "avg": 14,
+          "avg": 15,
           "episodes": 4
         },
         {
@@ -555,7 +555,7 @@
         },
         {
           "month": "2021-09",
-          "avg": 49,
+          "avg": 50,
           "episodes": 4
         },
         {
@@ -670,7 +670,7 @@
         },
         {
           "month": "2023-08",
-          "avg": 140,
+          "avg": 141,
           "episodes": 1
         },
         {
@@ -760,7 +760,7 @@
         },
         {
           "month": "2025-07",
-          "avg": 84,
+          "avg": 85,
           "episodes": 4
         },
         {
@@ -780,7 +780,7 @@
         },
         {
           "month": "2025-11",
-          "avg": 108,
+          "avg": 109,
           "episodes": 4
         },
         {
@@ -805,12 +805,12 @@
         },
         {
           "month": "2026-04",
-          "avg": 253,
+          "avg": 254,
           "episodes": 5
         },
         {
           "month": "2026-05",
-          "avg": 2331,
+          "avg": 2332,
           "episodes": 4
         },
         {
@@ -820,7 +820,7 @@
         },
         {
           "month": "2026-07",
-          "avg": 3362,
+          "avg": 3363,
           "episodes": 5
         },
         {
@@ -830,14 +830,14 @@
         },
         {
           "month": "2026-09",
-          "avg": 3235,
+          "avg": 3251,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 53,
-      "plays": 21134,
+      "plays": 21160,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -918,7 +918,7 @@
         {
           "date": "2025-10-23",
           "title": "T.S. Eliot - The Hollow Men with Eric Hutchinson",
-          "plays": 134
+          "plays": 135
         },
         {
           "date": "2025-10-30",
@@ -973,7 +973,7 @@
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 191
+          "plays": 192
         },
         {
           "date": "2026-04-02",
@@ -1093,17 +1093,17 @@
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 779
+          "plays": 780
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 722
+          "plays": 723
         },
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 392
+          "plays": 414
         }
       ],
       "per_episode": [
@@ -1174,7 +1174,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 702,
+          "avg": 708,
           "episodes": 4
         }
       ]
