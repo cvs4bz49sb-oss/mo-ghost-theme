@@ -153,8 +153,13 @@
     const yearByAuthor = {};
     authors.forEach((a) => { if (a.y != null) yearByAuthor[a.a] = a.y; });
 
-    const authorRows = authors.slice(0, MAX_AUTHORS_SHOWN).map((a) => {
-      const dates = a.y != null ? `<span class="faith-topic-author-year">b. ${a.y}</span>` : "";
+    // "Heaviest first" by the number each row shows. The file ranks its roster by pages (n), which read as a scramble
+    // beside position counts (corpus owner's review, 2026-09-26). `dt` is the author's recorded dates ("1646–1716",
+    // "d. 1327", "fl. c. 1300"); `y` is only the first year in them, so it is not called a birth year.
+    const ranked = authors.slice().sort((x, y) => (y.np || 0) - (x.np || 0) || (y.n || 0) - (x.n || 0));
+    const authorRows = ranked.slice(0, MAX_AUTHORS_SHOWN).map((a) => {
+      const shown = (a.dt && !/^unknown$/i.test(a.dt) ? a.dt : "") || (a.y != null ? String(a.y) : "");
+      const dates = shown ? `<span class="faith-topic-author-year">${escapeHtml(shown)}</span>` : "";
       return `<a class="faith-topic-author-row" href="${authorUrl(a.s)}">`
         + `<span class="faith-topic-author-name">${escapeHtml(a.a)}</span>${dates}`
         + `<span class="faith-topic-author-count">${a.np.toLocaleString()} position${a.np === 1 ? "" : "s"}</span>`
