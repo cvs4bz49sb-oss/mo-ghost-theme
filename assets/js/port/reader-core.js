@@ -5041,13 +5041,15 @@ if(fst){
   fst.addEventListener("pointercancel",()=>{dn=false;tx=ty=null;fst.classList.remove("grabbing");});
 }
 // page nav (‹ ›, ← →) + sidebar close (×, [ )
-function stepFolio(dir){const c=$("#reading").querySelector('.folio[data-page="'+cur+'"]');if(!c)return;let e=c;while(e=(dir>0?e.nextElementSibling:e.previousElementSibling)){if(e.classList&&e.classList.contains("folio")){rememberReaderChoice(e.dataset.page);jump(e.dataset.page);return;}}}  // step to the next/prev RENDERED folio (skips hidden blank pages)
+function stepFolio(dir){const c=$("#reading").querySelector('.folio[data-page="'+cur+'"]');if(!c)return;let e=c;while(e=(dir>0?e.nextElementSibling:e.previousElementSibling)){if(e.classList&&e.classList.contains("folio")){rememberReaderChoice(e.dataset.page);jump(e.dataset.page);return;}}
+  try{volStep(dir);}catch(_){}}   /* no folio that way: the volume continues in the neighbouring work */  // step to the next/prev RENDERED folio (skips hidden blank pages)
 $("#pPrev").onclick=()=>stepFolio(-1);$("#pNext").onclick=()=>stepFolio(1);
 {const a=$("#fPrev"),b=$("#fNext");
  const stepScan=d=>{const pgs=DATA&&DATA.pages;if(!pgs)return stepFolio(d);
    const i2=pgs.findIndex(x=>String(x.n)===String(cur));const nx=pgs[i2+d];
    if(nx){rememberReaderChoice(nx.n);window.__folioLock=Date.now()+1600;jump(nx.n);setTimeout(()=>setFolio(nx),80);
-     if(window.__jumpSettle)setTimeout(()=>window.__jumpSettle(nx.n),900);}};
+     if(window.__jumpSettle)setTimeout(()=>window.__jumpSettle(nx.n),900);}
+    else{try{volStep(d);}catch(_){}}};
  if(a)a.onclick=()=>stepScan(-1);if(b)b.onclick=()=>stepScan(1);}   // page-turn from the scan header (the only nav on a phone's full-screen scan)
 {const pj=$("#pgJump");if(pj){const go=e=>{const value=e.target.value.trim(),opening=window.FRMigneNavigation?.openingKey(DATA,value)??value,exact=DATA&&DATA.pages.find(x=>String(x.n)===String(opening)),p=/^\d+$/.test(value)?Number(value):null;
    if(exact)goReaderReference(exact);   // exact printed label; a new choice replaces the arrival target
@@ -5156,6 +5158,7 @@ function wireVolTravel(volWord,volN,meId,prefix,store){
     if(!sp||!sp.works||!sp.works.length)return;
     const nav=document.getElementById("nav");
     const i=sp.works.findIndex(x=>+x.id===meId);
+    window.__volCtx={volWord,volN,meId,prefix,store,sp,i};   /* VOLUME CONTINUITY (owner 2026-09-26): the ends of a work continue into its neighbours */
     if(nav&&!document.getElementById("volnav")){
       const box=document.createElement("div");box.id="volnav";
       // NESTED SPINE (owner 2026-08-18 'the site shows nested, here it is flat'):
@@ -5191,7 +5194,7 @@ function wireVolTravel(volWord,volN,meId,prefix,store){
       // Folded, as it is on the corpus site. Forty-six rows standing open between the
       // reader and the outline is why the volume could only be reached by scrolling
       // past it; a summary that names the volume puts it in front of them instead.
-      box.innerHTML=`<details class="vncontents"><summary class="vnhead">Browse ${volWord} ${volN}</summary><div class=vnhead><span>Volume navigation</span>`+
+      box.innerHTML=`<details class="vncontents"><summary class="vnhead">Browse ${volWord} ${volN}${i>=0?` &middot; ${i+1} of ${sp.works.length}`:""}</summary><div class=vnhead><span>Volume navigation</span>`+
         `<span class=vnnav>${sp.prev?`<a target="_blank" rel="noopener" href="/the-faith-received/read/?w=${prefix}-${sp.prev.first}" title="${volWord} ${sp.prev.vol}">&#8249; ${volWord} ${sp.prev.vol}</a>`:""}`+
         `${sp.next?`<a target="_blank" rel="noopener" href="/the-faith-received/read/?w=${prefix}-${sp.next.first}" title="${volWord} ${sp.next.vol}">${volWord} ${sp.next.vol} &#8250;</a>`:""}</span></div><div class="vnlist">`+rows+`</div></details>`;
       nav.appendChild(box);
@@ -5213,6 +5216,7 @@ function wireVolTravel(volWord,volN,meId,prefix,store){
         ?`<span class=vk>Next in ${volWord} ${volN}</span><a href="${nxUrl}">${esc(nx.t||"")} &#8250;</a>`
         :(sp.next?`<span class=vk>End of ${volWord} ${volN}</span><a href="${nxUrl}">Continue into ${volWord} ${sp.next.vol} &#8250;</a>`:"");
       if(band.innerHTML)R.appendChild(band);
+      try{volPrevBand(R,sp,i,volWord,volN,prefix);volGapPlates(band,nx,1);}catch(e){}
       // CONTINUOUS VOLUME SCROLLING (owner 2026-08-27): scrolling past the end of a work
       // flows into the next one — once the band is in view, a deliberate further
       // downward scroll (350px accumulated) advances in the SAME tab.
@@ -5245,6 +5249,35 @@ function wireVolTravel(volWord,volN,meId,prefix,store){
   const t=setInterval(()=>{if(window.__readerBuilt){clearInterval(t);wire();}},700);
   setTimeout(()=>clearInterval(t),30000);
 }
+// VOLUME CONTINUITY (owner 2026-09-26 "PL should smoothly move across works within the volume; PG the same, with plates"):
+// a work's first page steps back into the previous work of the volume, its last page forward into the next (keyboard, the scan
+// header's arrows, and the bands at either end); PG shows the plates of columns no work holds so nothing in the volume is skipped.
+function volUrl(w,dir,prefix){const source=new URL(location.href).searchParams.get('src');let u=`/the-faith-received/read/?w=${prefix}-${w.id}`;
+  if(prefix==='pg'&&['grc','grcla','la','ocr'].includes(source))u+='&src='+source;
+  const col=w?.c?(dir>0?w.c[0]:w.c[1]):null;if(col!=null){const c=encodeURIComponent(String(col));if(prefix==='pg')u+='&p='+c;u+='#b'+c+'-0';}
+  return u;}
+function volNeighbor(dir){const V=window.__volCtx;if(!V||!V.sp)return Promise.resolve(null);const w=V.i>=0?V.sp.works[V.i+dir]:null;
+  if(w)return Promise.resolve({w,url:volUrl(w,dir,V.prefix)});
+  const nb=dir>0?V.sp.next:V.sp.prev;if(!nb)return Promise.resolve(null);
+  if(dir>0)return Promise.resolve({w:{id:nb.first},url:`/the-faith-received/read/?w=${V.prefix}-${nb.first}`,vol:nb.vol});
+  return fetch(BLOB+"/v1/"+V.store+"/"+nb.vol+".json").then(r=>r.ok?r.json():null).then(sp2=>{const last=sp2?.works?.[sp2.works.length-1];return last?{w:last,url:volUrl(last,-1,V.prefix),vol:nb.vol}:null;}).catch(()=>null);}
+function volStep(dir){if(window.__volStepping)return;if(DATA&&DATA.__loadRest)return;   /* a streaming work is not at its end yet */
+  window.__volStepping=true;volNeighbor(dir).then(t=>{if(t&&t.url)location.href=t.url;else window.__volStepping=false;}).catch(()=>{window.__volStepping=false;});}
+function volPrevBand(R,sp,i,volWord,volN,prefix){if(!R||document.getElementById("volprev"))return;const pv=i>0?sp.works[i-1]:null;
+  const band=document.createElement("div");band.id="volprev";
+  if(pv)band.innerHTML=`<a href="${volUrl(pv,-1,prefix)}">&#8249; ${esc(pv.t||"")}</a><span class=vk>Previous in ${volWord} ${volN}</span>`;
+  else if(sp.prev)band.innerHTML=`<a href="/the-faith-received/read/?w=${prefix}-${sp.prev.first}">&#8249; ${volWord} ${sp.prev.vol}</a><span class=vk>Start of ${volWord} ${volN}</span>`;
+  if(!band.innerHTML)return;const first=R.querySelector('.folio');if(first&&first.parentNode)first.parentNode.insertBefore(band,first);else R.prepend(band);
+  volGapPlates(band,pv,-1);}
+function volGapPlates(band,nb,dir){const V=window.__volCtx;if(!band||!nb||!nb.c||!V||V.prefix!=='pg'||!DATA||!DATA.pages||!DATA.pages.length)return;
+  const ns=DATA.pages.map(x=>+x.n).filter(Boolean);if(!ns.length)return;const lo=Math.min(...ns),hi=Math.max(...ns);
+  const a=dir>0?hi+(hi%2?2:1):nb.c[1]+(nb.c[1]%2?2:1),b=dir>0?nb.c[0]-1:lo-1;   /* the columns between the two works, odd-keyed openings */
+  if(!(b>=a)||b-a>60)return;const url=window.__PGPV_URL;if(!url)return;window.__pgpvCache=window.__pgpvCache||{};
+  (window.__pgpvCache[url]=window.__pgpvCache[url]||fetch(url).then(r=>r.ok?r.text():null).catch(()=>null)).then(x=>{if(!x)return;
+    const plates=[];for(const m of x.matchAll(/<surface[^>]*\bn="(\d+)"[^>]*facs="([^"]+)"/g)){const n=+m[1];if(n>=a&&n<=b&&n%2)plates.push([n,m[2]]);}
+    if(!plates.length)return;const g=document.createElement("div");g.className="volgap";
+    g.innerHTML=`<span class=vk>Plates ${a}&#8211;${b} belong to no work in this volume</span><div class=vgrow>`+plates.map(([n,f])=>`<a href="${esc(f)}" target="_blank" rel="noopener" title="Columns ${n}&#8211;${n+1}"><img src="${esc(f)}" loading="lazy" alt="Plate ${n}"><span>${n}&#8211;${n+1}</span></a>`).join("")+`</div>`;
+    if(dir>0)band.before(g);else band.after(g);});}
 // SOURCE-LANE SELECTOR (PG/PO): the source column can carry more than one witness —
 // PG: Greek (vision) · Latin (Migne's facing column) · OCR (the scholarios diplomatic
 // floor the graeca site never exposed); PO: the original script · the fascicle's printed
