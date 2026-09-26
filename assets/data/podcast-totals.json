@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-26T16:28:13.531Z",
+  "generated_at": "2026-09-26T21:14:48.253Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 319,
-      "plays": 80270,
+      "plays": 80340,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -29,7 +29,7 @@
         {
           "date": "2025-07-09",
           "title": "Is \"Covenant\" Overused?",
-          "plays": 53
+          "plays": 54
         },
         {
           "date": "2025-07-16",
@@ -79,7 +79,7 @@
         {
           "date": "2025-10-01",
           "title": "Replay: Thinking For Yourself",
-          "plays": 49
+          "plays": 50
         },
         {
           "date": "2025-10-08",
@@ -129,7 +129,7 @@
         {
           "date": "2026-01-21",
           "title": "Paul and the Resurrection of Israel with Dr. Jason Staples",
-          "plays": 168
+          "plays": 170
         },
         {
           "date": "2026-01-28",
@@ -144,7 +144,7 @@
         {
           "date": "2026-02-11",
           "title": "The Great Evangelical Hand-Off (That Never Happened) with Jake Meador",
-          "plays": 119
+          "plays": 120
         },
         {
           "date": "2026-02-18",
@@ -244,7 +244,7 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3483
+          "plays": 3484
         },
         {
           "date": "2026-07-08",
@@ -269,42 +269,42 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 3021
+          "plays": 3022
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3440
+          "plays": 3442
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3899
+          "plays": 3901
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3870
+          "plays": 3874
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3783
+          "plays": 3785
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3540
+          "plays": 3544
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3343
+          "plays": 3346
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 2665
+          "plays": 2705
         }
       ],
       "per_episode": [
@@ -340,7 +340,7 @@
         },
         {
           "month": "2017-12",
-          "avg": 14,
+          "avg": 15,
           "episodes": 3
         },
         {
@@ -565,7 +565,7 @@
         },
         {
           "month": "2021-11",
-          "avg": 24,
+          "avg": 25,
           "episodes": 2
         },
         {
@@ -650,7 +650,7 @@
         },
         {
           "month": "2023-04",
-          "avg": 56,
+          "avg": 57,
           "episodes": 2
         },
         {
@@ -750,7 +750,7 @@
         },
         {
           "month": "2025-05",
-          "avg": 113,
+          "avg": 114,
           "episodes": 1
         },
         {
@@ -790,12 +790,12 @@
         },
         {
           "month": "2026-01",
-          "avg": 131,
+          "avg": 132,
           "episodes": 2
         },
         {
           "month": "2026-02",
-          "avg": 159,
+          "avg": 160,
           "episodes": 4
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3558,
+          "avg": 3560,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3333,
+          "avg": 3345,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 53,
-      "plays": 21310,
+      "plays": 21356,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -868,7 +868,7 @@
         {
           "date": "2025-08-12",
           "title": "Lewis Carroll - Alice in Wonderland with John Shelton",
-          "plays": 91
+          "plays": 92
         },
         {
           "date": "2025-08-21",
@@ -928,182 +928,182 @@
         {
           "date": "2025-11-06",
           "title": "Reading Ancient Pagans As Modern Christians",
-          "plays": 115
+          "plays": 116
         },
         {
           "date": "2026-01-29",
           "title": "America 250: Books American Christians Should Read | Season 2 Preview",
-          "plays": 88
+          "plays": 89
         },
         {
           "date": "2026-02-05",
           "title": "Narrative of the Life of Frederick Douglass with Shilo Brooks | America 250",
-          "plays": 99
+          "plays": 100
         },
         {
           "date": "2026-02-12",
           "title": "The Education of Henry Adams with Leah Libresco Sargeant | America 250",
-          "plays": 67
+          "plays": 68
         },
         {
           "date": "2026-02-19",
           "title": "Brave New World by Aldous Huxley with Katelyn Walls Shelton | America 250",
-          "plays": 104
+          "plays": 105
         },
         {
           "date": "2026-02-26",
           "title": "Uncle Toms Cabin by Harriet Beecher Stowe with Obbie Tyler Todd | America 250",
-          "plays": 77
+          "plays": 78
         },
         {
           "date": "2026-03-05",
           "title": "Wuthering Heights with Evie Solheim",
-          "plays": 96
+          "plays": 97
         },
         {
           "date": "2026-03-12",
           "title": "The Nichomachean Ethics by Aristotle with Sabrina Little | America 250",
-          "plays": 108
+          "plays": 109
         },
         {
           "date": "2026-03-18",
           "title": "Mansfield Park by Jane Austen with Beatrice Scudeler",
-          "plays": 139
+          "plays": 140
         },
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 192
+          "plays": 193
         },
         {
           "date": "2026-04-02",
           "title": "Moby Dick by Herman Melville with Christina Bieber Lake",
-          "plays": 156
+          "plays": 157
         },
         {
           "date": "2026-04-09",
           "title": "The Adventures of Tom Sawyer by Mark Twain with Ivana Greco and Dixie Dillon Lane",
-          "plays": 111
+          "plays": 112
         },
         {
           "date": "2026-04-16",
           "title": "The Scarlet Letter by Nathaniel Hawthorne with Jeff Bilbro | American 250",
-          "plays": 115
+          "plays": 116
         },
         {
           "date": "2026-04-23",
           "title": "Thomas Aquinas For Protestants with Miles Smith",
-          "plays": 188
+          "plays": 189
         },
         {
           "date": "2026-05-01",
           "title": "Great American Sermons with John Wilsey and Daniel K. Williams [FULL EPISODE]",
-          "plays": 136
+          "plays": 137
         },
         {
           "date": "2026-05-07",
           "title": "The Great Gatsby with Katy Carl",
-          "plays": 224
+          "plays": 225
         },
         {
           "date": "2026-05-14",
           "title": "Petrarch's Canzoniere with A. M. Juster",
-          "plays": 226
+          "plays": 227
         },
         {
           "date": "2026-05-21",
           "title": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw",
-          "plays": 829
+          "plays": 830
         },
         {
           "date": "2026-05-28",
           "title": "Augustine's Confessions with Joey Sherrard",
-          "plays": 1113
+          "plays": 1114
         },
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 953
+          "plays": 954
         },
         {
           "date": "2026-06-11",
           "title": "James Fenimore Cooper with Dr. Wayne Franklin",
-          "plays": 858
+          "plays": 859
         },
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1184
+          "plays": 1185
         },
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1335
+          "plays": 1336
         },
         {
           "date": "2026-07-02",
           "title": "The Declaration of Independence with Matthew Spalding and Jake Meador",
-          "plays": 861
+          "plays": 862
         },
         {
           "date": "2026-07-09",
           "title": "The Declaration of Independence and the Classics with Brad Birzer",
-          "plays": 761
+          "plays": 762
         },
         {
           "date": "2026-07-16",
           "title": "Jack London: An American Classic with Elizabeth Stice",
-          "plays": 779
+          "plays": 780
         },
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 999
+          "plays": 1000
         },
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 909
+          "plays": 910
         },
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 983
+          "plays": 984
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 761
+          "plays": 762
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 916
+          "plays": 917
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 874
+          "plays": 876
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 924
+          "plays": 927
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 789
+          "plays": 790
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 735
+          "plays": 737
         },
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 495
+          "plays": 501
         }
       ],
       "per_episode": [
@@ -1129,52 +1129,52 @@
         },
         {
           "month": "2025-11",
-          "avg": 115,
+          "avg": 116,
           "episodes": 1
         },
         {
           "month": "2026-01",
-          "avg": 88,
+          "avg": 89,
           "episodes": 1
         },
         {
           "month": "2026-02",
-          "avg": 87,
+          "avg": 88,
           "episodes": 4
         },
         {
           "month": "2026-03",
-          "avg": 134,
+          "avg": 135,
           "episodes": 4
         },
         {
           "month": "2026-04",
-          "avg": 143,
+          "avg": 144,
           "episodes": 4
         },
         {
           "month": "2026-05",
-          "avg": 506,
+          "avg": 507,
           "episodes": 5
         },
         {
           "month": "2026-06",
-          "avg": 1083,
+          "avg": 1084,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 862,
+          "avg": 863,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 884,
+          "avg": 885,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 736,
+          "avg": 739,
           "episodes": 4
         }
       ]
