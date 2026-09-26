@@ -158,9 +158,24 @@ function findVisible(node,clip=false){
   }
   return !clip||node.getClientRects().length>0&&rect.height>0&&rect.width>0;
 }
+// ONE PAINT, ONE STYLE READ PER ELEMENT (corpus owner 2026-09-25: "it starts searching when u enter but u type in h it lags").
+// findRuns asked findVisible for every text node, and findVisible walked every ancestor with getComputedStyle: a paragraph's
+// dozens of text nodes re-read the same chain each time, thousands of style reads per paint. Within one findPaint the answer
+// for an element cannot change, so it is kept (_findVis) and each element is read once. Same rules as findVisible(node).
+let _findVis=null;
+function findShown(el){
+  if(!_findVis)return findVisible(el);
+  if(!el||el.id==='scroll')return true;
+  if(_findVis.has(el))return _findVis.get(el);
+  const parent=el.parentElement;let shown=findShown(parent);
+  if(shown&&parent&&parent.tagName==='DETAILS'&&!parent.open&&el.tagName!=='SUMMARY')shown=false;
+  if(shown&&(el.hidden||el.getAttribute?.('aria-hidden')==='true'))shown=false;
+  if(shown){const style=getComputedStyle(el);if(style.display==='none'||style.visibility==='hidden'||style.visibility==='collapse'||style.contentVisibility==='hidden')shown=false;}
+  _findVis.set(el,shown);return shown;
+}
 function findRuns(root){
   const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(node){
-    const parent=node.parentElement;if(!node.nodeValue||!parent||parent.closest('script,style,button,input,textarea,sup,.fnref,.fn-ret,.pganchor,.la-rev,.rv-edit,.rowx,.rm-original,.rl,.fmark,.furn')||!findVisible(parent))return NodeFilter.FILTER_REJECT;
+    const parent=node.parentElement;if(!node.nodeValue||!parent||parent.closest('script,style,button,input,textarea,sup,.fnref,.fn-ret,.pganchor,.la-rev,.rv-edit,.rowx,.rm-original,.rl,.fmark,.furn')||!findShown(parent))return NodeFilter.FILTER_REJECT;
     return parent.closest('.en,.la,.hen,.hla,.csub,.mnote')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
   }});
   const runs=[];let node,last=null;
@@ -194,7 +209,7 @@ function findOccurrenceScore(candidate,selected){
 function _findUnpaint(){document.querySelectorAll('#reading mark.findhit').forEach(mark=>mark.replaceWith(...mark.childNodes));$('#reading')?.normalize();}
 function findPaint(){
   const selected=FIND.selected;FIND.obs?.disconnect();FIND.layoutObs?.disconnect();_findUnpaint();
-  const root=$('#reading'),occurrences=[];
+  const root=$('#reading'),occurrences=[];_findVis=new Map();
   if(FIND.terms.length&&root){
     const pattern=FIND.terms.slice().sort((a,b)=>b.length-a.length).map(term=>term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),rx=new RegExp(pattern,'gi');
     const ordinals=new Map();
@@ -216,6 +231,7 @@ function findPaint(){
       }
     }
   }
+  _findVis=null;
   FIND.occurrences=occurrences.filter(item=>item.marks.length&&item.marks.every(mark=>findVisible(mark,true)));FIND.marks=FIND.occurrences.map(item=>item.marks[0]);
   let index=selected?FIND.occurrences.findIndex(item=>item.key===selected.key):-1;
   if(index<0&&selected){let best=35;FIND.occurrences.forEach((item,i)=>{const score=findOccurrenceScore(item,selected);if(score>best){best=score;index=i;}});}
@@ -268,7 +284,12 @@ function _findBar(){
       +'<div class="findmeta"><span id="findCount" role="status" aria-live="polite"></span><span id="findHelp">In shown, loaded text</span><button type="button" id="findWholeWork" data-feature-gate="tfr-research">Search whole work</button></div>';
     const reading=$("#reading");if(reading)reading.before(b);else document.body.appendChild(b);
     const input=$("#findInput");
-    input.addEventListener("input",()=>{clearTimeout(FIND._inputTimer);FIND._inputTimer=setTimeout(()=>{findSet(input.value.trim()?[input.value.trim()]:[]);findScrollCur();},160);});
+    // AS YOU TYPE FROM THREE LETTERS (corpus owner 2026-09-25): "h" matched nearly every line of a work and froze the page
+    // before the second letter landed. One or two letters wait for Enter; a quarter-second pause, not every keystroke,
+    // starts a search.
+    input.addEventListener("input",()=>{clearTimeout(FIND._inputTimer);const value=input.value.trim();
+      if(value&&value.length<3){if(FIND.terms.length)findSet([]);$("#findCount").textContent="Press Enter to find \u201c"+value+"\u201d";return;}
+      FIND._inputTimer=setTimeout(()=>{findSet(value?[value]:[]);findScrollCur();},250);});
     input.addEventListener("keydown",e=>{
       if(e.isComposing)return;
       if(e.key==="Enter"){e.preventDefault();clearTimeout(FIND._inputTimer);
