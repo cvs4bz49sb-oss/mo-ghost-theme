@@ -208,10 +208,122 @@
     }
     return [...groups.values()];
   }
-  function sourceCollectionHTML(sources){
-    const groups=sourceGroups(sources);
-    const receipts=groups.slice(0,3).map(g=>{const s=g.source,href=sourceHref(s);return href?'<button class="fra-receipt" data-preview-source="'+esc(href)+'" data-preview-title="'+esc(titleOf(s))+'">'+icon('book')+'<span><strong>'+esc(titleOf(s))+'</strong><small>'+esc(s.author||catalogBySlug.get(s.slug)?.author||s.cit||s.cite||'Read source')+'</small></span>'+icon('chevron')+'</button>':'';}).join('');
-    return '<div class="fra-receipts" aria-label="Source previews">'+receipts+'</div><details class="fra-sources"><summary><span>All sources</span><small>'+sources.length+' passage'+(sources.length===1?'':'s')+' · '+groups.length+' work'+(groups.length===1?'':'s')+'</small></summary><div class="fra-source-groups">'+groups.map((g,i)=>'<details class="fra-source-work"'+(i===0?' open':'')+'><summary><span>'+esc(titleOf(g.source))+'</span><small>'+g.passages.length+' passage'+(g.passages.length===1?'':'s')+'</small></summary>'+g.passages.map(sourceCard).join('')+'</details>').join('')+'</div></details>';
+  // THE CHECK LINE (2026-09-24; the frontier report's move 5: say, on every answer, how often the cited page supports the
+// sentence). The server's support check reads each cited sentence against its page; every quotation left in the answer passed
+// the word-for-word check.
+function checkHTML(t){
+  const c=t&&t.status!=='running'&&t.check;if(!c||(!c.claims&&!c.quotes))return '';
+  const n=(k,one,many)=>esc(k)+' '+(k===1?one:many);
+  const parts=[];if(c.claims)parts.push(esc(c.supported)+' of '+n(c.claims,'cited statement','cited statements')+' supported'+(c.partial?' · '+esc(c.partial)+' in part':''));
+  if(c.quotes)parts.push(n(c.quotes,'quotation','quotations')+' verified word for word');
+  return '<p class="fra-coverage fra-check">Checked against the pages · '+parts.join(' · ')+
+    (c.removed?' · '+n(c.removed,'unsupported citation','unsupported citations')+' removed':'')+
+    (c.flags&&c.flags.length?' · '+n(c.flags.length,'statement','statements')+' marked in the answer':'')+'</p>';
+}
+  // THE WORKS FOUND SO FAR (2026-09-26; owner "fix 1-4"): while the research runs, the works it has met — so the first
+  // seconds show the evidence gathering, not a status line alone. Each opens its work beside the conversation.
+  function foundHTML(f){
+    const n=(k,one,many)=>esc(k)+' '+(k===1?one:many);
+    const chips=f.items.slice(0,8).map(x=>{const who=x.a?String(x.a).split(/[,(]/)[0].trim():'',label=(who?who+' · ':'')+x.w;
+      return '<button type="button" class="fra-found-chip" data-preview-source="'+esc(readURL(x.s))+'" data-preview-title="'+esc(x.w)+'" title="'+esc((x.a?x.a+' · ':'')+x.w)+'">'+esc(label.length>60?label.slice(0,58).trim()+'…':label)+'</button>';}).join('');
+    return '<div class="fra-found"><p class="fra-found-count">Found so far · '+n(f.works||f.items.length,'work','works')+(f.passages?' · '+n(f.passages,'passage','passages'):'')+'</p><div class="fra-found-chips">'+chips+((f.works||0)>8?'<span class="fra-found-more">and '+esc(f.works-8)+' more</span>':'')+'</div></div>';
+  }
+  // WHICH STATEMENTS THE CHECK COULD NOT FULLY CONFIRM (2026-09-26; owner "fix 1-4"): the server names each cited sentence the
+  // page supports only in part, or that its judge could not confirm; the citation that closes that sentence is marked in place.
+  function markFlags(answer,flags){
+    answer.querySelectorAll('.fra-flag').forEach(x=>x.remove());
+    answer.querySelectorAll('a.fra-cite.fra-cite-flagged').forEach(a=>{a.classList.remove('fra-cite-flagged');delete a.dataset.flag;});
+    const fold=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+    for(const f of flags||[]){
+      const want=fold(f.s).split(' ').slice(0,7).join(' ');if(!want)continue;
+      const chips=Array.from(answer.querySelectorAll('a.fra-cite[data-w="'+CSS.escape(f.w)+'"]')).filter(a=>citationKey(a.dataset.p)===citationKey(f.p));
+      const hit=chips.find(a=>fold((a.closest('p,li,td')||a.parentNode).textContent).includes(want))||(chips.length===1?chips[0]:null);
+      if(!hit||hit.classList.contains('fra-cite-flagged'))continue;
+      hit.classList.add('fra-cite-flagged');hit.dataset.flag=f.v;
+      const mark=document.createElement('span');mark.className='fra-flag';mark.dataset.v=f.v;mark.tabIndex=0;
+      mark.textContent=f.v==='partial'?'in part':'unconfirmed';
+      mark.title=f.v==='partial'?'The cited page supports only part of this statement.':'The check could not confirm this statement against the cited page.';
+      mark.setAttribute('aria-label',mark.title);hit.after(mark);
+    }
+  }
+  // CITATION PREVIEW (2026-09-26; owner "fix 1-4": "hovering over p. 314 could show the quoted passage and its Latin"). Hover or
+  // keyboard focus on a page chip shows, from the library's own page files, the paragraph of that page the answer quotes —
+  // the quotation marked — and beside it the Latin of the same paragraph. Touch keeps the plain link: tap still opens the page.
+  const citePop={el:null,timer:0,hide:0,for:null,seq:0},pageFiles=new Map();
+  function pageFile(url){if(!pageFiles.has(url))pageFiles.set(url,fetch(url).then(r=>r.ok?r.json():null).catch(()=>null));return pageFiles.get(url);}
+  async function pageTexts(slug,page){
+    const n=parseInt(String(page).replace(/^0+(?=\d)/,''),10);if(!slug||!Number.isFinite(n))return null;
+    const base=BASE+'/v1/works/'+encodeURIComponent(slug)+'/',meta=await pageFile(base+'meta.json');
+    const shard=meta&&(meta.shards||[]).find(x=>n>=+x.from&&n<=+x.to);if(!shard)return null;
+    const data=await pageFile(base+shard.file),pg=data&&(data.pages||[]).find(x=>+x.n===n);
+    return pg?{la:String(pg.la||''),en:String(pg.en||'')}:null;
+  }
+  function foldIndex(text){const out=[],map=[];for(let i=0;i<text.length;i++){const c=text[i].normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();for(const ch of c){if(/[a-z0-9]/.test(ch)){out.push(ch);map.push(i);}else if(out.length&&out[out.length-1]!==' '){out.push(' ');map.push(i);}}}return {s:out.join(''),map};}
+  function citeQuote(a){
+    const block=a.closest('p,li,td')||a.parentNode,prev=block&&block.previousElementSibling;
+    if(prev&&prev.tagName==='BLOCKQUOTE'&&block.textContent.length<300)return prev.textContent.trim();
+    const r=document.createRange();r.setStart(block,0);r.setEndBefore(a);const before=r.toString().trim();
+    const parts=before.split(/(?<=[.!?;:])\s+(?=\S)/);return (parts[parts.length-1]||before).trim();
+  }
+  function quotedParagraph(texts,quote){
+    const en=texts.en.split('\n').map(x=>x.trim()).filter(Boolean),la=texts.la.split('\n').map(x=>x.trim()).filter(Boolean);
+    const q=foldIndex(quote.replace(/^[“"']|[”"']$/g,'')).s.trim(),head=q.split(' ').slice(0,8).join(' '),tail=q.split(' ').slice(-6).join(' ');
+    let at=-1,from=-1,to=-1;
+    for(let i=0;i<en.length&&at<0;i++){const f=foldIndex(en[i]),k=head.length>=12?f.s.indexOf(head):-1;if(k>=0){at=i;from=f.map[k];const e=tail.length>=10?f.s.indexOf(tail,k):-1;to=e>=0?f.map[Math.min(f.map.length-1,e+tail.length-1)]+1:Math.min(en[i].length,from+quote.length);}}
+    if(at<0){let best=0;const want=new Set(q.split(' ').filter(w=>w.length>3));for(let i=0;i<en.length;i++){const have=new Set(foldIndex(en[i]).s.split(' '));let hits=0;want.forEach(w=>{if(have.has(w))hits++;});if(hits>best){best=hits;at=i;}}if(!want.size||best<Math.max(3,want.size*0.4))at=-1;}
+    if(at<0)return null;
+    let latin='';
+    if(la.length){const i=la.length===en.length?at:Math.min(la.length-1,Math.round(at*(la.length/Math.max(1,en.length))));latin=la[i];if(latin.length>700){const mid=Math.round((from>=0?from/Math.max(1,en[at].length):0.5)*latin.length);latin=(mid>350?'… ':'')+latin.slice(Math.max(0,mid-350),mid+350).trim()+(mid+350<latin.length?' …':'');}}
+    return {en:en[at],from,to,latin};
+  }
+  function citeSource(a){
+    const turn=a.closest('[data-turn]'),c=selected(),t=c&&turn&&c.turns.find(x=>x.id===turn.dataset.turn);
+    return t&&(t.src||[]).find(s=>s.slug===a.dataset.w&&citationKey(s.page)===citationKey(a.dataset.p))||null;
+  }
+  function hideCite(){clearTimeout(citePop.timer);clearTimeout(citePop.hide);if(citePop.el)citePop.el.hidden=true;if(citePop.for)citePop.for.removeAttribute('aria-describedby');citePop.for=null;}
+  function placeCite(a){
+    const pop=citePop.el,r=a.getBoundingClientRect(),w=Math.min(460,innerWidth-24);pop.style.width=w+'px';
+    const h=pop.offsetHeight,below=innerHeight-r.bottom>h+16||r.top<h+16;
+    pop.style.left=Math.max(12,Math.min(innerWidth-w-12,r.left-24))+'px';pop.style.top=(below?r.bottom+8:r.top-h-8)+'px';
+  }
+  async function showCite(a){
+    clearTimeout(citePop.hide);if(citePop.for===a&&citePop.el&&!citePop.el.hidden)return;
+    if(!citePop.el){citePop.el=document.createElement('div');citePop.el.className='fra-citepop';citePop.el.id='fra-citepop';citePop.el.setAttribute('role','dialog');citePop.el.setAttribute('aria-label','Cited page');panel.appendChild(citePop.el);}
+    const s=citeSource(a),href=a.getAttribute('href')||'',title=s?titleOf(s):(a.getAttribute('title')||'').replace(/^Open source in a new tab:\s*/,''),author=s&&s.author||'';
+    const seq=++citePop.seq;citePop.for=a;a.setAttribute('aria-describedby','fra-citepop');
+    const head='<p class="fra-citepop-head">'+(author?'<strong>'+esc(author)+'</strong> · ':'')+'<em>'+esc(title)+'</em> · '+esc(a.textContent.trim())+'</p>';
+    const actions='<div class="fra-citepop-actions"><button type="button" data-preview-source="'+esc(href)+'" data-preview-title="'+esc(title)+'">Read here</button><a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">Open page ↗</a></div>';
+    citePop.el.innerHTML=head+'<div class="fra-citepop-body"><p class="fra-citepop-wait">Reading the page…</p></div>'+actions;citePop.el.hidden=false;placeCite(a);
+    // never left on "Reading the page…": a page that has not arrived in eight seconds, or a failure, falls back to the source's own excerpt
+    let texts=null;try{texts=await Promise.race([pageTexts(a.dataset.w,a.dataset.p),new Promise(r=>setTimeout(()=>r(null),8000))]);}catch(_){texts=null;}
+    if(seq!==citePop.seq||citePop.for!==a)return;
+    let hit=null;try{hit=texts&&quotedParagraph(texts,citeQuote(a));}catch(_){hit=null;}
+    let body;
+    if(hit){const en=hit.from>=0?esc(hit.en.slice(0,hit.from))+'<mark>'+esc(hit.en.slice(hit.from,hit.to))+'</mark>'+esc(hit.en.slice(hit.to)):esc(hit.en);
+      body='<p class="fra-citepop-en">'+en+'</p>'+(hit.latin?'<p class="fra-citepop-la" lang="la"><span>Latin</span>'+esc(hit.latin)+'</p>':'');}
+    else{const excerpt=texts?(texts.en||texts.la).slice(0,420):(s&&s.quote||'');body=excerpt?'<p class="fra-citepop-en">'+esc(excerpt)+(excerpt.length>=420?'…':'')+'</p><p class="fra-citepop-note">The quoted words were not found on this page; its opening is shown.</p>':'<p class="fra-citepop-note">The page text is not available here. Open the page to read it.</p>';}
+    citePop.el.querySelector('.fra-citepop-body').innerHTML=body;placeCite(a);
+  }
+  function bindCitePreview(){
+    const hover=matchMedia('(hover: hover) and (pointer: fine)');
+    panel.addEventListener('pointerover',e=>{if(!hover.matches)return;if(e.target.closest('.fra-citepop')){clearTimeout(citePop.hide);return;}const a=e.target.closest('a.fra-cite[data-w]');if(!a)return;clearTimeout(citePop.hide);clearTimeout(citePop.timer);citePop.timer=setTimeout(()=>showCite(a),220);});
+    panel.addEventListener('pointerout',e=>{if(!e.target.closest('a.fra-cite[data-w],.fra-citepop'))return;const to=e.relatedTarget;if(to&&to.closest&&(to.closest('.fra-citepop')||(citePop.for&&to.closest('a.fra-cite')===citePop.for)))return;clearTimeout(citePop.timer);citePop.hide=setTimeout(hideCite,260);});
+    panel.addEventListener('focusin',e=>{const a=e.target.closest('a.fra-cite[data-w]');if(a)showCite(a);else if(!e.target.closest('.fra-citepop'))hideCite();});
+    panel.addEventListener('keydown',e=>{if(e.key==='Escape'&&citePop.el&&!citePop.el.hidden){const a=citePop.for;hideCite();a&&a.focus();e.stopPropagation();}},true);
+    panel.addEventListener('scroll',()=>{if(citePop.el&&!citePop.el.hidden)hideCite();},true);
+    panel.addEventListener('click',e=>{if(e.target.closest('.fra-citepop [data-preview-source]'))setTimeout(hideCite,0);});
+  }
+  function sourceCollectionHTML(sources,cited=[]){
+    // THE WORKS THE ANSWER CITES COME FIRST (2026-09-26; owner "fix 1-4"): the three receipts used to be the first three works
+    // the research gathered — Perkins, Pareus, Gerhard over an answer built on Rainolds and Chamier. `cited` is the answer's own
+    // citation order (its chips' works); the receipts are the first cited works, and the full list opens with them.
+    const all=sourceGroups(sources),rank=new Map(cited.map((w,i)=>[w,i])),isCited=g=>rank.has(g.source&&g.source.slug);
+    const citedGroups=all.filter(isCited).sort((a,b)=>rank.get(a.source.slug)-rank.get(b.source.slug));
+    const groups=[...citedGroups,...all.filter(g=>!isCited(g))];
+    // a volume shows beside its title, so two volumes of one work do not read as the same receipt twice (Rainolds, Censura I and II)
+    const label=s=>{const v=catalogBySlug.get(s.slug)?.volume;return titleOf(s)+(v&&!titleOf(s).includes(v)?' · '+v:'');};
+    const receipts=(citedGroups.length?citedGroups:groups).slice(0,3).map(g=>{const s=g.source,href=sourceHref(s);return href?'<button class="fra-receipt" data-preview-source="'+esc(href)+'" data-preview-title="'+esc(titleOf(s))+'">'+icon('book')+'<span><strong>'+esc(label(s))+'</strong><small>'+esc(s.author||catalogBySlug.get(s.slug)?.author||s.cit||s.cite||'Read source')+'</small></span>'+icon('chevron')+'</button>':'';}).join('');
+    return '<div class="fra-receipts" aria-label="Source previews">'+receipts+'</div><details class="fra-sources"><summary><span>All sources</span><small>'+sources.length+' passage'+(sources.length===1?'':'s')+' · '+groups.length+' work'+(groups.length===1?'':'s')+(citedGroups.length?' · '+citedGroups.length+' cited':'')+'</small></summary><div class="fra-source-groups">'+groups.map((g,i)=>'<details class="fra-source-work"'+(i===0?' open':'')+'><summary><span>'+esc(label(g.source))+'</span><small>'+g.passages.length+' passage'+(g.passages.length===1?'':'s')+(isCited(g)?' · cited':'')+'</small></summary>'+g.passages.map(sourceCard).join('')+'</details>').join('')+'</div></details>';
   }
   function commandMatches(query,items){
     const fold=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -279,14 +391,14 @@
          real address: link it, and say in the title that the page was not
          among the passages sent with the answer. Only a work the catalogue
          does not know stays "Unverified reference". */
-      if(!s){const w=catalogBySlug.get(slug);if(!w)return hold('<span class="fra-unverified-cite" title="This reference was not supplied with the answer">Unverified reference</span>');const href=readURL(slug,page,quoteBefore(whole,at));return hold('<a class="fra-cite fra-cite-unsent"'+sourceAttributes(href)+' title="Open in a new tab: '+esc((w.author?w.author+' · ':'')+(w.title||slug))+'. This page was not among the passages sent with the answer, so check it against the claim.">'+esc('p. '+page)+'</a>');}
+      if(!s){const w=catalogBySlug.get(slug);if(!w)return hold('<span class="fra-unverified-cite" title="This reference was not supplied with the answer">Unverified reference</span>');const href=readURL(slug,page,quoteBefore(whole,at));return hold('<a class="fra-cite fra-cite-unsent"'+sourceAttributes(href)+' data-w="'+esc(slug)+'" data-p="'+esc(String(page))+'" title="Open in a new tab: '+esc((w.author?w.author+' · ':'')+(w.title||slug))+'. This page was not among the passages sent with the answer, so check it against the claim.">'+esc('p. '+page)+'</a>');}
       // MereO delta (see quoteBefore above): the words just quoted become ?hl=.
       const said = s.quote || quoteBefore(whole, at);
-      return hold('<a class="fra-cite"'+sourceAttributes(sourceHref({...s,quote:said}))+' title="Open source in a new tab: '+esc((s.author?s.author+' · ':'')+titleOf(s))+'">'+esc(s.cit || s.cite || ('p. '+page))+'</a>');
+      return hold('<a class="fra-cite"'+sourceAttributes(sourceHref({...s,quote:said}))+' data-w="'+esc(s.slug)+'" data-p="'+esc(String(s.page))+'" title="Open source in a new tab: '+esc((s.author?s.author+' · ':'')+titleOf(s))+'">'+esc(s.cit || s.cite || ('p. '+page))+'</a>');
     });
     // MereO delta (see quoteBefore above): ?hl= here too, so a bare [PL 32:659]
     // chip opens the column at the sentence the answer just quoted.
-    out=out.replace(/\[([^\]\n]+)\]|\(((?:PL|PG|PO)\s*\d+\s*:\s*\d+[a-z]?)\)/g,(all,bracket,paren,at,whole)=>{const label=bracket||paren,src=sources.find(s=>citationKey(s.cit||s.cite)===citationKey(label));const said=src&&(src.quote||quoteBefore(whole,at));const href=src&&sourceHref({...src,quote:said});return href?hold('<a class="fra-cite"'+sourceAttributes(href)+' title="Open source in a new tab: '+esc((src.author?src.author+' · ':'')+titleOf(src))+'">'+esc(label)+'</a>'):all;});
+    out=out.replace(/\[([^\]\n]+)\]|\(((?:PL|PG|PO)\s*\d+\s*:\s*\d+[a-z]?)\)/g,(all,bracket,paren,at,whole)=>{const label=bracket||paren,src=sources.find(s=>citationKey(s.cit||s.cite)===citationKey(label));const said=src&&(src.quote||quoteBefore(whole,at));const href=src&&sourceHref({...src,quote:said});return href?hold('<a class="fra-cite"'+sourceAttributes(href)+(src.slug?' data-w="'+esc(src.slug)+'" data-p="'+esc(String(src.page??''))+'"':'')+' title="Open source in a new tab: '+esc((src.author?src.author+' · ':'')+titleOf(src))+'">'+esc(label)+'</a>'):all;});
     /* MereO delta (unmarked in the old copy, kept deliberately): ***both***
        renders as bold italic, and a stray run of asterisks the model leaves
        behind is dropped rather than printed. Upstream handles ** and * only,
@@ -520,14 +632,15 @@
   function createWorker() {
     /* MereO delta (unmarked in the old copy, kept deliberately): our
        ask-worker.js is ahead of the owner's, so it keeps OUR cache token,
-       v7g, not his v4. The token is also the SharedWorker NAME: a browser
+       v7h, not his v4 (7h on 2026-09-26: the worker keeps the works found
+       and the check's marked statements). The token is also the SharedWorker NAME: a browser
        that already owns fr-ask-v7g would keep serving the old script under
        a reused name, and every tab of a member mid-question would be
        answered by a worker without our member-bearer handling. Bump both
        together whenever ask-worker.js changes. The PATH comes from
        CFG.assetBase; only the version is ours. */
-    try { worker=new SharedWorker(CFG.assetBase+'ask-worker.js?v=7g',{name:'fr-ask-v7g'});port=worker.port;port.start(); }
-    catch(_){workerKind='tab';worker=new Worker(CFG.assetBase+'ask-worker.js?v=7g');port=worker;}
+    try { worker=new SharedWorker(CFG.assetBase+'ask-worker.js?v=7h',{name:'fr-ask-v7h'});port=worker.port;port.start(); }
+    catch(_){workerKind='tab';worker=new Worker(CFG.assetBase+'ask-worker.js?v=7h');port=worker;}
     port.onmessage=async({data})=>{
       if(data.type==='reply'){const r=replies.get(data.rid);if(r){clearTimeout(r.timer);replies.delete(data.rid);data.error?r.reject(new Error(data.error)):r.resolve();}}
       else if(data.type==='updated')scheduleRefresh();
@@ -703,18 +816,22 @@
       node.querySelector('.fra-turn-meta').textContent=turnModeLabel(t);
       node.dataset.state=t.status;node.querySelector('.fra-answer-label').hidden=!shownAnswer(t);
       const answerText=shownAnswer(t),sourceKey=JSON.stringify((t.src||[]).map(s=>[s.slug,s.page,s.link,s.cit,s.cite,titleOf(s)]));
-      if(answer.dataset.text!==answerText||answer.dataset.catalog!==String(catalogRevision)||answer.dataset.sources!==sourceKey){answer.dataset.sources=sourceKey;answer.dataset.catalog=String(catalogRevision);updateAnswer(answer,markdown(answerText,t.src||[]));answer.dataset.text=answerText;renderOutline(node,t,answer);}
+      if(answer.dataset.text!==answerText||answer.dataset.catalog!==String(catalogRevision)||answer.dataset.sources!==sourceKey){answer.dataset.sources=sourceKey;answer.dataset.catalog=String(catalogRevision);updateAnswer(answer,markdown(answerText,t.src||[]));answer.dataset.text=answerText;answer.dataset.rev=String((+answer.dataset.rev||0)+1);renderOutline(node,t,answer);}
+      const flags=(t.check&&t.check.flags)||[],flagKey=JSON.stringify(flags)+'|'+(answer.dataset.rev||'');
+      if(answer.dataset.flags!==flagKey){answer.dataset.flags=flagKey;markFlags(answer,flags);}
+      const cited=[...new Set(Array.from(answer.querySelectorAll('a.fra-cite[data-w]'),a=>a.dataset.w))];
       const progress=node.querySelector('.fra-progress');
       const stage=humanStage(t.stage||'Starting research');
       // While the turn runs, the steps already passed stay visible under the current one (the server used to go quiet for
       // ten seconds between 'Reading source passages' and 'Preparing the response'; now each verification batch reports).
       const done=t.status==='running'?(t.steps||[]).map(s=>humanStage(s.label)).filter((l,i,a)=>l&&l!==stage&&a.indexOf(l)===i).slice(-6):[];
-      const stageKey=t.status+'|'+stage+'|'+done.join('|');
-      if(progress.dataset.stage!==stageKey){progress.dataset.stage=stageKey;progress.dataset.kind=/writ|compos|synthesi/i.test(stage)?'writing':/read|batch|page/i.test(stage)?'reading':/check|gap|verif/i.test(stage)?'checking':'searching';progress.innerHTML=t.status==='running'?'<span class="fra-motion" aria-hidden="true"><i></i><i></i><i></i></span><span>'+esc(stage)+'</span><span class="fra-elapsed" data-start="'+t.ts+'">'+elapsed(t.ts)+'</span>'+(done.length?'<ol class="fra-steps-done" aria-label="Completed steps">'+done.map(l=>'<li>'+esc(l)+'</li>').join('')+'</ol>':''):t.status==='paused'?'<span>'+esc(stage)+'</span>':'';}
+      const found=t.status==='running'&&t.found&&t.found.items&&t.found.items.length?t.found:null;
+      const stageKey=t.status+'|'+stage+'|'+done.join('|')+'|'+(found?found.works+'/'+found.passages+'/'+found.items.map(f=>f.s).join(','):'');
+      if(progress.dataset.stage!==stageKey){progress.dataset.stage=stageKey;progress.dataset.kind=/writ|compos|synthesi/i.test(stage)?'writing':/read|batch|page/i.test(stage)?'reading':/check|gap|verif/i.test(stage)?'checking':'searching';progress.innerHTML=t.status==='running'?'<span class="fra-motion" aria-hidden="true"><i></i><i></i><i></i></span><span>'+esc(stage)+'</span><span class="fra-elapsed" data-start="'+t.ts+'">'+elapsed(t.ts)+'</span>'+(done.length?'<ol class="fra-steps-done" aria-label="Completed steps">'+done.map(l=>'<li>'+esc(l)+'</li>').join('')+'</ol>':'')+(found?foundHTML(found):''):t.status==='paused'?'<span>'+esc(stage)+'</span>':'';}
       const extra=node.querySelector('.fra-turn-extra');
       /* MereO delta: t.unverified joins the key, or the notice below would
          paint once and never update. */
-      const extrasKey=JSON.stringify([t.status,t.error,t.steps,t.src,t.stats,t.gaps,t.graph,t.unverified,catalogRevision]);
+      const extrasKey=JSON.stringify([t.status,t.error,t.steps,t.src,t.stats,t.gaps,t.graph,t.unverified,t.check,cited,catalogRevision]);
       if(extra.dataset.key!==extrasKey){extra.dataset.key=extrasKey;const openDetails=Array.from(extra.querySelectorAll('details[open]')).map(d=>d.classList.contains('fra-sources')?'sources':d.querySelector('summary').textContent.replace(/ ·.*$/,''));
         /* MereO delta: quotations the worker could not find in the passages
            this answer cites. It sits directly under the answer, above the
@@ -724,8 +841,8 @@
           ((t.unverified||[]).length?'<div class="fra-unverified"><p>'+((t.unverified.length===1)?'This quotation could not be found':'These quotations could not be found')+' in the passages this answer cites. Read the sources before relying on '+((t.unverified.length===1)?'it':'them')+'.</p><ul>'+t.unverified.map(x=>'<li>“'+esc(x)+'”</li>').join('')+'</ul></div>':'')+
           (t.steps&&t.steps.length?'<details class="fra-activity"><summary>Research activity · '+t.steps.length+' steps</summary><ol>'+t.steps.map(s=>'<li>'+esc(humanStage(s.label))+'</li>').join('')+'</ol></details>':'')+
           (t.gaps?'<details class="fra-activity"><summary>Gaps in the evidence</summary><ul class="fra-gaps">'+String(t.gaps).split('\n').filter(g=>g.trim()).map(g=>'<li>'+esc(g)+'</li>').join('')+'</ul></details>':'')+
-          (t.stats?'<p class="fra-coverage">'+esc(t.stats.unique||0)+' passages found'+(t.stats.capped?' · Scan capped; this is not complete coverage.':' · '+esc(t.stats.pages)+' pages loaded.')+'</p>':'')+
-          ((t.src||[]).length?sourceCollectionHTML(t.src):'');
+          checkHTML(t)+(t.stats?'<p class="fra-coverage">'+esc(t.stats.unique||0)+' passages found'+(t.stats.capped?' · Scan capped; this is not complete coverage.':' · '+esc(t.stats.pages)+' pages loaded.')+'</p>':'')+
+          ((t.src||[]).length?sourceCollectionHTML(t.src,cited):'');
         extra.querySelectorAll('details').forEach(d=>{if(openDetails.includes(d.classList.contains('fra-sources')?'sources':d.querySelector('summary').textContent.replace(/ ·.*$/,'')))d.open=true;});
       }
       const actions=node.querySelector('.fra-actions');
@@ -820,7 +937,7 @@
     panel.insertAdjacentHTML('beforeend','<dialog id="fra-command-dialog" class="fra-command" aria-labelledby="fra-command-title"><header><h2 id="fra-command-title">Find a conversation or action</h2><button type="button" class="fra-icon" data-command-close aria-label="Close command search">'+icon('close')+'</button></header><label class="fra-command-search">'+icon('search')+'<input id="fra-command-input" type="search" placeholder="Search conversations and actions" role="combobox" aria-label="Search conversations and actions" aria-autocomplete="list" aria-controls="fra-command-results" aria-expanded="false" autocomplete="off"></label><div id="fra-command-results" role="listbox" aria-label="Conversations and actions"></div><footer><span id="fra-command-count" role="status"></span><span>↑ ↓ Navigate · Enter Open · Esc Close</span></footer></dialog>');
     document.body.appendChild(panel);
     bindCommands();
-    panel.addEventListener('click',handleClick);
+    panel.addEventListener('click',handleClick);bindCitePreview();
     panel.addEventListener('toggle',e=>{const d=e.target;if(!(d instanceof HTMLDetailsElement)||!d.classList.contains('fra-folder')||historyFilter)return;const name=d.dataset.folder;if(d.open)foldersClosed.delete(name);else foldersClosed.add(name);if(S.setMeta)S.setMeta('folders-closed',[...foldersClosed]).catch(()=>{});},true);
     /* MereO delta, NOW EXPRESSED AS CONFIG: this handler used to navigate to
        a literal '/', which is the Library on the owner's domain and the Mere
@@ -1210,7 +1327,7 @@
     }catch(e){$('#fra-save-state').textContent=storageError||e.message;announce(storageError||e.message);}
   }
   async function close(){if(!panel||!visible)return;closeCommands();await flushDraft();forgetSource();visible=false;panel.hidden=true;expandedReaderAsk=false;document.documentElement.classList.remove('fra-open');syncPresentation();const focusTarget=focusBefore?.isConnected&&focusBefore.getClientRects().length&&!focusBefore.closest('[inert]')?focusBefore:[...document.querySelectorAll('#fra-launcher,.frthumb [data-t="ask"]')].find(e=>e.getClientRects().length&&!e.closest('[inert]'));focusTarget?.focus({preventScroll:true});await mirror();}
-  window.FRAsk={open,close,isOpen:()=>visible,markdown,readURL,sourceHref,sourceCard,sourceVisitURL,sourceGroups,sourceCollectionHTML,researchState,commandMatches,turnModeLabel,offersDeep,shownAnswer,shownError,deliveryIncomplete};
+  window.FRAsk={open,close,isOpen:()=>visible,markdown,readURL,sourceHref,sourceCard,sourceVisitURL,sourceGroups,sourceCollectionHTML,foundHTML,quotedParagraph,researchState,commandMatches,turnModeLabel,offersDeep,shownAnswer,shownError,deliveryIncomplete};
   function mountLauncher(launcher){
     const modes=document.querySelector('.desk-workspace-bar .desk-modes');
     if(modes){launcher.classList.add('fra-in-toolbar');modes.after(launcher);}

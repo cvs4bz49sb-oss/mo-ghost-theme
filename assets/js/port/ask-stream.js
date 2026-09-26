@@ -12,11 +12,11 @@
         else if (text.trim()) throw new Error('The research response was incomplete. Try again.');
         return;
       }
-      if (obj && (obj.t === 'p' || obj.t === 'k')) { if(obj.t==='p'&&obj.reset===true)emit({t:'replace',text:''});if(obj.t==='p'&&typeof obj.delta==='string')emit({t:'text',text:obj.delta});if (obj.t === 'p') emit({ t: 'progress', message: obj.m, ...(obj.approach ? { approach: obj.approach } : {}), ...(obj.completion==='complete'?{completion:'complete'}:{}),...(Array.isArray(obj.artifacts)?{artifacts:obj.artifacts}:{}),...(obj.corpusState?{corpusState:obj.corpusState}:{}) }); return; }
+      if (obj && (obj.t === 'p' || obj.t === 'k')) { if(obj.t==='p'&&obj.reset===true)emit({t:'replace',text:''});if(obj.t==='p'&&typeof obj.delta==='string')emit({t:'text',text:obj.delta});if (obj.t === 'p') emit({ t: 'progress', message: obj.m, ...(obj.approach ? { approach: obj.approach } : {}), ...(obj.completion==='complete'?{completion:'complete'}:{}),...(obj.check&&typeof obj.check==='object'?{check:obj.check}:{}),...(Array.isArray(obj.artifacts)?{artifacts:obj.artifacts}:{}),...(obj.corpusState?{corpusState:obj.corpusState}:{}),...(Array.isArray(obj.found)?{worksFound:obj.found,worksTotal:obj.works,passagesTotal:obj.passages}:{}) }); return; }
       if (obj && typeof obj.type === 'string') { // Cloudflare worker dialect
-        if (obj.type === 'progress') { emit({ t: 'progress', message: obj.message || '' }); return; }
+        if (obj.type === 'progress') { emit({ t: 'progress', message: obj.message || '', ...(Array.isArray(obj.found) ? { worksFound: obj.found, worksTotal: obj.works, passagesTotal: obj.passages } : {}) }); return; } // works found so far (2026-09-26)
         if (obj.type === 'delta') { if (!preamble) { preamble = true; emit({ t: 'sources', sources: [] }); } emit({ t: 'text', text: String(obj.text || '') }); return; }
-        if (obj.type === 'result') { preamble = true; emit({ t: 'sources', sources: obj.sources || [], unverified: obj.unverified || [] }); emit({ t: 'progress', message: '', completion: 'complete' }); return; }
+        if (obj.type === 'result') { preamble = true; emit({ t: 'sources', sources: obj.sources || [], unverified: obj.unverified || [] }); emit({ t: 'progress', message: '', completion: 'complete', ...(obj.check && typeof obj.check === 'object' ? { check: obj.check } : {}) }); return; } // the check line (2026-09-24/26)
         if (obj.type === 'error') throw new Error(String(obj.message || obj.error || 'Ask failed.'));
       }
       if (!preamble && obj && Array.isArray(obj.sources)) { preamble = true; emit({ t: 'sources', ...obj }); return; }
@@ -42,13 +42,13 @@
               let obj; try { obj = JSON.parse(text); } catch (_) {}
               if (obj && typeof obj.type === 'string') { // worker dialect mid-stream
                 if (obj.type === 'delta') emit({ t: 'text', text: String(obj.text || '') });
-                else if (obj.type === 'progress') emit({ t: 'progress', message: obj.message || '' });
-                else if (obj.type === 'result') { emit({ t: 'sources', sources: obj.sources || [], unverified: obj.unverified || [] }); emit({ t: 'progress', message: '', completion: 'complete' }); }
+                else if (obj.type === 'progress') emit({ t: 'progress', message: obj.message || '', ...(Array.isArray(obj.found) ? { worksFound: obj.found, worksTotal: obj.works, passagesTotal: obj.passages } : {}) });
+                else if (obj.type === 'result') { emit({ t: 'sources', sources: obj.sources || [], unverified: obj.unverified || [] }); emit({ t: 'progress', message: '', completion: 'complete', ...(obj.check && typeof obj.check === 'object' ? { check: obj.check } : {}) }); } // the check line rides the result frame (2026-09-26)
                 else if (obj.type === 'error') throw new Error(String(obj.message || 'Ask failed.'));
                 buffer = n < 0 ? '' : buffer.slice(n + 1); continue;
               }
               if (obj && (obj.t === 'p' || obj.t === 'k')) {
-                if(obj.t==='p'&&obj.reset===true)emit({t:'replace',text:''});if(obj.t==='p'&&typeof obj.delta==='string')emit({t:'text',text:obj.delta});if (obj.t === 'p') emit({ t: 'progress', message: obj.m, ...(obj.approach ? { approach: obj.approach } : {}), ...(obj.completion==='complete'?{completion:'complete'}:{}),...(Array.isArray(obj.artifacts)?{artifacts:obj.artifacts}:{}),...(obj.corpusState?{corpusState:obj.corpusState}:{}) });
+                if(obj.t==='p'&&obj.reset===true)emit({t:'replace',text:''});if(obj.t==='p'&&typeof obj.delta==='string')emit({t:'text',text:obj.delta});if (obj.t === 'p') emit({ t: 'progress', message: obj.m, ...(obj.approach ? { approach: obj.approach } : {}), ...(obj.completion==='complete'?{completion:'complete'}:{}),...(obj.check&&typeof obj.check==='object'?{check:obj.check}:{}),...(Array.isArray(obj.artifacts)?{artifacts:obj.artifacts}:{}),...(obj.corpusState?{corpusState:obj.corpusState}:{}),...(Array.isArray(obj.found)?{worksFound:obj.found,worksTotal:obj.works,passagesTotal:obj.passages}:{}) });
                 buffer = n < 0 ? '' : buffer.slice(n + 1); continue;
               }
             }

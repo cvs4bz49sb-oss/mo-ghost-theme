@@ -1714,3 +1714,140 @@ html:not(.mo-embedded) .fra {
    competes with fra-history-open. */
 #fra-workspace.fra-history-collapsed .fra-sidebar { display: none; }
 
+
+/* ── 2026-09-26, the corpus owner's "fix 1-4" (see ask-workspace.js) ──────────
+   THE WORKS FOUND SO FAR. While research runs, the works the library has met
+   so far, one chip each; a chip opens its work in the source pane.
+   THE STATEMENT THE CHECK COULD NOT CONFIRM. The citation that closes it gets
+   a dashed ring and a small "in part" / "unconfirmed" badge.
+   THE CITATION PREVIEW. Hover or keyboard focus on a page chip: the page's
+   paragraph the answer quotes, the quotation marked, and its Latin beneath.
+   Tokens only, so the dark palette follows; no motion. */
+.fra-found {
+  flex-basis: 100%;
+  display: grid;
+  gap: 6px;
+  margin: 6px 0 0 25px;
+}
+.fra-found-count {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.fra-found-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fra-found-chip {
+  max-width: 100%;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--fra-fg);
+  background: var(--fra-card);
+  border: 1px solid var(--color-card-border);
+  border-radius: 999px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.fra-found-chip:hover,
+.fra-found-chip:focus-visible {
+  color: var(--color-primary-text);
+  border-color: var(--color-primary-text);
+}
+.fra-found-more {
+  align-self: center;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.fra-cite.fra-cite-flagged {
+  outline: 1px dashed var(--color-muted);
+  outline-offset: 1px;
+}
+.fra-flag {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 5px;
+  font-size: 0.72em;
+  line-height: 1.5;
+  vertical-align: 0.06em;
+  color: var(--color-muted);
+  border: 1px dashed var(--color-muted);
+  border-radius: 4px;
+  white-space: nowrap;
+  cursor: help;
+}
+.fra-flag:focus-visible {
+  outline: 2px solid var(--color-primary-text);
+  outline-offset: 1px;
+}
+.fra-citepop {
+  position: fixed;
+  z-index: 2147483000;
+  max-height: min(70vh, 520px);
+  overflow: auto;
+  padding: 14px 16px 12px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--fra-fg);
+  background: var(--fra-card);
+  border: 1px solid var(--color-card-border);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+}
+.fra-citepop[hidden] { display: none; }
+.fra-citepop-head {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.fra-citepop-head strong { color: var(--fra-fg); font-weight: 600; }
+.fra-citepop-body p { margin: 0 0 10px; }
+.fra-citepop-en { font-size: 16px; }
+.fra-citepop-en mark {
+  padding: 0 1px;
+  color: inherit;
+  background: var(--color-cream);
+  border-radius: 2px;
+}
+.fra-citepop-la {
+  padding-left: 10px;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--color-muted);
+  border-left: 2px solid var(--color-card-border);
+}
+.fra-citepop-la span {
+  display: block;
+  margin-bottom: 2px;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.fra-citepop-wait,
+.fra-citepop-note { font-size: 13px; color: var(--color-muted); }
+.fra-citepop-actions {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-top: 2px;
+  padding-top: 9px;
+  font-size: 14px;
+  border-top: 1px solid var(--color-card-border);
+}
+.fra-citepop-actions button {
+  padding: 0;
+  font: inherit;
+  color: var(--color-primary-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.fra-citepop-actions a { color: var(--color-primary-text); }

@@ -74,6 +74,11 @@ async function run(id, turnId, request, job) {
       if(ev.corpusState&&Array.isArray(ev.corpusState.queries))turn.corpusState=ev.corpusState;
       if(ev.protocol===2)turn.expectsReceipt=true;
       if(ev.completion==='complete')turn.receivedComplete=true;
+      if(ev.check&&typeof ev.check==='object')turn.check={claims:+ev.check.claims||0,supported:+ev.check.supported||0,partial:+ev.check.partial||0,removed:+ev.check.removed||0,quotes:+ev.check.quotes||0,
+        // the statements the page supports only in part, or that the check could not confirm (2026-09-26): marked in place
+        flags:(Array.isArray(ev.check.flags)?ev.check.flags:[]).slice(0,20).map(f=>({w:String(f&&f.w||''),p:String(f&&f.p||''),v:f&&f.v==='partial'?'partial':'unconfirmed',s:String(f&&f.s||'').slice(0,200)})).filter(f=>f.w&&f.p&&f.s)};
+      // the works the research has met so far, shown while it runs (2026-09-26): the stream sends them before the answer
+      if(Array.isArray(ev.worksFound))turn.found={items:ev.worksFound.slice(0,12).map(f=>({s:String(f&&f.s||''),a:String(f&&f.a||''),w:String(f&&f.w||'')})).filter(f=>f.s),works:+ev.worksTotal||0,passages:+ev.passagesTotal||0};
       if(ev.relevance==='unrelated')turn.outOfScope=true;
       if (ev.approach && ['ask','deep'].includes(ev.approach.mode)) {
         turn.approach = { mode: ev.approach.mode, automatic: ev.approach.automatic === true, recommended:ev.approach.recommended==='deep'?'deep':null,
