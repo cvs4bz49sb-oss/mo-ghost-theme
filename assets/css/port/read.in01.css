@@ -47,6 +47,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
    summoned so opening it never reflows the reading column. */
 .sidebar{position:absolute;left:0;top:var(--phh,64px);bottom:0;z-index:30;width:300px;background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:transform .26s var(--ease),box-shadow .26s var(--ease);box-shadow:10px 0 44px -24px rgba(80,50,20,.6)}
 .app.nosb .sidebar{transform:translateX(-100%);box-shadow:none}
+/* PEEK (owner 2026-09-26 "the sizing of the preview … looks unprofessional"): a reader framed as a preview (?peek=1) keeps its
+   contents drawer closed and reads a step smaller; the visitor's own type choices are untouched (nothing here is saved). */
+html.peek .app .sidebar,html.peek #sbScrim{display:none!important}
+html.peek body{font-size:17px}
+html.peek #app{--ensz:.94}
 /* the drawer floats over the un-reflowed column, so a scrim must dim what it covers — at every
    width, not just phones (it was mobile-only; desktop showed raw text crowding the drawer edge) */
 #sbScrim{position:fixed;inset:0;z-index:25;background:rgba(45,41,39,.38);opacity:0;pointer-events:none;transition:opacity .25s}
@@ -1788,6 +1793,7 @@ a.plref:hover{color:var(--accent);border-bottom-style:solid}
 .row.soloen>.la,.row.solola>.en{display:none}
 .row.soloen>.en,.row.solola>.la{max-width:68ch;margin-inline:auto}
 .row.rapp.soloen>.en,.row.rapp.solola>.la{max-width:none;margin-inline:0}   /* apparatus notes read as a BAND, not centered prose (owner 2026-08-28 screenshot) */
+.vnsw{display:block;font:600 .74rem/1.6 var(--sans);color:var(--muted);padding:.2rem .6rem .1rem}.vnsw select.vnsel{font:inherit;font-size:.78rem;max-width:14rem;margin-left:.35rem;color:var(--ink);background:var(--paper,#fff);border:1px solid var(--border);border-radius:4px;padding:.1rem .3rem}
 #volnext{margin:2.5rem auto 3rem;max-width:44rem;display:flex;align-items:baseline;gap:.8rem;justify-content:center;
  padding:.9rem 1.2rem;border-radius:12px;background:var(--card-bg);box-shadow:0 0 0 1px var(--border)}
 #volnext .vk{font:600 .74rem/1 var(--sans);color:var(--muted)}

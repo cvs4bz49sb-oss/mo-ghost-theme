@@ -2035,3 +2035,214 @@ main#frAuthorOwn form.srow button {
    should look like timeline"). The canvas paints no background of its
    own, so the page shows through. */
 #faith-web-constellations .cn-stage{background:transparent;border:0;border-radius:0}
+
+/* ── THE WORK PAGE'S SCRIPTURE IN THE LIBRARY'S DRESS (corpus owner, 2026-09-26:
+   "change the color layout and UX for Work page … to match his professional
+   style (the pills, etc)"). Skin only, scoped to main.research-work, in the
+   room's own terms: chapter chips are thin-line boxes with a terracotta bar and
+   a terracotta fill when chosen; a citation's kind is a small-caps word, not a
+   pill; Open and Preview are one joined group with Open outlined as the primary;
+   rows sit on hairlines; the preview is a thin-line box with an eyebrow head. */
+main.research-work {
+  --wk-accent: var(--color-secondary, #c1593c);
+  --wk-ink: var(--ink, #2d2927);
+  --wk-muted: var(--muted, #6b6660);
+}
+main.research-work .vc-chips { gap: 6px; margin: 6px 0 12px; }
+main.research-work .vc-chips .chp {
+  min-height: 34px;
+  padding: 5px 10px 6px;
+  border: 1px solid var(--ar-line);
+  border-radius: 3px;
+  background: var(--ar-card);
+  color: var(--wk-ink);
+  font: 13px/1.15 var(--font-body, "Source Serif Pro", Georgia, serif);
+  font-variant-numeric: tabular-nums;
+  outline: 0;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+main.research-work .vc-chips .chp > span > span { color: var(--wk-muted) !important; }
+main.research-work .vc-chips .chp em { height: 2px; border-radius: 1px; background: var(--wk-accent); opacity: 0.55; }
+main.research-work .vc-chips .chp:hover { border-color: var(--wk-accent); }
+main.research-work .vc-chips .chp:focus-visible { outline: 2px solid var(--wk-accent); outline-offset: 2px; }
+main.research-work .vc-chips .chp.on { border-color: var(--wk-accent); background: var(--wk-accent); color: #fff; outline: 0; }
+main.research-work .vc-chips .chp.on > span > span { color: rgba(255, 255, 255, 0.82) !important; }
+main.research-work .vc-chips .chp.on em { background: #fff; opacity: 0.7; }
+/* What the rows show: an eyebrow, with its one action as a thin-line box. */
+main.research-work .vc-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 4px 0 10px;
+  font: 600 11.5px/1.4 var(--font-body, "Source Serif Pro", Georgia, serif);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wk-accent);
+}
+main.research-work :is(.vc-status .rx-text-link, .vc-all) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--ar-line);
+  border-radius: 3px;
+  background: var(--ar-card);
+  color: var(--wk-ink);
+  font: 13px/1.2 var(--font-body, "Source Serif Pro", Georgia, serif);
+  letter-spacing: 0;
+  text-transform: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+main.research-work :is(.vc-status .rx-text-link, .vc-all):hover { border-color: var(--wk-accent); color: var(--wk-accent); }
+main.research-work .vc-note { color: var(--wk-muted); font-size: 13px; }
+/* Inset like the chips and rows, which take the box's 20px from details.wdet. */
+main.research-work details.wdet > .vc-status { padding: 0 20px; }
+main.research-work details.wdet > :is(.vc-all, .vc-note) { margin: 10px 20px 16px; }
+/* The rows: hairlines, the reference in ink, the kind as a word. */
+main.research-work .vcits { margin: 0; padding: 0; border-left: 0; border-top: 1px solid var(--ar-line); }
+main.research-work .vc.vc-row { min-height: 50px; padding: 8px 4px; border-bottom: 1px solid var(--ar-line); }
+main.research-work .vc.vc-row .vref { color: var(--wk-ink); font-size: 15px; font-weight: 600; text-decoration: none; }
+main.research-work .vc.vc-row .vref:hover { color: var(--wk-accent); text-decoration: underline; text-underline-offset: 3px; }
+main.research-work .vc.vc-row .vpg { color: var(--wk-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+main.research-work .vc.vc-row .howtag {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none !important;
+  color: var(--wk-muted);
+  font: 600 11px/1.3 var(--font-body, "Source Serif Pro", Georgia, serif);
+  font-style: normal;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+main.research-work .vc.vc-row .howtag.how-quotes { color: var(--wk-accent); }
+main.research-work .vc.vc-row .howtag.how-cites { color: var(--wk-ink); }
+/* Open and Preview: one joined group; reading the page is the primary. */
+main.research-work .vc.vc-row .vact { gap: 0; }
+main.research-work .vc.vc-row .vact > :is(.readbtn, .peekbtn) {
+  min-height: 32px;
+  padding: 0 12px !important;
+  border: 1px solid var(--ar-line) !important;
+  border-radius: 0 !important;
+  background: var(--ar-card) !important;
+  color: var(--wk-ink) !important;
+  font: 13px/1.2 var(--font-body, "Source Serif Pro", Georgia, serif) !important;
+}
+main.research-work .vc.vc-row .vact > .readbtn { position: relative; z-index: 1; border-color: var(--wk-accent) !important; color: var(--wk-accent) !important; border-radius: 3px 0 0 3px !important; }
+main.research-work .vc.vc-row .vact > .peekbtn { margin-left: -1px; border-radius: 0 3px 3px 0 !important; }
+main.research-work .vc.vc-row .vact > .peekbtn:only-child { margin-left: 0; border-radius: 3px !important; }
+main.research-work .vc.vc-row .vact > .peekbtn:is(:hover, .on) { position: relative; z-index: 2; border-color: var(--wk-accent) !important; color: var(--wk-accent) !important; }
+/* The preview: a thin-line box, its head an eyebrow over the reader. */
+main.research-work .vc.vc-row > .peekwrap.on > div { border: 1px solid var(--ar-line); border-radius: 3px; background: var(--ar-panel); }
+main.research-work .vc.vc-row > .peekwrap .peekhead { padding: 8px 14px; border-bottom: 1px solid var(--ar-line); background: var(--ar-panel); }
+main.research-work .vc.vc-row > .peekwrap .peekhead strong {
+  font: 600 11.5px/1.4 var(--font-body, "Source Serif Pro", Georgia, serif);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wk-accent);
+}
+main.research-work .vc.vc-row > .peekwrap .peekhead :is(a, button) { color: var(--wk-ink); font-size: 13px; }
+main.research-work .vc.vc-row > .peekwrap .peekhead :is(a, button):hover { color: var(--wk-accent); }
+
+/* Its topics and its authorities, in the same dress: the statement (or the
+   citation) in ink, a stance as a terracotta small-caps word, and the page,
+   Open, Preview and Save as one joined thin-line group with Open outlined as
+   the primary. The port had a faint boxed stance, an oval Preview and loose
+   links (corpus owner, 2026-09-26: "the pills, etc"). A topic's row is
+   .ev > .m [page, Open, Preview, Save]; an authority's is
+   div > .m [citation, page, Open, Preview, → the work it resolves to]. */
+main.research-work details.wdet .ev { padding: 12px 20px 14px !important; border-bottom: 1px solid var(--ar-line); }
+main.research-work details.wdet .ev:last-child { border-bottom: 0; }
+main.research-work details.wdet .ev .q { font-size: 16px !important; line-height: 1.6; color: var(--wk-ink); }
+main.research-work details.wdet .ev .stance {
+  display: block;
+  width: fit-content;
+  margin: 0 0 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  font: 600 11px/1.3 var(--font-body, "Source Serif Pro", Georgia, serif);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  vertical-align: baseline;
+  color: var(--wk-accent);
+}
+main.research-work details.wdet :is(.ev > .m, div:not(.ev) > .m) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  font-size: 13px;
+  color: var(--wk-muted);
+}
+main.research-work details.wdet .ev > .m { margin: 8px 0 0 !important; }
+/* the group's cells */
+main.research-work details.wdet .ev > .m > span:first-child,
+main.research-work details.wdet div:not(.ev) > .m > span:nth-child(2),
+main.research-work details.wdet .m > .readbtn,
+main.research-work details.wdet .m > .peekbtn,
+main.research-work details.wdet .m > .pinb {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  min-width: 0;
+  margin: 0 0 0 -1px;
+  padding: 0 11px !important;
+  border: 1px solid var(--ar-line) !important;
+  border-radius: 0 !important;
+  background: var(--ar-card) !important;
+  color: var(--wk-ink) !important;
+  font: 13px/1.2 var(--font-body, "Source Serif Pro", Georgia, serif) !important;
+  opacity: 1 !important;
+  text-decoration: none;
+  white-space: nowrap;
+}
+/* the page number opens the group: quiet, tabular, square-left */
+main.research-work details.wdet .ev > .m > span:first-child,
+main.research-work details.wdet div:not(.ev) > .m > span:nth-child(2) {
+  margin-left: 0;
+  border-radius: 3px 0 0 3px !important;
+  color: var(--wk-muted) !important;
+  font-variant-numeric: tabular-nums;
+}
+main.research-work details.wdet .m > .readbtn { position: relative; z-index: 1; border-color: var(--wk-accent) !important; color: var(--wk-accent) !important; }
+main.research-work details.wdet .ev > .m > :last-child,
+main.research-work details.wdet div:not(.ev) > .m > .peekbtn { border-radius: 0 3px 3px 0 !important; }
+main.research-work details.wdet .m > :is(.peekbtn, .pinb):is(:hover, .on) { position: relative; z-index: 2; border-color: var(--wk-accent) !important; color: var(--wk-accent) !important; }
+/* An authority's row: the citation, the group, then the work it resolves to. */
+main.research-work details.wdet > div:not(.ev) > .m { margin: 0 !important; padding: 6px 0; border-bottom: 1px solid var(--ar-line); }
+main.research-work details.wdet > div:not(.ev) > .m:last-child { border-bottom: 0; }
+main.research-work details.wdet > div:not(.ev) > .m > span:first-child {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-right: 12px;
+  color: var(--wk-ink);
+  font-size: 15px !important;
+}
+main.research-work details.wdet > div:not(.ev) > .m > span:first-child i { font-style: italic; }
+/* the group keeps one right-hand column; the resolved work reads after the citation */
+main.research-work details.wdet > div:not(.ev) > .m > :is(span:nth-child(2), .readbtn, .peekbtn) { order: 2; }
+main.research-work details.wdet > div:not(.ev) > .m > span:nth-child(2) { margin-left: auto; }
+main.research-work details.wdet > div:not(.ev) > .m > span[style*="faint"] { order: 1; margin: 0 16px 0 0; font-size: 13px !important; color: var(--wk-muted) !important; }
+main.research-work details.wdet > div:not(.ev) > .m > span[style*="faint"] a { color: var(--wk-ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--ar-line-strong); }
+main.research-work details.wdet > div:not(.ev) > .m > span[style*="faint"] a:hover { color: var(--wk-accent); }
+/* The work's kind beside its author: a thin-line label, not a pill. */
+main.research-work .deck .pill {
+  padding: 1px 8px;
+  border: 1px solid var(--ar-line);
+  border-radius: 3px;
+  font: 600 11px/1.6 var(--font-body, "Source Serif Pro", Georgia, serif);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wk-muted);
+}
+/* On a phone an authority's citation and resolved work take their own lines, so the group never breaks apart. */
+@media (max-width: 640px) {
+  main.research-work details.wdet > div:not(.ev) > .m > span:first-child { flex: 1 1 100%; margin: 0 0 4px; }
+  main.research-work details.wdet > div:not(.ev) > .m > span[style*="faint"] { flex: 1 1 100%; margin: 0 0 6px; }
+  main.research-work details.wdet > div:not(.ev) > .m > span:nth-child(2) { margin-left: 0; }
+}

@@ -7878,6 +7878,7 @@ async function loadWork(ws){
     // PREVIEW = ENGLISH (corpus owner 2026-09-25 "for preview mode make it english only by default"): a mini reader embedded by
     // the Scripture desk asks ?lanes=en — one English column whatever the visitor last chose here, and the choice is not saved
     // (applyLanes skips fr_lanes2 while __frLanesFromURL). Latin and the scan stay one tap away inside the preview.
+    if(new URLSearchParams(location.search).get("peek")==="1")document.documentElement.classList.add("peek");   // PEEK (corpus owner 2026-09-26): framed as a preview
     if(new URLSearchParams(location.search).get("lanes")==="en"){window.__frLanesFromURL=true;Object.assign(LN,{en:true,la:false,fx:false});applyLanes();restored=true;}
     else try{const sl=JSON.parse(lsGet("fr_lanes2")||"null");
       if(sl&&typeof sl.en==="boolean"){Object.assign(LN,{en:!!sl.en,la:!!sl.la,fx:!!sl.fx});applyLanes();restored=true;}}catch(e){}

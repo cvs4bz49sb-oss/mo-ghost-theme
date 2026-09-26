@@ -281,6 +281,12 @@ const foldOpen=(w,rows)=>{const r=(rows||[]).find(x=>x&&RX.page(x.p)!=null);cons
 const previewBtn=(w,p,hl)=>w&&p!=null&&p!==""?`<button class="peekbtn" data-pk="${esc(w)}|${esc(p)}|${esc(hl||'')}" aria-label="Preview source passage" aria-expanded="false">Preview source</button>`:"";
 const readBtn=(w,p,hl)=>(w&&p!=null&&p!=="")?`<a class="readbtn" target="_blank" rel="noopener" href="${readerHrefHl(w,p,hl)}">Open ↗</a><button class="peekbtn" data-pk="${esc(w)}|${p}|${esc(hl||'')}" aria-label="Preview source passage" aria-expanded="false" title="Read the passage here">Preview</button>`:"";   // owner 2026-09-02 "open inline, peeking, opening in a tab" (supersedes 08-31 never-inline)
 // PEEK: the passage slides open right under its row — the reader itself, embedded
+// PREVIEW = ENGLISH (owner 2026-09-25 "for preview mode make it english only by default"): the mini reader asks for one English
+// column (?lanes=en, honoured by the reader and not saved as the visitor's choice); Latin is one tap away inside it.
+// peek=1 (owner 2026-09-26 "the sizing of the preview … looks unprofessional"): the framed reader drops its outline sidebar
+// and steps its type down for the smaller window; nothing it does there is saved as the visitor's choice.
+const previewHref=h=>{const i=String(h).indexOf('#'),a=i<0?String(h):String(h).slice(0,i),hash=i<0?'':String(h).slice(i);return a+(a.includes('?')?'&':'?')+'lanes=en&peek=1'+hash;};
+let previewSequence=0;
 document.addEventListener("click",async e=>{
   const ov=e.target.closest(".openvol");
   if(ov){e.preventDefault();
@@ -292,13 +298,17 @@ document.addEventListener("click",async e=>{
     window.open(readerHref(w,pg),"_blank","noopener");return;}
   const b=e.target.closest(".peekbtn");if(!b)return;
   e.preventDefault();
-  let wrap=b.parentElement.querySelector(":scope > .peekwrap")||b.closest(".rx-excerpt,.vpr,.ev,.m")?.querySelector(".peekwrap");
-  if(wrap){const on=wrap.classList.toggle("on");b.classList.toggle("on",on);b.setAttribute("aria-expanded",String(on));return;}
+  const host=b.closest('.scripture-work,.annotation-volume,.rx-excerpt,.vpr,.ev,.m,.vc-row')||b.parentElement;
+  let wrap=host.querySelector(':scope > .peekwrap');
+  const setOpen=on=>{wrap.classList.toggle('on',on);wrap.inert=!on;b.classList.toggle('on',on);b.setAttribute('aria-expanded',String(on));};
+  if(wrap){setOpen(!wrap.classList.contains('on'));return;}
   const [w,p,hl]=String(b.dataset.pk).split("|");
-  wrap=document.createElement("div");wrap.className="peekwrap";
-  wrap.innerHTML=`<div><iframe src="${readerHrefHl(w,p,hl)}" title="Passage"></iframe></div>`;
-  (b.closest(".rx-excerpt,.vpr,.ev")||b.parentElement).appendChild(wrap);
-  requestAnimationFrame(()=>{wrap.classList.add("on");b.classList.add("on");b.setAttribute("aria-expanded","true");});
+  const href=readerHrefHl(w,p||null,hl),title=(host.querySelector('.work-title,strong,.vref')?.textContent||'Source passage')+(host.querySelector('.vpg')?' · '+host.querySelector('.vpg').textContent:'');
+  wrap=document.createElement("div");wrap.className="peekwrap";wrap.id='source-preview-'+(++previewSequence);wrap.inert=true;b.setAttribute('aria-controls',wrap.id);
+  wrap.innerHTML=`<div><div class="peekhead"><strong>Mini reader · ${esc(title)}</strong><a href="${esc(href)}" target="_blank" rel="noopener">Open full reader ↗</a><button type="button" data-close-preview>Close preview</button></div><iframe src="${esc(previewHref(href))}" title="Mini reader: ${esc(title)}"></iframe></div>`;
+  host.appendChild(wrap);
+  wrap.querySelector('[data-close-preview]').onclick=()=>{setOpen(false);b.focus();};
+  requestAnimationFrame(()=>setOpen(true));
 });
 const mkHl=(book,c,v)=>{const st=String(book||"").replace(/^[0-9IVX]+\s+/,"").slice(0,3);return st?`${st}|${c}|${v||0}`:"";};
 /* ── SAVE TO NOTEBOOK (owner 2026-09-10 "save works … specific passages, on all surfaces cleanly"): ONE path,
@@ -396,8 +406,17 @@ const WSH=[["pl","Latin Fathers"],["gf","Greek Fathers"],["po","Eastern Fathers"
 let WV={q:new URLSearchParams(location.search).get('q')||'',g:'author',sh:(()=>{const sh=new URLSearchParams(location.search).get('sh')||localStorage.getItem('fr_wsh');return RX.shelves[sh]?sh:'pl';})()};
 let CATALOGUE_PROMISE=null,WORK_CATALOGUE=null,WORKS_INDEX_RUN=0;
 function getWorkCatalogue(){if(!CATALOGUE_PROMISE)CATALOGUE_PROMISE=Promise.all([J(BLOB+'/v1/works-index.json'),J(BLOB+'/v1/titles_en.json').catch(()=>({})),J(BLOB+'/v1/workgroups.json').catch(()=>({})),fetch('https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/data/workgroups.json',{signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():{}).catch(()=>({}))]).then(([index,titles,published,local])=>{WORK_CATALOGUE={bySlug:new Map(index.works.map(w=>[w.slug,w])),titles,groups:{works:{...(published.works||{}),...(local.works||{})},groups:{...(published.groups||{}),...(local.groups||{})}},ok:true};RX.setWorkCatalogue(WORK_CATALOGUE);return WORK_CATALOGUE;}).catch(()=>{CATALOGUE_PROMISE=null;return {bySlug:new Map(),titles:{},groups:{works:{},groups:{}},ok:false};});return CATALOGUE_PROMISE;}
-function catalogueWork(row,catalogue){const meta=catalogue.bySlug.get(row.w)||{};return {...row,volume:catalogue.groups?.works?.[row.w]?.display_volume||meta.volume||row.vs||'',cols:meta.cols,t:catalogue.titles[row.w]||row.t||meta.title||row.w,originalTitle:meta.title||row.t||'',po:meta.po,date:meta.year||'',a:row.a||meta.author||'Author not recorded'};}
-function workRowHTML(w){const reference=RX.edition(w),details=[reference,w.date,(!/^P[LG]\b/.test(reference)&&w.np)?fmtR(w.np)+' indexed pages':''].filter(Boolean);return `<article class="rx-work-row"><div><h3><a href="${readerHref(w.w)}">${esc(w.t)}</a></h3><p class="rx-work-reference">${details.map(esc).join(' · ')||'Edition details not recorded'}</p>${w.ambiguous?`<small>Catalogue entry: ${esc(w.w)}</small>`:''}</div><div class="rx-work-actions"><a class="rx-text-link" href="${readerHref(w.w)}" aria-label="Read ${esc(w.t)}${reference?', '+esc(reference):''}">Read work</a><a class="rx-text-link" href="/the-faith-received/fathers/#w/${encodeURIComponent(w.w)}" aria-label="Explore ${esc(w.t)}${reference?', '+esc(reference):''}">Explore work</a>${workSaveBtn(w.w,w.t,w.a||w.author||'')}</div></article>`;}
+function catalogueWork(row,catalogue){const meta=catalogue.bySlug.get(row.w)||{};return {...row,volume:catalogue.groups?.works?.[row.w]?.display_volume||meta.volume||row.vs||'',cols:meta.cols,t:catalogue.titles[row.w]||row.t||meta.title||row.w,originalTitle:meta.title||row.t||'',po:meta.po,app:meta.app,date:meta.year||'',a:row.a||meta.author||'Author not recorded'};}
+function catalogueWork(row,catalogue){const meta=catalogue.bySlug.get(row.w)||{};return {...row,volume:catalogue.groups?.works?.[row.w]?.display_volume||meta.volume||row.vs||'',cols:meta.cols,app:meta.app,t:catalogue.titles[row.w]||row.t||meta.title||row.w,originalTitle:meta.title||row.t||'',po:meta.po,date:meta.year||'',a:row.a||meta.author||'Author not recorded'};}
+// COLLECTED VOLUMES (owner 2026-09-26: "for author view opera work … this should have what it contains"): an Opera / Werke
+// volume shows what it holds — its main pieces in a line, and the full list, each opening the reader at its page.
+// v1/collected-contents.json is the MereO theme's collected-work-contents.json (build-collected-contents.py), published.
+let COLLECTED={},COLLECTED_P=null;
+const collectedReady=()=>COLLECTED_P||(COLLECTED_P=J(BLOB+'/v1/collected-contents.json').then(d=>{COLLECTED=(d&&d.works)||{};}).catch(()=>{}));
+const collectedText=slug=>{const c=COLLECTED[slug];return c?[c.summary,...(c.sections||[]).map(x=>x.title)].join(' '):'';};
+const collectedHTML=slug=>{const c=COLLECTED[slug];if(!c)return '';const n=(c.sections||[]).length,sum=String(c.summary||'').replace(/\s+/g,' ').trim(),short=sum.length>240?sum.slice(0,237).replace(/\s+\S*$/,'')+'…':sum;
+  return (short?`<p class="rx-work-includes"><span>Includes</span> ${esc(short)}</p>`:'')+(n>1?`<details class="rx-work-contents"><summary>Contents · ${fmtR(n)} sections</summary><ol>${c.sections.map(x=>`<li><a href="${readerHref(slug,x.page)}">${esc(x.title)}</a><small>p. ${esc(x.page)}</small></li>`).join('')}</ol></details>`:'');};
+function workRowHTML(w){const reference=RX.edition(w),details=[reference,w.date,(!/^P[LG]\b/.test(reference)&&w.np)?fmtR(w.np)+' indexed pages':''].filter(Boolean);return `<article class="rx-work-row"><div><h3><a href="${readerHref(w.w)}">${esc(w.t)}</a></h3><p class="rx-work-reference">${details.map(esc).join(' · ')||'Edition details not recorded'}</p>${collectedHTML(w.w)}${w.ambiguous?`<small>Catalogue entry: ${esc(w.w)}</small>`:''}</div><div class="rx-work-actions"><a class="rx-text-link" href="${readerHref(w.w)}" aria-label="Read ${esc(w.t)}${reference?', '+esc(reference):''}">Read work</a><a class="rx-text-link" href="/the-faith-received/fathers/#w/${encodeURIComponent(w.w)}" aria-label="Explore ${esc(w.t)}${reference?', '+esc(reference):''}">Explore work</a>${workSaveBtn(w.w,w.t,w.a||w.author||'')}</div></article>`;}
 // Build only the branches the reader opens. The catalogue and its identifiers stay intact.
 function mountWorkGroups(host,rows,mode,options={}){
  const definitions=new Map();let serial=0;
@@ -785,7 +804,11 @@ async function roomTopicFull(sh,slug,t){const parts=(t.parts||[{t:t.t,full:!!t.f
    the work's own sections (meta.json `structure`, page starts), first section open; page-range chunks of 25 until
    the outline arrives or when there is none. The outline fetch is lazy and cached; when it lands, surfaces that
    listen for fr-sections-ready redraw. */
-const META={};const metaOf=slug=>{if(!slug)return null;if(!(slug in META)){META[slug]=null;J(BLOB+`/v1/works/${encodeURIComponent(slug)}/meta.json`).then(m=>{META[slug]=m||false;if(document.querySelector(`[data-secbody="${CSS.escape(slug)}"]`))dispatchEvent(new CustomEvent('fr-sections-ready',{detail:{slug}}));}).catch(()=>{META[slug]=false;});}return META[slug]||null;};
+const META={};const metaOf=slug=>{if(!slug)return null;
+  // The Migne and EEBO families keep their structure elsewhere (no v1/works/<slug>/meta.json): asking only 404s, and on a
+  // comparison that loads thousands of statements it filled MereO's console with them (owner 2026-09-26 audit).
+  if(/^(pld|pg|eebo)-\d+$/.test(String(slug)))return null;
+  if(!(slug in META)){META[slug]=null;J(BLOB+`/v1/works/${encodeURIComponent(slug)}/meta.json`).then(m=>{META[slug]=m||false;if(document.querySelector(`[data-secbody="${CSS.escape(slug)}"]`))dispatchEvent(new CustomEvent('fr-sections-ready',{detail:{slug}}));}).catch(()=>{META[slug]=false;});}return META[slug]||null;};
 function sectionFoldsHTML(rows,render,w,o={}){
   if(rows.length<=(o.min||12))return rows.map(render).join('');
   const meta=metaOf(w);const pageOf=r=>RX.page(r.p);const sorted=rows.slice().sort((a,b)=>(pageOf(a)??0)-(pageOf(b)??0));
@@ -864,11 +887,13 @@ async function room(slug,arg){
   tlist.addEventListener("click",e=>{const bt=e.target.closest("button[data-t]");if(!bt)return;
     const t=topics.find(x=>x.t===bt.dataset.t);if(t){renderTopic(t);if(matchMedia("(max-width:640px)").matches)$("#room-topic-drawer").open=false;}});
   // ---- Works (the landing view): grouped by KIND, commentaries in canon order ----
+  // FR_HIDE_APPARATUS (set by MereO's page/faith-author-order.js, corpus owner 2026-09-25): leave Migne's apparatus
+  // (v1/works-index.json `app`: indices, notices, admonitions, tables of contents) out of the Works tab. Unset here.
   async function renderWorks(){
-    VIEW='w';segOn('w');starSel(null);const token=roomViewRun;const [catalogue]=await Promise.all([getWorkCatalogue(),kinds()]);if(token!==roomViewRun||run!==RESEARCH_RUN)return;
-    let limit=40;const works=(d.works||[]).map(w=>catalogueWork({...w,a:d.a},catalogue)),groups=[...new Set(works.map(w=>kindOf(w.w)||'treatises'))];
+    VIEW='w';segOn('w');starSel(null);const token=roomViewRun;const [catalogue]=await Promise.all([getWorkCatalogue(),kinds(),collectedReady()]);if(token!==roomViewRun||run!==RESEARCH_RUN)return;
+    let limit=40;const works=(d.works||[]).map(w=>catalogueWork({...w,a:d.a},catalogue)).filter(w=>!(window.FR_HIDE_APPARATUS&&w.app)),groups=[...new Set(works.map(w=>kindOf(w.w)||'treatises'))];
     pbody.innerHTML=`<div class="view"><h2>Works</h2><p class="pane-meta">${fmtR(works.length)} works in this shelf. Open a work to begin reading.</p><div class="rx-filters"><label class="rx-search">Find a work<input id="room-work-q" type="search" placeholder="Search titles"></label><label>Kind of work<select id="room-work-kind"><option value="">All kinds</option>${groups.map(k=>`<option value="${esc(k)}">${esc(KNAME[k]||k)}</option>`).join('')}</select></label><label>Order works<select id="room-work-order"><option value="library">Library order</option><option value="name">Title A–Z</option></select></label></div><p id="room-work-count" class="rx-note" role="status"></p><div id="room-works" class="rx-work-list"></div><button id="room-works-more" class="rx-button rx-more">Show more works</button></div>`;
-    researchLayout();const draw=()=>{const q=RX.fold($('#room-work-q').value),kind=$('#room-work-kind').value;const rows=works.filter(w=>(!q||RX.fold(w.t+' '+w.volume).includes(q))&&(!kind||(kindOf(w.w)||'treatises')===kind));
+    researchLayout();const draw=()=>{const q=RX.fold($('#room-work-q').value),kind=$('#room-work-kind').value;const rows=works.filter(w=>(!q||RX.fold(w.t+' '+w.volume+' '+collectedText(w.w)).includes(q))&&(!kind||(kindOf(w.w)||'treatises')===kind));
     const vn=v=>+(String(v||'').match(/\d+/)||[9999])[0];rows.sort((a,b)=>a.t===b.t&&(a.volume||b.volume)?RX.workOrder(a,b):$('#room-work-order').value==='name'?a.t.localeCompare(b.t):(KORD.indexOf(kindOf(a.w)||'treatises')<0?999:KORD.indexOf(kindOf(a.w)||'treatises'))-(KORD.indexOf(kindOf(b.w)||'treatises')<0?999:KORD.indexOf(kindOf(b.w)||'treatises'))||(kordOf(a.w)||9999)-(kordOf(b.w)||9999)||(b.nc||0)-(a.nc||0));
     const ordered=RX.orderedWorks(rows);rows.splice(0,rows.length,...ordered);
     $('#room-work-count').textContent=fmtR(rows.length)+' matching works'+(rows.length>limit?' · showing '+limit:'');$('#room-works-more').hidden=limit>=rows.length;
@@ -1284,12 +1309,20 @@ async function workPage(dnum){
   const HOWA={quotation:"quotes",explicit:"cites",allusion:"alludes"};
   const books=(ins&&ins.books||[]).map((b2,i)=>{
     const bmax2=Math.max(...ins.books.map(x=>x.n),1);
-    const rows=(b2.rows||[]).map(r=>`<div class="vc" data-c="${r.c??""}">${r.how?`<span class="howtag">${esc(HOWA[r.how]||r.how)}</span>`:""}<span class="vref">${esc(BNAME[b2.b]||b2.b)} ${r.c??""}${r.v?":"+r.v:""}</span> · ${pgl(slug)} ${r.p??"?"} ${readBtn(slug,r.p)}</div>`).join("");
+    // SCRIPTURE ROWS (owner 2026-09-26: the pale verse, the boxed kind and the oversized Preview "color is not good, do some
+    // ui/ux improvements"): the verse in the text colour and linked to its Scripture page, its kind as a small coloured
+    // label, the page, then the actions — the same columns on every row.
+    const bsl=(BNAME[b2.b]||String(b2.b)).toLowerCase().replace(/^([i]{1,3}) /,(m2,r2)=>r2+"-").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+    // A range cited as a range reads as one (Romans 8:28–30); the link opens its first verse (owner 2026-09-26 "make sure
+    // verses work for ranges"). Twenty rows show; the rest follow "Show all" or a chapter.
+    const rows=(b2.rows||[]).map((r,ri)=>{const ref=`${esc(BNAME[b2.b]||b2.b)} ${r.c??""}${r.v?":"+r.v:""}${r.v&&r.ve>r.v?"–"+r.ve:""}`,kind=HOWA[r.how]||r.how||'';
+      return `<div class="vc vc-row${ri>=20?' vc-extra':''}" data-c="${r.c??""}">${r.c?`<a class="vref" href="/the-faith-received/bible/#b/${bsl}/${r.c}${r.v?"?v="+r.v:""}">${ref}</a>`:`<span class="vref">${ref}</span>`}<span class="howtag${kind?' how-'+esc(kind):''}">${esc(kind)}</span><span class="vpg">${pgl(slug)} ${r.p??"?"}</span><span class="vact">${readBtn(slug,r.p)}</span></div>`;}).join("");
     const cm2=Math.max(...(b2.chs||[]).map(x=>x[1]),1);
     const chs=(b2.chs||[]).map(([c2,n2])=>`<button class="chp heat" data-c="${c2}" title="chapter ${c2} · ${n2} citations"><span>${c2}<span style="color:var(--faint)"> · ${n2}</span></span><em style="width:${Math.max(4,34*Math.sqrt(n2/cm2)).toFixed(0)}px"></em></button>`).join("");
     return `<details class="wdet"${i===0?" open":""}><summary><b>${esc(BNAME[b2.b]||b2.b)}</b><i style="width:${Math.max(3,100*Math.sqrt(b2.n/bmax2)*.4).toFixed(0)}%"></i><span class="n">${b2.n.toLocaleString()}</span></summary>
-      ${chs?`<div style="margin:.3rem 0 .2rem">${chs}</div>`:""}
-      <div class="vcits" style="margin-left:0">${rows}</div></details>`;}).join("");
+      ${chs?`<div class="vc-chips" role="group" aria-label="Chapters of ${esc(BNAME[b2.b]||b2.b)}">${chs}</div>`:""}
+      <p class="vc-status" role="status"></p>
+      <div class="vcits" style="margin-left:0">${rows}</div>${(b2.rows||[]).length>20?`<button type="button" class="rx-text-link vc-all" data-vc-all>Show all ${fmtR((b2.rows||[]).length)} citations</button>`:''}${b2.n>(b2.rows||[]).length?`<p class="vc-note">${fmtR((b2.rows||[]).length)} of ${fmtR(b2.n)} citations are listed; <a href="${readerHref(slug)}">the reader</a> has every page.</p>`:''}</details>`;}).join("");
   const topics=(ins&&ins.topics||[]).map((t2,i)=>{
     const pos=(t2.pos||[]).map(p2=>`<div class="ev" style="padding:.4rem 0"><div class="q" style="font-size:.93rem">${p2.s?`<span class="stance">${esc(p2.s)}</span>`:""}${escQ(p2.q)}</div>
       <div class="m"><span>${pgl(slug)} ${p2.p??"?"}</span>${readBtn(slug,p2.p)}${pinBtn(slug,p2.p,T,A,p2.q)}</div></div>`).join("");
@@ -1308,7 +1341,8 @@ async function workPage(dnum){
     <a class="railbtn" style="text-decoration:none;display:inline-block" href="${readerHref(slug)}">Open in the reader →</a></div>
   ${ins&&ins.lemma?(()=>{const bn2=BNAME[ins.lemma.b]||ins.lemma.b;const bs2=bn2.toLowerCase().replace(/^([i]{1,3}) /,(m2,r2)=>r2+"-").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
     return `<div class="pane-meta" style="margin:.3rem 0 .1rem">A commentary on <a href="/the-faith-received/bible/#b/${bs2}${ins.lemma.c?"/"+ins.lemma.c:""}">${esc(bn2)}${ins.lemma.c?" "+ins.lemma.c:""}</a> — its chapter holds this work among the commentators.</div>`;})():""}
-  ${ins&&ins.quot&&ins.quot[0]?`<div class="sig" style="font-style:italic">&ldquo;${esc(ell(ins.quot[0][1]))}&rdquo; <span style="font-style:normal;font-size:.78rem;color:var(--faint)">${pgl(slug)} ${ins.quot[0][0]}</span></div>`:""}
+  ${/* The work page's headline quotation (the mine's first "memorable" line: Calvin's Institutes opened on "It is therefore an
+     audacity…", p. 1) said nothing about the work; removed (owner 2026-09-26). */''}
   ${books?`<h2 class="sect">Its Scripture</h2>${books}`:""}
   ${topics?`<h2 class="sect">Its topics</h2>${topics}`:""}
   <div id="wauth"></div>
@@ -1336,15 +1370,22 @@ async function workPage(dnum){
     const tot=mine.reduce((a2,b2)=>a2+b2.rows.length,0);
     $("#wauth").innerHTML=`<h2 class="sect">Its authorities <span class="tn" style="font-family:var(--body);font-size:.74rem;color:var(--faint)">${tot.toLocaleString()} resolved citations of ${mine.length} authors</span></h2>`+
       mine.slice(0,40).map((g,i)=>`<details class="wdet"${i===0?" open":""}><summary><b>${esc(g.a)}</b><i style="width:${Math.max(3,40*Math.sqrt(g.rows.length/mine[0].rows.length)).toFixed(0)}%"></i><span class="n">${g.rows.length}</span></summary>
-        <div>${g.rows.slice(0,80).map(r2=>`<div class="m" style="margin:.25rem 0 0;flex-wrap:wrap"><span style="font-size:.85rem">${r2.loc?`<i>${esc(r2.loc)}</i>`:esc(r2.sf)}</span><span>${pgl(slug)} ${r2.p??"?"}</span>${readBtn(slug,r2.p)}<span style="color:var(--faint);font-size:.74rem">→ ${esc(tell(String((F.works||{})[r2.tw]||r2.tw)))}</span></div>`).join("")}
+        <div>${g.rows.slice(0,80).map(r2=>`<div class="m" style="margin:.25rem 0 0;flex-wrap:wrap"><span style="font-size:.85rem">${r2.loc?`<i>${esc(r2.loc)}</i>`:esc(r2.sf)}</span><span>${pgl(slug)} ${r2.p??"?"}</span>${readBtn(slug,r2.p)}${r2.tw?`<span style="color:var(--faint);font-size:.74rem">→ ${esc(tell(String((F.works||{})[r2.tw]||r2.tw)))}</span>`:''}</div>`).join("")}
         ${g.rows.length>80?`<div style="color:var(--faint);font-size:.78rem;margin-top:.3rem">+ ${(g.rows.length-80).toLocaleString()} more in <a href="/the-faith-received/fathers/#${aslug(A)}/reception">${esc(A)}’s Reception</a></div>`:""}</div></details>`).join("");
   }catch(_){}})();
+  // A chapter chip shows that chapter's citations and says how many; pressed again (or "All chapters") it shows the book
+  // again. "Show all" lifts the first-twenty limit (owner 2026-09-26: "even the clicking behavior is bad here").
   page.addEventListener("click",e=>{
-    const cp=e.target.closest(".wdet .chp[data-c]");if(!cp)return;
-    const det=cp.closest(".wdet"),on=!cp.classList.contains("on");
-    det.querySelectorAll(".chp[data-c]").forEach(x=>x.classList.remove("on"));
-    if(on)cp.classList.add("on");
-    det.querySelectorAll(".vc[data-c]").forEach(r=>{r.hidden=on&&r.dataset.c!==cp.dataset.c;});
+    const all=e.target.closest(".wdet [data-vc-all]");if(all){const det=all.closest(".wdet");det.classList.add("vc-open");all.hidden=true;return;}
+    const reset=e.target.closest(".wdet [data-vc-reset]");
+    const cp=reset?null:e.target.closest(".wdet .chp[data-c]");if(!cp&&!reset)return;
+    const det=(cp||reset).closest(".wdet"),on=!!cp&&!cp.classList.contains("on");
+    det.querySelectorAll(".chp[data-c]").forEach(x=>{x.classList.remove("on");x.setAttribute("aria-pressed","false");});
+    if(on){cp.classList.add("on");cp.setAttribute("aria-pressed","true");}
+    let n=0;det.querySelectorAll(".vc[data-c]").forEach(r=>{r.hidden=on&&r.dataset.c!==cp.dataset.c;if(on&&!r.hidden)n++;});
+    det.classList.toggle("vc-chapter",on);
+    const st=det.querySelector(".vc-status"),book=det.querySelector("summary b")?.textContent||"";
+    if(st)st.innerHTML=on?(n?`${fmtR(n)} ${n===1?"citation":"citations"} in ${esc(book)} ${esc(cp.dataset.c)} · <button type="button" class="rx-text-link" data-vc-reset>All chapters</button>`:`No citation of ${esc(book)} ${esc(cp.dataset.c)} is listed on this page · <button type="button" class="rx-text-link" data-vc-reset>All chapters</button>`):"";
   });
 }
 /* ── topic page: the corpus room — century band, era-nested authors, mine + Migne ── */
@@ -1585,6 +1626,11 @@ async function bookPageAuthor(bslug,c,aslg){
     pv.innerHTML=pv.innerHTML?"":`<div class="vpanel">${panelHTML(mine,mine.length,mkHl(ab.book,c,vn))}</div>`;
   };
 }
+// VERSE PANEL FOLDS AND KINDS (owner 2026-09-25, for MereO's panel and ours: "make this collapsible and then also allow
+// preview source for each"; "verses should include citations allusion classification, if we have that"). The panel's
+// chapter and whole-Bible commentaries start closed; the reader's open/closed choice and chosen kind hold across verses.
+const SUMMARY_STATE={chapter:false,whole:false,sources:true,kind:''};
+const SUMMARY_KIND={quotation:'quotes',explicit:'cites',citation:'cites',cites:'cites','citation-survey':'cites',allusion:'alludes',exegesis:'expounds'};
 async function bookPageMain(bslug,c){
   const run=++BIBLE_RUN;page.className='scripture-page';page.innerHTML='<p class="loading" role="status">Loading Scripture and its sources…</p>';
   const [bk,,catalog]=await Promise.all([J(BLOB+'/v1/bible/all/books.json'),devotion(),FRScripture.catalogue().catch(()=>[])]);if(run!==BIBLE_RUN)return;
@@ -1592,7 +1638,8 @@ async function bookPageMain(bslug,c){
   if(!B||c&&!B.chapters.some(x=>x.c===c)){page.innerHTML='<h1>Passage not found</h1><p>Choose an available book and chapter.</p><a href="/the-faith-received/bible/">Browse Scripture</a>';return;}
   const sourceShelf=e=>e.sh==='x'?({'Reformed':'rf','Continental Reformed':'rf','Roman Catholic':'rc','Lutheran':'lu','Medieval':'md','English Divines':'ed','Humanism & Law':'hl','Humanism and Law':'hl'}[e.tr]||e.sh):e.sh;
   const catalogMap=new Map(catalog.map(w=>[w.slug,w]));
-  const entries=((DEVO&&DEVO.books&&DEVO.books[bslug])||[]).map(e=>{const w=catalogMap.get(e.w);return w?{...e,t:w.title||e.t,a:w.author||e.a}:e;}).filter(e=>facOK({...e,sh:sourceShelf(e)}));
+  // A section inside a larger volume (v1/devotion.json `st`, corpus owner 2026-09-26) is named by the section, with the volume beside it.
+  const entries=((DEVO&&DEVO.books&&DEVO.books[bslug])||[]).map(e=>{const w=catalogMap.get(e.w);return w?{...e,t:e.st?`${e.st} (in ${w.title||e.t})`:(w.title||e.t),a:w.author||e.a}:(e.st?{...e,t:`${e.st} (in ${e.t})`}:e);}).filter(e=>facOK({...e,sh:sourceShelf(e)}));
   const dedicated=entries.filter(e=>!e.wb&&(!c||!e.c1||e.c1<=c&&c<=(e.c2||e.c1)));
   const annot=entries.filter(e=>e.wb),seen=new Set();
   const annotations=annot.filter(e=>{const k=FRScripture.family(e.w);if(seen.has(k))return false;seen.add(k);return true;});
@@ -1702,6 +1749,13 @@ const cdExport=reg=>{if(!CD.exports.has(reg))CD.exports.set(reg,J(BLOB+`/v1/mine
 const cdParse=h=>{const P=new URLSearchParams(String(h||'').replace(/^#/,''));return {a:(P.get('a')||'').split(',').map(x=>decodeURIComponent(x).trim()).filter(Boolean).slice(0,4),sel:P.get('sel')||P.get('t')||'',g:['stance','canon'].includes(P.get('g'))?P.get('g'):'work',s:P.get('s')||'',q:P.get('q')||'',v:['meet','disagree'].includes(P.get('v'))?'meet':'columns',m:['opposite','assert'].includes(P.get('m'))?P.get('m'):(P.get('v')==='disagree'?'opposite':'any'),o:['n','denies'].includes(P.get('o'))?P.get('o'):'shared'};};
 const cdHash=st=>'#a='+st.a.map(encodeURIComponent).join(',')+(st.sel?'&sel='+encodeURIComponent(st.sel):'')+(st.g!=='work'?'&g='+st.g:'')+(st.s?'&s='+encodeURIComponent(st.s):'')+(st.q?'&q='+encodeURIComponent(st.q):'')+(st.v&&st.v!=='columns'?'&v='+st.v:'')+(st.m&&st.m!=='any'?'&m='+st.m:'')+(st.o&&st.o!=='shared'?'&o='+st.o:'');
 const cdURL=st=>'/the-faith-received/compare/'+cdHash(st);
+// Suggested comparisons for an empty desk: [authors (room slugs), topic, label]. Checked against the rooms at render time.
+const CD_SUGGEST=[[['augustine-of-hippo','john-calvin'],'grace','Grace'],
+  [['luis-de-molina','domingo-b-ez'],'god-s-knowledge-middle-knowledge','God’s knowledge and middle knowledge'],
+  [['john-calvin','jacobus-arminius'],'predestination','Predestination'],
+  [['martin-luther','robert-bellarmine'],'justification','Justification'],
+  [['john-owen','richard-baxter'],'justification','Justification'],
+  [['athanasius-of-alexandria','gregory-of-nyssa'],'the-trinity','The Trinity']];
 
 async function compareDesk(host,state,opts={}){
   if(!['work','canon'].includes(state.g))state.g='work';
@@ -1735,21 +1789,35 @@ async function compareDesk(host,state,opts={}){
   const stanceOpts=STANCES.filter(x=>x[0]).map(([k,v])=>`<option value="${k}"${state.s===k?' selected':''}>${v}</option>`).join('');
   host.classList.add('cd');
   host.innerHTML=`<div class="cd-authors" role="group" aria-label="Authors compared">${authors.map((au,i)=>`<span class="cd-chip"><a href="${RX.authorURL(au.r)}">${esc(au.a)}</a><small>${esc(whenOf(au))}</small><button type="button" class="cd-x" data-cd-remove="${i}" aria-label="Remove ${esc(au.a)}">×</button></span>`).join('')}${authors.length<4?`<div class="rx-search cd-add"><label for="cd-add">Add an author</label><input type="search" id="cd-add" aria-label="Add an author" placeholder="${authors.length?'Another name':'An author’s name'}" list="cd-add-list" autocomplete="off"><datalist id="cd-add-list"></datalist><button type="button" class="rx-button" id="cd-add-button">Add author</button><span id="cd-add-feedback" role="status"></span></div>`:'<span class="rx-note">Four authors is the desk’s width. Remove one to add another.</span>'}</div>
-  ${authors.length?`<div class="rx-filters cd-tools"><label>Group statements<select id="cd-group"><option value="work"${state.g==='work'?' selected':''}>By work · most statements first</option><option value="canon"${state.g==='canon'?' selected':''}>By work · library order</option></select></label><label>Stance<select id="cd-stance"><option value="">All stances</option>${stanceOpts}</select></label><label class="rx-search">Phrase in statements<input type="search" id="cd-q" placeholder="Search every column" value="${esc(state.q)}"></label><label>View<select id="cd-view"><option value="columns"${state.v!=='meet'?' selected':''}>Columns, oldest author first</option><option value="meet"${state.v==='meet'?' selected':''}>Where they meet</option></select></label><button type="button" class="rx-button cd-export" id="cd-export" title="Export the loaded statements and their citations as a Desk draft">Export to Desk</button>${opts.embedded?`<button type="button" class="rx-button cd-savebtn" id="cd-save-view" aria-pressed="false" title="Keep this view: these authors, this topic, this mode and filters">Save view</button>`:""}${opts.embedded?`<a class="rx-text-link cd-open" href="${cdURL(state)}">Open in the comparison desk</a>`:''}</div>
+  ${authors.length?`<details class="cd-toolsfold"${matchMedia('(min-width: 761px)').matches||state.s||state.q||state.g!=='work'||state.v==='meet'?' open':''}><summary>Filter and view${[state.s,state.q,state.g!=='work'?1:'',state.v==='meet'?1:''].filter(Boolean).length?` <small>${[state.s,state.q,state.g!=='work'?1:'',state.v==='meet'?1:''].filter(Boolean).length} active</small>`:''}</summary><div class="rx-filters cd-tools"><label>Works<select id="cd-group"><option value="work"${state.g==='work'?' selected':''}>Most statements first</option><option value="canon"${state.g==='canon'?' selected':''}>Library order</option></select></label><label>Stance<select id="cd-stance"><option value="">All stances</option>${stanceOpts}</select></label><label class="rx-search">Phrase in statements<input type="search" id="cd-q" placeholder="Search every column" value="${esc(state.q)}"></label><label>View<select id="cd-view"><option value="columns"${state.v!=='meet'?' selected':''}>Side by side</option><option value="meet"${state.v==='meet'?' selected':''}>Where they meet</option></select></label><button type="button" class="rx-button cd-export" id="cd-export" title="Export the loaded statements and their citations as a Desk draft">Export to Desk</button>${opts.embedded?`<button type="button" class="rx-button cd-savebtn" id="cd-save-view" aria-pressed="false" title="Keep this view: these authors, this topic, this mode and filters">Save view</button>`:""}${opts.embedded?`<a class="rx-text-link cd-open" href="${cdURL(state)}">Open in the comparison desk</a>`:''}</div></details>
   <details class="cd-topic-picker"><summary>Choose topic<span id="cd-selected-topic"></span></summary><div class="cd-topics"><div class="cd-topics-head"><label class="rx-search cd-topic-search">Find a topic<input type="search" id="cd-topic-search" placeholder="Topic or doctrine"></label><label class="rx-note">${fmtR(topics.filter(t=>t.locus).length)} loci · <select id="cd-order" aria-label="Order topics"><option value="shared"${state.o==='shared'?' selected':''}>in loci order</option><option value="n"${state.o==='n'?' selected':''}>most statements</option><option value="denies"${state.o==='denies'?' selected':''}>most denial</option></select></label><p class="rx-note cd-legend"><span>${['asserts','denies','reports','other'].map(k=>`<i style="background:${STANCE_C[k]}"></i>${k==='other'?'qualifies / other':k}`).join(' ')}</span><span>Bars from each room’s selection, one per author in column order · pick a tile</span></p></div><div class="cd-groups" id="cd-mosaic" role="tablist" aria-label="Topics" style="--cols:${authors.length}"></div><div id="cd-tail"></div></div></details>
   <div class="cd-detail"><div class="cd-topic-head"><h3 id="cd-topic-title"></h3><p class="rx-note" id="cd-topic-links"></p></div><p class="cd-mobile-hint">Swipe between authors. Each column keeps its own reading place.</p><div class="cd-columns" id="cd-columns" style="--cols:${authors.length}"></div><div class="cd-dis-view" id="cd-dis" hidden><div class="rx-filters cd-meet-tools"><label>Pairs<select id="cd-match"><option value="any"${state.m!=='opposite'&&state.m!=='assert'?' selected':''}>Any stance</option><option value="opposite"${state.m==='opposite'?' selected':''}>Opposite stances</option><option value="assert"${state.m==='assert'?' selected':''}>Both assert</option></select></label></div><div id="cd-meet-body"></div></div></div>`:`<p class="rx-note">Add an author to begin. Two to four authors compare side by side, topic by topic.</p>`}`;
   // add / remove authors
   const rows=RX.roster(roster.rows).filter(r=>!authors.some(a=>a.s===r.s));
   const dl=host.querySelector('#cd-add-list'),inp=host.querySelector('#cd-add');
-  if(dl&&inp){const fill=q=>{const f=RX.fold(q||'');dl.innerHTML=rows.filter(r=>!f||RX.authorScore(r,f)>0).sort((a,b)=>RX.authorScore(b,f)-RX.authorScore(a,f)).slice(0,30).map(r=>`<option value="${esc(r.a)}">${esc(RX.shelves[r.sh])} · ${fmtR(r.w)} works</option>`).join('');};fill('');
+  if(dl&&inp){
+    // NAMES AS PEOPLE TYPE THEM (owner 2026-09-26 "robust to use as a real tool"): "Augustine" tied Augustine of Hippo
+    // (145 works) with Alexander of St. Augustine's (1 work) and nothing was added. Equal name scores fall to the author
+    // who holds far more of the library (≥10 works and ≥5× the next); a real tie (Turretin 3 vs 2) still asks.
+    const rank=q=>rows.filter(r=>RX.authorScore(r,q)>0).sort((a,b)=>RX.authorScore(b,q)-RX.authorScore(a,q)||(b.w||0)-(a.w||0));
+    const pick=q=>{const hits=rank(q);if(!String(q||'').trim()||!hits.length)return null;if(hits.length===1)return hits[0];
+      if(RX.authorScore(hits[0],q)>RX.authorScore(hits[1],q))return hits[0];const w0=hits[0].w||0,w1=hits[1].w||0;return w0>=10&&w0>=5*Math.max(1,w1)?hits[0]:null;};
+    const fill=q=>{const f=RX.fold(q||'');dl.innerHTML=(f?rank(f):rows.slice().sort((a,b)=>(b.w||0)-(a.w||0))).slice(0,30).map(r=>`<option value="${esc(r.a)}">${esc(RX.shelves[r.sh])} · ${fmtR(r.w)} ${r.w===1?'work':'works'}</option>`).join('');};fill('');
     const go=r=>{state.a=[...authors.map(x=>x.s),r.s];emit();compareDesk(host,state,opts);};
     let adding=false;const choose=r=>{if(adding)return;adding=true;inp.disabled=true;const button=host.querySelector('#cd-add-button');button.disabled=true;button.textContent='Adding…';go(r);};
     inp.oninput=e=>fill(e.target.value);
     inp.onchange=e=>{const hit=rows.filter(r=>RX.fold(r.a)===RX.fold(e.target.value));if(hit.length===1)choose(hit[0]);};
-    const addTyped=()=>{const hits=rows.filter(r=>RX.authorScore(r,inp.value)>0).sort((a,b)=>RX.authorScore(b,inp.value)-RX.authorScore(a,inp.value));if(inp.value.trim()&&(hits.length===1||hits.length>1&&RX.authorScore(hits[0],inp.value)>RX.authorScore(hits[1],inp.value)))choose(hits[0]);else host.querySelector('#cd-add-feedback').textContent=hits.length?'Choose a more specific author name from the suggestions.':'No matching author. Try another name.';};
+    const addTyped=()=>{const hit=pick(inp.value);if(hit){choose(hit);return;}const hits=rank(inp.value);
+      host.querySelector('#cd-add-feedback').textContent=!inp.value.trim()?'Type an author’s name.':hits.length?`${fmtR(hits.length)} authors match “${inp.value.trim()}”: ${hits.slice(0,3).map(r=>r.a).join(', ')}${hits.length>3?'…':''}. Choose one from the suggestions.`:'No matching author. Try another spelling or a surname.';};
     host.querySelector('#cd-add-button').onclick=addTyped;inp.onkeydown=e=>{if(e.key!=='Enter'||e.isComposing)return;e.preventDefault();addTyped();};}
   host.querySelectorAll('[data-cd-remove]').forEach(b=>b.onclick=()=>{authors.splice(+b.dataset.cdRemove,1);state.a=authors.map(x=>x.s);emit();compareDesk(host,state,opts);});
-  if(!authors.length)return;
+  if(!authors.length){
+    // A first visit had one name box and nothing else to go on (owner 2026-09-26 "a real tool, not just a demo"): six
+    // comparisons the library can answer, each opening on its topic. A pair whose room is missing is not offered.
+    const sug=CD_SUGGEST.filter(([a])=>a.every(sl=>bySlug.has(sl)));
+    if(sug.length){host.insertAdjacentHTML('beforeend',`<section class="cd-suggest" aria-labelledby="cd-suggest-h"><h2 id="cd-suggest-h">Start with a comparison</h2><ul>${sug.map(([a,sel,label],i)=>`<li><a href="${cdURL({...state,a,sel})}" data-cd-suggest="${i}"><strong>${a.map(sl=>esc(bySlug.get(sl).a)).join(' and ')}</strong><small>on ${esc(label)}</small></a></li>`).join('')}</ul></section>`);
+      host.querySelectorAll('[data-cd-suggest]').forEach(el=>el.onclick=e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.button)return;e.preventDefault();const [a,sel]=sug[+el.dataset.cdSuggest];state.a=a.slice();state.sel=sel;emit();compareDesk(host,state,opts);});}
+    return;}
   // ── cells ──
   const cells=new Map();   // author slug → cell for the current topic
   const cellKey=(au,t)=>au.s+'|'+t.tslug;const CELLS=host.__cells||(host.__cells=new Map());
@@ -1761,11 +1829,20 @@ async function compareDesk(host,state,opts={}){
   const drawCell=(au,cell)=>{if(!active()||cell.topic!==cur?.tslug)return;const col=host.querySelector(`[data-cd-col="${au.s}"]`);if(!col)return;const pane=col.querySelector('.cd-pane'),y=pane.scrollTop;
     pane.innerHTML=cellHTML(au,cell)+(cell.contract&&!cell.done&&!cell.halted?`<div class="rx-pane-sentinel cd-sentinel" data-cd-sentinel="${au.s}" aria-hidden="true"></div>`:'');pane.scrollTop=y;
     const loaded=cell.rows.length,total=Math.max(cell.total||0,loaded);
-    col.querySelector('.cd-progress').innerHTML=`${fmtR(loaded)} of ${fmtR(total)} statements${cell.loading?' · loading…':cell.done?' · complete':cell.halted?` · the index stopped answering <button type="button" class="rx-text-link" data-cd-retry="${au.s}">Try again</button>`:cell.contract?' · more as you scroll':cell.noIndex?' · room selection only':''}`;
+    // The topic header counts come from the room; once the index answers, the column's total is the one to show, so the
+    // header and the column never disagree (Athanasius on the Trinity read 2,351 above and 2,444 below).
+    if(cell.total){const hc=host.querySelector(`[data-cd-hcount="${au.s}"]`);if(hc)hc.textContent=fmtR(total);}
+    // A stance or phrase filter shows fewer rows than are loaded: say how many match, then what is loaded (owner 2026-09-26).
+    const filtered=!!(state.q||state.s),shown=filtered?cell.rows.filter(matches).length:0;
+    col.querySelector('.cd-progress').innerHTML=`${filtered?`<strong>${fmtR(shown)}</strong> ${shown===1?'matches':'match'} · `:''}${fmtR(loaded)} of ${fmtR(total)} statements${filtered&&!cell.done?' loaded':''}${cell.loading?' · loading…':cell.done?' · complete':cell.halted?` · more statements could not load <button type="button" class="rx-text-link" data-cd-retry="${au.s}">Try again</button>`:cell.contract?' · more as you scroll':cell.noIndex?' · room selection only':''}`;
     const bar=col.querySelector('.cd-bar i');if(bar)bar.style.transform='scaleX('+(total?Math.max(0,Math.min(1,loaded/total)):0)+')';
     if(state.v==='meet')drawMeet();
     pane.querySelectorAll('[data-cd-fold]').forEach(d=>d.addEventListener('toggle',()=>{if(d.open)cell.open.add(d.dataset.cdFold);else cell.open.delete(d.dataset.cdFold);}));
-    cell.io?.disconnect();const sent=pane.querySelector('[data-cd-sentinel]');if(sent){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();pageCell(au,cell);}},{root:pane,rootMargin:'240px 0px'});io.observe(sent);cell.io=io;}};
+    cell.io?.disconnect();const sent=pane.querySelector('[data-cd-sentinel]');if(sent){
+      // The pane is the scroll root only when it scrolls. Where a skin lets the column grow with the page (MereO), a
+      // pane root keeps the sentinel always "visible" and every page streams in at once; the page is the root there.
+      const scrolls=/auto|scroll/.test(getComputedStyle(pane).overflowY)&&pane.scrollHeight>pane.clientHeight+1;
+      const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();pageCell(au,cell);}},{root:scrolls?pane:null,rootMargin:'240px 0px'});io.observe(sent);cell.io=io;}};
   async function pageCell(au,cell){if(!active()||cell.topic!==cur?.tslug||!cell.contract||cell.loading||cell.done||cell.halted)return;cell.loading=true;drawCell(au,cell);
     try{const params=new URLSearchParams({snapshot:cell.contract.snapshot,topic:cell.contract.topic,author:cell.author.id,limit:'50'});if(cell.cursor)params.set('cursor',cell.cursor);
       const result=await evidenceFetch(params);if(!active()){cell.loading=false;return;}
@@ -1787,7 +1864,7 @@ async function compareDesk(host,state,opts={}){
     if(!active()||t.tslug!==cur?.tslug)return;cells.set(au.s,cell);drawCell(au,cell);}
   const showTopic=t=>{for(const cell of cells.values())cell.io?.disconnect();cur=t;state.sel=t.tslug;emit();const picker=host.querySelector('.cd-topic-picker');if(picker)picker.open=false;const selected=host.querySelector('#cd-selected-topic');if(selected)selected.textContent=t.label;
     host.querySelectorAll('[data-cd-topic]').forEach(b=>{const on=b.dataset.cdTopic===t.tslug;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on));if(on){const g=b.closest('.cd-group,.cd-tail');if(g&&!g.open)g.open=true;}});
-    host.querySelector('#cd-topic-title').innerHTML=`${esc(t.label)} <small>${authors.map((au,i)=>esc(au.a)+' '+fmtR(t.counts[i])).join(' · ')}</small>`;
+    host.querySelector('#cd-topic-title').innerHTML=`${esc(t.label)} <small>${authors.map((au,i)=>esc(au.a)+' <span data-cd-hcount="'+esc(au.s)+'">'+fmtR(t.counts[i])+'</span>').join(' · ')}</small>`;
     host.querySelector('#cd-topic-links').innerHTML=(t.via.size?`<span class="cd-includes">Includes ${[...t.via].map(esc).join(', ')}.</span> `:'')+(t.reg?`<a class="rx-text-link" href="/the-faith-received/topics/#${encodeURIComponent(t.reg)}?compare=${authors.map(a=>encodeURIComponent(a.s)).join(',')}">All authors on ${esc(t.label)}</a> · <a class="rx-text-link" href="/the-faith-received/connections/#t=${encodeURIComponent(t.reg)}">In the citation web</a>`:'')+(authors.length===2?` · <a class="rx-text-link" href="/the-faith-received/fathers/?sh=${encodeURIComponent(authors[0].sh)}#${encodeURIComponent(authors[0].s)}/with/${encodeURIComponent(authors[1].s)}">Citations between ${esc(authors[0].a)} and ${esc(authors[1].a)}</a>`:'');
     host.querySelector('#cd-columns').innerHTML=authors.map(au=>`<section class="cd-col" data-cd-col="${esc(au.s)}"><header class="cd-col-head"><h4><a href="${RX.authorURL(au.r,t.label)}">${esc(au.a)}</a></h4><p class="rx-note cd-when">${esc(whenOf(au))}</p><p class="rx-note cd-progress"></p><div class="cd-bar"><i></i></div></header><div class="cd-pane rx-pane"></div></section>`).join('');
     setView();authors.forEach(au=>openCell(au,t));};
@@ -1908,13 +1985,14 @@ async function cdSaveView(st,{names=[],topic='',name=''}={}){
 async function comparePage(){
   const run=researchStart('research-compare');
   const state=cdParse(location.hash);
-  const write=st=>{const h=cdHash(st);if(location.hash!==h)history.replaceState(null,'',location.pathname+location.search+h);const button=$('#cd-save');if(button)button.disabled=!st.a.length;};
+  const write=st=>{const h=cdHash(st);if(location.hash!==h)history.replaceState(null,'',location.pathname+location.search+h);const button=$('#cd-save');if(button){button.disabled=!st.a.length;button.hidden=!st.a.length;}};
   page.innerHTML=`<div class="crumbs"><a href="/the-faith-received/topics/">Topics</a> · <a href="/the-faith-received/authors/">Authors</a></div>
   <div class="research-intro cd-intro"><div><h1>Compare</h1><p>Compare authors on a topic, read the passages grouped by work, and bring your findings into the writing desk.</p></div></div>
-  <div class="cd-viewbar"><button type="button" class="rx-button" id="cd-save" disabled>Save this view</button><details class="rx-fold cd-saved"><summary><span><strong>Saved views</strong><small id="cd-saved-count"></small></span></summary><div id="cd-saved-list" class="rx-fold-body"></div></details></div>
+  <div class="cd-viewbar"><button type="button" class="rx-button" id="cd-save" disabled hidden>Save this view</button><details class="rx-fold cd-saved" hidden><summary><span><strong>Saved views</strong><small id="cd-saved-count"></small></span></summary><div id="cd-saved-list" class="rx-fold-body"></div></details></div>
   <div id="cd-host"><p class="rx-note" role="status">Loading the comparison directory…</p></div>`;
   const host=$('#cd-host');
-  const drawSaved=()=>{const v=cdViews.read(),viewError=cdViews.lastError,here=cdURL(cdParse(location.hash));$('#cd-saved-count').textContent=v.length?fmtR(v.length)+' in this browser':'none yet';
+  // The saved-views fold shows once there is a saved view (or an error to report); an empty one cost a screen row.
+  const drawSaved=()=>{const v=cdViews.read(),viewError=cdViews.lastError,here=cdURL(cdParse(location.hash));$('#cd-saved-count').textContent=v.length?fmtR(v.length)+' in this browser':'none yet';const fold=$('.cd-saved');if(fold)fold.hidden=!v.length&&!viewError;
     $('#cd-saved-list').innerHTML=viewError?'<p class="rx-note" role="status">'+esc(viewError)+'</p>':v.length?v.map(x=>`<div class="cd-saved-row${x.url===here?' on':''}" data-cd-row="${esc(x.id)}"><a href="${esc(x.url)}">${esc(x.name)}</a><small>${esc((x.authors||[]).join(' · '))}${x.topic?' · '+esc(x.topic):''}${x.url===here?' · this view':''}</small><span class="cd-saved-actions"><button type="button" class="rx-text-link" data-cd-rename="${esc(x.id)}">Rename</button><button type="button" class="rx-text-link" data-cd-del="${esc(x.id)}">Remove</button></span></div>`).join(''):'<p class="rx-note">Save a view to keep a shortcut here and a copy in the selected notebook.</p>';
     $('#cd-saved-list').querySelectorAll('[data-cd-del]').forEach(b=>b.onclick=()=>{try{cdViews.write(cdViews.read().filter(x=>x.id!==b.dataset.cdDel));drawSaved();}catch(error){cdNotice(page,error.message);}});
     $('#cd-saved-list').querySelectorAll('[data-cd-rename]').forEach(b=>b.onclick=()=>{const row=b.closest('[data-cd-row]'),x=cdViews.read().find(y=>y.id===b.dataset.cdRename);if(!row||!x)return;row.innerHTML=`<form class="cd-rename"><input type="text" value="${esc(x.name)}" aria-label="Name for this view" maxlength="120"><button type="submit" class="rx-button">Save name</button><button type="button" class="rx-text-link" data-cd-cancel>Cancel</button></form>`;const inp=row.querySelector('input');inp.focus();inp.select();
