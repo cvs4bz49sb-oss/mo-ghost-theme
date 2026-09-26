@@ -828,6 +828,12 @@ async function room(slug,arg){
   let d=null,RSH=candidates[0]?.sh||hint||'pl';
   for(const r of candidates.length?candidates:[{sh:RSH}]){d=await J(BLOB+`/v1/bible/${r.sh}/rooms/${slug}.json`).catch(()=>null);if(d){RSH=r.sh;break;}}
   if(run!==RESEARCH_RUN)return;if(!d){researchError('This author could not load');return;}
+  /* A RETIRED ROOM (corpus owner 2026-09-26: "there are two Alain de Lille … fix both sites"): a room whose name the alias ledger now folds
+     into another person's (Alain of Lille → Alain de Lille, Theodori Studit → Theodore the Studite) stays on the library for old links but is
+     in no roster. Open the person's own room — the shelf holding most of their works — rather than the old half of it. */
+  if(!candidates.length){const al=await J(BLOB+'/v1/author_aliases.json').catch(()=>null);if(run!==RESEARCH_RUN)return;const to=al&&al[d.a],ts=(to&&aslug(to))||(aslug(d.a)!==slug?aslug(d.a):'');   /* a retired room's file now carries its person's room (09-26 data redirect): its own name gives the slug */
+    const live=ts&&roster.rows.filter(r=>r.s===ts).sort((a,b)=>(b.w||0)-(a.w||0))[0];
+    if(live){history.replaceState(null,'',location.pathname+'?sh='+encodeURIComponent(live.sh)+'#'+ts+(typeof arg==='string'&&arg?'/'+arg:''));route();return;}}
   let roomViewRun=0;
   await topicSlugs();if(run!==RESEARCH_RUN)return;   // the registry (aliases included) must be in hand before the fold (09-13)
   const topics=canonRoomTopics(d.topics).sort((a,b)=>(b.np||0)-(a.np||0));   // variants folded into their locus (topicCanon)
