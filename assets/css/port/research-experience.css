@@ -310,7 +310,7 @@ body.research-page .pinb{min-height:0;min-width:0;font:500 12.5px/1.2 var(--sans
 .cd-suggest{margin:26px 0 8px}
 .cd-suggest h2{font:600 1.05rem/1.3 var(--sans,inherit);margin:0 0 10px}
 .cd-suggest ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.cd-suggest a{display:flex;flex-direction:column;gap:3px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card,transparent);color:inherit;text-decoration:none;min-height:44px}
+.cd-suggest a{display:flex;flex-direction:column;gap:3px;padding:12px 14px;border:1px solid var(--border);border-radius:3px;background:var(--card,transparent);color:inherit;text-decoration:none;min-height:44px}
 .cd-suggest a:hover,.cd-suggest a:focus-visible{border-color:var(--fg,currentColor)}
 .cd-suggest small{color:var(--muted)}
 /* On a phone the filter row folds under one line (it took most of the first screen); on a wide screen it is always open. */
@@ -342,6 +342,9 @@ body.research-page .pinb{min-height:0;min-width:0;font:500 12.5px/1.2 var(--sans
 .vc.vc-row .vact .readbtn:hover,.vc.vc-row .vact .peekbtn:hover,.vc.vc-row .vact .peekbtn.on{border-color:var(--fg)!important}
 .vc.vc-row>.peekwrap{grid-column:1/-1}
 @media (max-width:640px){.vc.vc-row{grid-template-columns:1fr auto;row-gap:2px}.vc.vc-row .howtag{grid-column:2;grid-row:1;justify-self:end}.vc.vc-row .vpg{grid-column:1}.vc.vc-row .vact{grid-column:2}}
+.vc-chapter-filter{display:flex;align-items:center;gap:10px;margin:.6rem 0;font:600 13px/1.3 var(--body,inherit);color:var(--muted)}
+.vc-chapter-filter select{min-height:40px;min-width:min(19rem,100%);padding:7px 34px 7px 10px;border:1px solid var(--border);border-radius:3px;background:var(--card,var(--bg));color:var(--fg);font:15px/1.3 var(--body,inherit)}
+@media (max-width:640px){.vc-chapter-filter{align-items:stretch;flex-direction:column;gap:5px}.vc-chapter-filter select{width:100%;min-width:0;min-height:44px}}
 /* ITS TOPICS AND ITS AUTHORITIES on a work page (owner 2026-09-26, "the pills, etc"): the statement (or the citation)
    in the text colour, a stance as a small-caps word, and page · Open · Preview · Save as one joined thin-line group.
    The port had a faint boxed stance, an oval Preview and run-together links ("p. 10Open"). A topic's row is
@@ -378,19 +381,16 @@ body.research-page .pinb{min-height:0;min-width:0;font:500 12.5px/1.2 var(--sans
 .rx-work-contents ol{margin:6px 0 4px;padding-left:1.4rem;max-height:18rem;overflow:auto;font-size:.88rem;line-height:1.45}
 .rx-work-contents li{margin:2px 0}
 .rx-work-contents li small{color:var(--muted);margin-left:8px;font-variant-numeric:tabular-nums}
-/* Its Scripture: chips filter, the first twenty rows show, a filtered chapter shows all of its rows. */
+/* Its Scripture: the first twenty rows show; selecting a chapter shows all of its rows. */
 .vc.vc-row[hidden]{display:none!important}
 .wdet:not(.vc-open):not(.vc-chapter) .vc-extra{display:none}
-.vc-chips{display:flex;flex-wrap:wrap;gap:6px;margin:.4rem 0 .3rem}
-.vc-chips .chp{cursor:pointer;min-height:32px}
-.vc-chips .chp.on{outline:2px solid var(--fg);outline-offset:1px}
 .vc-status{margin:.2rem 0;font-size:.86rem;color:var(--muted)}
 .vc-status:empty{display:none}
 .vc-all{margin:.4rem 0;font-size:.88rem}
 .vc-note{margin:.3rem 0 0;font-size:.82rem;color:var(--muted)}
 /* THE MINI READER (owner 2026-09-26): one framed panel with its own header — title, open in full, close — at a steady size. */
 .peekwrap.on{margin:8px 0 14px}
-.peekwrap.on>div{border:1px solid var(--border);border-radius:10px;background:var(--card,var(--bg));overflow:hidden}
+.peekwrap.on>div{border:1px solid var(--border);border-radius:3px;background:var(--card,var(--bg));overflow:hidden}
 .peekwrap .peekhead{position:static;display:flex;align-items:center;flex-wrap:wrap;gap:4px 16px;padding:6px 12px;border-bottom:1px solid var(--border);background:var(--bg);font-size:13px}
 .peekwrap .peekhead strong{font:600 13px/1.3 var(--body,inherit);margin-right:auto;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-basis:auto}
 .peekwrap .peekhead a,.peekwrap .peekhead button{margin-left:0;font:13px var(--body,inherit);color:var(--fg);background:none;border:0;padding:4px 0;min-height:32px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}

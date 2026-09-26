@@ -1741,14 +1741,15 @@ html:not(.mo-embedded) .fra {
 }
 .fra-found-chip {
   max-width: 100%;
-  padding: 3px 10px;
+  min-height: 34px;
+  padding: 4px 10px;
   font: inherit;
   font-size: 13px;
   line-height: 1.35;
   color: var(--fra-fg);
   background: var(--fra-card);
   border: 1px solid var(--color-card-border);
-  border-radius: 999px;
+  border-radius: 3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1758,6 +1759,10 @@ html:not(.mo-embedded) .fra {
 .fra-found-chip:focus-visible {
   color: var(--color-primary-text);
   border-color: var(--color-primary-text);
+}
+.fra-found-chip:focus-visible {
+  outline: 2px solid var(--color-primary-text);
+  outline-offset: 2px;
 }
 .fra-found-more {
   align-self: center;
@@ -1777,7 +1782,7 @@ html:not(.mo-embedded) .fra {
   vertical-align: 0.06em;
   color: var(--color-muted);
   border: 1px dashed var(--color-muted);
-  border-radius: 4px;
+  border-radius: 2px;
   white-space: nowrap;
   cursor: help;
 }
@@ -1796,8 +1801,9 @@ html:not(.mo-embedded) .fra {
   color: var(--fra-fg);
   background: var(--fra-card);
   border: 1px solid var(--color-card-border);
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+  border-radius: 3px;
+  box-shadow: 0 8px 28px rgba(45, 41, 39, 0.13);
+  overscroll-behavior: contain;
 }
 .fra-citepop[hidden] { display: none; }
 .fra-citepop-head {
@@ -1841,6 +1847,7 @@ html:not(.mo-embedded) .fra {
   border-top: 1px solid var(--color-card-border);
 }
 .fra-citepop-actions button {
+  min-height: 34px;
   padding: 0;
   font: inherit;
   color: var(--color-primary-text);
@@ -1851,3 +1858,9 @@ html:not(.mo-embedded) .fra {
   cursor: pointer;
 }
 .fra-citepop-actions a { color: var(--color-primary-text); }
+@media (max-width: 640px) {
+  .fra-found-chip,
+  .fra-citepop-actions button,
+  .fra-citepop-actions a { min-height: 44px; }
+  .fra-citepop-actions a { display: inline-flex; align-items: center; }
+}

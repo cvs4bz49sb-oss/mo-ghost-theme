@@ -2036,38 +2036,85 @@ main#frAuthorOwn form.srow button {
    own, so the page shows through. */
 #faith-web-constellations .cn-stage{background:transparent;border:0;border-radius:0}
 
-/* ── THE WORK PAGE'S SCRIPTURE IN THE LIBRARY'S DRESS (corpus owner, 2026-09-26:
-   "change the color layout and UX for Work page … to match his professional
-   style (the pills, etc)"). Skin only, scoped to main.research-work, in the
-   room's own terms: chapter chips are thin-line boxes with a terracotta bar and
-   a terracotta fill when chosen; a citation's kind is a small-caps word, not a
-   pill; Open and Preview are one joined group with Open outlined as the primary;
-   rows sit on hairlines; the preview is a thin-line box with an eyebrow head. */
+/* ── THE WORK PAGE'S SCRIPTURE IN THE LIBRARY'S DRESS. Scoped to
+   main.research-work: a compact chapter selector, citation kinds as small-caps
+   words, joined Open and Preview actions, ruled rows, and a restrained preview. */
 main.research-work {
   --wk-accent: var(--color-secondary, #c1593c);
   --wk-ink: var(--ink, #2d2927);
   --wk-muted: var(--muted, #6b6660);
 }
-main.research-work .vc-chips { gap: 6px; margin: 6px 0 12px; }
-main.research-work .vc-chips .chp {
-  min-height: 34px;
-  padding: 5px 10px 6px;
+/* Scripture is a reading index, not a wall of tiny controls. Each book is a
+   flat ruled section; one native selector carries every chapter and its count. */
+main.research-work details.wdet.vc-book {
+  border-inline: 0;
+  border-radius: 0;
+  background: transparent;
+  margin-bottom: 28px;
+  overflow: visible;
+}
+main.research-work details.wdet.vc-book > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0;
+  background: transparent;
+}
+main.research-work details.wdet.vc-book > summary > b {
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+main.research-work details.wdet.vc-book > summary > .n {
+  margin-left: auto;
+  color: var(--wk-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+main.research-work details.wdet.vc-book[open] > summary { border-bottom: 1px solid var(--ar-line); }
+main.research-work .vc-chapter-filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--ar-line);
+  font: 600 11.5px/1.4 var(--font-body, "Source Serif Pro", Georgia, serif);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wk-muted);
+}
+main.research-work .vc-chapter-filter select {
+  min-width: min(320px, 100%);
+  min-height: 40px;
+  padding: 8px 34px 8px 11px;
   border: 1px solid var(--ar-line);
   border-radius: 3px;
   background: var(--ar-card);
   color: var(--wk-ink);
-  font: 13px/1.15 var(--font-body, "Source Serif Pro", Georgia, serif);
-  font-variant-numeric: tabular-nums;
-  outline: 0;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  font: 15px/1.3 var(--font-body, "Source Serif Pro", Georgia, serif);
+  letter-spacing: 0;
+  text-transform: none;
 }
-main.research-work .vc-chips .chp > span > span { color: var(--wk-muted) !important; }
-main.research-work .vc-chips .chp em { height: 2px; border-radius: 1px; background: var(--wk-accent); opacity: 0.55; }
-main.research-work .vc-chips .chp:hover { border-color: var(--wk-accent); }
-main.research-work .vc-chips .chp:focus-visible { outline: 2px solid var(--wk-accent); outline-offset: 2px; }
-main.research-work .vc-chips .chp.on { border-color: var(--wk-accent); background: var(--wk-accent); color: #fff; outline: 0; }
-main.research-work .vc-chips .chp.on > span > span { color: rgba(255, 255, 255, 0.82) !important; }
-main.research-work .vc-chips .chp.on em { background: #fff; opacity: 0.7; }
+main.research-work .vc-chapter-filter select:focus-visible {
+  outline: 2px solid var(--wk-accent);
+  outline-offset: 2px;
+  border-color: var(--wk-accent);
+}
+main.research-work details.wdet.vc-book > .vc-status {
+  min-height: 0;
+  margin: 0;
+  padding: 10px 0 0;
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--wk-muted);
+}
+main.research-work details.wdet.vc-book > .vcits {
+  padding: 0 !important;
+  border-bottom: 0;
+  border-top: 0;
+}
 /* What the rows show: an eyebrow, with its one action as a thin-line box. */
 main.research-work .vc-status {
   display: flex;
@@ -2242,6 +2289,11 @@ main.research-work .deck .pill {
 }
 /* On a phone an authority's citation and resolved work take their own lines, so the group never breaks apart. */
 @media (max-width: 640px) {
+  main.research-work .vc-chapter-filter { align-items: stretch; flex-direction: column; gap: 6px; }
+  main.research-work .vc-chapter-filter select { width: 100%; min-width: 0; min-height: 44px; }
+  main.research-work .vc.vc-row .vact > :is(.readbtn, .peekbtn),
+  main.research-work details.wdet .m > :is(.readbtn, .peekbtn, .pinb) { min-height: 44px; }
+  main.research-work .vc.vc-row { padding-block: 12px; row-gap: 6px; }
   main.research-work details.wdet > div:not(.ev) > .m > span:first-child { flex: 1 1 100%; margin: 0 0 4px; }
   main.research-work details.wdet > div:not(.ev) > .m > span[style*="faint"] { flex: 1 1 100%; margin: 0 0 6px; }
   main.research-work details.wdet > div:not(.ev) > .m > span:nth-child(2) { margin-left: 0; }

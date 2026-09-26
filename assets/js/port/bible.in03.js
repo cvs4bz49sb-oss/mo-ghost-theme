@@ -1323,10 +1323,9 @@ async function workPage(dnum){
     // verses work for ranges"). Twenty rows show; the rest follow "Show all" or a chapter.
     const rows=(b2.rows||[]).map((r,ri)=>{const ref=`${esc(BNAME[b2.b]||b2.b)} ${r.c??""}${r.v?":"+r.v:""}${r.v&&r.ve>r.v?"–"+r.ve:""}`,kind=HOWA[r.how]||r.how||'';
       return `<div class="vc vc-row${ri>=20?' vc-extra':''}" data-c="${r.c??""}">${r.c?`<a class="vref" href="/the-faith-received/bible/#b/${bsl}/${r.c}${r.v?"?v="+r.v:""}">${ref}</a>`:`<span class="vref">${ref}</span>`}<span class="howtag${kind?' how-'+esc(kind):''}">${esc(kind)}</span><span class="vpg">${pgl(slug)} ${r.p??"?"}</span><span class="vact">${readBtn(slug,r.p)}</span></div>`;}).join("");
-    const cm2=Math.max(...(b2.chs||[]).map(x=>x[1]),1);
-    const chs=(b2.chs||[]).map(([c2,n2])=>`<button class="chp heat" data-c="${c2}" title="chapter ${c2} · ${n2} citations"><span>${c2}<span style="color:var(--faint)"> · ${n2}</span></span><em style="width:${Math.max(4,34*Math.sqrt(n2/cm2)).toFixed(0)}px"></em></button>`).join("");
-    return `<details class="wdet"${i===0?" open":""}><summary><b>${esc(BNAME[b2.b]||b2.b)}</b><i style="width:${Math.max(3,100*Math.sqrt(b2.n/bmax2)*.4).toFixed(0)}%"></i><span class="n">${b2.n.toLocaleString()}</span></summary>
-      ${chs?`<div class="vc-chips" role="group" aria-label="Chapters of ${esc(BNAME[b2.b]||b2.b)}">${chs}</div>`:""}
+    const chapters=(b2.chs||[]).map(([c2,n2])=>`<option value="${esc(c2)}">Chapter ${esc(c2)} · ${fmtR(n2)} ${n2===1?'citation':'citations'}</option>`).join("");
+    return `<details class="wdet vc-book"${i===0?" open":""}><summary><b>${esc(BNAME[b2.b]||b2.b)}</b><i style="width:${Math.max(3,100*Math.sqrt(b2.n/bmax2)*.4).toFixed(0)}%"></i><span class="n">${b2.n.toLocaleString()}</span></summary>
+      ${chapters?`<label class="vc-chapter-filter"><span>Chapter</span><select data-vc-chapter aria-label="Filter ${esc(BNAME[b2.b]||b2.b)} citations by chapter"><option value="">All chapters</option>${chapters}</select></label>`:""}
       <p class="vc-status" role="status"></p>
       <div class="vcits" style="margin-left:0">${rows}</div>${(b2.rows||[]).length>20?`<button type="button" class="rx-text-link vc-all" data-vc-all>Show all ${fmtR((b2.rows||[]).length)} citations</button>`:''}${b2.n>(b2.rows||[]).length?`<p class="vc-note">${fmtR((b2.rows||[]).length)} of ${fmtR(b2.n)} citations are listed; <a href="${readerHref(slug)}">the reader</a> has every page.</p>`:''}</details>`;}).join("");
   const topics=(ins&&ins.topics||[]).map((t2,i)=>{
@@ -1379,19 +1378,22 @@ async function workPage(dnum){
         <div>${g.rows.slice(0,80).map(r2=>`<div class="m" style="margin:.25rem 0 0;flex-wrap:wrap"><span style="font-size:.85rem">${r2.loc?`<i>${esc(r2.loc)}</i>`:esc(r2.sf)}</span><span>${pgl(slug)} ${r2.p??"?"}</span>${readBtn(slug,r2.p)}${r2.tw?`<span style="color:var(--faint);font-size:.74rem">→ ${esc(tell(String((F.works||{})[r2.tw]||r2.tw)))}</span>`:''}</div>`).join("")}
         ${g.rows.length>80?`<div style="color:var(--faint);font-size:.78rem;margin-top:.3rem">+ ${(g.rows.length-80).toLocaleString()} more in <a href="/the-faith-received/fathers/#${aslug(A)}/reception">${esc(A)}’s Reception</a></div>`:""}</div></details>`).join("");
   }catch(_){}})();
-  // A chapter chip shows that chapter's citations and says how many; pressed again (or "All chapters") it shows the book
-  // again. "Show all" lifts the first-twenty limit (owner 2026-09-26: "even the clicking behavior is bad here").
-  page.addEventListener("click",e=>{
-    const all=e.target.closest(".wdet [data-vc-all]");if(all){const det=all.closest(".wdet");det.classList.add("vc-open");all.hidden=true;return;}
-    const reset=e.target.closest(".wdet [data-vc-reset]");
-    const cp=reset?null:e.target.closest(".wdet .chp[data-c]");if(!cp&&!reset)return;
-    const det=(cp||reset).closest(".wdet"),on=!!cp&&!cp.classList.contains("on");
-    det.querySelectorAll(".chp[data-c]").forEach(x=>{x.classList.remove("on");x.setAttribute("aria-pressed","false");});
-    if(on){cp.classList.add("on");cp.setAttribute("aria-pressed","true");}
-    let n=0;det.querySelectorAll(".vc[data-c]").forEach(r=>{r.hidden=on&&r.dataset.c!==cp.dataset.c;if(on&&!r.hidden)n++;});
+  // One compact chapter selector replaces the wall of chapter chips. It keeps every
+  // chapter available while leaving the citations as the page's visual subject.
+  const filterChapter=(det,chapter)=>{
+    const on=Boolean(chapter);let n=0;
+    det.querySelectorAll(".vc[data-c]").forEach(r=>{r.hidden=on&&r.dataset.c!==chapter;if(on&&!r.hidden)n++;});
     det.classList.toggle("vc-chapter",on);
     const st=det.querySelector(".vc-status"),book=det.querySelector("summary b")?.textContent||"";
-    if(st)st.innerHTML=on?(n?`${fmtR(n)} ${n===1?"citation":"citations"} in ${esc(book)} ${esc(cp.dataset.c)} · <button type="button" class="rx-text-link" data-vc-reset>All chapters</button>`:`No citation of ${esc(book)} ${esc(cp.dataset.c)} is listed on this page · <button type="button" class="rx-text-link" data-vc-reset>All chapters</button>`):"";
+    if(st)st.textContent=on?(n?`${fmtR(n)} ${n===1?"citation":"citations"} in ${book} ${chapter}`:`No citation of ${book} ${chapter} is listed on this page`):"";
+  };
+  page.addEventListener("change",e=>{
+    const select=e.target.closest(".wdet [data-vc-chapter]");if(!select)return;
+    filterChapter(select.closest(".wdet"),select.value);
+  });
+  // "Show all" lifts the first-twenty limit without changing the chapter selection.
+  page.addEventListener("click",e=>{
+    const all=e.target.closest(".wdet [data-vc-all]");if(all){const det=all.closest(".wdet");det.classList.add("vc-open");all.hidden=true;return;}
   });
 }
 /* ── topic page: the corpus room — century band, era-nested authors, mine + Migne ── */
