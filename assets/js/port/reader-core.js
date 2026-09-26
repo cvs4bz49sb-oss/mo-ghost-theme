@@ -4234,6 +4234,10 @@ function setContentsOpen(open,restoreFocus=false){
   const sidebar=document.querySelector('.sidebar'),focused=document.activeElement;
   app.classList.toggle('nosb',!open);
   if(open)document.documentElement.classList.remove('mh-hide','mh-mini');
+  /* 09-26 (owner: "nav placement is a bit weird when clicking around on toc"): the drawer closes after a TOC click and reopened on
+     whatever it last showed, the current entry often 2,000px below. Reopening now centres the outline's current row (the outline's
+     own row, never the volume list — see the volume box note above). */
+  if(open)requestAnimationFrame(()=>{try{const n=document.querySelector('#nav .nav-node.on, #nav .fol.on, #nav [aria-current="location"]');if(n)n.scrollIntoView({block:'center',inline:'nearest'});}catch(e){}});
   if(!open&&sidebar?.contains(focused))focused.blur();
   window.__frThumbSync?.();
   if(!open&&restoreFocus){const target=document.documentElement.classList.contains('g-mobile')?document.querySelector('.frthumb [data-t="toc"]'):$('#sbT');target?.focus({preventScroll:true});}
@@ -5196,8 +5200,18 @@ function wireVolTravel(volWord,volN,meId,prefix,store){
       // past it; a summary that names the volume puts it in front of them instead.
       box.innerHTML=`<details class="vncontents"><summary class="vnhead">Browse ${volWord} ${volN}${i>=0?` &middot; ${i+1} of ${sp.works.length}`:""}</summary><div class=vnhead><span>Volume navigation</span>`+
         `<span class=vnnav>${sp.prev?`<a target="_blank" rel="noopener" href="/the-faith-received/read/?w=${prefix}-${sp.prev.first}" title="${volWord} ${sp.prev.vol}">&#8249; ${volWord} ${sp.prev.vol}</a>`:""}`+
-        `${sp.next?`<a target="_blank" rel="noopener" href="/the-faith-received/read/?w=${prefix}-${sp.next.first}" title="${volWord} ${sp.next.vol}">${volWord} ${sp.next.vol} &#8250;</a>`:""}</span></div><div class="vnlist">`+rows+`</div></details>`;
+        `${sp.next?`<a target="_blank" rel="noopener" href="/the-faith-received/read/?w=${prefix}-${sp.next.first}" title="${volWord} ${sp.next.vol}">${volWord} ${sp.next.vol} &#8250;</a>`:""}</span></div>`+
+        `<label class="vnsw">Go to volume <select class="vnsel" title="Every volume of this shelf"><option value="">${volWord} ${volN}</option></select></label><div class="vnlist">`+rows+`</div></details>`;
       nav.appendChild(box);
+      /* VOLUME SWITCHER (owner 2026-09-26 "a system for the user to switch to different volumes in Latin Fathers, Greek Fathers"):
+         one select listing every volume of the shelf (v1/pgvols.json | v1/plvols.json: vol, first work, author, work count), loaded on first use;
+         choosing a volume opens its first work, whose own volume box then lists that volume. */
+      try{const sel=box.querySelector('select.vnsel');if(sel){let loaded=false;
+        const fill=()=>{if(loaded)return;loaded=true;fetch(BLOB+"/v1/"+(prefix==='pg'?'pgvols':'plvols')+".json").then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.vols||!j.vols.length)return;
+          sel.innerHTML=j.vols.map(v=>{const id=v.first&&v.first.id!=null?String(v.first.id):'';const au=v.first&&v.first.a?String(v.first.a).slice(0,40):'';
+            return `<option value="${esc(id)}"${+v.vol===+volN?' selected':''}>${volWord} ${v.vol}${au?' \u00b7 '+esc(au):''}${v.n?' ('+v.n+')':''}</option>`;}).join('');}).catch(()=>{});};
+        sel.addEventListener('focus',fill);sel.addEventListener('mousedown',fill);sel.addEventListener('touchstart',fill,{passive:true});
+        sel.addEventListener('change',()=>{const id=sel.value;if(id)location.href=`/the-faith-received/read/?w=${prefix}-${id}`;});}}catch(e){}
       // NEVER scrollIntoView here: #nav is the SHARED scroll container — centering the
       // volume row dragged the outline 8,800px away from the reader's position on every
       // canon work (Opus audit P0). Center the OUTLINE's active node; the volume list
@@ -5276,7 +5290,16 @@ function volGapPlates(band,nb,dir){const V=window.__volCtx;if(!band||!nb||!nb.c|
   (window.__pgpvCache[url]=window.__pgpvCache[url]||fetch(url).then(r=>r.ok?r.text():null).catch(()=>null)).then(x=>{if(!x)return;
     const plates=[];for(const m of x.matchAll(/<surface[^>]*\bn="(\d+)"[^>]*facs="([^"]+)"/g)){const n=+m[1];if(n>=a&&n<=b&&n%2)plates.push([n,m[2]]);}
     if(!plates.length)return;const g=document.createElement("div");g.className="volgap";
-    g.innerHTML=`<span class=vk>Plates ${a}&#8211;${b} belong to no work in this volume</span><div class=vgrow>`+plates.map(([n,f])=>`<a href="${esc(f)}" target="_blank" rel="noopener" title="Columns ${n}&#8211;${n+1}"><img src="${esc(f)}" loading="lazy" alt="Plate ${n}"><span>${n}&#8211;${n+1}</span></a>`).join("")+`</div>`;
+    g.innerHTML=`<span class=vk>Plates ${a}&#8211;${b} are not indexed to a work in this volume</span><div class=vgrow>`+plates.map(([n,f],j)=>`<a href="${esc(f)}" class="vgp" data-j="${j}" title="Columns ${n}&#8211;${n+1} \u2014 opens in the reader; \u2190 \u2192 step through the plates"><img src="${esc(f)}" loading="lazy" alt="Plate ${n}"><span>${n}&#8211;${n+1}</span></a>`).join("")+`</div>`;
+    /* VOLUME COMPLETENESS (owner 2026-09-26 "all pages for each volume can be seen"): a plate no work indexes opens in the reader's own
+       lightbox, and the arrow keys walk the strip, so every printed opening of the volume is reachable from the works around it. */
+    g._plates=plates;
+    g.addEventListener('click',ev=>{const a_=ev.target.closest('a.vgp');if(!a_)return;const light=document.getElementById('light'),limg=document.getElementById('limg');if(!light||!limg)return;
+      ev.preventDefault();window.__gapStrip={plates:g._plates,j:+a_.dataset.j};limg.src=a_.href;light.classList.add('open');});
+    if(!window.__gapKeys){window.__gapKeys=true;document.addEventListener('keydown',ev=>{const S=window.__gapStrip,light=document.getElementById('light'),limg=document.getElementById('limg');
+      if(!S||!light||!light.classList.contains('open')||!limg)return;const d=ev.key==='ArrowRight'?1:ev.key==='ArrowLeft'?-1:0;if(!d)return;
+      const j=S.j+d;if(j<0||j>=S.plates.length)return;ev.preventDefault();ev.stopPropagation();S.j=j;limg.src=S.plates[j][1];},true);
+      document.addEventListener('click',ev=>{const light=document.getElementById('light');if(light&&!light.classList.contains('open'))window.__gapStrip=null;});}
     if(dir>0)band.before(g);else band.after(g);});}
 // SOURCE-LANE SELECTOR (PG/PO): the source column can carry more than one witness —
 // PG: Greek (vision) · Latin (Migne's facing column) · OCR (the scholarios diplomatic
@@ -6895,7 +6918,11 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
       if(_sc2&&_sc2.facs&&Object.keys(_sc2.facs).length){
         const sm={};for(const k in _sc2.facs)sm[+k]=_sc2.facs[k];
         pages.forEach(n=>{if(!facs[n])facs[n]=sm[n%2===1?n:n-1]||sm[n]||null;});
-      }else if(window.__PGPV_URL){
+      }
+      /* 09-26 (owner: "col. 781 — scan unavailable … and all things like it"): a sidecar that knows SOME openings used to stop the
+         search; an opening it lacks then fell to the pattern guess below, which 404s. The volume pageview is consulted for every
+         opening still without a plate. */
+      if(pages.some(n=>!facs[n])&&window.__PGPV_URL){
         window.__pgpvCache=window.__pgpvCache||{};
         window.__pgpvCache[window.__PGPV_URL]=window.__pgpvCache[window.__PGPV_URL]||fetch(window.__PGPV_URL).then(r=>r.ok?r.text():null).catch(()=>null);
         const pvXml=await window.__pgpvCache[window.__PGPV_URL];
