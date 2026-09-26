@@ -76,13 +76,15 @@
      * author, work, etc and even when the same work might cite the same passage over many pages";
      * "allow the collapsing or expansion without going to a new link"): his two commentary lists,
      * the citations grouped by author and then work, similar passages, then Ask. Every section folds
-     * in place. */
+     * in place. The two commentary lists start closed, with their counts, and every commentary
+     * previews in place, as on the verse panel (2026-09-25: "for desk make same thing preview for
+     * each"). */
     `<section class="sd-desk-sec" aria-labelledby="sd-h-comm">` +
-      `<details class="sd-desk-fold" open><summary><h2 class="sd-h2" id="sd-h-comm">Chapter commentaries <span class="sd-muted" data-sd-comm-n></span></h2></summary>` +
+      `<details class="sd-desk-fold"><summary><h2 class="sd-h2" id="sd-h-comm">Chapter commentaries <span class="sd-muted" data-sd-comm-n></span></h2></summary>` +
       `<div data-sd-comm><p class="sd-muted" role="status">Loading commentaries…</p></div></details>` +
     `</section>` +
     `<section class="sd-desk-sec" aria-labelledby="sd-h-wb">` +
-      `<details class="sd-desk-fold" open><summary><h2 class="sd-h2" id="sd-h-wb">Whole-Bible commentaries <span class="sd-muted" data-sd-wb-n></span></h2></summary>` +
+      `<details class="sd-desk-fold"><summary><h2 class="sd-h2" id="sd-h-wb">Whole-Bible commentaries <span class="sd-muted" data-sd-wb-n></span></h2></summary>` +
       `<div data-sd-wb></div></details>` +
     `</section>` +
 
@@ -95,6 +97,7 @@
       `<ol class="sd-sources sd-top" data-sd-top></ol>` +
       `<h3 class="sd-h3" id="sd-h-all" data-sd-all-h>All citations</h3>` +
       `<p class="sd-muted">By author, then by work; a work that cites the verse on several pages is one row.</p>` +
+      `<div class="sd-kinds" data-sd-kinds hidden></div>` +
       `<div class="sd-groups" data-sd-rows></div>` +
       `<button type="button" class="sd-more" data-sd-more hidden>Show more</button>` +
       `</details>` +
@@ -251,7 +254,13 @@
         charts(d.facets);
         $top.innerHTML = "";
         (d.top_works || []).forEach((w) => {
-          $top.appendChild(S.sourceItem(w, ctx, {
+          // A work's kinds, when all its citations fit one response; the same rows give its Preview.
+          const all = S.workRows(ctx, { ...bar.filters }, w);
+          $top.appendChild(S.sourceItem(w, ctx, all ? {
+            count: w.n,
+            pickRow: () => all().then((x) => x.rows[0] || null),
+            kinds: () => all().then((x) => (x.rows.length === x.matched ? S.kindsLabel(x.rows) : "")),
+          } : {
             count: w.n,
             pickRow: () => S.fetchVerse(book, c, v, { ...bar.filters, w: w.w }, 0, 1)
               .then((x) => ((x && x.rows) || [])[0] || null).catch(() => null),
@@ -261,6 +270,7 @@
       }
       (d.rows || []).forEach(addGrouped);
       updateCompanions();
+      updateKinds(d.matched);
       offset = d.next_offset || 0;
       $more.hidden = !d.next_offset;
       $more.textContent = d.next_offset ? `Show more (${fmt(d.matched - d.next_offset)} left)` : "Show more";
@@ -329,24 +339,69 @@
 
   // ── Commentaries ──────────────────────────────────────────────
   // The worker's list IS the corpus owner's list (v1/devotion.json.gz): works on the book (a chapter
-  // range, or the whole book) and the whole-Bible sets it marks `annotation`.
-  const commentaryList = (items) => `<ol class="sd-panel-commentaries">${items.map((e) => {
-    const href = S.sourceHref(e.href, e.w);
-    const range = e.c1 ? `Chapters ${e.c1}${e.c2 && e.c2 !== e.c1 ? `-${e.c2}` : ""}` : (e.annotation ? "Whole Bible" : (e.kind || "Commentary"));
-    const meta = [range, S.centuryLabel(e.cen)].filter(Boolean).map(esc).join(" · ");
-    const inner = `<span class="sd-source-title">${esc(e.t)}</span><span class="sd-source-meta">${esc(e.a || "")}${meta ? ` · ${meta}` : ""}</span>`;
-    return href ? `<li class="sd-source"><a class="sd-panel-commentary" href="${esc(href)}">${inner}</a></li>` : `<li class="sd-source"><span class="sd-panel-commentary">${inner}</span></li>`;
-  }).join("")}</ol>`;
+  // range, or the whole book) and the whole-Bible sets it marks `annotation`. Each item previews in
+  // place: its own comment on this verse when one is indexed, otherwise the reader at the page the
+  // list links to (commentaryItem in the core).
+  const commentaryList = (host, items) => {
+    const $ol = document.createElement("ol");
+    $ol.className = "sd-sources sd-panel-commentaries";
+    items.forEach((e) => $ol.appendChild(S.commentaryItem(e, ctx)));
+    host.replaceChildren($ol);
+  };
   S.fetchCommentaries(book, c, S.emptyFilters()).then((d) => {
-    const items = (d && d.items) || [];
-    const chapter = items.filter((e) => !e.annotation).sort((a, b) => (Number(b.c1) > 0 ? 1 : 0) - (Number(a.c1) > 0 ? 1 : 0));
-    const whole = items.filter((e) => e.annotation);
-    $root.querySelector("[data-sd-comm]").innerHTML = chapter.length ? commentaryList(chapter) : `<p class="sd-muted">No commentaries on ${esc(book.name)} are catalogued yet.</p>`;
-    $root.querySelector("[data-sd-wb]").innerHTML = whole.length ? commentaryList(whole) : `<p class="sd-muted">No whole-Bible commentaries are catalogued for ${esc(book.name)} yet.</p>`;
+    const { chapter, whole } = S.commentaryGroups(d && d.items);
+    const $comm = $root.querySelector("[data-sd-comm]");
+    const $wb = $root.querySelector("[data-sd-wb]");
+    if (chapter.length) commentaryList($comm, chapter);
+    else $comm.innerHTML = `<p class="sd-muted">No commentaries on ${esc(book.name)} are catalogued yet.</p>`;
+    if (whole.length) commentaryList($wb, whole);
+    else $wb.innerHTML = `<p class="sd-muted">No whole-Bible commentaries are catalogued for ${esc(book.name)} yet.</p>`;
     $root.querySelector("[data-sd-comm-n]").textContent = `(${fmt(chapter.length)})`;
     $root.querySelector("[data-sd-wb-n]").textContent = `(${fmt(whole.length)})`;
   }).catch(() => {
     $root.querySelector("[data-sd-comm]").innerHTML = `<p class="sd-muted">Commentaries did not load.</p>`;
+  });
+
+  // ── Kinds: quotes, cites, alludes ─────────────────────────────
+  // Corpus owner, 2026-09-25: "verses should include citations allusion classification". Each row
+  // already says its kind; this counts the kinds among the rows loaded so far and shows one kind at a
+  // time. The worker has no kind filter or facet, so the counts are of loaded rows and say so until
+  // every citation is loaded; "Show more" adds to them.
+  const $kinds = $root.querySelector("[data-sd-kinds]");
+  let kindSel = "";
+  function applyKind() {
+    $rows.querySelectorAll(".sd-work").forEach((w) => {
+      let shown = 0;
+      w.querySelectorAll(":scope > ol > .sd-source").forEach((li) => {
+        li.hidden = Boolean(kindSel) && li.dataset.kind !== kindSel;
+        if (!li.hidden) shown += 1;
+      });
+      w.hidden = !shown;
+    });
+    $rows.querySelectorAll(".sd-group").forEach((g) => {
+      g.hidden = !g.querySelector(".sd-work:not([hidden])");
+    });
+  }
+  function updateKinds(matched) {
+    const items = [...$rows.querySelectorAll(".sd-work > ol > .sd-source")];
+    const n = new Map();
+    items.forEach((li) => { const k = li.dataset.kind; if (k) n.set(k, (n.get(k) || 0) + 1); });
+    if (n.size < 2 && !kindSel) { $kinds.hidden = true; $kinds.innerHTML = ""; return; }
+    if (kindSel && !n.has(kindSel)) kindSel = "";
+    const chip = (k, text) => `<button type="button" class="sd-kind" data-kind="${esc(k)}" aria-pressed="${kindSel === k}">${esc(text)}</button>`;
+    const loadedAll = items.length >= Number(matched || 0);
+    $kinds.hidden = false;
+    const chips = [...n.entries()].sort((a, b) => b[1] - a[1]).map(([k, x]) => chip(k, `${k} ${fmt(x)}`)).join("");
+    const note = loadedAll ? "" : `<span class="sd-muted sd-kinds-note">among the ${fmt(items.length)} loaded so far</span>`;
+    $kinds.innerHTML = `<span class="sd-filter-label">Kind</span>${chip("", "All")}${chips}${note}`;
+    applyKind();
+  }
+  $kinds.addEventListener("click", (e) => {
+    const b = e.target.closest(".sd-kind");
+    if (!b) return;
+    kindSel = b.dataset.kind;
+    $kinds.querySelectorAll(".sd-kind").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.kind === kindSel)));
+    applyKind();
   });
 
   // ── All citations, by author and then by work ─────────────────

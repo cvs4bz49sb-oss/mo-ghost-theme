@@ -34,12 +34,14 @@
  * 2026-09-11: direct quotes only).
  *
  * NO SCROLL BOXES. Previews open in the page flow and take their own
- * height. The commentary strip scrolls sideways by Ian's request, and
- * the reader's sidebar scrolls on its own (sidebars are the recorded
- * exception, 2026-09-22). Nothing else here caps its height, with one
- * proposed exception: "Keep reading here" opens the reader itself under
+ * height. The reader's sidebar scrolls on its own (sidebars are the
+ * recorded exception, 2026-09-22). Nothing else here caps its height,
+ * with one exception: "Keep reading here" opens the reader itself under
  * a preview, and a reader scrolls (corpus owner, 2026-09-25; see
- * readerFrame below).
+ * readerFrame below). The sideways commentary strip (Ian, 2026-09-22) is
+ * kept below but no longer used by the Scripture page: its Commentaries
+ * dropdown now opens the same two folds as the verse panel
+ * (commentaryFolds, corpus owner 2026-09-25).
  */
 (function () {
   "use strict";
@@ -558,7 +560,8 @@
   }
 
   // ── Source rows with inline preview ─────────────────────────────
-  const HOW = { quotation: "Quotes", explicit: "Cites", allusion: "Alludes", citation: "Cites", exegesis: "Expounds" };
+  // "cites" and "citation-survey" are rare spellings in the index (8 of about 7,000 rows in Matthew 1) of a citation by reference.
+  const HOW = { quotation: "Quotes", explicit: "Cites", allusion: "Alludes", citation: "Cites", cites: "Cites", "citation-survey": "Cites", exegesis: "Expounds" };
   const centuryLabel = (c) => {
     const n = Number(c);
     if (!n) return "";
@@ -611,6 +614,41 @@
     });
   }
 
+  /* CITATION KINDS (corpus owner, 2026-09-25: "verses should include
+   * citations allusion classification, if we have that"). Every row
+   * carries `how`, shown as HOW's verb. A top work is an aggregate, so it
+   * says its kinds only when every one of its citations is in hand: the
+   * worker returns fifty rows at most and has no kind facet, so a work
+   * with more keeps its plain count rather than a sample's. */
+  const kindOf = (row) => (row && HOW[row.how]) || "";
+  function kindsLabel(rows) {
+    if (!rows.length || rows.some((r) => !kindOf(r))) return "";
+    const n = {};
+    rows.forEach((r) => { n[kindOf(r)] = (n[kindOf(r)] || 0) + 1; });
+    const keys = Object.keys(n).sort((a, b) => n[b] - n[a]);
+    return keys.length === 1 ? keys[0] : keys.map((k) => `${k} ${fmt(n[k])}`).join(", ");
+  }
+  /* A top work's citations of the verse under the current filters, one
+   * request shared by its kinds and its Preview, made only when the row
+   * is on screen (see whenSeen). Null for a work with more than fifty. */
+  function workRows(ctx, filters, w) {
+    const n = Number(w.n) || 0;
+    if (!n || n > 50) return null;
+    let p = null;
+    return () => p || (p = fetchVerse(ctx.book, ctx.c, ctx.v, { ...filters, w: w.w }, 0, n)
+      .then((d) => ({ rows: (d && d.rows) || [], matched: Number(d && d.matched) || 0 }))
+      .catch(() => { p = null; return { rows: [], matched: 0 }; }));
+  }
+  function whenSeen(el, fn) {
+    if (!("IntersectionObserver" in window)) { fn(); return; }
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some((x) => x.isIntersecting)) return;
+      io.disconnect();
+      fn();
+    }, { rootMargin: "200px 0px" });
+    io.observe(el);
+  }
+
   function sourceItem(row, ctx, extra) {
     const li = document.createElement("li");
     li.className = "sd-source";
@@ -629,6 +667,12 @@
       }<div class="sd-preview" id="${pid}" hidden></div>`;
     const $btn = li.querySelector(".sd-preview-btn");
     const $pv = li.querySelector(".sd-preview");
+    if (row.how) li.dataset.kind = kindOf(row);
+    if (extra && extra.kinds) {
+      whenSeen(li, () => extra.kinds().then((label) => {
+        if (label) li.querySelector(".sd-source-meta").insertAdjacentText("beforeend", ` \u00b7 ${label}`);
+      }).catch(() => {}));
+    }
     let loaded = false;
     $btn.addEventListener("click", () => {
       const open = $btn.getAttribute("aria-expanded") !== "true";
@@ -651,7 +695,7 @@
             const text = `${d.clipped_start ? "… " : ""}${d.text}${d.clipped_end ? " …" : ""}`;
             $pv.innerHTML =
               `<blockquote class="sd-quote"${d.lang ? ` lang="${esc(d.lang)}"` : ""}>${esc(text)}</blockquote>` +
-              `<p class="sd-preview-foot">${d.locator ? `<span>${esc(d.locator)}</span>` : ""}${here}${read}</p>`;
+              `<p class="sd-preview-foot">${extra && extra.count && kindOf(r) ? `<span>${esc(kindOf(r))}</span>` : ""}${d.locator ? `<span>${esc(d.locator)}</span>` : ""}${here}${read}</p>`;
           } else {
             const why = d && d.reason === "licensed"
               ? "This edition's text is licensed, so it cannot be previewed here."
@@ -666,6 +710,158 @@
         });
     });
     return li;
+  }
+
+  /* COMMENTARIES YOU CAN PREVIEW (corpus owner, 2026-09-25: "make this
+   * collapsible and then also allow preview source for each of this";
+   * the Commentaries button "should do the same chapter and whole
+   * commentaries collapsed previewable"; "for desk make same thing
+   * preview for each"). One item for the verse panel, the Commentaries
+   * dropdown and the Verse Desk.
+   *
+   * With a verse open, Preview asks the worker for this commentary's own
+   * citation of the verse (under no filters) and sets that passage as a
+   * quotation, as a citation's preview does. Most commentaries have no
+   * indexed comment on a given verse (20 of Matthew 1's 78 cite 1:2), and
+   * the dropdown may have no verse open; then the reader opens under the
+   * item at once, in the "Keep reading here" frame, at the page the
+   * commentary list links to. That link is sometimes the chapter and
+   * sometimes the start of the book's section, so the note says only
+   * "the page this list links to". */
+  const COMMENTARY_KIND = { collected: "Collected works", treatises: "Treatise", law: "Councils and canons" };
+  function commentaryGroups(items) {
+    const list = items || [];
+    return {
+      // Works on the book, those with a chapter range first; then the whole-Bible sets (`annotation`).
+      chapter: list.filter((e) => !e.annotation).sort((a, b) => (Number(b.c1) > 0 ? 1 : 0) - (Number(a.c1) > 0 ? 1 : 0)),
+      whole: list.filter((e) => e.annotation),
+    };
+  }
+  function commentaryItem(e, ctx) {
+    const li = document.createElement("li");
+    li.className = "sd-source sd-commentary";
+    const href = sourceHref(e.href, e.w);
+    const range = e.c1
+      ? (e.c2 && e.c2 !== e.c1 ? `Chapters ${e.c1}\u2013${e.c2}` : `Chapter ${e.c1}`)
+      : (COMMENTARY_KIND[e.kind] || "");
+    const meta = [e.a, range, centuryLabel(e.cen)].filter(Boolean).map(esc).join(" \u00b7 ");
+    const pid = `sdp-${Math.random().toString(36).slice(2, 9)}`;
+    li.innerHTML =
+      `<div class="sd-source-head">` +
+        `<div class="sd-source-id">` +
+          // A section inside a larger volume (v1/devotion.json `st`, corpus owner 2026-09-26) is named by the section,
+          // with the volume's title beside it; shown when the verse worker passes `st` through.
+          `<span class="sd-source-title">${esc(e.st ? `${e.st} (in ${e.t || e.w})` : (e.t || e.w))}</span>` +
+          `<span class="sd-source-meta">${meta}</span>` +
+        `</div>${ 
+        href ? `<button type="button" class="sd-preview-btn" aria-expanded="false" aria-controls="${pid}">Preview</button>` : "" 
+      }</div><div class="sd-preview" id="${pid}" hidden></div>`;
+    if (!href) return li;
+    const $btn = li.querySelector(".sd-preview-btn");
+    const $pv = li.querySelector(".sd-preview");
+    const where = /#b/.test(href) ? "the page this list links to" : "its first page";
+    const read = (link) => `<a class="sd-read-link" href="${esc(link)}">Read in context</a>`;
+    const here = `<button type="button" class="sd-keep-reading" aria-expanded="false">Keep reading here</button>`;
+    // The reader at once, for a commentary with no indexed comment on the verse.
+    const openReader = (note, link) => {
+      $pv.innerHTML = `<p class="sd-muted">${esc(note)}</p><p class="sd-preview-foot">${here}${read(link)}</p>`;
+      readerFrame($pv, link, e.t || e.w);
+      $pv.querySelector(".sd-keep-reading").click();
+    };
+    let shown = null;
+    $btn.addEventListener("click", () => {
+      const open = $btn.getAttribute("aria-expanded") !== "true";
+      $btn.setAttribute("aria-expanded", String(open));
+      $btn.textContent = open ? "Hide" : "Preview";
+      $pv.hidden = !open;
+      const v = Number(ctx.v) || 0;
+      if (!open || shown === v) return;
+      shown = v;
+      if (!v) { openReader(`The commentary opens below at ${where}.`, href); return; }
+      const ref = refLabel(ctx.book, ctx.c, v);
+      $pv.innerHTML = `<p class="sd-muted" role="status">Looking for its comment on ${esc(ref)}\u2026</p>`;
+      fetchVerse(ctx.book, ctx.c, v, { ...emptyFilters(), w: e.w }, 0, 1)
+        .then((d) => {
+          const r = ((d && d.rows) || [])[0];
+          return r ? fetchPassage(r, ctx.book, ctx.c, v).then((p) => ({ r, p })) : { r: null, p: null };
+        })
+        .then(({ r, p }) => {
+          if (shown !== v) return;
+          if (!r) { openReader(`No comment on ${ref} is indexed in this commentary yet, so it opens below at ${where}.`, href); return; }
+          const link = sourceHref((p && p.href) || r.h, r.w, r.p) || href;
+          if (p && p.found && p.text) {
+            const text = `${p.clipped_start ? "\u2026 " : ""}${p.text}${p.clipped_end ? " \u2026" : ""}`;
+            $pv.innerHTML =
+              `<blockquote class="sd-quote"${p.lang ? ` lang="${esc(p.lang)}"` : ""}>${esc(text)}</blockquote>` +
+              `<p class="sd-preview-foot">${kindOf(r) ? `<span>${esc(kindOf(r))}</span>` : ""}${p.locator ? `<span>${esc(p.locator)}</span>` : ""}${here}${read(link)}</p>`;
+            readerFrame($pv, link, e.t || e.w);
+            return;
+          }
+          openReader(p && p.reason === "licensed"
+            ? `This edition's text is licensed, so its comment on ${ref} cannot be quoted here; it opens below at that page.`
+            : `Its comment on ${ref} could not be extracted as a quotation, so it opens below at that page.`, link);
+        })
+        .catch(() => {
+          shown = null;
+          $pv.innerHTML = `<p class="sd-muted">The commentary did not load. Select Hide, then Preview, to try again.</p>`;
+        });
+    });
+    return li;
+  }
+  /* The Commentaries dropdown (corpus owner, 2026-09-25): the filters,
+   * then the chapter commentaries and the whole-Bible commentaries as two
+   * folds, closed, each item previewable. It replaces the sideways strip
+   * on the Scripture page. `ctx.v` may be a getter: with a verse open, a
+   * preview looks for the commentary's comment on that verse. A fold
+   * stays as the reader left it when the filters change. */
+  function commentaryFolds(host, ctx, onCount) {
+    host.innerHTML =
+      `<div class="sd-comm-filters"></div>` +
+      `<p class="sd-comm-status sd-muted" role="status"></p>` +
+      `<div class="sd-comm-folds"></div>`;
+    const $status = host.querySelector(".sd-comm-status");
+    const $folds = host.querySelector(".sd-comm-folds");
+    const opened = { chapter: false, whole: false };
+    const fold = (key, title, list) => {
+      const el = document.createElement("details");
+      el.className = "sd-panel-fold sd-comm-fold";
+      el.open = opened[key];
+      el.innerHTML = `<summary><span>${esc(title)} <span class="sd-comm-fold-n">(${fmt(list.length)})</span></span></summary><ol class="sd-sources sd-panel-commentaries"></ol>`;
+      const $ol = el.querySelector("ol");
+      list.forEach((e) => $ol.appendChild(commentaryItem(e, ctx)));
+      el.addEventListener("toggle", () => { opened[key] = el.open; });
+      return el;
+    };
+    let run = 0;
+    const load = (f) => {
+      const my = ++run;
+      $status.hidden = false;
+      $status.textContent = "Loading commentaries\u2026";
+      fetchCommentaries(ctx.book, ctx.c, f).then((d) => {
+        // Folds replaced by the next chapter's must not report here.
+        if (my !== run || !$folds.isConnected) return;
+        if (!d) { $status.textContent = "No commentaries are catalogued for this book yet."; $folds.innerHTML = ""; return; }
+        bar.update(d.facets);
+        if (onCount) onCount(d.total);
+        const items = d.items || [];
+        $status.textContent = items.length
+          ? (activeCount(f)
+            ? `${plural(d.matched, "commentary", "commentaries")} of ${fmt(d.total)} match.`
+            : `${plural(d.total, "commentary", "commentaries")} on ${refLabel(ctx.book, ctx.c)}. Open a list, then Preview to read one here.`)
+          : (d.total ? "No commentaries match these filters." : "No commentaries are catalogued for this book yet.");
+        const g = commentaryGroups(items);
+        $folds.innerHTML = "";
+        if (g.chapter.length) $folds.appendChild(fold("chapter", "Chapter commentaries", g.chapter));
+        if (g.whole.length) $folds.appendChild(fold("whole", "Whole-Bible commentaries", g.whole));
+      }).catch(() => {
+        if (my !== run || !$folds.isConnected) return;
+        $status.innerHTML = `Commentaries did not load. <button type="button" class="sd-clear" data-sd-retry>Try again</button>`;
+        $status.querySelector("[data-sd-retry]").addEventListener("click", () => load(bar.filters));
+      });
+    };
+    const bar = filterBar(host.querySelector(".sd-comm-filters"), { onChange: load });
+    load(bar.filters);
+    return { reload: () => load(bar.filters) };
   }
 
   /* Commentaries for a book, filtered to those that cover the chapter.
@@ -725,7 +921,7 @@
   }
 
   window.MOScriptureDev = {
-    commentaryStrip, cleanChapter,
+    commentaryStrip, commentaryFolds, commentaryItem, commentaryGroups, cleanChapter,
     TRANSLATIONS, BOOKS, BOOK_BY_SLUG, esc, fmt, plural,
     CANON, APOCRYPHA, SECTIONS, chainOf, APOCRYPHA_TEXT, textName, textShort,
     parseRef, legacyRef, refKey, refLabel, readerHref, deskHref, sourceHref,
@@ -734,6 +930,7 @@
     fetchApocryphaChapter, apocryphaChapterNode, chapterNode, fetchApocryphaVerse,
     fetchVerse, fetchCommentaries, fetchPassage,
     emptyFilters, activeCount, filterBar, sourceItem, centuryLabel,
+    HOW, kindOf, kindsLabel, workRows,
     // For /the-faith-received/topics/, which reads the same worker.
     api, VERSE_API,
   };

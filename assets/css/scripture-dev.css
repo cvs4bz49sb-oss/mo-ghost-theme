@@ -171,6 +171,12 @@
 /* ── Commentaries: filters, then one line that scrolls sideways ── */
 .sd-comm-panel { border-bottom: 1px solid var(--color-rule); background: var(--color-page); padding: 18px 0 20px; }
 .sd-comm-status { margin: 10px 0 0; font-size: 14px; }
+/* The dropdown's two folds, closed and previewable (corpus owner, 2026-09-25):
+   side by side on a wide page, stacked on a narrow one. The sideways strip
+   rules below are kept for commentaryStrip, which this page no longer calls. */
+.sd-comm-folds { display: grid; gap: 0 36px; margin-top: 6px; }
+@media (min-width: 900px) { .sd-comm-folds { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+.sd-comm-fold-n { letter-spacing: 0.04em; }
 .sd-comm-strip {
   list-style: none;
   margin: 14px 0 0;
@@ -427,6 +433,14 @@ a.sd-panel-commentary:focus-visible .sd-source-title {
 .sd-keep-reading:hover, .sd-keep-reading:focus-visible { text-decoration: underline; }
 .sd-reader-frame { display: block; width: 100%; height: min(75vh, 780px); margin-top: 12px; border: 1px solid var(--color-rule); border-radius: 6px; }
 .sd-reader-frame[hidden] { display: none; }
+/* Kinds on the Verse Desk: one chip per kind among the loaded citations. */
+.sd-kinds { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; margin: 10px 0 12px; font-size: 14px; }
+.sd-kinds .sd-filter-label { margin: 0 4px 0 0; }
+.sd-kind { font: inherit; padding: 4px 10px; border: 1px solid var(--color-rule); border-radius: 999px; background: var(--color-white, #fff); color: var(--color-dark); cursor: pointer; }
+.sd-kind:hover, .sd-kind:focus-visible { border-color: var(--sd-accent); }
+.sd-kind[aria-pressed="true"] { background: var(--color-dark); border-color: var(--color-dark); color: var(--color-white, #fff); }
+.sd-kinds-note { font-size: 13px; }
+.sd-source[hidden], .sd-work[hidden], .sd-group[hidden] { display: none; }
 .sd-more { margin-top: 14px; width: 100%; }
 .sd-more:disabled { opacity: 0.5; cursor: progress; }
 
