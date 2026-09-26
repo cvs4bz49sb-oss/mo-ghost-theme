@@ -51,7 +51,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
    contents drawer closed and reads a step smaller; the visitor's own type choices are untouched (nothing here is saved). */
 html.peek .app .sidebar,html.peek #sbScrim{display:none!important}
 html.peek body{font-size:17px}
-html.peek #app{--ensz:.94}
+html.peek #app{--ensz:.94;padding-top:0}
+html.peek .ph,html.peek nav.frthumb,html.peek .prog{display:none!important}
+html.peek .main{padding:1rem 0 2rem}
+html.peek #reading{max-width:70ch!important;padding-inline:clamp(1.25rem,4vw,2.5rem)!important}
 /* the drawer floats over the un-reflowed column, so a scrim must dim what it covers — at every
    width, not just phones (it was mobile-only; desktop showed raw text crowding the drawer edge) */
 #sbScrim{position:fixed;inset:0;z-index:25;background:rgba(45,41,39,.38);opacity:0;pointer-events:none;transition:opacity .25s}

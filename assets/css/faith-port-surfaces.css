@@ -2044,34 +2044,78 @@ main.research-work {
   --wk-ink: var(--ink, #2d2927);
   --wk-muted: var(--muted, #6b6660);
 }
-/* Scripture is a reading index, not a wall of tiny controls. Each book is a
-   flat ruled section; one native selector carries every chapter and its count. */
-main.research-work details.wdet.vc-book {
-  border-inline: 0;
-  border-radius: 0;
-  background: transparent;
-  margin-bottom: 28px;
-  overflow: visible;
+/* Books and topics are compact indexes. Five cards share one detail panel,
+   which opens beneath their row instead of lengthening the whole page. */
+main.research-work .vc-expand-group { margin: 0 0 12px; }
+main.research-work .vc-index-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
 }
-main.research-work details.wdet.vc-book > summary {
+main.research-work .vc-index-card {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 0;
-  background: transparent;
-}
-main.research-work details.wdet.vc-book > summary > b {
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
   min-width: 0;
-  font-size: 16px;
-  font-weight: 600;
+  min-height: 76px;
+  padding: 13px 14px 11px;
+  border: 1px solid var(--ar-line);
+  border-radius: 3px;
+  background: var(--ar-card);
+  color: var(--wk-ink);
+  text-align: left;
+  cursor: pointer;
 }
-main.research-work details.wdet.vc-book > summary > .n {
-  margin-left: auto;
+main.research-work .vc-index-card > span {
+  overflow-wrap: anywhere;
+  font: 600 16px/1.25 var(--font-body, "Source Serif Pro", Georgia, serif);
+}
+main.research-work .vc-index-card > small {
   color: var(--wk-muted);
-  font-size: 12px;
+  font: 12px/1.3 var(--font-body, "Source Serif Pro", Georgia, serif);
   font-variant-numeric: tabular-nums;
 }
-main.research-work details.wdet.vc-book[open] > summary { border-bottom: 1px solid var(--ar-line); }
+main.research-work .vc-index-card:hover { border-color: var(--ar-line-strong); }
+main.research-work .vc-index-card[aria-expanded="true"] {
+  border-color: var(--wk-accent);
+  box-shadow: inset 0 3px 0 var(--wk-accent);
+  color: var(--wk-accent);
+}
+main.research-work .vc-index-card:focus-visible { outline: 2px solid var(--wk-accent); outline-offset: 2px; }
+main.research-work .vc-expand-panel {
+  margin: 10px 0 24px;
+  padding: 0 18px 18px;
+  border: 1px solid var(--ar-line);
+  border-radius: 3px;
+  background: var(--ar-card);
+}
+main.research-work .vc-expand-panel[hidden] { display: none; }
+main.research-work .vc-expand-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 64px;
+  border-bottom: 1px solid var(--ar-line);
+}
+main.research-work .vc-expand-panel > header h3 { margin: 0; color: var(--wk-ink); font: 500 23px/1.2 var(--font-display, "EB Garamond", Georgia, serif); }
+main.research-work .vc-expand-panel > header p { margin: 3px 0 0; color: var(--wk-muted); font-size: 12px; }
+main.research-work .vc-panel-close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--wk-muted);
+  font: 24px/1 var(--font-body, Georgia, serif);
+  cursor: pointer;
+}
+main.research-work .vc-panel-close:hover { color: var(--wk-accent); }
+main.research-work .vc-panel-close:focus-visible { outline: 2px solid var(--wk-accent); outline-offset: 0; }
 main.research-work .vc-chapter-filter {
   display: flex;
   align-items: center;
@@ -2101,7 +2145,7 @@ main.research-work .vc-chapter-filter select:focus-visible {
   outline-offset: 2px;
   border-color: var(--wk-accent);
 }
-main.research-work details.wdet.vc-book > .vc-status {
+main.research-work .vc-book-panel > .vc-status {
   min-height: 0;
   margin: 0;
   padding: 10px 0 0;
@@ -2110,11 +2154,22 @@ main.research-work details.wdet.vc-book > .vc-status {
   text-transform: none;
   color: var(--wk-muted);
 }
-main.research-work details.wdet.vc-book > .vcits {
+main.research-work .vc-book-panel > .vcits {
   padding: 0 !important;
   border-bottom: 0;
   border-top: 0;
 }
+main.research-work .vc-topic-panel > .ev { padding: 16px 0 !important; border-bottom: 1px solid var(--ar-line); }
+main.research-work .vc-topic-panel > .ev:last-of-type { border-bottom: 0; }
+main.research-work .vc-page-refs { padding-top: 16px; border-top: 1px solid var(--ar-line); }
+main.research-work .vc-page-refs h4 { margin: 0 0 10px; color: var(--wk-muted); font: 600 11px/1.4 var(--font-body, Georgia, serif); letter-spacing: 0.14em; text-transform: uppercase; }
+main.research-work .vc-page-refs > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 16px; }
+main.research-work .vc-page-ref { display: flex; align-items: center; min-width: 0; min-height: 44px; border-bottom: 1px solid var(--ar-line); }
+main.research-work .vc-page-ref > span:first-child { margin-right: auto; color: var(--wk-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+main.research-work .vc-page-ref .vact { display: flex; align-items: center; gap: 0; }
+main.research-work .vc-page-ref .vact > :is(.readbtn, .peekbtn) { min-height: 32px; margin: 0; padding: 0 8px !important; border: 0 !important; border-left: 1px solid var(--ar-line) !important; border-radius: 0 !important; background: transparent !important; color: var(--wk-ink) !important; font: 12px/1.2 var(--font-body, Georgia, serif) !important; }
+main.research-work .vc-page-ref .vact > .readbtn { color: var(--wk-accent) !important; }
+main.research-work .vc-page-ref .vact > :is(.readbtn, .peekbtn):hover { color: var(--wk-accent) !important; }
 /* What the rows show: an eyebrow, with its one action as a thin-line box. */
 main.research-work .vc-status {
   display: flex;
@@ -2145,8 +2200,8 @@ main.research-work :is(.vc-status .rx-text-link, .vc-all) {
 main.research-work :is(.vc-status .rx-text-link, .vc-all):hover { border-color: var(--wk-accent); color: var(--wk-accent); }
 main.research-work .vc-note { color: var(--wk-muted); font-size: 13px; }
 /* Inset like the chips and rows, which take the box's 20px from details.wdet. */
-main.research-work details.wdet > .vc-status { padding: 0 20px; }
-main.research-work details.wdet > :is(.vc-all, .vc-note) { margin: 10px 20px 16px; }
+main.research-work .vc-book-panel > .vc-status { padding-inline: 0; }
+main.research-work .vc-book-panel > :is(.vc-all, .vc-note) { margin: 10px 0 0; }
 /* The rows: hairlines, the reference in ink, the kind as a word. */
 main.research-work .vcits { margin: 0; padding: 0; border-left: 0; border-top: 1px solid var(--ar-line); }
 main.research-work .vc.vc-row { min-height: 50px; padding: 8px 4px; border-bottom: 1px solid var(--ar-line); }
@@ -2201,10 +2256,10 @@ main.research-work .vc.vc-row > .peekwrap .peekhead :is(a, button):hover { color
    links (corpus owner, 2026-09-26: "the pills, etc"). A topic's row is
    .ev > .m [page, Open, Preview, Save]; an authority's is
    div > .m [citation, page, Open, Preview, → the work it resolves to]. */
-main.research-work details.wdet .ev { padding: 12px 20px 14px !important; border-bottom: 1px solid var(--ar-line); }
-main.research-work details.wdet .ev:last-child { border-bottom: 0; }
-main.research-work details.wdet .ev .q { font-size: 16px !important; line-height: 1.6; color: var(--wk-ink); }
-main.research-work details.wdet .ev .stance {
+main.research-work .wdet .ev { padding: 12px 20px 14px !important; border-bottom: 1px solid var(--ar-line); }
+main.research-work .wdet .ev:last-child { border-bottom: 0; }
+main.research-work .wdet .ev .q { font-size: 16px !important; line-height: 1.6; color: var(--wk-ink); }
+main.research-work .wdet .ev .stance {
   display: block;
   width: fit-content;
   margin: 0 0 4px;
@@ -2218,7 +2273,7 @@ main.research-work details.wdet .ev .stance {
   vertical-align: baseline;
   color: var(--wk-accent);
 }
-main.research-work details.wdet :is(.ev > .m, div:not(.ev) > .m) {
+main.research-work .wdet :is(.ev > .m, div:not(.ev) > .m) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2226,13 +2281,13 @@ main.research-work details.wdet :is(.ev > .m, div:not(.ev) > .m) {
   font-size: 13px;
   color: var(--wk-muted);
 }
-main.research-work details.wdet .ev > .m { margin: 8px 0 0 !important; }
+main.research-work .wdet .ev > .m { margin: 8px 0 0 !important; }
 /* the group's cells */
-main.research-work details.wdet .ev > .m > span:first-child,
-main.research-work details.wdet div:not(.ev) > .m > span:nth-child(2),
-main.research-work details.wdet .m > .readbtn,
-main.research-work details.wdet .m > .peekbtn,
-main.research-work details.wdet .m > .pinb {
+main.research-work .wdet .ev > .m > span:first-child,
+main.research-work .wdet div:not(.ev) > .m > span:nth-child(2),
+main.research-work .wdet .m > .readbtn,
+main.research-work .wdet .m > .peekbtn,
+main.research-work .wdet .m > .pinb {
   display: inline-flex;
   align-items: center;
   min-height: 32px;
@@ -2249,34 +2304,34 @@ main.research-work details.wdet .m > .pinb {
   white-space: nowrap;
 }
 /* the page number opens the group: quiet, tabular, square-left */
-main.research-work details.wdet .ev > .m > span:first-child,
-main.research-work details.wdet div:not(.ev) > .m > span:nth-child(2) {
+main.research-work .wdet .ev > .m > span:first-child,
+main.research-work .wdet div:not(.ev) > .m > span:nth-child(2) {
   margin-left: 0;
   border-radius: 3px 0 0 3px !important;
   color: var(--wk-muted) !important;
   font-variant-numeric: tabular-nums;
 }
-main.research-work details.wdet .m > .readbtn { position: relative; z-index: 1; border-color: var(--wk-accent) !important; color: var(--wk-accent) !important; }
-main.research-work details.wdet .ev > .m > :last-child,
-main.research-work details.wdet div:not(.ev) > .m > .peekbtn { border-radius: 0 3px 3px 0 !important; }
-main.research-work details.wdet .m > :is(.peekbtn, .pinb):is(:hover, .on) { position: relative; z-index: 2; border-color: var(--wk-accent) !important; color: var(--wk-accent) !important; }
+main.research-work .wdet .m > .readbtn { position: relative; z-index: 1; border-color: var(--wk-accent) !important; color: var(--wk-accent) !important; }
+main.research-work .wdet .ev > .m > :last-child,
+main.research-work .wdet div:not(.ev) > .m > .peekbtn { border-radius: 0 3px 3px 0 !important; }
+main.research-work .wdet .m > :is(.peekbtn, .pinb):is(:hover, .on) { position: relative; z-index: 2; border-color: var(--wk-accent) !important; color: var(--wk-accent) !important; }
 /* An authority's row: the citation, the group, then the work it resolves to. */
-main.research-work details.wdet > div:not(.ev) > .m { margin: 0 !important; padding: 6px 0; border-bottom: 1px solid var(--ar-line); }
-main.research-work details.wdet > div:not(.ev) > .m:last-child { border-bottom: 0; }
-main.research-work details.wdet > div:not(.ev) > .m > span:first-child {
+main.research-work .wdet > div:not(.ev) > .m { margin: 0 !important; padding: 6px 0; border-bottom: 1px solid var(--ar-line); }
+main.research-work .wdet > div:not(.ev) > .m:last-child { border-bottom: 0; }
+main.research-work .wdet > div:not(.ev) > .m > span:first-child {
   flex: 0 1 auto;
   min-width: 0;
   margin-right: 12px;
   color: var(--wk-ink);
   font-size: 15px !important;
 }
-main.research-work details.wdet > div:not(.ev) > .m > span:first-child i { font-style: italic; }
+main.research-work .wdet > div:not(.ev) > .m > span:first-child i { font-style: italic; }
 /* the group keeps one right-hand column; the resolved work reads after the citation */
-main.research-work details.wdet > div:not(.ev) > .m > :is(span:nth-child(2), .readbtn, .peekbtn) { order: 2; }
-main.research-work details.wdet > div:not(.ev) > .m > span:nth-child(2) { margin-left: auto; }
-main.research-work details.wdet > div:not(.ev) > .m > span[style*="faint"] { order: 1; margin: 0 16px 0 0; font-size: 13px !important; color: var(--wk-muted) !important; }
-main.research-work details.wdet > div:not(.ev) > .m > span[style*="faint"] a { color: var(--wk-ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--ar-line-strong); }
-main.research-work details.wdet > div:not(.ev) > .m > span[style*="faint"] a:hover { color: var(--wk-accent); }
+main.research-work .wdet > div:not(.ev) > .m > :is(span:nth-child(2), .readbtn, .peekbtn) { order: 2; }
+main.research-work .wdet > div:not(.ev) > .m > span:nth-child(2) { margin-left: auto; }
+main.research-work .wdet > div:not(.ev) > .m > span[style*="faint"] { order: 1; margin: 0 16px 0 0; font-size: 13px !important; color: var(--wk-muted) !important; }
+main.research-work .wdet > div:not(.ev) > .m > span[style*="faint"] a { color: var(--wk-ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--ar-line-strong); }
+main.research-work .wdet > div:not(.ev) > .m > span[style*="faint"] a:hover { color: var(--wk-accent); }
 /* The work's kind beside its author: a thin-line label, not a pill. */
 main.research-work .deck .pill {
   padding: 1px 8px;
@@ -2289,12 +2344,20 @@ main.research-work .deck .pill {
 }
 /* On a phone an authority's citation and resolved work take their own lines, so the group never breaks apart. */
 @media (max-width: 640px) {
+  main.research-work .vc-index-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  main.research-work .vc-index-card { min-height: 72px; padding: 12px; }
+  main.research-work .vc-expand-panel { margin-top: 8px; padding: 0 14px 14px; }
+  main.research-work .vc-page-refs > div { grid-template-columns: 1fr; }
   main.research-work .vc-chapter-filter { align-items: stretch; flex-direction: column; gap: 6px; }
   main.research-work .vc-chapter-filter select { width: 100%; min-width: 0; min-height: 44px; }
   main.research-work .vc.vc-row .vact > :is(.readbtn, .peekbtn),
-  main.research-work details.wdet .m > :is(.readbtn, .peekbtn, .pinb) { min-height: 44px; }
+  main.research-work .wdet .m > :is(.readbtn, .peekbtn, .pinb) { min-height: 44px; }
   main.research-work .vc.vc-row { padding-block: 12px; row-gap: 6px; }
-  main.research-work details.wdet > div:not(.ev) > .m > span:first-child { flex: 1 1 100%; margin: 0 0 4px; }
-  main.research-work details.wdet > div:not(.ev) > .m > span[style*="faint"] { flex: 1 1 100%; margin: 0 0 6px; }
-  main.research-work details.wdet > div:not(.ev) > .m > span:nth-child(2) { margin-left: 0; }
+  main.research-work .wdet > div:not(.ev) > .m > span:first-child { flex: 1 1 100%; margin: 0 0 4px; }
+  main.research-work .wdet > div:not(.ev) > .m > span[style*="faint"] { flex: 1 1 100%; margin: 0 0 6px; }
+  main.research-work .wdet > div:not(.ev) > .m > span:nth-child(2) { margin-left: 0; }
+}
+@media (min-width: 641px) and (max-width: 980px) {
+  main.research-work .vc-index-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  main.research-work .vc-page-refs > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
