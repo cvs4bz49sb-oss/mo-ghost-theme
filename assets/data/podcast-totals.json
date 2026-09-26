@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-26T11:30:57.150Z",
+  "generated_at": "2026-09-26T16:28:13.531Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 319,
-      "plays": 80192,
+      "plays": 80270,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -44,12 +44,12 @@
         {
           "date": "2025-08-13",
           "title": "Should I Stay Or Should I Go (From My Denomination)?",
-          "plays": 140
+          "plays": 141
         },
         {
           "date": "2025-08-20",
           "title": "Are We Disenchanted? Should We Be Enchanted?",
-          "plays": 148
+          "plays": 149
         },
         {
           "date": "2025-08-27",
@@ -84,7 +84,7 @@
         {
           "date": "2025-10-08",
           "title": "Do You Need Penal Substitution?",
-          "plays": 302
+          "plays": 303
         },
         {
           "date": "2025-10-15",
@@ -169,7 +169,7 @@
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 352
+          "plays": 353
         },
         {
           "date": "2026-03-25",
@@ -189,12 +189,12 @@
         {
           "date": "2026-04-15",
           "title": "Replay: Protestants & History with Paul Gutacker",
-          "plays": 182
+          "plays": 184
         },
         {
           "date": "2026-04-22",
           "title": "How To Approach God",
-          "plays": 242
+          "plays": 243
         },
         {
           "date": "2026-04-30",
@@ -259,7 +259,7 @@
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3432
+          "plays": 3433
         },
         {
           "date": "2026-07-29",
@@ -284,27 +284,27 @@
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3866
+          "plays": 3870
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3779
+          "plays": 3783
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3535
+          "plays": 3540
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3328
+          "plays": 3343
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 2627
+          "plays": 2665
         }
       ],
       "per_episode": [
@@ -765,7 +765,7 @@
         },
         {
           "month": "2025-08",
-          "avg": 115,
+          "avg": 116,
           "episodes": 3
         },
         {
@@ -775,7 +775,7 @@
         },
         {
           "month": "2025-10",
-          "avg": 136,
+          "avg": 137,
           "episodes": 5
         },
         {
@@ -805,7 +805,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 254,
+          "avg": 255,
           "episodes": 5
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3557,
+          "avg": 3558,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3317,
+          "avg": 3333,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 53,
-      "plays": 21294,
+      "plays": 21310,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -1038,7 +1038,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1334
+          "plays": 1335
         },
         {
           "date": "2026-07-02",
@@ -1058,7 +1058,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 998
+          "plays": 999
         },
         {
           "date": "2026-07-29",
@@ -1088,7 +1088,7 @@
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 922
+          "plays": 924
         },
         {
           "date": "2026-09-10",
@@ -1103,7 +1103,7 @@
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 483
+          "plays": 495
         }
       ],
       "per_episode": [
@@ -1159,7 +1159,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 1082,
+          "avg": 1083,
           "episodes": 4
         },
         {
@@ -1174,7 +1174,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 732,
+          "avg": 736,
           "episodes": 4
         }
       ]
