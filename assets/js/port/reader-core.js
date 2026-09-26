@@ -6928,11 +6928,18 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
   }catch(e){}
   window.__pldCanonDocs={la:laD,en:enD};
   const _aula=author;author=await _auEn(author);
+  // TWO PLATES PER OPENING (owner 2026-09-25, PG 51): Migne prints some openings twice, a Greek page and a Latin page with the same
+  // column numbers. The canon keys the other plate's lane to the page with ana="#second-plate" (or "#latin-plate" on the site's own Latin) facs="<its scan>"; such an opening
+  // shows BOTH scans, stacked (the segment-stack path the PO strips use), the pageview's plate first.
+  const _second={};
+  try{for(const el of doc.querySelectorAll('p[ana$="-plate"][facs],note[ana$="-plate"][facs]')){   /* the parsed canon (laD is the synthesized Latin lane, which carries no ana/facs) */ const c=+(el.getAttribute("n")||0);const u=el.getAttribute("facs");if(!u)continue;
+    const k=c?(c%2===1?c:c-1):null;if(k&&!_second[k])_second[k]=u;}}catch(e){}
   return {slug:ws,title,title_en:title,author:author||author_gr,author_la:_aula&&_aula!==author?_aula:undefined,volume:vol?("PG "+vol):"",
     pg_columns:_printedColumns,pg_source:src,pg_page_labels:_pgFrontLabels,
     tradition:"Greek Fathers",has_pages:true,has_tei:true,tei_v:0,en_only:false,
     n_pages:pages.length,structure:structure,base:null,spine_nav:structure.length>1,
-    pages:pages.map(n=>({n,la:"",en:"",img:facs[n]||null,thumb:facs[n]||null}))};
+    pages:pages.map(n=>{const pgo={n,la:"",en:"",img:facs[n]||null,thumb:facs[n]||null};const k=n%2===1?n:n-1;const s2=_second[k]||_second[n];
+      if(s2&&facs[n]&&s2!==facs[n])pgo.imgs=[facs[n],s2];return pgo;})};
 }
 // ── PO CANON (2026-08-17): Eastern Fathers hydrate from tei/po/{id}.xml — page-keyed
 // sibling triples: the original script, the fascicle's printed translation, our English.

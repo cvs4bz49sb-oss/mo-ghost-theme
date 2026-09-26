@@ -5,7 +5,7 @@ const text=v=>String(v??'');
 const sourceCache=new WeakMap();
 function sourceColumns(doc){
  if(sourceCache.has(doc))return sourceCache.get(doc);
- const out={},images=new Map(),alt=new Set(['translation','secondary','diplomatic','witness','edition']);
+ const out={},images=new Map(),alt=new Set(['translation','secondary','diplomatic','witness','edition']);let twoPlate=false;   // 09-25: PG 51 prints an opening twice (a Greek plate and a Latin plate); the canon marks the other plate's lane ana="#second-plate"/"#latin-plate"
  const body=doc.querySelector('body')||doc.documentElement;
  function primaryImages(node){for(const ch of node.children||[]){if(ch.localName==='div'&&alt.has(ch.getAttribute('type')))continue;if(ch.localName==='pb'&&ch.getAttribute('facs')){if(!images.has(ch.getAttribute('facs')))images.set(ch.getAttribute('facs'),ch.getAttribute('n'));}else if(ch.localName==='div')primaryImages(ch);}}primaryImages(body);
  function walk(node,role='reading',state={opening:'',column:'',pending:[]}){for(const ch of node.children||[]){const tag=ch.localName,type=ch.getAttribute('type');
@@ -16,7 +16,7 @@ function sourceColumns(doc){
   else if(tag==='note'&&role!=='supplement'&&state.opening&&(ch.getAttribute('place')||'foot')!=='margin'){   // the page's footnotes (Migne's apparatus, resp #pg-site-vtx): counted as the page's own text, rendered as the folio's note band
    const opening=out[state.opening]||(out[state.opening]={columns:{}});(opening.notes||(opening.notes=[])).push((ch.textContent||'').replace(/\s+/g,' ').trim());}
   else if(tag==='head'&&!state.opening){state.pending.push(ch.textContent||'');}
-  else if((tag==='p'||tag==='head')&&state.opening&&state.column){const opening=out[state.opening]||(out[state.opening]={columns:{}}),col=opening.columns[state.column]||(opening.columns[state.column]={});
+  else if((tag==='p'||tag==='head')&&state.opening&&state.column){const opening=out[state.opening]||(out[state.opening]={columns:{}}),col=opening.columns[state.column]||(opening.columns[state.column]={});if(/-plate$/.test(ch.getAttribute('ana')||''))twoPlate=true;
    if(role==='verified')opening.verified=true;
    const rich=col[role+'Rich']||(col[role+'Rich']=[]);
    const head=t=>/^[Α-ΩA-B]\s*[—–-]\s/.test(t)?t:'\u0002'+t+'\u0003';
@@ -41,7 +41,10 @@ function sourceColumns(doc){
   cands.set(key+'|'+column,list);}
  const pureSet=new Set();let mg=0,ml=0;
  for(const list of cands.values()){const c=list.find(x=>!x.mixedSecondary);if(!c)continue;if(c.pure)pureSet.add(c.pure);else{mg+=c.g;ml+=c.l;}}
- const mixedLane=pureSet.size<=1&&mg+ml>0?(mg>=ml?'grc':'la'):null;
+ // A TWO-PLATE work (PG 51) prints Greek and Latin as a pair on facing plates with the same column numbers; with both lanes keyed to one
+ // column every column reads mixed, and the single-stream rule would pour the whole work into one lane. Such a work is a Greek|Latin pair:
+ // its mixed columns are split by paragraph below, never merged.
+ const mixedLane=!twoPlate&&pureSet.size<=1&&mg+ml>0?(mg>=ml?'grc':'la'):null;
  for(const [key,opening]of Object.entries(out)){opening.grc=[];opening.la=[];opening.grcRich=[];opening.laRich=[];
   // Paragraph lists (owner 2026-09-15 'rich labelled inner text like the patrologia site'): the printed paragraphs of each lane in column
   // order, a heading folded into the paragraph it introduces; colParas keeps them by printed column for the column basis in alignOpening.
