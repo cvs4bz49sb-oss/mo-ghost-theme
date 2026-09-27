@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-27T05:24:00.288Z",
+  "generated_at": "2026-09-27T12:09:01.398Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 319,
-      "plays": 80421,
+      "plays": 80476,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -29,7 +29,7 @@
         {
           "date": "2025-07-09",
           "title": "Is \"Covenant\" Overused?",
-          "plays": 54
+          "plays": 55
         },
         {
           "date": "2025-07-16",
@@ -39,12 +39,12 @@
         {
           "date": "2025-07-23",
           "title": "Can You Really Read The Bible Like That?!",
-          "plays": 114
+          "plays": 115
         },
         {
           "date": "2025-08-13",
           "title": "Should I Stay Or Should I Go (From My Denomination)?",
-          "plays": 141
+          "plays": 142
         },
         {
           "date": "2025-08-20",
@@ -74,7 +74,7 @@
         {
           "date": "2025-09-24",
           "title": "Reflecting on Charlie Kirk",
-          "plays": 102
+          "plays": 103
         },
         {
           "date": "2025-10-01",
@@ -114,7 +114,7 @@
         {
           "date": "2025-11-19",
           "title": "What Is A Sermon, Anyway?",
-          "plays": 80
+          "plays": 81
         },
         {
           "date": "2025-11-26",
@@ -129,7 +129,7 @@
         {
           "date": "2026-01-21",
           "title": "Paul and the Resurrection of Israel with Dr. Jason Staples",
-          "plays": 170
+          "plays": 171
         },
         {
           "date": "2026-01-28",
@@ -269,12 +269,12 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 3022
+          "plays": 3024
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3442
+          "plays": 3444
         },
         {
           "date": "2026-08-19",
@@ -284,27 +284,27 @@
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3876
+          "plays": 3879
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3790
+          "plays": 3793
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3554
+          "plays": 3557
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3352
+          "plays": 3360
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 2740
+          "plays": 2767
         }
       ],
       "per_episode": [
@@ -790,7 +790,7 @@
         },
         {
           "month": "2026-01",
-          "avg": 132,
+          "avg": 133,
           "episodes": 2
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3561,
+          "avg": 3563,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3359,
+          "avg": 3369,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 53,
-      "plays": 21384,
+      "plays": 21404,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -1023,7 +1023,7 @@
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 954
+          "plays": 955
         },
         {
           "date": "2026-06-11",
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1185
+          "plays": 1186
         },
         {
           "date": "2026-06-25",
@@ -1093,17 +1093,17 @@
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 792
+          "plays": 793
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 740
+          "plays": 743
         },
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 517
+          "plays": 531
         }
       ],
       "per_episode": [
@@ -1174,7 +1174,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 745,
+          "avg": 749,
           "episodes": 4
         }
       ]
