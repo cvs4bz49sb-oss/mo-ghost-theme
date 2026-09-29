@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-29T05:49:05.005Z",
+  "generated_at": "2026-09-29T13:00:10.469Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 319,
-      "plays": 81391,
+      "plays": 81464,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -74,12 +74,12 @@
         {
           "date": "2025-09-24",
           "title": "Reflecting on Charlie Kirk",
-          "plays": 107
+          "plays": 108
         },
         {
           "date": "2025-10-01",
           "title": "Replay: Thinking For Yourself",
-          "plays": 54
+          "plays": 55
         },
         {
           "date": "2025-10-08",
@@ -209,27 +209,27 @@
         {
           "date": "2026-05-13",
           "title": "The Desecration of Man with Dr. Carl Trueman",
-          "plays": 1201
+          "plays": 1202
         },
         {
           "date": "2026-05-20",
           "title": "The Christian Life with Kelly Kapic",
-          "plays": 3641
+          "plays": 3642
         },
         {
           "date": "2026-05-27",
           "title": "Idolatry And The Shape Of Worship",
-          "plays": 3756
+          "plays": 3757
         },
         {
           "date": "2026-06-03",
           "title": "Replay: How 1776 Remade The World with Andrew Wilson (Fixed Audio)",
-          "plays": 3170
+          "plays": 3171
         },
         {
           "date": "2026-06-10",
           "title": "Online And Outside the Institutions",
-          "plays": 3518
+          "plays": 3519
         },
         {
           "date": "2026-06-17",
@@ -284,27 +284,27 @@
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3907
+          "plays": 3909
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3831
+          "plays": 3836
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3600
+          "plays": 3607
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3435
+          "plays": 3444
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 3022
+          "plays": 3063
         }
       ],
       "per_episode": [
@@ -810,7 +810,7 @@
         },
         {
           "month": "2026-05",
-          "avg": 2338,
+          "avg": 2339,
           "episodes": 4
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3577,
+          "avg": 3578,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3472,
+          "avg": 3488,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 53,
-      "plays": 21571,
+      "plays": 21582,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -1003,7 +1003,7 @@
         {
           "date": "2026-05-07",
           "title": "The Great Gatsby with Katy Carl",
-          "plays": 225
+          "plays": 226
         },
         {
           "date": "2026-05-14",
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1189
+          "plays": 1190
         },
         {
           "date": "2026-06-25",
@@ -1043,7 +1043,7 @@
         {
           "date": "2026-07-02",
           "title": "The Declaration of Independence with Matthew Spalding and Jake Meador",
-          "plays": 863
+          "plays": 864
         },
         {
           "date": "2026-07-09",
@@ -1078,32 +1078,32 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 921
+          "plays": 922
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 883
+          "plays": 884
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 949
+          "plays": 950
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 811
+          "plays": 812
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 761
+          "plays": 762
         },
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 588
+          "plays": 591
         }
       ],
       "per_episode": [
@@ -1154,17 +1154,17 @@
         },
         {
           "month": "2026-05",
-          "avg": 507,
+          "avg": 508,
           "episodes": 5
         },
         {
           "month": "2026-06",
-          "avg": 1087,
+          "avg": 1088,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 864,
+          "avg": 865,
           "episodes": 5
         },
         {
@@ -1174,7 +1174,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 777,
+          "avg": 779,
           "episodes": 4
         }
       ]
