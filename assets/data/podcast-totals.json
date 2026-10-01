@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-30T22:20:46.720Z",
+  "generated_at": "2026-10-01T06:03:31.162Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 320,
-      "plays": 83929,
+      "plays": 84214,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -84,7 +84,7 @@
         {
           "date": "2025-10-15",
           "title": "The Bible: A Technology",
-          "plays": 142
+          "plays": 143
         },
         {
           "date": "2025-10-22",
@@ -124,7 +124,7 @@
         {
           "date": "2026-01-21",
           "title": "Paul and the Resurrection of Israel with Dr. Jason Staples",
-          "plays": 180
+          "plays": 181
         },
         {
           "date": "2026-01-28",
@@ -159,7 +159,7 @@
         {
           "date": "2026-03-11",
           "title": "Delighting In The Ten Commandments",
-          "plays": 139
+          "plays": 140
         },
         {
           "date": "2026-03-18",
@@ -199,7 +199,7 @@
         {
           "date": "2026-05-06",
           "title": "Virtues For Living Well with Dr. Alan Noble",
-          "plays": 759
+          "plays": 760
         },
         {
           "date": "2026-05-13",
@@ -274,37 +274,37 @@
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3926
+          "plays": 3927
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3933
+          "plays": 3936
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3871
+          "plays": 3876
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3666
+          "plays": 3675
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3512
+          "plays": 3524
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 3246
+          "plays": 3260
         },
         {
           "date": "2026-09-30",
           "title": "Finding Happiness That Lasts",
-          "plays": 1737
+          "plays": 1971
         }
       ],
       "per_episode": [
@@ -535,7 +535,7 @@
         },
         {
           "month": "2021-05",
-          "avg": 32,
+          "avg": 33,
           "episodes": 3
         },
         {
@@ -825,25 +825,25 @@
         },
         {
           "month": "2026-08",
-          "avg": 3590,
+          "avg": 3591,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3206,
+          "avg": 3261,
           "episodes": 5
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 53,
-      "plays": 21697,
+      "plays": 21728,
       "earliest": "2025-07-24",
       "recent": [
         {
           "date": "2025-07-24",
           "title": "Introducing: Christians Reading Classics",
-          "plays": 161
+          "plays": 162
         },
         {
           "date": "2025-08-12",
@@ -863,7 +863,7 @@
         {
           "date": "2025-08-12",
           "title": "Laura Ingalls Wilder - Little House on the Prairie with John Fry and LuElla D'Amico",
-          "plays": 136
+          "plays": 137
         },
         {
           "date": "2025-08-12",
@@ -873,7 +873,7 @@
         {
           "date": "2025-08-21",
           "title": "J.R.R. Tolkien - The Return of the King with Kirsten Sanders",
-          "plays": 144
+          "plays": 148
         },
         {
           "date": "2025-08-28",
@@ -903,7 +903,7 @@
         {
           "date": "2025-10-02",
           "title": "Flannery O'Connor - A Good Man Is Hard To Find with Jon Parrish Peede",
-          "plays": 138
+          "plays": 139
         },
         {
           "date": "2025-10-09",
@@ -913,7 +913,7 @@
         {
           "date": "2025-10-16",
           "title": "C.S. Lewis - The Great Divorce with Dr. Leslie Baynes",
-          "plays": 202
+          "plays": 203
         },
         {
           "date": "2025-10-23",
@@ -978,7 +978,7 @@
         {
           "date": "2026-04-02",
           "title": "Moby Dick by Herman Melville with Christina Bieber Lake",
-          "plays": 159
+          "plays": 160
         },
         {
           "date": "2026-04-09",
@@ -988,7 +988,7 @@
         {
           "date": "2026-04-16",
           "title": "The Scarlet Letter by Nathaniel Hawthorne with Jeff Bilbro | American 250",
-          "plays": 117
+          "plays": 118
         },
         {
           "date": "2026-04-23",
@@ -1003,7 +1003,7 @@
         {
           "date": "2026-05-07",
           "title": "The Great Gatsby with Katy Carl",
-          "plays": 226
+          "plays": 227
         },
         {
           "date": "2026-05-14",
@@ -1038,7 +1038,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1346
+          "plays": 1348
         },
         {
           "date": "2026-07-02",
@@ -1048,7 +1048,7 @@
         {
           "date": "2026-07-09",
           "title": "The Declaration of Independence and the Classics with Brad Birzer",
-          "plays": 762
+          "plays": 763
         },
         {
           "date": "2026-07-16",
@@ -1068,7 +1068,7 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 990
+          "plays": 991
         },
         {
           "date": "2026-08-13",
@@ -1078,43 +1078,43 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 924
+          "plays": 925
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 892
+          "plays": 893
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 960
+          "plays": 961
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 828
+          "plays": 830
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 778
+          "plays": 780
         },
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 620
+          "plays": 629
         }
       ],
       "per_episode": [
         {
           "month": "2025-07",
-          "avg": 161,
+          "avg": 162,
           "episodes": 1
         },
         {
           "month": "2025-08",
-          "avg": 125,
+          "avg": 126,
           "episodes": 7
         },
         {
@@ -1149,7 +1149,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 145,
+          "avg": 146,
           "episodes": 4
         },
         {
@@ -1164,17 +1164,17 @@
         },
         {
           "month": "2026-07",
-          "avg": 865,
+          "avg": 866,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 893,
+          "avg": 894,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 797,
+          "avg": 800,
           "episodes": 4
         }
       ]
