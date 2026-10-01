@@ -1,18 +1,4 @@
 {
   "mere-fidelity": null,
-  "christians-reading-classics": {
-    "id": 19887927,
-    "title": "Aristotle, with Philip Freeman",
-    "slug": "aristotle-with-philip-freeman",
-    "pubDate": "2026-10-01T06:00:00.000-04:00",
-    "episode": 52,
-    "season": 2,
-    "description": "Aristotle is everywhere in Western civilization, but most of us meet him as a difficult assignment instead of a real human being with a complicated story. We sit down with classicist and biographer Philip Freeman, author of Aristotle: The First Teacher, to follow Aristotle from an out-of-the-way town in northern Greece to the intellectual pressure cooker of Plato’s Academy and then into his own ambitious project at the Lyceum.",
-    "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
-    "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19887927-aristotle-with-philip-freeman.mp3",
-    "link": "https://mereorthodoxy.com/podcasts/christians-reading-classics/",
-    "embedUrl": "https://www.buzzsprout.com/2612793/19887927?client_source=small_player&iframe=true",
-    "hasTranscript": true,
-    "transcriptUrl": "/transcript/christians-reading-classics/aristotle-with-philip-freeman/"
-  }
+  "christians-reading-classics": null
 }
