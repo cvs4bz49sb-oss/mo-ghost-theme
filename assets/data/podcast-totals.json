@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-03T16:26:47.945Z",
+  "generated_at": "2026-10-03T21:23:05.619Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 320,
-      "plays": 85490,
+      "plays": 85557,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -59,7 +59,7 @@
         {
           "date": "2025-09-08",
           "title": "Are You Scared Of Ambition?",
-          "plays": 69
+          "plays": 71
         },
         {
           "date": "2025-09-17",
@@ -224,12 +224,12 @@
         {
           "date": "2026-06-10",
           "title": "Online And Outside the Institutions",
-          "plays": 3525
+          "plays": 3526
         },
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3710
+          "plays": 3711
         },
         {
           "date": "2026-06-24",
@@ -239,7 +239,7 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3502
+          "plays": 3503
         },
         {
           "date": "2026-07-08",
@@ -274,37 +274,37 @@
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3940
+          "plays": 3942
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3951
+          "plays": 3954
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3899
+          "plays": 3901
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3715
+          "plays": 3720
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3579
+          "plays": 3585
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 3392
+          "plays": 3397
         },
         {
           "date": "2026-09-30",
           "title": "Finding Happiness That Lasts",
-          "plays": 2725
+          "plays": 2762
         }
       ],
       "per_episode": [
@@ -515,7 +515,7 @@
         },
         {
           "month": "2021-01",
-          "avg": 30,
+          "avg": 31,
           "episodes": 2
         },
         {
@@ -770,7 +770,7 @@
         },
         {
           "month": "2025-09",
-          "avg": 80,
+          "avg": 81,
           "episodes": 4
         },
         {
@@ -825,30 +825,30 @@
         },
         {
           "month": "2026-08",
-          "avg": 3604,
+          "avg": 3605,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3462,
+          "avg": 3473,
           "episodes": 5
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 54,
-      "plays": 22483,
+      "plays": 22505,
       "earliest": "2025-07-24",
       "recent": [
         {
           "date": "2025-07-24",
           "title": "Introducing: Christians Reading Classics",
-          "plays": 165
+          "plays": 166
         },
         {
           "date": "2025-08-12",
           "title": "G.K. Chesterton - The Everlasting Man with Timothy Larsen",
-          "plays": 199
+          "plays": 200
         },
         {
           "date": "2025-08-12",
@@ -1003,7 +1003,7 @@
         {
           "date": "2026-05-07",
           "title": "The Great Gatsby with Katy Carl",
-          "plays": 229
+          "plays": 230
         },
         {
           "date": "2026-05-14",
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1201
+          "plays": 1202
         },
         {
           "date": "2026-06-25",
@@ -1058,12 +1058,12 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 1013
+          "plays": 1014
         },
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 917
+          "plays": 918
         },
         {
           "date": "2026-08-06",
@@ -1103,18 +1103,18 @@
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 655
+          "plays": 656
         },
         {
           "date": "2026-10-01",
           "title": "Aristotle, with Philip Freeman",
-          "plays": 533
+          "plays": 548
         }
       ],
       "per_episode": [
         {
           "month": "2025-07",
-          "avg": 165,
+          "avg": 166,
           "episodes": 1
         },
         {
@@ -1164,12 +1164,12 @@
         },
         {
           "month": "2026-06",
-          "avg": 1094,
+          "avg": 1095,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 870,
+          "avg": 871,
           "episodes": 5
         },
         {
@@ -1184,7 +1184,7 @@
         },
         {
           "month": "2026-10",
-          "avg": 533,
+          "avg": 548,
           "episodes": 1
         }
       ]
