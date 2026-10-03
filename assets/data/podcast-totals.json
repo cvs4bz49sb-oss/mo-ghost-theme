@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-03T11:45:03.443Z",
+  "generated_at": "2026-10-03T16:26:47.945Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 320,
-      "plays": 85416,
+      "plays": 85490,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -214,12 +214,12 @@
         {
           "date": "2026-05-27",
           "title": "Idolatry And The Shape Of Worship",
-          "plays": 3769
+          "plays": 3770
         },
         {
           "date": "2026-06-03",
           "title": "Replay: How 1776 Remade The World with Andrew Wilson (Fixed Audio)",
-          "plays": 3176
+          "plays": 3177
         },
         {
           "date": "2026-06-10",
@@ -229,12 +229,12 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3709
+          "plays": 3710
         },
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3658
+          "plays": 3659
         },
         {
           "date": "2026-07-01",
@@ -249,12 +249,12 @@
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3057
+          "plays": 3058
         },
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3451
+          "plays": 3452
         },
         {
           "date": "2026-07-29",
@@ -269,7 +269,7 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3478
+          "plays": 3479
         },
         {
           "date": "2026-08-19",
@@ -284,27 +284,27 @@
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3898
+          "plays": 3899
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3713
+          "plays": 3715
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3574
+          "plays": 3579
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 3384
+          "plays": 3392
         },
         {
           "date": "2026-09-30",
           "title": "Finding Happiness That Lasts",
-          "plays": 2678
+          "plays": 2725
         }
       ],
       "per_episode": [
@@ -810,17 +810,17 @@
         },
         {
           "month": "2026-05",
-          "avg": 2349,
+          "avg": 2350,
           "episodes": 4
         },
         {
           "month": "2026-06",
-          "avg": 3517,
+          "avg": 3518,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 3382,
+          "avg": 3383,
           "episodes": 5
         },
         {
@@ -830,14 +830,14 @@
         },
         {
           "month": "2026-09",
-          "avg": 3449,
+          "avg": 3462,
           "episodes": 5
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 54,
-      "plays": 22446,
+      "plays": 22483,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -918,7 +918,7 @@
         {
           "date": "2025-10-23",
           "title": "T.S. Eliot - The Hollow Men with Eric Hutchinson",
-          "plays": 138
+          "plays": 139
         },
         {
           "date": "2025-10-30",
@@ -928,7 +928,7 @@
         {
           "date": "2025-11-06",
           "title": "Reading Ancient Pagans As Modern Christians",
-          "plays": 117
+          "plays": 118
         },
         {
           "date": "2026-01-29",
@@ -953,12 +953,12 @@
         {
           "date": "2026-02-26",
           "title": "Uncle Toms Cabin by Harriet Beecher Stowe with Obbie Tyler Todd | America 250",
-          "plays": 81
+          "plays": 82
         },
         {
           "date": "2026-03-05",
           "title": "Wuthering Heights with Evie Solheim",
-          "plays": 100
+          "plays": 101
         },
         {
           "date": "2026-03-12",
@@ -978,7 +978,7 @@
         {
           "date": "2026-04-02",
           "title": "Moby Dick by Herman Melville with Christina Bieber Lake",
-          "plays": 160
+          "plays": 161
         },
         {
           "date": "2026-04-09",
@@ -1003,7 +1003,7 @@
         {
           "date": "2026-05-07",
           "title": "The Great Gatsby with Katy Carl",
-          "plays": 228
+          "plays": 229
         },
         {
           "date": "2026-05-14",
@@ -1018,7 +1018,7 @@
         {
           "date": "2026-05-28",
           "title": "Augustine's Confessions with Joey Sherrard",
-          "plays": 1120
+          "plays": 1122
         },
         {
           "date": "2026-06-04",
@@ -1033,12 +1033,12 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1198
+          "plays": 1201
         },
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1352
+          "plays": 1356
         },
         {
           "date": "2026-07-02",
@@ -1058,12 +1058,12 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 1012
+          "plays": 1013
         },
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 916
+          "plays": 917
         },
         {
           "date": "2026-08-06",
@@ -1088,7 +1088,7 @@
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 981
+          "plays": 983
         },
         {
           "date": "2026-09-10",
@@ -1103,12 +1103,12 @@
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 654
+          "plays": 655
         },
         {
           "date": "2026-10-01",
           "title": "Aristotle, with Philip Freeman",
-          "plays": 516
+          "plays": 533
         }
       ],
       "per_episode": [
@@ -1134,7 +1134,7 @@
         },
         {
           "month": "2025-11",
-          "avg": 117,
+          "avg": 118,
           "episodes": 1
         },
         {
@@ -1149,7 +1149,7 @@
         },
         {
           "month": "2026-03",
-          "avg": 138,
+          "avg": 139,
           "episodes": 4
         },
         {
@@ -1159,12 +1159,12 @@
         },
         {
           "month": "2026-05",
-          "avg": 510,
+          "avg": 511,
           "episodes": 5
         },
         {
           "month": "2026-06",
-          "avg": 1093,
+          "avg": 1094,
           "episodes": 4
         },
         {
@@ -1179,12 +1179,12 @@
         },
         {
           "month": "2026-09",
-          "avg": 819,
+          "avg": 820,
           "episodes": 4
         },
         {
           "month": "2026-10",
-          "avg": 516,
+          "avg": 533,
           "episodes": 1
         }
       ]
