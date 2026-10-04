@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-04T06:00:01.371Z",
+  "generated_at": "2026-10-04T12:28:16.757Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 320,
-      "plays": 85636,
+      "plays": 85674,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -44,7 +44,7 @@
         {
           "date": "2025-08-20",
           "title": "Are We Disenchanted? Should We Be Enchanted?",
-          "plays": 158
+          "plays": 159
         },
         {
           "date": "2025-08-27",
@@ -134,7 +134,7 @@
         {
           "date": "2026-02-04",
           "title": "Spiritual Formation: A Close Examination",
-          "plays": 287
+          "plays": 288
         },
         {
           "date": "2026-02-11",
@@ -169,7 +169,7 @@
         {
           "date": "2026-03-25",
           "title": "The Fall Before The Fall with Philip G. Porter",
-          "plays": 239
+          "plays": 240
         },
         {
           "date": "2026-04-01",
@@ -194,7 +194,7 @@
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 508
+          "plays": 509
         },
         {
           "date": "2026-05-06",
@@ -204,7 +204,7 @@
         {
           "date": "2026-05-13",
           "title": "The Desecration of Man with Dr. Carl Trueman",
-          "plays": 1216
+          "plays": 1217
         },
         {
           "date": "2026-05-20",
@@ -219,7 +219,7 @@
         {
           "date": "2026-06-03",
           "title": "Replay: How 1776 Remade The World with Andrew Wilson (Fixed Audio)",
-          "plays": 3177
+          "plays": 3178
         },
         {
           "date": "2026-06-10",
@@ -234,7 +234,7 @@
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3659
+          "plays": 3660
         },
         {
           "date": "2026-07-01",
@@ -284,27 +284,27 @@
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3905
+          "plays": 3906
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3722
+          "plays": 3725
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3587
+          "plays": 3588
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 3408
+          "plays": 3413
         },
         {
           "date": "2026-09-30",
           "title": "Finding Happiness That Lasts",
-          "plays": 2799
+          "plays": 2820
         }
       ],
       "per_episode": [
@@ -830,14 +830,14 @@
         },
         {
           "month": "2026-09",
-          "avg": 3484,
+          "avg": 3490,
           "episodes": 5
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 54,
-      "plays": 22527,
+      "plays": 22543,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -893,7 +893,7 @@
         {
           "date": "2025-09-18",
           "title": "The Heart of a Dog - Mikhail Bulgakov with Vika Pechersky",
-          "plays": 64
+          "plays": 66
         },
         {
           "date": "2025-09-25",
@@ -1023,7 +1023,7 @@
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 957
+          "plays": 958
         },
         {
           "date": "2026-06-11",
@@ -1033,12 +1033,12 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1202
+          "plays": 1203
         },
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1357
+          "plays": 1358
         },
         {
           "date": "2026-07-02",
@@ -1103,12 +1103,12 @@
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 657
+          "plays": 658
         },
         {
           "date": "2026-10-01",
           "title": "Aristotle, with Philip Freeman",
-          "plays": 556
+          "plays": 566
         }
       ],
       "per_episode": [
@@ -1124,7 +1124,7 @@
         },
         {
           "month": "2025-09",
-          "avg": 97,
+          "avg": 98,
           "episodes": 4
         },
         {
@@ -1164,7 +1164,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 1095,
+          "avg": 1096,
           "episodes": 4
         },
         {
@@ -1184,7 +1184,7 @@
         },
         {
           "month": "2026-10",
-          "avg": 556,
+          "avg": 566,
           "episodes": 1
         }
       ]
