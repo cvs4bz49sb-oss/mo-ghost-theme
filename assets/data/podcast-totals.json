@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-06T00:06:51.385Z",
+  "generated_at": "2026-10-06T06:28:10.622Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 320,
-      "plays": 86070,
+      "plays": 86131,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -179,12 +179,12 @@
         {
           "date": "2026-04-08",
           "title": "Between Nature and Grace",
-          "plays": 198
+          "plays": 200
         },
         {
           "date": "2026-04-15",
           "title": "Replay: Protestants & History with Paul Gutacker",
-          "plays": 200
+          "plays": 202
         },
         {
           "date": "2026-04-22",
@@ -259,7 +259,7 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2934
+          "plays": 2935
         },
         {
           "date": "2026-08-05",
@@ -274,48 +274,48 @@
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3957
+          "plays": 3959
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3956
+          "plays": 3958
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3917
+          "plays": 3920
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3742
+          "plays": 3746
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3609
+          "plays": 3617
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 3467
+          "plays": 3476
         },
         {
           "date": "2026-09-30",
           "title": "Finding Happiness That Lasts",
-          "plays": 3009
+          "plays": 3033
         }
       ],
       "per_episode": [
         {
           "month": "2017-02",
-          "avg": 36,
+          "avg": 37,
           "episodes": 2
         },
         {
           "month": "2017-03",
-          "avg": 18,
+          "avg": 19,
           "episodes": 1
         },
         {
@@ -585,7 +585,7 @@
         },
         {
           "month": "2022-03",
-          "avg": 45,
+          "avg": 46,
           "episodes": 3
         },
         {
@@ -805,7 +805,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 270,
+          "avg": 271,
           "episodes": 5
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3612,
+          "avg": 3613,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3549,
+          "avg": 3558,
           "episodes": 5
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 54,
-      "plays": 22652,
+      "plays": 22664,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -888,7 +888,7 @@
         {
           "date": "2025-09-11",
           "title": "C. S. Lewis - That Hideous Strength with Philip D. Bunn and Ronni Kurtz",
-          "plays": 176
+          "plays": 178
         },
         {
           "date": "2025-09-18",
@@ -1038,17 +1038,17 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1362
+          "plays": 1363
         },
         {
           "date": "2026-07-02",
           "title": "The Declaration of Independence with Matthew Spalding and Jake Meador",
-          "plays": 878
+          "plays": 880
         },
         {
           "date": "2026-07-09",
           "title": "The Declaration of Independence and the Classics with Brad Birzer",
-          "plays": 766
+          "plays": 767
         },
         {
           "date": "2026-07-16",
@@ -1083,7 +1083,7 @@
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 902
+          "plays": 903
         },
         {
           "date": "2026-09-03",
@@ -1103,12 +1103,12 @@
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 667
+          "plays": 668
         },
         {
           "date": "2026-10-01",
           "title": "Aristotle, with Philip Freeman",
-          "plays": 612
+          "plays": 616
         }
       ],
       "per_episode": [
@@ -1169,12 +1169,12 @@
         },
         {
           "month": "2026-07",
-          "avg": 873,
+          "avg": 874,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 900,
+          "avg": 901,
           "episodes": 4
         },
         {
@@ -1184,7 +1184,7 @@
         },
         {
           "month": "2026-10",
-          "avg": 612,
+          "avg": 616,
           "episodes": 1
         }
       ]
