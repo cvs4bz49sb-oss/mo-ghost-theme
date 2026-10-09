@@ -75,6 +75,11 @@ const push = (c, id, t, a, y) => {
 };
 const ll = await j(`${B}/v1/works-index.json`);
 for (const w of ll.works) if (!EX.test(w.slug || "")) push("tfr", w.slug, w.title, w.author, w.year);
+// Owner, 2026-10-09: the editors' notices and admonitions carry descriptive titles in the works-index ("Historical
+// notice on Pope Leo IV"; the old bare title kept as title_was) and the work each introduces (note_for). The family
+// nav.json below still has the bare titles, so a retitled row's works-index title wins.
+const wiBy = new Map(ll.works.map((w) => [w.slug, w]));
+const retitled = (c, id) => { const w = wiBy.get(`${c}-${id}`); return w && w.title_was ? w.title : null; };
 const mo = await j(`${B}/v1/mo/index.json`);
 for (const w of (mo.works || [])) push("mo", w.slug, w.title, w.author, 0);
 const held = new Set(JSON.parse(readFileSync(new URL("../assets/data/faith-received/eebo-held.json", import.meta.url), "utf8")).ids.map(String));
@@ -82,7 +87,7 @@ const ee = await j("https://eebo-backup.vercel.app/data/catalogue.json");
 for (const w of ee) if (held.has(String(w.i))) push("eebo", w.i, w.t, w.a, w.y);
 for (const [c, host, en] of [["pld", "pld-patrologia-latina", "te"], ["pg", "patrologia-graeca", "e"], ["po", "patrologia-orientalis", "te"]]) {
   const nav = await j(`https://${host}.vercel.app/data/nav.json`);
-  for (const [id, v] of Object.entries(nav.docs || {})) push(c, id, v[en] || v.t, v.ae || v.a, v.v || 0);
+  for (const [id, v] of Object.entries(nav.docs || {})) push(c, id, retitled(c, id) || v[en] || v.t, v.ae || v.a, v.v || 0);
 }
 // A room names a Migne or EEBO work "<corpus>-<id>" and anything else by its bare slug.
 const keyOf = (c, id) => (["eebo", "pld", "pg", "po"].includes(c) ? `${c}-${id}` : id);
@@ -202,7 +207,10 @@ for (const room of rooms) {
       const other = (heldBy.get(k) || []).filter((x) => x !== room.id && !/-anthology$/.test(x));
       const there = other.length ? other[0] : home(r, k);
       if (there && there !== room.id) { elsewhere.set(there, (elsewhere.get(there) || 0) + 1); continue; }
-      (isEditorial(r[0], r[2]) ? editorial : extra).push([r[0], r[1], r[2], r[4] || 0]);
+      const row = [r[0], r[1], r[2], r[4] || 0];
+      const nf = (wiBy.get(k) || {}).note_for;   // the work this notice introduces: [.., slug, title]
+      if (nf) { const t = wiBy.get(nf) || {}; row.push(nf, (t.title || "") + (t.author && !/^(uncertain|various)/i.test(t.author) ? ` — ${t.author}` : "")); }
+      (isEditorial(r[0], r[2]) ? editorial : extra).push(row);
     }
   }
   if (!extra.length && !editorial.length && !elsewhere.size) continue;

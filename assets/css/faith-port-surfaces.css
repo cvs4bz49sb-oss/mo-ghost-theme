@@ -638,6 +638,12 @@ main.research-room:has(.rx-profile) .ar-more-other li {
   font-size: 15px;
 }
 main.research-room:has(.rx-profile) .ar-more-ref { flex: none; color: var(--muted, #6b6660); font-size: 13px; }
+/* Editors' notices (owner 2026-10-09): the note, then the work it introduces under it */
+main.research-room:has(.rx-profile) .ar-more-hint { margin: 0; padding: 10px 20px 8px; border-top: 1px solid var(--ar-line); color: var(--muted, #6b6660); font-size: 14px; }
+main.research-room:has(.rx-profile) .ar-more-hint + ul { border-top: 0; }
+main.research-room:has(.rx-profile) .ar-more-what { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+main.research-room:has(.rx-profile) .ar-more-for { color: var(--muted, #6b6660); font-size: 13px; }
+main.research-room:has(.rx-profile) .ar-more-for:hover { color: inherit; }
 main.research-room:has(.rx-profile) .ar-more-shelves { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 16px 0 0; font-size: 15px; }
 
 @media (max-width: 640px) {

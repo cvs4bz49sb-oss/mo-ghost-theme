@@ -99,21 +99,39 @@
     const T = window.MOTitleOrder;
     const byTitle = (p, q) => (T && T.compareTitlesAlpha ? T.compareTitlesAlpha(p[2], q[2]) : p[2].localeCompare(q[2]));
     const e = (entry.e || []).slice().sort(byTitle);
-    if (e.length) {
+    // Owner, 2026-10-09: the editors' notices and admonitions Migne prints before a work ("Mansi's historical notice
+    // on Pope Leo IV") get their own fold, each with the work it introduces (row[4] slug, row[5] title, written by
+    // scripts/build-room-extra-works.mjs from the works-index note_for); indexes, title pages and other writers stay in
+    // the second fold.
+    const NOTE = /^(?:(?:a|an|another|second|third|preliminary|historical|literary|diplomatic|bibliographical|biographical|editorial)\s+(?:and\s+)?)*(?:notices?|admonitions?|notes?|annotations?|monitum|notitia)\b/i;
+    const isNote = (row) => NOTE.test(row[2]) || !!row[4];
+    // notes in volume order (PL 87 … PL 214: for the popes' notices, their order in time), then by title
+    const notes = e.filter(isNote).sort((p, q) => (Number(p[3]) || 0) - (Number(q[3]) || 0) || byTitle(p, q)), rest = e.filter((row) => !isNote(row));
+    const fold = (rows, label, hint) => {
       const det = el("details", "ar-more-other");
-      det.appendChild(el("summary", null, `Indexes, editors’ notices and other hands in these volumes · ${num(e.length)}`));
+      det.appendChild(el("summary", null, `${label} · ${num(rows.length)}`));
+      if (hint) det.appendChild(el("p", "ar-more-hint", hint));
       const ul = el("ul");
-      e.forEach((row) => {
+      rows.forEach((row) => {
         const li = el("li");
-        li.dataset.title = row[2].toLowerCase();
+        li.dataset.title = `${row[2]} ${row[5] || ""}`.toLowerCase();
         const a = el("a", null, row[2]);
         a.href = readerURL(row[0], row[1]);
-        li.append(a, el("span", "ar-more-ref", reference(row)));
+        const ref = el("span", "ar-more-ref", reference(row));
+        if (row[4]) {
+          const f = el("a", "ar-more-for", `introduces ${row[5] || row[4]}`);
+          f.href = `/the-faith-received/read/?w=${encodeURIComponent(row[4])}`;
+          const what = el("span", "ar-more-what");
+          what.append(a, f);
+          li.append(what, ref);
+        } else li.append(a, ref);
         ul.appendChild(li);
       });
       det.appendChild(ul);
       wrap.appendChild(det);
-    }
+    };
+    if (notes.length) fold(notes, "Editors’ notices and admonitions", "Notes the editors printed before the works they introduce. Each opens in its volume; the second link goes to the work it introduces.");
+    if (rest.length) fold(rest, "Indexes, title pages and other hands in these volumes");
     if (entry.o && entry.o.length) wrap.appendChild(otherLine(entry.o, author));
     return wrap;
   }

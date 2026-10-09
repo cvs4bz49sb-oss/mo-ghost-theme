@@ -2030,6 +2030,7 @@ function build(){
   const _entitle=DATA.title_en||DATA.title;   // English primary; the original Latin goes to the subtitle line
   document.title="The Faith Received — "+_entitle;
   $("#wt").textContent=_entitle;$("#wt").title=_entitle;$("#h1").textContent=_entitle;
+  try{window.FRNotes&&window.FRNotes.apply(DATA,BLOB);}catch(e){}   // editors' notices: new title + "Introduces …" / "Introduced by …" (owner 2026-10-09)
   app.classList.toggle('source-en',DATA.src_lang==='en');
   app.classList.toggle('source-only',DATA.source_only===true);
   renderSourceView();
