@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-08T23:24:43.709Z",
+  "generated_at": "2026-10-09T06:16:18.168Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 321,
-      "plays": 89325,
+      "plays": 89427,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -134,7 +134,7 @@
         {
           "date": "2026-02-11",
           "title": "The Great Evangelical Hand-Off (That Never Happened) with Jake Meador",
-          "plays": 131
+          "plays": 132
         },
         {
           "date": "2026-02-18",
@@ -204,7 +204,7 @@
         {
           "date": "2026-05-20",
           "title": "The Christian Life with Kelly Kapic",
-          "plays": 3655
+          "plays": 3656
         },
         {
           "date": "2026-05-27",
@@ -239,7 +239,7 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3987
+          "plays": 3988
         },
         {
           "date": "2026-07-15",
@@ -259,52 +259,52 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 3052
+          "plays": 3053
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3502
+          "plays": 3504
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3979
+          "plays": 3982
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3973
+          "plays": 3975
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3933
+          "plays": 3936
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3792
+          "plays": 3793
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3680
+          "plays": 3682
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 3571
+          "plays": 3574
         },
         {
           "date": "2026-09-30",
           "title": "Finding Happiness That Lasts",
-          "plays": 3278
+          "plays": 3287
         },
         {
           "date": "2026-10-07",
           "title": "Resisting Therapy Culture, with Matthew Loftus",
-          "plays": 2484
+          "plays": 2553
         }
       ],
       "per_episode": [
@@ -335,7 +335,7 @@
         },
         {
           "month": "2017-11",
-          "avg": 24,
+          "avg": 25,
           "episodes": 4
         },
         {
@@ -530,7 +530,7 @@
         },
         {
           "month": "2021-04",
-          "avg": 34,
+          "avg": 35,
           "episodes": 4
         },
         {
@@ -750,7 +750,7 @@
         },
         {
           "month": "2025-05",
-          "avg": 126,
+          "avg": 127,
           "episodes": 1
         },
         {
@@ -825,24 +825,24 @@
         },
         {
           "month": "2026-08",
-          "avg": 3627,
+          "avg": 3629,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3651,
+          "avg": 3654,
           "episodes": 5
         },
         {
           "month": "2026-10",
-          "avg": 2484,
+          "avg": 2553,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 55,
-      "plays": 23315,
+      "plays": 23358,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -948,7 +948,7 @@
         {
           "date": "2026-02-12",
           "title": "The Education of Henry Adams with Leah Libresco Sargeant | America 250",
-          "plays": 75
+          "plays": 76
         },
         {
           "date": "2026-02-19",
@@ -968,7 +968,7 @@
         {
           "date": "2026-03-12",
           "title": "The Nichomachean Ethics by Aristotle with Sabrina Little | America 250",
-          "plays": 115
+          "plays": 116
         },
         {
           "date": "2026-03-18",
@@ -1093,7 +1093,7 @@
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 1006
+          "plays": 1007
         },
         {
           "date": "2026-09-10",
@@ -1108,7 +1108,7 @@
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 685
+          "plays": 686
         },
         {
           "date": "2026-10-01",
@@ -1118,7 +1118,7 @@
         {
           "date": "2026-10-08",
           "title": "Billy Budd, with Christine Norvell",
-          "plays": 357
+          "plays": 396
         }
       ],
       "per_episode": [
@@ -1189,12 +1189,12 @@
         },
         {
           "month": "2026-09",
-          "avg": 840,
+          "avg": 841,
           "episodes": 4
         },
         {
           "month": "2026-10",
-          "avg": 525,
+          "avg": 544,
           "episodes": 2
         }
       ]
