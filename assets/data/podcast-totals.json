@@ -1,16 +1,11 @@
 {
-  "generated_at": "2026-10-14T04:59:47.602Z",
+  "generated_at": "2026-10-14T12:00:48.039Z",
   "shows": {
     "mere-fidelity": {
-      "episodes": 321,
+      "episodes": 322,
       "plays": 0,
       "earliest": "2017-02-15",
       "recent": [
-        {
-          "date": "2025-06-25",
-          "title": "After 'After Virtue' with Jason Blakely",
-          "plays": 0
-        },
         {
           "date": "2025-07-02",
           "title": "The Deep Weird of the Book of Daniel",
@@ -304,6 +299,11 @@
         {
           "date": "2026-10-07",
           "title": "Resisting Therapy Culture, with Matthew Loftus",
+          "plays": 0
+        },
+        {
+          "date": "2026-10-14",
+          "title": "How to Handle Difficult Bible Passages",
           "plays": 0
         }
       ],
@@ -836,7 +836,7 @@
         {
           "month": "2026-10",
           "avg": 0,
-          "episodes": 1
+          "episodes": 2
         }
       ]
     },
