@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T04:48:15.592Z",
+  "generated_at": "2026-10-15T11:37:39.951Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 322,
@@ -841,7 +841,7 @@
       ]
     },
     "christians-reading-classics": {
-      "episodes": 55,
+      "episodes": 56,
       "plays": 0,
       "earliest": "2025-07-24",
       "recent": [
@@ -1119,6 +1119,11 @@
           "date": "2026-10-08",
           "title": "Billy Budd, with Christine Norvell",
           "plays": 0
+        },
+        {
+          "date": "2026-10-15",
+          "title": "All Quiet on the Western Front, with Jason Barnhart",
+          "plays": 0
         }
       ],
       "per_episode": [
@@ -1195,7 +1200,7 @@
         {
           "month": "2026-10",
           "avg": 0,
-          "episodes": 2
+          "episodes": 3
         }
       ]
     }
