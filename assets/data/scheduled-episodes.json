@@ -1,4 +1,18 @@
 {
   "mere-fidelity": null,
-  "christians-reading-classics": null
+  "christians-reading-classics": {
+    "id": 19965102,
+    "title": "All Quiet on the Western Front, with Jason Barnhart",
+    "slug": "all-quiet-on-the-western-front-with-jason-barnhart",
+    "pubDate": "2026-10-15T06:00:00.000-04:00",
+    "episode": 54,
+    "season": 2,
+    "description": "A single sentence can hold an entire war: “All quiet on the Western Front.” That understatement is exactly why Erich Maria Remarque’s novel still haunts readers almost a century later, and why we wanted to slow down and read it carefully rather than treat it like a history lesson. Today we are joined by Jason Barnhart, a peace theologian and professor of historical theology, to talk through the transparency, humanity, and paradoxes that make&nbsp; All Quiet on the Western Front a true classic of war literature.",
+    "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+    "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19965102-all-quiet-on-the-western-front-with-jason-barnhart.mp3",
+    "link": "https://mereorthodoxy.com/podcasts/christians-reading-classics/",
+    "embedUrl": "https://www.buzzsprout.com/2612793/19965102?client_source=small_player&iframe=true",
+    "hasTranscript": true,
+    "transcriptUrl": "/transcript/christians-reading-classics/all-quiet-on-the-western-front-with-jason-barnhart/"
+  }
 }
