@@ -38,12 +38,25 @@
 
   if (!ref || !ref.v) {
     renderChooser();
+    // An address that named something the Desk could not place says so above the chooser (2026-10-15).
+    const asked = (params.get("ref") || "").trim();
+    if (asked) {
+      const $note = document.createElement("p");
+      $note.className = "sd-notice";
+      $note.setAttribute("role", "status");
+      $note.innerHTML = ref && !ref.v
+        ? `“${esc(asked)}” names a chapter, and the Verse Desk opens one verse: choose it below, or <a href="${esc(S.readerHref(ref.book, ref.c, 0, tParam))}">read ${esc(S.refLabel(ref.book, ref.c))} in the reader</a>.`
+        : `No verse matches “${esc(asked)}”. Choose a book, chapter and verse below.`;
+      $root.prepend($note);
+    }
     return;
   }
   const { book, c, v } = ref;
   const label = S.refLabel(book, c, v);
   document.title = `${label} | Verse Desk | The Faith Received | Mere Orthodoxy`;
 
+  // The commentary lists' names: on this chapter, on the book, on the whole Bible (2026-10-15).
+  const COMM_NAMES = S.commentaryTitles(book, c);
   // The deuterocanon is in none of the four translations, and mo-bible
   // has no book number for it, so that section is replaced by the one
   // line that says so rather than left as four rows that all fail.
@@ -68,6 +81,13 @@
         `<a data-sd-next hidden>Next verse</a>` +
       `</nav>` +
     `</header>` +
+    // The page runs long (ten screens on Romans 5:12): its sections by name, under the verse. The reception history's link
+    // appears when faith-port-scripture-notes.js places that section.
+    `<nav class="sd-desk-toc" aria-label="On this page"><span>On this page:</span>` +
+      `<a href="#sd-h-trans">${book.ap ? "The text" : "Translations"}</a>` +
+      `<a href="#sd-h-reads" data-sd-toc-reads hidden>Reception history</a>` +
+      `<a href="#sd-h-comm">Commentaries</a><a href="#sd-h-cite">Citations</a><a href="#sd-h-sim">Similar passages</a><a href="#sd-h-ask">Ask</a>` +
+    `</nav>` +
 
     `${transSection}` +
 
@@ -81,14 +101,13 @@
      * each"). */
     `<section class="sd-desk-sec" aria-labelledby="sd-h-comm">` +
       `<h2 class="sd-h2" id="sd-h-comm">Commentaries</h2>` +
-      `<p class="sd-section-intro">Choose a collection, then preview a commentary without leaving the desk.</p>` +
-      `<div class="sd-collection-index" data-sd-commentary-index>` +
-        `<button type="button" class="sd-index-card" data-sd-commentary-tab="chapter" aria-expanded="false"><span>On ${esc(S.refLabel(book, c))}</span><small data-sd-comm-n>Loading…</small></button>` +
-        `<button type="button" class="sd-index-card" data-sd-commentary-tab="whole" aria-expanded="false"><span>Whole-Bible commentaries</span><small data-sd-wb-n>Loading…</small></button>` +
-      `</div>` +
-      `<section class="sd-expand-panel sd-commentary-panel" data-sd-commentary-panel="chapter" hidden><header><div><h3>Commentaries on ${esc(S.refLabel(book, c))}</h3><p data-sd-comm-meta></p></div><button type="button" class="sd-panel-close" data-sd-commentary-close aria-label="Close commentary collection">×</button></header><div data-sd-comm><p class="sd-muted" role="status">Loading commentaries…</p></div></section>` +
-      `<section class="sd-expand-panel sd-commentary-panel" data-sd-commentary-panel="whole" hidden><header><div><h3>Whole-Bible commentaries</h3><p data-sd-wb-meta></p></div><button type="button" class="sd-panel-close" data-sd-commentary-close aria-label="Close commentary collection">×</button></header><div data-sd-wb><p class="sd-muted" role="status">Loading commentaries…</p></div></section>` +
-    `</section>` +
+      `<p class="sd-section-intro">First the commentaries with their own note on this verse; then every commentary on the chapter, on the book and on the whole Bible. Preview any of them without leaving the desk.</p>` +
+      `<div data-sd-verse-comm></div>` +
+      `<div class="sd-collection-index" data-sd-commentary-index>${["chapter", "book", "whole", "other"].map((k) =>
+        `<button type="button" class="sd-index-card" data-sd-commentary-tab="${k}" aria-expanded="false"><span>${esc(COMM_NAMES[k])}</span><small data-sd-comm-n="${k}">Loading…</small></button>`).join("")}</div>${ 
+      ["chapter", "book", "whole", "other"].map((k) =>
+        `<section class="sd-expand-panel sd-commentary-panel" data-sd-commentary-panel="${k}" hidden><header><div><h3>${esc(COMM_NAMES[k])}</h3><p data-sd-comm-meta="${k}"></p></div><button type="button" class="sd-panel-close" data-sd-commentary-close aria-label="Close commentary collection">×</button></header><div data-sd-comm-body="${k}"><p class="sd-muted" role="status">Loading commentaries…</p></div></section>`).join("") 
+    }</section>` +
 
     `<section class="sd-desk-sec" aria-labelledby="sd-h-cite">` +
       `<h2 class="sd-h2" id="sd-h-cite">Citations</h2>` +
@@ -221,8 +240,16 @@
   // All citations by author and then work, and the chapter verses the loaded pages cite beside this
   // one: declared before the first query() below runs.
   let groups = new Map();
-  let companionCounts = new Map();
   let openAuthor = "", openWork = "";
+  /* EVERY AUTHOR, RANKED (2026-10-15, the owner: "correct ranking"). The rows arrive ranked by author weight, fifty at a time,
+   * so the cards drawn from loaded rows showed Romans 5:12 as Luther alone, and seven authors after three hundred rows (no
+   * Augustine, who cites it 160 times). The worker's author facet counts every citation under the filters, its hundred
+   * largest first: the cards are drawn from it, and an author's rows are fetched when the card is opened. */
+  let authorFacet = [];
+  let authorYears = new Map(); // name -> the year the reception history dates him by (S.loadAuthorYears)
+  let authorsShown = 15;
+  const authorLoads = new Map();
+  const authorDone = new Set();
   const PAGE_SIZE = 50;
   const MORE_PAGES = 5;
   const MORE_BATCH = PAGE_SIZE * MORE_PAGES;
@@ -256,8 +283,10 @@
 
   function updateMoreLabel() {
     const left = Math.max(0, Number(lastMatched || 0) - Number(offset || 0));
+    // The ranked cards name the hundred largest authors; loading more rows reaches the rest (an author past the hundredth gets a
+    // card from the rows) and feeds Similar Scripture use, so the button stays, named for what it loads.
     $more.hidden = !offset;
-    $more.textContent = offset ? `Show ${fmt(Math.min(MORE_BATCH, left))} more (${fmt(left)} left)` : "Show more";
+    $more.textContent = offset ? `Load ${fmt(Math.min(MORE_BATCH, left))} more citations (${fmt(left)} left)` : "Load more citations";
   }
 
   function query(more) {
@@ -286,6 +315,7 @@
         ? `<strong>${fmt(d.matched)}</strong> of ${plural(d.total, "citation", "citations")} match`
         : `<strong>${fmt(d.total)}</strong> ${d.total === 1 ? "citation" : "citations"} of ${esc(label)} in the library`;
       if (!more) {
+        authorFacet = (d.facets && d.facets.author) || [];
         charts(d.facets);
         $top.innerHTML = "";
         (d.top_works || []).forEach((w) => {
@@ -310,6 +340,7 @@
       updateKinds(d.matched);
       updateMoreLabel();
       if (kindSel) moreLabel();
+
     }).catch(() => {
       if (my !== run) return;
       $more.disabled = filling;
@@ -402,19 +433,19 @@
     button.addEventListener("click", () => setCommentaryPanel(""));
   });
   S.fetchCommentaries(book, c, S.emptyFilters()).then((d) => {
-    const { chapter, whole } = S.commentaryGroups(d && d.items);
-    const $comm = $root.querySelector("[data-sd-comm]");
-    const $wb = $root.querySelector("[data-sd-wb]");
-    if (chapter.length) commentaryList($comm, chapter);
-    else $comm.innerHTML = `<p class="sd-muted">No commentaries on ${esc(book.name)} are catalogued yet.</p>`;
-    if (whole.length) commentaryList($wb, whole);
-    else $wb.innerHTML = `<p class="sd-muted">No whole-Bible commentaries are catalogued for ${esc(book.name)} yet.</p>`;
-    $root.querySelector("[data-sd-comm-n]").textContent = plural(chapter.length, "commentary", "commentaries");
-    $root.querySelector("[data-sd-wb-n]").textContent = plural(whole.length, "commentary", "commentaries");
-    $root.querySelector("[data-sd-comm-meta]").textContent = plural(chapter.length, "commentary", "commentaries");
-    $root.querySelector("[data-sd-wb-meta]").textContent = plural(whole.length, "commentary", "commentaries");
+    const g = S.commentaryGroups(d && d.items, book), names = S.commentaryTitles(book, c, g);
+    const none = { chapter: `No work on ${S.refLabel(book, c)} alone is catalogued yet.`, book: `No commentary on ${book.name} is catalogued yet.`, whole: `No whole-Bible commentary is catalogued for ${book.name} yet.` };
+    // the whole list's name says whether a Testament's sets are in it; a book with no other works shows no fourth card
+    $root.querySelectorAll('[data-sd-commentary-tab="whole"] > span, [data-sd-commentary-panel="whole"] h3').forEach(($t) => { $t.textContent = names.whole; });
+    $root.querySelectorAll('[data-sd-commentary-tab="other"], [data-sd-commentary-panel="other"]').forEach(($o) => { if (!g.other.length) $o.remove(); });
+    ["chapter", "book", "whole", "other"].filter((k) => k !== "other" || g.other.length).forEach((k) => {
+      const $body = $root.querySelector(`[data-sd-comm-body="${k}"]`);
+      if (g[k].length) commentaryList($body, g[k]); else $body.innerHTML = `<p class="sd-muted">${esc(none[k])}</p>`;
+      $root.querySelector(`[data-sd-comm-n="${k}"]`).textContent = plural(g[k].length, "commentary", "commentaries");
+      $root.querySelector(`[data-sd-comm-meta="${k}"]`).textContent = plural(g[k].length, "commentary", "commentaries");
+    });
   }).catch(() => {
-    $root.querySelector("[data-sd-comm]").innerHTML = `<p class="sd-muted">Commentaries did not load.</p>`;
+    $root.querySelectorAll("[data-sd-comm-body]").forEach(($b) => { $b.innerHTML = `<p class="sd-muted">Commentaries did not load.</p>`; });
   });
 
   // ── Kinds: quotes, cites, alludes ─────────────────────────────
@@ -489,7 +520,9 @@
   // cites the verse on thirty pages is one row with its count, open on a click, never a new page.
   function resetGroups() {
     groups = new Map();
-    companionCounts = new Map();
+    authorLoads.clear();
+    authorDone.clear();
+    authorsShown = 15;
     openAuthor = "";
     openWork = "";
     $rows.innerHTML = "";
@@ -498,17 +531,35 @@
     const aKey = r.a || "Author not recorded";
     let g = groups.get(aKey);
     if (!g) {
-      g = { works: new Map(), n: 0 };
+      g = { works: new Map(), n: 0, cen: 0 };
       groups.set(aKey, g);
     }
+    if (Number(r.cen) > 0 && (!g.cen || Number(r.cen) < g.cen)) g.cen = Number(r.cen);
     let w = g.works.get(r.w);
     if (!w) {
       w = { title: r.t || r.w, rows: [] };
       g.works.set(r.w, w);
     }
+    // An author's rows can arrive twice (the first pages, then the author's own fetch): one row per page and kind.
+    const seen = `${r.p}|${r.how}|${r.h || ""}`;
+    if (w.rows.some((x) => `${x.p}|${x.how}|${x.h || ""}` === seen)) return;
     w.rows.push(r);
     g.n += 1;
-    (r.vv || []).forEach((n) => { if (Number(n) !== Number(v)) companionCounts.set(Number(n), (companionCounts.get(Number(n)) || 0) + 1); });
+  }
+  // Every row of one author under the current filters (fifty a response, up to 300), fetched once when the card is opened.
+  function loadAuthor(key) {
+    if (!authorLoads.has(key)) {
+      const my = run;
+      const page = (at, got) => S.fetchVerse(book, c, v, { ...bar.filters, au: [key] }, at, 50).then((d) => {
+        if (my !== run) return;
+        (d && d.rows || []).forEach(addGrouped);
+        const next = d && d.next_offset;
+        if (next && got + 50 < 300) return page(next, got + 50);
+        authorDone.add(key);
+      });
+      authorLoads.set(key, page(0, 0).catch(() => { authorLoads.delete(key); }));
+    }
+    return authorLoads.get(key);
   }
 
   const visibleRows = (work) => work.rows.filter((row) => !kindSel || S.kindOf(row) === kindSel);
@@ -525,9 +576,17 @@
   // A set's volumes share one title in the index: each card says which volume it is, and they stand in volume order.
   let volumes = new Map();
   S.loadVolumes().then((loaded) => { volumes = loaded; if (groups.size) renderGroups(); });
+  // when each author wrote, for every card (not only the authors whose rows are loaded)
+  S.loadAuthorYears().then((loaded) => { authorYears = loaded; if (groups.size || authorFacet.length) renderGroups(); });
+  function authorCentury(key, group) {
+    const y = Number(authorYears.get(key));
+    return y > 0 ? Math.floor((y - 1) / 100) + 1 : group.cen;
+  }
   const volumeOf = (key, work) => S.volumeLabel(volumes, key, work.title);
   function renderWorkGroups(authorKey, group, host) {
-    const works = S.sortWorks([...group.works.entries()].map(([key, work]) => ({ key, work, rows: visibleRows(work), w: key, t: work.title })).filter((entry) => entry.rows.length), volumes);
+    // The works that cite the verse most first (Against Julian before a letter citing it once), then by title and volume.
+    const works = S.sortWorks([...group.works.entries()].map(([key, work]) => ({ key, work, rows: visibleRows(work), w: key, t: work.title })).filter((entry) => entry.rows.length), volumes)
+      .map((entry, i) => [entry, i]).sort((a, b) => b[0].rows.length - a[0].rows.length || a[1] - b[1]).map(([entry]) => entry);
     for (let start = 0; start < works.length; start += 5) {
       const set = document.createElement("div");
       set.className = "sd-expand-group sd-work-set";
@@ -553,10 +612,28 @@
     }
   }
   function renderGroups() {
-    const authors = [...groups.entries()].map(([key, group]) => {
+    const fromRows = (key, group) => {
       const works = [...group.works.values()].filter((work) => visibleRows(work).length);
       return { key, group, works, n: works.reduce((sum, work) => sum + visibleRows(work).length, 0) };
-    }).filter((entry) => entry.n);
+    };
+    const empty = { works: new Map(), n: 0, cen: 0 };
+    // Under a kind chip the cards are of the rows loaded, which is what the chip counts; otherwise every author, ranked.
+    const ranked = !kindSel && authorFacet.length;
+    let authors = ranked
+      ? authorFacet.map((x) => {
+        const group = groups.get(x.k) || empty;
+        const loaded = fromRows(x.k, group);
+        return { key: x.k, group, works: loaded.works, n: Number(x.n) || loaded.n, whole: authorDone.has(x.k) || loaded.n >= Number(x.n) };
+      })
+      : [...groups.entries()].map(([key, group]) => ({ ...fromRows(key, group), whole: true })).filter((entry) => entry.n);
+    if (ranked) {
+      // authors past the facet's hundred, from the rows loaded so far, after the ranked ones and by their loaded count
+      const named = new Set(authorFacet.map((x) => x.k));
+      [...groups.entries()].filter(([key]) => !named.has(key)).map(([key, group]) => ({ ...fromRows(key, group), whole: true }))
+        .filter((entry) => entry.n).sort((a, b) => b.n - a.n).forEach((entry) => authors.push(entry));
+    }
+    const total = authors.length;
+    if (ranked) authors = authors.slice(0, Math.max(authorsShown, (authors.findIndex((x) => x.key === openAuthor) + 1) || 0));
     if (openAuthor && !authors.some((entry) => entry.key === openAuthor)) { openAuthor = ""; openWork = ""; }
     const fragment = document.createDocumentFragment();
     for (let start = 0; start < authors.length; start += 5) {
@@ -565,9 +642,10 @@
       const grid = document.createElement("div");
       grid.className = "sd-index-grid sd-author-grid";
       const chunk = authors.slice(start, start + 5);
-      chunk.forEach(({ key, works, n }, index) => {
+      chunk.forEach(({ key, group, works, n, whole }, index) => {
         const panelId = `sd-author-panel-${start + index}`;
-        grid.appendChild(makeIndexCard("author", key, key, `${plural(works.length, "work", "works")} · ${plural(n, "citation", "citations")}`, openAuthor === key, panelId));
+        // The century first, so the cards read as who and when (2026-10-15); the works once all the author's rows are in.
+        grid.appendChild(makeIndexCard("author", key, key, [S.centuryLabel(authorCentury(key, group)), whole && works.length ? plural(works.length, "work", "works") : "", plural(n, "citation", "citations")].filter(Boolean).join(" · "), openAuthor === key, panelId));
       });
       set.appendChild(grid);
       const selected = chunk.find(({ key }) => key === openAuthor);
@@ -575,11 +653,20 @@
         const panel = document.createElement("section");
         panel.className = "sd-expand-panel sd-author-panel";
         panel.id = `sd-author-panel-${start + chunk.indexOf(selected)}`;
-        panel.innerHTML = `<header><div><h3>${esc(selected.key)}</h3><p>${plural(selected.works.length, "work", "works")} · ${plural(selected.n, "citation", "citations")}</p></div><button type="button" class="sd-panel-close" data-sd-author-close aria-label="Close author">×</button></header><div class="sd-author-panel-body"></div>`;
-        renderWorkGroups(selected.key, selected.group, panel.querySelector(".sd-author-panel-body"));
+        panel.innerHTML = `<header><div><h3>${esc(selected.key)}</h3><p>${selected.whole ? `${plural(selected.works.length, "work", "works")} · ` : ""}${plural(selected.n, "citation", "citations")}</p></div><button type="button" class="sd-panel-close" data-sd-author-close aria-label="Close author">×</button></header><div class="sd-author-panel-body"></div>`;
+        if (selected.whole) renderWorkGroups(selected.key, selected.group, panel.querySelector(".sd-author-panel-body"));
+        else panel.querySelector(".sd-author-panel-body").innerHTML = `<p class="sd-muted" role="status">Loading ${esc(selected.key)}'s citations…</p>`;
         set.appendChild(panel);
       }
       fragment.appendChild(set);
+    }
+    if (ranked && total > authors.length) {
+      const all = document.createElement("button");
+      all.type = "button";
+      all.className = "sd-commentary-more";
+      all.dataset.sdAllAuthors = "";
+      all.textContent = `Show all ${fmt(total)} authors`;
+      fragment.appendChild(all);
     }
     $rows.replaceChildren(fragment);
   }
@@ -590,6 +677,11 @@
       const key = author.dataset.sdAuthor;
       openAuthor = openAuthor === key ? "" : key;
       openWork = "";
+      renderGroups();
+      const x = authorFacet.find((a) => a.k === key);
+      if (openAuthor && x && !kindSel) loadAuthor(key).then(() => { if (openAuthor === key) { renderGroups(); updateCompanions(); } });
+    } else if (event.target.closest("[data-sd-all-authors]")) {
+      authorsShown = Infinity;
       renderGroups();
     } else if (work) {
       const key = work.dataset.sdWork;
@@ -607,6 +699,8 @@
   // Similar Scripture use: the verses of this chapter the loaded pages cite beside this one.
   function updateCompanions() {
     const $c = $root.querySelector("[data-sd-companions]");
+    const companionCounts = new Map();
+    loadedRows().forEach((r) => (r.vv || []).forEach((n) => { if (Number(n) !== Number(v)) companionCounts.set(Number(n), (companionCounts.get(Number(n)) || 0) + 1); }));
     const top = [...companionCounts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0]).slice(0, 15);
     $c.innerHTML = top.length
       ? top.map(([n, k]) => `<li class="sd-source"><a class="sd-panel-commentary" href="${esc(S.deskHref(book, c, n, tParam))}"><span class="sd-source-title">${esc(S.refLabel(book, c, n))}</span><span class="sd-source-meta">${plural(k, "shared page", "shared pages")}</span></a></li>`).join("")

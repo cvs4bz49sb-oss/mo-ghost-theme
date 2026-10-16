@@ -49,3 +49,88 @@
 .fr-sn-timeline > li:first-child { border-top: 0; padding-top: 0; }
 .fr-sn-timeline h4 { margin: 0 0 2px; font-family: var(--font-body); font-size: 14px; font-weight: 600; }
 .fr-sn-timeline p { margin: 0; line-height: 1.6; }
+
+/* The note leads, read on a click (2026-10-15): two sentences, then the rest under "Read the whole note". */
+.fr-sn-lede-wrap { margin: 2px 0 12px; }
+.fr-sn-lede-wrap .fr-sn-card { margin: 0; }
+.fr-sn-verse-card .fr-sn-card { font-size: 16px; line-height: 1.6; color: var(--color-dark); }
+.fr-sn-readon {
+  margin: 6px 0 0; padding: 6px 0; min-height: 32px;
+  font: 600 13px/1.3 var(--font-body); color: var(--sd-accent, var(--color-dark));
+  background: none; border: 0; cursor: pointer;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;
+}
+.fr-sn-readon:hover { color: var(--color-dark); }
+.fr-sn-readon:focus-visible { outline: 2px solid var(--sd-accent, currentColor); outline-offset: 2px; }
+.fr-sn-verse { margin: 0 0 4px; }
+.fr-sn-verse .fr-sn-note { margin: -4px 0 14px; }
+.fr-sn-with a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.fr-sn-with a:hover { color: var(--sd-accent, var(--color-dark)); }
+/* "comment on 5:12, p. 309" on a commentary row: the page where it comments on the verse. */
+.fr-sn-has a { color: var(--sd-accent, var(--color-dark)); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.fr-sn-all { margin-top: 4px; }
+
+/* The Verse Desk: the verse's note, then its readings beside its history on a wide page. */
+.fr-sn-desk .fr-sn-lede-wrap { max-width: 72ch; }
+.fr-sn-desk .fr-sn-verse-card .fr-sn-card { font-size: 18px; line-height: 1.6; }
+/* The readings side by side (three on a wide page), each with its pages under it. */
+.fr-sn-desk-readings > .fr-sn-list { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px 32px; }
+.fr-sn-desk-readings .fr-sn-list p { font-size: 16px; }
+.fr-sn-desk .fr-dn-timeline { max-width: 1040px; }
+.fr-sn-desk .sd-h3 { margin-top: 28px; }
+
+/* Commentaries on the chapter, in the overview (2026-10-15): title over author and century, each opening at its page. */
+.sd-ov-comm-list { list-style: none; margin: 0 0 6px; padding: 0; border-top: 1px solid var(--color-rule); }
+.sd-ov-comm-list li { border-bottom: 1px solid var(--color-rule); }
+.sd-ov-comm-row { display: flex; flex-direction: column; gap: 2px; padding: 9px 2px; min-height: 44px; color: var(--color-dark); text-decoration: none; }
+.sd-ov-comm-t { font-size: 14px; font-style: italic; line-height: 1.35; }
+.sd-ov-comm-m { font-size: 12.5px; color: var(--color-muted); }
+.sd-ov-comm-row:hover .sd-ov-comm-t, .sd-ov-comm-row:focus-visible .sd-ov-comm-t { color: var(--sd-accent, var(--color-dark)); text-decoration: underline; text-underline-offset: 3px; }
+.sd-ov-comm-row:focus-visible { outline: 2px solid var(--sd-accent, currentColor); outline-offset: 2px; }
+.sd-ov-comm .sd-commentary-more { margin-bottom: 14px; }
+/* The Desk: the commentaries with a note on the verse, in view above the collections. */
+.fr-sn-desk-vcomm { margin: 0 0 18px; }
+@media (min-width: 900px) { .fr-sn-desk-vcomm { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; } .fr-sn-desk-vcomm > .is-previewing { grid-column: 1 / -1; } }
+.sd-ov-comm-sub { margin: 10px 0 4px; font-size: 13px; font-weight: 600; color: var(--color-dark); }
+/* The verse panel's reception history in the 400px column: one size down from the chapter text, so the commentaries follow it. */
+.sd-panel .fr-sn-timeline p, .sd-panel .fr-sn-list p { font-size: 15px; line-height: 1.55; }
+
+/* Scripture: the reception history from the pages themselves (faith-port-scripture-notes.js, v1/reception/scripture) */
+/* The history's one sentence (how many works, from when, and where the verse stands out), then the strip it describes. */
+.fr-rh-lede { margin: 0 0 12px; max-width: 68ch; font-size: 16px; line-height: 1.55; color: var(--color-dark); text-wrap: pretty; }
+.fr-rh-strip-wrap { margin: 2px 0 14px; }
+.fr-rh-strip { list-style: none; margin: 0; padding: 0; display: flex; align-items: flex-end; gap: 3px; border-bottom: 1px solid var(--color-rule); }
+.fr-rh-strip > li { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 64px; position: relative; }
+.fr-rh-bar { display: block; width: 100%; max-width: 22px; height: calc(46px * var(--k)); background: var(--color-dark); opacity: 0.72; border-radius: 2px 2px 0 0; }
+.fr-rh-c { margin: 4px 0 2px; font-size: 10px; line-height: 1; color: var(--color-muted); font-variant-numeric: tabular-nums; }
+/* the centuries where the verse is cited more than the library's usual share (the caption says so) */
+.fr-rh-strip > li.is-out .fr-rh-bar { background: var(--sd-accent, #8f4630); opacity: 1; }
+.fr-rh-strip > li.is-out .fr-rh-c { color: var(--sd-accent, #8f4630); font-weight: 600; }
+.fr-rh-strip-wrap figcaption { margin: 6px 0 0; font-size: 12px; }
+.fr-rh-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.fr-rh .fr-rh-n { font-weight: 400; font-size: 13px; color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.fr-dn-timeline.fr-rh h4 .fr-rh-n { display: block; margin-top: 2px; }
+.fr-rh-wit { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 12px; }
+.fr-dn-timeline .fr-rh-wit { margin-top: 0; }
+/* The Desk: the history takes the column's full width, an era's witnesses two abreast, so the section is not five screens long. */
+.fr-sn-desk .fr-dn-timeline.fr-rh { max-width: none; }
+@media (min-width: 900px) {
+  .fr-dn-timeline.fr-rh .fr-rh-wit { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; row-gap: 16px; }
+  .fr-dn-timeline.fr-rh .fr-rh-wit > li[hidden] { display: none; }
+  .fr-dn-timeline.fr-rh .fr-rh-g { -webkit-line-clamp: 2; }
+}
+.fr-rh-wit p { margin: 0; max-width: 68ch; }
+.fr-rh-who { font-weight: 600; line-height: 1.4; }
+.fr-rh-who a { color: var(--color-dark); text-decoration: none; }
+.fr-rh-who a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.fr-rh-y { font-weight: 400; font-size: 13px; color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.fr-rh-what { margin-top: 2px; font-size: 13px; line-height: 1.5; color: var(--color-muted); }
+.fr-rh-what cite { font-style: italic; }
+.fr-rh-what a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.fr-rh-g { margin-top: 3px; font-size: 14px; line-height: 1.55; text-wrap: pretty; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.fr-rh-all { margin-top: 8px; }
+.fr-rh-more { margin: 10px 0 0; font-size: 13px; }
+.fr-rh-more a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+@media (max-width: 640px) {
+  .fr-rh-strip > li:nth-child(even) .fr-rh-c { visibility: hidden; }
+}

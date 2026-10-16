@@ -291,20 +291,57 @@
           `<div class="sd-ov-stat"><b>${fmt(total)}</b><span>${total === 1 ? "citation" : "citations"}</span></div>` +
           `<div class="sd-ov-stat"><b>${fmt(cited.length)} of ${fmt(counts.length)}</b><span>verses cited</span></div>` +
         `</div>${wholeLine}` +
+        `<div class="sd-ov-comm" data-sd-ov-comm></div>` +
         `<h3 class="sd-h3">Most-cited verses</h3>` +
-        `<ol class="sd-ov-top">${rows}</ol>` +
-        `<p class="sd-muted sd-ov-hint">Select any verse in the text to see who cites it.</p>`;
+        `<ol class="sd-ov-top">${rows}</ol>`;
       $ov.querySelectorAll(".sd-ov-verse").forEach((b) => {
         const bar = b.querySelector(".sd-ov-meter i");
         if (bar) bar.style.width = `${b.dataset.w}%`;
       });
+      overviewCommentaries(my, book, c);
     }).catch(() => {
       if (my !== ovRun) return;
       $ov.innerHTML = `${head}<p class="sd-muted">The library's citations for this chapter did not load.</p>`;
     });
   }
 
+  /* COMMENTARIES ON THE CHAPTER, IN VIEW (2026-10-15, the owner: "do we highlight the chapter commentaries/book commentaries
+   * too"). They were behind the Commentaries button. The overview names the ones with their own page on this chapter, oldest
+   * first, each opening at that page; works on part of the book first, then commentaries on the whole book. The rest are one
+   * click away in the Commentaries list. */
+  function overviewCommentaries(my, book, c) {
+    S.fetchCommentaries(book, c, S.emptyFilters()).then((d) => {
+      const $host = $ov.querySelector("[data-sd-ov-comm]");
+      if (my !== ovRun || !$host || !d) return;
+      const g = S.commentaryGroups(d.items, book), names = S.commentaryTitles(book, c, g);
+      // The commentaries on the book that have their own page on this chapter, one from each age (the Fathers, the early and
+      // the high Middle Ages, the Reformation, the 17th century, after), then any others oldest first; then the works on part
+      // of the book.
+      const own = g.book.filter((e) => e.anchored === "chapter");
+      const AGES = [[0, 5], [6, 10], [11, 15], [16, 16], [17, 17], [18, 99]];
+      const firsts = AGES.map(([a, b]) => own.find((e) => Number(e.cen) >= a && Number(e.cen) <= b)).filter(Boolean);
+      const onBook = firsts.concat(own.filter((e) => !firsts.includes(e))).slice(0, 6).sort(S.byCentury);
+      const row = (e) => {
+        const href = S.sourceHref(e.href, e.w);
+        const meta = [e.a, S.centuryLabel(e.cen)].filter(Boolean).map(esc).join(" \u00b7 ");
+        return `<li><a class="sd-ov-comm-row" href="${esc(href || "#")}"><span class="sd-ov-comm-t">${esc(e.t || e.w)}</span><span class="sd-ov-comm-m">${meta}</span></a></li>`;
+      };
+      const list = (label, items, n) => (items.length
+        ? `<p class="sd-ov-comm-sub">${esc(label)}</p><ol class="sd-ov-comm-list">${items.slice(0, n).map(row).join("")}</ol>` : "");
+      const all = Number(d.total) || (d.items || []).length;
+      $host.innerHTML = onBook.length || g.chapter.length
+        ? `<h3 class="sd-h3">Commentaries on ${esc(S.refLabel(book, c))}</h3>${list(names.book, onBook, 6)}${list(names.chapter, g.chapter, 3)}` +
+          `<button type="button" class="sd-commentary-more" data-sd-ov-comm-all>All ${fmt(all)} commentaries</button>`
+        : (all ? `<button type="button" class="sd-commentary-more" data-sd-ov-comm-all>${fmt(all)} commentaries on ${esc(book.name)}</button>` : "");
+    }).catch(() => {});
+  }
+
   $ov.addEventListener("click", (e) => {
+    if (e.target.closest("[data-sd-ov-comm-all]")) {
+      if ($commToggle.getAttribute("aria-expanded") !== "true") $commToggle.click();
+      $commPanel.scrollIntoView({ block: "start", behavior: "smooth" });
+      return;
+    }
     const b = e.target.closest(".sd-ov-verse");
     if (b) openVerse(Number(b.dataset.v), { scroll: true, focus: true });
   });
@@ -325,7 +362,9 @@
    * 21 commentaries made the panel about 6,000 pixels tall). A fold the reader opens stays open. */
   const PANEL_FOLDS = {
     chapter: { key: "chapter", title: "Chapter commentaries", wideOpen: false },
+    book: { key: "book", title: "Book commentaries", wideOpen: false },
     wholeBible: { key: "whole_bible", title: "Whole-Bible commentaries", wideOpen: false },
+    other: { key: "other_works", title: "Other works", wideOpen: false },
     citations: { key: "citations", title: "Citations of this verse", wideOpen: false },
     similar: { key: "similar", title: "Similar passages", wideOpen: false },
   };
@@ -482,16 +521,18 @@
     $host.innerHTML = `<p class="sd-muted">Loading commentaries…</p>`;
     S.fetchCommentaries(book, c, S.emptyFilters()).then((d) => {
       if (my !== panelCommRun || state.v !== v || state.book !== book || state.c !== c) return;
-      // Works on the book first by their chapter range, then the whole-book ones; the sets apart.
-      const g = S.commentaryGroups(d && d.items);
+      // On this chapter, on the book, on the whole Bible (2026-10-15), each oldest first; the fold names say which.
+      const g = S.commentaryGroups(d && d.items, book), names = S.commentaryTitles(book, c, g);
       const list = (k) => `<ol class="sd-sources sd-panel-commentaries" data-sd-comm-list="${k}"></ol>`;
       const chunks = [];
-      if (g.chapter.length) chunks.push(panelDetails(PANEL_FOLDS.chapter, list("chapter"), g.chapter.length));
-      if (g.whole.length) chunks.push(panelDetails(PANEL_FOLDS.wholeBible, list("whole"), g.whole.length));
+      if (g.chapter.length) chunks.push(panelDetails({ ...PANEL_FOLDS.chapter, title: names.chapter }, list("chapter"), g.chapter.length));
+      if (g.book.length) chunks.push(panelDetails({ ...PANEL_FOLDS.book, title: names.book }, list("book"), g.book.length));
+      if (g.whole.length) chunks.push(panelDetails({ ...PANEL_FOLDS.wholeBible, title: names.whole }, list("whole"), g.whole.length));
+      if (g.other.length) chunks.push(panelDetails({ ...PANEL_FOLDS.other, title: names.other }, list("other"), g.other.length));
       $host.innerHTML = chunks.join("");
       // Each commentary previews in place (corpus owner, 2026-09-25); see commentaryItem in the core.
       const ctx = { book, c, v };
-      [["chapter", g.chapter], ["whole", g.whole]].forEach(([k, items]) => {
+      [["chapter", g.chapter], ["book", g.book], ["whole", g.whole], ["other", g.other]].forEach(([k, items]) => {
         const $ol = $host.querySelector(`[data-sd-comm-list="${k}"]`);
         if ($ol) items.forEach((e) => $ol.appendChild(S.commentaryItem(e, ctx)));
       });
@@ -625,6 +666,24 @@
     if (r) load(r.book, r.c, r.v, false);
   });
 
-  const start = S.parseRef(new URLSearchParams(location.search).get("ref")) || S.legacyRef();
-  load(start ? start.book : S.BOOK_BY_SLUG.get("genesis"), start ? start.c : 1, start ? start.v : 0, false);
+  /* AN ADDRESS THAT DOES NOT RESOLVE SAYS SO (2026-10-15: ?ref=rom.5.12 opened Genesis 1 without a word). A known book
+   * with a chapter it does not have opens the book; anything else opens Genesis 1. Either way one line says what happened. */
+  const rawRef = (new URLSearchParams(location.search).get("ref") || "").trim();
+  const start = S.parseRef(rawRef) || S.legacyRef();
+  let fallback = null;
+  if (!start && rawRef) {
+    const bk = S.bookFrom(rawRef.replace(/[\s.:]+\d.*$/, "").replace(/[ .]+/g, "-").toLowerCase());
+    fallback = bk || null;
+    const $wrap = document.createElement("div");
+    $wrap.className = "container sd-notice-wrap";
+    const $note = document.createElement("p");
+    $note.className = "sd-notice";
+    $note.setAttribute("role", "status");
+    $wrap.appendChild($note);
+    $note.textContent = bk
+      ? `${bk.name} has ${bk.chapters} ${bk.chapters === 1 ? "chapter" : "chapters"}, so “${rawRef}” opens at ${S.refLabel(bk, 1)}.`
+      : `No passage matches “${rawRef}”, so the reader opens at Genesis 1. Choose a book and chapter above.`;
+    $layout.before($wrap);
+  }
+  load(start ? start.book : fallback || S.BOOK_BY_SLUG.get("genesis"), start ? start.c : 1, start ? start.v : 0, false);
 })();

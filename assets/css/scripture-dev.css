@@ -868,6 +868,13 @@ a.sd-panel-commentary:focus-visible .sd-source-title {
 }
 .sd-desk .sd-desk-verse { max-width: 900px; font-size: 22px; line-height: 1.62; }
 .sd-desk .sd-desk-nav { padding-top: 4px; border-top: 0; }
+/* The Desk's sections by name, under the verse card; a jump lands below the pinned header. */
+.sd-desk .sd-desk-toc { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 22px; margin: 16px 2px 0; font-size: 15px; line-height: 1.5; }
+.sd-desk .sd-desk-toc > span { color: var(--color-muted); }
+.sd-desk .sd-desk-toc a { padding: 4px 0; color: var(--sd-accent); text-decoration: none; }
+.sd-desk .sd-desk-toc a:hover, .sd-desk .sd-desk-toc a:focus-visible { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.sd-desk .sd-desk-toc a[hidden] { display: none; }
+.sd-desk .sd-h2[id], .sd-desk .sd-h3[id] { scroll-margin-top: calc(var(--sd-top, 0px) + 16px); }
 .sd-desk .sd-desk-sec {
   margin-top: 0;
   padding: 34px 0 38px;
@@ -1177,3 +1184,18 @@ a.sd-panel-commentary:focus-visible .sd-source-title {
   .sd-index-card { padding: 11px 10px; }
   .sd-expand-panel { padding: 0 12px 12px; }
 }
+
+/* An address the reader could not place says so above the text (2026-10-15). */
+.sd-notice-wrap { margin-top: 20px; margin-bottom: -28px; }
+.sd-desk .sd-notice { margin-bottom: 20px; }
+.sd-notice {
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 15px; line-height: 1.5;
+  color: var(--color-dark);
+  background: #fbf8f3;
+  border: 1px solid var(--color-rule);
+  border-radius: 3px;
+}
+@media (max-width: 899px) { .sd-notice-wrap { margin-bottom: 0; } }
+.sd-notice a { color: var(--sd-accent); text-decoration: underline; text-underline-offset: 3px; }
