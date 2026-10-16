@@ -310,7 +310,87 @@
     statusEl.textContent = message;
   }
 
+  // ── The writer the search names (2026-10-16) ─────────────────────
+  //
+  // Power Search ranks page vectors, and a page vector is made from the
+  // page's first lines: Confessions I.1 shares PL 32:659 with the
+  // editors' admonition, so "restless augustine" never reached it. The
+  // idea search's writer lookup on mo-tfr-ask-dev (/v1/isearch?as=writer,
+  // member-gated like this page) answers beside the search: the writer
+  // the query names, or whose sentence it quotes; that sentence found on
+  // his own page through the concordance; and his closest pages. It is
+  // shown above the works when it answers, and not at all when the query
+  // names no writer.
+  const WRITER_URL = "https://mo-tfr-ask-dev.mo-podcast-feed.workers.dev/v1/isearch";
+  let writerEl = null;
+  function writerHost() {
+    if (writerEl) return writerEl;
+    if (!countEl || !countEl.parentNode) return null;
+    writerEl = document.createElement("section");
+    writerEl.className = "ps-writer";
+    writerEl.setAttribute("aria-live", "polite");
+    writerEl.hidden = true;
+    countEl.parentNode.insertBefore(writerEl, countEl);
+    return writerEl;
+  }
+  function writerPage(p) {
+    const s = p == null ? "" : String(p);
+    const col = /^\d+:0*(\d+)[A-Da-d]?$/.exec(s);
+    return col ? col[1] : s.replace(/^0+(?=\d)/, "");
+  }
+  async function writerLookup(query) {
+    const url = `${WRITER_URL}?${new URLSearchParams({ as: "writer", q: query }).toString()}`;
+    try {
+      const resp = await (window.MOAuth && window.MOAuth.fetch ? window.MOAuth.fetch(url) : fetch(url));
+      return resp.ok ? await resp.json() : null;
+    } catch (err) {
+      // a missing block is the whole failure: the works below are the search
+      console.error("[faith-power-search] the writer lookup failed", err);
+      return null;
+    }
+  }
+  function renderWriter(w, query) {
+    const host = writerHost();
+    if (!host) return;
+    host.textContent = "";
+    const rows = [...((w && w.passage) || []), ...((w && w.pages) || [])].filter((x) => x && x.slug).slice(0, 6);
+    if (!w || !w.writer || !rows.length) { host.hidden = true; return; }
+    const h = document.createElement("h3");
+    h.className = "ps-writer-head";
+    h.textContent = `In ${w.writer.name}\u2019s own works`;
+    host.appendChild(h);
+    const ol = document.createElement("ol");
+    ol.className = "ps-passage-list ps-writer-list";
+    rows.forEach((x) => {
+      const sentence = x.why === "the sentence itself";
+      const page = writerPage(x.page);
+      const words = String((w.understood && w.understood.passage) || query).split(/\s+/).slice(0, 5).join(" ");
+      const li = document.createElement("li");
+      li.className = sentence ? "ps-passage ps-writer-sentence" : "ps-passage";
+      const a = document.createElement("a");
+      a.className = "ps-passage-link";
+      window.MOSafeHref.set(a, `/the-faith-received/read/?w=${encodeURIComponent(x.slug)}${sentence ? `&hl=${encodeURIComponent(words)}` : ""}${page ? `#b${encodeURIComponent(page)}-0` : ""}`, "#");
+      a.target = "_blank";
+      a.rel = "noopener";
+      const loc = document.createElement("span");
+      loc.className = "ps-passage-locus";
+      loc.textContent = [sentence ? "The sentence itself" : "", x.title || x.slug, x.cit || (page ? `p. ${page}` : "")].filter(Boolean).join(" \u00b7 ");
+      a.appendChild(loc);
+      if (x.excerpt) {
+        const text = document.createElement("span");
+        text.className = "ps-passage-text";
+        text.textContent = x.excerpt;
+        a.appendChild(text);
+      }
+      li.appendChild(a);
+      ol.appendChild(li);
+    });
+    host.appendChild(ol);
+    host.hidden = false;
+  }
+
   function clearResults() {
+    if (writerEl) { writerEl.textContent = ""; writerEl.hidden = true; }
     if (resultsEl) { resultsEl.textContent = ""; resultsEl.hidden = true; }
     if (countEl) { countEl.textContent = ""; countEl.hidden = true; }
     if (noResultsEl) noResultsEl.hidden = true;
@@ -902,6 +982,8 @@
     const params = new URLSearchParams({ q: query, k: String(WORK_K), group: "work" });
     if (trad) params.set("tradition", trad);
     const url = `${VSEARCH_URL}?${params.toString()}`;
+    // the writer lookup runs beside the search and paints when it answers, if this is still the newest search
+    writerLookup(query).then((w) => { if (token === runToken) renderWriter(w, query); });
 
     let resp;
     try {

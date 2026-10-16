@@ -130,12 +130,12 @@ function facetInit(){
     FAC.trad=(fv&&fv.value||'').trim();
     var wv=(fw&&fw.value||'').trim();
     FAC.work=(wv&&WORKMAP&&WORKMAP[wv])||'';FAC.workQuery=FAC.work?'':wv;FAC.collection=document.getElementById('fCollection').value;FAC.group=document.getElementById('fGroup').value;buildFacetLists();scopeSummary();
-    if(fc)fc.hidden=!(FAC.author||FAC.trad||FAC.work||FAC.workQuery||FAC.collection||FAC.group);
+    if(fc)fc.hidden=!(FAC.author||FAC.trad||FAC.work||FAC.workQuery||FAC.collection||FAC.group||FAC.set);
     if(event&&event.type==='input'&&MODE!=='title'){seq++;REDRAW=null;setPager(0,0,function(){});res.innerHTML='';ct.textContent='Select Search to apply these filters.';}else run();}
   if(fa)fa.addEventListener('input',upd);
   if(fw)fw.addEventListener('input',upd);
   if(fv)fv.addEventListener('change',upd);document.getElementById('fCollection').onchange=upd;document.getElementById('fGroup').onchange=upd;
-  if(fc)fc.onclick=function(){if(fa)fa.value='';if(fw)fw.value='';if(fv)fv.value='';document.getElementById('fCollection').value='';document.getElementById('fGroup').value='';FAC.groupSlugs=null;upd();};}
+  if(fc)fc.onclick=function(){if(fa)fa.value='';if(fw)fw.value='';if(fv)fv.value='';document.getElementById('fCollection').value='';document.getElementById('fGroup').value='';FAC.groupSlugs=null;FAC.set=null;upd();};}
 document.getElementById('fTrad').innerHTML='<option value="">All shelves</option>'+FRSearch.shelves.map(function(s){return '<option value="'+esc(s.value)+'">'+esc(FRSearch.display(s.label))+'</option>';}).join('');
 facetInit();
 
@@ -218,10 +218,16 @@ function wixPost(b){var r64=btoa(String.fromCharCode.apply(null,new TextEncoder(
    Fathers or EEBO. Now the panel answers over every work of the catalogue authors the filter matches (the full-text filter's own
    match), at most 40 of them (mo-workers #41: authors: [names]); past 40, or before the catalogue has loaded, the old way. */
 function wixAuthors(){if(!FAC.author)return null;if(!WLIST)return false;var f=foldQ(FAC.author);var names=Array.from(new Set(WLIST.filter(function(w){return w.author&&foldQ(w.author).indexOf(f)>=0;}).map(function(w){return w.author;})));return names.length&&names.length<=40?names:false;}
-function wixOk(){return !!window.FRWordIndex&&!FAC.work&&!FAC.workQuery&&!FAC.collection&&!FAC.group&&wixAuthors()!==false;}
-function wixScoped(o){var au=wixAuthors();if(!au)return o;var one=au.length===1;return Object.assign({},o,{post:function(b){return wixPost(Object.assign({},b,{authors:au}));},scope:{label:one?au[0]+'’s works':'the works of '+au.length+' authors matching “'+FAC.author+'”',by:one?'by '+au[0]:'by '+au.length+' authors matching “'+FAC.author+'”'}});}
+/* ONE WORK IN SEVERAL VOLUMES (2026-10-16, owner: "full vol works (across a whole work)"): ?set=<id> keeps the exact panel to the volumes
+   of a set (v1/volume-sets.json: Mansi's 57 tomes, Lapide's Commentaria, Poole's Synopsis), as the reader's "Search all N volumes" asks */
+var SETS=null,SETS_P=null;
+function loadSets(){return SETS_P||(SETS_P=fetch(FRB+'/v1/volume-sets.json').then(function(r){return r.json();}).then(function(d){SETS=d.sets||{};return SETS;}).catch(function(){SETS={};return SETS;}));}
+function setScope(){var s=FAC.set&&SETS&&SETS[FAC.set];if(!s)return null;var slugs=[];(s.tracks||[]).forEach(function(t){(t.vols||[]).forEach(function(v){if(v.s&&slugs.indexOf(v.s)<0)slugs.push(v.s);});});
+  return slugs.length?{slugs:slugs.slice(0,500),label:(s.t||FAC.set)+(s.a?', '+s.a:'')+' ('+slugs.length+' volumes)'}:null;}
+function wixOk(){return !!window.FRWordIndex&&!FAC.work&&!FAC.workQuery&&!FAC.collection&&!FAC.group&&wixAuthors()!==false&&(!FAC.set||!!setScope());}
+function wixScoped(o){var ws=setScope();if(ws)return Object.assign({},o,{post:function(b){return wixPost(Object.assign({},b,{works:ws.slugs}));},scope:{label:ws.label,by:'in '+ws.label}});var au=wixAuthors();if(!au)return o;var one=au.length===1;return Object.assign({},o,{post:function(b){return wixPost(Object.assign({},b,{authors:au}));},scope:{label:one?au[0]+'’s works':'the works of '+au.length+' authors matching “'+FAC.author+'”',by:one?'by '+au[0]:'by '+au.length+' authors matching “'+FAC.author+'”'}});}
 function wixHas(n){return fetch(FRB+'/v1/sql/manifest.json?v='+Math.floor(Date.now()/600000)).then(function(r){return r.json();}).then(function(m){return !!(m&&m.tables&&m.tables[n]);},function(){return false;});}
-function renderFull(q){var my=++seq;ct.textContent='Loading the text index…';res.innerHTML='';var wix=wixOk()?FRWordIndex.mount(document.getElementById('wordIndex'),wixScoped({query:q,post:wixPost,has:wixHas,readHref:function(slug,page,w){var pg=page==null||page===''?page:readerPage(page);var u=rdHref(slug,pg),i=u.indexOf('#'),hl=w?(u.indexOf('?')>=0?'&':'?')+'hl='+encodeURIComponent(w):'';return i<0?u+hl:u.slice(0,i)+hl+u.slice(i);},title:function(slug,row){return NAV&&NAV[slug]?docTitle(slug):esc(row.title||slug);},meta:function(row){return [row.author,row.volume,row.tradition].filter(Boolean).map(esc).join(' · ');}})):null;
+function renderFull(q){if(FAC.set&&!SETS){ct.textContent='Loading the work’s volumes…';loadSets().then(function(){renderFull(q);});return;}var my=++seq;ct.textContent='Loading the text index…';res.innerHTML='';var wix=wixOk()?FRWordIndex.mount(document.getElementById('wordIndex'),wixScoped({query:q,post:wixPost,has:wixHas,readHref:function(slug,page,w){var pg=page==null||page===''?page:readerPage(page);var u=rdHref(slug,pg),i=u.indexOf('#'),hl=w?(u.indexOf('?')>=0?'&':'?')+'hl='+encodeURIComponent(w):'';return i<0?u+hl:u.slice(0,i)+hl+u.slice(i);},title:function(slug,row){return NAV&&NAV[slug]?docTitle(slug):esc(row.title||slug);},meta:function(row){return [row.author,row.volume,row.tradition].filter(Boolean).map(esc).join(' · ');}})):null;
  /* one to three plain words: the exact panel IS the answer (every work, exact forms, by tradition, passages per work) — the full-text
     index below stems words ('generate' finds 'generation') and pages ten sections at a time, so it answers phrases and filtered searches only */
  if(wix){ct.textContent='';setPager(0,0,function(){});return;}
@@ -820,7 +826,7 @@ function setPager(total,page,draw,noun,size){
 }
 function locationPager(host,total,draw,size){var current=0;function render(){host.replaceChildren();var win=FRSearch.pageWindow(total,current,size);draw(win.start,win.end,host);if(win.pages>1){var nav=document.createElement('div');nav.className='location-pager';var p=document.createElement('button'),n=document.createElement('button'),label=document.createElement('span');p.type=n.type='button';p.textContent='Previous locations';n.textContent='Next locations';p.disabled=current===0;n.disabled=current+1===win.pages;label.textContent=(win.start+1)+'–'+win.end+' of '+total;p.onclick=function(){current--;render();};n.onclick=function(){current++;render();};nav.append(p,label,n);host.appendChild(nav);}}render();}
 
-function saveSearchURL(){var u=new URL(location.href);var values={page:RESULT_PAGE?String(RESULT_PAGE+1):'',group:FAC.group,order:ORDER==='shelf'?'':ORDER,m:MODE,q:qEl.value.trim(),tradition:FAC.trad,author:FAC.author,work:document.getElementById('fWork').value.trim(),collection:FAC.collection};Object.keys(values).forEach(function(k){if(values[k])u.searchParams.set(k,values[k]);else u.searchParams.delete(k);});history.replaceState(history.state,'',u);}
+function saveSearchURL(){var u=new URL(location.href);var values={page:RESULT_PAGE?String(RESULT_PAGE+1):'',group:FAC.group,order:ORDER==='shelf'?'':ORDER,m:MODE,q:qEl.value.trim(),tradition:FAC.trad,author:FAC.author,work:document.getElementById('fWork').value.trim(),collection:FAC.collection,set:FAC.set||''};Object.keys(values).forEach(function(k){if(values[k])u.searchParams.set(k,values[k]);else u.searchParams.delete(k);});history.replaceState(history.state,'',u);}
 
 document.getElementById('groupOrder').onchange=function(){ORDER=this.value;RESULT_PAGE=0;saveSearchURL();if(REDRAW)REDRAW(0);};
 /* deep links: ?q=<query>&m=<mode> + ?author=/?tradition= facet prefills (boot-race-safe:
@@ -829,6 +835,7 @@ document.getElementById('groupOrder').onchange=function(){ORDER=this.value;RESUL
   try{var u=new URL(location.href),m=u.searchParams.get('m'),q=u.searchParams.get('q');
     var group=u.searchParams.get('group');if(['westminster','puritan','anglican'].includes(group)){FAC.group=group;document.getElementById('fGroup').value=group;}var order=u.searchParams.get('order');if(['shelf','author','relevance'].includes(order)){ORDER=order;document.getElementById('groupOrder').value=order;}RESTORE_PAGE=Math.max(0,(Number(u.searchParams.get('page'))||1)-1);var fa=u.searchParams.get('author'),fv=u.searchParams.get('tradition')||u.searchParams.get('trad');if(fv)fv=FRSearch.shelf(fv)?.value||'';var collection=u.searchParams.get('collection'),work=u.searchParams.get('work');if(collection==='confessions'){FAC.collection=collection;document.getElementById('fCollection').value=collection;}if(work){document.getElementById('fWork').value=work;FAC.workQuery=work;}
     if(fa){var el=document.getElementById('fAuthor');if(el){el.value=fa;FAC.author=fa;}}
+    var st=u.searchParams.get('set');if(st&&/^[a-z0-9][a-z0-9-]{0,160}$/.test(st)){FAC.set=st;loadSets().then(scopeSummary);}
     if(fv){var vs=document.getElementById('fTrad');if(vs){vs.value=fv;FAC.trad=fv;}}
     if(q){qEl.value=q;}document.getElementById('fClear').hidden=!(FAC.author||FAC.workQuery||FAC.trad||FAC.collection||FAC.group);scopeSummary();
     var chatId=u.searchParams.get('chat'),trad=u.searchParams.get('trad');
