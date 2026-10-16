@@ -139,8 +139,39 @@
     return y > 0 && y < 2000 ? Math.floor((y - 1) / 100) + 1 : 0;
   }
 
+  /* THE AUTHOR'S OWN DATES WIN (2026-10-15, the owner: "redate everything needed"). Migne's order places a work "to within a
+   * generation or two", and for many that was a century off: Photius 8th, Peter Lombard 13th, Theodoret 6th, and Migne's own
+   * 17th- and 18th-century editors' notes dated by the Father they annotate. The library publishes the corrections, the author's
+   * floruit from the catalogue's dates (v1/verse-desk/work-century-overrides.json, {works: {slug: century}}, 5,157 works); a
+   * work named there takes that century. Loaded once; MOFaithCatalogue waits for it as it waits for the denomination table, so
+   * every surface dates its works after it lands. Outside a browser (scripts/build-work-century.mjs runs this file in a vm)
+   * nothing is fetched and the four rules stand alone. */
+  let OVERRIDES = null;
+  let overridesReady = null;
+  function ready() {
+    if (!overridesReady) {
+      if (typeof document === "undefined" || typeof fetch !== "function") return Promise.resolve();
+      const meta = document.querySelector('meta[name="tfr-library-base"]');
+      const base = ((meta && meta.content) || "https://mo-tfr-library.mo-podcast-feed.workers.dev").replace(/\/$/, "");
+      overridesReady = fetch(`${base}/v1/verse-desk/work-century-overrides.json`, { credentials: "omit" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((d) => { OVERRIDES = (d && d.works) || {}; })
+        .catch(() => { OVERRIDES = {}; });
+    }
+    return overridesReady;
+  }
+  // A work's catalogue slug: Migne's and the Orientalis' and EEBO's works carry their number as `id` ("7605" is pld-7605).
+  const PREFIXED = { pld: 1, pg: 1, po: 1, eebo: 1 };
+  function slugOf(w) {
+    const id = String((w && (w.slug || w.id)) || "");
+    const c = w && w.corpus;
+    return c && PREFIXED[c] && !id.startsWith(`${c}-`) ? `${c}-${id}` : id;
+  }
+
   // A normalized work, plus whatever raw row it came from.
   function centuryOf(w, raw) {
+    const fixed = OVERRIDES && w && OVERRIDES[slugOf(w)];
+    if (fixed) return fixed;
     const r = raw || w || {};
     // Migne first for his two sets. Their volume field is a volume
     // number, and reading it as a year turns Patrologia Latina 117 into
@@ -162,5 +193,6 @@
     return `${ORDINALS[c] || `${c}th`} century`;
   }
 
-  window.MOCentury = { of: centuryOf, label, fromYear, fromAuthor };
+  ready();
+  window.MOCentury = { of: centuryOf, label, fromYear, fromAuthor, ready };
 })();

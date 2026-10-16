@@ -1249,6 +1249,8 @@
       // rejecting: the library stays browsable on whatever its
       // catalogues already said.
       window.MODenom ? window.MODenom.ready().catch(() => null) : Promise.resolve(null),
+      // The century corrections (faith-century.js), so no work is dated before they land.
+      window.MOCentury && window.MOCentury.ready ? window.MOCentury.ready().catch(() => null) : Promise.resolve(null),
     ])
       .then(([d, byAuthor, keep]) => c.pick(d)
         // A corpus may disown rows in its own catalogue — see `exclude`
