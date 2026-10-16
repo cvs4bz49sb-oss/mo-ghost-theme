@@ -56,6 +56,9 @@
     const lis = [...list.children];
     const sorts = K.works.map((w, i) => { const d = document.createElement('a'); d.className = 'sort'; d.href = TG.read(w[1]); d.target = '_blank'; d.rel = 'noopener'; d.style.background = col(w[5]);
       d.setAttribute('aria-label', `${w[0]}, ${w[3]}`); d.dataset.i = i; host.appendChild(d); return d; });
+    // the work a compartment is shown by (10-16: Voetius's Select Disputations, Cocceius's commentaries): its squares are outlined in gilt
+    const FEAT = new Set(Object.values(K.feature || {}).flatMap((f) => f.slugs));
+    sorts.forEach((d, i) => { if (FEAT.has(K.works[i][1])) d.classList.add('feat'); });
     const axis = document.createElement('div'); axis.className = 'axis'; host.appendChild(axis);
     const note = document.createElement('p'); note.className = 'note'; host.appendChild(note);
     let comps = [], labs = [], years = [], L = null, cur = -1, picked = null;
@@ -81,8 +84,14 @@
     }
     function pick(k, quiet) {
       if (!quiet) picked = k; comps.forEach((c) => c.classList.toggle('on', !quiet && c.dataset.k === k));
-      const ws = by[k].slice().sort((a, b) => b[2] - a[2]);
-      pickEl.innerHTML = `<h3>${esc(K.names[k])}</h3><p class="small" style="margin:0 0 6px">${esc(K.say[k] || '')} The largest first.</p><ul class="wlist">${ws.slice(0, 8).map((w) => `<li><a href="${TG.read(w[1])}" target="_blank" rel="noopener">${esc(w[0])}</a><small>${esc(w[3])} · ${fmt(w[2])} pp.</small></li>`).join('')}</ul>${ws.length > 8 ? `<p class="small">and ${ws.length - 8} more in the finder below.</p>` : ''}`;
+      // a work in several volumes is one row, its pages added (10-16: Voetius's five volumes of Disputations, Cocceius's commentaries in
+      // six volumes of his Works stood as separate rows, or below the first eight)
+      const groups = new Map(); by[k].forEach((w) => { const key = `${w[7] || w[0]}|${w[3]}`; const g = groups.get(key) || { t: w[7] || w[0], s: w[1], a: w[3], p: 0, n: 0 };
+        g.p += w[2]; g.n += 1; groups.set(key, g); });
+      const f = (K.feature || {})[k], fw = f ? by[k].filter((w) => f.slugs.includes(w[1])) : [];
+      const ws = [...groups.values()].filter((g) => !(f && g.a === f.a && fw.some((w) => w[1] === g.s))).sort((a, b) => b.p - a.p);
+      const card = f && fw.length ? `<p class="feat-card"><a href="${TG.read(f.slugs[0])}" target="_blank" rel="noopener"><b>${esc(f.t)}</b></a><small>${esc(f.a)} · ${fw.length} volumes · ${fmt(fw.reduce((t, w) => t + w[2], 0))} pp.</small><span>${esc(f.note)}</span></p>` : '';
+      pickEl.innerHTML = `<h3>${esc(K.names[k])}</h3><p class="small" style="margin:0 0 6px">${esc(K.say[k] || '')} The largest first.</p>${card}<ul class="wlist">${ws.slice(0, 8).map((g) => `<li><a href="${TG.read(g.s)}" target="_blank" rel="noopener">${esc(g.t)}${g.n > 1 && !/vols\./.test(g.t) ? ` (${g.n} volumes)` : ''}</a><small>${esc(g.a)} · ${fmt(g.p)} pp.</small></li>`).join('')}</ul>${ws.length > 8 ? `<p class="small">and ${ws.length - 8} more in the finder below.</p>` : ''}`;
       if (G && !quiet) gsap.from(pickEl.querySelectorAll('.wlist li'), { opacity: 0, y: 6, duration: 0.3, stagger: 0.02 });
     }
     // the list under the case fills at the end of the scene, after the pin has measured the scene; without its room kept from the start

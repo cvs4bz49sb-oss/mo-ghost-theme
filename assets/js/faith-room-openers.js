@@ -274,6 +274,8 @@
           `<nav aria-label="Study ${esc(COUNCILS.label)}">` +
           `<a href="${esc(COUNCILS.href)}" data-guide-link hidden>Guide to this shelf</a>` +
           `<a href="${esc(COUNCILS.first)}">Read the first volume</a>` +
+          // every page of the 57 tomes, in the guide's own search (2026-10-16: "make it easy to do on multiple surfaces")
+          `<a href="${esc(COUNCILS.href)}#find">Search the text of every tome</a>` +
           `</nav></details></li>`;
       }
       if (s.confessions) {

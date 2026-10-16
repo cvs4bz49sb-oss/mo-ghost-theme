@@ -226,6 +226,7 @@
       return `<svg class="spark" viewBox="0 0 100 18" preserveAspectRatio="none" aria-hidden="true">${a.map((c) => `<line x1="${x(c.y)}" x2="${x(c.y)}" y1="5" y2="15" vector-effect="non-scaling-stroke"/>`).join('')}${g.map((e) => `<line class="g" x1="${x(e.y)}" x2="${x(e.y)}" y1="1" y2="18" vector-effect="non-scaling-stroke"/>`).join('')}</svg>`; };
     clist.innerHTML = [...by.entries()].map(([k, a], i) => `<details class="century"${ql || i === 0 ? ' open' : ''}><summary><b>${k ? `${ORD(k)} century` : 'Undated'}</b><span>${a.length} council${a.length === 1 ? '' : 's'}</span>${k ? spark(k, a) : ''}<i aria-hidden="true">›</i></summary><ul class="clist">${
        a.map((c) => `<li><span class="y">${c.ya ? '<small style="display:inline;color:var(--muted)">c.</small>' : ''}${c.y || ''}</span><span><a href="${READ(T[c.v].slug, c.p)}" target="_blank" rel="noopener">${mark(c.t)}</a><small>${ref(c)}${c.pl ? ` · ${title(c.pl)}` : ''}</small></span></li>`).join('')}</ul></details>`).join('');
+    return hits.length;
   }
   clist.addEventListener('toggle', (ev) => { const d = ev.target; if (G && d.open) G.from(d.querySelectorAll('.clist li:nth-child(-n+40)'), { opacity: 0, y: 8, duration: 0.35, stagger: 0.012, ease: 'power2.out', clearProps: 'opacity,transform' }); }, true);
   let sparkShown = false;
@@ -253,8 +254,35 @@
       fout.innerHTML = `<span class="cite">${citeSvg(col, left, li)}<p>Tome ${tomeName(r.t.v)}, column ${col}${L ? `, at ${L}` : ''}. Column ${col} is the ${left ? 'left' : 'right'}-hand column of its page${L ? `, and ${L} marks the ${['top', 'upper part', 'middle', 'lower part', 'foot'][li]} of it` : ''}. That is ${r.exact ? '' : 'about '}page ${r.page} of the scan. <a href="${READ(r.t.slug, r.page)}" target="_blank" rel="noopener">Open it</a></p></span>`;
       if (G) { G.from('#sh-cite-col', { scaleY: 0, transformOrigin: '50% 0%', duration: 0.7, ease: 'power3.out' }); if (li >= 0) G.from('#sh-cite-band', { y: -li * 24, opacity: 0, duration: 0.7, delay: 0.45, ease: 'power3.inOut' }); G.from('.cite p', { opacity: 0, x: -8, duration: 0.5, delay: 0.2 }); }
       return; }
-    show('council'); drawCouncils(q); document.getElementById('sh-p-council').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); });
-  fq.addEventListener('input', () => { if (!fq.value.trim()) { fout.textContent = ''; drawCouncils(''); } });
+    show('council'); const n = drawCouncils(q);
+    // the councils by name are below; the words of the text answer here, under the box
+    if (n) fout.innerHTML = `<a href="#sh-p-council">${n === 1 ? 'One council' : `${n.toLocaleString('en-US')} councils`} by that name, below</a>`;
+    textSearch(q); });
+  fq.addEventListener('input', () => { if (!fq.value.trim()) { fout.textContent = ''; drawCouncils(''); textSearch(''); } });
+
+  // ---------- the text of the tomes (2026-10-16, a reader: "I don't see a full-text search option on the Councils shelf") ----------
+  // Every page of the 57 tomes is in the library's word index. The panel is the search page's and the author rooms' own
+  // (port/word-index-search.js), each request kept to the collection's catalogue name: how many pages, which tomes, then the pages.
+  const MANSI = 'The councils, collected by G. D. Mansi', WORDS = 'https://mo-tfr-ask-dev.mo-podcast-feed.workers.dev/v1/words?r=';
+  const ftext = document.getElementById('sh-text');
+  const b64 = (o) => btoa(String.fromCharCode.apply(null, new TextEncoder().encode(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const wixPost = (b) => fetch(WORDS + b64({ ...b, authors: [MANSI] }), { signal: AbortSignal.timeout(90000) })
+    .then((r) => r.json().then((j) => { if (!r.ok || j.error) throw Error(j.error || r.status); return j; }));
+  const colPage = (p) => { const s = p == null ? '' : String(p), m = /^\d+:0*(\d+)[A-Da-d]?$/.exec(s); return m ? m[1] : (/^\d+$/.test(s) ? s.replace(/^0+(?=\d)/, '') : s); };
+  const bySlug = new Map(D.tomes.map((t) => [t.slug, t]));
+  function textSearch(q) {
+    if (!ftext) return;
+    if (!window.FRWordIndex || q.length < 2) { ftext.innerHTML = ''; ftext.hidden = true; return; }
+    ftext.hidden = false;
+    window.FRWordIndex.mount(ftext, { query: q, post: wixPost, scope: { label: 'the 57 tomes of Mansi' },
+      readHref(w, page, hl) { const u = READ(w, page == null || page === '' ? '' : colPage(page)), i = u.indexOf('#'), h = hl ? `&hl=${encodeURIComponent(hl)}` : '';
+        return page == null || page === '' ? u.slice(0, i) + h : u.slice(0, i) + h + u.slice(i); },
+      // the panel groups the tomes as one work by one author; its heading is the collection's title, the tomes are its chips
+      title: (w, row) => esc(bySlug.has(w) ? 'New and Most Ample Collection of the Sacred Councils' : (row && row.title) || w),
+      meta(row) { const t = bySlug.get(row && row.slug); return t && t.y0 ? esc(t.y1 && t.y1 !== t.y0 ? `${t.y0}–${t.y1}` : String(t.y0)) : esc((row && row.volume) || ''); } });
+  }
+  // a search handed in by a link (?s=councils&q=…: the reader's "Search all 57 volumes", the shelf card) runs once the guide is drawn
+  { const q0 = new URLSearchParams(location.search).get('q'); if (q0 && q0.trim()) { fq.value = q0.trim().slice(0, 200); document.getElementById('sh-finder').requestSubmit(); document.getElementById('find').scrollIntoView({ block: 'start' }); } }
 
   // ---------- by tome: the shelf and the outline ----------
   const shelf = document.getElementById('sh-shelf'), panel = document.getElementById('sh-tomepanel'), maxP = Math.max(...D.tomes.map((t) => t.pages || 0));

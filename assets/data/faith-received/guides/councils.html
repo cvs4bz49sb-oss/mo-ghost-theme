@@ -141,6 +141,8 @@
 
 .tg-cou .csh .finder { margin-top: 6px; }
 .tg-cou .csh .finder-out { color: var(--ink); } .tg-cou .csh .finder-out a { color: var(--rubric); }
+.tg-cou .csh .finder-text { margin: 12px 0 22px; }
+.tg-cou .csh .finder-text .wix-jump { display: none; } /* the search page's link down to its passages: this page has none */
 .tg-cou .csh .finder button { background: var(--rubric); color: var(--card); }
 .tg-cou .csh #sh-tl { display: block; width: 100%; height: 380px; cursor: crosshair; }
 @media (max-width: 860px) { .tg-cou .csh #sh-tl { height: 300px; } }
@@ -192,10 +194,11 @@
 
 <section class="tool gut" id="find" aria-labelledby="sh-h-find"><div class="wrap csh">
   <p class="eyebrow">Find</p><h2 id="sh-h-find">Four ways into the councils</h2>
-  <p class="say" style="max-width:46rem">Search for a council, a place or a pope. You can also open a reference like <i>Mansi 9:157C</i>. Then browse the councils century by century, the tomes as Mansi printed them, the places where the Church met, or all twenty centuries at a glance.</p>
+  <p class="say" style="max-width:46rem">Search for a council, a place or a pope, or for any words in the text: every page of the 57 tomes is searched. You can also open a reference like <i>Mansi 9:157C</i>. Then browse the councils century by century, the tomes as Mansi printed them, the places where the Church met, or all twenty centuries at a glance.</p>
   <form class="finder" id="sh-finder" role="search" autocomplete="off"><label class="sr" for="sh-fq" hidden>Search the councils</label>
-      <input id="sh-fq" type="search" placeholder="A council, a place, a pope, or a reference like Mansi 9:157C"><button type="submit">Search</button></form>
+      <input id="sh-fq" type="search" placeholder="A council, a place, words in the text, or Mansi 9:157C"><button type="submit">Search</button></form>
   <p class="finder-out" id="sh-fout" aria-live="polite"></p>
+  <div class="finder-text" id="sh-text" hidden></div>
   <div class="tabs" role="tablist" aria-label="Browse the councils">
     <button role="tab" id="sh-t-council" aria-controls="sh-p-council" aria-selected="true">By council</button>
     <button role="tab" id="sh-t-tome" aria-controls="sh-p-tome" aria-selected="false">By tome</button>
