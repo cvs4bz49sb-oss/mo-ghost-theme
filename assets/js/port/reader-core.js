@@ -49,6 +49,8 @@ const XREF_CAP={"Matthew":28,"Mark":16,"Luke":24,"John":21,"Acts":28,"Romans":16
   "Daniel":12,"Hosea":14,"Job":42,"Song of Songs":8,"Lamentations":5,"Obadiah":1,"Habakkuk":3,
   "Zephaniah":3,"Haggai":2,"Zechariah":14,"Malachi":4,"Ezra":10,"Nehemiah":13,"Esther":10,
   "Joel":3,"Amos":9,"Jonah":4,"Micah":7,"Nahum":3,"Ruth":4,"Philemon":1,"Judith":16,
+  // the other books the Scripture pages index (faith-scripture-totals.js DEUTERO), under the same names
+  "Tobit":14,"Wisdom":19,"Ecclesiasticus":51,"Baruch":6,"Maccabees":16,"1 Maccabees":16,"2 Maccabees":15,
   "1 Samuel":31,"2 Samuel":24,"1 Kings":22,"2 Kings":25,"1 Chronicles":29,"2 Chronicles":36,
   "1 Corinthians":16,"2 Corinthians":13,"1 Thessalonians":5,"2 Thessalonians":3,
   "1 Timothy":6,"2 Timothy":4,"1 Peter":5,"2 Peter":3,"1 John":5,"2 John":1,"3 John":1};
@@ -59,6 +61,8 @@ const XREF_EN={"Matth":"Matthew","Matt":"Matthew","Lev":"Leviticus","Chron":"Chr
   "Dn":"Daniel","Rm":"Romans","Hb":"Hebrews","Jas":"James","Jdg":"Judges","Ezk":"Ezekiel","Zec":"Zechariah","Zech":"Zechariah",
   "Mic":"Micah","Zep":"Zephaniah","Hag":"Haggai","Jl":"Joel","Est":"Esther","Ecc":"Ecclesiastes","Eccles":"Ecclesiastes",
   "Lam":"Lamentations","Jdt":"Judith","Rv":"Revelation","Prv":"Proverbs",
+  "Wisd":"Wisdom","Wis":"Wisdom","Sap":"Wisdom","Sapient":"Wisdom","Sir":"Ecclesiasticus","Sirach":"Ecclesiasticus","Ecclus":"Ecclesiasticus",
+  "Eccli":"Ecclesiasticus","Tob":"Tobit","Bar":"Baruch","Macc":"Maccabees","Mach":"Maccabees","Machab":"Maccabees",
   // Latin abbreviations of the PL corpus (owner 2026-08-17 'does scripture hover work?'):
   // Joan. is Migne's John; Reg./Paral. are Vulgate-numbered and resolved by prefix below
   "Joan":"John","Joann":"John","Ioann":"John","Isai":"Isaiah","Isa":"Isaiah","Num":"Numbers",
@@ -81,28 +85,58 @@ const XREF_EN={"Matth":"Matthew","Matt":"Matthew","Lev":"Leviticus","Chron":"Chr
   "Zeph":"Zephaniah","Hagg":"Haggai","Mal":"Malachi","Micha":"Micah","Mich":"Micah",
   "Nah":"Nahum","Hab":"Habakkuk","Jon":"Jonah","Joel":"Joel","Hos":"Hosea","Sam":"Samuel",
   "Jak":"James","Petr":"Peter","Kor":"Corinthians","Phlm":"Philemon","Matth":"Matthew",
-  "Marck":"Mark","Luk":"Luke"};
+  "Marck":"Mark","Luk":"Luke",
+  // early-modern and modern forms the reader missed (2026-10-15 census of the 6.0M mined citations: "Mat." 27k, "1 Kgs" 15k,
+  // "Jam." 6k, "1 Thes." 5k, "Psa." 3k, "Canticles" 2k, "1 King." 3k, "Numb." 2k, "Exo.", "Esay", "Josue", "Tobias" …)
+  "Mat":"Matthew","Math":"Matthew","Jam":"James","Psa":"Psalms","Judg":"Judges","Numb":"Numbers","Exo":"Exodus","Deu":"Deuteronomy",
+  "Josue":"Joshua","Kgs":"Kings","Kin":"Kings","King":"Kings","Chr":"Chronicles","Chro":"Chronicles","Ezr":"Ezra","Nehe":"Nehemiah",
+  "Prou":"Proverbs","Eccle":"Ecclesiastes","Canticles":"Song of Songs","Canticle":"Song of Songs","Cantic":"Song of Songs",
+  "Song of Solomon":"Song of Songs","Song of Sol":"Song of Songs","Esai":"Isaiah","Esay":"Isaiah","Isay":"Isaiah",
+  "Ezechiel":"Ezekiel","Ezec":"Ezekiel","Eze":"Ezekiel","Obad":"Obadiah","Habak":"Habakkuk","Zachar":"Zechariah",
+  "Ephe":"Ephesians","Colos":"Colossians","Thes":"Thessalonians","Philem":"Philemon","Revel":"Revelation","Apocal":"Revelation",
+  "Apocalypse":"Revelation","Tobias":"Tobit","Wisdom of Solomon":"Wisdom","Maccab":"Maccabees",
+  // XREF_SOFT below: these link only capitalised and with a verse
+  "Mar":"Mark","Lu":"Luke","Reu":"Revelation","Philip":"Philippians","Song":"Song of Songs",
+  "Ex":"Exodus","Is":"Isaiah","Am":"Amos","Pr":"Proverbs","Pro":"Proverbs",
+  // Latin forms of the divines (Binchius, Mellificium theologicum 1658-66, owner 2026-10-15): "Syr. 34. v. 8" (Sirach, 2.8k in five
+  // volumes), "Actor. 2. v. 17", "Johan. 3. v. 16", "Hose. 2. v. 19", "Ierem.", "Timoth.", "Thessal.", "Iudith", "Ioel"/"Joël".
+  // Jud./Iud. is Judges ("Jud. 6. v. 12"); Jude only by the context rule in scriptureReferences. The word-like ones are XREF_SOFT.
+  "Syr":"Ecclesiasticus","Syrach":"Ecclesiasticus","Syrac":"Ecclesiasticus","Actor":"Acts","Johan":"John","Hose":"Hosea","Iob":"Job",
+  "Ios":"Joshua","Ierem":"Jeremiah","Timoth":"Timothy","Proverb":"Proverbs","Roman":"Romans","Joël":"Joel","Ioël":"Joel","Ioel":"Joel",
+  "Ion":"Jonah","Iudith":"Judith","Thessal":"Thessalonians","Mac":"Maccabees","Jud":"Judges","Iud":"Judges"};
+// Word-like abbreviations: "Mar. 4" is a date, "Philip II" a king, "Ex 1. 2." and "Pro 3. 4." Latin prose, "is 3:4" a ratio.
+// They link only capitalised and with a verse, the two-letter ones (and "Pro") only in the colon form "Ex 3:14", and they never
+// count as the next book's name after a verse ("Rom. 5, 2 ex quo" keeps verse 2). So do the Latin words among the divines' forms
+// ("actor", "Roman", "hose", "Ion", "Syr." = Syriac, "Mac", "Jud."), "Proverb" and the name "Johan".
+const XREF_SOFT=/^(Mar|Lu|Reu|Philip|Song|Ex|Is|Am|Pr|Pro|Actor|Roman|Iob|Ios|Ion|Hose|Syr|Mac|Jud|Iud|Proverb|Johan)$/,XREF_COLON_ONLY=/^(ex|is|am|pr|pro)$/i;
 // numbered-Mos books + prefix validity: 4/5 prefixes exist ONLY for Mos; 3 only for John
 const XREF_MOS={1:"Genesis",2:"Exodus",3:"Leviticus",4:"Numbers",5:"Deuteronomy"};
-const XREF_NAMES=[...new Set([...Object.keys(XREF_CAP).filter(name=>!/^\d/.test(name)),...Object.keys(XREF_EN),'Mos','Reg','Paral'])].sort((a,b)=>b.length-a.length);
+// names resolved only with their prefix (Vulgate Reg./Regum = Samuel/Kings, Paral./Paralip./Paralipomenon/Par. = Chronicles;
+// "2. Par. 17. v. 9" links only capitalised and with a verse, since "art. 2. par. 3" is a paragraph)
+const XREF_PREFIXED=['Mos','Reg','Regum','Paral','Paralip','Paralipomenon','Par'];
+const XREF_NAMES=[...new Set([...Object.keys(XREF_CAP).filter(name=>!/^\d/.test(name)),...Object.keys(XREF_EN),...XREF_PREFIXED])].sort((a,b)=>b.length-a.length);
 const XREF_LOOKUP=new Map(XREF_NAMES.map(name=>[name.toLowerCase(),name]));
 // "Matthew 19, 1 Corinthians 7" (Voetius pol.eccl. p14, owner 2026-09-11):
 // a small digit after the comma that is FOLLOWED BY A BOOK NAME is the next
 // book's ordinal, never a verse — the old verse regex only vetoed an
 // immediately-adjacent letter, so it swallowed the 1 and orphaned
 // "Corinthians 7" (bare ordinal books refuse to link).
-const XREF_ORDNEXT=new RegExp('^\\s+(?:'+XREF_NAMES.map(name=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\b','iu');
+// "Par." and "Regum" are words as well ("par opposition", "rex regum"): as the next book's name they count only capitalised.
+const XREF_CASED=['Par','Regum'],XREF_CASED_NEXT=/^\s*\.?\s+(?:Par|Regum)\.?\s*(?=\d|[IVXLCDM]+(?![\p{L}\p{N}]))/u;
+const xrefOrCased=re=>({test:value=>re.test(value)||XREF_CASED_NEXT.test(value)});
+const XREF_ORDNEXT=xrefOrCased(new RegExp('^\\s+(?:'+XREF_NAMES.filter(name=>!XREF_SOFT.test(name)&&!XREF_CASED.includes(name)).map(name=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\b','iu'));
 // Only the books that TAKE an ordinal can claim a small number as theirs ("Exod. xx. 5. Rom. viii. 7." keeps verse 5;
 // "Kor. XIII. 4. 5. Mos. VI. 4." gives 5 to Moses). The dotted twin of XREF_ORDNEXT, and the chapter-position form,
 // which also needs the book to be CITED (a chapter follows): "Hebrews 1 Sam. 17:43" hides Hebrews 1, "in Matthew 3 John said" keeps it.
 const XREF_ORDBOOKS=/^(Samuel|Kings|Chronicles|Corinthians|Thessalonians|Timothy|Peter|John|Maccabees|Esdras)$/;
-const XREF_ORDPAT='(?:'+XREF_NAMES.filter(name=>['Mos','Reg','Paral'].includes(name)||XREF_ORDBOOKS.test(XREF_EN[name]||name)).map(name=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\b';
+const XREF_ORDPAT='(?:'+XREF_NAMES.filter(name=>!XREF_CASED.includes(name)).filter(name=>XREF_PREFIXED.includes(name)||XREF_ORDBOOKS.test(XREF_EN[name]||name)).map(name=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\b';
 // In the dotted form John is left out: "Isa. 6. 3. John 12. 41." is verse 3 then John (the gospel is cited far more often
 // than the epistles), whereas Pet./Cor./Tim./Sam./Mos. cannot be cited without an ordinal, so "53. 1. Pet. 2." is 1 Peter.
-const XREF_ORDPAT_DOT='(?:'+XREF_NAMES.filter(name=>['Mos','Reg','Paral'].includes(name)||(XREF_ORDBOOKS.test(XREF_EN[name]||name)&&(XREF_EN[name]||name)!=='John')).map(name=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\b';
-const XREF_ORDNEXT_DOT=new RegExp('^\\s*\\.\\s+'+XREF_ORDPAT_DOT,'iu');
-const XREF_ORDNEXT_CITED=new RegExp('^\\s+'+XREF_ORDPAT+'\\.?\\s*(?=\\d|[IVXLCDM]+(?![\\p{L}\\p{N}]))','iu');
-const XREF_RE=new RegExp('(^|[^\\p{L}\\p{N}_])((?:(?:[1-5]|III|II|IV|I|V)\\.?\\s*)?(?:'+XREF_NAMES.map(name=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\.?)(\\s*)','giu');
+const XREF_ORDPAT_DOT='(?:'+XREF_NAMES.filter(name=>!XREF_CASED.includes(name)).filter(name=>XREF_PREFIXED.includes(name)||(XREF_ORDBOOKS.test(XREF_EN[name]||name)&&(XREF_EN[name]||name)!=='John')).map(name=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\b';
+const XREF_ORDNEXT_DOT=xrefOrCased(new RegExp('^\\s*\\.\\s+'+XREF_ORDPAT_DOT,'iu'));
+const XREF_ORDNEXT_CITED=xrefOrCased(new RegExp('^\\s+'+XREF_ORDPAT+'\\.?\\s*(?=\\d|[IVXLCDM]+(?![\\p{L}\\p{N}]))','iu'));
+// The boundary before a name may be the last character of the citation before it: "Roman. 1. 12. & seq.1. Ioh. 3. 8." (1 John).
+const XREF_RE=new RegExp('(^|[^\\p{L}\\p{N}_]|(?<=[^\\p{L}\\p{N}_]))((?:(?:[1-5]|III|II|IV|I|V)\\.?\\s*)?(?:'+XREF_NAMES.map(name=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\.?)(\\s*)','giu');
 function scriptureNumber(value){
   const roman=String(value).toUpperCase();if(/^\d+$/.test(roman))return Number(roman);
   if(!roman||!/^(?=[MDCLXVI]+$)M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/.test(roman))return null;
@@ -111,11 +145,13 @@ function scriptureNumber(value){
 function scriptureBook(value){
   const match=String(value).match(/^([1-5])\.?\s*(.+)$/)||String(value).match(/^(III|II|IV|I|V)(?:\.\s*|\s+)(.+)$/i),prefix=match?scriptureNumber(match[1]):null,raw=(match?match[2]:value).replace(/\.$/,''),base=XREF_LOOKUP.get(raw.toLowerCase())||raw;
   if(base==='Mos')return prefix?XREF_MOS[prefix]||null:null;
-  if(base==='Reg')return prefix&&prefix<=4?(prefix<=2?prefix+' Samuel':(prefix-2)+' Kings'):null;
-  if(base==='Paral')return prefix&&prefix<=2?prefix+' Chronicles':null;
+  if(base==='Reg'||base==='Regum')return prefix&&prefix<=4?(prefix<=2?prefix+(XREF_REG_KINGS?' Kings':' Samuel'):(prefix-2)+' Kings'):null;
+  if(/^Par(?:al|$)/.test(base))return prefix&&prefix<=2?prefix+' Chronicles':null;
   const name=XREF_EN[base]||base;
+  // "3 Kings 8", "IV Kings 19:35": the Vulgate's third and fourth books of Kings are 1 and 2 Kings
+  if(prefix>=3&&name==='Kings')return prefix<=4?(prefix-2)+' Kings':null;
   if(prefix)return XREF_CAP[prefix+' '+name]?prefix+' '+name:null;
-  if(/^(Samuel|Kings|Chronicles|Corinthians|Thessalonians|Timothy|Peter)$/.test(name))return null;
+  if(/^(Samuel|Kings|Chronicles|Corinthians|Thessalonians|Timothy|Peter|Maccabees)$/.test(name))return null;
   return XREF_CAP[name]?name:null;
 }
 function scriptureVerses(selection){
@@ -142,24 +178,61 @@ function parseScriptureQuery(query){
 // numbering and are left alone.
 const VULGATE_PSALM_TRADITIONS=new Set(['Latin Fathers','Greek Fathers','Medieval','Roman Catholic']);
 function vulgatePsalms(){try{const d=DATA||{};return VULGATE_PSALM_TRADITIONS.has(d.tradition||({pld:'Latin Fathers',pg:'Greek Fathers'}[String(d.slug||'').split('-')[0]]||''));}catch(_){return false;}}
+// KINGS AS "REG." (2026-10-15, Binchius, Mellificium theologicum): Protestant divines who cite Samuel as "1./2. Sam." write "1./2. Reg."
+// for 1 and 2 Kings ("2. Reg. 19. v. 35", the angel and the Assyrians); the Vulgate's 1/2 Reg. are Samuel. A work reads Reg. so when
+// its source lane cites "Sam." and never "3./4. Reg.", outside the Vulgate traditions: 252 local works qualify (Turretin, Poole, Alting,
+// Gerhard, Coccejus ...), and the signature verses checked there ("1. Reg. 8. 46", "Salomo ... 1 Reg. 3. v. 9", "2. Reg. 6. v. 6") are all
+// Kings. Set by loadTEI for each work.
+let XREF_REG_KINGS=false;
+function scriptureRegKings(source){
+  if(!source||vulgatePsalms())return false;
+  return /(?<![\p{L}\p{N}.])(?:[12]|II?)\.?\s*Sam(?:uel)?\.?\s*\d/u.test(source)&&!/(?<![\p{L}\p{N}.])(?:[34]|III|IV)\.?\s*Reg(?:um)?\.?\s*[\dIVXLC]/u.test(source);
+}
 function gallToHeb(chapter){return chapter<=9||chapter>=148?chapter:chapter<=112?chapter+1:chapter===113?114:chapter<=115?116:chapter<=145?chapter+1:147;}
-function scriptureLocation(text,start,book){
-  const chapterToken=/^([IVXLCDMivxlcdm]+|\d{1,3})(?![\p{L}\p{N}])/u.exec(text.slice(start));if(!chapterToken)return null;
+// One-chapter books (2026-10-15 census of the mined citations: "Jude 6" 8k, "2 John 10" 2k, "Philem 10" 1k, "Obad 21"): a number
+// after Jude, Obadiah, Philemon, 2 and 3 John is a VERSE of the only chapter, as is one after "v."/"ver." ("Jude ver. 14, 15.").
+// An unmarked 1 ("Jude 1", "Jude 1:6", "2 John 1. 3.") and a colon after the number keep the chapter reading.
+function scriptureOneChapter(text,start,book){
+  const head=/^(?:(?:[vV]v?|[vV]ers?|[vV]erses?)\.?\s*)?(\d{1,3})(?:(?=ff?(?!\p{L}))|(?![\p{L}\p{N}]))/u.exec(text.slice(start));if(!head)return null;
+  const verse=Number(head[1]),marked=/^\D/.test(head[0]),rest=text.slice(start+head[0].length);
+  if(!verse||verse>200||(verse===1&&!marked)||/^\s*:\s*\d/.test(rest))return null;
+  if(verse<=5&&!marked&&XREF_ORDNEXT_CITED.test(rest))return null;
+  let end=start+head[0].length,selection=String(verse),previous=verse,following=false;
+  while(true){
+    const range=/^\s*[–—-]\s*(\d{1,3})(?:(?=ff?(?!\p{L}))|(?![\p{L}\p{N}]))/u.exec(text.slice(end));
+    if(range){const last=Number(range[1]);if(last<previous||last>200)break;selection+='-'+last;end+=range[0].length;previous=last;continue;}
+    const list=/^\s*,\s*(\d{1,3})(?![\p{L}\p{N}])/u.exec(text.slice(end))||/^\s*\.\s*(\d{1,3})(?=\s*(?:[.;:)\]?!,]|$))/u.exec(text.slice(end));if(!list)break;
+    const next=Number(list[1]),after=text.slice(end+list[0].length);
+    if(next<=previous||next>200||(next<=5&&(XREF_ORDNEXT.test(after)||XREF_ORDNEXT_DOT.test(after))))break;
+    selection+=','+next;end+=list[0].length;previous=next;
+  }
+  const tail=/^\s*\.?\s*(?:(?:&amp;|&|et)\s*)?(?:seqq?\.|ff?\.?)(?!\p{L})/u.exec(text.slice(end));
+  if(tail){end+=tail[0].length;following=true;}
+  return {start,end,book,chapter:1,selection,following,query:book+' 1:'+selection};
+}
+function scriptureLocation(text,start,book,chapterWord=false){
+  if(XREF_CAP[book]===1){const one=scriptureOneChapter(text,start,book);if(one)return one;}
+  // a chapter may carry "ff." itself: "Exod. 7ff.", "Exod. ch. 21ff."
+  const chapterToken=/^([IVXLCDMivxlcdm]+|\d{1,3})(?:(?<=\d)(?=ff?\.?(?!\p{L}))|(?![\p{L}\p{N}]))/u.exec(text.slice(start));if(!chapterToken)return null;
   const chapter=scriptureNumber(chapterToken[1]);if(!chapter||chapter>XREF_CAP[book])return null;
   // "I.Iohan. 1 John 5:7" (a Latin siglum glossed by its English form): a small chapter number followed by a book name is that book's ordinal.
   if(chapter<=5&&/^\d/.test(chapterToken[1])&&XREF_ORDNEXT_CITED.test(text.slice(start+chapterToken[0].length)))return null;
   let end=start+chapterToken[0].length,selection='',following=false;
-  const first=/^\s*[.:,]\s*(?:v\.\s*)?(\d{1,3})(?![\p{L}\p{N}])/u.exec(text.slice(end));
+  // After a chapter word and an Arabic chapter ("ch. 3", "cap. 11") a verse needs a colon or a verse mark: "ch. 3:23", "ch. 5, v. 6",
+  // "ch. 3 v. 23", "cap. 11. vers. 21". A Roman chapter takes a plain verse as usual: "Ps. c. XLIV, 3".
+  const strict=chapterWord&&/^\d/.test(chapterToken[1]);
+  const first=(strict?/^(?:\s*:\s*|\s*[.,]?\s*(?:(?:vv?|vers?|verses?)\.|verses?\s)\s*)(\d{1,3})(?:(?=ff?(?!\p{L}))|(?![\p{L}\p{N}]))/u
+    :/^\s*[.:,]\s*(?:(?:[vV]v?|[vV]ers?|[vV]erses?)\.?\s*)?(\d{1,3})(?:(?=ff?(?!\p{L}))|(?![\p{L}\p{N}]))/u).exec(text.slice(end));
   // The dotted ordinal reading ("XIII. 4. 5. Mos.") only applies when the citation itself is dot-style; after a colon
   // verse ("Ps. 23:1. Ioh. I.1.") the period is the sentence's, and the verse stays.
   const ordinalNext=first&&Number(first[1])<=5&&(XREF_ORDNEXT.test(text.slice(end+first[0].length))||(/^\s*\./.test(first[0])&&XREF_ORDNEXT_DOT.test(text.slice(end+first[0].length))));
-  if(!first&&/^\s*[.:,]\s*(?:v\.\s*)?\d/.test(text.slice(end)))return null;
+  if(!first&&!strict&&/^\s*[.:,]\s*(?:v\.\s*)?\d/.test(text.slice(end)))return null;
   if(first&&!ordinalNext){
     if(Number(first[1])<1||Number(first[1])>200)return null;
     selection=String(Number(first[1]));end+=first[0].length;let previous=Number(first[1]);const dotted=/^\s*\./.test(first[0]);
     while(true){
-      const range=/^\s*\.?\s*[–—-]\s*(\d{1,3})(?![\p{L}\p{N}])/u.exec(text.slice(end));
-      if(range){const last=Number(range[1]);if(last<previous||last>200)return null;selection+='-'+last;end+=range[0].length;previous=last;}
+      const range=/^\s*\.?\s*[–—-]\s*(\d{1,3})(?:(?=ff?(?!\p{L}))|(?![\p{L}\p{N}]))/u.exec(text.slice(end));
+      if(range&&!(Number(range[1])<=5&&XREF_ORDNEXT_CITED.test(text.slice(end+range[0].length)))&&Number(range[1])!==previous){const last=Number(range[1]);if(last<previous&&/\./.test(range[0]))break;if(last<previous||last>200)return null;selection+='-'+last;end+=range[0].length;previous=last;}
       let list=/^\s*,\s*(\d{1,3})(?![\p{L}\p{N}])/u.exec(text.slice(end));
       // Early-modern dotted verse lists — "Rom. 2. 14. 15." / "Psal. 19. v. 1. 8." (Voetius Disp. vol. 1 p. 55,
       // owner 2026-09-16; 983 such citations in a 200-work sample): after a dot-style verse, a period-separated
@@ -174,13 +247,18 @@ function scriptureLocation(text,start,book){
       if(Number(list[1])<=5&&(XREF_ORDNEXT.test(text.slice(end+list[0].length))||XREF_ORDNEXT_DOT.test(text.slice(end+list[0].length))))break;
       previous=Number(list[1]);if(!previous||previous>200)return null;selection+=','+previous;end+=list[0].length;
     }
-    const tail=/^\s*\.?\s*(?:(?:&amp;|&|et)\s*)?(?:seqq?\.|ff?\.)(?!\p{L})/u.exec(text.slice(end));
+    const tail=/^\s*\.?\s*(?:(?:&amp;|&|et)\s*)?(?:seqq?\.|ff?\.?)(?!\p{L})/u.exec(text.slice(end));
     if(tail){end+=tail[0].length;following=true;}
   }
+  if(!selection){const tail=/^\s*(?:ff?\.?|seqq?\.)(?!\p{L})/u.exec(text.slice(end));if(tail){end+=tail[0].length;following=true;}}
   const psalm=book==='Psalms'&&vulgatePsalms()?gallToHeb(chapter):chapter;
   return {start,end,book,chapter:psalm,selection,following,query:book+' '+psalm+(selection?':'+selection:''),...(psalm!==chapter?{printed:book+' '+chapter+(selection?':'+selection:'')}:{})};
 }
+// THE LONG S (2026-10-15): where the text keeps the printed ſ ("Pſal. 51", "Eſa.", "Epheſ.", "Theſſ.", and the verse mark "Verſ."),
+// the names are matched as s. ſ and s are one UTF-16 unit each, so every offset found in the folded copy is the printed text's own
+// and the link keeps the print's spelling.
 function scriptureReferences(text){
+  text=String(text).replace(/ſ/g,'s');
   const references=[];XREF_RE.lastIndex=0;let match;
   while((match=XREF_RE.exec(text))){
     if(!match[2].endsWith('.')&&!match[3])continue;
@@ -188,20 +266,49 @@ function scriptureReferences(text){
     // ("the church at Corinth. Romans 16:" — owner 2026-09-16, Corinth is a city here and a book only with an ordinal).
     // Resume one character INTO the failed match: an ordinal the regex grabbed by mistake ("5. Levit. 5.", "1. Ps. 45")
     // is then skipped and the bare name is found on the next pass.
-    const book=scriptureBook(match[2]);if(!book){XREF_RE.lastIndex=match.index+match[1].length+1;continue;}
+    let book=scriptureBook(match[2]);if(!book){XREF_RE.lastIndex=match.index+match[1].length+1;continue;}
     // A book whose chapter is really the next book's ordinal ("John. 1 John 4:18", "I.Iohan. 1 John 5:7") resumes inside too;
     // an invalid citation ("2 John 15:2") stays unlinked as a whole.
-    let reference=scriptureLocation(text,XREF_RE.lastIndex,book);
-    if(!reference){const after=text.slice(XREF_RE.lastIndex);if(/^[1-5](?![\p{L}\p{N}])/u.test(after)&&XREF_ORDNEXT_CITED.test(after.slice(1)))XREF_RE.lastIndex=match.index+match[1].length+1;continue;}
+    // Every skip below gives the whitespace back (resume): "which is Luke 4:23", "ex Act. 4. 12." and "Philip Acts 21" need it as the
+    // next name's boundary once a word-like abbreviation (XREF_SOFT) has been tried and refused.
+    const resume=match.index+match[1].length+match[2].length-(match[2].endsWith('.')&&!match[3]?1:0);
+    // Jud./Iud. is Judges, but Jude after "Epist."/"Epistle of" ("Epist. Iud. 12") or with a verse straight after it ("Jud. v. 6");
+    // "Antiquit. Jud." and "Bell. Jud." are Josephus. "2. Par." must be capitalised (XREF_PREFIXED above).
+    if(/^[JI]ud\.?$/i.test(match[2])){const before=text.slice(0,match.index+match[1].length);
+      if(/(?:antiq\w*|bell\w*)\.?\s*$/i.test(before)){XREF_RE.lastIndex=resume;continue;}
+      if(/epist(?:ola|olae|le|ol)?\.?\s*(?:of\s+|ad\s+)?$/i.test(before)||/^(?:vv?|vers?|verses?)\.\s*\d/.test(text.slice(XREF_RE.lastIndex)))book='Jude';}
+    if(/^Par$/i.test(match[2].replace(/^(?:[1-5]|III|II|IV|I|V)\.?\s*/i,'').replace(/\.$/,''))&&!/Par\.?$/.test(match[2])){XREF_RE.lastIndex=resume;continue;}
+    // "Rom. ch. 3", "Matt. chap. 5:23", "Rom. c. 3. v. 20", "Exod. chs. 7, 8, 9" (Binchius, owner 2026-10-15 "Rome ch, ch, ch"): the chapter
+    // word is skipped, and after it a bare number is not a verse ("Matth. cap. 21. 26. 27." is chapters 21, 26 and 27).
+    // "Psa. c. 4" is Psalm 100 verse 4 (c = C), "Ps. c. XLIV, 3" Psalm 44.
+    let chapterWord=/^(?:ch|chap|chs|chaps|cap|capp|cc|c)\.\s*(?=\d|[IVXLCDM]+(?![\p{L}\p{N}]))/iu.exec(text.slice(XREF_RE.lastIndex));
+    if(chapterWord&&book==='Psalms'&&/^c\./i.test(chapterWord[0])&&/^\d/.test(text.slice(XREF_RE.lastIndex+chapterWord[0].length)))chapterWord=null;
+    let reference=scriptureLocation(text,XREF_RE.lastIndex+(chapterWord?chapterWord[0].length:0),book,!!chapterWord);
+    if(!reference){const after=text.slice(XREF_RE.lastIndex);XREF_RE.lastIndex=/^[1-5](?![\p{L}\p{N}])/u.test(after)&&XREF_ORDNEXT_CITED.test(after.slice(1))?match.index+match[1].length+1:resume;continue;}
     // Lowercase ordinary words such as "mark 3 items" are not chapter citations.
-    const plainBook=match[2].replace(/\.$/,'');if(plainBook===plainBook.toLowerCase()&&!reference.selection&&(!match[2].endsWith('.')||plainBook===book.toLowerCase()))continue;
+    const plainBook=match[2].replace(/\.$/,'');if(plainBook===plainBook.toLowerCase()&&!reference.selection&&(!match[2].endsWith('.')||plainBook===book.toLowerCase())){XREF_RE.lastIndex=resume;continue;}
     // Bare num. denotes an internal numbered passage in scholarly prose.
     // Require a verse for this ambiguous abbreviation; spelled-out Numbers still works.
-    if(/^num$/i.test(plainBook)&&!reference.selection)continue;
+    if(/^num$/i.test(plainBook)&&!reference.selection){XREF_RE.lastIndex=resume;continue;}
+    // A lowercase Latin word is no book ("eſt. 2. Cor. 3: 13": est is 'is', not Esther; with the long s read as s it began taking the
+    // next citation's ordinal, 2 Corinthians lost to "Esther 2"; "num. 5. 6" is an item number): est, num, pro, ex, is, am open a
+    // citation in lower case only in the colon form ("num. 21:9").
+    if(/^(?:est|num|pro|ex|is|am)$/.test(plainBook)&&!/^\s*\d{1,3}\s*:\s*\d/.test(text.slice(match.index+match[0].length))){XREF_RE.lastIndex=resume;continue;}
+    if(/(?:^|[\s.])Par$/.test(plainBook)&&!reference.selection){XREF_RE.lastIndex=resume;continue;}
+    if(XREF_SOFT.test(XREF_LOOKUP.get(plainBook.toLowerCase())||'')&&(!/^\p{Lu}/u.test(plainBook)||!reference.selection||(XREF_COLON_ONLY.test(plainBook)&&!/^\s*\d{1,3}\s*:\s*\d/.test(text.slice(match.index+match[0].length))))){XREF_RE.lastIndex=resume;continue;}
     reference.start=match.index+match[1].length;references.push(reference);
+    // the chapter word may introduce a list of chapters: "Exod. chs. 7, 8, 9", "Gal. chs. 4 & 3", "Job ch. 1 and 2", "Matt. ch. 21, 26, 27";
+    // after a singular one only rising numbers are chapters ("Zechariah ch. 3, 3, 4, 5" is chapter 3, verses 3-5)
+    if(chapterWord)while(!reference.selection){const and=/^\s*(?:,|&amp;|&|and|et)\s*/.exec(text.slice(reference.end));if(!and)break;
+      const next=scriptureLocation(text,reference.end+and[0].length,book,true);if(!next)break;
+      if(!/^(?:chs|chaps|capp|cc)\./i.test(chapterWord[0])&&next.chapter<=reference.chapter)break;references.push(next);reference=next;}
     while(reference.selection){
-      const separator=/^\s*(?:,|;|&amp;|&|et\b)\s*/.exec(text.slice(reference.end))||/^\s*\.\s*(?=[IVXLCDM]+\s*[.:,]\s*\d)/i.exec(text.slice(reference.end));if(!separator)break;
-      const next=scriptureLocation(text,reference.end+separator[0].length,book);if(!next?.selection)break;
+      // ". cap. 66. vers. 2." also continues the book: "Esa. cap. 46. vers. 8. cap. 66. vers. 2." (Binchius)
+      const separator=/^\s*(?:,|;|&amp;|&|et\b)\s*/.exec(text.slice(reference.end))||/^\s*\.\s*(?=[IVXLCDM]+\s*[.:,]\s*\d)/i.exec(text.slice(reference.end))
+        ||/^\s*\.\s*(?=(?:ch|chap|cap|c)\.\s*\d)/i.exec(text.slice(reference.end));if(!separator)break;
+      // "Wisd. 8:1; ch. 12:13" / "Matt. 6:26; cap. 10:29": the chapter word before the continuation is skipped, the book carries over.
+      let from=reference.end+separator[0].length;const chap=/^(?:ch(?:ap)?|cap|c)\.\s*(?=[IVXLCDM]+\s*[.:,]|\d)/i.exec(text.slice(from));if(chap)from+=chap[0].length;
+      const next=scriptureLocation(text,from,book);if(!next?.selection)break;
       references.push(next);reference=next;
     }
     XREF_RE.lastIndex=reference.end;
@@ -1816,6 +1923,7 @@ function teiSegment(doc){
   });
   return map;}
 async function loadTEI(){
+  XREF_REG_KINGS=false;
   try{
     // PL canon mode: the docs were already parsed straight from the family canon
     if(window.__pldCanonDocs){
@@ -1836,6 +1944,7 @@ async function loadTEI(){
     const [laXml,enXml]=await Promise.all([
       fetch(base+"tei.la.xml?v="+(DATA.tei_v||0)).then(r=>r.ok?r.text():"").catch(()=>""),
       fetch(base+"tei.en.xml?v="+(DATA.tei_v||0)).then(r=>r.ok?r.text():"").catch(()=>"")]);
+    XREF_REG_KINGS=scriptureRegKings(laXml);
     const P=new DOMParser();
     const parse=x=>{if(!x)return null;const d=P.parseFromString(x,"application/xml");return d.querySelector("parsererror")?null:d;};
     let laDoc=parse(laXml),enDoc=parse(enXml);
