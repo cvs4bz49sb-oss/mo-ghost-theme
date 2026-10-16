@@ -214,6 +214,17 @@
   restore.addEventListener("click", () => { barHidden = false; remember(); paintBar(); bBar.focus({ preventScroll: true }); });
   paintBar();
 
+  // ── The page itself never scrolls (owner, 2026-10-13) ────────────
+  /* On a desktop the text scrolls in #scroll and the page is one screen
+     under fixed chrome (faith-port-reader-skin.css). When anything leaves
+     the page taller than the screen (the members' Commonplace tooltip did,
+     by 33px), a jump to a section scrolls the page itself, and the sidebar
+     and the text slide that far up under the toolbar, Hide contents and
+     Expand contents half covered. Put the page back where it belongs. */
+  window.addEventListener("scroll", () => {
+    if (!mobile() && (window.scrollY || window.pageYOffset)) window.scrollTo(0, 0);
+  }, { passive: true });
+
   // ── Hide contents: the port's ☰, labeled ─────────────────────────
   if (sbT) {
     bHide.addEventListener("click", () => { sbT.click(); });

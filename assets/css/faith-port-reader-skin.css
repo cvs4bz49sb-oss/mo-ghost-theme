@@ -3001,6 +3001,15 @@ html:not(.g-mobile) #app.faith-port-read-page { margin-top: var(--fr-rail-h, 0px
    above the contents (Ian, 2026-10-02: "the contents bar doesn't have a
    top"). The sidebar now starts at the top of the screen. */
 html.fr-bar-hidden:not(.g-mobile) #app.faith-port-read-page { margin-top: 0; }
+/* NOTHING MAKES THE PAGE TALLER THAN THE SCREEN (owner 2026-10-13: the
+   contents sidebar's top, Hide contents and Expand contents, sat half under
+   the toolbar). commonplace.js gives paid and comped members a "Save"
+   tooltip that waits, hidden, at the foot of <body> until a selection
+   places it; at 33px it left the page 33px taller than the screen, and a
+   jump to a section (#b120-0) scrolled the page itself by that much, the
+   sidebar and the text up under the toolbar with it. Hidden, it waits at
+   the top instead; placed, it keeps the position commonplace.js gives it. */
+body:has(#app.faith-port-read-page) .commonplace-tooltip:not(.visible) { top: 0 !important; left: 0 !important; }
 @media (prefers-reduced-motion: reduce) {
   html:not(.g-mobile) body:has(#app.faith-port-read-page) .tfr-rail { transition: none; }
 }
