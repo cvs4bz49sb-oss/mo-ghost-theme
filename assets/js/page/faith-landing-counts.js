@@ -3,14 +3,17 @@
  if(!window.MOCorpora||!document.querySelector('.faith-landing'))return;
  const ids=['pg','pld','po','tfr','eebo','confessions','mo'];
  // Counted as the lists show them: Migne's apparatus (indices, notices, admonitions) is not a work (2026-09-25).
- Promise.all(ids.map(id=>window.MOFaithCatalogue.load(id).then(ws=>ws.filter(w=>window.MOFaithCatalogue.shelved(w))).catch(()=>[]))).then(sets=>{
+ Promise.all(ids.map(id=>window.MOFaithCatalogue.load(id).catch(()=>[]))).then(raw=>{
+   const sets=raw.map(ws=>ws.filter(w=>window.MOFaithCatalogue.shelved(w)));
    sets.forEach((works,i)=>{if(works.length)document.querySelectorAll(`[data-landing-corpus="${ids[i]}"]`).forEach(el=>el.textContent=`${works.length.toLocaleString()} ${ids[i]==='confessions'?'documents':'works'}`);});
    if(sets.some(works=>!works.length))return; // Keep descriptive labels if any catalogue failed.
    const all=sets.filter((_, i)=>ids[i]!=='confessions').flat();
-   // THE HEADLINE TOTAL IS SET, NOT COUNTED (Ian, 2026-09-28: "update this to be 19,597"). It is the whole catalogue,
-   // v1/works-index.json with Migne's apparatus included (19,596 entries at 2026-09-27, 2,560 of them apparatus); the lists
-   // and this file's own count leave the apparatus out, which is why they read ~16,800. The template carries the number.
-   // It does not move by itself: when the catalogue grows, change it in custom-the-faith-received.hbs.
+   // THE HEADLINE TOTAL IS THE WHOLE CATALOGUE (Ian, 2026-09-28: "update this to be 19,597"): every entry, Migne's
+   // apparatus included, not the lists' shelved count. It was then set in the template and stood still while the catalogue
+   // changed ("Works available to read … is not updating", 2026-10-13), so it is counted again from the same files: every
+   // entry of the seven catalogues this page loads. The template's figure shows only until the count arrives.
+   const whole=raw.reduce((n,ws)=>n+ws.length,0);
+   document.querySelectorAll('[data-landing-total]').forEach(el=>el.textContent=whole.toLocaleString());
    // The Councils are Mansi's volumes, counted here and again on Roman Catholic, where the catalogue files them (owner, 2026-10-11).
    const councils=all.filter(w=>/^mansi-/.test(String(w.id||w.slug||'')));
    if(councils.length)document.querySelectorAll('[data-landing-councils]').forEach(el=>el.textContent=`${councils.length.toLocaleString()} ${councils.length===1?'volume':'volumes'}`);
