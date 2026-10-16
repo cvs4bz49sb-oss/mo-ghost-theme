@@ -2677,7 +2677,10 @@ function fetchReview(){if(REVIEW_COV||!BLOB)return;
     return _pfP;
   }
   // early-modern orthography: u/v and i/j are interchangeable in the sources
-  const variants=s=>{const o=new Set([s]);o.add(s.replace(/v/g,"u"));o.add(s.replace(/j/g,"i").replace(/v/g,"u"));return [...o].slice(0,3);};
+  // early-modern orthography (u/v, i/j) and, 10-15 (owner), ligatures both ways: "præsens"/"praesens", "cœlum"/"coelum", the long s
+  const variants=s=>{const o=new Set([s]);o.add(s.replace(/v/g,"u"));o.add(s.replace(/j/g,"i").replace(/v/g,"u"));
+    const lig=s.replace(/æ/g,"ae").replace(/Æ/g,"Ae").replace(/œ/g,"oe").replace(/Œ/g,"Oe").replace(/ſ/g,"s");o.add(lig);o.add(lig.replace(/ae/g,"æ").replace(/oe/g,"œ"));
+    return [...o].slice(0,5);};
   /* ── TRADITION search (unification contract): one query, four corpora, one chronology ── */
   const TRAD_IDS={medieval:"Medieval","roman-catholic":"Roman Catholic",reformed:"Reformed",lutheran:"Lutheran"};
   let TRS={c:{pg:1,pl:1,aq:1,po:1,tfr:1},t:{medieval:1,"roman-catholic":1,reformed:1,lutheran:1}};

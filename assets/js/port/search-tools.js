@@ -2,7 +2,7 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.FRSearch=api;})(typeof window==='undefined'?globalThis:window,function(){
 'use strict';
 const shelves=[['Latin Fathers','pl'],['Greek Fathers','gf'],['Eastern Fathers','po'],['Medieval','md'],['Roman Catholic','rc'],['Continental Reformed','rf'],['English Divines','ed'],['Lutheran','lu'],['Humanism and Law','hl']].map(([label,code])=>({label,code,value:label==='Continental Reformed'?'Reformed':label}));
-const str=v=>v==null?'':String(v),fold=v=>str(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const str=v=>v==null?'':String(v),fold=v=>str(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/æ/g,'ae').replace(/œ/g,'oe').replace(/ſ/g,'s');
 const shelf=value=>shelves.find(s=>s.value===value||s.label===value||s.code===value);
 const label=value=>shelf(value)?.label||str(value);
 /* What a reader is SHOWN for a shelf (MOFaithLabel in lib/faith-catalogue.js): "English Divines" prints as "English writers". `label` stays the matching/server value. */
@@ -43,7 +43,33 @@ const KIND_RANK={work:0,fragment:1,preface:2,apparatus:3};
 function workKind(w){return (w&&w.kind&&KIND_RANK[w.kind]!==undefined)?w.kind:'work';}
 function kindRank(w){return KIND_RANK[workKind(w)];}
 function sizeRank(w){return workKind(w)==='work'?-(Number(w&&w.n_pages)||0):0;}
-function orderWorks(items,mode,works,priorities={},compareWorks=null){if(mode==='relevance')return items.slice();if(mode==='title'){const meta=item=>works[typeof item==='string'?item:item.slug]||item;return items.slice().sort((a,b)=>{const x=meta(a),y=meta(b);return (priorities[typeof a==='string'?a:a.slug]||0)-(priorities[typeof b==='string'?b:b.slug]||0)||kindRank(x)-kindRank(y)||sizeRank(x)-sizeRank(y)||str(x.author).localeCompare(str(y.author))||str(x.title_en||x.title).localeCompare(str(y.title_en||y.title));});}/* title search has no engine score: the author's works first, real works before Migne's matter, largest first */const meta=item=>works[typeof item==='string'?item:item.slug]||item;const sh=w=>shelves.findIndex(s=>s.value===shelf(w.tradition||w.shelf)?.value);return items.slice().sort((a,b)=>{const x=meta(a),y=meta(b);return (mode==='shelf'?(sh(x)<0?99:sh(x))-(sh(y)<0?99:sh(y)):0)||(priorities[typeof a==='string'?a:a.slug]||0)-(priorities[typeof b==='string'?b:b.slug]||0)||str(x.author).localeCompare(str(y.author))||kindRank(x)-kindRank(y)||sizeRank(x)-sizeRank(y)||(compareWorks?compareWorks(x,y):0)||str(x.title_en||x.title).localeCompare(str(y.title_en||y.title))||str(x.volume).localeCompare(str(y.volume),undefined,{numeric:true});});}
+function orderWorks(items,mode,works,priorities={},compareWorks=null){if(mode==='relevance')return items.slice();if(mode==='title'){const meta=item=>works[typeof item==='string'?item:item.slug]||item;return items.slice().sort((a,b)=>{const x=meta(a),y=meta(b);return (priorities[typeof a==='string'?a:a.slug]||0)-(priorities[typeof b==='string'?b:b.slug]||0)||kindRank(x)-kindRank(y)||sizeRank(x)-sizeRank(y)||str(x.author).localeCompare(str(y.author))||str(x.title_en||x.title).localeCompare(str(y.title_en||y.title));});}/* title search has no engine score: the author's works first, real works before Migne's matter, largest first */const meta=item=>works[typeof item==='string'?item:item.slug]||item;const sh=w=>shelves.findIndex(s=>s.value===shelf(w.tradition||w.shelf)?.value);
+// BEST MATCH FIRST, SHELVES KEPT (2026-10-15, the owner: "ordering intuitively, correct ranking"). A shelf, and an author within
+// it, stands where its best match ranks, the canonical shelf order breaking ties: "institutes" had Lactantius' seven books under
+// Latin Fathers above Calvin's Institutes, seventh under Continental Reformed. With no priorities (every search but Find a work)
+// this is the order it was. The books of one set keep their own order (Divine Institutes I, II, III, not largest first).
+const key=i=>typeof i==='string'?i:i.slug,pr=i=>priorities[key(i)]||0,shIx=w=>{const v=sh(w);return v<0?99:v;};
+const shBest=new Map(),auBest=new Map(),famPages=new Map();
+// One author's parts of a set stand together, ranked by their largest volume (the Summa's eight parts, then its Supplement), each
+// set in its own order (by the part in the title, else by the volume: Jeremiah Vol. 1-5); a work that is no set's part is a family
+// of one, so this is "largest first" as before.
+const famOf=w=>str(w.author)+'|'+((setPart(w.title_en||w.title)||{}).fam||str(w.title_en||w.title).toLowerCase());
+for(const it of items){const x=meta(it),f=famOf(x);famPages.set(f,Math.max(famPages.get(f)||0,Number(x.n_pages)||0));}
+const volOrder=(x,y)=>{const a=setPart(x.volume),b=setPart(y.volume);return a&&b?(a.r[0]||0)-(b.r[0]||0):0;};
+const famOrder=(x,y)=>{const fx=famOf(x),fy=famOf(y);if(fx!==fy)return (famPages.get(fy)||0)-(famPages.get(fx)||0)||fx.localeCompare(fy);return setOrder(x,y)||volOrder(x,y);};
+if(mode==='shelf')for(const it of items){const x=meta(it),k=shIx(x),p=pr(it),ak=k+'|'+str(x.author);if(!shBest.has(k)||p<shBest.get(k))shBest.set(k,p);if(!auBest.has(ak)||p<auBest.get(ak))auBest.set(ak,p);}
+return items.slice().sort((a,b)=>{const x=meta(a),y=meta(b);
+if(mode==='shelf'){const d=(shBest.get(shIx(x))||0)-(shBest.get(shIx(y))||0)||shIx(x)-shIx(y)||(auBest.get(shIx(x)+'|'+str(x.author))||0)-(auBest.get(shIx(y)+'|'+str(y.author))||0)||str(x.author).localeCompare(str(y.author));if(d)return d;}
+else{const d=pr(a)-pr(b)||str(x.author).localeCompare(str(y.author));if(d)return d;}
+return (mode==='shelf'?pr(a)-pr(b):0)||kindRank(x)-kindRank(y)||famOrder(x,y)||sizeRank(x)-sizeRank(y)||(compareWorks?compareWorks(x,y):0)||str(x.title_en||x.title).localeCompare(str(y.title_en||y.title))||str(x.volume).localeCompare(str(y.volume),undefined,{numeric:true});});}
+// Two parts of one set: "Divine Institutes, Book IV" and "…, Book II"; "Summa Theologiae I-II, 1-70" and "… I, 50-119"; "Summa
+// Contra Gentiles III" and "… I". Their numbers decide (roman parts first, I before I-II before II-II before III, then the
+// question or book numbers); works of different titles, 0.
+const SET_PART=/[,:;]?\s*\b(?:book|vol(?:ume)?|tomus|tome|part|pars|liber)\.?\s+(\d+|[ivxlcdm]+)\b.*$/i;
+const ROMAN_TAIL=/\s+([IVXLC]+(?:-[IVXLC]+)*)(?:,\s*(\d+)(?:\s*[-\u2013]\s*(\d+))?)?$/;
+const roman=r=>{const v={i:1,v:5,x:10,l:50,c:100,d:500,m:1000};let total=0;const s=str(r).toLowerCase();for(let i=0;i<s.length;i++){const c=v[s[i]],nx=v[s[i+1]]||0;total+=c<nx?-c:c;}return total;};
+function setPart(t){const m=str(t).match(SET_PART);if(m)return {fam:str(t).replace(SET_PART,'').trim().toLowerCase(),r:[/^\d+$/.test(m[1])?Number(m[1]):roman(m[1])],n:[]};const k=str(t).match(ROMAN_TAIL);if(k)return {fam:str(t).replace(ROMAN_TAIL,'').trim().toLowerCase(),r:k[1].split('-').map(roman),n:[k[2],k[3]].filter(Boolean).map(Number)};return null;}
+function setOrder(x,y){const a=setPart(x.title_en||x.title),b=setPart(y.title_en||y.title);if(!a||!b||a.fam!==b.fam)return 0;for(let i=0;i<Math.max(a.r.length,b.r.length);i++){if(a.r[i]===undefined)return -1;if(b.r[i]===undefined)return 1;if(a.r[i]!==b.r[i])return a.r[i]-b.r[i];}for(let i=0;i<Math.max(a.n.length,b.n.length);i++){const d=(a.n[i]||0)-(b.n[i]||0);if(d)return d;}return 0;}
 // TITLE SEARCH RANK (2026-10-07, owner: "i type in regensburg in mereO and the acta of dont come up"). An author's EPITHET is not
 // the author. "Othloh of Saint Emmeram in Regensburg" made nineteen of his works count as the author's own for "regensburg", and
 // the Acts of the Regensburg Colloquy, the one work with Regensburg in its title, fell to page three. A word counts as the
