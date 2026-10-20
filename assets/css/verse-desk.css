@@ -72,11 +72,9 @@
 
 /* key voices */
 .vd-voices { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); column-gap: 28px; border-top: 1px solid var(--vd-line); }
-.vd-voice { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--vd-line); }
-.vd-port { width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 1px solid var(--vd-line); background: var(--sd-panel); display: flex; align-items: center; justify-content: center; }
-.vd-port img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(0.25) contrast(1.05); }
-html[data-sd-theme="dark"] .vd-port img { filter: sepia(0.2) brightness(0.88); }
-.vd-ini { font: 600 22px/1 var(--font-body); color: var(--sd-muted); letter-spacing: 0.04em; }
+.vd-voice { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--vd-line); }
+/* The medallion is assets/css/tfr-portrait.css; the desk gives it its tokens. */
+.vd-port { --por-ground: var(--sd-panel); --por-rule: var(--vd-line); --por-ink: var(--sd-muted); }
 .vd-vname { margin: 0; font: 600 18px/1.25 var(--font-body); }
 .vd-vmeta { margin: 3px 0 0; font-size: 14px; color: var(--sd-muted); }
 .vd-gist { margin: 8px 0 4px; font-size: 15px; line-height: 1.5; }

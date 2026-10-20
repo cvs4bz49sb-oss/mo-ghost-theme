@@ -131,52 +131,17 @@
     return SHELF[sh] ? { sh, slug } : null;
   }
 
-  const initials = (name) => String(name).split(/\s+/).filter((w) => /^[A-ZÀ-Þ]/.test(w)).slice(0, 2).map((w) => w[0]).join("") || String(name).slice(0, 1);
-
-  function portraitFor(manifest, name, slug) {
-    if (!manifest) return null;
-    const p = manifest.p || {};
-    const id = (slug && p[slug] && slug) || (slug && manifest.alias && manifest.alias[slug]) || (manifest.by || {})[fold(name)];
-    return id && p[id] ? p[id] : null;
-  }
-
-  function credit(p) {
-    const line = el("figcaption", "ah-credit");
-    const who = [p.a, p.d].filter(Boolean).join(", ");
-    line.append(`${p.k === "painting" ? "Painting" : p.k === "engraving" ? "Engraving" : "Portrait"}: ${who || "artist unknown"}${p.l ? `. ${p.l}.` : "."} `);
-    if (/^https:\/\//.test(p.u)) {
-      let host = "source";
-      try { host = new URL(p.u).hostname.replace(/^www\./, ""); } catch (_) { /* a malformed source address: the link says "source" */ }
-      const a = link(p.u, host === "commons.wikimedia.org" ? "Wikimedia Commons" : host, "ah-credit-link");
-      a.rel = "noopener noreferrer";
-      a.target = "_blank";
-      line.append(a);
-    }
-    return line;
-  }
+  // The portrait is the shared medallion (assets/js/lib/tfr-portrait.js, assets/css/tfr-portrait.css), size L.
+  const T = window.TFRPortrait;
+  const portraitFor = (manifest, name, slug) => (T ? T.find(manifest, name, slug) : null);
 
   function buildPortrait(main, name, p) {
     const fig = el("figure", "ah-portrait");
     fig.dataset.name = name;
-    const frame = el("div", "ah-portrait-frame");
-    const mono = el("span", "ah-mono", initials(name));
-    mono.setAttribute("aria-hidden", "true");
-    if (p) {
-      const img = document.createElement("img");
-      img.src = `/assets/data/faith-received/guides/${p.f}`;
-      img.alt = `Portrait of ${name}`;
-      img.width = 168;
-      img.height = 210;
-      img.decoding = "async";
-      img.addEventListener("error", () => { img.remove(); mono.hidden = false; fig.classList.add("is-mono"); });
-      mono.hidden = true;
-      frame.append(img, mono);
-    } else {
-      fig.classList.add("is-mono");
-      frame.append(mono);
-    }
-    fig.append(frame);
-    if (p) fig.append(credit(p));
+    fig.append(T ? T.node(name, p, "l") : el("span", "tfr-por tfr-por--l"));
+    const line = T && p ? T.creditLine(p) : null;
+    if (line) fig.append(line);
+    if (T) T.jsonLd(name, p, location.href);
     main.prepend(fig);
   }
 
@@ -226,7 +191,9 @@
 
   const fact = (dl, label, value) => {
     if (!value) return;
-    dl.append(el("dt", null, label), el("dd", null, value));
+    const row = el("div", "ah-fact");
+    row.append(el("dt", null, label), el("dd", null, value));
+    dl.append(row);
   };
 
   function tileMap(main) {
@@ -263,6 +230,8 @@
   function buildAbout(main, ctx) {
     const { name, room, nb, notes, portrait, tiles, bioText, bioSource } = ctx;
     const sec = el("section", "ah-about");
+    const more = el("div", "ah-about-more");
+    more.id = "ah-about-more";
     sec.id = "ah-about";
     sec.dataset.key = ctx.key;
     sec.setAttribute("aria-labelledby", "ah-about-h");
@@ -281,8 +250,6 @@
     } else {
       life.append(el("p", "ah-gap", "The library has no biography of this author yet. The facts here come from its own records: dates, shelf, works and citations."));
     }
-    grid.append(life);
-
     const card = el("aside", "ah-facts");
     card.setAttribute("aria-label", `Quick facts about ${name}`);
     card.append(el("h3", "ah-h3", "Quick facts"));
@@ -297,7 +264,7 @@
     fact(dl, "Library shelf", SHELF[ctx.sh]);
     fact(dl, "Works in the library", tiles.Works || (room.n_works ? num(room.n_works) : ""));
     card.append(dl);
-    grid.append(card);
+    grid.append(card, life);
     sec.append(grid);
 
     // Why this author is in the library: counts and names only.
@@ -315,28 +282,16 @@
     if (of.length) facts.append(el("li", null, `Cites ${num(of.length)} other authors in the library; ${of[0].a} most often.`));
     if (facts.children.length) {
       why.append(facts);
-      sec.append(why);
+      more.append(why);
     }
 
-    // Key works: the room's largest, by indexed pages.
-    const keyWorks = (room.works || []).filter((w) => w && w.w && w.t && w.np).sort((a, b) => b.np - a.np).slice(0, 6);
-    if (keyWorks.length) {
-      const kw = block("Key works", "The works with the most indexed pages.");
-      const ul = el("ul", "ah-works");
-      keyWorks.forEach((w) => {
-        const li = el("li");
-        li.append(link(`/the-faith-received/read/?w=${encodeURIComponent(w.w)}`, w.t), el("span", null, `${num(w.np)} pages`));
-        ul.append(li);
-      });
-      kw.append(ul);
-      sec.append(kw);
-    }
-
+    /* The room's "From the library" module (Start reading, Controversies) is the key works. It is the engine's own block
+       (faith-port-room-notes.js), drawn between this part of About and the rest, so there is no second list here. */
     if (years) {
       const tl = block("When", `${name} lived from ${years[0]} to ${years[1]}.`);
       if (years[0] === years[1]) tl.querySelector(".ah-lede").textContent = `${name} is dated to around ${years[0]}.`;
       tl.append(eraStrip(name, years));
-      sec.append(tl);
+      more.append(tl);
     }
 
     if (by.length || of.length) {
@@ -352,7 +307,7 @@
         b.append(nameList(by, 8, href));
         reception.append(b);
       }
-      sec.append(reception);
+      more.append(reception);
     }
 
     const related = ((notes && notes.compare) || []).filter((r) => r && r.with && r.with_room && !/^various authors$/i.test(r.with)).slice(0, 8);
@@ -365,18 +320,29 @@
         ul.append(li);
       });
       b.append(ul);
-      sec.append(b);
+      more.append(b);
     }
 
     const src = el("p", "ah-sources");
-    src.append(`Biography: ${bioSource}. `);
-    if (portrait) src.append(`Portrait: ${[portrait.a, portrait.d].filter(Boolean).join(", ") || "artist unknown"}${portrait.l ? `, ${portrait.l}` : ""}. `);
-    src.append("Counts and names come from the library's indexed pages.");
-    sec.append(src);
-    return sec;
+    src.append(`Biography: ${bioSource}. Counts and names come from the library's indexed pages.`);
+    more.append(src);
+    if (portrait && T) {
+      const det = el("details", "ah-credits");
+      det.append(el("summary", null, "Image credits"));
+      const line = el("p", null, `${name}. ${T.credit(portrait).replace(/\. Source: https:\/\/\S+$/, "")}. `);
+      if (/^https:\/\//.test(portrait.u)) {
+        const a = link(portrait.u, "Source", "ah-credit-link");
+        a.rel = "noopener noreferrer";
+        a.target = "_blank";
+        line.append(a);
+      }
+      det.append(line);
+      more.append(det);
+    }
+    return { sec, more };
   }
 
-  const manifestP = () => once("manifest", () => getJSON(asset("/assets/data/faith-received/author-portraits.json")));
+  const manifestP = () => once("manifest", () => (T ? T.load() : Promise.resolve(null)));
   const curatedP = () => once("curated", () => getJSON(asset("/assets/data/faith-received/tfr-authors.json")));
 
   function loadAbout(key) {
@@ -388,7 +354,7 @@
   }
 
   function jumpLine(main) {
-    const items = [["About", "#ah-about"], ["Read first", "#rnNotes"], ["The room", "#ah-room"], ["Mere Orthodoxy", "#ah-moa"]]
+    const items = [["About", "#ah-about"], ["From the library", "#rnNotes"], ["The room", "#ah-room"], ["Mere Orthodoxy", "#ah-moa"]]
       .filter(([, hash]) => main.querySelector(hash));
     const sig = items.map(([, h]) => h).join(",");
     let nav = main.querySelector(":scope > .ah-jump");
@@ -436,13 +402,17 @@
   const ABOUT = new Map();
   function mountAbout(main, tag, d, tiles, sig, profile) {
     const prev = main.querySelector(":scope > .ah-about");
+    const prevMore = main.querySelector(":scope > .ah-about-more");
     const target = main.querySelector(":scope > #rnNotes") || main.querySelector(":scope > .rgrid") || main.querySelector(":scope > .moa-host");
     if (!target) return;
     const deck = profile.querySelector(".deck");
-    const sec = buildAbout(main, { name: d.name, key: tag, sh: d.sh, room: d.room, nb: d.nb, notes: d.notes, portrait: portraitFor(d.m, d.name, d.slug), tiles, bioText: d.bioText, bioSource: d.bioSource, years: lifeYears(deck && deck.textContent) });
+    const { sec, more } = buildAbout(main, { name: d.name, key: tag, sh: d.sh, room: d.room, nb: d.nb, notes: d.notes, portrait: portraitFor(d.m, d.name, d.slug), tiles, bioText: d.bioText, bioSource: d.bioSource, years: lifeYears(deck && deck.textContent) });
     sec.dataset.tiles = sig;
+    if (prevMore) prevMore.remove();
     if (prev) prev.replaceWith(sec);
     else target.before(sec);
+    // The rest of About follows the "From the library" module when there is one, and the bio when there is not.
+    sec.after(more);
     main.classList.add("ah-has-about");
   }
 
@@ -510,7 +480,11 @@
     const moa = main.querySelector(":scope > .moa-host");
     if (moa && !moa.id) moa.id = "ah-moa";
     jumpLine(main);
-    if (!main.querySelector(":scope > .ah-about")) main.classList.remove("ah-has-about");
+    if (!main.querySelector(":scope > .ah-about")) {
+      main.classList.remove("ah-has-about");
+      const orphan = main.querySelector(":scope > .ah-about-more");
+      if (orphan) orphan.remove();
+    }
   }
 
   function scan() {

@@ -401,10 +401,10 @@
   function renderVoices(m, ctx) {
     if (!m.voices || !m.voices.length) return '';
     const li = m.voices.map((v) => {
-      const pic = v.portrait && ctx.portrait ? `<img src="${esc(ctx.portrait(v.portrait.src))}" alt="Portrait of ${esc(v.author)}" width="72" height="72" loading="lazy" decoding="async">`
-        : `<span class="vd-ini" aria-hidden="true">${esc(initials(v.author))}</span>`;
+      const pic = v.portrait && ctx.portrait ? `<img src="${esc(ctx.portrait(v.portrait.src))}" alt="Portrait of ${esc(v.author)}" width="84" height="84" loading="lazy" decoding="async" data-por="${esc(v.portrait.src.replace(/^.*\//, '').replace(/\.jpg.*$/, ''))}" data-por-name="${esc(v.author)}">`
+        : `<span class="vd-ini tfr-por-ini" aria-hidden="true">${esc(initials(v.author))}</span>`;
       const meta = [v.life, v.era].filter(Boolean).join(' · ');
-      return `<li class="vd-voice"><div class="vd-port">${pic}</div><div class="vd-vbody"><h3 class="vd-vname">${esc(v.author)}</h3>${meta ? `<p class="vd-vmeta">${esc(meta)}</p>` : ''}<p class="vd-gist">${esc(v.gist)}</p><a class="vd-vlink" href="${esc(ctx.read(v.w, v.p, v.h))}">${esc(v.title)}, p. ${esc(v.p)}</a></div></li>`;
+      return `<li class="vd-voice"><div class="vd-port tfr-por tfr-por--m">${pic}</div><div class="vd-vbody"><h3 class="vd-vname">${esc(v.author)}</h3>${meta ? `<p class="vd-vmeta">${esc(meta)}</p>` : ''}<p class="vd-gist">${esc(v.gist)}</p><a class="vd-vlink" href="${esc(ctx.read(v.w, v.p, v.h))}">${esc(v.title)}, p. ${esc(v.p)}</a></div></li>`;
     }).join('');
     return sec('voices', 'Key voices', 'Who to read first', '', `<ul class="vd-voices">${li}</ul>`, `<p class="vd-dek">The library\u2019s importance ranking puts these authors first. Each has a page that comments on this verse or cites it by name. They are listed oldest first. Each link opens that page.</p>${m.voices.some((v) => v.gistFromData) ? '<p class="vd-dek">Each description is machine-written from the page it links to. A line that only says how the page uses the verse is not.</p>' : ''}`);
   }

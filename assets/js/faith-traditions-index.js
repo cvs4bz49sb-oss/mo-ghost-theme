@@ -67,9 +67,7 @@
 .tix-faces li { width: 86px; text-align: center; opacity: 0; transform: translateY(8px); transition: opacity 0.45s ease, transform 0.45s ease; }
 .tix-card.in .tix-faces li { opacity: 1; transform: none; }
 .tix-faces a { color: inherit; text-decoration: none; display: grid; justify-items: center; gap: 6px; }
-.tix-faces .pic { width: 64px; height: 80px; border-radius: 50%; overflow: hidden; border: 1px solid var(--rule); background: #f1ece4; display: grid; place-items: center;
-  font-size: 1.15rem; color: var(--muted); box-shadow: 0 0 0 3px var(--card), 0 0 0 4px var(--rule); }
-.tix-faces img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.06) sepia(0.12); }
+.tix-faces .pic { --por-ground: var(--card); --por-rule: var(--rule); --por-ink: var(--muted); --por-accent: var(--accent); }
 .tix-faces .nm { font-size: 0.82rem; line-height: 1.2; }
 .tix-faces .dt { display: block; font-size: 0.7rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .tix-faces a:hover .nm { color: var(--accent); text-decoration: underline; }
@@ -84,7 +82,7 @@
 .tix-sub { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); margin-top: 6px; }
 .tix-sub .tix-card { padding: 18px 18px 16px; } .tix-sub .tix-card h3 { font-size: 1.35rem; }
 .tix-subhead { margin: 10px 0 0; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
-@media (max-width: 640px) { .tix-card { padding: 18px 16px; } .tix-faces li { width: 74px; } .tix-faces .pic { width: 56px; height: 70px; } }
+@media (max-width: 640px) { .tix-card { padding: 18px 16px; } .tix-faces li { width: 74px; } }
 @media (prefers-reduced-motion: reduce) { .tix-card, .tix-faces li { opacity: 1; transform: none; transition: none; } }`;
 
   function tree(list, X, host) {
@@ -155,7 +153,7 @@
 
   function card(t, d, meta) {
     const people = (d.people || []).map((p, i) => `<li style="transition-delay:${120 + i * 70}ms"><a href="${BASE}author/?a=${encodeURIComponent(p.n)}">`
-      + `<span class="pic">${p.src ? `<img src="${esc(PORTRAITS + p.src)}" alt="" loading="lazy" decoding="async">` : esc(initials(p.show))}</span>`
+      + `<span class="pic tfr-por tfr-por--s">${p.src ? `<img src="${esc(PORTRAITS + p.src)}" alt="Portrait of ${esc(p.show)}" width="56" height="56" loading="lazy" decoding="async" data-por="${esc(String(p.src).replace(/^.*\//, "").replace(/\.jpg.*$/, ""))}" data-por-name="${esc(p.show)}">` : `<span class="tfr-por-ini" aria-hidden="true">${esc(initials(p.show))}</span>`}</span>`
       + `<span class="nm">${esc(p.show)}${p.d ? `<span class="dt">${esc(p.d)}</span>` : ""}</span></a></li>`).join("");
     const docs = (d.docs || []).map(([s, title, y]) => `<a href="${BASE}read/?w=${encodeURIComponent(s)}">${esc(title)}</a>${y ? `<small>${esc(y)}</small>` : ""}`).join("");
     const all = t.allWorks && t.allWorks.q ? `${BASE}all-works/?collection=all&${t.allWorks.q}` : "";

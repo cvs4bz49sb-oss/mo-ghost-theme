@@ -155,11 +155,8 @@ html[data-sd-theme="dark"] .td-desk {
 @media (min-width: 600px) { .td-desk .tdk-people { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (min-width: 1000px) { .td-desk .tdk-people { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 .td-desk .tdk-person a { display: grid; gap: 2px; justify-items: center; text-align: center; text-decoration: none; color: var(--tdk-ink); }
-.td-desk .tdk-person .ph { display: grid; place-items: center; width: 84px; height: 84px; margin-bottom: 8px; border-radius: 50%; overflow: hidden; border: 1px solid var(--tdk-rule); box-shadow: 0 0 0 4px var(--tdk-ground), 0 0 0 5px var(--tdk-rule); background: var(--tdk-ground); }
-.td-desk .tdk-person .ph img { width: 100%; height: 100%; object-fit: cover; object-position: top center; filter: grayscale(0.55) sepia(0.3); }
-html[data-sd-theme="dark"] .td-desk .tdk-person .ph img { filter: grayscale(0.5) sepia(0.25) brightness(0.92); }
-.td-desk .tdk-person .ini { font-size: 28px; font-weight: 600; color: var(--tdk-muted); }
-.td-desk .tdk-person .ini[hidden] { display: none; }
+/* The medallion itself is assets/css/tfr-portrait.css; the desk only gives it its own ground, rule and ink. */
+.td-desk .tdk-person .ph { --por-ground: var(--tdk-ground); --por-rule: var(--tdk-rule); --por-ink: var(--tdk-muted); --por-accent: var(--tdk-accent); margin-bottom: 8px; }
 .td-desk .tdk-person b { font-size: 16px; font-weight: 600; line-height: 1.25; }
 .td-desk .tdk-person a:hover b { color: var(--tdk-accent); text-decoration: underline; }
 .td-desk .tdk-person .d, .td-desk .tdk-person .t { font-size: 14px; color: var(--tdk-muted); }

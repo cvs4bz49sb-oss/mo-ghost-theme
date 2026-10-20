@@ -743,8 +743,8 @@
   function renderPeople(p) {
     const items = p.items.map((x) => {
       const ini = x.name.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).slice(0, 2).map((w) => w[0]).join("");
-      const img = x.portrait ? `<img src="/assets/data/faith-received/guides/portraits/${enc(x.slug)}.jpg" alt="" width="84" height="84" loading="lazy" decoding="async" data-tdk-portrait>` : "";
-      return `<li class="tdk-person"><a href="${esc(authorHref(x.slug))}"><span class="ph">${img}<span class="ini" aria-hidden="true"${x.portrait ? " hidden" : ""}>${esc(ini)}</span></span><b>${esc(x.name)}</b>` +
+      const img = x.portrait ? `<img src="/assets/data/faith-received/guides/portraits/${enc(x.slug)}.jpg" alt="Portrait of ${esc(x.name)}" width="84" height="84" loading="lazy" decoding="async" data-tdk-portrait data-por="${enc(x.slug)}" data-por-name="${esc(x.name)}">` : "";
+      return `<li class="tdk-person"><a href="${esc(authorHref(x.slug))}"><span class="ph tfr-por tfr-por--m">${img}<span class="ini" aria-hidden="true"${x.portrait ? " hidden" : ""}>${esc(ini)}</span></span><b>${esc(x.name)}</b>` +
         `<span class="d">${Number(x.born) ? `b. ${Number(x.born)}` : ""}</span><span class="t">${esc(x.church)}</span>${x.pages ? `<span class="t">${plural(x.pages, "page", "pages")} indexed here</span>` : ""}</a></li>`;
     }).join("");
     return `<section class="tdk-mod" id="tdk-people">${modHead("People", "Voices on this topic",
