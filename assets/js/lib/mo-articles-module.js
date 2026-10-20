@@ -53,47 +53,90 @@
   }
 
   /* The module's HTML, or "" when there is nothing to draw.
-       items  article entries ({ id, t, u, d, a, x }); a row may carry `note` ("on this chapter") shown after the author line
+       items  article entries ({ id, t, u, d, a, y, i }); a row may carry `why` (the plain-words reason it is on this page) and `note`
+              ("on this chapter", shown after the author line)
        opts   id       element id prefix (unique per module on a page)
-              title    the label itself, "From Mere Orthodoxy" unless the page names its subject ("Mere Orthodoxy on Augustine of Hippo")
-              context  the words after the label ("on this passage"), part of the heading's accessible name
-              limit    rows shown before "Show all N" (the rest are in the markup, hidden, and open in place)
-              excerpt  true to show the one-line excerpt (not on a narrow panel)
+              variant  "cards" (a grid with each essay's featured image; the default) or "rows" (compact rows with a small thumbnail, for a
+                       narrow rail or panel)
+              title    the heading itself, "From Mere Orthodoxy" unless the page names its subject ("Mere Orthodoxy on Augustine of Hippo");
+                       a title also gets "From Mere Orthodoxy" above it as the eyebrow (cards)
+              context  the words after the heading ("on this passage"), part of the heading's accessible name
+              limit    rows shown before "Show all N" (the rest are in the markup, hidden, and open in place); leave out to show every row
+              image    (article, width) -> image URL, "" for none (MOArticles.image); without it every card has the tinted tile
               tag      heading element (h2 to h4), default h3
-              foot     false to leave out the "All Mere Orthodoxy articles" link
+              foot     false to leave out the "All Mere Orthodoxy articles" button
+              allHref/allLabel   where the foot button goes (an on-site path), "All Mere Orthodoxy articles" by default
               cap      most rows ever drawn (a narrow panel: 2); moreHref/moreLabel then name where the rest are (an on-site path)
-              note     one short muted sentence under the label (the trust line); "" for none */
-  function html(items, opts) {
-    const o = opts || {};
-    const rows = (Array.isArray(items) ? items : []).filter((a) => a && plain(a.t) && safeUrl(a.u));
-    if (!rows.length) return "";
-    const limit = Math.max(1, Number(o.limit) || 3);
-    // cap: a hard ceiling (a narrow panel shows two and no more); the rest are reached through moreHref, not drawn.
-    const total = rows.length;
-    if (o.cap && rows.length > o.cap) rows.length = Math.max(1, Number(o.cap));
+              note     one short muted sentence under the heading (the trust line); "" for none
+       groups (resources only) see resources() */
+  const KIND_NAME = { doc: "Creeds and confessions", work: "Works and authors", retrieval: "Theological retrieval", topic: "Doctrine and Scripture" };
+  const FALLBACK_WHY = { doc: "On creeds and confessions", work: "Engages works and authors in the library", retrieval: "On theological retrieval", topic: "Engages doctrine and Scripture" };
+  const whyOf = (a) => plain(a.why || a.y || FALLBACK_WHY[a.k] || "");
+  const onSite = (p) => (typeof p === "string" && /^\/[^/\\]/.test(p) ? p : "");
+
+  function row(a, i, o, limit) {
+    const meta = dateLine(a);
+    const note = a.note ? `<span class="moa-tag">${esc(plain(a.note))}</span>` : "";
+    const sized = typeof o.image === "function" && !a.img;
+    const src = a.img || (sized ? o.image(a, o.variant === "rows" ? 300 : 600) : "");
+    const src2 = sized && src ? o.image(a, o.variant === "rows" ? 600 : 1000) : "";
+    const alt = a.ia ? esc(plain(a.ia)) : "";
+    const img = safeUrl(src)
+      ? `<span class="moa-img"><img class="moa-photo" src="${esc(safeUrl(src))}"${safeUrl(src2) ? ` srcset="${esc(safeUrl(src))} 1x, ${esc(safeUrl(src2))} 2x"` : ""} width="600" height="400" alt="${alt}" loading="lazy" decoding="async"></span>`
+      : `<span class="moa-img" aria-hidden="true"><span class="moa-ph">${esc(KIND_NAME[a.k] || "")}</span></span>`;
+    const why = whyOf(a);
+    return `<li class="moa-row"${i >= limit ? " hidden data-moa-extra" : ""}>` +
+      `<a class="moa-link" href="${esc(safeUrl(a.u))}" target="_blank" rel="noopener">${img}<span class="moa-txt">` +
+      `<span class="moa-t">${esc(plain(a.t))}</span><span class="moa-sr"> (Mere Orthodoxy, opens in a new tab)</span>` +
+      `${meta || note ? `<span class="moa-meta">${esc(meta)}${meta && note ? " · " : ""}${note}</span>` : ""}` +
+      `${why ? `<span class="moa-why">${esc(why)}</span>` : ""}</span></a></li>`;
+  }
+
+  // groups: [{ id, label, items }]. A group with a label draws it as a sub-heading (resources); the lone unlabelled group is the plain module.
+  function build(groups, o) {
+    const cleaned = groups.map((g) => ({ ...g, rows: (Array.isArray(g.items) ? g.items : []).filter((a) => a && plain(a.t) && safeUrl(a.u)) })).filter((g) => g.rows.length);
+    if (!cleaned.length) return "";
+    const variant = o.variant === "rows" ? "rows" : "cards";
+    const o2 = { ...o, variant };
+    const hasLimit = Number(o.limit) > 0;
+    const limit = hasLimit ? Math.max(1, Number(o.limit)) : Infinity;
     const tag = /^h[2-4]$/.test(o.tag || "") ? o.tag : "h3";
+    const sub = tag === "h2" ? "h3" : tag === "h3" ? "h4" : "h5";
     const id = esc(o.id || "moa");
     const ctx = plain(o.context);
-    const n = rows.length;
-    const li = rows.map((a, i) => {
-      const meta = dateLine(a);
-      const note = a.note ? `<span class="moa-tag">${esc(plain(a.note))}</span>` : "";
-      const x = o.excerpt ? excerpt(a.x, 105) : "";
-      return `<li class="moa-row"${i >= limit ? " hidden data-moa-extra" : ""}>` +
-        `<a class="moa-link" href="${esc(safeUrl(a.u))}" target="_blank" rel="noopener">${esc(plain(a.t))}<span class="moa-sr"> (Mere Orthodoxy, opens in a new tab)</span></a>` +
-        `${meta || note ? `<span class="moa-meta">${esc(meta)}${meta && note ? " · " : ""}${note}</span>` : ""}` +
-        `${x ? `<span class="moa-x">${esc(x)}</span>` : ""}</li>`;
+    const title = plain(o.title);
+    const eyebrow = title && variant === "cards" && o.eyebrow !== "" ? `<p class="moa-eyebrow">${esc(plain(o.eyebrow) || "From Mere Orthodoxy")}</p>` : "";
+    let total = 0;
+    let shown = 0;
+    const lists = cleaned.map((g, gi) => {
+      let rows = g.rows;
+      total += rows.length;
+      // cap: a hard ceiling (a narrow panel shows two and no more); the rest are reached through moreHref, not drawn.
+      if (o.cap && rows.length > o.cap) rows = rows.slice(0, Math.max(1, Number(o.cap)));
+      shown += rows.length;
+      const n = rows.length;
+      const li = rows.map((a, i) => row(a, i, o2, limit)).join("");
+      const more = n > limit ? `<button type="button" class="moa-more" aria-expanded="false" aria-controls="${id}-list${gi}" data-moa-more data-n="${n}">Show all ${n}</button>` : "";
+      const head = g.label ? `<${sub} class="moa-kh">${esc(plain(g.label))} <span class="moa-n">${n}</span></${sub}>` : "";
+      return `<div class="moa-kind"${g.id ? ` data-moa-kind="${esc(g.id)}"` : ""}>${head}<ul class="moa-list" id="${id}-list${gi}">${li}</ul>${more ? `<div class="moa-foot">${more}</div>` : ""}</div>`;
     }).join("");
-    const more = n > limit
-      ? `<button type="button" class="moa-more" aria-expanded="false" aria-controls="${id}-list" data-moa-more data-n="${n}">Show all ${n}</button>` : "";
-    const rest = total > n && o.moreHref && /^\/[^/\\]/.test(o.moreHref)
-      ? `<a class="moa-all" href="${esc(o.moreHref)}">${esc(o.moreLabel || `All ${total}`)}</a>` : "";
-    const foot = o.foot === false ? rest : `${rest}<a class="moa-all" href="${ALL_HREF}">All Mere Orthodoxy articles</a>`;
-    return `<section class="moa${o.excerpt ? " moa--x" : ""}" data-moa aria-labelledby="${id}-h">` +
-      `<${tag} class="moa-h" id="${id}-h">${esc(plain(o.title) || "From Mere Orthodoxy")}${ctx ? `<span class="moa-ctx"> ${esc(ctx)}</span>` : ""}</${tag}>` +
-      `${o.note ? `<p class="moa-note">${esc(plain(o.note))}</p>` : ""}` +
-      `<ul class="moa-list" id="${id}-list">${li}</ul>` +
-      `${more || foot ? `<div class="moa-foot">${more}${foot}</div>` : ""}</section>`;
+    const rest = total > shown && onSite(o.moreHref) ? `<a class="moa-all" href="${esc(onSite(o.moreHref))}">${esc(o.moreLabel || `All ${total}`)}</a>` : "";
+    const allHref = onSite(o.allHref) || ALL_HREF;
+    const foot = o.foot === false ? rest : `${rest}<a class="moa-btn" href="${esc(allHref)}">${esc(plain(o.allLabel) || "All Mere Orthodoxy articles")}</a>`;
+    return `<section class="moa moa--${variant}${o.resources ? " moa--res" : ""}" data-moa aria-labelledby="${id}-h">` +
+      `<div class="moa-head">${eyebrow}<${tag} class="moa-h" id="${id}-h">${esc(title || "From Mere Orthodoxy")}${ctx ? `<span class="moa-ctx"> ${esc(ctx)}</span>` : ""}</${tag}>` +
+      `${o.note ? `<p class="moa-note">${esc(plain(o.note))}</p>` : ""}</div>` +
+      `${lists}${foot ? `<div class="moa-foot moa-foot--end">${foot}</div>` : ""}</section>`;
+  }
+
+  const html = (items, opts) => build([{ items }], opts || {});
+
+  /* The "Resources on this work" section: one sub-section per KIND of resource, each with its own heading and count. Articles are the
+     first kind; another dataset (podcast episodes) adds its own group here and nothing else changes.
+       kinds  [{ id: "articles", label: "Mere Orthodoxy articles", items }]  (a kind with no items is left out) */
+  function resources(kinds, opts) {
+    const o = { ...(opts || {}), resources: true };
+    return build((Array.isArray(kinds) ? kinds : []).map((k) => ({ id: k.id, label: k.label, items: k.items })), o);
   }
 
   // One delegated handler per host: "Show all N" opens the hidden rows in place, "Show fewer" folds them back.
@@ -103,7 +146,7 @@
     host.addEventListener("click", (e) => {
       const b = e.target.closest && e.target.closest("[data-moa-more]");
       if (!b || !host.contains(b)) return;
-      const sec = b.closest("[data-moa]");
+      const sec = b.closest(".moa-kind") || b.closest("[data-moa]");
       const open = b.getAttribute("aria-expanded") !== "true";
       sec.querySelectorAll("[data-moa-extra]").forEach((li) => { li.hidden = !open; });
       b.setAttribute("aria-expanded", String(open));
@@ -115,7 +158,7 @@
      there; draws nothing, and leaves the host as it was, when there is nothing to show. */
   function mount(host, items, opts) {
     if (!host || typeof host.insertAdjacentHTML !== "function") return false;
-    const out = html(items, opts);
+    const out = opts && opts.kinds ? resources(opts.kinds, opts) : html(items, opts);
     host.querySelectorAll(":scope > [data-moa]").forEach((el) => el.remove());
     if (!out) return false;
     host.insertAdjacentHTML("beforeend", out);
@@ -267,16 +310,83 @@
     "aq-scg1-11": ["book i\\b", "book 1\\b"], "aq-scg2-12": ["book ii\\b", "book 2\\b"], "aq-scg3-13": ["book iii\\b", "book 3\\b"], "aq-scg4-14": ["book iv\\b", "book 4\\b"],
   };
 
-  // A work, or a library document (a creed, confession, catechism or council is a work too): essays on the work, then on the document.
-  function work(A, slug) {
+  /* A work's resources, from every way the data ties an essay to it, most direct first. Each entry carries `why`, the plain-words reason
+     it is on this page (nothing says an essay states a position):
+       1  the work itself (the data's own tie)                   why: the essay's own line, else "On this work"
+       2  a document: a creed, confession, catechism or council    why: "On the Nicene Creed", "On the ancient creeds", "On the Council of Nicaea"
+          (the page's slug can be a public name such as nicene-creed or heidelberg-catechism: DOC_ALIASES)
+       3  the work's author, when essays are about the author      why: "On Augustine of Hippo, who wrote this work"
+          (ctx.author(slug) names the author; the theme's work map holds it)
+       4  confessions with nothing of their own                    why: "On creeds and confessions in general"
+     An essay appears once, under its first reason. */
+  const ANCIENT = "cf-001-apostolic-and-ancient-creeds";
+  // A public or short name -> the documents it is. `own` are the words that make an essay about THIS creed within a group document.
+  const DOC_ALIASES = {
+    "nicene-creed": { docs: [ANCIENT, "cf-013-council-of-nicea-i-325"], own: { [ANCIENT]: [CREED_PAGE_TERMS.nicene, "the Nicene Creed"] }, name: "Nicene Creed" },
+    "apostles-creed": { docs: [ANCIENT], own: { [ANCIENT]: [CREED_PAGE_TERMS.apostles, "the Apostles’ Creed"] }, name: "Apostles Creed" },
+    athanasian: { docs: [ANCIENT], own: { [ANCIENT]: [["athanasian", "quicunque", "athanasius"], "the Athanasian Creed"] }, name: "Athanasian Creed" },
+    "athanasian-creed": { same: "athanasian" },
+    chalcedonian: { docs: ["cf-025-council-of-chalcedon-451"], name: "Chalcedonian Definition" },
+    "chalcedonian-definition": { same: "chalcedonian" },
+    heidelberg: { docs: ["rc-061-heidelberg-catechism-1563"], name: "Heidelberg Catechism" },
+    "heidelberg-catechism": { same: "heidelberg" },
+    "westminster-confession": { docs: ["rc-111-westminster-confession-of-faith-1646"], name: "Westminster Confession" },
+    "westminster-confession-of-faith": { same: "westminster-confession" },
+    "westminster-larger": { docs: ["rc-114-westminster-larger-catechism-1647"], name: "Westminster Larger Catechism" },
+    "westminster-larger-catechism": { same: "westminster-larger" },
+    "westminster-shorter": { docs: ["rc-115-westminster-shorter-catechism-1647"], name: "Westminster Shorter Catechism" },
+    "westminster-shorter-catechism": { same: "westminster-shorter" },
+    belgic: { docs: ["rc-057-belgic-confession-1561"], name: "Belgic Confession" },
+    "belgic-confession": { same: "belgic" },
+    augsburg: { docs: ["lc-002-augsburg-confession-1530"], name: "Augsburg Confession" },
+    "augsburg-confession": { same: "augsburg" },
+    "canons-of-dort": { docs: ["rc-105-canons-of-dort-1618"], name: "Canons of Dort" },
+    dort: { same: "canons-of-dort" },
+  };
+  const aliasOf = (key) => { let a = DOC_ALIASES[key]; if (a && a.same) a = DOC_ALIASES[a.same]; return a || null; };
+  // A confession, creed or council in the library's confessions catalogue (rc-, cf-, lc-) or one of the aliased short names.
+  const isConfession = (key) => /^(?:cf|rc|lc)-\d+-/.test(key) || Boolean(aliasOf(key));
+  const withWhy = (a, why) => ({ ...a, why });
+
+  function work(A, slug, ctx) {
     const s = String(slug || "").trim();
     const key = /^\d+$/.test(s) ? `pld-${s}` : s;
-    let list = dedupe([A.forWork(key), doc(A, key)]);
-    if (PARTS[key]) list = list.filter((a) => new RegExp(`(?:${PARTS[key].join("|")})`, "i").test(hay(a)));
-    return list.map((a) => (/reading plans?/i.test(a.t) ? withNote(a, "a reading plan") : a));
+    const alias = aliasOf(key);
+    const tiers = [];
+    let direct = A.forWork(key);
+    if (PARTS[key]) direct = direct.filter((a) => new RegExp(`(?:${PARTS[key].join("|")})`, "i").test(hay(a)));
+    tiers.push(direct.map((a) => withWhy(a, a.y || "On this work")));
+    const docSlugs = alias ? alias.docs : [key];
+    docSlugs.forEach((d) => {
+      const list = doc(A, d);
+      const own = alias && alias.own && alias.own[d];
+      const mine = own ? list.filter((a) => hasTerm(a, own[0])) : [];
+      const rest = own ? list.filter((a) => !mine.includes(a)) : list;
+      tiers.push(mine.map((a) => withWhy(a, `On ${own[1]}`)));
+      tiers.push(rest.map((a) => withWhy(a, `On ${DOC_NAMES[d] || docLabel(A, a, d) || "this document"}`)));
+    });
+    const who = ctx && typeof ctx.author === "function" ? ctx.author(key) : "";
+    if (who) tiers.push(author(A, who).map((a) => withWhy(a, `On ${who}, who wrote this work`)));
+    let list = dedupe(tiers);
+    if (!list.length && isConfession(key)) {
+      list = A.all().filter((a) => A.kindsOf(a).includes("doc") && !(a.docs && a.docs.length)).map((a) => withWhy(a, "On creeds and confessions in general"));
+    }
+    return list.map((a) => (/reading plans?/i.test(a.t) ? { ...a, note: "a reading plan" } : a));
   }
 
-  const pick = { verse, topic, author, work, doc, dedupe, DOC_NAMES, topicTerms, excluded, NAMESAKES, CREED_PAGE_TERMS };
+  // Words for the Resources page's search, for "See all resources" on a work: the document's name, the work's title, or the author.
+  function searchWords(A, slug, ctx) {
+    const key = /^\d+$/.test(String(slug)) ? `pld-${slug}` : String(slug || "").trim();
+    const alias = aliasOf(key);
+    if (alias) return alias.name;
+    if (DOC_NAMES[key]) return DOC_NAMES[key].replace(/^the /, "");
+    const first = A.forWork(key)[0];
+    const e = first && (A.entities(first) || []).find((x) => x.type === "work" && x.key === key);
+    if (e && e.label) return e.label;
+    return (ctx && typeof ctx.author === "function" && ctx.author(key)) || "";
+  }
 
-  return { html, mount, mountAt, bind, safeUrl, monthYear, dateLine, excerpt, plain, pick, ALL_HREF };
+  const pick = { verse, topic, author, work, doc, searchWords, DOC_ALIASES, isConfession, dedupe, DOC_NAMES, topicTerms, excluded, NAMESAKES, CREED_PAGE_TERMS };
+
+  return { html, resources, mount, mountAt, bind, safeUrl, monthYear, dateLine, excerpt, plain, pick, ALL_HREF };
 }));

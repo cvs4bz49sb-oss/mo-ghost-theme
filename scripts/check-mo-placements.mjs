@@ -10,7 +10,11 @@
  *   - every essay is on at least one page's index (an essay that no page can show is an ORPHAN and is listed with its kind)
  *   - no module is drawn empty: a page with no essays gets "" and a page with essays gets a list of the right length, a heading
  *     that names the subject, only https links that open in a new tab with rel=noopener, and no em dash, "undefined" or "null"
- *   - "Show all N" appears exactly when there are more rows than the page shows, and the panel never draws more than two
+ *   - "Show all N" appears exactly when a page sets a limit (the desks do; an author and a work show every essay), and the panel never draws more than two
+ *   - COVERAGE: every work the library can name that has at least one essay by ANY join (the work itself, the document it is, its author)
+ *     shows something; the public names (nicene-creed, heidelberg-catechism, westminster-confession) are documents; the count of works
+ *     with resources is printed before (the data's own work and document tie only) and after
+ *   - the author module is the last block of the room, and the work and rail modules are built from kinds of resource
  *   - the words around the rows never claim a position (no "teaches", "holds", "argues", "the library's position")
  *   - every key in the index resolves to a page that exists: a locus in loci.json, an author the author pages answer to, a
  *     document the placements know, a book the Verse Desk knows
@@ -32,6 +36,9 @@ const A = require(path.join(ROOT, "assets/js/lib/mo-articles.js")).create();
 A.use(data);
 const M = require(path.join(ROOT, "assets/js/lib/mo-articles-module.js"));
 const P = M.pick;
+const mapPath = path.join(ROOT, "assets/data/faith-received/mo-article-works.json");
+const workMap = fs.existsSync(mapPath) ? JSON.parse(fs.readFileSync(mapPath, "utf8")) : { authors: [], works: {} };
+const ctx = { author: (slug) => (workMap.works[slug] !== undefined ? workMap.authors[workMap.works[slug]] : "") };
 
 let failed = 0;
 const fail = (m) => { failed += 1; console.error(`FAIL  ${m}`); };
@@ -179,6 +186,56 @@ console.log(`namesake exclusions: ${JSON.stringify(P.excluded(A).map((e) => `${e
   console.log(`creed pages: Apostles' ${ap.length}, Nicene ${ni.length}, Chalcedon ${P.doc(A, ["cf-025-council-of-chalcedon-451"]).length}`);
 }
 
+// ── coverage: every work that has an essay by any join shows it ───────────────────────────────────────────────────────────
+{
+  const authorHas = (slug) => { const n = ctx.author(slug); return Boolean(n) && P.author(A, n).length > 0; };
+  const aliasSlugs = Object.keys(P.DOC_ALIASES);
+  const aliasHas = (slug) => { const al = P.DOC_ALIASES[slug]; const a = al && (al.same ? P.DOC_ALIASES[al.same] : al); return Boolean(a) && a.docs.some((d) => P.doc(A, d).length > 0); };
+  const universe = new Set([...Object.keys(data.idx.work), ...Object.keys(data.idx.doc), ...Object.keys(workMap.works), ...aliasSlugs]);
+  let before = 0;
+  let after = 0;
+  let viaAuthor = 0;
+  const empty = [];
+  for (const slug of universe) {
+    const had = (data.idx.work[slug] || []).length > 0 || P.doc(A, slug).length > 0;
+    const joinable = had || authorHas(slug) || aliasHas(slug);
+    const got = P.work(A, slug, ctx);
+    if (had) before += 1;
+    if (got.length) after += 1;
+    if (!had && got.length && authorHas(slug)) viaAuthor += 1;
+    if (joinable && !got.length) empty.push(slug);
+    got.forEach((a) => ok(Boolean(a.why) && !/undefined|null/.test(a.why), `work ${slug}: "${a.t}" has a plain-words reason`));
+    ok(new Set(ids(got)).size === got.length, `work ${slug}: no essay twice`);
+  }
+  ok(empty.length === 0, `every work with an essay by any join shows it; these would show nothing: ${empty.slice(0, 10).join(", ")}${empty.length > 10 ? ` (+${empty.length - 10})` : ""}`);
+  console.log(`coverage: works with resources before ${before}, after ${after} of ${universe.size} named by the data, the aliases or the work map (${viaAuthor} only through their author)`);
+  // public names and the group documents
+  const labelsOf = (slug) => [...new Set(P.work(A, slug, ctx).map((a) => a.why))];
+  for (const slug of ["nicene-creed", "apostles-creed", "heidelberg-catechism", "westminster-confession", "westminster-shorter-catechism", "belgic-confession", "augsburg-confession", "chalcedonian"]) {
+    const got = P.work(A, slug, ctx);
+    ok(got.length > 0, `${slug} shows essays (${got.length})`);
+    console.log(`  ${slug}: ${got.length} [${labelsOf(slug).join("; ")}]`);
+  }
+  {
+    const nic = P.work(A, "nicene-creed", ctx);
+    const anc = P.work(A, "cf-001-apostolic-and-ancient-creeds", ctx);
+    ok(anc.every((a) => nic.some((b) => b.id === a.id)) || anc.length === 0, "the Nicene Creed shows the ancient creeds' essays too");
+    ok(nic.some((a) => /^On the Nicene Creed$/.test(a.why)) && nic.some((a) => /^On the ancient creeds$/.test(a.why)), "the Nicene Creed names both: its own essays and the ancient creeds'");
+    const ni = P.work(A, "nicene-creed", ctx).findIndex((a) => a.why === "On the ancient creeds");
+    const own = P.work(A, "nicene-creed", ctx).map((a) => a.why).lastIndexOf("On the Nicene Creed");
+    ok(own < ni, "essays on the Nicene Creed itself come before those on the group");
+  }
+  {
+    // a confession with nothing of its own gets the essays on confessions in general, and says so
+    const got = P.work(A, "rc-001-sixty-seven-articles-of-huldrych-zwingli-1523", ctx);
+    ok(got.length > 0 && got.every((a) => a.why === "On creeds and confessions in general"), "a confession with no essay of its own shows the general ones, labelled");
+    ok(P.work(A, "not-a-work", ctx).length === 0, "a work nothing ties an essay to shows nothing");
+  }
+  // the sample the reader is most asked about, with what each shows
+  const sample = ["nicene-creed", "apostles-creed", "heidelberg-catechism", "westminster-confession", "pld-2722", "aq-st-i-16", "calvin-institutes-of-the-christian-religion", "pld-365"];
+  console.log(`  sample: ${sample.map((k) => `${k} ${P.work(A, k, ctx).length}`).join(", ")}`);
+}
+
 // ── the module, drawn ───────────────────────────────────────────────────────────────────────────────────────────────────
 ok(M.html([], { id: "e" }) === "", "no essays, no module");
 ok(M.html(null, { id: "e" }) === "", "no list, no module");
@@ -190,9 +247,10 @@ const keysToDraw = [["verse", verses], ["topic", topicKeys], ["author", authors]
 for (const [kind, list] of keysToDraw) {
   for (const key of list) {
     const items = kind === "verse" ? P.verse(A, ...[key.split(".")[0], Number(key.split(".")[1]), Number(key.split(".")[2])])
-      : kind === "topic" ? P.topic(A, key, [], termsOf(key)) : kind === "author" ? P.author(A, key) : kind === "work" ? P.work(A, key) : P.doc(A, key);
-    const limit = kind === "topic" || kind === "author" ? 5 : 3;
-    const out = M.html(items, { id: "m", limit, excerpt: kind !== "work", tag: "h2", title: kind === "author" ? `Mere Orthodoxy on ${key}` : "", context: kind === "verse" ? "on this passage" : "", note: "Essays that engage this. They do not speak for the library." });
+      : kind === "topic" ? P.topic(A, key, [], termsOf(key)) : kind === "author" ? P.author(A, key) : kind === "work" ? P.work(A, key, ctx) : P.doc(A, key);
+    // the desks keep their limits; an author, a work and a document show every essay
+    const limit = kind === "verse" ? 3 : kind === "topic" ? 6 : Infinity;
+    const out = M.html(items, { id: "m", limit: Number.isFinite(limit) ? limit : undefined, image: (a, w) => A.image(a, w), tag: "h2", title: kind === "author" ? `Mere Orthodoxy on ${key}` : "", context: kind === "verse" ? "on this passage" : "", note: "Essays that engage this. They do not speak for the library." });
     ok(Boolean(out) === items.length > 0, `${kind} ${key}: drawn exactly when there are essays`);
     if (!out) continue;
     // The words this module writes (label, note, buttons, links) are checked; an essay's own title and excerpt are the essay's words.
@@ -203,6 +261,9 @@ for (const [kind, list] of keysToDraw) {
     ok(rows === items.length, `${kind} ${key}: ${rows} rows for ${items.length} essays`);
     ok((out.match(/ hidden data-moa-extra/g) || []).length === Math.max(0, items.length - limit), `${kind} ${key}: rows past ${limit} wait behind "Show all"`);
     ok(/data-moa-more/.test(out) === items.length > limit, `${kind} ${key}: "Show all N" only when there is more`);
+    if (!Number.isFinite(limit)) ok(!/data-moa-more|moa-extra/.test(out), `${kind} ${key}: every essay is shown, no "Show all"`);
+    ok((out.match(/<img class="moa-photo"/g) || []).length + (out.match(/class="moa-ph"/g) || []).length === items.length, `${kind} ${key}: every card has its image or its tile`);
+    ok(!/<li class="moa-row"[^>]*>(?:(?!<\/li>)[^])*moa-why"><\/span>/.test(out), `${kind} ${key}: no empty why line`);
     if (items.length > limit) ok(out.includes(`Show all ${items.length}</button>`), `${kind} ${key}: "Show all ${items.length}" names the count`);
     ok(!/<li class="moa-row"[^>]*>\s*<\/li>/.test(out) && !/<ul class="moa-list"[^>]*><\/ul>/.test(out), `${kind} ${key}: no empty row or list`);
     ok([...out.matchAll(/<a class="moa-link" href="([^"]+)" target="_blank" rel="noopener">/g)].every((m) => /^https:\/\/mereorthodoxy\.com\//.test(m[1])), `${kind} ${key}: every link is the original, in a new tab, noopener`);

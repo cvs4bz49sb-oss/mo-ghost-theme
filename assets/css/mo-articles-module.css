@@ -1,22 +1,26 @@
 /* ═══════════════════════════════════════════════════════════════
-   "From Mere Orthodoxy" (2026-10-20): the one small module that lists Mere Orthodoxy essays on the pages they relate to.
+   "From Mere Orthodoxy" and "Resources on this work" (2026-10-20): the Mere Orthodoxy essays on the pages they relate to.
    Markup comes from assets/js/lib/mo-articles-module.js; every class is moa- so nothing here meets another sheet.
+
+   The look is the Topic Desk's and the Verse Desk's: an eyebrow over a serif section heading, a one-sentence intro, then a grid of cards
+   as the Resources page draws them (the essay's featured image with rounded corners, title, author and month, and the plain-words reason
+   it is here). Nothing is clipped; text wraps and the card grows. Every essay is drawn: no scroll box and no "Show more" on an author
+   or a work. The narrow rail and the verse panel take the compact variant (moa--rows): a small image beside the title.
 
    Colors are tokens only. On the Verse Desk and the Scripture pages the scope remaps --sd-ink, --sd-muted and --sd-accent for
    html[data-sd-theme="dark"], so this sheet states no light or dark literal (scripts/check-scripture-view.mjs scans it). The
-   Topics, author and work pages are light only and take the page's own tokens.
+   Topics, author and work pages take the page's own tokens; the reader's rail takes its light, dark and sepia ones.
 
-   Working surface: Source Serif (var(--font-body)), no display face. A small-caps label over a thin rule, plain rows, no pills, no
-   scroll box (the rest of the list opens in place), 44px rows on a phone, a visible focus ring.
+   Working surface: Source Serif (var(--font-body)), no display face. Hollow buttons, no pills, 44px targets, a visible focus ring.
    ═══════════════════════════════════════════════════════════════ */
-.moa-host { margin: 28px 0 0; }
+.moa-host { margin: 44px 0 0; }
 .container > .moa-host:first-child, .container-narrow > .moa-host:first-child { margin-top: 20px; }
 .moa {
   --moa-ink: var(--sd-ink, var(--color-dark));
   --moa-muted: var(--sd-muted, var(--color-muted));
   --moa-rule: var(--color-rule);
   --moa-accent: var(--sd-accent, var(--color-secondary));
-  margin: 0; padding: 14px 0 0; border-top: 1px solid var(--moa-rule);
+  margin: 0; padding: 36px 0 8px; border-top: 1px solid var(--moa-rule);
   font-family: var(--font-body); color: var(--moa-ink); text-align: left;
 }
 /* The reader's rail and the research rooms carry their own tokens (fr-reading-system.css), light, dark and sepia alike. */
@@ -24,41 +28,74 @@
   --moa-ink: var(--ink); --moa-muted: var(--muted); --moa-rule: var(--border); --moa-accent: var(--ink);
 }
 main.research .moa { --moa-accent: var(--color-secondary, var(--ink)); }
-.moa .moa-h {
-  margin: 0; font: 600 12px/1.4 var(--font-body); letter-spacing: 0.14em; text-transform: uppercase; color: var(--moa-muted);
-}
-.moa .moa-ctx { font-weight: 400; letter-spacing: 0.1em; }
-.moa .moa-note { margin: 6px 0 0; font-size: 13px; line-height: 1.5; color: var(--moa-muted); max-width: 62ch; }
-.moa .moa-list { list-style: none; margin: 6px 0 0; padding: 0; }
-.moa .moa-row { margin: 0; padding: 0; border-bottom: 1px solid var(--moa-rule); }
-.moa .moa-row:last-child { border-bottom: 0; }
+
+.moa .moa-head { margin: 0 0 22px; }
+.moa .moa-eyebrow { margin: 0 0 8px; font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: 0.16em; text-transform: uppercase; color: var(--moa-muted); }
+.moa .moa-h { margin: 0; font: 600 clamp(24px, 3vw, 30px)/1.15 var(--font-body); letter-spacing: -0.01em; color: var(--moa-ink); text-wrap: balance; }
+.moa .moa-ctx { font-weight: 400; color: var(--moa-muted); }
+.moa .moa-note { margin: 8px 0 0; max-width: 62ch; font-size: 16px; line-height: 1.55; color: var(--moa-muted); }
+
+/* A kind of resource (articles now, podcasts later) under "Resources on this work". */
+.moa .moa-kind + .moa-kind { margin-top: 38px; }
+.moa .moa-kh { margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--moa-rule); font: 600 20px/1.25 var(--font-body); color: var(--moa-ink); }
+.moa .moa-n { margin-left: 4px; font-size: 14px; font-weight: 400; color: var(--moa-muted); }
+
+/* Cards: three across, two on a tablet, one on a phone. */
+.moa .moa-list { list-style: none; margin: 0; padding: 0; }
+.moa--cards .moa-list { display: grid; align-items: start; gap: 30px 24px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 560px) { .moa--cards .moa-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 960px) { .moa--cards .moa-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.moa .moa-row { margin: 0; padding: 0; min-width: 0; }
 .moa .moa-row[hidden] { display: none; }
-.moa .moa-link {
-  display: block; padding: 11px 0; min-height: 44px; box-sizing: border-box;
-  font: 400 17px/1.4 var(--font-body); color: var(--moa-ink); text-decoration: underline; text-decoration-color: var(--moa-rule);
-  text-underline-offset: 3px; text-decoration-thickness: 1px;
+.moa .moa-link { display: block; min-height: 44px; box-sizing: border-box; color: var(--moa-ink); text-decoration: none; }
+.moa .moa-img { display: block; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 8px; background: color-mix(in srgb, var(--moa-rule) 45%, transparent); }
+.moa .moa-photo { display: block; width: 100%; height: 100%; object-fit: cover; }
+.moa .moa-ph {
+  display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; box-sizing: border-box; padding: 10px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; text-align: center; line-height: 1.4; color: var(--moa-muted);
 }
-.moa .moa-link:hover { color: var(--moa-accent); text-decoration-color: currentColor; }
-.moa .moa-meta, .moa .moa-x { display: block; margin: -7px 0 0; color: var(--moa-muted); font-size: 14px; line-height: 1.45; }
-.moa .moa-x { margin-top: 2px; max-width: 70ch; }
-.moa .moa-row > :last-child { margin-bottom: 12px; }
+.moa .moa-t { display: block; margin: 12px 0 4px; font: 600 18px/1.3 var(--font-body); overflow-wrap: anywhere; }
+.moa .moa-link:hover .moa-t { color: var(--moa-accent); text-decoration: underline; text-underline-offset: 3px; }
+/* Nothing on a card is clipped: the text wraps and the card grows. */
+.moa .moa-meta { display: block; font-size: 14px; line-height: 1.45; color: var(--moa-muted); }
+.moa .moa-why { display: block; margin-top: 4px; font-size: 14px; line-height: 1.45; color: var(--moa-ink); }
 .moa .moa-tag { font-style: normal; }
 .moa .moa-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.moa .moa-foot { display: flex; flex-wrap: wrap; align-items: center; column-gap: 24px; margin: 2px 0 0; }
-.moa .moa-more {
-  display: inline-flex; align-items: center; min-height: 44px; margin: 0; padding: 0; border: 0; border-radius: 0; background: none;
-  font: 400 15px/1.3 var(--font-body); color: var(--moa-accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+
+/* Compact rows (the rail, the verse panel): a small image beside the words. */
+.moa--rows { padding-top: 22px; }
+.moa--rows .moa-h { font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: 0.14em; text-transform: uppercase; color: var(--moa-muted); }
+.moa--rows .moa-head { margin-bottom: 8px; }
+.moa--rows .moa-note { font-size: 13px; line-height: 1.5; }
+.moa--rows .moa-kh { margin: 14px 0 4px; padding: 0; border: 0; font-size: 15px; }
+.moa--rows .moa-row { border-bottom: 1px solid var(--moa-rule); }
+.moa--rows .moa-row:last-child { border-bottom: 0; }
+.moa--rows .moa-link { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; }
+.moa--rows .moa-img { flex: 0 0 76px; width: 76px; border-radius: 6px; }
+.moa--rows .moa-txt { display: block; min-width: 0; flex: 1 1 auto; }
+.moa--rows .moa-t { margin: 0 0 2px; font-size: 15px; }
+.moa--rows .moa-meta, .moa--rows .moa-why { font-size: 13px; line-height: 1.4; }
+
+/* Hollow buttons (the site's button: off-black outline, 3px corners, sentence case). */
+.moa .moa-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 24px; margin: 14px 0 0; }
+.moa .moa-foot--end { margin-top: 30px; }
+.moa--rows .moa-foot--end { margin-top: 12px; }
+.moa .moa-btn, .moa .moa-more {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px; box-sizing: border-box; margin: 0; padding: 0 20px;
+  font: 400 15px/1.3 var(--font-body); color: var(--moa-ink); text-decoration: none; background: transparent;
+  border: 1px solid var(--moa-ink); border-radius: 3px; cursor: pointer;
 }
+.moa .moa-btn:hover, .moa .moa-more:hover { color: var(--moa-accent); border-color: var(--moa-accent); }
 .moa .moa-all {
   display: inline-flex; align-items: center; min-height: 44px; font: 400 15px/1.3 var(--font-body); color: var(--moa-muted);
   text-decoration: underline; text-underline-offset: 3px;
 }
 .moa .moa-all:hover { color: var(--moa-accent); }
-.moa .moa-link:focus-visible, .moa .moa-more:focus-visible, .moa .moa-all:focus-visible { outline: 2px solid var(--moa-accent); outline-offset: 2px; }
+.moa .moa-link:focus-visible, .moa .moa-more:focus-visible, .moa .moa-btn:focus-visible, .moa .moa-all:focus-visible { outline: 2px solid var(--moa-accent); outline-offset: 3px; }
 @media (max-width: 640px) {
-  .moa .moa-link { font-size: 16px; }
-  /* The excerpt is for a wide screen, where one line fits; on a phone the title, byline and date stand alone. */
-  .moa .moa-x { display: none; }
-  .moa .moa-meta { margin-bottom: 12px; }
+  .moa-host { margin-top: 34px; }
+  .moa { padding-top: 28px; }
+  .moa .moa-note { font-size: 15px; }
+  .moa .moa-t { font-size: 17px; }
 }
 @media print { .moa-host { display: none; } }
