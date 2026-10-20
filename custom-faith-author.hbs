@@ -10,6 +10,8 @@
      masthead's height as --mo-head, so anything fixed can sit under it.
      Same two jobs as on the ported reader; must load first. --}}
 <script src="{{asset "js/page/faith-port-read-boot.js"}}&amp;frv=b21c9bfa1961da14"></script>
+{{!-- Dark mode for the room: sets html[data-sd-theme] before paint, as the Scripture pages do (their saved choice, the reader's, or the system). --}}
+<script src="{{asset "js/page/scripture-view-boot.js"}}&amp;frv=b619c4b13b360add"></script>
 {{!-- Nothing in this port goes to Vercel Blob (owner 2026-09-10); any
      Blob address that arrives inside data is rebased onto the library
      worker at the fetch boundary. Before any module that can fetch. --}}
@@ -34,7 +36,7 @@
 <link rel="stylesheet" href="{{asset "css/faith-port-reader-skin.css"}}&amp;frv=aab6457ac750aa06">
 <link rel="stylesheet" href="{{asset "css/faith-port-surfaces.css"}}&amp;frv=7716b9cfac374a80">
 {{!-- The author room redesigned (hero, Read first, underlined tabs, even tiles; Mere Orthodoxy module stays last). Skin only, after the surfaces it overrides. --}}
-<link rel="stylesheet" href="{{asset "css/faith-author-redesign.css"}}&amp;frv=9b26cf3500b63b58">
+<link rel="stylesheet" href="{{asset "css/faith-author-redesign.css"}}&amp;frv=982f65a7e2a9b1be">
 <link rel="stylesheet" href="{{asset "css/mo-articles-module.css"}}&amp;frv=800f6abb7a47f7d6" />
 {{/contentFor}}
 
@@ -116,7 +118,7 @@
 {{!-- The shelf names the room prints, as the library prints them ("English writers"). --}}
 <script src="{{asset "js/page/faith-author-skin.js"}}&amp;frv=01718dbd635cb380"></script>
 {{!-- Opens the hero and adds the Century tile (faith-author-redesign.js). --}}
-<script src="{{asset "js/page/faith-author-redesign.js"}}&amp;frv=4fb2c7170e6534dd"></script>
+<script src="{{asset "js/page/faith-author-redesign.js"}}&amp;frv=289125d8b3c345e6"></script>
 {{!-- From Mere Orthodoxy: the essays that relate to this page (mo-articles-placements.js; draws nothing when there are none). --}}
 <script src="{{asset "js/lib/mo-articles-dv.js"}}"></script>
 <script src="{{asset "js/lib/mo-articles.js"}}"></script>
