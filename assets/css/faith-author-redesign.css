@@ -1,0 +1,379 @@
+/* ═══════════════════════════════════════════════════════════════
+   THE AUTHOR ROOM, REDESIGNED (Ian, 2026-10-20: "author pages need to
+   be redesigned to be as good as the topic, scripture, and guide
+   pages"). Skin only: the ported research engine (authors.in03.js) and
+   our wrappers (faith-author-*.js) keep every node, id and handler.
+   This sheet reorders and restyles what they draw, in the language the
+   Topic Desk and the Scripture pages use:
+
+   - a hero: terracotta eyebrow (shelf), the name, one dek line, the
+     numbers as tiles (works, pages, citations, century, tradition,
+     denomination) and the two room actions as hollow buttons;
+   - a "Read first" section (the library's notes) before the works;
+   - underlined tabs for Works, Positions, Scripture, Topics, Reception,
+     Connections, Search;
+   - works as even tiles with a terracotta top edge, titles never cut;
+   - "Mere Orthodoxy on <author>" LAST (order: 99). That module belongs
+     to mo-articles-module.* and is not styled here.
+
+   RULES THIS FILE KEEPS
+   - Source Serif throughout; no display face on a working surface.
+   - 3px corners, no pills. Square tabs with a 2px underline.
+   - No scroll box in the page. The phone tab strip is one line that
+     scrolls sideways with an edge fade, as the TFR rail does.
+   - Every rule is under one prefix (main:is(#page, #frAuthorOwn)
+     .research-room with a profile) so it covers the room and the page
+     of an author with no room, and outranks the id rules in
+     faith-site-theme.css and faith-port-surfaces.css.
+   ═══════════════════════════════════════════════════════════════ */
+
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) {
+  --ah-ink: var(--fg, #2d2927);
+  --ah-ink2: color-mix(in srgb, var(--ah-ink) 82%, transparent);
+  --ah-muted: var(--muted, #6b6660);
+  --ah-rule: var(--border, #d9c6a7);
+  --ah-rule2: color-mix(in srgb, var(--ah-rule) 60%, transparent);
+  --ah-card: var(--card, #fffdfa);
+  --ah-brand: var(--accent, #c1593c);
+  --ah-accent: #a9472c;
+  --ah-body: "Source Serif Pro", Georgia, serif;
+  display: flex;
+  flex-direction: column;
+}
+/* The site has no dark mode on this page today: faith-site-theme.css pins
+   the light tokens whatever the port's theme says. These are ready for
+   the day the Scripture pages' html[data-sd-theme="dark"] reaches it. */
+html:is([data-sd-theme="dark"], [data-theme="dark"]) main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) {
+  --ah-ink: var(--sd-dk-ink, #e9e9e5);
+  --ah-muted: var(--sd-dk-muted, #b0b0a8);
+  --ah-rule: var(--sd-dk-rule, #454740);
+  --ah-card: var(--sd-dk-card, #2b2c29);
+  --ah-accent: var(--sd-dk-accent, #e6a08b);
+}
+
+/* ── Order: hero, Read first, the room, then the Mere Orthodoxy module ── */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > * { order: 5; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .crumbs { order: 1; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .ridbar { order: 2; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .rx-profile,
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .rx-profile ~ .rx-note { order: 3; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > #rnNotes { order: 4; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .rgrid { order: 5; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .moa-host { order: 99; }
+
+/* ── Hero: eyebrow, name ─────────────────────────────────────── */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .crumbs {
+  margin: 0 0 14px;
+  font: 600 12px/1.4 var(--ah-body);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ah-muted);
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .crumbs a {
+  color: var(--ah-accent);
+  text-decoration: none;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .crumbs a:hover { text-decoration: underline; text-underline-offset: 3px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ridbar {
+  display: block;
+  border: 0;
+  padding: 0;
+  margin: 0 0 10px;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ridbar h1 {
+  margin: 0;
+  font: 600 clamp(38px, 5.4vw, 60px) / 1.08 var(--ah-body);
+  letter-spacing: -0.01em;
+  color: var(--ah-ink);
+  text-wrap: balance;
+}
+
+/* ── Hero body: dek, tiles, actions, biography ───────────────── */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile {
+  border: 0;
+  border-bottom: 1px solid var(--ah-rule);
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 36px;
+  margin: 0 0 44px;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile:has(+ .rx-note) {
+  border-bottom: 0;
+  padding-bottom: 14px;
+  margin-bottom: 0;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile + .rx-note {
+  max-width: none;
+  border: 0;
+  border-bottom: 1px solid var(--ah-rule);
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 30px;
+  margin: 0 0 44px;
+  font-size: 14px;
+  color: var(--ah-muted);
+}
+/* The port folds the profile on a phone ("About this author"). The hero
+   is the profile, so it stays open and the fold's label is not drawn. */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile > summary { display: none; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile .deck {
+  margin: 0 0 24px;
+  max-width: 44rem;
+  font: clamp(18px, 2vw, 21px) / 1.5 var(--ah-body);
+  color: var(--ah-ink2);
+  text-wrap: pretty;
+}
+
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-stats {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 0 0 18px;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-stat {
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--ah-rule);
+  border-radius: 3px;
+  background: var(--ah-card);
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-stat b {
+  font: 600 clamp(26px, 4vw, 32px) / 1 var(--ah-body);
+  color: var(--ah-accent);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-stat > span {
+  font: 600 12px/1.3 var(--ah-body);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ah-muted);
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) :is(.ar-stat--word, .ar-stat--century) b {
+  font: 600 20px / 1.25 var(--ah-body);
+  color: var(--ah-ink);
+  padding-top: 3px;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-stat--word b a { color: inherit; display: inline; min-height: 0; }
+
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-links {
+  gap: 10px 12px;
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 11px 20px;
+  border: 1px solid var(--ah-ink);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ah-ink);
+  font: 15px/1.2 var(--ah-body);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-links a:hover,
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-links a:focus-visible {
+  background: var(--ah-brand);
+  border-color: var(--ah-brand);
+  color: #fff;
+}
+
+/* The biography reads as the hero's last paragraph, open. */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile .rx-author-bio {
+  max-width: 46rem;
+  margin: 22px 0 0;
+  padding: 0;
+  border: 0;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile .rx-author-bio > summary {
+  min-height: 0;
+  padding: 0 0 8px 20px;
+  font: 600 12px/1.4 var(--ah-body);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ah-muted);
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile .rx-author-bio > p {
+  max-width: none;
+  margin: 0 0 12px;
+  font: 17px / 1.65 var(--ah-body);
+  color: var(--ah-ink2);
+  text-wrap: pretty;
+}
+
+/* ── Read first: the library's notes ─────────────────────────── */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes {
+  margin: 0 0 52px;
+  padding: 0;
+  border: 0;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-head {
+  align-items: end;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--ah-rule);
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-head h2 {
+  margin: 0 0 12px;
+  font: 600 12px/1.4 var(--ah-body);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ah-accent);
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-tabs button {
+  font-family: var(--ah-body);
+  border-bottom-width: 2px;
+  margin-bottom: -1px;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--ah-brand);
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-start { grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-start li {
+  padding: 16px 18px 14px;
+  border: 1px solid var(--ah-rule);
+  border-top: 3px solid var(--ah-brand);
+  border-radius: 3px;
+  background: var(--ah-card);
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-n {
+  background: var(--ah-brand);
+  color: #fff;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-note { margin-top: 12px; }
+
+/* ── The room: underlined tabs ───────────────────────────────── */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .pseg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  margin: 0 0 30px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--ah-rule);
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  position: static;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .pseg button {
+  flex: 0 0 auto;
+  min-height: 48px;
+  margin: 0 0 -1px;
+  padding: 12px 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ah-muted);
+  font: 16px/1.25 var(--ah-body);
+  white-space: nowrap;
+  grid-column: auto;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .pseg button:hover {
+  background: transparent;
+  color: var(--ah-ink);
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .pseg button.on,
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .pseg button.on:hover {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--ah-brand);
+  color: var(--ah-ink);
+  font-weight: 600;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .pseg button:focus-visible {
+  outline: 2px solid var(--ah-brand);
+  outline-offset: -4px;
+}
+
+/* A pane opens with the section's head, as a Topic Desk module does. */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #pbody h2,
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #frOwnBody h2 {
+  margin: 0 0 6px;
+  font: 600 clamp(24px, 3vw, 30px) / 1.15 var(--ah-body);
+  color: var(--ah-ink);
+  text-wrap: balance;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .pane-meta {
+  margin: 0 0 18px;
+  font: 16px / 1.5 var(--ah-body);
+  color: var(--ah-muted);
+}
+
+/* ── Works: even tiles, whole titles ─────────────────────────── */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-filters {
+  border-radius: 3px;
+  background: var(--ah-card);
+  border-color: var(--ah-rule);
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-work-list {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+  grid-auto-rows: 1fr;
+  gap: 16px;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-work-list > .rx-work-row {
+  border-color: var(--ah-rule);
+  border-top: 3px solid var(--ah-brand);
+  background: var(--ah-card);
+  min-width: 0;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-work-row h3 {
+  font: 600 19px / 1.3 var(--ah-body);
+  overflow: visible;
+  display: block;
+  -webkit-line-clamp: unset;
+  max-height: none;
+  overflow-wrap: break-word;
+}
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-work-row .rx-work-actions { border-top-color: var(--ah-rule2); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-more { border-top-color: var(--ah-rule); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-more-title {
+  font: 600 clamp(22px, 2.6vw, 26px) / 1.2 var(--ah-body);
+}
+
+@media (max-width: 900px) {
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile { margin-bottom: 36px; }
+}
+
+/* ── Phone ───────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ridbar h1 { font-size: clamp(34px, 10vw, 42px); }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile {
+    padding: 0 0 28px;
+    margin-bottom: 32px;
+  }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-stat { padding: 12px 13px 10px; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-stat b { font-size: 26px; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-stat:is(.ar-stat--word, .ar-stat--century) b { font-size: 16px; line-height: 1.3; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-stat > span { font-size: 11px; letter-spacing: 0.08em; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-links a { flex: 1 1 100%; justify-content: center; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-profile .rx-author-bio > p { font-size: 16px; }
+  /* One line of tabs that scrolls sideways, an edge fade on the right. */
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .pseg {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    margin-inline: -4px;
+    padding-inline: 4px 28px;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .pseg::-webkit-scrollbar { display: none; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .pseg button {
+    min-height: 48px;
+    padding: 12px 10px;
+    font-size: 15px;
+    grid-column: auto;
+  }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes { margin-bottom: 40px; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .rx-work-list > .rx-work-row { padding: 16px 16px 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ar-links a { transition: none; }
+}
