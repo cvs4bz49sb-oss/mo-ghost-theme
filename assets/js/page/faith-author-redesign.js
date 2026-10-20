@@ -276,8 +276,6 @@
     const paras = paragraphs(bioText);
     if (paras.length) {
       paras.forEach((t) => life.append(el("p", null, t)));
-    } else {
-      life.append(el("p", "ah-gap", "The library has no biography of this author yet. The facts here come from its own records: dates, shelf, works and citations."));
     }
     const card = el("aside", "ah-facts");
     card.setAttribute("aria-label", `Quick facts about ${name}`);
@@ -295,20 +293,23 @@
     fact(dl, "Tradition", tiles.Tradition);
     fact(dl, "Denomination", tiles.Denomination);
     fact(dl, "Order", tiles.Order);
+    fact(dl, "Church", tiles.Church);
     // The shelf only when it says something the church or order has not ("Latin Fathers" under "Latin Church" still does; "Lutheran" under "Lutheran" does not).
     const shelf = SHELF[ctx.sh];
-    const said = [tiles.Tradition, tiles.Denomination, tiles.Order].filter(Boolean).map(fold);
+    const said = [tiles.Tradition, tiles.Denomination, tiles.Order, tiles.Church].filter(Boolean).map(fold);
     if (shelf && !said.includes(fold(shelf))) fact(dl, "Library shelf", shelf);
     card.append(dl);
     // Bio first, then the card: the card is a sidebar beside the bio on a wide screen and follows it everywhere else (CSS grid areas).
     const mainCol = el("div", "ah-main");
-    mainCol.append(life);
+    if (paras.length) mainCol.append(life);
     if (years) {
       const tl = block("When");
       tl.append(eraStrip(name, years));
       mainCol.append(tl);
     }
-    grid.append(mainCol, card);
+    if (mainCol.children.length) grid.append(mainCol);
+    grid.append(card);
+    if (!mainCol.children.length) grid.classList.add("is-solo");
     sec.append(grid);
     sec.classList.add("ah-side");
     watchSide(sec, grid, mainCol, card);
@@ -452,6 +453,32 @@
     main.classList.add("ah-has-about");
   }
 
+  /* The page of an author with no research room (?a=<slug>, drawn by faith-author-page.js) gets the same About as a room:
+     Quick facts, the bio, the timeline, who they cite and who cites them. It is built from what that page already
+     drew (its numbers, its dates, its biography) and the citation graph; a part with no data is not drawn. */
+  function ownAbout(main, profile, name) {
+    const a = new URLSearchParams(location.search).get("a") || "";
+    const tag = `own:${a || fold(name)}`;
+    const tiles = tileMap(main);
+    const bioEl = profile.querySelector(".rx-author-bio");
+    const paras = bioEl ? Array.from(bioEl.querySelectorAll("p")).map((p) => p.textContent.trim()).filter(Boolean) : [];
+    const sig = JSON.stringify([tiles, paras.length]);
+    const about = main.querySelector(":scope > .ah-about");
+    if (about && about.dataset.key === tag && about.dataset.tiles === sig) return;
+    const state = ABOUT.get(tag);
+    const mount = (nb, m) => {
+      if (main.querySelector(":scope > .ah-about") && main.querySelector(":scope > .ah-about").dataset.tiles === sig) return;
+      mountAbout(main, tag, { room: {}, nb, notes: null, m, bioText: paras.join("\n"), bioSource: "the library's author records", sh: "", name, slug: a }, tiles, sig, profile);
+    };
+    if (state) { mount(state.nb, state.m); return; }
+    if (main.getAttribute("data-ah-loading") === tag) return;
+    main.setAttribute("data-ah-loading", tag);
+    Promise.all([a ? getJSON(`${BASE}/v1/graph/nb/${encodeURIComponent(a)}.json`) : null, manifestP()]).then(([nb, m]) => {
+      ABOUT.set(tag, { nb, m });
+      scan();
+    });
+  }
+
   function dress(main) {
     const h1 = main.querySelector(":scope > .ridbar h1");
     const profile = main.querySelector(":scope > .rx-profile");
@@ -511,6 +538,7 @@
         }
       }
     }
+    if (!isRoom) ownAbout(main, profile, name);
     const grid = main.querySelector(":scope > .rgrid");
     if (grid && !grid.id) grid.id = "ah-room";
     const moa = main.querySelector(":scope > .moa-host");

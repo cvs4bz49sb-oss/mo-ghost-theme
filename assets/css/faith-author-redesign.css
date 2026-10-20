@@ -47,9 +47,9 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > * { order: 7; gr
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .crumbs { order: 1; grid-column: 2; grid-row: 1; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .ridbar { order: 2; grid-column: 2; grid-row: 2; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .rx-profile { order: 3; grid-column: 2; grid-row: 3; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .ah-jump { order: 3; grid-column: 2; grid-row: 5; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .ah-jump { order: 3; grid-column: 1 / -1; grid-row: 5; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .rx-profile ~ .rx-note { order: 3; grid-column: 2; grid-row: 4; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .ah-portrait { order: 1; grid-column: 1; grid-row: 1 / span 5; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .ah-portrait { order: 1; grid-column: 1; grid-row: 1 / span 3; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .ah-portrait-slot { display: none; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .ah-about { order: 4; grid-row: 6; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .ah-about-more { order: 6; grid-row: 8; }
@@ -448,7 +448,7 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid { d
 @media (min-width: 981px) {
   main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid:not(.is-stacked) { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 0 48px; align-items: start; }
   main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid:not(.is-stacked) > .ah-main { grid-column: 1; grid-row: 1; min-width: 0; }
-  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid:not(.is-stacked) > .ah-facts { grid-column: 2; grid-row: 1; margin: 0; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid:not(.is-stacked) > .ah-facts { grid-column: 2; grid-row: 1; margin: 8px 0 0; }
   main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid.is-sticky > .ah-facts { position: sticky; top: calc(var(--mo-head, 85px) + 64px); }
 }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-life p { margin: 0 0 1.1em; max-width: 70ch; font: 18px / 1.7 var(--ah-body); color: var(--ah-ink2); text-wrap: pretty; }
@@ -536,3 +536,8 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-dup { display:
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .moa-eyebrow { display: none; }
 
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-main > .ah-block { margin-top: 28px; }
+
+/* Stacked (or alone, with no bio and no dates): the card is a compact strip of facts across the full width, not a tall column. */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid.is-stacked .ah-facts dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 28px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid.is-solo .ah-facts { margin-top: 0; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile).ah-has-about .rx-profile .stats { margin-bottom: 0; }
