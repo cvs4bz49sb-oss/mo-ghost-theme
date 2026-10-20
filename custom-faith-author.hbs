@@ -10,6 +10,8 @@
      masthead's height as --mo-head, so anything fixed can sit under it.
      Same two jobs as on the ported reader; must load first. --}}
 <script src="{{asset "js/page/faith-port-read-boot.js"}}&amp;frv=b21c9bfa1961da14"></script>
+{{!-- Dark mode for the room: sets html[data-sd-theme] before paint, as the Scripture pages do (their saved choice, the reader's, or the system). --}}
+<script src="{{asset "js/page/scripture-view-boot.js"}}&amp;frv=b619c4b13b360add"></script>
 {{!-- Nothing in this port goes to Vercel Blob (owner 2026-09-10); any
      Blob address that arrives inside data is rebased onto the library
      worker at the fetch boundary. Before any module that can fetch. --}}
@@ -33,7 +35,9 @@
      this page under our masthead. Keep both last. --}}
 <link rel="stylesheet" href="{{asset "css/faith-port-reader-skin.css"}}&amp;frv=aab6457ac750aa06">
 <link rel="stylesheet" href="{{asset "css/faith-port-surfaces.css"}}&amp;frv=7716b9cfac374a80">
-<link rel="stylesheet" href="{{asset "css/mo-articles-module.css"}}&amp;frv=2625886e3c465b55" />
+{{!-- The author room redesigned (hero, Read first, underlined tabs, even tiles; Mere Orthodoxy module stays last). Skin only, after the surfaces it overrides. --}}
+<link rel="stylesheet" href="{{asset "css/faith-author-redesign.css"}}&amp;frv=b1462dc8d34b7678">
+<link rel="stylesheet" href="{{asset "css/mo-articles-module.css"}}&amp;frv=800f6abb7a47f7d6" />
 {{/contentFor}}
 
 {{!-- /the-faith-received/author/ — every author's room, ported.
@@ -96,7 +100,7 @@
 {{!-- The work page (#w/<slug>) and the reader's Research rail share one section list (work-hub.js); source previews open
      the page window (page-window.js). --}}
 <link rel="stylesheet" href="{{asset "css/port/work-hub.css"}}&amp;frv=0e16be13e7b631b2"><script src="{{asset "js/port/work-hub.js"}}&amp;frv=128ff9f22f10bcf8"></script><script src="{{asset "js/port/page-window.js"}}&amp;frv=2023bacb69cf7ee4"></script><link rel="stylesheet" href="{{asset "css/port/work-research-sources.css"}}&amp;frv=756b652f362c6473"><script src="{{asset "js/port/work-research-sources.js"}}&amp;frv=b5f8364a7a2dc860"></script>
-<script src="{{asset "js/port/authors.in03.js"}}&amp;frv=fcffec47f76b7538"></script>
+<script src="{{asset "js/port/authors.in03.js"}}&amp;frv=3367f180dfd50567"></script>
 {{!-- Alphabetical lists (Ian, 2026-09-23): straight after the port, whose sort functions it wraps. --}}
 <script src="{{asset "js/page/faith-author-order.js"}}&amp;frv=e78ffcddf140a865"></script>
 {{!-- A shelf that showed 160 of its 508 authors with no way to the rest: adds "Show all N authors" and, at ?sh=<code>&all=1, the whole shelf on its own page. Must load AFTER authors.in03.js, which defines paneList. --}}
@@ -107,12 +111,14 @@
 <link rel="stylesheet" href="{{asset "css/port/library-notes.css"}}"><script defer src="{{asset "js/page/faith-port-room-notes.js"}}&amp;frv=1a1d50aa632b0508"></script>
 {{!-- The profile's numbers as stat boxes (Ian, 2026-09-23). After the port,
      whose .stats it regroups; see the file header. --}}
-<script src="{{asset "js/page/faith-author-stats.js"}}&amp;frv=023fb2a4e7d33606"></script>
+<script src="{{asset "js/page/faith-author-stats.js"}}&amp;frv=229c5ef220232847"></script>
 {{!-- Tradition and denomination or order for each author (Ian, 2026-09-23). After the stats boxes it writes into. --}}
 <script src="{{asset "js/page/faith-author-labels.js"}}&amp;frv=5565c38e13286806"></script>
 <script src="{{asset "js/page/faith-author-works.js"}}&amp;frv=2cf57d32ec916156"></script>
 {{!-- The shelf names the room prints, as the library prints them ("English writers"). --}}
 <script src="{{asset "js/page/faith-author-skin.js"}}&amp;frv=01718dbd635cb380"></script>
+{{!-- Opens the hero and adds the Century tile (faith-author-redesign.js). --}}
+<script src="{{asset "js/page/faith-author-redesign.js"}}&amp;frv=461a1871d6ff7b5e"></script>
 {{!-- From Mere Orthodoxy: the essays that relate to this page (mo-articles-placements.js; draws nothing when there are none). --}}
 <script src="{{asset "js/lib/mo-articles-dv.js"}}"></script>
 <script src="{{asset "js/lib/mo-articles.js"}}"></script>

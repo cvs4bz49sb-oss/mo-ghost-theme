@@ -245,6 +245,9 @@
     tabs.innerHTML = SITE.name === 'mo'
       ? '<button type="button" data-tab="c">Commentary</button><button type="button" data-tab="s">Citations</button><button type="button" data-tab="r">Reception</button>'
       : '<button type="button" data-tab="c">Commentary</button><button type="button" data-tab="r">Reception</button><button type="button" data-tab="s">Citations</button>';
+    // The Verse Desk, at the end of the tab row on Mere Orthodoxy's page (Ian, 2026-10-20: a button always there for opening it). The
+    // row is sticky, so it stays in reach as the page scrolls; head() points it at the verse the rail is on.
+    if (SITE.name === 'mo') tabs.insertAdjacentHTML('beforeend', '<a class="btn cp-desk" href="/the-faith-received/scripture/desk/">Verse Desk</a>');
     pane.prepend(tabs);
     layout.addEventListener('click', (e) => {
       const b = e.target.closest('.cp-tabs [data-tab]'); if (b) return setTab(b.dataset.tab);
@@ -311,6 +314,16 @@
     pane.querySelector('.cp-eyebrow').textContent = S.tab === 'r' ? 'Reception history' : (S.verse ? 'Commentary on this verse' : 'Commentary');
     const cb = pane.querySelector('.cp-close'); if (cb) cb.hidden = !w.v;
     pane.querySelector('.cp-ref').textContent = S.verse ? `${name} ${w.ch}:${S.verse}` : `${name} ${w.ch}`;
+    desk();
+  }
+  // every copy of the Verse Desk button (the rail's and the one cloned into the Citations panel) opens the verse the rail is on
+  function desk() {
+    const w = where(), M = window.MOScriptureDev;
+    if (!w || !w.bk || !M || !M.deskHref) return;
+    const v = S.verse || w.v || 1, sel = document.querySelector('[data-sd-translation]');
+    const t = (sel && sel.value) || new URLSearchParams(location.search).get('t') || '';
+    const href = M.deskHref(w.bk, w.ch, v, t), label = `Open the Verse Desk for ${w.name} ${w.ch}:${v}`;
+    document.querySelectorAll('.cp-tabs .cp-desk').forEach((a) => { a.href = href; a.setAttribute('aria-label', label); });
   }
   // a verse chosen from the rail: as if clicked in the text (the site's panel follows), brought to the reading line
   function select(v) {
@@ -844,10 +857,12 @@
     if (!side || !tabs || side.querySelector('.cp-tabs')) return;
     side.prepend(tabs.cloneNode(true));
     layout.querySelectorAll('.cp-tabs [data-tab]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.tab === S.tab)));
+    desk();
   }
 
   // the reader's script says when a verse is chosen or closed: Close shows only while one is, and a closed verse hands the rail
   // back to the reading line
+  document.addEventListener('change', (e) => { if (e.target.matches && e.target.matches('[data-sd-translation]')) desk(); });
   window.addEventListener('sd:verse', (e) => { if (!pane) return; if (!(e.detail && e.detail.v)) S.pin = false; head(); });
 
   let lastKey = '';

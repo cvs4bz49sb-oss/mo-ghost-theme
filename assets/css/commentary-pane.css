@@ -325,3 +325,28 @@ html.cp-site-mo body.cp-on .bible-verse[data-cp-heat] > sup { color: var(--cp-fa
 html.cp-site-mo body.cp-on .bible-verse[data-cp-heat="2"] > sup { color: var(--cp-muted); }
 html.cp-site-mo body.cp-on .bible-verse[data-cp-heat="3"] > sup { color: var(--cp-ink); }
 html.cp-site-mo body.cp-on .bible-verse[data-cp-heat="4"] > sup { color: var(--cp-ink); font-weight: 700; }
+
+/* ── The commentary fills the rail (Ian, 2026-10-20: "When I expand the commentary section, the text should expand to fill the space
+   as well") ── On Mere Orthodoxy's page the 68ch cap left the words and their tinted blocks in a 620px column inside a rail that runs
+   to 1,300px with Panel only. The paragraphs take the rail's width, and the type steps up as the rail widens so a wide line still
+   reads as a line. */
+html.cp-site-mo .cp-pane { container: cp-rail / inline-size; }
+html.cp-site-mo .cp-body p { max-width: none; }
+@container cp-rail (min-width: 800px) { html.cp-site-mo .cp-body { font-size: 17px; line-height: 1.66; } }
+@container cp-rail (min-width: 1040px) { html.cp-site-mo .cp-body { font-size: 18px; line-height: 1.7; } }
+@container cp-rail (min-width: 1200px) { html.cp-site-mo .cp-body { font-size: 20px; line-height: 1.75; } }
+
+/* ── The Verse Desk, always in reach (Ian, 2026-10-20) ── The last control in the tab row, a site button (.btn, hollow). The row
+   sticks under the masthead and the TFR rail while the rail scrolls, and its copy in the Citations panel sticks to the top of that
+   panel, so the Desk is one press away on every tab, at every verse, at any depth. */
+html.cp-site-mo .cp-tabs { align-items: center; }
+html.cp-site-mo .cp-pane > .cp-tabs { position: sticky; top: var(--sd-top, 0px); z-index: 2; margin: -18px -20px 16px; padding: 6px 20px 0; background: var(--cp-paper); transition: top 0.25s ease; }
+html.cp-site-mo .sd-side > .cp-tabs { position: sticky; top: 0; z-index: 2; background: var(--cp-paper); }
+html.cp-site-mo .cp-tabs .cp-desk { flex: none; min-height: 36px; margin: 0 0 6px 12px; padding: 6px 14px; font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { html.cp-site-mo .cp-pane > .cp-tabs { transition: none; } }
+@media (max-width: 899px) {
+  /* the phone's sheet: the row is already pinned to the top of the sheet, so only the button is fitted to it */
+  html.cp-site-mo .cp-pane > .cp-tabs { top: 0; margin: 0 -14px 6px; padding: 0 14px; }
+  html.cp-site-mo .cp-tabs button { min-height: 44px; padding: 4px 0; font-size: 14px; }
+  html.cp-site-mo .cp-tabs .cp-desk { min-height: 44px; margin: 0 0 0 8px; padding: 4px 9px; font-size: 13.5px; }
+}
