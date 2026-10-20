@@ -227,6 +227,38 @@
     return b;
   }
 
+  /* Quick facts is a sidebar from 981px up. It is sticky when it fits under the masthead and rail, and the row is
+     only kept two-column while the bio is within 64px of the sidebar's height; otherwise the card drops under the
+     bio, so no column ever leaves a hole. Measured with the stacked class off, in one frame, so nothing flickers. */
+  const wide = window.matchMedia("(min-width: 981px)");
+  function balance(sec, grid, life, card) {
+    if (!sec.isConnected) return;
+    grid.classList.remove("is-stacked", "is-sticky");
+    if (!wide.matches) return;
+    const mainH = life.offsetHeight;
+    const sideH = card.offsetHeight;
+    if (sideH - mainH > 64) { grid.classList.add("is-stacked"); return; }
+    const room = window.innerHeight - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--mo-head")) || 85) - 64 - 24;
+    if (sideH < room) grid.classList.add("is-sticky");
+  }
+  function watchSide(sec, grid, life, card) {
+    let queued = false;
+    const run = () => {
+      if (!sec.isConnected) {
+        window.removeEventListener("resize", run);
+        wide.removeEventListener("change", run);
+        return;
+      }
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; balance(sec, grid, life, card); });
+    };
+    if (window.ResizeObserver) new ResizeObserver(run).observe(life);
+    window.addEventListener("resize", run);
+    wide.addEventListener("change", run);
+    run();
+  }
+
   function buildAbout(main, ctx) {
     const { name, room, nb, notes, portrait, tiles, bioText, bioSource } = ctx;
     const sec = el("section", "ah-about");
@@ -234,14 +266,9 @@
     more.id = "ah-about-more";
     sec.id = "ah-about";
     sec.dataset.key = ctx.key;
-    sec.setAttribute("aria-labelledby", "ah-about-h");
-    const head = el("header", "ah-about-head");
-    head.append(el("p", "ah-eyebrow", "About"));
-    const h = el("h2", null, `About ${name}`);
-    h.id = "ah-about-h";
-    head.append(h);
-    sec.append(head);
+    sec.setAttribute("aria-label", `About ${name}`);
 
+    const { years } = ctx;
     const grid = el("div", "ah-about-grid");
     const life = el("div", "ah-life");
     const paras = paragraphs(bioText);
@@ -254,56 +281,47 @@
     card.setAttribute("aria-label", `Quick facts about ${name}`);
     card.append(el("h3", "ah-h3", "Quick facts"));
     const dl = el("dl");
-    const { years } = ctx;
-    fact(dl, "Lived", room.dates || (years ? `${years[0]}–${years[1]}` : ""));
-    fact(dl, "Century", tiles.Century);
+    // One place for every fact: the numbers and the identity words live here and nowhere else on the page. Dates and offices are
+    // already under the name (the dek), and the century is in the dates, so they are not repeated.
+    fact(dl, "Works", tiles.Works || (room.n_works ? num(room.n_works) : ""));
+    fact(dl, "Pages", tiles.Pages || (room.n_pages ? num(room.n_pages) : ""));
+    fact(dl, "Scripture citations", tiles["Scripture citations"] || (room.n_cit ? num(room.n_cit) : ""));
     fact(dl, "Tradition", tiles.Tradition);
     fact(dl, "Denomination", tiles.Denomination);
     fact(dl, "Order", tiles.Order);
-    fact(dl, "Offices and places", room.affiliation);
-    fact(dl, "Library shelf", SHELF[ctx.sh]);
-    fact(dl, "Works in the library", tiles.Works || (room.n_works ? num(room.n_works) : ""));
+    // The shelf only when it says something the church or order has not ("Latin Fathers" under "Latin Church" still does; "Lutheran" under "Lutheran" does not).
+    const shelf = SHELF[ctx.sh];
+    const said = [tiles.Tradition, tiles.Denomination, tiles.Order].filter(Boolean).map(fold);
+    if (shelf && !said.includes(fold(shelf))) fact(dl, "Library shelf", shelf);
     card.append(dl);
-    grid.append(card, life);
+    // Bio first, then the card: the card is a sidebar beside the bio on a wide screen and follows it everywhere else (CSS grid areas).
+    const mainCol = el("div", "ah-main");
+    mainCol.append(life);
+    if (years) {
+      const tl = block("When");
+      tl.append(eraStrip(name, years));
+      mainCol.append(tl);
+    }
+    grid.append(mainCol, card);
     sec.append(grid);
+    sec.classList.add("ah-side");
+    watchSide(sec, grid, mainCol, card);
 
-    // Why this author is in the library: counts and names only.
-    const why = block("In the library");
-    const facts = el("ul", "ah-why");
-    const works = tiles.Works || (room.n_works ? num(room.n_works) : "");
-    const pages = tiles.Pages || (room.n_pages ? num(room.n_pages) : "");
-    if (works) facts.append(el("li", null, `${works} ${works === "1" ? "work" : "works"} held${pages ? `, with ${pages} indexed pages` : ""}.`));
-    const cit = tiles["Scripture citations"] || (room.n_cit ? num(room.n_cit) : "");
-    const topBooks = (room.books || []).slice(0, 3).map((b) => BOOKS[b[0]] || b[0]);
-    if (cit) facts.append(el("li", null, `${cit} Scripture citations${topBooks.length ? `, most often ${topBooks.join(", ")}` : ""}.`));
     const by = (nb && nb.cited_by || []).filter((x) => x && x.a && x.w).sort((a, b) => b.w - a.w);
     const of = (nb && nb.cites || []).filter((x) => x && x.a && x.w).sort((a, b) => b.w - a.w);
-    if (by.length) facts.append(el("li", null, `Cited by ${num(by.length)} other authors in the library; ${by[0].a} most often.`));
-    if (of.length) facts.append(el("li", null, `Cites ${num(of.length)} other authors in the library; ${of[0].a} most often.`));
-    if (facts.children.length) {
-      why.append(facts);
-      more.append(why);
-    }
 
     /* The room's "From the library" module (Start reading, Controversies) is the key works. It is the engine's own block
        (faith-port-room-notes.js), drawn between this part of About and the rest, so there is no second list here. */
-    if (years) {
-      const tl = block("When", `${name} lived from ${years[0]} to ${years[1]}.`);
-      if (years[0] === years[1]) tl.querySelector(".ah-lede").textContent = `${name} is dated to around ${years[0]}.`;
-      tl.append(eraStrip(name, years));
-      more.append(tl);
-    }
-
     if (by.length || of.length) {
       const reception = el("div", "ah-two");
       const href = (r) => `/the-faith-received/author/?a=${encodeURIComponent(r.s || r.a)}`;
       if (of.length) {
-        const b = block("Cites most", `Authors ${name} cites most often in the library.`);
+        const b = block("Cites most");
         b.append(nameList(of, 8, href));
         reception.append(b);
       }
       if (by.length) {
-        const b = block("Cited by", `Authors who cite ${name} most often in the library.`);
+        const b = block("Cited by");
         b.append(nameList(by, 8, href));
         reception.append(b);
       }
@@ -312,7 +330,7 @@
 
     const related = ((notes && notes.compare) || []).filter((r) => r && r.with && r.with_room && !/^various authors$/i.test(r.with)).slice(0, 8);
     if (related.length) {
-      const b = block("Related authors", "Authors who share the most subjects with this one in the library.");
+      const b = block("Related authors", "Sharing the most subjects in the library.");
       const ul = el("ul", "ah-names ah-related");
       related.forEach((r) => {
         const li = el("li");
@@ -324,7 +342,7 @@
     }
 
     const src = el("p", "ah-sources");
-    src.append(`Biography: ${bioSource}. Counts and names come from the library's indexed pages.`);
+    src.append(`Biography: ${bioSource}.`);
     more.append(src);
     if (portrait && T) {
       const det = el("details", "ah-credits");
@@ -354,7 +372,7 @@
   }
 
   function jumpLine(main) {
-    const items = [["About", "#ah-about"], ["From the library", "#rnNotes"], ["The room", "#ah-room"], ["Mere Orthodoxy", "#ah-moa"]]
+    const items = [["About", "#ah-about"], ["Library", "#rnNotes"], ["The room", "#ah-room"], ["Essays", "#ah-moa"]]
       .filter(([, hash]) => main.querySelector(hash));
     const sig = items.map(([, h]) => h).join(",");
     let nav = main.querySelector(":scope > .ah-jump");
@@ -381,19 +399,31 @@
   }
 
   const THEME_KEY = "fr_sd_theme";
+  // The Scripture page's own toggle: same classes, same moon and sun paths (custom-scripture-dev.hbs), same behavior.
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const svg = (tag, attrs) => {
+    const n = document.createElementNS(SVGNS, tag);
+    Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v));
+    return n;
+  };
   function themeButton() {
     const html = document.documentElement;
-    const btn = el("button", "ah-theme");
+    const btn = el("button", "sd-theme-btn ah-theme");
     btn.type = "button";
-    const paint = () => {
-      const dark = html.getAttribute("data-sd-theme") === "dark";
-      btn.textContent = dark ? "Light mode" : "Dark mode";
-    };
+    btn.setAttribute("aria-label", "Dark mode");
+    btn.title = "Dark mode";
+    const ico = svg("svg", { class: "sd-ico", viewBox: "0 0 24 24", width: "20", height: "20", fill: "none", stroke: "currentColor", "stroke-width": "1.75", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true", focusable: "false" });
+    ico.append(svg("path", { class: "sd-ico-moon", d: "M20 14.2A8 8 0 1 1 9.8 4a6.4 6.4 0 0 0 10.2 10.2z" }));
+    const sun = svg("g", { class: "sd-ico-sun" });
+    sun.append(svg("circle", { cx: "12", cy: "12", r: "3.6" }), svg("path", { d: "M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" }));
+    ico.append(sun);
+    btn.append(ico);
+    const paint = () => btn.setAttribute("aria-pressed", String(html.getAttribute("data-sd-theme") === "dark"));
     btn.addEventListener("click", () => {
       const next = html.getAttribute("data-sd-theme") === "dark" ? "light" : "dark";
       html.setAttribute("data-sd-theme", next);
       try { localStorage.setItem(THEME_KEY, next); } catch (_) { /* storage blocked: the choice lasts for this page view */ }
-      document.querySelectorAll(".ah-theme").forEach((b) => { b.textContent = next === "dark" ? "Light mode" : "Dark mode"; });
+      document.querySelectorAll(".ah-theme").forEach((b) => b.setAttribute("aria-pressed", String(next === "dark")));
     });
     paint();
     return btn;
@@ -487,8 +517,17 @@
     }
   }
 
+  // A pane's heading that only repeats the tab above it ("Works" under "Works · 91") is dropped.
+  function dedupePane(main) {
+    const tab = main.querySelector(".pseg button.on");
+    if (!tab) return;
+    const label = tab.textContent.split(" \u00b7 ")[0].trim().toLowerCase();
+    main.querySelectorAll("#pbody h2, #frOwnBody h2").forEach((h) => h.classList.toggle("ah-dup", h.textContent.trim().toLowerCase() === label));
+  }
+
   function scan() {
     document.querySelectorAll("main.research-room > .rx-profile").forEach((profile) => {
+      dedupePane(profile.parentElement);
       openOnce(profile);
       openOnce(profile.querySelector(".rx-author-bio"));
       addCentury(profile);

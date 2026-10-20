@@ -411,34 +411,51 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump button:no
 }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump button:not(.ah-theme):hover { color: var(--ah-accent); text-decoration: underline; text-underline-offset: 4px; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
   margin-left: auto;
-  min-height: 44px;
-  padding: 0 16px;
+  padding: 0;
+  color: var(--ah-ink);
+  background: transparent;
   border: 1px solid var(--ah-ink);
   border-radius: 3px;
-  background: transparent;
-  color: var(--ah-ink);
-  font: 14px / 1.2 var(--ah-body);
   cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme:hover { background: var(--ah-accent); border-color: var(--ah-accent); color: #fff; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) :is(.ah-theme, .ah-jump button):focus-visible { outline: 2px solid var(--ah-accent); outline-offset: 3px; }
-@media (max-width: 640px) { main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump { gap: 0 16px; } main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme { margin-left: 0; } }
+/* The Scripture toggle is 32px with a 44px hit area; here the hit area is always 44px. */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme::before { content: ""; position: absolute; inset: -6px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme .sd-ico { display: block; width: 20px; height: 20px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme:hover { background: color-mix(in srgb, var(--ah-ink) 12%, transparent); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme[aria-pressed="true"] { background: var(--ah-ink); color: var(--ah-card); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme .sd-ico-sun { display: none; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme[aria-pressed="true"] .sd-ico-moon { display: none; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme[aria-pressed="true"] .sd-ico-sun { display: inline; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) :is(.ah-theme, .ah-jump button):focus-visible { outline: 2px solid var(--ah-accent); outline-offset: 2px; }
+@media (max-width: 640px) { main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump { flex-wrap: nowrap; gap: 0 14px; } main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump button:not(.ah-theme) { letter-spacing: 0.1em; font-size: 11.5px; white-space: nowrap; } }
 
 /* ═══ About ═════════════════════════════════════════════════════ */
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile).ah-has-about .rx-profile .rx-author-bio { display: none; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about { margin: 0 0 44px; padding: 0; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-more { margin: 0 0 56px; padding: 0 0 8px; border-bottom: 1px solid var(--ah-rule); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-more { margin: 0 0 24px; padding: 0; border-bottom: 1px solid var(--ah-rule); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-more > .ah-block:first-child { margin-top: 0; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-head { margin: 0 0 22px; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-eyebrow { margin: 0 0 8px; font: 600 12px / 1.4 var(--ah-body); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ah-accent); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about h2 { margin: 0; font: 600 clamp(24px, 3vw, 30px) / 1.15 var(--ah-body); color: var(--ah-ink); text-wrap: balance; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid { display: block; }
+@media (min-width: 981px) {
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid:not(.is-stacked) { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 0 48px; align-items: start; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid:not(.is-stacked) > .ah-main { grid-column: 1; grid-row: 1; min-width: 0; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid:not(.is-stacked) > .ah-facts { grid-column: 2; grid-row: 1; margin: 0; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid.is-sticky > .ah-facts { position: sticky; top: calc(var(--mo-head, 85px) + 64px); }
+}
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-life p { margin: 0 0 1.1em; max-width: 70ch; font: 18px / 1.7 var(--ah-body); color: var(--ah-ink2); text-wrap: pretty; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-life p.ah-gap { font-size: 16px; color: var(--ah-muted); }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts { margin: 0 0 30px; padding: 16px 20px 6px; border: 1px solid var(--ah-rule); border-top: 3px solid var(--ah-brand); border-radius: 3px; background: var(--ah-card); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts { margin: 28px 0 0; padding: 16px 20px 6px; border: 1px solid var(--ah-rule); border-top: 3px solid var(--ah-brand); border-radius: 3px; background: var(--ah-card); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-h3 { margin: 0 0 8px; font: 600 12px / 1.4 var(--ah-body); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ah-accent); }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 28px; margin: 0; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts dl { display: block; margin: 0; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-fact { min-width: 0; padding: 12px 0; border-top: 1px solid var(--ah-rule2); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts dt { margin: 0 0 3px; font: 600 12px / 1.3 var(--ah-body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ah-muted); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts dd { margin: 0; font: 16px / 1.45 var(--ah-body); color: var(--ah-ink); overflow-wrap: anywhere; }
@@ -505,7 +522,7 @@ html[data-sd-theme="dark"] main:is(#page, #frAuthorOwn).research-room:has(> .rx-
 }
 html[data-sd-theme="dark"] main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) :is(input, select, textarea)::placeholder { color: #b0b0a8; }
 /* Light accent fills in dark carry dark text (white on #e6a08b would fail AA). */
-html[data-sd-theme="dark"] main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) :is(.ar-links a:hover, .ar-links a:focus-visible, .ah-theme:hover, #rnNotes .rn-n) { color: #1d1e1b; }
+html[data-sd-theme="dark"] main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) :is(.ar-links a:hover, .ar-links a:focus-visible, #rnNotes .rn-n) { color: #1d1e1b; }
 
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credits { margin: 0 0 22px; max-width: 72ch; font: 14px / 1.5 var(--ah-body); color: var(--ah-muted); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credits summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
@@ -515,3 +532,10 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credits a { co
 /* "Library notes: machine-written..." is moved into the Methodology disclosure by the methodology PR (shared component not on main yet):
    hidden here, not deleted from faith-port-room-notes.js, so that PR can take the text over. */
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-note { display: none; }
+
+/* The sidebar owns the identity facts, so the hero keeps only the numbers once About is drawn. */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile).ah-has-about .rx-profile .ar-stats { display: none; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-dup { display: none; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .moa-eyebrow { display: none; }
+
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-main > .ah-block { margin-top: 28px; }
