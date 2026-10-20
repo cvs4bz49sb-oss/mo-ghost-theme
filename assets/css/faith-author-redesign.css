@@ -394,7 +394,7 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-portrait .tfr-
 }
 
 /* ═══ Jump line and theme button ════════════════════════════════ */
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 0 22px; margin: 18px 0 48px; padding: 0 0 18px; border-bottom: 1px solid var(--ah-rule); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 0 22px; margin: 18px 0 32px; padding: 0 0 18px; border-bottom: 1px solid var(--ah-rule); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump button:not(.ah-theme) {
   border: 0;
   background: transparent;

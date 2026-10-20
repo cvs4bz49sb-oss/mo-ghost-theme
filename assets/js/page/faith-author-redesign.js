@@ -50,6 +50,8 @@
   function addCentury(profile) {
     const grid = profile.querySelector(".ar-stats");
     if (!grid || grid.querySelector(".ar-stat--century")) return;
+    // The page of an author with no room draws its own Century tile.
+    if (Array.from(grid.querySelectorAll(".ar-stat > span")).some((x) => /^century$/i.test(x.textContent.trim()))) return;
     const deck = profile.querySelector(".deck");
     const label = centuryLabel(deck && deck.textContent);
     if (!label) return;
@@ -283,6 +285,10 @@
     const dl = el("dl");
     // One place for every fact: the numbers and the identity words live here and nowhere else on the page. Dates and offices are
     // already under the name (the dek), and the century is in the dates, so they are not repeated.
+    // Dates and offices are under the name; they come back here only for an author whose line under the name lacks them.
+    const deckFold = fold(ctx.deck);
+    if (room.dates && !deckFold.includes(fold(room.dates))) fact(dl, "Lived", room.dates);
+    if (room.affiliation && !deckFold.includes(fold(room.affiliation))) fact(dl, "Offices and places", room.affiliation);
     fact(dl, "Works", tiles.Works || (room.n_works ? num(room.n_works) : ""));
     fact(dl, "Pages", tiles.Pages || (room.n_pages ? num(room.n_pages) : ""));
     fact(dl, "Scripture citations", tiles["Scripture citations"] || (room.n_cit ? num(room.n_cit) : ""));
@@ -436,7 +442,7 @@
     const target = main.querySelector(":scope > #rnNotes") || main.querySelector(":scope > .rgrid") || main.querySelector(":scope > .moa-host");
     if (!target) return;
     const deck = profile.querySelector(".deck");
-    const { sec, more } = buildAbout(main, { name: d.name, key: tag, sh: d.sh, room: d.room, nb: d.nb, notes: d.notes, portrait: portraitFor(d.m, d.name, d.slug), tiles, bioText: d.bioText, bioSource: d.bioSource, years: lifeYears(deck && deck.textContent) });
+    const { sec, more } = buildAbout(main, { name: d.name, key: tag, sh: d.sh, room: d.room, nb: d.nb, notes: d.notes, portrait: portraitFor(d.m, d.name, d.slug), tiles, bioText: d.bioText, bioSource: d.bioSource, deck: deck ? deck.textContent : "", years: lifeYears(deck && deck.textContent) });
     sec.dataset.tiles = sig;
     if (prevMore) prevMore.remove();
     if (prev) prev.replaceWith(sec);
