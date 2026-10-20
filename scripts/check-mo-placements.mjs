@@ -248,8 +248,8 @@ for (const [kind, list] of keysToDraw) {
   for (const key of list) {
     const items = kind === "verse" ? P.verse(A, ...[key.split(".")[0], Number(key.split(".")[1]), Number(key.split(".")[2])])
       : kind === "topic" ? P.topic(A, key, [], termsOf(key)) : kind === "author" ? P.author(A, key) : kind === "work" ? P.work(A, key, ctx) : P.doc(A, key);
-    // the desks keep their limits; an author, a work and a document show every essay
-    const limit = kind === "verse" ? 3 : kind === "topic" ? 6 : Infinity;
+    // every page shows every essay it is given: no "Show all", no cap (the verse panel is the one exception, below)
+    const limit = Infinity;
     const out = M.html(items, { id: "m", limit: Number.isFinite(limit) ? limit : undefined, image: (a, w) => A.image(a, w), tag: "h2", title: kind === "author" ? `Mere Orthodoxy on ${key}` : "", context: kind === "verse" ? "on this passage" : "", note: "Essays that engage this. They do not speak for the library." });
     ok(Boolean(out) === items.length > 0, `${kind} ${key}: drawn exactly when there are essays`);
     if (!out) continue;
@@ -272,6 +272,28 @@ for (const [kind, list] of keysToDraw) {
     rowsChecked += rows;
   }
 }
+// the optional limit still folds the rest in place, for a caller that asks for it
+{
+  const items = P.author(A, "Augustine of Hippo");
+  const out = M.html(items, { id: "l", limit: 3, tag: "h2" });
+  ok(out.includes(`Show all ${items.length}</button>`) && (out.match(/ hidden data-moa-extra/g) || []).length === items.length - 3, "a caller that sets a limit gets Show all N and the rest hidden in place");
+}
+// cards carry a dek only when it is a complete sentence; nothing is cut with an ellipsis
+{
+  let deks = 0;
+  for (const a of raw) {
+    const out = M.html([a], { id: "d", tag: "h2" });
+    const m = /<span class="moa-x">([^<]*)<\/span>/.exec(out);
+    if (!m) continue;
+    deks += 1;
+    m[1] = m[1].replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+    ok(/[.!?]["\u201d\u2019']?$/.test(m[1]) && !/\u2026|\.\.\./.test(m[1]), `"${a.t}": the dek is a whole sentence of the excerpt: ${m[1]}`);
+    ok(!/\u2026/.test(out.replace(/<[^>]+>/g, " ")), `"${a.t}": no ellipsis in the drawn card`);
+  }
+  console.log(`deks: ${deks} of ${raw.length} essays have a complete first sentence to show`);
+  const rows = M.html([raw[0]], { id: "r", variant: "rows", tag: "h3" });
+  ok(!/moa-x/.test(rows), "the compact rows carry no dek");
+}
 // the narrow panel: two links, never more, and the rest through the Verse Desk
 {
   const items = P.verse(A, "genesis", 1, 1);
@@ -290,6 +312,8 @@ const css = fs.readFileSync(path.join(ROOT, "assets/css/mo-articles-module.css")
 ok(!/#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/.test(css), "the module's sheet states no literal color");
 ok(!/IM Fell|font-variant:\s*small-caps|border-radius:\s*(9|[1-9]\d)/.test(css), "no display face and no pill in the module's sheet");
 ok(!/max-height|overflow(-y)?:\s*(auto|scroll)/.test(css), "no scroll box in the module's sheet");
+ok(/@container moa \(min-width: 800px\)[^}]*repeat\(3,/.test(css) && /@container moa \(min-width: 520px\)[^}]*repeat\(2,/.test(css), "three across at desk width, two on a tablet, one on a phone (by the width of the place)");
+ok(/ok/.test("ok") && /\.moa-btn[^{]*\{[^}]*border: 1px solid/.test(css) && !/\.moa-btn[^{]*\{[^}]*background: var/.test(css), "the foot button is hollow");
 ok(/min-height:\s*44px/.test(css) && /:focus-visible/.test(css), "44px targets and a visible focus ring");
 for (const f of ["assets/js/lib/mo-articles-module.js", "assets/js/page/mo-articles-placements.js"]) {
   const src = fs.readFileSync(path.join(ROOT, f), "utf8");

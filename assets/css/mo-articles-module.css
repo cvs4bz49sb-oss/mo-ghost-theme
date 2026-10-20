@@ -13,7 +13,7 @@
 
    Working surface: Source Serif (var(--font-body)), no display face. Hollow buttons, no pills, 44px targets, a visible focus ring.
    ═══════════════════════════════════════════════════════════════ */
-.moa-host { margin: 44px 0 0; }
+.moa-host { margin: 44px 0 0; container: moa / inline-size; }
 .container > .moa-host:first-child, .container-narrow > .moa-host:first-child { margin-top: 20px; }
 .moa {
   --moa-ink: var(--sd-ink, var(--color-dark));
@@ -43,8 +43,9 @@ main.research .moa { --moa-accent: var(--color-secondary, var(--ink)); }
 /* Cards: three across, two on a tablet, one on a phone. */
 .moa .moa-list { list-style: none; margin: 0; padding: 0; }
 .moa--cards .moa-list { display: grid; align-items: start; gap: 30px 24px; grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 560px) { .moa--cards .moa-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 960px) { .moa--cards .moa-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* By the width of the place it sits in (a desk is narrower than the window), not the window's. */
+@container moa (min-width: 520px) { .moa--cards .moa-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container moa (min-width: 800px) { .moa--cards .moa-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .moa .moa-row { margin: 0; padding: 0; min-width: 0; }
 .moa .moa-row[hidden] { display: none; }
 .moa .moa-link { display: block; min-height: 44px; box-sizing: border-box; color: var(--moa-ink); text-decoration: none; }
@@ -59,7 +60,7 @@ main.research .moa { --moa-accent: var(--color-secondary, var(--ink)); }
 /* Nothing on a card is clipped: the text wraps and the card grows. */
 .moa .moa-meta { display: block; font-size: 14px; line-height: 1.45; color: var(--moa-muted); }
 .moa .moa-why { display: block; margin-top: 4px; font-size: 14px; line-height: 1.45; color: var(--moa-ink); }
-.moa .moa-tag { font-style: normal; }
+.moa .moa-x { display: block; margin-top: 6px; font-size: 14px; line-height: 1.5; color: var(--moa-muted); }
 .moa .moa-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Compact rows (the rail, the verse panel): a small image beside the words. */

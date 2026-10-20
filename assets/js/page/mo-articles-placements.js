@@ -119,7 +119,7 @@
         // Right after the translations: the desk's modules below run 12,000px on a wide screen, and an essay list after them is never found.
         const after = $desk.querySelector('[aria-labelledby="sd-h-trans"]') || $desk.querySelector('[data-vd="modules"]');
         if (after) after.after(host); else $desk.append(host);
-      }, items, { id: "moa-verse", context: "on this passage", limit: 3, image: imageOf, tag: "h2", note: NOTE }));
+      }, items, { id: "moa-verse", title: "On this passage", image: imageOf, tag: "h2", note: NOTE }));
     }).catch(() => false);
   }
 
@@ -133,7 +133,7 @@
       return Boolean(MOD.mountAt((el) => {
         const about = host.querySelector("#tdk-chron");
         if (about) about.after(el); else host.append(el);
-      }, items, { id: "moa-topic", context: "", limit: 6, image: imageOf, tag: "h3", note: NOTE }));
+      }, items, { id: "moa-topic", title: "On this topic", image: imageOf, tag: "h3", note: NOTE }));
     }).catch(() => false);
   }
 

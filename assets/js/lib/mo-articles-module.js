@@ -9,9 +9,13 @@
  * TRUST. Every row is "an essay that engages this": a title, an author and a date, a link to the original, and (where there
  * is room) the short excerpt. The words around the rows never say the essay states the library's position or an author's.
  *
- * DESIGN. A small-caps label over a thin rule; rows of title, then "Author, Month Year" muted; "Show all N" is a plain
- * underlined text button that opens the rest in place (never a scroll box); "All Mere Orthodoxy articles" at the foot.
- * No pills, no display face, 44px rows on a phone, colors are tokens only (assets/css/mo-articles-module.css).
+ * DESIGN. The Topic Desk's and Verse Desk's language: an eyebrow ("From Mere Orthodoxy") over a serif section heading, a one-sentence
+ * intro, then a grid of cards (the essay's featured image with rounded corners, title, author and month, the plain-words why line, and a
+ * dek only when the excerpt holds a complete sentence). Three across at desk width, two on a tablet, one on a phone, by the width of the
+ * place it sits in. Every essay is drawn: nothing is truncated and there is no "Show all" unless a caller sets a limit. A hollow
+ * "All Mere Orthodoxy articles" button ends it. The narrow rail and verse panel take the compact rows with a small image.
+ * Podcast episodes are the same shape (the placements merge them in) and read "Podcast, <show>" in the author line.
+ * No pills, no display face, colors are tokens only (assets/css/mo-articles-module.css).
  *
  * Pure parts (html, dateLine, safeUrl) take plain data, so scripts/check-mo-placements.mjs runs them without a DOM.
  */
@@ -74,22 +78,34 @@
   const whyOf = (a) => plain(a.why || a.y || FALLBACK_WHY[a.k] || "");
   const onSite = (p) => (typeof p === "string" && /^\/[^/\\]/.test(p) ? p : "");
 
+  // A short dek, only where the essay's own excerpt holds a COMPLETE first sentence (the data's excerpts are cut at 240 characters with an
+  // ellipsis; a cut sentence is never shown). "" when there is none.
+  function dek(a) {
+    const x = plain(a.x);
+    const m = /^(.{40,190}?[.!?])(?:["\u201d\u2019']?)(?:\s|$)/.exec(x);
+    if (!m || /(?:\b(?:St|Dr|Mr|Mrs|Ms|Fr|Rev|Jr|Sr|vs|No|cf|ca|c)|\b[A-Z])\.$/.test(m[1]) || /\u2026|\.\.\./.test(m[1])) return "";
+    return m[0].trim();
+  }
+  const sentence = (t) => { const s = plain(t); return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; };
+
   function row(a, i, o, limit) {
     const meta = dateLine(a);
-    const note = a.note ? `<span class="moa-tag">${esc(plain(a.note))}</span>` : "";
+    const note = "";
     const sized = typeof o.image === "function" && !a.img;
     const src = a.img || (sized ? o.image(a, o.variant === "rows" ? 300 : 600) : "");
     const src2 = sized && src ? o.image(a, o.variant === "rows" ? 600 : 1000) : "";
     const alt = a.ia ? esc(plain(a.ia)) : "";
     const img = safeUrl(src)
       ? `<span class="moa-img"><img class="moa-photo" src="${esc(safeUrl(src))}"${safeUrl(src2) ? ` srcset="${esc(safeUrl(src))} 1x, ${esc(safeUrl(src2))} 2x"` : ""} width="600" height="400" alt="${alt}" loading="lazy" decoding="async"></span>`
-      : `<span class="moa-img" aria-hidden="true"><span class="moa-ph">${esc(KIND_NAME[a.k] || "")}</span></span>`;
-    const why = whyOf(a);
+      : `<span class="moa-img" aria-hidden="true"><span class="moa-ph">${esc(a.s ? "Podcast" : KIND_NAME[a.k] || "")}</span></span>`;
+    // A page-specific reason ("on this chapter", "on the Westminster Confession") is the why line; else the essay's own.
+    const why = a.note ? sentence(a.note) : whyOf(a);
+    const d = o.variant === "rows" || o.dek === false ? "" : dek(a);
     return `<li class="moa-row"${i >= limit ? " hidden data-moa-extra" : ""}>` +
       `<a class="moa-link" href="${esc(safeUrl(a.u))}" target="_blank" rel="noopener">${img}<span class="moa-txt">` +
       `<span class="moa-t">${esc(plain(a.t))}</span><span class="moa-sr"> (Mere Orthodoxy, opens in a new tab)</span>` +
       `${meta || note ? `<span class="moa-meta">${esc(meta)}${meta && note ? " · " : ""}${note}</span>` : ""}` +
-      `${why ? `<span class="moa-why">${esc(why)}</span>` : ""}</span></a></li>`;
+      `${why ? `<span class="moa-why">${esc(why)}</span>` : ""}${d ? `<span class="moa-x">${esc(d)}</span>` : ""}</span></a></li>`;
   }
 
   // groups: [{ id, label, items }]. A group with a label draws it as a sub-heading (resources); the lone unlabelled group is the plain module.
@@ -109,7 +125,7 @@
     let total = 0;
     let shown = 0;
     const lists = cleaned.map((g, gi) => {
-      let rows = g.rows;
+      let { rows } = g;
       total += rows.length;
       // cap: a hard ceiling (a narrow panel shows two and no more); the rest are reached through moreHref, not drawn.
       if (o.cap && rows.length > o.cap) rows = rows.slice(0, Math.max(1, Number(o.cap)));
@@ -183,6 +199,8 @@
      Pure functions over MOArticles (mo-articles.js), so scripts/check-mo-placements.mjs runs them on the real data. Each returns
      entries ready for html(): the article itself, or a copy carrying a short `note` where the reason is not the page's own subject.
      Nothing is dropped: every article that the data ties to a verse, topic, author, work or document is returned for that page. */
+  const fold0 = (s) => String(s == null ? "" : s).normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  function withWhy(a, why) { return { ...a, why }; }
   const withNote = (a, note) => (note ? { ...a, note } : a);
   const dedupe = (lists) => {
     const seen = new Set();
@@ -280,7 +298,15 @@
     return dedupe([own, viaDocs]);
   }
 
-  const author = (A, name) => A.forAuthor(name).filter((a) => !namesake(name, a));
+  /* An author's essays, most about the author first (the data's own order). The why line is the essay's own when it names the author;
+     an essay filed under two authors would otherwise say "Engages John Calvin" on Luther's page. */
+  const author = (A, name) => {
+    const bits = fold0(name).split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !["hippo", "alexandria", "canterbury", "clairvaux"].includes(w));
+    return A.forAuthor(name).filter((a) => !namesake(name, a)).map((a) => {
+      const y = fold0(a.y || "");
+      return withWhy(a, a.y && bits.some((b) => y.includes(b)) ? a.y : `Engages ${name}`);
+    });
+  };
 
   /* Creed documents: an essay is on the creed only when it says so (a creed word in its title, keywords or excerpt). The Apostles'
      Creed page and the Nicene page share a document, so each takes its own words. */
@@ -346,8 +372,6 @@
   const aliasOf = (key) => { let a = DOC_ALIASES[key]; if (a && a.same) a = DOC_ALIASES[a.same]; return a || null; };
   // A confession, creed or council in the library's confessions catalogue (rc-, cf-, lc-) or one of the aliased short names.
   const isConfession = (key) => /^(?:cf|rc|lc)-\d+-/.test(key) || Boolean(aliasOf(key));
-  const withWhy = (a, why) => ({ ...a, why });
-
   function work(A, slug, ctx) {
     const s = String(slug || "").trim();
     const key = /^\d+$/.test(s) ? `pld-${s}` : s;
