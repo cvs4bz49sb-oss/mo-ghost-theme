@@ -311,6 +311,70 @@ test("a query is fast", () => {
   assert.ok((Date.now() - t0) / 20 < 30, "over 30 ms per query");
 });
 
+// ── the podcast episodes ──
+const podText = readFileSync(path.join(root, "assets/data/faith-received/mo-podcasts.json"), "utf8");
+const pods = JSON.parse(podText);
+const podIndexText = readFileSync(path.join(root, "assets/data/faith-received/mo-podcasts-index.json"), "utf8");
+const podIndex = JSON.parse(podIndexText);
+const PM = MOArticles.create();
+PM.use(pods);
+PM.useIndex(podIndex);
+const podById = new Map(pods.articles.map((a) => [a.id, a]));
+const SHOWS = ["passages", "mere-fidelity", "christians-reading-classics"];
+
+test("podcasts: every Passages episode is present, and each entry is attributed with an episode page and an image", () => {
+  assert.equal(pods.articles.filter((a) => a.s === "passages").length, 13);
+  assert.equal(podById.size, pods.articles.length);
+  for (const a of pods.articles) {
+    assert.ok(SHOWS.includes(a.s), a.id);
+    assert.ok(a.t && a.a && /^\d{4}-\d{2}-\d{2}$/.test(a.d), a.id);
+    assert.match(a.u, /^https:\/\/mereorthodoxy\.com\/[^\s]+$/, a.id);
+    assert.ok(!/\.mp3|buzzsprout\.com\/.*\/episodes|libsyn\.com\/.*\.mp3/.test(a.u), `${a.id} links the audio`);
+    assert.match(a.i, /^https:\/\/(storage\.buzzsprout\.com|static\.libsyn\.com)\//, a.id);
+    assert.ok(a.x.length <= 241 && a.w.length <= 12, a.id);
+    assert.ok(["doc", "work", "retrieval", "topic"].includes(a.k) && PM.kindsOf(a)[0] === a.k, a.id);
+  }
+});
+test("podcasts: the show counts and the stamp", () => {
+  const n = (k) => pods.articles.filter((a) => a.s === k).length;
+  assert.ok(n("mere-fidelity") >= 50 && n("christians-reading-classics") >= 3, `${n("mere-fidelity")} and ${n("christians-reading-classics")}`);
+  assert.ok(Buffer.byteLength(podText) < 120 * 1024);
+  const stamp = readFileSync(path.join(root, "assets/js/lib/mo-podcasts-dv.js"), "utf8");
+  assert.ok(stamp.includes(`MO_PODCASTS_DV = "${pods.dv}"`) && stamp.includes(`MO_PODCASTS_INDEX_DV = "${podIndex.dv}"`));
+  assert.deepEqual(podIndex.ids, pods.articles.map((a) => a.id));
+});
+test("podcasts: the index agrees with the entries and every entity resolves", () => {
+  for (const [table, key] of Object.entries({ work: "works", author: "authors", doc: "docs", topic: "topics" })) {
+    for (const [k, list] of Object.entries(pods.idx[table])) for (const id of list) assert.ok((podById.get(id)[key] || []).includes(k), `${table} ${k} lists ${id}`);
+    for (const a of pods.articles) for (const k of a[key] || []) assert.ok(pods.idx[table][k].includes(a.id), `${a.id} ${table} ${k}`);
+  }
+  for (const a of pods.articles) for (const s of a.works || []) assert.ok(pods.lab.works[s], s);
+});
+test("podcasts: nicene creed finds Passages, confessions finds the Reading Club, and searching shows is safe", () => {
+  const r = PM.search("nicene creed");
+  assert.ok(r.filter((a) => a.s === "passages").length >= 8, r.map((a) => a.t).slice(0, 5).join(" | "));
+  assert.ok(PM.search("confessions augustine").filter((a) => /Confessions/.test(a.t)).length >= 10);
+  assert.ok(PM.search("heidelberg").length >= 1);
+  for (const q of ["", "a", "of", "\"", "zzzqqq"]) assert.doesNotThrow(() => PM.search(q), q);
+});
+test("podcasts: no Martin Luther King episode is tagged Martin Luther; no loose topic in a why line", () => {
+  for (const id of pods.idx.author["Martin Luther"] || []) assert.ok(!/king/i.test(podById.get(id).t), podById.get(id).t);
+  for (const a of pods.articles) assert.ok(!a.y || a.y.split("; ").length <= 2, `${a.t}: ${a.y}`);
+});
+
+test("podcasts: the placement functions place episodes on work, author, document and topic pages", () => {
+  const MOD = require(path.join(root, "assets/js/lib/mo-articles-module.js"));
+  const P = MOD.pick;
+  assert.ok(P.work(PM, "pld-2722").length >= 10, "Confessions reading club");
+  assert.ok(P.author(PM, "Augustine of Hippo").length >= 10);
+  assert.ok(P.doc(PM, "cf-001-apostolic-and-ancient-creeds").filter((a) => a.s === "passages").length >= 5);
+  const loci = JSON.parse(readFileSync(path.join(root, "assets/data/faith-received/loci.json"), "utf8"));
+  let trin = null;
+  (function walk(x) { if (Array.isArray(x)) x.forEach(walk); else if (x && typeof x === "object") { if (x.id === "de-trinitate" && x.label) trin = x; else Object.values(x).forEach(walk); } }(loci));
+  const t = P.topic(PM, "de-trinitate", [], P.topicTerms(trin));
+  assert.ok(t.length >= 1 && t.every((a) => (a.topics || []).includes("de-trinitate") || a.s === "passages"), t.map((a) => a.t).join(" | "));
+  assert.ok(P.author(PM, "Martin Luther").every((a) => !/king/i.test(a.t)));
+});
 async function asyncTest() {
   const seen = [];
   const warns = [];
@@ -330,30 +394,33 @@ async function asyncTest() {
 // ── 3. the Resources page ──
 const pageJs = read("assets/js/page/faith-resources.js");
 
-test("every id the page script looks up is in the template", () => {
-  const wanted = new Set([...pageJs.matchAll(/\$\("([A-Za-z]+)"\)/g)].map((m) => m[1]));
-  assert.ok(wanted.size >= 10, `found only ${wanted.size} ids`);
-  for (const id of wanted) {
-    if (id === "resRetry") continue; // written by the script itself, beside the failed-load message
-    assert.ok(new RegExp(`id="${id}"`).test(tpl), `#${id} is not in custom-faith-resources.hbs`);
+test("every id the page script looks up is in the template, for both panels", () => {
+  const names = new Set([...pageJs.matchAll(/ids\("([A-Za-z]+)"\)/g)].map((m) => m[1]));
+  assert.ok(names.size >= 9, `found only ${names.size} ids`);
+  for (const prefix of ["res", "pod"]) for (const n of names) assert.ok(new RegExp(`id="${prefix}${n}"`).test(tpl), `#${prefix}${n} is not in custom-faith-resources.hbs`);
+});
+test("one real tablist with the Articles and Podcasts tabs, each with its panel", () => {
+  assert.equal((tpl.match(/role="tablist"/g) || []).length, 1);
+  assert.equal((tpl.match(/role="tab"/g) || []).length, 2);
+  for (const k of ["articles", "podcasts"]) {
+    assert.match(tpl, new RegExp(`role="tab"[^>]*aria-controls="res-panel-${k}"`));
+    assert.match(tpl, new RegExp(`role="tabpanel"[^>]*id="res-panel-${k}"[^>]*aria-labelledby="res-tab-${k}"`));
+  }
+  assert.match(tpl, /data-k="articles"[^>]*>Articles</);
+  assert.match(tpl, /data-k="podcasts"[^>]*>Podcasts</);
+  assert.match(tpl, /id="res-panel-podcasts"[^>]*hidden/);
+});
+test("each search box is a labelled type=search with a clear button and a live count", () => {
+  for (const p of ["res", "pod"]) {
+    assert.match(tpl, new RegExp(`<label[^>]*for="${p}Query"`));
+    assert.match(tpl, new RegExp(`<input type="search" id="${p}Query"`));
+    assert.match(tpl, new RegExp(`id="${p}Clear"`));
+    assert.match(tpl, new RegExp(`id="${p}Count" role="status" aria-live="polite"`));
   }
 });
-test("one real tablist whose only tab today is Articles, with its panel", () => {
-  assert.equal((tpl.match(/role="tablist"/g) || []).length, 1);
-  assert.equal((tpl.match(/role="tab"/g) || []).length, 1);
-  assert.match(tpl, /role="tab"[^>]*aria-controls="res-panel-articles"/);
-  assert.match(tpl, /role="tabpanel"[^>]*id="res-panel-articles"[^>]*aria-labelledby="res-tab-articles"/);
-  assert.match(tpl, /data-k="articles"[^>]*>Articles</);
-});
-test("the search box is a labelled type=search with a clear button", () => {
-  assert.match(tpl, /<label[^>]*for="resQuery"/);
-  assert.match(tpl, /<input type="search" id="resQuery"/);
-  assert.match(tpl, /id="resClear"/);
-  assert.match(tpl, /id="resCount" role="status" aria-live="polite"/);
-});
 test("scripts load in dependency order and the page has no inline script", () => {
-  const order = ["js/lib/mo-articles.js", "js/page/scripture-dev-core.js", "js/page/faith-resources.js"].map((f) => tpl.lastIndexOf(f));
-  assert.ok(order.every((i) => i > 0) && order[0] < order[1] && order[1] < order[2], order.join(","));
+  const order = ["js/lib/mo-podcasts-dv.js", "js/lib/mo-articles.js", "js/page/scripture-dev-core.js", "js/page/faith-resources.js"].map((f) => tpl.lastIndexOf(f));
+  assert.ok(order.every((i) => i > 0) && order[0] < order[1] && order[1] < order[2] && order[2] < order[3], order.join(","));
   assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(tpl), "inline script");
   assert.ok(!/ on[a-z]+="/i.test(tpl), "inline handler");
 });

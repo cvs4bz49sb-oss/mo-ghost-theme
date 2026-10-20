@@ -1,0 +1,3809 @@
+{
+ "v": 1,
+ "generated": "2026-10-20",
+ "note": "Input to scripts/build-mo-podcasts.mjs, prepared by scripts/prep-mo-podcasts-input.mjs from the Mere Fidelity, Christians Reading Classics and Passages feeds. Only a 240-character excerpt of the show notes and 12 keywords are kept per episode. `note` is show-note text for the search index and is not published.",
+ "worksIndexGenerated": "2026-09-27T11:25:03",
+ "workTitles": {
+  "pld-2755": "The City of God",
+  "aq-st-ii-ii-19": "Summa of Theology, Part II-II, Questions 1–91 (Summa Theologica II-II, q. 1-91)",
+  "aq-st-ii-ii-20": "Summa of Theology, Part II-II, Questions 92–189 (Summa Theologica II-II, q. 92-189)",
+  "aq-st-i-ii-17": "Summa of Theology, Part I-II, Questions 1–70 (Summa Theologica I-II, q. 1-70)",
+  "aq-st-iii-21": "Summa of Theology, Part III, Questions 1–59 (Summa Theologiae III, q. 1-59)",
+  "aq-st-i-16": "Summa of Theology, Part I, Questions 50–119 (Summa Theologiae I, q. 50-119)",
+  "aq-st-iiisup-23": "Summa of Theology, Supplement, Questions 1–68 (Supplementum, q. 1-68)",
+  "pld-2722": "Confessions",
+  "pld-2772": "On Faith, Hope, and Charity"
+ },
+ "docLabels": {
+  "x:vatican-ii": "Second Vatican Council (1962–1965)",
+  "x:bcp": "Book of Common Prayer",
+  "cf-001-apostolic-and-ancient-creeds": "Apostles’, Nicene and ancient creeds",
+  "rc-111-westminster-confession-of-faith-1646": "Westminster Confession Of Faith",
+  "umb:ecumenical-councils": "The ecumenical councils (umbrella)",
+  "cf-025-council-of-chalcedon-451": "Council Of Chalcedon",
+  "cf-015-council-of-constantinople-i-381": "Council of Constantinople I (381)",
+  "cf-023-council-of-ephesus-431": "Council Of Ephesus",
+  "cf-013-council-of-nicea-i-325": "Council of Nicaea I (325)",
+  "rc-115-westminster-shorter-catechism-1647": "Westminster Shorter Catechism",
+  "rc-061-heidelberg-catechism-1563": "Heidelberg Catechism"
+ },
+ "authorWorks": {
+  "Augustine of Hippo": 143,
+  "John Calvin": 48,
+  "Martin Luther": 90,
+  "Boethius": 21,
+  "Thomas Aquinas": 146,
+  "John Wesley": 33,
+  "Gregory of Nyssa": 83,
+  "Basil the Great": 100,
+  "Gregory of Nazianzus": 74,
+  "Athanasius of Alexandria": 94,
+  "Tertullian": 31
+ },
+ "episodes": [
+  {
+   "id": "mf-19702000",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Postliberal Theology, Explained",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19702000",
+   "date": "2026-08-26",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "29",
+   "season": "3",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "x:vatican-ii"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Second Vatican Council (1962–1965) mentioned 3x",
+   "about": [],
+   "excerpt": "Derek, James, Brad, and Alastair discuss the major and minor figures of the very influential Yale School in post-liberal theology. These are the voices that called for the church to speak in its native language and not to accommodate to the…",
+   "keywords": [
+    "hunsinger",
+    "lindbeck",
+    "coulter",
+    "yale",
+    "radner",
+    "dale",
+    "mangina",
+    "fry",
+    "propositional",
+    "jewishness",
+    "marching",
+    "chicago"
+   ],
+   "note": "Postliberal Theology, Explained Derek, James, Brad, and Alastair discuss the major and minor figures of the very influential Yale School in post-liberal theology. These are the voices that called for the church to speak in its native language and not to accommodate to the culture. Is their influence over, or does their voice yet speak? "
+  },
+  {
+   "id": "crc-19563706",
+   "show": "christians-reading-classics",
+   "showName": "Christians Reading Classics",
+   "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
+   "url": "https://mereorthodoxy.com/podcasts/christians-reading-classics/#ep-19563706",
+   "date": "2026-07-29",
+   "host": "Nadya Williams",
+   "image": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "showImage": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "episode": "26",
+   "season": "2",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2772"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo in the title; 34 mentions; Enchiridion (Augustine of Hippo) in the title 1x",
+   "about": [
+    "author:Augustine of Hippo",
+    "work:pld-2772"
+   ],
+   "excerpt": "A pastor asks Augustine for a short summary of the Christian life, and Augustine delivers a compact handbook that is so honest it practically stops mid-sprint when it reaches love. That tension, between real-life limits and real spiritual…",
+   "keywords": [
+    "fortitude",
+    "readily",
+    "manichaeans",
+    "handbook",
+    "midwestern",
+    "cardinal",
+    "earnest",
+    "prudence",
+    "affection",
+    "underneath"
+   ],
+   "note": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery A pastor asks Augustine for a short summary of the Christian life, and Augustine delivers a compact handbook that is so honest it practically stops mid-sprint when it reaches love. That tension, between real-life limits and real spiritual depth, is where our conversation lives today. We are joined by Joseph Lanier and Travis Montgomery, co-authors of *Every Perfect Gift: Classical Virtues for Christian Formation*, to explore why Augustine still trains our instincts for discipleship, moral theology, and spiritual formation. "
+  },
+  {
+   "id": "crc-19250148",
+   "show": "christians-reading-classics",
+   "showName": "Christians Reading Classics",
+   "title": "Augustine's Confessions with Joey Sherrard",
+   "url": "https://mereorthodoxy.com/podcasts/christians-reading-classics/#ep-19250148",
+   "date": "2026-05-28",
+   "host": "Nadya Williams",
+   "image": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "showImage": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "episode": "17",
+   "season": "2",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722",
+    "pld-2755"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo in the title; 104 mentions; Confessions (Augustine of Hippo) in the title 4x; The City of God (Augustine of Hippo) cited 4x",
+   "about": [
+    "author:Augustine of Hippo",
+    "work:pld-2722"
+   ],
+   "excerpt": "We sit with Augustine’s Confessions and feel how a 1,600-year-old prayer still names our restlessness with uncomfortable accuracy. We talk with pastor and author Joey Sherrard about reading Confessions as praise and truth-telling, and about…",
+   "keywords": [
+    "africa",
+    "brown"
+   ],
+   "note": "Augustine's Confessions with Joey Sherrard We sit with Augustine’s Confessions and feel how a 1,600-year-old prayer still names our restlessness with uncomfortable accuracy. We talk with pastor and author Joey Sherrard about reading Confessions as praise and truth-telling, and about remembering Augustine as a working pastor rather than a distant genius. — "
+  },
+  {
+   "id": "mf-19242937",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Idolatry And The Shape Of Worship",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19242937",
+   "date": "2026-05-27",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "18",
+   "season": "3",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-religione"
+   ],
+   "retrieval": false,
+   "reason": "topic Religion and True Worship in title/heading, 74 term hits",
+   "about": [
+    "topic:de-religione"
+   ],
+   "excerpt": "Idolatry is one of those Bible words that can feel obvious until you try to use it carefully. We live far from Baal temples, yet we still talk about idols constantly and sometimes we label everything as an idol until the word loses its…",
+   "keywords": [
+    "worshipper",
+    "idol",
+    "monotheism",
+    "calf",
+    "deity",
+    "disordered",
+    "idols",
+    "abram",
+    "idle",
+    "uniqueness",
+    "affections",
+    "realms"
+   ],
+   "note": "Idolatry And The Shape Of Worship Idolatry is one of those Bible words that can feel obvious until you try to use it carefully. We live far from Baal temples, yet we still talk about idols constantly and sometimes we label everything as an idol until the word loses its bite. Derek and Alastair slow down and rebuild the category from the ground up, starting where Scripture starts: the Ten Commandments, the golden calf, and the question of what it means to worship the true God rather than a controllable substitute. — "
+  },
+  {
+   "id": "crc-19211012",
+   "show": "christians-reading-classics",
+   "showName": "Christians Reading Classics",
+   "title": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw",
+   "url": "https://mereorthodoxy.com/podcasts/christians-reading-classics/#ep-19211012",
+   "date": "2026-05-21",
+   "host": "Nadya Williams",
+   "image": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "showImage": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "episode": "16",
+   "season": "2",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 16 mentions",
+   "about": [],
+   "excerpt": "Cassiodorus is the kind of historical figure who should be famous and somehow isn’t: a high-level Roman statesman who walks away from power and spends his later life trying to save Christian learning from collapse. That turn gives us one of…",
+   "keywords": [
+    "boethius",
+    "shelves",
+    "handbook",
+    "quirky",
+    "educate",
+    "moms",
+    "arts",
+    "recommended",
+    "italy",
+    "fish"
+   ],
+   "note": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw Cassiodorus is the kind of historical figure who should be famous and somehow isn’t: a high-level Roman statesman who walks away from power and spends his later life trying to save Christian learning from collapse. That turn gives us one of the most unusual education texts in the Western tradition, Institutions of Divine and Secular Learning, a “book about books” written to stand in for teachers when war makes schools impossible. Nadya Williams talks with Joshua Kinlaw and Joe Griffith about what makes a book a classic, why classical education keeps resurfacing, and how the trivium and quadrivium were shaped in late antiquity. "
+  },
+  {
+   "id": "mf-19198401",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Virtues For Living Well with Dr. Alan Noble",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198401",
+   "date": "2026-05-06",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "16",
+   "season": "3",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-virtutibus"
+   ],
+   "retrieval": false,
+   "reason": "topic Virtues and Moral Theology 17 term hits",
+   "about": [
+    "topic:de-virtutibus"
+   ],
+   "excerpt": "What does it mean to live well in morally incoherent times? Alan Noble joins the show to discuss his new book To Live Well: Practical Wisdom for Moving Through Chaotic Times , which uses the four cardinal virtues and three theological…",
+   "keywords": [
+    "fortitude",
+    "virtuously",
+    "courageously",
+    "creations",
+    "fallacy",
+    "sunk",
+    "cardinal",
+    "temperance",
+    "olds",
+    "diagnosis",
+    "courage",
+    "opponents"
+   ],
+   "note": "Virtues For Living Well with Dr. Alan Noble What does it mean to live well in morally incoherent times? Alan Noble joins the show to discuss his new book To Live Well: Practical Wisdom for Moving Through Chaotic Times , which uses the four cardinal virtues and three theological virtues as a framework for navigating choice paralysis, the loneliness epidemic, and contemporary anxiety. The conversation covers why courage and temperance feel especially urgent today, the difficulty of writing on justice, hoping all things for political opponents, the sunk cost fallacy in vocational discernment, and why friendship requires intentional cultivation. Grace, not optimization, grounds the virtuous life. Hosted by Derek Rishmawy, Alastair Roberts, and James Wood. — Get the Spiritual Formation for the Family ebook for free at http://mereorthodoxy.com/family . "
+  },
+  {
+   "id": "mf-19198402",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "On Paul and The Law",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198402",
+   "date": "2026-04-30",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "15",
+   "season": "1",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "x:bcp"
+   ],
+   "verses": [],
+   "topics": [
+    "de-libertate-christiana"
+   ],
+   "retrieval": false,
+   "reason": "Book of Common Prayer mentioned 3x; topic Christian Liberty 13 term hits; topic Baptism 8 term hits",
+   "about": [],
+   "excerpt": "Was the Apostle Paul Torah-observant — not just before the Damascus road, but throughout his apostleship to the nations? Brad East stakes out a thesis drawn from Messianic Judaism and the Paul Within Judaism school: that Acts 21 should be…",
+   "keywords": [
+    "adiaphora",
+    "circumcise",
+    "gentile",
+    "diaspora",
+    "customs",
+    "observance",
+    "messianic",
+    "observant",
+    "circumcision",
+    "intermarry",
+    "gentiles",
+    "tyson"
+   ],
+   "note": "On Paul and The Law Was the Apostle Paul Torah-observant — not just before the Damascus road, but throughout his apostleship to the nations? Brad East stakes out a thesis drawn from Messianic Judaism and the Paul Within Judaism school: that Acts 21 should be read straight, that James is telling the truth about Paul, and that Genesis 12 and 17 still bind Jewish believers. Derek Rishmawy and Alastair Roberts push back hard, working through Galatians 2, 1 Corinthians 9, and the question of whether the law's force after Christ is divine command or Hookerian adiaphora — with the future of Jewish identity in the church in view. — Get the free ebook Spiritual Formation for the Family at http://mereorthodoxy.com/family . "
+  },
+  {
+   "id": "crc-19203977",
+   "show": "christians-reading-classics",
+   "showName": "Christians Reading Classics",
+   "title": "Thomas Aquinas For Protestants with Miles Smith",
+   "url": "https://mereorthodoxy.com/podcasts/christians-reading-classics/#ep-19203977",
+   "date": "2026-04-23",
+   "host": "Nadya Williams",
+   "image": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "showImage": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "episode": "12",
+   "season": "2",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "Thomas Aquinas"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Thomas Aquinas in the title; 56 mentions",
+   "about": [
+    "author:Thomas Aquinas"
+   ],
+   "excerpt": "Can a Protestant read Thomas Aquinas's Summa Theologiae without converting to Catholicism? Nadya Williams welcomes Miles Smith IV (Hillsdale College) to take up the question currently churning on social media. Miles argues yes — and that…",
+   "keywords": [
+    "summa",
+    "dante",
+    "plague",
+    "intellectuals",
+    "italy"
+   ],
+   "note": "Thomas Aquinas For Protestants with Miles Smith Can a Protestant read Thomas Aquinas's Summa Theologiae without converting to Catholicism? Nadya Williams welcomes Miles Smith IV (Hillsdale College) to take up the question currently churning on social media. Miles argues yes — and that the more interesting question lies upstream: what do Christians do with Aristotle? Along the way, they consider the Summa's 13th-century context, its reception alongside Dante and through the Black Death, the Socratic shape of Aquinas's method, and why certain books (the Summa, Willa Cather's My Ántonia , Lewis's Till We Have Faces ) break us open while others simply don't. — "
+  },
+  {
+   "id": "mf-19198405",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The Fall Before The Fall with Philip G. Porter",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198405",
+   "date": "2026-03-25",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "10",
+   "season": "3",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 18 mentions; Thomas Aquinas 8 mentions; topic Angels 46 term hits; topic The Person and Work of Christ 13 term hits",
+   "about": [],
+   "excerpt": "What if death's presence in the cosmos is not native to creation but a wound running all the way down to its foundations, inflicted before Adam ever reached for the fruit? Philip Porter joins Derek Rishmawy, Alastair Roberts, and Brad East…",
+   "keywords": [
+    "angelic",
+    "mccabe",
+    "kelsey",
+    "griffiths",
+    "envy",
+    "gabriel",
+    "phil",
+    "lucifer",
+    "cosmos",
+    "felix",
+    "unnatural",
+    "hardened"
+   ],
+   "note": "The Fall Before The Fall with Philip G. Porter What if death's presence in the cosmos is not native to creation but a wound running all the way down to its foundations, inflicted before Adam ever reached for the fruit? Philip Porter joins Derek Rishmawy, Alastair Roberts, and Brad East to discuss his new book, which retrieves Augustine, Aquinas, Milton, and Tolkien to argue that the angelic fall precedes and precipitates every other form of evil, and that contemporary theology has been too quick to make peace with death. —— Hosts: Derek Rishmawy, Alastair Roberts, Brad East Guest: Philip Porter, assistant professor of theology at Saint Louis University (Madrid) and author of Unnatural Death: Creation, Sin, and the Angelic Fall . He completed his doctoral work under Paul Griffiths at Duke Divinity School. —— Get the free ebook Spiritual Formation for the Family at http://mereorthodoxy.com/family . "
+  },
+  {
+   "id": "mf-19198407",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Delighting In The Ten Commandments",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198407",
+   "date": "2026-03-11",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "8",
+   "season": "3",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-lege"
+   ],
+   "retrieval": false,
+   "reason": "topic The Law in title/heading, 33 term hits",
+   "about": [
+    "topic:de-lege"
+   ],
+   "excerpt": "Derek Rishmawy and Alastair Roberts explore the Ten Commandments — their structure, their two tables, the bookending parallel between the first and tenth commandments, and how the law is always oriented toward delight rather than mere…",
+   "keywords": [
+    "coveting",
+    "ceremonial",
+    "covet",
+    "commandment",
+    "tenth",
+    "instrument",
+    "twenty",
+    "assault",
+    "tables",
+    "testify",
+    "liberating",
+    "sixth"
+   ],
+   "note": "Delighting In The Ten Commandments Derek Rishmawy and Alastair Roberts explore the Ten Commandments — their structure, their two tables, the bookending parallel between the first and tenth commandments, and how the law is always oriented toward delight rather than mere prohibition. The law shapes the Christian life, testifies to Christ, and reflects the character of God. — Get the free ebook, Spiritual Formation for the Family , at http://mereorthodoxy.com/family . "
+  },
+  {
+   "id": "mf-19198413",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "A Generous Ecclesiology with Myles Werntz",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198413",
+   "date": "2026-01-28",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "2",
+   "season": "3",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds",
+    "x:vatican-ii"
+   ],
+   "verses": [],
+   "topics": [
+    "de-ecclesia"
+   ],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT 5x; Second Vatican Council (1962–1965) ABOUT 2x; topic The Church in title/heading, 18 term hits",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds",
+    "doc:x:vatican-ii",
+    "topic:de-ecclesia"
+   ],
+   "excerpt": "Hosts Derek Rishmawy and Brad East are joined by Myles Werntz to discuss his Christianity Today Award of Merit-winning book, Contesting the Body of Christ: Ecclesiology's Revolutionary Century . Rather than systematic argument, Werntz uses…",
+   "keywords": [
+    "contesting",
+    "contestation",
+    "benitarian",
+    "apostolicity",
+    "barton",
+    "seatbelt",
+    "pneumatological",
+    "tanner",
+    "ecumenical",
+    "merit",
+    "nazis",
+    "miles"
+   ],
+   "note": "A Generous Ecclesiology with Myles Werntz Hosts Derek Rishmawy and Brad East are joined by Myles Werntz to discuss his Christianity Today Award of Merit-winning book, Contesting the Body of Christ: Ecclesiology's Revolutionary Century . Rather than systematic argument, Werntz uses narrative case studies examining how diverse Christian communities—from African Pentecostals to Korean Presbyterians—have embodied and contested the classical marks of the church. His starting premise: assume the Holy Spirit is at work in churches confessing Christ, then investigate what's happening. The conversation tackles tough questions about theological boundaries, ecumenical charity, and faithful disagreement when salvation is at stake. — "
+  },
+  {
+   "id": "crc-19203991",
+   "show": "christians-reading-classics",
+   "showName": "Christians Reading Classics",
+   "title": "C.S. Lewis - The Great Divorce with Dr. Leslie Baynes",
+   "url": "https://mereorthodoxy.com/podcasts/christians-reading-classics/#ep-19203991",
+   "date": "2025-10-16",
+   "host": "Nadya Williams",
+   "image": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "showImage": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "episode": "14",
+   "season": "1",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-praedestinatione"
+   ],
+   "retrieval": false,
+   "reason": "topic Death and Judgment 15 term hits; topic Free Will 12 term hits; topic Sanctification and Good Works 9 term hits; topic Predestination 8 term hits",
+   "about": [],
+   "excerpt": "Nadya Williams and Dr. Leslie Baynes explore the works of C.S. Lewis, particularly focusing on 'The Great Divorce.' They discuss the definition of a classic, the significance of free will, and the themes of choice and divine grace in…",
+   "keywords": [
+    "penelope",
+    "theosis",
+    "blake",
+    "predestination",
+    "vignettes",
+    "gore",
+    "mcdonald",
+    "broadcast",
+    "glowing",
+    "radio",
+    "narrator",
+    "aeneid"
+   ],
+   "note": "C.S. Lewis - The Great Divorce with Dr. Leslie Baynes Nadya Williams and Dr. Leslie Baynes explore the works of C.S. Lewis, particularly focusing on 'The Great Divorce.' They discuss the definition of a classic, the significance of free will, and the themes of choice and divine grace in Lewis's writing. The conversation also touches on Lewis's influences, his relationships with women, and the timeless messages found in his works that resonate with modern readers. Additionally, Dr. Baynes shares insights about her upcoming book on Lewis and the Bible. Chapters 00:00 Introduction to C.S. Lewis and His Works 02:47 Defining a Classic: The Enduring Nature of Literature 05:51 The Impact of C.S. Lewis's Works on Readers 08:46 C.S. Lewis's Life and Influences During WWII 11:57 The Great Divorce: Themes and Symbolism 14:51 Understanding Theosis and Its Significance 17:34 The Role of Language and Beauty in Lewis's Writing 20:48 The Evolution of Lewis's Poetry and Literary Style 22:47 The Lasting Legacy of C.S. Lewis 31:24 Theosis and Divine Reality 34:08 The Vignettes of The Great Divorce 37:26 Free Will and Self-Reflection 42:11 Universalism vs. Predestination 44:23 Timeless Lessons from The Great Divorce 47:11 Exploring Lewis's New Book 56:05 Literary Influences and Personal Connections "
+  },
+  {
+   "id": "mf-19198422",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The Bible: A Technology",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198422",
+   "date": "2025-10-15",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "17",
+   "season": "2",
+   "class": "RETRIEVAL-GENERAL",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": true,
+   "reason": "retrieval markers: 1 strong, 3 general; topic Death and Judgment 6 term hits",
+   "about": [],
+   "excerpt": "Derek Rishmawy and Alastair Roberts explore the Bible as a technological medium, discussing its historical context, the impact of the Reformation on biblical engagement, and the shift from oral to written culture. They delve into the…",
+   "keywords": [
+    "bearer",
+    "hamlet",
+    "metabolized",
+    "oral",
+    "printing",
+    "printed",
+    "bibles",
+    "apparatus",
+    "chiefly",
+    "owned",
+    "steel",
+    "monastic"
+   ],
+   "note": "The Bible: A Technology Derek Rishmawy and Alastair Roberts explore the Bible as a technological medium, discussing its historical context, the impact of the Reformation on biblical engagement, and the shift from oral to written culture. They delve into the implications of modern technology on scripture interpretation and the importance of internalizing the word of God. The conversation also touches on eschatology and the balance between technology and tradition in the church's life. Chapters 00:00 Bible as Technology 04:25 From Performance to Page to Pixels 12:50 The Reformation 20:16 Eschatology 28:16 Steel Man the Tech 36:52 Metabolizing the Word 45:34 The Collective Encounter with Scripture "
+  },
+  {
+   "id": "mf-19198423",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Do You Need Penal Substitution?",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198423",
+   "date": "2025-10-08",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "17",
+   "season": "2",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "John Calvin"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "John Calvin 24 mentions; retrieval markers: 0 strong, 10 general; topic The Person and Work of Christ in title/heading, 52 term hits; topic The Trinity 10 term hits",
+   "about": [],
+   "excerpt": "Derek Rishmawy and Brad East engage in a conversation about the complexities of atonement, particularly focusing on penal substitution. They explore the historical context, personal experiences, and theological implications surrounding the…",
+   "keywords": [
+    "comer",
+    "wrath",
+    "pumped",
+    "turitan",
+    "substitutionary",
+    "anselm",
+    "innovation",
+    "bore",
+    "exchange",
+    "scholastic",
+    "martyrs",
+    "hinge"
+   ],
+   "note": "Do You Need Penal Substitution? Derek Rishmawy and Brad East engage in a conversation about the complexities of atonement, particularly focusing on penal substitution. They explore the historical context, personal experiences, and theological implications surrounding the topic, emphasizing the need for clarity and understanding in discussions about God's justice and mercy. Chapter 00:00 Pumped About Atonement 03:35 The Heat of Atonement Debates 10:49 Teaching Badly 17:32 Who's the Real Problem? 24:45 Experiential Perspectives on Atonement 32:28 History and Retrieval 44:53 New Language for Old Ideas 48:59 Calvinist Lightning Round 01:01:17 Walking the Line "
+  },
+  {
+   "id": "mf-19198428",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Replay: What Difference Does A Doctrine of Creation Make?",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198428",
+   "date": "2025-09-03",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "13",
+   "season": "2",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-creatione"
+   ],
+   "retrieval": false,
+   "reason": "topic Creation in title/heading, 42 term hits; topic Angels 11 term hits",
+   "about": [
+    "topic:de-creatione"
+   ],
+   "excerpt": "This is a rerelease of a previous episode. In response to a listener question, Derek, Matt, and Alastair go deep on the doctrine of creation. They ask and answer questions about whether creation is real, what counts as worship, what makes a…",
+   "keywords": [
+    "surfaces",
+    "alternation",
+    "finitude",
+    "contingency",
+    "finite",
+    "solomon",
+    "destiny",
+    "webster",
+    "consummation"
+   ],
+   "note": "Replay: What Difference Does A Doctrine of Creation Make? This is a rerelease of a previous episode. In response to a listener question, Derek, Matt, and Alastair go deep on the doctrine of creation. They ask and answer questions about whether creation is real, what counts as worship, what makes a doctrine of creation thick or thin, and whether we need to be thinking about God at all times. Timestamps: On the Excitement Meter [0:00] Wherein Lies the Deepness? [2:13] Reality and Goodness [10:30] Participatory vs. Intrinsic Value [14:12] A Dim Reflection [15:53] Curiositas [18:57] Not Everything Is Worship [22:39] Children of the Earth [40:44] "
+  },
+  {
+   "id": "crc-19203998",
+   "show": "christians-reading-classics",
+   "showName": "Christians Reading Classics",
+   "title": "The Nicene Creed with Shawn Wilhite and Coleman Ford",
+   "url": "https://mereorthodoxy.com/podcasts/christians-reading-classics/#ep-19203998",
+   "date": "2025-08-28",
+   "host": "Nadya Williams",
+   "image": "https://storage.buzzsprout.com/mpu6h9ra9viq10bvbsevb4et9x5f",
+   "showImage": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+   "episode": "7",
+   "season": "1",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds",
+    "cf-013-council-of-nicea-i-325"
+   ],
+   "verses": [],
+   "topics": [
+    "de-trinitate"
+   ],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT (title/heading) 18x; Council of Nicaea I (325) ABOUT 6x; topic The Trinity 14 term hits; topic The Person and Work of Christ 8 term hits",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds",
+    "doc:cf-013-council-of-nicea-i-325",
+    "topic:de-trinitate"
+   ],
+   "excerpt": "Nadya Williams talks with theologians Coleman Ford and Shawn Wilhite about the Nicene Creed, marking its 1700th anniversary. They explore what makes a theological work a \"classic,\" the historical background of the Council of Nicaea, the…",
+   "keywords": [
+    "sean",
+    "begottenness",
+    "arius",
+    "nicaea",
+    "constantine",
+    "emperor",
+    "begotten",
+    "constantinople",
+    "visual",
+    "contemplation",
+    "prays",
+    "bishops"
+   ],
+   "note": "The Nicene Creed with Shawn Wilhite and Coleman Ford Nadya Williams talks with theologians Coleman Ford and Shawn Wilhite about the Nicene Creed, marking its 1700th anniversary. They explore what makes a theological work a \"classic,\" the historical background of the Council of Nicaea, the meaning of key Christological terms, and how to \"think Nicenely\" in the Christian life. The discussion blends history, theology, and practical discipleship, showing how the Creed shapes Christian identity and worship. Chapters 00:04 – Introduction and Reading of the Nicene Creed 02:18 – Guests' Backgrounds and Book Collaboration 02:57 – What Makes a Theological Classic? 07:19 – Defining the Work of Theologians as \"Doctors of the Soul\" 17:18 – Historical Background of the Council of Nicaea 22:47 – Why the Debate over Christ's Relationship to the Father Mattered 28:21 – Constantine's Role and Political Context 32:23 – Structure of the Creed and Differences Between 325 and 381 Versions 38:25 – Christology in the Creed: Begottenness, Substance, and \"Light from Light\" 49:50 – Visual Imagery and Theological Language 54:32 – Thinking \"Nicenely\" and Why It Matters Today 01:00:18 – Writing Together as Friends 01:04:21 – Classics the Guests Wish They Had Written Links Coleman Ford and Shawn Wilhite, Nicaea for Today: Why an Ancient Creed (Still) Matters Coleman Ford and Shawn Wilhite, Ancient Wisdom for the Care of Souls "
+  },
+  {
+   "id": "mf-19198431",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Should I Stay Or Should I Go (From My Denomination)?",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198431",
+   "date": "2025-08-13",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "10",
+   "season": "2",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "rc-111-westminster-confession-of-faith-1646"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": true,
+   "reason": "retrieval markers: 2 strong, 2 general; Westminster Confession Of Faith ABOUT 4x",
+   "about": [
+    "doc:rc-111-westminster-confession-of-faith-1646"
+   ],
+   "excerpt": "In this episode of",
+   "keywords": [
+    "barrett",
+    "ecumenism",
+    "denom",
+    "apostate",
+    "anglicanism",
+    "inhabiting",
+    "newman",
+    "consensus",
+    "retrieval",
+    "presbyterianism",
+    "retrieve",
+    "denominational"
+   ],
+   "note": "Should I Stay Or Should I Go (From My Denomination)? In this episode of "
+  },
+  {
+   "id": "mf-19198434",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Is \"Covenant\" Overused?",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198434",
+   "date": "2025-07-09",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "7",
+   "season": "2",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-foedere"
+   ],
+   "retrieval": false,
+   "reason": "topic Covenant 58 term hits",
+   "about": [
+    "topic:de-foedere"
+   ],
+   "excerpt": "In this episode of",
+   "keywords": [
+    "skeleton",
+    "hierarchically",
+    "sonship",
+    "load",
+    "headship",
+    "covenants",
+    "covenantal",
+    "blanket",
+    "beale",
+    "precedes",
+    "dogmatics",
+    "mediator"
+   ],
+   "note": "Is \"Covenant\" Overused? In this episode of "
+  },
+  {
+   "id": "mf-19198440",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Hath Pope Leo XIV Jurisdiction Here?",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198440",
+   "date": "2025-05-28",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "1",
+   "season": "2",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "umb:ecumenical-councils",
+    "cf-025-council-of-chalcedon-451",
+    "cf-015-council-of-constantinople-i-381",
+    "cf-023-council-of-ephesus-431"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "The ecumenical councils (umbrella) ABOUT 3x; Council Of Chalcedon mentioned 3x; Council of Constantinople I (381) mentioned 3x; Council Of Ephesus mentioned 3x; topic The Church 24 term hits",
+   "about": [
+    "doc:umb:ecumenical-councils"
+   ],
+   "excerpt": "",
+   "keywords": [
+    "papacy",
+    "infallibility",
+    "encyclical",
+    "papal",
+    "blah",
+    "homily",
+    "fraternal",
+    "measured",
+    "ecumenical",
+    "magisterial",
+    "bishop",
+    "judah"
+   ],
+   "note": "Hath Pope Leo XIV Jurisdiction Here? "
+  },
+  {
+   "id": "mf-19198444",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Broken Bonds, with Amy Mantravadi",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198444",
+   "date": "2024-11-14",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/5cuxotsf5fykoxop0x6h01t2g272",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "Martin Luther"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Martin Luther 88 mentions",
+   "about": [
+    "author:Martin Luther"
+   ],
+   "excerpt": "Amy Mantravadi, Mere Fi's snarkiest online critic has written a novel—a historical novel—about the heroes of the Reformation. Matt and Alastair bring her on the show to talk about it, what historical fiction can do that theology can't, what…",
+   "keywords": [
+    "erasmus",
+    "peasants",
+    "congregants",
+    "bondage",
+    "terrified",
+    "emotion",
+    "german",
+    "strategy",
+    "trial"
+   ],
+   "note": "Broken Bonds, with Amy Mantravadi Amy Mantravadi, Mere Fi's snarkiest online critic has written a novel—a historical novel—about the heroes of the Reformation. Matt and Alastair bring her on the show to talk about it, what historical fiction can do that theology can't, what the central issue of the Reformation was, and what it's like inside the heads of Luther, Erasmus, and Melanchthon. Plus, Matt gets it exactly right at least once. Stick around to the end for a big announcement about the future of "
+  },
+  {
+   "id": "mf-19198445",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The Last Roman Philosopher, with Dr. Tom Ward",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198445",
+   "date": "2024-10-23",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/jybdgxd3ivm3gfn0ibdbge1hkom0",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Boethius"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Boethius 53 mentions",
+   "about": [
+    "author:Boethius"
+   ],
+   "excerpt": "On October 23rd, 524, Boethius, the last of the Classical philosophers and the first Medieval Man, was executed. Today, 1,500 years later, his work, especially The Consolation of Philosophy, continues to influence many, including major…",
+   "keywords": [
+    "boethius",
+    "constellation",
+    "stoicism",
+    "stoics",
+    "tractates",
+    "stoic",
+    "indulgent",
+    "detachment",
+    "canceled",
+    "fortune",
+    "consolation",
+    "therapy"
+   ],
+   "note": "The Last Roman Philosopher, with Dr. Tom Ward On October 23rd, 524, Boethius, the last of the Classical philosophers and the first Medieval Man, was executed. Today, 1,500 years later, his work, especially The Consolation of Philosophy, continues to influence many, including major thinkers such as C.S. Lewis. Dr. Tom Ward returns to "
+  },
+  {
+   "id": "mf-19198453",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "What Difference Does a Doctrine of Creation Make?",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198453",
+   "date": "2024-08-17",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/ru6t2c1h19jqohy3f3o09hfu9gzk",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-creatione"
+   ],
+   "retrieval": false,
+   "reason": "topic Creation in title/heading, 42 term hits; topic Angels 11 term hits",
+   "about": [
+    "topic:de-creatione"
+   ],
+   "excerpt": "In response to a listener question, Derek, Matt, and Alastair go deep on the doctrine of creation. They ask and answer questions about whether creation is real, what counts as worship, what makes a doctrine of creation thick or thin, and…",
+   "keywords": [
+    "surfaces",
+    "alternation",
+    "curiositas",
+    "finitude",
+    "contingency",
+    "finite",
+    "solomon",
+    "destiny",
+    "webster",
+    "consummation"
+   ],
+   "note": "What Difference Does a Doctrine of Creation Make? In response to a listener question, Derek, Matt, and Alastair go deep on the doctrine of creation. They ask and answer questions about whether creation is real, what counts as worship, what makes a doctrine of creation thick or thin, and whether we need to be thinking about God at all times. Full show notes at www.merefidelity.com. Timestamps: On the Excitement Meter [0:00] Wherein Lies the Deepness? [2:13] Reality and Goodness [10:30] Participatory vs. Intrinsic Value [14:12] A Dim Reflection [15:53] Curiositas [18:57] Not Everything Is Worship [22:39] Children of the Earth [40:44] "
+  },
+  {
+   "id": "mf-19198457",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Christian Politics with Oliver O'Donovan",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198457",
+   "date": "2024-05-21",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/ytfzv81039o949b6e0sdjmnld559",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 12 mentions",
+   "about": [],
+   "excerpt": "Professor Oliver O'Donovan joins Matt and Derek once more. This time they discuss the relationship of Christian belief and practice to the contemporary political realities of our world. Do we need a new constitution? What's to be done about…",
+   "keywords": [
+    "schmidt",
+    "isms",
+    "willful",
+    "babble",
+    "strauss",
+    "liberalism",
+    "elections",
+    "descriptive",
+    "girard",
+    "objects",
+    "wholly",
+    "antagonism"
+   ],
+   "note": "Christian Politics with Oliver O'Donovan Professor Oliver O'Donovan joins Matt and Derek once more. This time they discuss the relationship of Christian belief and practice to the contemporary political realities of our world. Do we need a new constitution? What's to be done about the current wars? How can we properly utilize passion and reason in elections? Full show notes at www.merefidelity.com. Timestamps: The O'Donovan Inception [0:00] The Role of Scripture in Political Judgment [2:46] How do we read Genesis? [7:31] Carl Schmitt: Friend-Enemy Polarity [10:26] Augustine: Objects of Common Love [16:24] Rene Girard: Rivalry [21:42] Pro- and Post-Liberalism [24:45] New Beginnings [31:18] The Role of Reason in Politics [36:22] Remember the Rest of the World [40:31] "
+  },
+  {
+   "id": "mf-19198469",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Moral Complicity",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198469",
+   "date": "2024-02-06",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/wlpurozgcd9259k6veum0pmw0x7v",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "x:bcp"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Book of Common Prayer mentioned 3x",
+   "about": [],
+   "excerpt": "Alistair Begg hit a nerve with Christians online when he said in public that it might be ok for a Christian to attend an LGBTQ wedding. Given his opposition to same-sex marriage, this firestorm brings to the surface many questions about the…",
+   "keywords": [
+    "begg",
+    "weddings",
+    "beg",
+    "sacrilege",
+    "pronouns",
+    "fraternal",
+    "wedding",
+    "fundamentalism",
+    "ceremony",
+    "scandal",
+    "correction",
+    "witnessing"
+   ],
+   "note": "Moral Complicity Alistair Begg hit a nerve with Christians online when he said in public that it might be ok for a Christian to attend an LGBTQ wedding. Given his opposition to same-sex marriage, this firestorm brings to the surface many questions about the nature of moral complicity, scandal, fraternal correction, and just how a Christian is to live day-to-day in a world so at odds with the truth. All in all, a perfect topic for Matt, Derek, and Alastair to tackle together. Full show notes at www.merefidelity.com. Timestamps: Stable Emotional Life [0:00] An Everyday Problem [2:49] Meta Issues [3:55] For the Fundamentalists [8:04] Obvious Gaps [11:13] Sacrilege or Mere Paganism? [18:41] Fraternal Correction [24:58] Third Party Scandal [30:48] Naaman [38:59] "
+  },
+  {
+   "id": "mf-19198476",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Biblical Critical Theory, with Christopher Watkin",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198476",
+   "date": "2023-12-07",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/busqn81wjybztipjx3gnkp3xw4pg",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [
+    "pld-2755"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 20 mentions; The City of God (Augustine of Hippo) cited 3x",
+   "about": [],
+   "excerpt": "Critical Race Theory is not the only sort of critical theory out there. As a matter of fact, Augustine's City of God may be the first example of critical theory. How can this kind of academic exercise be understood Biblically? What benefit…",
+   "keywords": [
+    "quo",
+    "foucault",
+    "extremes",
+    "machines",
+    "oppositional",
+    "chris",
+    "hermeneutics",
+    "intentions",
+    "richer"
+   ],
+   "note": "Biblical Critical Theory, with Christopher Watkin Critical Race Theory is not the only sort of critical theory out there. As a matter of fact, Augustine's City of God may be the first example of critical theory. How can this kind of academic exercise be understood Biblically? What benefit can it give to theology? Dr. Christopher Watkin, author of Biblical Critical Theory: How the Bible's Unfolding Story Makes Sense of Modern Life and Culture, joins Matt and Alastair to discuss this often confusing topic. Dr. Watkin argues that in order to even do critical theory, it must be approached at least a theistic if not fully Christian point of view. Full show notes at www.merefidelity.com. Timestamps: A Good Excuse [1:20] Following Augustine [2:23] Critical Theory Must Be Christian [4:21] Inside/Outside [13:05] Oppositional Identity [19:48] Contrasting Hermeneutics [26:20] Who's it for? [37:53] Have you not even heard of the Holy Spirit? [45:44] "
+  },
+  {
+   "id": "mf-19198479",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Guarding Our Souls in Wartime",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198479",
+   "date": "2023-11-03",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/89fh1cdh59ke23ylerptquejisff",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT 2x",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "With war in Israel functioning as a totemic marker in our polarized political climate, Derek, Matt, and Alastair talk frankly and vulnerably about how all of us can do justice, love mercy, and not lose our souls. Full show notes at…",
+   "keywords": [
+    "palestinian",
+    "terrorist",
+    "plight",
+    "vindicate",
+    "mitigate",
+    "semitism",
+    "guard",
+    "victim",
+    "victims",
+    "implicated",
+    "urgent",
+    "identification"
+   ],
+   "note": "Guarding Our Souls in Wartime With war in Israel functioning as a totemic marker in our polarized political climate, Derek, Matt, and Alastair talk frankly and vulnerably about how all of us can do justice, love mercy, and not lose our souls. Full show notes at www.merefidelity.com. Timestamps: Matt on Trial [0:00] A Hard Season [2:13] An Urgent Question [3:54] Biblical Resources [13:37] Weighing the Victims [22:10] Loving Enemies [31:20] Unequal Deaths [37:10] Mercy [40:53] "
+  },
+  {
+   "id": "mf-19198485",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reformation as Renewal, with Dr. Matthew Barrett",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198485",
+   "date": "2023-09-06",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/9061piy23w7e5cgbne3jzroysuco",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Martin Luther",
+    "John Calvin"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Martin Luther 23 mentions; John Calvin 14 mentions; retrieval markers: 0 strong, 28 general; topic The Sacraments 13 term hits; topic Baptism 8 term hits",
+   "about": [],
+   "excerpt": "Was the Reformation really as much a break with what came before it as we are often led to believe? Dr. Matthew Barrett says the Reformers themselves thought not. In his substantial new book, he shows how strongly the Reformers sought to…",
+   "keywords": [
+    "scholasticism",
+    "seatbelt",
+    "radicals",
+    "catholicity",
+    "anselm",
+    "apology",
+    "bernard",
+    "trent",
+    "indebted",
+    "scholastic",
+    "retrieval",
+    "retrieving"
+   ],
+   "note": "Reformation as Renewal, with Dr. Matthew Barrett Was the Reformation really as much a break with what came before it as we are often led to believe? Dr. Matthew Barrett says the Reformers themselves thought not. In his substantial new book, he shows how strongly the Reformers sought to establish their connection with the catholic and universal church. Alastair, Derek, and Matt join Dr. Barrett for a lively and fruitful discussion on this episode of "
+  },
+  {
+   "id": "mf-19198486",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The Biblical Trinity, with Brandon Smith",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198486",
+   "date": "2023-08-07",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/oyuleyxz2r7ch0w7z28fgyxjp3nc",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-trinitate"
+   ],
+   "retrieval": false,
+   "reason": "topic The Trinity in title/heading, 93 term hits; topic Baptism 9 term hits",
+   "about": [
+    "topic:de-trinitate"
+   ],
+   "excerpt": "In The Biblical Trinity, Brandon Smith proclaims the Trinity from the Bible. The doctrine arises not from a handful of prooftexts but from the fullness of what the Bible says about God. In this edition of Mere Fi, Alastair and Matt chat…",
+   "keywords": [
+    "inflection",
+    "lamb",
+    "majors",
+    "spirits",
+    "politicized",
+    "idiom",
+    "subordination",
+    "river",
+    "zechariah",
+    "anglicans",
+    "titles",
+    "baptize"
+   ],
+   "note": "The Biblical Trinity, with Brandon Smith In The Biblical Trinity, Brandon Smith proclaims the Trinity from the Bible. The doctrine arises not from a handful of prooftexts but from the fullness of what the Bible says about God. In this edition of Mere Fi, Alastair and Matt chat with Brandon about what this project means in the broad landscape of contemporary theology. They also take a closer look at how the book of Revelation contributes to a Biblical picture of the Trinity. Full show notes at www.merefidelity.com. Timestamps: That Big Time Academic Life [0:00] A Flowering of Evangelical Theology [2:03] Traditional Cart, Biblical Horse [7:43] Politicisation [12:57] Baptism [18:29] Applicability [24:49] Revelation [30:06] The Spirit [42:50] "
+  },
+  {
+   "id": "mf-19198492",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Pierced by Love, with Dr. Hans Boersma",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198492",
+   "date": "2023-05-16",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/7m3iaqnrh42cno382fh88iqb0dc3",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RETRIEVAL-GENERAL",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": true,
+   "reason": "retrieval markers: 2 strong, 4 general; topic The Sacraments 11 term hits",
+   "about": [],
+   "excerpt": "Lectio Divina is a popular form of prayer using the reading of Scripture as a means of encountering God. While its origins are in Christian tradition, Lectio Divina is sometimes associated with a kind of individualistic loose spirituality…",
+   "keywords": [
+    "divina",
+    "lectio",
+    "meditative",
+    "psalter",
+    "lecture",
+    "transform",
+    "devotional",
+    "tears",
+    "meditation"
+   ],
+   "note": "Pierced by Love, with Dr. Hans Boersma Lectio Divina is a popular form of prayer using the reading of Scripture as a means of encountering God. While its origins are in Christian tradition, Lectio Divina is sometimes associated with a kind of individualistic loose spirituality. Dr. Hans Boersma, however, makes a strong case for its use in the devotional lives of faithful Christians. Alastair, Matt, and Derek probe his case in this episode of "
+  },
+  {
+   "id": "mf-19198493",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The Nicene Creed, with Dr. Phillip Cary",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198493",
+   "date": "2023-05-10",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/j52i31p4j5wlgkxy4p9litt8g49f",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds",
+    "cf-013-council-of-nicea-i-325"
+   ],
+   "verses": [],
+   "topics": [
+    "de-trinitate",
+    "de-filioque"
+   ],
+   "retrieval": false,
+   "reason": "Martin Luther 9 mentions; Apostles’, Nicene and ancient creeds ABOUT (title/heading) 34x; Athanasian Creed ABOUT 5x; Council of Nicaea I (325) ABOUT 2x; topic Baptism 25 term hits",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds",
+    "doc:cf-013-council-of-nicea-i-325",
+    "topic:de-trinitate"
+   ],
+   "excerpt": "Why do we need creeds? What are they for? Isn't Scripture enough? Dr. Phillip Cary has a very useful and smart book introducing the Nicene Creed to not only a wider audience, but take those of us who say the Creed every week even deeper…",
+   "keywords": [
+    "filioque",
+    "baptismal",
+    "procedural",
+    "athanasian",
+    "carey",
+    "brevity",
+    "dunk",
+    "reciting",
+    "virgin",
+    "nicaea",
+    "creeds",
+    "recite"
+   ],
+   "note": "The Nicene Creed, with Dr. Phillip Cary Why do we need creeds? What are they for? Isn't Scripture enough? Dr. Phillip Cary has a very useful and smart book introducing the Nicene Creed to not only a wider audience, but take those of us who say the Creed every week even deeper into this summary of the Christian faith. In this conversation Alastair and Matt talk with Dr. Cary about the basics and about the finer points of the Nicene Creed in particular. Full show notes at www.merefidelity.com. Timestamps: Clear, Brief, and Useful [1:23] About Creeds [3:28] Precursors [6:30] The Audience [8:36] Structural Integrity [15:00] Internal Priority [22:44] Athanasian Creed [28:12] Filioque [32:17] Authority of Scripture [37:46] "
+  },
+  {
+   "id": "mf-19198495",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Resurrection Bodies",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198495",
+   "date": "2023-04-18",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/0qiae91ryexttnjr0og516q6yspt",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [
+    "de-resurrectione"
+   ],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT 2x; topic The Resurrection 16 term hits",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds",
+    "topic:de-resurrectione"
+   ],
+   "excerpt": "Christ is risen indeed! In this Easter season, Matt, Alastair, and Derek turn their attention to one of the most intriguing questions ever asked by Christians, namely, what exactly will our resurrection bodies be like? The answer may be…",
+   "keywords": [
+    "soma",
+    "incorruptibility",
+    "physicality",
+    "inherit",
+    "lazarus",
+    "resurrected",
+    "earthly",
+    "genealogy",
+    "immortality",
+    "histories",
+    "firstborn"
+   ],
+   "note": "Resurrection Bodies Christ is risen indeed! In this Easter season, Matt, Alastair, and Derek turn their attention to one of the most intriguing questions ever asked by Christians, namely, what exactly will our resurrection bodies be like? The answer may be more provocative than you think. Full show notes at www.merefidelity.com. Timestamps: Good Question? [0:00] Not That Kind of Resurrection [4:13] Not That Kind of Flesh [9:58] Not That Kind of Spiritual [17:22] Continuity and Discontinuity [20:11] Like Jesus's Body [24:27] Not That Kind of Birth [28:08] Marked by Our Histories [36:27] There's Only One Resurrection [45:42] "
+  },
+  {
+   "id": "mf-19198512",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Martin Luther and the Rule of Faith, with Dr. Todd Hains",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198512",
+   "date": "2022-10-12",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/r63r4lnp4cmdyw3wpiy1430s6gzg",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "Martin Luther"
+   ],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Martin Luther in the title; 70 mentions; Apostles’, Nicene and ancient creeds ABOUT 17x; topic Prayer 18 term hits; topic The Law 17 term hits",
+   "about": [
+    "author:Martin Luther",
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "For generations of evangelicals lacking good catechesis, Martin Luther is often seen as a primitive, unsophisticated, or backwards reformer. Into this negative environment, Dr. Todd Hains is bringing forth the richness of Luther's thought…",
+   "keywords": [
+    "lutheranism",
+    "reformer",
+    "lutherans",
+    "lexumpress",
+    "committee",
+    "ted",
+    "pentecost"
+   ],
+   "note": "Martin Luther and the Rule of Faith, with Dr. Todd Hains For generations of evangelicals lacking good catechesis, Martin Luther is often seen as a primitive, unsophisticated, or backwards reformer. Into this negative environment, Dr. Todd Hains is bringing forth the richness of Luther's thought and Lutheranism's tradition. There is so much more than just justification by faith. Alastair and Matt discuss with Dr. Hains his latest book, and they get at the central question: What does it mean to interpret Scripture with Scripture? Full show notes at www.merefidelity.com. Timestamps: The OG Reformer [2:06] Reading Scripture with Luther [10:55] Christian Pedagogy [17:40] Catholic Luther [25:52] Catechesis from Scripture [30:33] Gimme the Lutheran Pitch [39:48] Practical Advice for Churches [48:39] "
+  },
+  {
+   "id": "mf-19198522",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'Jesus and the God of Classical Theism,' with Dr. Steve Duby",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198522",
+   "date": "2022-07-05",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/qnbg1oekfqbhr5c6humg38eoiwt1",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RETRIEVAL-GENERAL",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-attributis-distinctio"
+   ],
+   "retrieval": true,
+   "reason": "retrieval markers: 1 strong, 19 general; topic The Person and Work of Christ 33 term hits; topic The Nature of God in title/heading, 26 term hits; topic The Divine Attributes 15 term hits; topic The Trinity 12 term hits",
+   "about": [],
+   "excerpt": "Does the philosophical knowledge of God known as Classical Theism enrich our reading of Scripture? Or does it get in the way? Derek and Alastair have a conversation with Dr. Steve Duby about the retrieval of Classical Theism and its…",
+   "keywords": [
+    "impassibility",
+    "bowling",
+    "impassable",
+    "undergoing",
+    "objections",
+    "commentators",
+    "wills",
+    "paired",
+    "passions",
+    "simplicity",
+    "retrieval",
+    "attributes"
+   ],
+   "note": "'Jesus and the God of Classical Theism,' with Dr. Steve Duby Does the philosophical knowledge of God known as Classical Theism enrich our reading of Scripture? Or does it get in the way? Derek and Alastair have a conversation with Dr. Steve Duby about the retrieval of Classical Theism and its interaction with good Christology. Full show notes at www.merefidelity.com. "
+  },
+  {
+   "id": "mf-19198525",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Pentecost",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198525",
+   "date": "2022-06-07",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/cb9jrv69iq33dmm91jbbsfmwgard",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT 5x; topic The Trinity 14 term hits",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "Now that Alastair has returned from his honeymoon,",
+   "keywords": [
+    "honeymoon",
+    "displays",
+    "animates",
+    "enthusiasts",
+    "simeon",
+    "figural",
+    "animating",
+    "attuned",
+    "giver",
+    "intuitive"
+   ],
+   "note": "Pentecost Now that Alastair has returned from his honeymoon, "
+  },
+  {
+   "id": "mf-19198530",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'Abraham's Silence,' with Dr. J. Richard Middleton",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198530",
+   "date": "2022-04-12",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/j6v7ob9urwai8v9o6ls98yysrbvr",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT 3x",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "Dr. J. Richard Middleton has a unique interpretation of Genesis 22, Abraham's (near-)sacrifice of Isaac, which departs — radically, some might say — from both traditional Christian and Jewish readings of this foundational Old Testament…",
+   "keywords": [
+    "ishmael",
+    "isaac",
+    "hagar",
+    "quotation",
+    "sodom",
+    "sarah",
+    "exegetical",
+    "binding",
+    "gaps",
+    "similarities"
+   ],
+   "note": "'Abraham's Silence,' with Dr. J. Richard Middleton Dr. J. Richard Middleton has a unique interpretation of Genesis 22, Abraham's (near-)sacrifice of Isaac, which departs — radically, some might say — from both traditional Christian and Jewish readings of this foundational Old Testament story. And if he's right, it has significant implications for how we do ministry. Matt, Alastair, and Derek leave no stone unturned in this conversation. Full show notes at www.merefidelity.com. "
+  },
+  {
+   "id": "mf-19198534",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'What Are Christians For?' with Jake Meador",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198534",
+   "date": "2022-02-22",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/yxac6at0d3oapsvnrzu191djruyh",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "rc-115-westminster-shorter-catechism-1647"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Westminster Shorter Catechism ABOUT 4x",
+   "about": [
+    "doc:rc-115-westminster-shorter-catechism-1647"
+   ],
+   "excerpt": "For many 21st century Christians in the West it seems that the world is unraveling. There are two questions we must ask: Is this time different than other times? and How can Christians offer hope to a world coming apart? These are the…",
+   "keywords": [
+    "barry",
+    "colonialism",
+    "davenant",
+    "hills",
+    "orange",
+    "native",
+    "temporal",
+    "trees"
+   ],
+   "note": "'What Are Christians For?' with Jake Meador For many 21st century Christians in the West it seems that the world is unraveling. There are two questions we must ask: Is this time different than other times? and How can Christians offer hope to a world coming apart? These are the questions that Matt, Alastair, and Derek seek answers for with Jake Meador while discussing Jake's new book, What Are Christians For? Life Together at the End of the World. Full show notes at www.merefidelity.com. "
+  },
+  {
+   "id": "mf-19198543",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'You Are Not Your Own,' with Dr. Alan Noble",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198543",
+   "date": "2021-11-16",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/xfx43skzo0wkk1kay2fr5k29iyoy",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "rc-061-heidelberg-catechism-1563"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Heidelberg Catechism ABOUT 4x",
+   "about": [
+    "doc:rc-061-heidelberg-catechism-1563"
+   ],
+   "excerpt": "What is our only comfort in life and in death? It's that we do not belong to ourselves, but that we belong body and soul to Jesus Christ. Alan Noble thinks that if we will embrace this teaching, the church will be able to weather modernity…",
+   "keywords": [
+    "inhuman",
+    "inhumanity",
+    "coping",
+    "cope",
+    "respecter",
+    "smoking",
+    "belonging",
+    "alien",
+    "tweet",
+    "burdens",
+    "netflix"
+   ],
+   "note": "'You Are Not Your Own,' with Dr. Alan Noble What is our only comfort in life and in death? It's that we do not belong to ourselves, but that we belong body and soul to Jesus Christ. Alan Noble thinks that if we will embrace this teaching, the church will be able to weather modernity. How exactly does that play out in our daily lives? That's what he talks about with Matt, Derek, Alastair, and Andrew(!) on this episode. Full show notes at www.merefidelity.com. "
+  },
+  {
+   "id": "mf-19198544",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'Five Things Theologians Wish Biblical Scholars Knew,' with Rev. Hans Boersma",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198544",
+   "date": "2021-11-09",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/we6z7bk1eq52dx6x8q9ck0qrmakr",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Thomas Aquinas"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Thomas Aquinas 15 mentions; retrieval markers: 0 strong, 11 general; topic The Sacraments 8 term hits",
+   "about": [],
+   "excerpt": "What's gone wrong in Biblical theology? We've turned the Bible into an object to master, instead of letting it master us. Rev. Hans Boersma's new book, Five Things Theologians Wish Biblical Scholars Knew, opens this conversation up very…",
+   "keywords": [
+    "platonism",
+    "scriptura",
+    "aristotelianism",
+    "solar",
+    "platonist",
+    "metaphysic",
+    "participatory",
+    "sola",
+    "gnosticism",
+    "borsma",
+    "nominalism",
+    "plato"
+   ],
+   "note": "'Five Things Theologians Wish Biblical Scholars Knew,' with Rev. Hans Boersma What's gone wrong in Biblical theology? We've turned the Bible into an object to master, instead of letting it master us. Rev. Hans Boersma's new book, Five Things Theologians Wish Biblical Scholars Knew, opens this conversation up very well, reminding us the job of the Biblical scholar is not primarily historical. Matt and Derek talk with Rev. Boersma, and things get a little spicy when the topic of Sola Scriptura comes up. Full show notes at www.merefidelity.com. "
+  },
+  {
+   "id": "mf-19198547",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'The Trinity and the Bible,' with Scott Swain",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198547",
+   "date": "2021-10-07",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/bdqyhucp33fehvsdh6ek3ow44lor",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-trinitate"
+   ],
+   "retrieval": false,
+   "reason": "topic The Trinity in title/heading, 62 term hits; topic The Person and Work of Christ 15 term hits",
+   "about": [
+    "topic:de-trinitate"
+   ],
+   "excerpt": "Dr. Scott Swain is the President of Reformed Theological Seminary, and he is the author of The Trinity & the Bible: On Theological Interpretation published by Lexham Press. In this conversation with Derek, Matt, and Alastair, Dr. Swain…",
+   "keywords": [
+    "christophany",
+    "typological",
+    "exegetical"
+   ],
+   "note": "'The Trinity and the Bible,' with Scott Swain Dr. Scott Swain is the President of Reformed Theological Seminary, and he is the author of The Trinity & the Bible: On Theological Interpretation published by Lexham Press. In this conversation with Derek, Matt, and Alastair, Dr. Swain helps ask and answer some big questions about the Doctrine of the Trinity: How do we find it in the Bible? Is it just imported Greek categories? Why do we use the terms Father, Son, and Spirit? How do you pronounce 'prosopological'? And what use is the Doctrine of the Trinity anyway? Full show notes at www.merefidelity.com. Join the Merrie Band™ and hear the +1 at www.patreon.com/merefidelity. "
+  },
+  {
+   "id": "mf-19198549",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'Jordan Peterson, God, & Christianity,' with Dr. Christopher Kaczor",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198549",
+   "date": "2021-09-23",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/gig61wt5qov1aqhk866zkbcbs736",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 23 mentions; Thomas Aquinas 11 mentions",
+   "about": [],
+   "excerpt": "The Jordan Peterson phenomenon is worth looking into. Even Aquinas scholar Dr. Christopher Kaczor is writing about the effect that Jordan Peterson is having. Matt and Alastair join the discussion, bringing a particular emphasis to how…",
+   "keywords": [
+    "jungian",
+    "iphones",
+    "jung",
+    "deism",
+    "evolution",
+    "rival",
+    "unclear",
+    "harmony",
+    "driver",
+    "composed",
+    "weather",
+    "typological"
+   ],
+   "note": "'Jordan Peterson, God, & Christianity,' with Dr. Christopher Kaczor The Jordan Peterson phenomenon is worth looking into. Even Aquinas scholar Dr. Christopher Kaczor is writing about the effect that Jordan Peterson is having. Matt and Alastair join the discussion, bringing a particular emphasis to how Peterson reads Scripture and what Christians can learn from his approach. Full show notes at www.merefidelity.com. "
+  },
+  {
+   "id": "mf-19198553",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Healing the Schism, with Dr. Jennifer Rosner",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198553",
+   "date": "2021-08-24",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/sw15i3uzh107zdmd9gpnzt8b19w6",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "x:vatican-ii"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Second Vatican Council (1962–1965) mentioned 3x",
+   "about": [],
+   "excerpt": "You may think that Christianity and Judaism have gone their separate ways; that they have nothing to do with each other. But this is not necessarily the case. On this episode, Dr. Jennifer Rosner, author of Healing the Schism: Karl Barth…",
+   "keywords": [
+    "supersessionism",
+    "parting",
+    "holocaust",
+    "judaism",
+    "supersessionist",
+    "unfaithfulness",
+    "messiah",
+    "torah",
+    "pentecost",
+    "karl"
+   ],
+   "note": "Healing the Schism, with Dr. Jennifer Rosner You may think that Christianity and Judaism have gone their separate ways; that they have nothing to do with each other. But this is not necessarily the case. On this episode, Dr. Jennifer Rosner, author of Healing the Schism: Karl Barth, Franz Rosenzweig, and the New Jewish-Christian Encounter, joins Matt and Alastair to talk about how Christianity and Judaism should relate to one another. Full show notes at www.MereFidelity.com. "
+  },
+  {
+   "id": "mf-19198556",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Beatitudes: \"Persecuted for His Name\"",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198556",
+   "date": "2021-08-03",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/fqkj7pz766ymlqv8619tmq7soi7w",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-vita-aeterna"
+   ],
+   "retrieval": false,
+   "reason": "topic Eternal Life 8 term hits",
+   "about": [
+    "topic:de-vita-aeterna"
+   ],
+   "excerpt": "Have you ever wondered if Christian persecution really happens in America? Are you confused about how to respond when you are persecuted for your faith? In this episode, Alastair, Derek, and Matt finish their series of discussions on the…",
+   "keywords": [
+    "persecution",
+    "offensiveness",
+    "grievance",
+    "malign",
+    "beatitude",
+    "persecute",
+    "counted",
+    "slander",
+    "offense",
+    "deprived",
+    "identification",
+    "humor"
+   ],
+   "note": "Beatitudes: \"Persecuted for His Name\" Have you ever wondered if Christian persecution really happens in America? Are you confused about how to respond when you are persecuted for your faith? In this episode, Alastair, Derek, and Matt finish their series of discussions on the Beatitudes. If you'll recall, in the last episode, there was some disagreement as to whether being persecuted for righteousness' sake and being persecuted for Jesus' name's sake are one beatitude or two. Can the guys come to an agreement? Find out in this exciting conclusion! Full show notes at www.mereorthodoxy.com/categories/mere-fidelity. "
+  },
+  {
+   "id": "mf-19198558",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Beatitudes: \"Persecuted for Righteousness\"",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198558",
+   "date": "2021-07-13",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/dk9zkyzltguctt3tfgzhj4wqjg64",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-vita-aeterna"
+   ],
+   "retrieval": false,
+   "reason": "topic Eternal Life 16 term hits",
+   "about": [
+    "topic:de-vita-aeterna"
+   ],
+   "excerpt": "Continuing the",
+   "keywords": [
+    "beatitude",
+    "persecution",
+    "blessedness",
+    "falsely",
+    "poverty",
+    "generic"
+   ],
+   "note": "Beatitudes: \"Persecuted for Righteousness\" Continuing the "
+  },
+  {
+   "id": "ps-conclusion",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Conclusion - The Nicene Creed in the 21st Century, with Fr. Khaled Anatolios",
+   "url": "https://mereorthodoxy.com/passages-season-1-episode-12/",
+   "date": "2021-07-12",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT (title/heading) 4x",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "In this final installment of Passages , Joshua sits down for an extended interview with Fr. Khaled Anatolios to discuss the Nicene theology and his two prominent works, 'Retrieving Nicaea: The Development and Meaning of Trinitarian…",
+   "keywords": [
+    "caleb",
+    "timothy"
+   ],
+   "note": "Conclusion - The Nicene Creed in the 21st Century, with Fr. Khaled Anatolios In this final installment of Passages , Joshua sits down for an extended interview with Fr. Khaled Anatolios to discuss the Nicene theology and his two prominent works, 'Retrieving Nicaea: The Development and Meaning of Trinitarian Doctrine' and 'Deification Through the Cross: An Eastern Christian Theology of Salvation.' We also hear highlights from our interviews with (in order of appearance): Dr. Scott Swain, Dr. Stephen Bagby, Dr. Fred Sanders, and Dr. Amy Brown Hughes. For a list of our guest's books and resources, please see the Passages Reading List HERE . To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. In the Nicene Creed, we confess that we believe in one God who is Father, Son, and Holy Spirit. In the prior eleven episodes of Passages, we have sought to illuminate the backstory of the Nicene Creed, introducing key figures, texts, church councils, and historical controversies that contributed to the development of the Nicene Creed and the reception of the Nicene faith by its early proponents and defenders. A bedrock of Christian theology, especially on the doctrines of the Trinity, the person and "
+  },
+  {
+   "id": "ps-11",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 11 - \"Look for the Resurrection of the Dead\": Macrina",
+   "url": "https://mereorthodoxy.com/passages-season-1-episode-11/",
+   "date": "2021-07-02",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [
+    "de-resurrectione"
+   ],
+   "retrieval": false,
+   "reason": "Gregory of Nyssa 4 mentions; Apostles’, Nicene and ancient creeds ABOUT 2x; topic The Resurrection in title/heading, 5 term hits",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds",
+    "topic:de-resurrectione"
+   ],
+   "excerpt": "In this episode, Joshua and Caleb delve into the meaning and story behind the last line in the Nicene Creed: \"I look for the resurrection of the dead and the life of the world to come.\" Listen in as the hosts compare what popular notions…",
+   "keywords": [
+    "nyssa",
+    "caleb"
+   ],
+   "note": "Chapter 11 - \"Look for the Resurrection of the Dead\": Macrina In this episode, Joshua and Caleb delve into the meaning and story behind the last line in the Nicene Creed: \"I look for the resurrection of the dead and the life of the world to come.\" Listen in as the hosts compare what popular notions about what the resurrection and heaven are, how they square with the Bible, and specifically the writings and teachings of Macrina, the teacher and elder sister to Gregory of Nyssa and Basil of Caesarea. To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. In the final articles of the Nicene Creed, we confess that “we look for the resurrection of the dead, and the life of the world to come. Amen.” Previously, in episode 10, we introduced Gregory of Nyssa, who was one of the bishops who participated in the council of Constantinople where the Creed from Nicaea was expanded upon and reaffirmed, which has been handed down to us today. We learned how Gregory spoke about God as ‘one’ and ‘three,’ about baptism, about human dignity as the image of God, and about life in the church. Now, in our penultimate episode, we explore the backstory of these final lines of the creed, looking at how Gregory of"
+  },
+  {
+   "id": "mf-19198560",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Beatitudes: \"Peacemakers\"",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198560",
+   "date": "2021-06-29",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/qufhmmfj1dx7vevdhqg14yuy2k6u",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-vita-aeterna"
+   ],
+   "retrieval": false,
+   "reason": "topic Eternal Life 9 term hits",
+   "about": [
+    "topic:de-vita-aeterna"
+   ],
+   "excerpt": "Everyone has a Beatitude that is their least favorite or that they are most confused by. We're not saying Matt has an issue with peacemaking. (We're just sayin'.) This episode in the Mere Fi series on the Beatitudes features a lively…",
+   "keywords": [
+    "peacemaker",
+    "peacemaking",
+    "mimetic",
+    "discord",
+    "communications",
+    "beatitude",
+    "imitate",
+    "warfare",
+    "apologetics",
+    "solomon",
+    "colossians",
+    "bond"
+   ],
+   "note": "Beatitudes: \"Peacemakers\" Everyone has a Beatitude that is their least favorite or that they are most confused by. We're not saying Matt has an issue with peacemaking. (We're just sayin'.) This episode in the Mere Fi series on the Beatitudes features a lively discussion of the role of peace and conflict in the life of the church and the Christian. Alastair, Derek, and Matt also talk about the profound ways that Christ is our peace. Full show notes at www.mereorthodoxy.com/categories/mere-fidelity. "
+  },
+  {
+   "id": "mf-19198562",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Beatitudes: \"Pure in Heart\"",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198562",
+   "date": "2021-06-08",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/gx31l4lomuppg81wlmahl3024m78",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-vita-aeterna"
+   ],
+   "retrieval": false,
+   "reason": "topic Eternal Life 13 term hits",
+   "about": [
+    "topic:de-vita-aeterna"
+   ],
+   "excerpt": "Many blessings are promised to the ones named in the Beatitudes. But the pure in heart are told that they will \"see God.\" That is an amazing promise, indeed! What does this mean for us here in the world? Matt, Alastair, and Derek discuss…",
+   "keywords": [
+    "unmixed",
+    "swear",
+    "transforming",
+    "purity",
+    "beatitude",
+    "beholding",
+    "behold",
+    "levitical",
+    "kierkegaard",
+    "cain",
+    "transformative",
+    "tabernacle"
+   ],
+   "note": "Beatitudes: \"Pure in Heart\" Many blessings are promised to the ones named in the Beatitudes. But the pure in heart are told that they will \"see God.\" That is an amazing promise, indeed! What does this mean for us here in the world? Matt, Alastair, and Derek discuss this plus the concept of purity generally in the Old Testament and in the Gospel. Full show notes at www.mereorthodoxy.com/categories/mere-fidelity. "
+  },
+  {
+   "id": "ps-10",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 10 - The Trinitarian Grammar of Gregory of Nyssa",
+   "url": "https://mereorthodoxy.com/passages-season-1-episode-10/",
+   "date": "2021-06-04",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "Gregory of Nyssa"
+   ],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Gregory of Nyssa in the title; 6 mentions; Apostles’, Nicene and ancient creeds ABOUT 4x",
+   "about": [
+    "author:Gregory of Nyssa",
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "In this episode, Joshua and Caleb turn to the writings of Gregory of Nyssa, the brother of Basil the Great, and his contribution of a trinitarian grammar, as well as the implications of the creed's final lines and how they impact the…",
+   "keywords": [
+    "caleb"
+   ],
+   "note": "Chapter 10 - The Trinitarian Grammar of Gregory of Nyssa In this episode, Joshua and Caleb turn to the writings of Gregory of Nyssa, the brother of Basil the Great, and his contribution of a trinitarian grammar, as well as the implications of the creed's final lines and how they impact the Christian life. To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. In the final articles of the Nicene Creed, we confess that “we believe in one holy catholic and apostolic Church. We acknowledge one Baptism for the forgiveness of sins. We look for the resurrection of the dead, and the life of the world to come. Amen.” Previously, in episode 9, we learned from Basil of Caesarea and Gregory of Nazianzus about how the Spirit proceeds from the Father, and some of what is entailed in the confession that we worship and glorify the Spirit together with the Father and the Son. We also explored Basil’s exhortations for Christians to worship God by caring for the poor and hymns such as those of Prudentius in praise of the one God who is Father, Son, and Holy Spirit. Now, we reach the final articles of the Nicene Creed. These might seem like short throwaway lines, leftover after all the important stuff about"
+  },
+  {
+   "id": "ps-9",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 9 - Basil and Gregory: How the Nicene Creed Affects Faith and Practice",
+   "url": "https://mereorthodoxy.com/passages-season-1-episode-9/",
+   "date": "2021-05-17",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Basil the Great 4 mentions; Apostles’, Nicene and ancient creeds ABOUT (title/heading) 5x",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "Beyond beautiful hymns and prayers, what else did worship involve for Basil of Caesarea? And what are some of the practical implications for those who confess the Nicene Creed? What do these lines of the Creed look like in the church and in…",
+   "keywords": [
+    "caleb"
+   ],
+   "note": "Chapter 9 - Basil and Gregory: How the Nicene Creed Affects Faith and Practice Beyond beautiful hymns and prayers, what else did worship involve for Basil of Caesarea? And what are some of the practical implications for those who confess the Nicene Creed? What do these lines of the Creed look like in the church and in the lives of its people? Joshua and Caleb further discuss Basil the Great and Gregory of Nazianzus's writings on the Holy Spirit and look at their implications on justice, the question of the subordination of the Spirit, and worship in the church. To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. Disclaimer: the music at timestamps 3:20 and 19:15 is not original to the 'Passages' production team. In the Nicene Creed we confess that “we believe in the Holy Spirit, the Lord, the giver of life, who proceeds from the Father [and the Son], who with the Father and the Son is worshiped and glorified, who has spoken through the prophets…” Previously, in episode 8, we learned from Basil of Caesarea about the Holy Spirit, how the creed of Constantinople in 381 expanded upon the 325 formula from Nicaea, and we discussed the trinitarian relations of the Father, Son, and Holy Spiri"
+  },
+  {
+   "id": "mf-19198565",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'Baptism,' with Dr. Peter Leithart",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198565",
+   "date": "2021-05-11",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/zdk0odcu51pkjkjj315tq2cx18ub",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-baptismo"
+   ],
+   "retrieval": false,
+   "reason": "topic Baptism in title/heading, 118 term hits",
+   "about": [
+    "topic:de-baptismo"
+   ],
+   "excerpt": "We need a renewal of baptismal imagination. Peter Leithart joins Andrew, Alastair, and Derek to help point the way toward that renewal. Did you know that baptism implies an anthropology that cuts across the grain of our modern notion of…",
+   "keywords": [
+    "drowned",
+    "baptismal",
+    "initiation",
+    "rites",
+    "drowning",
+    "rite",
+    "exorcism",
+    "pharaoh",
+    "flood",
+    "typology",
+    "immersion",
+    "consent"
+   ],
+   "note": "'Baptism,' with Dr. Peter Leithart We need a renewal of baptismal imagination. Peter Leithart joins Andrew, Alastair, and Derek to help point the way toward that renewal. Did you know that baptism implies an anthropology that cuts across the grain of our modern notion of consent? There is a ton of typology. Water events! Food events! And of course the debate over full immersion makes an appearance. Full show notes at www.mereorthodoxy.com/categories/mere-fidelity. "
+  },
+  {
+   "id": "mf-19198566",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'Simply Trinity,' with Dr. Matthew Barrett",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198566",
+   "date": "2021-05-04",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/qj244ko0o5k50j00n4oz5oiumw2o",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [
+    "de-trinitate"
+   ],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds mentioned 3x; topic The Trinity in title/heading, 98 term hits",
+   "about": [
+    "topic:de-trinitate"
+   ],
+   "excerpt": "Punching back against Eternal Functional Subordination theory, Dr. Matthew Barrett has written Simply Trinity: The Unmanipulated Father, Son, and Spirit. Matthew, Derek, and Alastair have questions. If you've ever wondered why God gave us…",
+   "keywords": [
+    "begetting",
+    "efs",
+    "funerals",
+    "imminent",
+    "begotten",
+    "agenda",
+    "subordinate",
+    "subordination",
+    "renaissance",
+    "triune",
+    "simplicity",
+    "equality"
+   ],
+   "note": "'Simply Trinity,' with Dr. Matthew Barrett Punching back against Eternal Functional Subordination theory, Dr. Matthew Barrett has written Simply Trinity: The Unmanipulated Father, Son, and Spirit. Matthew, Derek, and Alastair have questions. If you've ever wondered why God gave us the names \"Father\" and \"Son,\" or what implications the Trinity has for our society, then this is the conversation for you. (Some free copies of Dr. Barrett's book are available for the Merrie Band of Patreon Supporters.) Full show notes at www.mereorthodoxy.com/categories/mere-fidelity. "
+  },
+  {
+   "id": "ps-8",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 8 - \"The Lord and Giver of Life\": The Holy Spirit and Basil the Great",
+   "url": "https://mereorthodoxy.com/passages-season-1-episode-8/",
+   "date": "2021-05-04",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "Basil the Great"
+   ],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Basil the Great in the title; 4 mentions; Apostles’, Nicene and ancient creeds ABOUT 2x",
+   "about": [
+    "author:Basil the Great",
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "In the Nicene Creed, the Holy Spirit is called, \"the Lord and giver of life,\" but how can the Spirit and the Son both be called Lord? What does it mean that the Spirit \"proceeds\" from the Father and Son? Joshua and Caleb explore these…",
+   "keywords": [
+    "caleb"
+   ],
+   "note": "Chapter 8 - \"The Lord and Giver of Life\": The Holy Spirit and Basil the Great In the Nicene Creed, the Holy Spirit is called, \"the Lord and giver of life,\" but how can the Spirit and the Son both be called Lord? What does it mean that the Spirit \"proceeds\" from the Father and Son? Joshua and Caleb explore these questions and how they're answered in the writings of Basil the Great. To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. Disclaimer: the music at timestamp 28:00 is not original to the 'Passages' production team. In the Nicene Creed we confess that “we believe in the Holy Spirit, the Lord, the giver of life, who proceeds from the Father [and the Son], who with the Father and the Son is worshiped and glorified, who has spoken through the prophets…” Previously, in episode 7, we learned from Gregory of Nazianzus about early portions of the creed, focusing on the eternal generation of the Son, and about the relations of the one God who is Father, Son, and Holy Spirit. In this episode we explore the backstory to the section of the creed on the Holy Spirit. At the council of Nicaea in 325, the bishops merely confessed “we believe in the Holy Spirit” – a succinct and cryptic stateme"
+  },
+  {
+   "id": "ps-7",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 7 - Nicaea, Gregory, and Modern Theology",
+   "url": "https://mereorthodoxy.com/passages-season-1-episode-7/",
+   "date": "2021-04-22",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Gregory of Nazianzus 4 mentions; Apostles’, Nicene and ancient creeds ABOUT 7x; topic The Trinity 6 term hits",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "In this episode of Passages , Joshua and Caleb further explore the line in the Nicene Creed about the Son being \"begotten, but not made,\" and they do so by looking at the remaining theological orations of Gregory of Nazianzus. While doing…",
+   "keywords": [
+    "caleb",
+    "begotten"
+   ],
+   "note": "Chapter 7 - Nicaea, Gregory, and Modern Theology In this episode of Passages , Joshua and Caleb further explore the line in the Nicene Creed about the Son being \"begotten, but not made,\" and they do so by looking at the remaining theological orations of Gregory of Nazianzus. While doing so they look at the implications that a doctrine such as the eternal generation of the Son has on modern theology: is the Trinity a model for human societies, is the Son functionally eternally subordinate to the Father, what practical application is there in such a doctrine if any? To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. Disclaimer: the music at timestamp 28:00 is not original to the 'Passages' production team. In the Nicene Creed we confess that “we believe in one Lord, Jesus Christ, the only-begotten Son of God, eternally begotten of the Father, God from God, Light from Light, true God from true God, begotten, not made…” Previously, in episode 6, we were introduced to Gregory of Nazianzus, historically known as ‘Gregory the Theologian.’ After getting to know something of Gregory’s life, struggles, relationships, and poetry, episode 7 now explores some of Gregory’s most important contribut"
+  },
+  {
+   "id": "mf-19198568",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Responding to Secularism",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198568",
+   "date": "2021-04-20",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/yotsdtuo7naespd9mux0bjimw6c9",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 14 mentions",
+   "about": [],
+   "excerpt": "As secularism has grown ascendant and liberalism has become decadent, Christians have used different strategies to respond. Some change to accommodate the culture, some hunker down and wait for it to blow over, and some propose…",
+   "keywords": [
+    "cul",
+    "ecumenicism",
+    "sac",
+    "tactics",
+    "decadent",
+    "amari",
+    "hart",
+    "dreyer",
+    "synthesis",
+    "liberalism",
+    "strategy",
+    "column"
+   ],
+   "note": "Responding to Secularism As secularism has grown ascendant and liberalism has become decadent, Christians have used different strategies to respond. Some change to accommodate the culture, some hunker down and wait for it to blow over, and some propose re-Christianizing America. Ross Douthat recently wrote a piece analyzing these responses. You'll get a lot more out of this "
+  },
+  {
+   "id": "ps-6",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 6 - \"Begotten, Not Made\": Gregory of Nazianzus",
+   "url": "https://mereorthodoxy.com/passages-season-1-episode-6/",
+   "date": "2021-04-13",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "Gregory of Nazianzus"
+   ],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Gregory of Nazianzus in the title; 4 mentions; Apostles’, Nicene and ancient creeds ABOUT 3x",
+   "about": [
+    "author:Gregory of Nazianzus",
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "How can the Son be begotten, but not made? In this episode of 'Passages,' Joshua and Caleb introduce us to Gregory of Nazianzus and his Theological Orations on the Son. To support those who made Passages , please consider donating to Mere…",
+   "keywords": [
+    "caleb"
+   ],
+   "note": "Chapter 6 - \"Begotten, Not Made\": Gregory of Nazianzus How can the Son be begotten, but not made? In this episode of 'Passages,' Joshua and Caleb introduce us to Gregory of Nazianzus and his Theological Orations on the Son. To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. Disclaimer: the music at timestamp 28:00 is not original to the 'Passages' production team. In the Nicene Creed we confess that “we believe in one Lord, Jesus Christ, the only-begotten Son of God, eternally begotten of the Father, God from God, Light from Light, true God from true God, begotten, not made…” Last week, in episode 5, we explored with Athanasius how and why it is significant that the Incarnate Word is of the same being as the Father. Today, in episode 6 of Passages, Caleb and Joshua explore the backstory to the confession that the Son of God is eternally begotten of the Father, begotten but not made. In this episode, at last, we introduce one of the most important theological figures in the 4th century: Gregory of Nazianzus, often known simply as Gregory the Theologian. Before we explore Gregory’s understanding of the Trinity and the doctrine of the eternal generation of the Son in Gregory’s Five Theo"
+  },
+  {
+   "id": "ps-5",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 5 - \"Homoousios\": Did Constantine Hellenize Christianity?",
+   "url": "https://mereorthodoxy.com/passages-episode-5/",
+   "date": "2021-04-07",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds",
+    "cf-013-council-of-nicea-i-325"
+   ],
+   "verses": [],
+   "topics": [
+    "de-trinitate"
+   ],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT 7x; Council of Nicaea I (325) ABOUT 2x; topic The Trinity in title/heading, 4 term hits",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds",
+    "doc:cf-013-council-of-nicea-i-325",
+    "topic:de-trinitate"
+   ],
+   "excerpt": "What happened at the Council of Nicaea? Did Certain Bishops use imperial power to impose a Greek version of Christianity that, today, we call orthodoxy? Did Constantine impose the term homoousios in the Nicene Creed as a way to infuse…",
+   "keywords": [
+    "caleb",
+    "begotten"
+   ],
+   "note": "Chapter 5 - \"Homoousios\": Did Constantine Hellenize Christianity? What happened at the Council of Nicaea? Did Certain Bishops use imperial power to impose a Greek version of Christianity that, today, we call orthodoxy? Did Constantine impose the term homoousios in the Nicene Creed as a way to infuse paganism and Christianity? Can Christians use and apply non-biblical terms and categories without distorting the faith? In this episode, Joshua and Caleb investigate how these questions can be answered and more as they look at the controversy between the pro-Nicene Bishops and their opponents: the Arians. To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. Disclaimer: the music at timestamps 8:00 and 40:00 are not original to the 'Passages' production team. In the Nicene Creed we confess that “we believe in one Lord, Jesus Christ, the only-begotten Son of God, eternally begotten of the Father, God from God, Light from Light, true God from true God, begotten, not made, of one Being with the Father…” Last week, in episode 4, we were introduced to Athanasius, Arius, Constantine, and the Nicene Council. Today, in episode 5 of Passages, Caleb and Joshua explore the backstory to the confession t"
+  },
+  {
+   "id": "mf-19198571",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Beatitudes: \"Those Who Mourn\"",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198571",
+   "date": "2021-03-30",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/2qepvpukocya5emjzydzppy520l5",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-vita-aeterna"
+   ],
+   "retrieval": false,
+   "reason": "topic Eternal Life 10 term hits",
+   "about": [
+    "topic:de-vita-aeterna"
+   ],
+   "excerpt": "Continuing their series of discussions of the Beatitudes, Alastair, Derek, and Matt ask about mourning. What is the role of mourning in the Old Testament? Does our culture allow us to mourn properly? Is there joy to be found in mourning?…",
+   "keywords": [
+    "mourning",
+    "grief",
+    "widows",
+    "beatitude",
+    "widow",
+    "grieve",
+    "grieving",
+    "friday",
+    "saturday",
+    "tears",
+    "sorrow",
+    "oppression"
+   ],
+   "note": "Beatitudes: \"Those Who Mourn\" Continuing their series of discussions of the Beatitudes, Alastair, Derek, and Matt ask about mourning. What is the role of mourning in the Old Testament? Does our culture allow us to mourn properly? Is there joy to be found in mourning? Listen and consider why Jesus calls those who mourn blessed. Full show notes at www.mereorthodoxy.com/categories/mere-fidelity. "
+  },
+  {
+   "id": "ps-4",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 4 - \"Eternally Begotten\": Athanasius and Arius at Nicaea",
+   "url": "https://mereorthodoxy.com/passages-passages-season-1-episode-4-believe-one-lord-jesus-christ/",
+   "date": "2021-03-29",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "Athanasius of Alexandria"
+   ],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds",
+    "cf-013-council-of-nicea-i-325"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Athanasius of Alexandria in the title; 4 mentions; Apostles’, Nicene and ancient creeds ABOUT 7x; Council of Nicaea I (325) ABOUT 2x",
+   "about": [
+    "author:Athanasius of Alexandria",
+    "doc:cf-001-apostolic-and-ancient-creeds",
+    "doc:cf-013-council-of-nicea-i-325"
+   ],
+   "excerpt": "In this episode, Joshua and Caleb begin to explore the second portion of the Nicene Creed on the Son. The hosts give an introduction to the Council of Nicaea, the reason Constantine convened the council in the first place, as well as the…",
+   "keywords": [
+    "caleb"
+   ],
+   "note": "Chapter 4 - \"Eternally Begotten\": Athanasius and Arius at Nicaea In this episode, Joshua and Caleb begin to explore the second portion of the Nicene Creed on the Son. The hosts give an introduction to the Council of Nicaea, the reason Constantine convened the council in the first place, as well as the life and work of Athanasius. To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. Disclaimer: the musical tracks beginning at the timestamps 7:44 and 26:00 are not original to the 'Passages' production crew. In the Nicene Creed we confess that “we believe in one Lord, Jesus Christ, the only-begotten Son of God, eternally begotten of the Father, God from God, Light from Light, true God from true God, begotten, not made, of one Being with the Father…” Where do these conclusions come from, what do they mean, and are there some key figures and texts in the backstory of the Nicene Creed that might illuminate them? In episode 4 of Passages, Caleb and Joshua explore the backstory of these lines in the Nicene Creed, especially focusing on Athanasius of Alexandria and his beautiful, important work entitled “On the Incarnation.” We discuss how to navigate the controversies surrounding Athanasius’ r"
+  },
+  {
+   "id": "ps-3",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 3 - \"The Maker of Heaven and Earth\": Marcion, Gnosticism, and Tertullian",
+   "url": "https://mereorthodoxy.com/passages-season-1-episode-3/",
+   "date": "2021-03-23",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Tertullian"
+   ],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Tertullian in the title; 2 mentions; Apostles’, Nicene and ancient creeds ABOUT 3x",
+   "about": [
+    "author:Tertullian",
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "In this episode of 'Passages,' Joshua and Caleb are joined by Dr. Michael Horton and Dr. Fred Sanders to discuss some of the backstories behind the article in the Nicene Creed that we says the One God is the \"maker of heaven and earth, of…",
+   "keywords": [
+    "caleb"
+   ],
+   "note": "Chapter 3 - \"The Maker of Heaven and Earth\": Marcion, Gnosticism, and Tertullian In this episode of 'Passages,' Joshua and Caleb are joined by Dr. Michael Horton and Dr. Fred Sanders to discuss some of the backstories behind the article in the Nicene Creed that we says the One God is the \"maker of heaven and earth, of all things visible and invisible.\" Listen in to hear commentary on Gnosticism, Marcionism, and Tertullian. To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. Disclaimer: the first musical track in this episode is not original to the 'Passages' production crew. What does it mean to confess in the Nicene Creed that “we believe in one God, the Father, the Almighty, maker of heaven and earth, of all that is, visible and invisible”? In episode 3 of Passages, we explore the backstory of these lines in the Nicene Creed. In conversation with systematic theologian Michael Horton, Caleb explores the ancient context in which the errors of ‘gnositicism’ emerged, and how devaluing the goodness of God’s creation is a problem not only in the past but at present as well. We discuss the formation of the canon of Scripture and how the pagan philosopher Celsus criticized early Christianit"
+  },
+  {
+   "id": "mf-19198573",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Mere Fidelity Passages Promo",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198573",
+   "date": "2021-03-19",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/3aj759211wz8q6yc8ofndl1sf6g8",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT 7x",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "Announcing \"",
+   "keywords": [],
+   "note": "Mere Fidelity Passages Promo Announcing \" "
+  },
+  {
+   "id": "ps-2",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 2 - \"One God\" or Three? The Biblical Texts Behind Nicaea",
+   "url": "https://mereorthodoxy.com/passages-passages-season-1-episode-2/",
+   "date": "2021-03-15",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "NONE",
+   "confidence": null,
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "",
+   "about": [],
+   "excerpt": "In the second installment of 'Passages,' Joshua and Caleb look into the Nicene Creed's testimony to \"one God.\" They explore early Christian theological interpretation of the Bible, more & less helpful ways to approach the complicated early…",
+   "keywords": [
+    "caleb"
+   ],
+   "note": "Chapter 2 - \"One God\" or Three? The Biblical Texts Behind Nicaea In the second installment of 'Passages,' Joshua and Caleb look into the Nicene Creed's testimony to \"one God.\" They explore early Christian theological interpretation of the Bible, more & less helpful ways to approach the complicated early histories of Judaism and Christianity, & much more. To support those who made Passages , please consider donating to Mere Orthodoxy . Joshua Heavin serves as the lead writer and host of Passages , while Caleb Wait serves as the lead producer and co-host. Original music by Aaron Feeney , who welcomes inquires. Follow Passages and Joshua and Caleb on Twitter for more news and updates about the show. What does it mean to confess that God is “one” but also, somehow, this one God is “Father, Son, and Holy Spirit”? The opening words of the Nicene creed confess that “we believe in one God.” In episode two, we explore some of the backstory to that confession in the Scriptures of the Old and New Testaments, which early Christians drew upon in confessing that God is “one” (Deuteronomy 6:4) while also confessing that somehow Jesus is worshipped and related to as within the identity of the “one” God of Israel (1 Corinthians 8:4). We also explore more and less helpful ways to think about the complex and inter-related histories of early Judaism and early Christianity, focusing on Justin Martyr, an early Christian apologist, and his Dialogue with Trypho the Jew, on the significance of Israel"
+  },
+  {
+   "id": "ps-1",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Chapter 1 - The Controversy of the Nicene Creed",
+   "url": "https://mereorthodoxy.com/passages-season-1-episode-1/",
+   "date": "2021-03-08",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds",
+    "cf-013-council-of-nicea-i-325"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT (title/heading) 2x; Council of Nicaea I (325) ABOUT 3x",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds",
+    "doc:cf-013-council-of-nicea-i-325"
+   ],
+   "excerpt": "Where does the Nicene Creed come from? What figures or texts in its backstory might provide further context for, or develop the implications of, these articles of faith – some of which are less intuitive than others? Is the theology of this…",
+   "keywords": [
+    "caleb"
+   ],
+   "note": "Chapter 1 - The Controversy of the Nicene Creed Where does the Nicene Creed come from? What figures or texts in its backstory might provide further context for, or develop the implications of, these articles of faith – some of which are less intuitive than others? Is the theology of this creed even intelligible to us today, who inhabit very different plausibility structures of the modern, secularizing West? Joshua and Caleb discuss these questions and more as they explore the backstory to the Council of Nicaea. 'Passages' is a project from Mere Orthodoxy . 'Passages' is written and produced by Joshua Heavin and Caleb Wait , with original music from Aaron Feeney . Who wrote the Nicene Creed? Why did the estimated 300 bishops present at the Council of Nicaea use terms such as “Light of Light… consubstantial… proceeding…” and more to describe God? Is the creed even intelligible to us today in the same sense its early proponents understood it? Does the Nicene creed have anything constructive to contribute to our context today, to those disillusioned with traditional forms of religion, or those merely interested in spirituality? In the first full episode of Passages, Joshua and Caleb give an overview of the Council of Nicaea while grappling with its caricatures and criticisms. Credits To support those who made Passages, please consider donating to Mere Orthodoxy. Joshua Heavin serves as the lead writer and host of Passages, while Caleb Wait serves as the lead producer and co-host."
+  },
+  {
+   "id": "ps-introduction",
+   "show": "passages",
+   "showName": "Passages",
+   "title": "Introduction - What Do You Believe?",
+   "url": "https://mereorthodoxy.com/passages-why-were-starting-passages/",
+   "date": "2021-02-28",
+   "host": "Joshua Heavin and Caleb Wait",
+   "image": "https://static.libsyn.com/p/assets/c/0/c/8/c0c82aba17e7c05d/Passages_Podcast_Art.png",
+   "showImage": "https://static.libsyn.com/p/assets/d/6/6/6/d666d3e048d52c4d/Passages_Podcast_Art.png",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "high",
+   "works": [
+    "pld-2755"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": true,
+   "reason": "Augustine of Hippo 15 mentions; The City of God (Augustine of Hippo) cited 4x; retrieval markers: 2 strong, 12 general; Apostles’, Nicene and ancient creeds ABOUT 7x; topic The Trinity 10 term hits",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "Of everything that can or should be said as a statement of Christian belief, why has the church confessed the Nicene Creed for seventeen centuries? Where did this creed come from? What figures or texts in its backstory might provide further…",
+   "keywords": [
+    "basil",
+    "begotten",
+    "failures"
+   ],
+   "note": "Introduction - What Do You Believe? Of everything that can or should be said as a statement of Christian belief, why has the church confessed the Nicene Creed for seventeen centuries? Where did this creed come from? What figures or texts in its backstory might provide further context for, or develop the implications of, these articles of faith – some of which are less intuitive than others? Is the theology of this creed even intelligible to us today, who inhabit very different plausibility structures of the modern, secularizing West? Differently, is this creed merely the product of ancient imperial politics, implicated in failures of Christian exploitation and oppression in ages past and present? How might we, in a culture of expressive individualism, tie our deepest convictions about God, self, others, and the world to a symbol of faith given to us, which we entrust to others, participating in something ever ancient and ever new, something that precedes us and will long outlast our fleeting and desperate lives? In 'Passages,' Joshua Heavin and Caleb Wait look at the theological contents of the documents that lead to the Nicene Creed, the personal stories behind them, and how these texts and passages also became the passageways of history, propelling not only the Christian church but all of society down new corridors, new periods, and new eras. “O gladsome light, pure brightness of the everliving Father in heaven, O Jesus Christ, holy and blessed! Now as we come to the settin"
+  },
+  {
+   "id": "mf-19198579",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The Beatitudes",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198579",
+   "date": "2021-02-09",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/1fsne0qlfe3xm5i4lejqs8wgfib8",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-vita-aeterna"
+   ],
+   "retrieval": false,
+   "reason": "topic Eternal Life 9 term hits",
+   "about": [
+    "topic:de-vita-aeterna"
+   ],
+   "excerpt": "With all four of the",
+   "keywords": [
+    "woes",
+    "pennington",
+    "blessedness",
+    "blessings",
+    "beatitude",
+    "sinai",
+    "curses",
+    "curse",
+    "twenty"
+   ],
+   "note": "The Beatitudes With all four of the "
+  },
+  {
+   "id": "mf-19198600",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'An Introduction to Theological Anthropology,' with Dr. Joshua Farris",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198600",
+   "date": "2020-08-25",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/y2qysh8bahuj07plf8hiwyuws2de",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-homine"
+   ],
+   "retrieval": false,
+   "reason": "topic Humanity in title/heading, 26 term hits",
+   "about": [
+    "topic:de-homine"
+   ],
+   "excerpt": "What does it mean to be human? Who am I? and Why do I exist? Dr. Joshua Farris—Chester and Margaret Paluch Lecturer for 2019-2020 at the University of Saint Mary of the Lake and former assistant professor of theology at Houston Baptist…",
+   "keywords": [
+    "analytic",
+    "cartesian",
+    "constitution",
+    "disembodied",
+    "interlocutors",
+    "biological",
+    "property",
+    "confessional",
+    "emphases",
+    "foreground",
+    "dogmatic"
+   ],
+   "note": "'An Introduction to Theological Anthropology,' with Dr. Joshua Farris What does it mean to be human? Who am I? and Why do I exist? Dr. Joshua Farris—Chester and Margaret Paluch Lecturer for 2019-2020 at the University of Saint Mary of the Lake and former assistant professor of theology at Houston Baptist University—joins Matt, Derek, and Alastair to discuss his new volume, 'An Introduction to Theological Anthropology Humans, Both Creaturely and Divine,' where he seeks to answer these questions using the vast tradition of Christian theology. Listen in to hear theological reflection on anthropological issues such as sexuality, gender, race, posthumanism, the image of God, vocation, the constitution of man, the beatific vision, and more. "
+  },
+  {
+   "id": "mf-19198604",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The Imago Dei",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198604",
+   "date": "2020-07-28",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/bbrudw5q5qhse1l6apoaz4tzfa3m",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-homine"
+   ],
+   "retrieval": false,
+   "reason": "topic Humanity in title/heading, 72 term hits",
+   "about": [
+    "topic:de-homine"
+   ],
+   "excerpt": "The Imago Dei is one of the most used theological categories to argue why all humans deserve dignity and sanctity. However, is this all that the imago dei should be used for? The entire cast and crew of Matt, Derek, Alastair, and Andrew are…",
+   "keywords": [
+    "crypto",
+    "stipulated",
+    "sonship",
+    "shorthand",
+    "terminology",
+    "priestly"
+   ],
+   "note": "The Imago Dei The Imago Dei is one of the most used theological categories to argue why all humans deserve dignity and sanctity. However, is this all that the imago dei should be used for? The entire cast and crew of Matt, Derek, Alastair, and Andrew are here to discuss how to think and speak about the imago dei: was Barth right about the image, should it be used to describe human rights, and what are the actual contents of the imago dei? Listen in to hear all of these questions and more. "
+  },
+  {
+   "id": "mf-19198619",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "For and Against: Infant Baptism",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198619",
+   "date": "2020-04-07",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/pcyc4twawvtr8yiz7vc3uvn02xw2",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-baptismo"
+   ],
+   "retrieval": false,
+   "reason": "topic Baptism in title/heading, 89 term hits",
+   "about": [
+    "topic:de-baptismo"
+   ],
+   "excerpt": "While Matt, Derek, and Andrew practice staying in-place, they decide to take about the topic and question of who are the proper subjects of baptism? Derek argues for the legitimacy of paedobaptism, Andrew argues for the view of…",
+   "keywords": [
+    "circumcision",
+    "regenerate",
+    "discontinuity",
+    "regeneration",
+    "meandering",
+    "baptize",
+    "baptisms",
+    "colossians",
+    "infants",
+    "profession",
+    "covenants",
+    "button"
+   ],
+   "note": "For and Against: Infant Baptism While Matt, Derek, and Andrew practice staying in-place, they decide to take about the topic and question of who are the proper subjects of baptism? Derek argues for the legitimacy of paedobaptism, Andrew argues for the view of credobaptism, Matt moderates, and fun is had by all. Even amidst the pandemic that the world is experiencing, topics like the sacraments always remain salient for the church. And while it may be important for us to discuss and perhaps debate how to respond to our current public health crisis, it remains important to continue to discuss one of the things that only the church does and is marked by: baptism. "
+  },
+  {
+   "id": "mf-19198620",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "\"Grace, Predestination, and the Permission of Sin,\" with Dr. Taylor Patrick O'Neill",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198620",
+   "date": "2020-03-31",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/5iqcv0trmfqqaxoispnalb6m5jtr",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [
+    "aq-st-ii-ii-19",
+    "aq-st-ii-ii-20",
+    "aq-st-i-ii-17",
+    "aq-st-iii-21",
+    "aq-st-i-16",
+    "aq-st-iiisup-23"
+   ],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-praedestinatione"
+   ],
+   "retrieval": false,
+   "reason": "Summa Theologiae (Thomas Aquinas) cited 3x; retrieval markers: 0 strong, 12 general; topic Predestination in title/heading, 23 term hits; topic The Nature of God 16 term hits; topic Free Will 11 term hits",
+   "about": [
+    "topic:de-praedestinatione"
+   ],
+   "excerpt": "What hath St. Thomas to do with predestination? Dr. Taylor Patrick O'Neill joins Matt and Derek to discuss his recent book, \"Grace, Predestination, and the Permission of Sin: A Thomistic Analysis,\" to examine the Thomist understanding of…",
+   "keywords": [
+    "concursus",
+    "compatibilism",
+    "infallibly",
+    "potency",
+    "efficacious",
+    "graces",
+    "dominican",
+    "antecedent",
+    "defect",
+    "causality",
+    "permitted",
+    "motion"
+   ],
+   "note": "\"Grace, Predestination, and the Permission of Sin,\" with Dr. Taylor Patrick O'Neill What hath St. Thomas to do with predestination? Dr. Taylor Patrick O'Neill joins Matt and Derek to discuss his recent book, \"Grace, Predestination, and the Permission of Sin: A Thomistic Analysis,\" to examine the Thomist understanding of predestination and how it relates to Calvinism, concursus, and the difference between God's actions and permission of actions in history. "
+  },
+  {
+   "id": "mf-19198625",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "\"Divine Humility,\" with Dr. Matthew Wilcoxen",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198625",
+   "date": "2020-02-25",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/uqxv3txswnqx8bbomkppn5t7vdew",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 12 mentions; topic The Trinity 30 term hits; topic The Person and Work of Christ 8 term hits",
+   "about": [],
+   "excerpt": "God is all-powerful. God is all-knowing. God is ever-present. But is God humble? Dr. Matthew Wilcoxen joins Derek and Alastair to discuss his recent book, 'Divine Humility: God's Morally Perfect Being.' Listen in as he traces the theme of a…",
+   "keywords": [
+    "mirroring",
+    "wills",
+    "eternality",
+    "oneness",
+    "greatness",
+    "obedience",
+    "attribute",
+    "catherine",
+    "attributes",
+    "simplicity",
+    "karl"
+   ],
+   "note": "\"Divine Humility,\" with Dr. Matthew Wilcoxen God is all-powerful. God is all-knowing. God is ever-present. But is God humble? Dr. Matthew Wilcoxen joins Derek and Alastair to discuss his recent book, 'Divine Humility: God's Morally Perfect Being.' Listen in as he traces the theme of a doctrine of humility from Augustine to Karl Barth and more. "
+  },
+  {
+   "id": "mf-19198626",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "\"The Lord's Prayer,\" with Dr. Wesley Hill",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198626",
+   "date": "2020-02-19",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/9xahocww1ww9ym5hbiamrrzs94io",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "John Wesley"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-oratione"
+   ],
+   "retrieval": false,
+   "reason": "John Wesley in the title; 1 mentions; topic Prayer in title/heading, 23 term hits",
+   "about": [
+    "author:John Wesley",
+    "topic:de-oratione"
+   ],
+   "excerpt": "How do we pray to our Father? Dr. Wesley Hill joins Matt, Derek, and Alastair to discuss his latest book, \"The Lord's Prayer: A Guide to Praying to Our Father.\" Is the prayer an exact model or more of a paradigm for Christians? What are the…",
+   "keywords": [
+    "petitions",
+    "wes",
+    "petition",
+    "forgiving",
+    "beatitudes",
+    "trials",
+    "trial",
+    "testing",
+    "tight"
+   ],
+   "note": "\"The Lord's Prayer,\" with Dr. Wesley Hill How do we pray to our Father? Dr. Wesley Hill joins Matt, Derek, and Alastair to discuss his latest book, \"The Lord's Prayer: A Guide to Praying to Our Father.\" Is the prayer an exact model or more of a paradigm for Christians? What are the implications of spiritual warfare in the prayer? Will we not be forgiven unless we also forgive others? In conversation with the Christian tradition, Dr. Hill draws out the significance of Jesus' words to answer these questions and more. "
+  },
+  {
+   "id": "mf-19198631",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The ETS Special with Dr. Fred Sanders, Dr. Gavin Ortlund, and Dr. Matthew Emerson",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198631",
+   "date": "2019-11-27",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/67bn533kmuu5hzch2iqstkv9qsy2",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RETRIEVAL-GENERAL",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": true,
+   "reason": "retrieval markers: 2 strong, 7 general; topic The Trinity 50 term hits; topic The Person and Work of Christ 16 term hits; topic Death and Judgment 15 term hits",
+   "about": [],
+   "excerpt": "Matt and Derek are at ETS in San Diego and are joined by friends of the show, Dr. Fred Sanders, Dr. Gavin Ortland, and Dr. Matthew Emerson. Banter aside, this episode gives a great look at what kind of fun and rich conversations take place…",
+   "keywords": [
+    "compartment",
+    "torment",
+    "clause",
+    "descent",
+    "hades",
+    "victorious",
+    "paradise",
+    "turitan",
+    "delete",
+    "retrieval",
+    "saturday",
+    "webster"
+   ],
+   "note": "The ETS Special with Dr. Fred Sanders, Dr. Gavin Ortlund, and Dr. Matthew Emerson Matt and Derek are at ETS in San Diego and are joined by friends of the show, Dr. Fred Sanders, Dr. Gavin Ortland, and Dr. Matthew Emerson. Banter aside, this episode gives a great look at what kind of fun and rich conversations take place at ETS. Today's episode ranges from discussions on John Webster's trinitarian theology, evangelical theological retrieval, and Jesus' descent to the dead. "
+  },
+  {
+   "id": "mf-19198640",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Jephthah's Vow in Judges 11",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198640",
+   "date": "2019-09-04",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/6uj26lhcv2mns39i43lwq4bbm66r",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "medium",
+   "works": [],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 12 mentions",
+   "about": [],
+   "excerpt": "Matt, Derek, and Alastair dive into the difficult and unsettling text of Jephthah's vow in Judges 11. The crew covers recent and old interpretations of the troubled passage, asking if certain texts can or should be \"smoothed over\" with…",
+   "keywords": [
+    "samson",
+    "virginity",
+    "sacrificed",
+    "typology",
+    "vows",
+    "burnt",
+    "dedicated",
+    "firstborn",
+    "foolish",
+    "typological",
+    "isaac",
+    "seeming"
+   ],
+   "note": "Jephthah's Vow in Judges 11 Matt, Derek, and Alastair dive into the difficult and unsettling text of Jephthah's vow in Judges 11. The crew covers recent and old interpretations of the troubled passage, asking if certain texts can or should be \"smoothed over\" with typology, how we should handle texts with seeming contradictions, and how to poise ourselves in the face of scripture's ethical dilemmas? "
+  },
+  {
+   "id": "mf-19198652",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The Invisibility of the Church",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198652",
+   "date": "2019-02-18",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/xo4ykzti8d94o7er04yuxisdjm6b",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "rc-111-westminster-confession-of-faith-1646"
+   ],
+   "verses": [],
+   "topics": [
+    "de-ecclesia"
+   ],
+   "retrieval": false,
+   "reason": "Westminster Confession Of Faith ABOUT 4x; topic The Church 21 term hits; topic The Sacraments 10 term hits",
+   "about": [
+    "doc:rc-111-westminster-confession-of-faith-1646",
+    "topic:de-ecclesia"
+   ],
+   "excerpt": "Inspired by the discussion over Andrew's book, Matt, Derek, and Alastair sit down to tackle another ecclesiastical issue: the invisibility of the church.",
+   "keywords": [
+    "visibility",
+    "tares",
+    "wheat",
+    "elect",
+    "waco",
+    "exposition"
+   ],
+   "note": "The Invisibility of the Church Inspired by the discussion over Andrew's book, Matt, Derek, and Alastair sit down to tackle another ecclesiastical issue: the invisibility of the church. "
+  },
+  {
+   "id": "mf-19198653",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Spirit and Sacrament: An Invitation to Eucharismatic Worship",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198653",
+   "date": "2019-02-12",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/348wchcn8saicwts02te3tn5fa27",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [
+    "de-sacramentis"
+   ],
+   "retrieval": false,
+   "reason": "topic The Sacraments in title/heading, 28 term hits; topic The Lord's Supper 8 term hits",
+   "about": [
+    "topic:de-sacramentis"
+   ],
+   "excerpt": "The crew discusses Andrew's new book and his invitation to have charismatic worship and a high view of the sacraments.",
+   "keywords": [
+    "spontaneity",
+    "dionysian",
+    "bouncy",
+    "eucharistic",
+    "spontaneous",
+    "dancing",
+    "corporate"
+   ],
+   "note": "Spirit and Sacrament: An Invitation to Eucharismatic Worship The crew discusses Andrew's new book and his invitation to have charismatic worship and a high view of the sacraments. "
+  },
+  {
+   "id": "mf-19198661",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book XIII (The End)",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198661",
+   "date": "2018-10-17",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/qfvsqnzu4x1zsc92bc9ndep84y2g",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 10 mentions; Confessions (Augustine of Hippo) in the title 2x",
+   "about": [
+    "work:pld-2722"
+   ],
+   "excerpt": "At long last, we reach the end of our discussion of Augustine's *Confessions.*",
+   "keywords": [
+    "stretched",
+    "temporality",
+    "firmament",
+    "fiery",
+    "skin"
+   ],
+   "note": "Reading Club: 'Confessions,' Book XIII (The End) At long last, we reach the end of our discussion of Augustine's *Confessions.* "
+  },
+  {
+   "id": "mf-19198663",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book XII (On Creation & Scripture)",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198663",
+   "date": "2018-09-19",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/7sp1bdq68v9c4g9ghrb8rz4r31lw",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 21 mentions; Confessions (Augustine of Hippo) in the title 2x",
+   "about": [
+    "work:pld-2722"
+   ],
+   "excerpt": "Alastair, Matt and Derek consider Book 12 of Augustine's *Confessions,* in which Augustine parses 'In the beginning God created the heavens and earth...'",
+   "keywords": [
+    "formless",
+    "priority",
+    "interpretive",
+    "interpreters",
+    "plurality",
+    "pluralism",
+    "ignorance",
+    "interpretations",
+    "quest",
+    "transcendence"
+   ],
+   "note": "Reading Club: 'Confessions,' Book XII (On Creation & Scripture) Alastair, Matt and Derek consider Book 12 of Augustine's *Confessions,* in which Augustine parses 'In the beginning God created the heavens and earth...' "
+  },
+  {
+   "id": "mf-19198665",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book XI (On Time and the Christian Life)",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198665",
+   "date": "2018-09-04",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/agk2las7hsyqta4f8vkkkscgh7zz",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 14 mentions; Confessions (Augustine of Hippo) in the title 1x",
+   "about": [
+    "work:pld-2722"
+   ],
+   "excerpt": "Derek, Matt and Alastair take up and read Book 11 of Augustine's *Confessions,* on time and the spiritual life.",
+   "keywords": [
+    "eternality",
+    "stretched",
+    "terror",
+    "speed",
+    "clock"
+   ],
+   "note": "Reading Club: 'Confessions,' Book XI (On Time and the Christian Life) Derek, Matt and Alastair take up and read Book 11 of Augustine's *Confessions,* on time and the spiritual life. "
+  },
+  {
+   "id": "mf-19198666",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The Weirdness of Matthew 27:51–54",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198666",
+   "date": "2018-08-14",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/ym8o7536y4m2xfe1vgj0abgrwvnf",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [
+    "matthew.27"
+   ],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Matthew 27 in title/heading, 1 distinct refs",
+   "about": [
+    "verse:matthew.27"
+   ],
+   "excerpt": "The Weirdness of Matthew 27:51–54 by",
+   "keywords": [
+    "tombs",
+    "earthquake",
+    "centurion",
+    "curtain",
+    "graves",
+    "sheol",
+    "chiasm",
+    "torn",
+    "friday",
+    "guarding",
+    "tomb",
+    "veil"
+   ],
+   "note": "The Weirdness of Matthew 27:51–54 The Weirdness of Matthew 27:51–54 by "
+  },
+  {
+   "id": "mf-19198668",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book X",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198668",
+   "date": "2018-06-05",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/8u6uo8dyj5j1x2chcxxe3nwq9p22",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 14 mentions; Confessions (Augustine of Hippo) in the title 2x; topic The Trinity 8 term hits",
+   "about": [
+    "work:pld-2722"
+   ],
+   "excerpt": "Alastair, Matt and Derek take up Book 10 of Augustine's *Confessions.*",
+   "keywords": [
+    "mediator",
+    "quest",
+    "temptations"
+   ],
+   "note": "Reading Club: 'Confessions,' Book X Alastair, Matt and Derek take up Book 10 of Augustine's *Confessions.* "
+  },
+  {
+   "id": "mf-19198670",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book IX",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198670",
+   "date": "2018-05-09",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/zqa9ol0y0tekszmbvvhv7s0stoy4",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 20 mentions; Confessions (Augustine of Hippo) in the title 3x",
+   "about": [
+    "work:pld-2722"
+   ],
+   "excerpt": "Derek, Matt and Alastair read Book 9 of Augustine's Confessions together, which includes the vision at Ostia and the death of Monica.",
+   "keywords": [
+    "renunciation",
+    "monica",
+    "mourning",
+    "ascent"
+   ],
+   "note": "Reading Club: 'Confessions,' Book IX Derek, Matt and Alastair read Book 9 of Augustine's Confessions together, which includes the vision at Ostia and the death of Monica. "
+  },
+  {
+   "id": "mf-19198672",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book VIII",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198672",
+   "date": "2018-04-25",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/c0x420opfc5o3ta2anpybe00kdua",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 18 mentions; Confessions (Augustine of Hippo) in the title 2x",
+   "about": [
+    "work:pld-2722"
+   ],
+   "excerpt": "Matt, Derek and Alastair read and discussion Book 8 of Augustine's *Confessions.*",
+   "keywords": [
+    "testimonies",
+    "chastity",
+    "nested",
+    "bondage",
+    "celibacy",
+    "habit",
+    "anthony"
+   ],
+   "note": "Reading Club: 'Confessions,' Book VIII Matt, Derek and Alastair read and discussion Book 8 of Augustine's *Confessions.* "
+  },
+  {
+   "id": "mf-19198674",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "'To Change the Church,' with Ross Douthat",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198674",
+   "date": "2018-04-11",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/gdf7yxra96vgjmo2y5drvzq2hmz7",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "x:vatican-ii"
+   ],
+   "verses": [],
+   "topics": [
+    "de-ecclesia"
+   ],
+   "retrieval": false,
+   "reason": "Second Vatican Council (1962–1965) ABOUT 8x; topic The Church 15 term hits",
+   "about": [
+    "doc:x:vatican-ii",
+    "topic:de-ecclesia"
+   ],
+   "excerpt": "New York Times columnist Ross Douthat joins the show to talk about Pope Francis and the crisis within the Roman Catholic communion.",
+   "keywords": [
+    "papacy",
+    "pontificate",
+    "annulment",
+    "encyclical",
+    "vatican",
+    "magisterium",
+    "papal",
+    "conservatives",
+    "interpreters",
+    "liberals",
+    "marriages",
+    "ecumenical"
+   ],
+   "note": "'To Change the Church,' with Ross Douthat New York Times columnist Ross Douthat joins the show to talk about Pope Francis and the crisis within the Roman Catholic communion. "
+  },
+  {
+   "id": "mf-19198676",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book VII",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198676",
+   "date": "2018-03-21",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/5hh0al3hi3nr0pt48aaxth693nbz",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 19 mentions; Confessions (Augustine of Hippo) in the title 3x",
+   "about": [
+    "work:pld-2722"
+   ],
+   "excerpt": "Matt, Alastair and Derek consider book 7 of Augustine's Confessions.",
+   "keywords": [
+    "privation",
+    "neoplatonism",
+    "omnipresence",
+    "incorruptible",
+    "neoplatonic",
+    "purge",
+    "disorder",
+    "idolatrous",
+    "temporal",
+    "superior",
+    "hole",
+    "foreground"
+   ],
+   "note": "Reading Club: 'Confessions,' Book VII Matt, Alastair and Derek consider book 7 of Augustine's Confessions. "
+  },
+  {
+   "id": "mf-19198678",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book VI",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198678",
+   "date": "2018-01-31",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/7uix9fj37ydasjqd8rjj9djh6uyy",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 30 mentions; Confessions (Augustine of Hippo) in the title 2x",
+   "about": [
+    "author:Augustine of Hippo",
+    "work:pld-2722"
+   ],
+   "excerpt": "Reading Club: 'Confessions,' Book VI by",
+   "keywords": [
+    "alpius",
+    "monica",
+    "bloodlust",
+    "olypius",
+    "madness",
+    "ambrose",
+    "entrusting",
+    "games",
+    "potter",
+    "harry"
+   ],
+   "note": "Reading Club: 'Confessions,' Book VI Reading Club: 'Confessions,' Book VI by "
+  },
+  {
+   "id": "mf-19198681",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book V",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198681",
+   "date": "2017-12-12",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/avhb6g1jymgbtdghoncgmtpzhd4j",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 51 mentions; Confessions (Augustine of Hippo) in the title 2x",
+   "about": [
+    "author:Augustine of Hippo",
+    "work:pld-2722"
+   ],
+   "excerpt": "Matt, Alastair and Derek consider Augustine's movement from Carthage to Milan in Book 5 of *Confessions.*",
+   "keywords": [
+    "ambrose",
+    "carthage",
+    "manic",
+    "maniches",
+    "departed",
+    "aeneid",
+    "ignorant",
+    "arts",
+    "ignorance"
+   ],
+   "note": "Reading Club: 'Confessions,' Book V Matt, Alastair and Derek consider Augustine's movement from Carthage to Milan in Book 5 of *Confessions.* "
+  },
+  {
+   "id": "mf-19198685",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book IV",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198685",
+   "date": "2017-11-14",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/84u6m2djs0w0zy3wwjl7cm1hjwf1",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 29 mentions; Confessions (Augustine of Hippo) in the title 2x",
+   "about": [
+    "author:Augustine of Hippo",
+    "work:pld-2722"
+   ],
+   "excerpt": "Derek, Matt and Alastair consider astrology, beauty, and other themes from Book IV of Augustine's *Confessions.*",
+   "keywords": [
+    "astrology",
+    "transience",
+    "funerals",
+    "individualized",
+    "brilliance",
+    "faults",
+    "perfection",
+    "grief",
+    "deaths"
+   ],
+   "note": "Reading Club: 'Confessions,' Book IV Derek, Matt and Alastair consider astrology, beauty, and other themes from Book IV of Augustine's *Confessions.* "
+  },
+  {
+   "id": "mf-19198686",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "The Reformation, with Carl Trueman",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198686",
+   "date": "2017-11-07",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/6838ytpqmgkexxon40e01lx25f8f",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "Martin Luther"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Martin Luther 37 mentions",
+   "about": [
+    "author:Martin Luther"
+   ],
+   "excerpt": "The entire cast considers whether the Reformation made everything awful with church historian Carl Trueman.",
+   "keywords": [
+    "enchantment",
+    "enchanted",
+    "causation",
+    "unintended",
+    "rebel",
+    "disenchanted",
+    "celebrating",
+    "literacy",
+    "pluralism",
+    "apostolic",
+    "urban",
+    "discovery"
+   ],
+   "note": "The Reformation, with Carl Trueman The entire cast considers whether the Reformation made everything awful with church historian Carl Trueman. "
+  },
+  {
+   "id": "mf-19198687",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book III",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198687",
+   "date": "2017-10-31",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/70kptyypdazuyh42f72oy4hca7ku",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 26 mentions; Confessions (Augustine of Hippo) in the title 2x",
+   "about": [
+    "author:Augustine of Hippo",
+    "work:pld-2722"
+   ],
+   "excerpt": "Matt, Derek and Alastair take up Book 3 of Augustine's Confessions.",
+   "keywords": [
+    "manichaean",
+    "hortensius",
+    "accommodation",
+    "theater",
+    "monica",
+    "sufferings",
+    "wives",
+    "objections",
+    "customs",
+    "entertainment"
+   ],
+   "note": "Reading Club: 'Confessions,' Book III Matt, Derek and Alastair take up Book 3 of Augustine's Confessions. "
+  },
+  {
+   "id": "mf-19198688",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book II",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198688",
+   "date": "2017-10-17",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/0dgx7htkm5wcskqkjidchftub7co",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 19 mentions; Confessions (Augustine of Hippo) in the title 2x",
+   "about": [
+    "work:pld-2722"
+   ],
+   "excerpt": "Matt, Alastair and Derek consider Book 2 of Augustine's *Confessions.*",
+   "keywords": [
+    "pear",
+    "closeness",
+    "nearness",
+    "imitation",
+    "stealing",
+    "traveling",
+    "vices"
+   ],
+   "note": "Reading Club: 'Confessions,' Book II Matt, Alastair and Derek consider Book 2 of Augustine's *Confessions.* "
+  },
+  {
+   "id": "mf-19198690",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Reading Club: 'Confessions,' Book I",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198690",
+   "date": "2017-09-26",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/ikas1k4wgs9m0i17ewj02py5bpf8",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "RESOURCE-FOR-WORK/AUTHOR",
+   "confidence": "high",
+   "works": [
+    "pld-2722"
+   ],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Augustine of Hippo 37 mentions; Confessions (Augustine of Hippo) in the title 3x",
+   "about": [
+    "author:Augustine of Hippo",
+    "work:pld-2722"
+   ],
+   "excerpt": "Derek, Alastair and Matt take up and read Book I of Augustine's *Confessions.*",
+   "keywords": [
+    "prologue",
+    "smoking",
+    "inquiries",
+    "restless",
+    "qualities",
+    "womb",
+    "passions"
+   ],
+   "note": "Reading Club: 'Confessions,' Book I Derek, Alastair and Matt take up and read Book I of Augustine's *Confessions.* "
+  },
+  {
+   "id": "mf-19198692",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Orthodoxy and Sexual Ethics",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198692",
+   "date": "2017-09-05",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/k1t3a1cxsd238w8wr8q362bonhc3",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "CREED-CONFESSION",
+   "confidence": "medium",
+   "works": [],
+   "authors": [],
+   "docs": [
+    "cf-001-apostolic-and-ancient-creeds"
+   ],
+   "verses": [],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Apostles’, Nicene and ancient creeds ABOUT 2x",
+   "about": [
+    "doc:cf-001-apostolic-and-ancient-creeds"
+   ],
+   "excerpt": "We're back. The whole crew gets together to recap and review the discussions about the relationship between orthodoxy and sexuality, and the Nashville Statement.",
+   "keywords": [
+    "unorthodox",
+    "nashville",
+    "prohibitions",
+    "denials",
+    "entailed",
+    "affirmations",
+    "neighbours",
+    "chalcedon",
+    "signed",
+    "creeds",
+    "gay",
+    "document"
+   ],
+   "note": "Orthodoxy and Sexual Ethics We're back. The whole crew gets together to recap and review the discussions about the relationship between orthodoxy and sexuality, and the Nashville Statement. "
+  },
+  {
+   "id": "mf-19198695",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "Another Bible Study on Genesis 1",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198695",
+   "date": "2017-04-13",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/inud8rrmlo9nkkg2hkn9q0ze5dqe",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [
+    "genesis.1"
+   ],
+   "topics": [],
+   "retrieval": false,
+   "reason": "Genesis 1 in title/heading, 1 distinct refs",
+   "about": [
+    "verse:genesis.1"
+   ],
+   "excerpt": "Alastair, Matt and Andrew discuss the second half of Genesis 1 in a good ol' fashioned Bible study.",
+   "keywords": [
+    "vegetation",
+    "mankind",
+    "livestock",
+    "completing",
+    "cattle",
+    "subdue",
+    "cycles",
+    "dominion",
+    "birds",
+    "moon",
+    "multiply",
+    "cycle"
+   ],
+   "note": "Another Bible Study on Genesis 1 Alastair, Matt and Andrew discuss the second half of Genesis 1 in a good ol' fashioned Bible study. "
+  },
+  {
+   "id": "mf-19198696",
+   "show": "mere-fidelity",
+   "showName": "Mere Fidelity",
+   "title": "A Bible Study on Genesis 1",
+   "url": "https://mereorthodoxy.com/podcasts/mere-fidelity/#ep-19198696",
+   "date": "2017-04-04",
+   "host": "Matthew Lee Anderson, Derek Rishmawy and Alastair Roberts",
+   "image": "https://storage.buzzsprout.com/i0u0dprga3oae2sdxkcu2q0jzggv",
+   "showImage": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+   "episode": "",
+   "season": "",
+   "class": "DOCTRINE/TEXT-ENGAGEMENT",
+   "confidence": "high",
+   "works": [],
+   "authors": [],
+   "docs": [],
+   "verses": [
+    "genesis.1"
+   ],
+   "topics": [],
+   "retrieval": false,
+   "reason": "topic The Trinity 9 term hits; Genesis 1 in title/heading, 1 distinct refs",
+   "about": [
+    "verse:genesis.1"
+   ],
+   "excerpt": "Derek, Alastair and Matt have a good ol' fashioned Bible study on Genesis 1.",
+   "keywords": [
+    "hovering",
+    "firmament",
+    "void",
+    "moon",
+    "threefold",
+    "indwelling",
+    "below",
+    "ocean",
+    "breath",
+    "perfection",
+    "orders",
+    "identification"
+   ],
+   "note": "A Bible Study on Genesis 1 Derek, Alastair and Matt have a good ol' fashioned Bible study on Genesis 1. "
+  }
+ ]
+}

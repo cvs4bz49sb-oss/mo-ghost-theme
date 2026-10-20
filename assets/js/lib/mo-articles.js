@@ -18,6 +18,8 @@
  *   MOArticles.loadIndex()          Promise of the full-text index, fetched once under its own version. Search works without it, on the fields only.
  *   MOArticles.mentions(article, q) the terms of the query that matched only deep in the essay's text, for an "Also mentions" line
  *   MOArticles.kinds()              [{k, label, n}] in display order; n counts every essay that has the kind, so the counts overlap
+ *   MOArticles.podcasts             the same API over the podcast episodes (mo-podcasts.json): the Passages, Mere Fidelity and Christians Reading
+ *                                   Classics episodes that serve the library; a: show name, s: show key, u: the episode's page
  *   MOArticles.kindsOf(article)     the essay's kinds, primary first ([k] when it has only one)
  *   MOArticles.terms(q)             the folded words of a query, for highlighting
  *   MOArticles.image(article, w)   the featured image URL at width w (300, 600, 1000), or "" when there is none
@@ -104,7 +106,14 @@
   // Weights: title over keywords over the byline over the names of what it serves over the excerpt.
   const W = { title: 10, keyword: 6, byline: 5, entity: 4, excerpt: 1 };
 
-  function create() {
+  // A loader over one dataset. The default is the articles; MOArticles.podcasts is the same machine over mo-podcasts.json. opts: dataPath,
+  // indexPath, dvKey and indexDvKey (the window globals the build's stamp file sets).
+  function create(opts) {
+    const o0 = opts || {};
+    const dataPath = o0.dataPath || DATA_PATH;
+    const indexPath = o0.indexPath || INDEX_PATH;
+    const dvKey = o0.dvKey || "MO_ARTICLES_DV";
+    const indexDvKey = o0.indexDvKey || "MO_ARTICLES_INDEX_DV";
     let data = null;
     let byId = new Map();
     let pending = null;
@@ -152,10 +161,10 @@
     function load() {
       if (data) return Promise.resolve(data);
       if (!pending) {
-        const path = DATA_PATH;
+        const path = dataPath;
         // The CDN keys data files on ?v= alone and keeps old copies under old keys, so the data's own version goes in v: the stamp
         // (mo-articles-dv.js, built with the data), else the theme hash this script was loaded under, else the site's hourly helper.
-        const dv = typeof window !== "undefined" && window.MO_ARTICLES_DV;
+        const dv = typeof window !== "undefined" && window[dvKey];
         let url = path;
         if (dv) url = `${path}?v=${dv}`;
         else if (SELF_V) url = `${path}?v=${SELF_V}`;
@@ -231,8 +240,8 @@
     function loadIndex() {
       if (index) return Promise.resolve(index);
       if (!indexPending) {
-        const path = INDEX_PATH;
-        const dv = typeof window !== "undefined" && window.MO_ARTICLES_INDEX_DV;
+        const path = indexPath;
+        const dv = typeof window !== "undefined" && window[indexDvKey];
         let url = path;
         if (dv) url = `${path}?v=${dv}`;
         else if (SELF_V) url = `${path}?v=${SELF_V}`;
@@ -487,5 +496,8 @@
     };
   }
 
-  return create();
+  const api = create();
+  // The podcast episodes that serve the library: the same API over mo-podcasts.json (built by scripts/build-mo-podcasts.mjs).
+  api.podcasts = create({ dataPath: "/assets/data/faith-received/mo-podcasts.json", indexPath: "/assets/data/faith-received/mo-podcasts-index.json", dvKey: "MO_PODCASTS_DV", indexDvKey: "MO_PODCASTS_INDEX_DV" });
+  return api;
 }));

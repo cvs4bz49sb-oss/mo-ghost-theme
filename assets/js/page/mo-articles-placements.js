@@ -30,7 +30,26 @@
 
   const NOTE = "Essays that engage this. They do not speak for the library.";
   const warn = () => { try { window.console.warn("mo-articles load failed"); } catch (e) { /* no console */ } };
-  const loaded = () => MOA.load().then((d) => { if (!d) warn(); return d ? MOA : null; }).catch(() => { warn(); return null; });
+  /* The podcast episodes (mo-podcasts.json, MOArticles.podcasts) ride with the essays: the same lists, each episode labelled "Podcast, <show>" in
+     the author line. ALL answers the questions the pure functions ask of MOArticles, from both; an episode whose page is already an essay
+     (a Passages episode and its post) is listed once, as the essay. The strong-signal rules in the module apply to both. */
+  const POD = MOA.podcasts || null;
+  const tagged = new Map();
+  const tag = (e) => { let c = tagged.get(e.id); if (!c) { c = { ...e, a: `Podcast, ${e.a}` }; tagged.set(e.id, c); } return c; };
+  const essayUrls = () => new Set(MOA.all().map((a) => a.u));
+  const both = (name) => (x, y) => {
+    const base = MOA[name](x, y);
+    if (!POD) return base;
+    const urls = essayUrls();
+    return base.concat(POD[name](x, y).filter((e) => !urls.has(e.u)).map(tag));
+  };
+  const ALL = !POD ? MOA : {
+    all() { const urls = essayUrls(); return MOA.all().concat(POD.all().filter((e) => !urls.has(e.u)).map(tag)); },
+    entities: (a) => (a && a.s ? POD : MOA).entities(a),
+    forVerse: both("forVerse"), forTopic: both("forTopic"), forWork: both("forWork"), forAuthor: both("forAuthor"), forDoc: both("forDoc"),
+    kindsOf: MOA.kindsOf, image: MOA.image,
+  };
+  const loaded = () => Promise.all([MOA.load(), POD ? POD.load() : null]).then(([d]) => { if (!d) warn(); return d ? ALL : null; }).catch(() => { warn(); return null; });
   // loci.json (names, aliases and search words of every topic), one fetch, for the topic placement's strong-signal test.
   let lociP = null;
   const locus = (id) => {
@@ -125,7 +144,7 @@
     const scan = () => {
       queued = false;
       safe(() => {
-        if (!MOA.all().length) return;
+        if (!ALL.all().length) return;
         // A room or work still drawing has its class before its content: wait for the anchor, and only a draw with no essays is remembered.
         const room = document.querySelector("main.research-room");
         const bar = room && room.querySelector(".ridbar h1");
@@ -134,7 +153,7 @@
           const name = bar.textContent.trim();
           const key = `${name}|none`;
           if (name && !/^Compare\b/.test(name) && state.room !== key) {
-            const items = P.author(MOA, name);
+            const items = P.author(ALL, name);
             if (!items.length) state.room = key;
             else MOD.mountAt((el) => grid.before(el), items, { id: "moa-author", title: `Mere Orthodoxy on ${name}`, context: "", limit: 5, excerpt: true, tag: "h2", note: NOTE });
           }
@@ -145,7 +164,7 @@
         if (work && m && head && !work.querySelector("[data-moa-host]")) {
           const slug = internal(decodeURIComponent(m[1]));
           if (state.work !== `${slug}|none`) {
-            const items = P.work(MOA, slug);
+            const items = P.work(ALL, slug);
             if (!items.length) state.work = `${slug}|none`;
             else MOD.mountAt((el) => head.after(el), items, { id: "moa-work", title: "Articles on this work", context: "", limit: 3, excerpt: true, tag: "h2", note: "Essays that engage this work. They do not speak for the library." });
           }

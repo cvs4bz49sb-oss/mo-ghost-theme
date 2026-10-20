@@ -1,6 +1,7 @@
 // One-off preparation of assets/data/faith-received/mo-articles-index.json (2026-10-20): the full-text index behind the Resources search.
 //
 //   node scripts/prep-mo-articles-search.mjs <articles.jsonl> [--stats]
+//   node scripts/prep-mo-articles-search.mjs --podcasts [--stats]   the episodes: show notes only (scripts/mo-podcasts-input.json `note`), mo-podcasts-index.json
 //
 // <articles.jsonl> is the catalogue's corpus (field `body`); it is NOT in the repo and no body text is written anywhere. The output holds
 // term counts and postings only: no positions, no sentences, so an article cannot be rebuilt from it. It covers the articles of
@@ -19,12 +20,15 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
 const M = require(path.join(root, "assets/js/lib/mo-articles.js"));
+const PODCASTS = process.argv.includes("--podcasts");
 const src = process.argv[2];
-if (!src) { console.error("usage: prep-mo-articles-search.mjs <articles.jsonl>"); process.exit(2); }
+if (!PODCASTS && (!src || src.startsWith("--"))) { console.error("usage: prep-mo-articles-search.mjs <articles.jsonl> | --podcasts"); process.exit(2); }
+const DATA = PODCASTS ? "mo-podcasts.json" : "mo-articles.json";
+const OUTFILE = PODCASTS ? "mo-podcasts-index.json" : "mo-articles-index.json";
 const BUDGET = 700 * 1024; // the stated target, missed on purpose (see below)
 const MAX = 1500 * 1024;
 
-const data = JSON.parse(readFileSync(path.join(root, "assets/data/faith-received/mo-articles.json"), "utf8"));
+const data = JSON.parse(readFileSync(path.join(root, "assets/data/faith-received", DATA), "utf8"));
 const ids = data.articles.map((a) => a.id);
 const index = new Map(ids.map((id, i) => [id, i]));
 const ENT = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", rsquo: "’", lsquo: "‘", rdquo: "”", ldquo: "“" };
@@ -33,10 +37,14 @@ const plain = (html) => String(html || "").replace(/<(script|style)[\s\S]*?<\/\1
   .replace(/&([a-z]+);/gi, (m, n) => ENT[n.toLowerCase()] || " ");
 
 const bodies = new Array(ids.length);
-for (const line of readFileSync(src, "utf8").split("\n")) {
-  if (!line) continue;
-  const a = JSON.parse(line);
-  if (index.has(a.id)) bodies[index.get(a.id)] = plain(a.body);
+if (PODCASTS) {
+  for (const e of JSON.parse(readFileSync(path.join(root, "scripts/mo-podcasts-input.json"), "utf8")).episodes) if (index.has(e.id)) bodies[index.get(e.id)] = e.note;
+} else {
+  for (const line of readFileSync(src, "utf8").split("\n")) {
+    if (!line) continue;
+    const a = JSON.parse(line);
+    if (index.has(a.id)) bodies[index.get(a.id)] = plain(a.body);
+  }
 }
 if (bodies.some((b) => b === undefined)) throw new Error("some articles have no body in the corpus");
 
@@ -102,4 +110,4 @@ if (process.argv.includes("--stats")) {
   process.exit(0);
 }
 if (Buffer.byteLength(text) > MAX) { console.error("over the hard limit: not written"); process.exit(1); }
-writeFileSync(path.join(root, "assets/data/faith-received/mo-articles-index.json"), text);
+writeFileSync(path.join(root, "assets/data/faith-received", OUTFILE), text);

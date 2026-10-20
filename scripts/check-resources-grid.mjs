@@ -26,6 +26,10 @@ import path from "node:path";
 const dataFile = JSON.parse(readFileSync(path.join(import.meta.dirname, "..", "assets/data/faith-received/mo-articles.json"), "utf8"));
 const ksOf = (a) => a.ks || [a.k];
 const WANT_KIND = Object.fromEntries(["doc", "work", "retrieval", "topic"].map((k) => [k, dataFile.articles.filter((a) => ksOf(a).includes(k)).length]));
+const pods = JSON.parse(readFileSync(path.join(import.meta.dirname, "..", "assets/data/faith-received/mo-podcasts.json"), "utf8"));
+const PODS = pods.articles;
+const WANT_SHOW = Object.fromEntries(["passages", "mere-fidelity", "christians-reading-classics"].map((k) => [k, PODS.filter((a) => a.s === k).length]));
+const WANT_POD_CARDS = PODS.length;
 const WANT_CARDS = dataFile.articles.reduce((n, a) => n + ksOf(a).length, 0);
 
 const root = path.resolve(import.meta.dirname, "..");
@@ -74,43 +78,45 @@ const send = (method, params = {}) => new Promise((res) => { seq += 1; waiting.s
 const evaluate = async (expression) => { const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true }); return r.result && r.result.result ? r.result.result.value : undefined; };
 await send("Page.enable");
 
-const MEASURE = `(async () => {
-  const WANT_KIND = ${JSON.stringify(WANT_KIND)}, WANT_CARDS = ${WANT_CARDS};
-  for (let i = 0; i < 60 && !document.querySelector(".fr-res-card"); i += 1) await new Promise((r) => setTimeout(r, 100));
-  const grids = [...document.querySelectorAll(".fr-res-grid")];
-  const out = { vw: document.documentElement.clientWidth, sw: document.documentElement.scrollWidth, cards: document.querySelectorAll(".fr-res-card").length, problems: [] };
+const measure = (panel, prefix, wantFilter, wantCards, wantCount) => `(async () => {
+  const WANT_KIND = ${JSON.stringify(wantFilter)}, WANT_CARDS = ${wantCards};
+  document.querySelector('[data-k="${panel}"][role=tab]').click();
+  const P = document.getElementById('res-panel-${panel}');
+  for (let i = 0; i < 60 && !P.querySelector(".fr-res-card"); i += 1) await new Promise((r) => setTimeout(r, 100));
+  const grids = [...P.querySelectorAll(".fr-res-grid")];
+  const out = { vw: document.documentElement.clientWidth, sw: document.documentElement.scrollWidth, cards: P.querySelectorAll(".fr-res-card").length, problems: [] };
   if (!grids.length) { out.problems.push("no grid"); return out; }
   let g = grids[0];
   // every article is drawn: all 493 unfiltered, and the whole set for each kind
   // grouped, a multi-kind essay is under each of its groups; the unique total stays 493
   if (out.cards !== WANT_CARDS) out.problems.push(out.cards + " cards, wanted " + WANT_CARDS);
-  if (!/^493 articles$/.test(document.getElementById("resCount").textContent)) out.problems.push("the count says " + document.getElementById("resCount").textContent);
-  const hrefs = [...document.querySelectorAll(".fr-res-section")].map((sec) => new Set([...sec.querySelectorAll(".fr-res-cardlink")].map((a) => a.href)).size === sec.querySelectorAll(".fr-res-cardlink").length);
+  if (document.getElementById("${prefix}Count").textContent !== "${wantCount}") out.problems.push("the count says " + document.getElementById("${prefix}Count").textContent);
+  const hrefs = [...P.querySelectorAll(".fr-res-section")].map((sec) => new Set([...sec.querySelectorAll(".fr-res-cardlink")].map((a) => a.href)).size === sec.querySelectorAll(".fr-res-cardlink").length);
   if (hrefs.includes(false)) out.problems.push("a group repeats an article");
   const counts = {};
   for (const [k, n] of Object.entries(WANT_KIND)) {
-    document.querySelector('[data-kind="' + k + '"]').click();
-    counts[k] = document.querySelectorAll(".fr-res-card").length;
+    document.querySelector('#${prefix}Filters [data-f="' + k + '"]').click();
+    counts[k] = P.querySelectorAll(".fr-res-card").length;
     if (counts[k] !== n) out.problems.push(k + " shows " + counts[k] + " cards, wanted " + n);
-    const flat = [...document.querySelectorAll(".fr-res-cardlink")].map((a) => a.href);
+    const flat = [...P.querySelectorAll(".fr-res-cardlink")].map((a) => a.href);
     if (new Set(flat).size !== flat.length) out.problems.push("the " + k + " filter repeats an article");
   }
-  document.querySelector('[data-kind=""]').click();
+  document.querySelector('#${prefix}Filters [data-f=""]').click();
   // a full render, timed: script work from the click to the DOM being built
   const t0 = performance.now();
-  document.querySelector('[data-kind="topic"]').click();
-  document.querySelector('[data-kind=""]').click();
+  document.querySelector('#${prefix}Filters [data-f="' + Object.keys(WANT_KIND)[0] + '"]').click();
+  document.querySelector('#${prefix}Filters [data-f=""]').click();
   out.renderMs = (performance.now() - t0) / 2;
-  g = document.querySelector(".fr-res-grid");
+  g = P.querySelector(".fr-res-grid");
   // nothing on a card is clipped: no line-clamp or ellipsis, and every text line holds its own text
-  for (const el of document.querySelectorAll(".fr-res-card .fr-res-ctitle, .fr-res-card .fr-res-cmeta, .fr-res-card .fr-res-cwhy, .fr-res-card .fr-res-ckind, .fr-res-card .fr-res-cmore")) {
+  for (const el of P.querySelectorAll(".fr-res-card .fr-res-ctitle, .fr-res-card .fr-res-cmeta, .fr-res-card .fr-res-cwhy, .fr-res-card .fr-res-ckind, .fr-res-card .fr-res-cmore")) {
     const cs = getComputedStyle(el);
     if (cs.textOverflow === "ellipsis" || (cs.webkitLineClamp && cs.webkitLineClamp !== "none") || cs.maxHeight !== "none") { out.problems.push("clipping style on " + el.className); break; }
     if (el.scrollHeight > el.clientHeight + 1) { out.problems.push("clipped text in " + el.className); break; }
   }
-  const img = document.querySelector(".fr-res-img");
+  const img = P.querySelector(".fr-res-img");
   out.radius = img ? getComputedStyle(img).borderTopLeftRadius : "";
-  out.whyMissing = [...document.querySelectorAll(".fr-res-card")].filter((c) => !c.querySelector(".fr-res-cwhy") || !c.querySelector(".fr-res-cwhy").textContent.trim()).length;
+  out.whyMissing = [...P.querySelectorAll(".fr-res-card")].filter((c) => !c.querySelector(".fr-res-cwhy") || !c.querySelector(".fr-res-cwhy").textContent.trim()).length;
   out.cols = getComputedStyle(g).gridTemplateColumns.split(" ").length;
   const cards = [...g.querySelectorAll(".fr-res-card")].map((c) => c.getBoundingClientRect());
   const ws = cards.map((r) => r.width);
@@ -122,12 +128,12 @@ const MEASURE = `(async () => {
   const h1 = document.querySelector(".bhero h1");
   out.heroLeft = h1 ? h1.getBoundingClientRect().left : -1;
   out.tabLeft = document.querySelector(".fr-res-tab").getBoundingClientRect().left;
-  for (const c of document.querySelectorAll(".fr-res-card")) {
+  for (const c of P.querySelectorAll(".fr-res-card")) {
     const a = c.querySelector("a.fr-res-cardlink");
     if (!a) { out.problems.push("a card without a link"); continue; }
     if (!a.querySelector("img.fr-res-photo, .fr-res-ph")) out.problems.push("a card with no image or placeholder");
   }
-  for (const a of [...document.querySelectorAll(".fr-res-cardlink")].slice(0, 60)) {
+  for (const a of [...P.querySelectorAll(".fr-res-cardlink")].slice(0, 60)) {
     const parts = [...a.querySelectorAll(".fr-res-ctitle, .fr-res-cmeta, .fr-res-cwhy, .fr-res-ckind")].map((e) => e.getBoundingClientRect());
     for (let i = 0; i < parts.length; i += 1) for (let j = i + 1; j < parts.length; j += 1) if (hit(parts[i], parts[j])) out.problems.push("text lines overlap in a card");
   }
@@ -138,27 +144,30 @@ const WANT = { 1920: 4, 1440: 4, 1280: 4, 1024: 4, 768: 2, 375: 1 };
 let failed = 0;
 await send("Page.navigate", { url: `${base}/h` });
 await new Promise((res) => setTimeout(res, 800));
+const judge = (m, cols) => {
+  const bad = [];
+  if (!m || m.problems === undefined) return ["the page did not measure"];
+  if (m.renderMs > 150) bad.push(`a full render took ${m.renderMs.toFixed(0)} ms, over 150`);
+  if (m.radius !== "8px") bad.push(`image corners are ${m.radius}, wanted 8px`);
+  if (m.whyMissing) bad.push(`${m.whyMissing} cards have no why line`);
+  if (m.cols !== cols) bad.push(`${m.cols} columns, wanted ${cols}`);
+  if (m.sw > m.vw) bad.push(`page is ${m.sw}px wide in a ${m.vw}px window`);
+  if (m.spread > 1) bad.push(`tiles differ in width by ${m.spread.toFixed(2)}px`);
+  // The theme's .container: 1180px wide at most, 28px side padding, centered. Hero, tab, search and grid share its edges.
+  const edge = (m.vw - Math.min(m.vw, 1180)) / 2 + 28;
+  for (const [name, v] of [["grid left", m.left], ["grid right", m.right], ["hero", m.heroLeft], ["tab", m.tabLeft]]) {
+    if (Math.abs(v - edge) > 1) bad.push(`${name} edge is ${v.toFixed(1)}px, the container's is ${edge}px`);
+  }
+  bad.push(...new Set(m.problems));
+  return bad;
+};
 for (const [w, cols] of Object.entries(WANT)) {
   await send("Emulation.setDeviceMetricsOverride", { width: Number(w), height: 900, deviceScaleFactor: 1, mobile: false });
   await new Promise((res) => setTimeout(res, 300));
-  const m = await evaluate(MEASURE);
-  const bad = [];
-  if (!m || m.problems === undefined) bad.push("the page did not measure");
-  else {
-    if (m.renderMs > 150) bad.push(`a full render took ${m.renderMs.toFixed(0)} ms, over 150`);
-    if (m.radius !== "8px") bad.push(`image corners are ${m.radius}, wanted 8px`);
-    if (m.whyMissing) bad.push(`${m.whyMissing} cards have no why line`);
-    if (m.cols !== cols) bad.push(`${m.cols} columns, wanted ${cols}`);
-    if (m.sw > m.vw) bad.push(`page is ${m.sw}px wide in a ${m.vw}px window`);
-    if (m.spread > 1) bad.push(`tiles differ in width by ${m.spread.toFixed(2)}px`);
-    // The theme's .container: 1180px wide at most, 28px side padding, centered. Hero, tab, search and grid share its edges.
-    const edge = (m.vw - Math.min(m.vw, 1180)) / 2 + 28;
-    for (const [name, v] of [["grid left", m.left], ["grid right", m.right], ["hero", m.heroLeft], ["tab", m.tabLeft]]) {
-      if (Math.abs(v - edge) > 1) bad.push(`${name} edge is ${v.toFixed(1)}px, the container's is ${edge}px`);
-    }
-    bad.push(...new Set(m.problems));
-  }
-  if (bad.length) { failed += 1; console.error(`FAIL ${w}px: ${bad.join("; ")}`); } else console.log(`ok   ${w}px: ${cols} columns, ${m.cards} cards, render ${m.renderMs.toFixed(0)} ms`);
+  const m = await evaluate(measure("articles", "res", WANT_KIND, WANT_CARDS, "493 articles"));
+  const pm = await evaluate(measure("podcasts", "pod", WANT_SHOW, WANT_POD_CARDS, `${PODS.length} episodes`));
+  const bad = [...judge(m, cols).map((x) => `articles: ${x}`), ...judge(pm, cols).map((x) => `podcasts: ${x}`)];
+  if (bad.length) { failed += 1; console.error(`FAIL ${w}px: ${bad.join("; ")}`); } else console.log(`ok   ${w}px: ${cols} columns, ${m.cards} article cards (${m.renderMs.toFixed(0)} ms), ${pm.cards} episode cards`);
 }
 cleanup();
 if (failed) process.exit(1);

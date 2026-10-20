@@ -100,6 +100,8 @@
 .fr-res .fr-res-cwhy { display: block; margin-top: 4px; font-size: 13px; line-height: 1.4; color: var(--fr-ink); }
 .fr-res .fr-res-cmore { display: block; margin-top: 3px; font-size: 12.5px; font-style: italic; line-height: 1.35; color: var(--fr-muted); }
 .fr-res .fr-res-ckind { display: block; margin-top: 6px; font-size: 11px; line-height: 1.45; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fr-muted); }
+.fr-res .fr-res-ckind--first { margin: 10px 0 0; }
+.fr-res .fr-res-ckind--first + .fr-res-ctitle { margin-top: 3px; }
 .fr-res .fr-res-ctitle mark { color: inherit; background: color-mix(in srgb, var(--fr-accent) 16%, transparent); border-radius: 2px; padding: 0 1px; }
 
 

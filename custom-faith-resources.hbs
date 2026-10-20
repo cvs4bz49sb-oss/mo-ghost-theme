@@ -8,7 +8,7 @@
 <meta property="og:description" content="Essays from Mere Orthodoxy that serve the library: on its works, authors, creeds and confessions, and on theological retrieval." />
 <meta name="twitter:title" content="Resources | The Faith Received" />
 <meta name="twitter:description" content="Essays from Mere Orthodoxy that serve the library: on its works, authors, creeds and confessions, and on theological retrieval." />
-<link rel="stylesheet" href="{{asset "css/faith-resources.css"}}&amp;frv=resources-grid-20261020" />
+<link rel="stylesheet" href="{{asset "css/faith-resources.css"}}&amp;frv=resources-podcasts-20261020" />
 {{/contentFor}}
 {{!-- /the-faith-received/resources/ (Ian, 2026-10-20): the Resources page. One tab today, Articles: the Mere Orthodoxy
      essays that serve the library (assets/data/faith-received/mo-articles.json, built by scripts/build-mo-articles.mjs),
@@ -33,6 +33,7 @@
 
         <div class="fr-res-tabs" role="tablist" aria-label="Resources" data-res-tabs>
           <button type="button" role="tab" class="fr-res-tab" id="res-tab-articles" aria-controls="res-panel-articles" aria-selected="true" tabindex="0" data-k="articles">Articles</button>
+          <button type="button" role="tab" class="fr-res-tab" id="res-tab-podcasts" aria-controls="res-panel-podcasts" aria-selected="false" tabindex="-1" data-k="podcasts">Podcasts</button>
         </div>
 
         <div role="tabpanel" class="fr-res-panel" id="res-panel-articles" aria-labelledby="res-tab-articles" tabindex="0" data-k="articles">
@@ -48,7 +49,7 @@
           </form>
 
           <div class="fr-res-controls">
-            <div class="fr-res-group" role="group" aria-label="Kind of article" id="resKinds"></div>
+            <div class="fr-res-group" role="group" aria-label="Kind of article" id="resFilters"></div>
             <div class="fr-res-group fr-res-group--sort" role="group" aria-label="Sort" id="resSort">
               <span class="fr-res-grouplabel" aria-hidden="true">Sort</span>
               <button type="button" class="fr-res-opt" data-sort="match" aria-pressed="true">Best match</button>
@@ -62,6 +63,34 @@
           <p class="fr-res-empty" id="resEmpty" hidden>No articles match. <button type="button" class="fr-res-link" id="resReset">Clear the search and filters</button></p>
         </div>
 
+
+        <div role="tabpanel" class="fr-res-panel" id="res-panel-podcasts" aria-labelledby="res-tab-podcasts" tabindex="0" data-k="podcasts" hidden>
+          <h2 class="fr-res-sr">Podcasts</h2>
+          <p class="fr-res-intro">Episodes of Passages, Mere Fidelity and Christians Reading Classics that serve the library. Every episode of Passages is here.</p>
+
+          <form class="fr-res-search" role="search" id="podForm" autocomplete="off">
+            <label class="fr-res-label" for="podQuery">Search these episodes</label>
+            <div class="fr-res-field">
+              <input type="search" id="podQuery" name="pq" class="fr-res-input" placeholder="A word, a name, a work&hellip;" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" class="fr-res-clear" id="podClear" hidden>Clear</button>
+            </div>
+          </form>
+
+          <div class="fr-res-controls">
+            <div class="fr-res-group" role="group" aria-label="Show" id="podFilters"></div>
+            <div class="fr-res-group fr-res-group--sort" role="group" aria-label="Sort" id="podSort">
+              <span class="fr-res-grouplabel" aria-hidden="true">Sort</span>
+              <button type="button" class="fr-res-opt" data-sort="match" aria-pressed="true">Best match</button>
+              <button type="button" class="fr-res-opt" data-sort="new" aria-pressed="false">Newest</button>
+              <button type="button" class="fr-res-opt" data-sort="old" aria-pressed="false">Oldest</button>
+            </div>
+          </div>
+
+          <p class="fr-res-count" id="podCount" role="status" aria-live="polite">Loading the episodes&hellip;</p>
+          <div class="fr-res-results" id="podResults"></div>
+          <p class="fr-res-empty" id="podEmpty" hidden>No episodes match. <button type="button" class="fr-res-link" id="podReset">Clear the search and filters</button></p>
+        </div>
+
       </div>
     </div>
   </section>
@@ -71,6 +100,7 @@
 {{> "faith-received/_library-cta"}}
 
 <script src="{{asset "js/lib/mo-articles-dv.js"}}"></script>
-<script src="{{asset "js/lib/mo-articles.js"}}&amp;frv=resources-grid-20261020"></script>
+<script src="{{asset "js/lib/mo-podcasts-dv.js"}}"></script>
+<script src="{{asset "js/lib/mo-articles.js"}}&amp;frv=resources-podcasts-20261020"></script>
 <script src="{{asset "js/page/scripture-dev-core.js"}}&amp;frv=db01221e4f4b8ea6"></script>
-<script src="{{asset "js/page/faith-resources.js"}}&amp;frv=resources-grid-20261020"></script>
+<script src="{{asset "js/page/faith-resources.js"}}&amp;frv=resources-podcasts-20261020"></script>
