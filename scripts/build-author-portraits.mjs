@@ -3,7 +3,7 @@
  * Which authors have a portrait the author room can show, and the credit each one needs.
  *
  * The shelf guides carry the portraits (assets/data/faith-received/guides/portraits/*.jpg) and, in each guide's `portraits` map, who made
- * each picture, when, under what licence and where it came from. The author room (faith-author-about.js) reads one small file instead
+ * each picture, when, under what licence and where it came from. The author room (faith-author-redesign.js) reads one small file instead
  * of fourteen guides:
  *
  *   p      portrait slug -> { n name, f file (with its content hash, as the Verse Desk uses it), k kind, a artist, d date, l licence, u source }

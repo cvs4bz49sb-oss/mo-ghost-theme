@@ -382,9 +382,10 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-tabs 
   main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .ah-about { grid-row: 7; }
   main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > #rnNotes { grid-row: 8; }
   main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .rgrid { grid-row: 9; }
-  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .moa-host { grid-row: 11; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .moa-host { grid-row: 12; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > * { grid-row: 10; }
 }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-portrait { margin: 0; width: 200px; max-width: 100%; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-portrait { margin: 0 0 20px; width: 200px; max-width: 100%; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-portrait-frame {
   display: grid;
   place-items: center;
@@ -416,7 +417,11 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credit a { col
 
 /* ═══ Jump line and theme button ════════════════════════════════ */
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 0 22px; margin: 18px 0 48px; padding: 0 0 18px; border-bottom: 1px solid var(--ah-rule); }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump a {
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump button:not(.ah-theme) {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -426,7 +431,7 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump a {
   color: var(--ah-ink);
   text-decoration: none;
 }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump a:hover { color: var(--ah-accent); text-decoration: underline; text-underline-offset: 4px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump button:not(.ah-theme):hover { color: var(--ah-accent); text-decoration: underline; text-underline-offset: 4px; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme {
   margin-left: auto;
   min-height: 44px;
@@ -439,7 +444,7 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme {
   cursor: pointer;
 }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme:hover { background: var(--ah-accent); border-color: var(--ah-accent); color: #fff; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) :is(.ah-theme, .ah-jump a):focus-visible { outline: 2px solid var(--ah-accent); outline-offset: 3px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) :is(.ah-theme, .ah-jump button):focus-visible { outline: 2px solid var(--ah-accent); outline-offset: 3px; }
 @media (max-width: 640px) { main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump { gap: 0 16px; } main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-theme { margin-left: 0; } }
 
 /* ═══ About ═════════════════════════════════════════════════════ */
@@ -454,7 +459,7 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-life p.ah-gap 
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts { padding: 18px 20px 14px; border: 1px solid var(--ah-rule); border-top: 3px solid var(--ah-brand); border-radius: 3px; background: var(--ah-card); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-h3 { margin: 0 0 8px; font: 600 12px / 1.4 var(--ah-body); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ah-accent); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts dl { margin: 0; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts dt { margin: 12px 0 2px; font: 600 11px / 1.3 var(--ah-body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ah-muted); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts dt { margin: 12px 0 2px; font: 600 12px / 1.3 var(--ah-body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ah-muted); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts dd { margin: 0; padding-bottom: 12px; border-bottom: 1px solid var(--ah-rule2); font: 16px / 1.45 var(--ah-body); color: var(--ah-ink); overflow-wrap: anywhere; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-facts dd:last-child { border-bottom: 0; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-block { margin: 40px 0 0; }
@@ -473,7 +478,7 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-names li:last-
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-names a { display: inline-flex; align-items: center; min-height: 44px; font: 17px / 1.35 var(--ah-body); color: var(--ah-ink); text-underline-offset: 3px; text-decoration-color: var(--ah-rule); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-names span { flex: none; font: 14px / 1.4 var(--ah-body); color: var(--ah-muted); font-variant-numeric: tabular-nums; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-related { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 0 32px; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-sources { margin: 28px 0 22px; max-width: 72ch; font: 13px / 1.55 var(--ah-body); color: var(--ah-muted); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-sources { margin: 28px 0 22px; max-width: 72ch; font: 14px / 1.55 var(--ah-body); color: var(--ah-muted); }
 /* Era strip: the Topic Desk's bands, the author's years marked on them. */
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era { margin: 14px 0 0; max-width: 760px; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-bar { position: relative; display: flex; height: 16px; border: 1px solid var(--ah-rule); border-radius: 3px; overflow: visible; background: var(--ah-card); }

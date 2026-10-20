@@ -136,7 +136,7 @@
   function portraitFor(manifest, name, slug) {
     if (!manifest) return null;
     const p = manifest.p || {};
-    const id = (slug && p[slug] && slug) || (slug && manifest.alias && manifest.alias[slug]) || manifest.by[fold(name)];
+    const id = (slug && p[slug] && slug) || (slug && manifest.alias && manifest.alias[slug]) || (manifest.by || {})[fold(name)];
     return id && p[id] ? p[id] : null;
   }
 
@@ -145,7 +145,9 @@
     const who = [p.a, p.d].filter(Boolean).join(", ");
     line.append(`${p.k === "painting" ? "Painting" : p.k === "engraving" ? "Engraving" : "Portrait"}: ${who || "artist unknown"}${p.l ? `. ${p.l}.` : "."} `);
     if (/^https:\/\//.test(p.u)) {
-      const a = link(p.u, new URL(p.u).hostname.replace(/^commons\./, "Wikimedia Commons ").replace(/^www\./, ""), "ah-credit-link");
+      let host = "source";
+      try { host = new URL(p.u).hostname.replace(/^www\./, ""); } catch (_) { /* a malformed source address: the link says "source" */ }
+      const a = link(p.u, host === "commons.wikimedia.org" ? "Wikimedia Commons" : host, "ah-credit-link");
       a.rel = "noopener noreferrer";
       a.target = "_blank";
       line.append(a);
@@ -395,7 +397,18 @@
     nav = el("nav", "ah-jump");
     nav.setAttribute("aria-label", "On this page");
     nav.dataset.sig = sig;
-    if (items.length > 1) items.forEach(([label, hash]) => nav.append(link(hash, label)));
+    // Buttons, not #links: the room routes on location.hash, so a hash link would ask it for a room named "ah-about".
+    if (items.length > 1) {
+      items.forEach(([label, hash]) => {
+        const b = el("button", null, label);
+        b.type = "button";
+        b.addEventListener("click", () => {
+          const target = main.querySelector(hash);
+          if (target) target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+        });
+        nav.append(b);
+      });
+    }
     nav.append(themeButton());
     const after = main.querySelector(":scope > .rx-profile ~ .rx-note") || main.querySelector(":scope > .rx-profile");
     after.after(nav);
@@ -409,13 +422,12 @@
     const paint = () => {
       const dark = html.getAttribute("data-sd-theme") === "dark";
       btn.textContent = dark ? "Light mode" : "Dark mode";
-      btn.setAttribute("aria-pressed", String(dark));
     };
     btn.addEventListener("click", () => {
       const next = html.getAttribute("data-sd-theme") === "dark" ? "light" : "dark";
       html.setAttribute("data-sd-theme", next);
       try { localStorage.setItem(THEME_KEY, next); } catch (_) { /* storage blocked: the choice lasts for this page view */ }
-      document.querySelectorAll(".ah-theme").forEach((b) => { b.textContent = next === "dark" ? "Light mode" : "Dark mode"; b.setAttribute("aria-pressed", String(next === "dark")); });
+      document.querySelectorAll(".ah-theme").forEach((b) => { b.textContent = next === "dark" ? "Light mode" : "Dark mode"; });
     });
     paint();
     return btn;
@@ -448,10 +460,14 @@
     const have = main.querySelector(":scope > .ah-portrait");
     if (!have || have.dataset.name !== name) {
       if (have) have.remove();
-      const slot = document.createElement("span");
-      slot.className = "ah-portrait-slot";
-      main.prepend(slot);
-      manifestP().then((m) => {
+      let slot = main.querySelector(":scope > .ah-portrait-slot");
+      const fresh = !slot;
+      if (!slot) {
+        slot = document.createElement("span");
+        slot.className = "ah-portrait-slot";
+        main.prepend(slot);
+      }
+      if (fresh) manifestP().then((m) => {
         slot.remove();
         if (main.querySelector(":scope > .ridbar h1") && main.querySelector(":scope > .ridbar h1").textContent.trim() === name && !main.querySelector(":scope > .ah-portrait")) buildPortrait(main, name, portraitFor(m, name, slug));
       });
@@ -494,6 +510,7 @@
     const moa = main.querySelector(":scope > .moa-host");
     if (moa && !moa.id) moa.id = "ah-moa";
     jumpLine(main);
+    if (!main.querySelector(":scope > .ah-about")) main.classList.remove("ah-has-about");
   }
 
   function scan() {
