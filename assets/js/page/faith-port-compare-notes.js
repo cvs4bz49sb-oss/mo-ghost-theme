@@ -20,6 +20,7 @@
   const BASE = window.__FR_BLOB_BASE__ || "https://mo-tfr-library.mo-podcast-feed.workers.dev";
   const READ = "/the-faith-received/read/?w=";
   const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const getJSON = (url) => fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   const slugify = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const pageLinks = (refs) => (refs || []).slice(0, 4).map((r) =>
@@ -67,7 +68,7 @@
     box.id = "cnNotes";
     box.className = "cn-notes";
     box.innerHTML = `<h3 class="cn-title">From the library</h3>${parts.join("")}
-      <p class="rx-note">Machine-written summaries of what each author's pages say, not their words; every page is checked. Open a page to read the passage.</p>`;
+      ${method(`<p>Machine-written summaries of what each author's pages say, not their words; every page is checked. Open a page to read the passage.</p>`)}`;
     if (!old) host.parentNode.insertBefore(box, host);
   }
 

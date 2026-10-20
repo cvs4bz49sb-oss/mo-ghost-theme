@@ -5,6 +5,7 @@
    (the shelf, earlier spines lighter, and a panel with the volume's years and contents), By century (every life as a line, colored by
    region, with the general councils above; eras glide; a click opens a card). Scoped .tf, ids tf-*. */
 window.TGFinder = (host, D, C) => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const {TG} = window, { esc, fmt } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null, K = C.key;
   const clamp = (u) => Math.max(0, Math.min(1, u)), outC = (u) => 1 - (1 - u)**3, inOut = (u) => (u < 0.5 ? 4 * u * u * u : 1 - (-2 * u + 2)**3 / 2);
   const CENT = (y) => Math.floor((y - 1) / 100) + 1, ORD = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 > 10 && n % 100 < 14) ? 0 : (n % 10 < 4 ? n % 10 : 0)]);
@@ -87,12 +88,12 @@ window.TGFinder = (host, D, C) => {
       <span class="tf-ink" id="tf-ink" aria-hidden="true"></span></div>
     <section class="tf-panel" id="tf-p-author" role="tabpanel" aria-labelledby="tf-t-author"><p class="intro" id="tf-a-intro"></p><div id="tf-whits"></div><div id="tf-alist"></div></section>
     <section class="tf-panel" id="tf-p-volume" role="tabpanel" aria-labelledby="tf-t-volume" hidden><p class="intro">${esc(C.volintro)}</p>
-      <div class="tf-vgrid"><div><div class="tf-shelf" id="tf-shelf"></div><p class="small" id="tf-vkey"></p></div><aside class="tf-vpanel" id="tf-vpanel" aria-live="polite"></aside></div></section>
-    <section class="tf-panel" id="tf-p-century" role="tabpanel" aria-labelledby="tf-t-century" hidden><p class="intro">${esc(C.centintro)}</p>
+      <div class="tf-vgrid"><div><div class="tf-shelf" id="tf-shelf"></div><div class="small" id="tf-vkey"></div></div><aside class="tf-vpanel" id="tf-vpanel" aria-live="polite"></aside></div></section>
+    <section class="tf-panel" id="tf-p-century" role="tabpanel" aria-labelledby="tf-t-century" hidden>
       <div class="instrument"><div class="controls" role="group" aria-label="Choose a period"><span id="tf-eras"></span></div>
         <div class="tf-canvas"><canvas class="tf-life" id="tf-life" aria-label="Every writer as a line from birth to death, colored by region"></canvas><div class="tip" id="tf-tip" hidden></div></div>
         <div class="tf-lpick" id="tf-lpick" aria-live="polite"></div>
-        <div class="legend tf-legend" id="tf-legend"></div></div></section>`;
+        <div class="legend tf-legend" id="tf-legend"></div>${method(esc(C.centintro))}</div></section>`;
   const $ = (id) => document.getElementById(id);
 
   // ---------- tabs ----------
@@ -189,7 +190,7 @@ window.TGFinder = (host, D, C) => {
     b.style.height = `${86 + 70 * ((v.c1 || maxC * 0.6) / maxC)}px`; b.style.background = tone(v); b.title = `${K} ${v.v}${v.idx ? ' · indexes' : v.y0 ? ` · ${v.y0}–${v.y1}` : ''}${v.top[0] ? ` · ${v.top[0]}` : ''}`;
     b.setAttribute('aria-label', b.title);
     b.innerHTML = `<span${!v.idx && clamp(((v.y0 ?? r0) - r0) / (r1 - r0)) < 0.4 ? ' style="color:var(--ink)"' : ''}>${v.v}</span>`; b.onclick = () => openVol(v, b); shelf.appendChild(b); });
-  $('tf-vkey').textContent = `${V.length} volumes. Lighter spines hold earlier writers and darker spines later ones. Taller spines run to more columns.${C.vkeyMore || ''}`;
+  $('tf-vkey').innerHTML = `${V.length} volumes.${esc(C.vkeyMore || '')}${method('Lighter spines hold earlier writers and darker spines later ones. Taller spines run to more columns.')}`;
   const v0 = VBY[C.firstVol] || V[0]; openVol(v0, shelf.children[V.indexOf(v0)]);
 
   // ---------- by century: every life a line ----------
@@ -254,6 +255,7 @@ window.TGFinder = (host, D, C) => {
 /* The Greek Fathers guide: a mosaic dome of the writers, the 161 volumes laid along the centuries, the sees of the East, a page of Migne
    and the same page in the library, a citation finder, and the lifelines. */
 (async () => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const {TG} = window, D = await TG.load('data'), LAND = await TG.load('land');
   const { esc, fmt, clamp, ease, lerp } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null, NS = 'http://www.w3.org/2000/svg';
   const FAMS = D.fam.map((f) => f[0]), fc = (k) => TG.css(`--f${FAMS.indexOf(k) + 1}`), famName = (k) => (D.fam.find((f) => f[0] === k) || [])[1];
@@ -314,7 +316,10 @@ window.TGFinder = (host, D, C) => {
     const med = mk('g', {}, svg); mk('circle', { cx: C, cy: C, r: 30, fill: TG.css('--f4'), stroke: TG.css('--gold-2'), 'stroke-width': 2 }, med);
     mk('path', { d: `M${C - 13},${C - 13} L${C + 13},${C + 13} M${C + 13},${C - 13} L${C - 13},${C + 13} M${C},${C - 20} L${C},${C + 20} M${C},${C - 20} C${C + 13},${C - 20} ${C + 13},${C - 6} ${C},${C - 6}`, fill: 'none', stroke: TG.css('--gold-2'), 'stroke-width': 2.4, 'stroke-linecap': 'round' }, med);
     const num = mk('text', { x: C, y: C + RIM + 52, 'text-anchor': 'middle', class: 'num', fill: TG.css('--rubric') }, svg); num.style.fill = TG.css('--rubric'); num.textContent = '';
-    const say = (a) => { cap.textContent = a ? `${a.n}, ${TG.yr(a)}${a.pl ? ` · ${a.pl}` : ''} · ${a.nw} ${a.nw === 1 ? 'work' : 'works'} on the shelf` : 'Each ring is a century. The first is at the center and the fifteenth at the rim. Each colored arc is a writer in the color of his region. A gold arc is a writer whose region is not known.'; };
+    const say = (a) => {
+      if (a) { cap.dataset.m = ''; cap.textContent = `${a.n}, ${TG.yr(a)}${a.pl ? ` · ${a.pl}` : ''} · ${a.nw} ${a.nw === 1 ? 'work' : 'works'} on the shelf`; }
+      else if (cap.dataset.m !== '1') { cap.dataset.m = '1'; cap.innerHTML = method('Each ring is a century. The first is at the center and the fifteenth at the rim. Each colored arc is a writer in the color of his region. A gold arc is a writer whose region is not known.'); }
+    };
     say(null);
     svg.addEventListener('mouseleave', () => say(null));
     if (!G) { num.textContent = 'I–XV'; return; }

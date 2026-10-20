@@ -1,6 +1,7 @@
 /* The Eastern Fathers guide: the shelf as a rose of its eight languages, the tomes on one shelf, the opening of a work in each script, the
    churches of the East on a map, Severus's 125 homilies by the tome that printed them, and three books of the saints as wheels of the year. */
 (async () => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const { TG } = window, D = await TG.load('data');
   const { esc, fmt, clamp, ease, lerp } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null;
   const FK = D.fam.map((f) => f[0]), fc = (k) => TG.css(`--f${FK.indexOf(k) + 1}`), fname = (k) => (D.fam.find((f) => f[0] === k) || [])[1] || '';
@@ -40,7 +41,7 @@
         const el = mk('a', { href: TG.read(h[0]), target: '_blank', rel: 'noopener', class: 'tile', 'aria-label': `${h[1]}, ${h[5]}, ${h[6]}, ${fname(h[2])}` }, gT);
         mk('rect', { x: (-s / 2).toFixed(1), y: (-s / 2).toFixed(1), width: s.toFixed(1), height: s.toFixed(1), rx: 1.6, fill: fc(h[2]), 'fill-opacity': (0.4 + 0.6 * Math.sqrt(h[3] / maxP)).toFixed(2),
           transform: `translate(${(Math.cos(a) * r).toFixed(1)} ${(Math.sin(a) * r).toFixed(1)}) rotate(${((a * 180) / Math.PI + 90).toFixed(1)})` }, el);
-        const say = () => { cap.textContent = `${h[1]} · ${h[5]} · ${h[6]} · ${fmt(h[3])} pages · ${fname(h[2])}`; };
+        const say = () => { cap.dataset.m = ''; cap.textContent = `${h[1]} · ${h[5]} · ${h[6]} · ${fmt(h[3])} pages · ${fname(h[2])}`; };
         el.addEventListener('mouseenter', say); el.addEventListener('focus', say);
         tiles.push({ el, t: h[4], r });
       });
@@ -53,7 +54,8 @@
     const mid = mk('text', { x: 0, y: 6, class: 'mid' }, gL), mids = mk('text', { x: 0, y: 22, class: 'mids' }, gL);
     const done = () => { mid.textContent = fmt(D.n_works); mid.style.fontSize = ''; mids.textContent = 'works'; };
     const def = 'Each tile is a work in the petal of the language it is printed in. The earliest tomes sit nearest the center. Darker tiles are longer works.';
-    svg.addEventListener('mouseleave', () => { cap.textContent = def; }); cap.textContent = def;
+    const showDef = () => { if (cap.dataset.m !== '1') { cap.dataset.m = '1'; cap.innerHTML = method(def); } };
+    svg.addEventListener('mouseleave', showDef); showDef();
     if (!G) { done(); return; }
     // the series is shelved tome by tome: the rose grows outward from the Syriaca of 1894 to the tomes of the 1990s
     const order = tiles.slice().sort((a, b) => a.t - b.t || a.r - b.r), st = { t: 0 }; let shown = 0;

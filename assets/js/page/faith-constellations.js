@@ -435,6 +435,7 @@
   const resetBtn = root.querySelector("[data-cn-reset]");
   const legendEl = root.querySelector("[data-cn-legend]");
   const captionEl = root.querySelector("[data-cn-caption]");
+  const captionMethodEl = root.querySelector("[data-cn-caption-method]");
   const dossierEl = root.querySelector("[data-cn-dossier]");
   const indexEl = root.querySelector("[data-cn-index]");
   const indexFilter = root.querySelector("[data-cn-index-filter]");
@@ -801,8 +802,6 @@
       "Dashed lines mark connections where more than half the citations are classified as refutations. Other citations may report, qualify or support a source.",
   };
 
-  const CITE_VIEWS_NOTE =
-    "These are the same authors and recorded citations shown in the citation map.";
   const CITE_ARRANGE_NOTE = "Similarity is available for individual Scripture maps.";
 
   /* ── Copy for the merged shelf ────────────────────────────────────
@@ -3312,6 +3311,23 @@
     return el;
   }
 
+  /* Methodology notes go through the shared disclosure (TFRMethod, loaded in
+   * the head), closed under the figure they explain. Paragraphs are plain text
+   * and are escaped here; the helper takes HTML. */
+  function methodHTML(paras) {
+    const esc = (t) =>
+      String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const body = paras.filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join("");
+    if (!body) return "";
+    return window.TFRMethod ? window.TFRMethod.html(body) : body;
+  }
+  function methodNote(...paras) {
+    const el = document.createElement("div");
+    el.className = "cn-method";
+    el.innerHTML = methodHTML(paras);
+    return el;
+  }
+
   function renderDossierEmpty() {
     if (!dossierEl) return;
     dossierEl.textContent = "";
@@ -3670,7 +3686,7 @@
         )
       );
     }
-    dossierEl.appendChild(textEl("p", "cn-stat-note", CITE_FLOOR_NOTE));
+    dossierEl.appendChild(methodNote(CITE_FLOOR_NOTE));
 
     const inbound = citeLinks(inAdj[i]);
     const outbound = citeLinks(outAdj[i]);
@@ -3791,7 +3807,7 @@
           : `${f.regionA} citing ${f.regionB}.`
       )
     );
-    dossierEl.appendChild(textEl("p", "cn-link-gloss", LINK_GLOSS[view] || LINK_GLOSS.cited));
+    dossierEl.appendChild(methodNote(LINK_GLOSS[view] || LINK_GLOSS.cited));
 
     if (c.back >= 0) {
       const b = edges[c.back];
@@ -3940,7 +3956,7 @@
       where = `Both sit under ${f.regionA}.`;
     }
     dossierEl.appendChild(textEl("p", "cn-dossier-sub", where));
-    dossierEl.appendChild(textEl("p", "cn-link-gloss", LINK_GLOSS[view] || LINK_GLOSS.authors));
+    dossierEl.appendChild(methodNote(LINK_GLOSS[view] || LINK_GLOSS.authors));
 
     renderShared(f);
 
@@ -4261,7 +4277,7 @@
           : `${f.regionA} and ${f.regionB}.`
       )
     );
-    dossierEl.appendChild(textEl("p", "cn-link-gloss", CITE_SCOPE_CAVEAT));
+    dossierEl.appendChild(methodNote(CITE_SCOPE_CAVEAT));
     renderExactCount(f);
     renderCompareEnds(f);
   }
@@ -4295,7 +4311,7 @@
       where = `Both sit under ${f.regionA}.`;
     }
     dossierEl.appendChild(textEl("p", "cn-dossier-sub", where));
-    dossierEl.appendChild(textEl("p", "cn-link-gloss", LINK_GLOSS[view] || LINK_GLOSS.authors));
+    dossierEl.appendChild(methodNote(LINK_GLOSS[view] || LINK_GLOSS.authors));
 
     // The substantive half of the empty state. The sidecar answers "what
     // do these two share" whether or not a line was published, and on
@@ -5038,7 +5054,13 @@
   function renderCaption() {
     if (!captionEl) return;
     captionEl.textContent = "";
-    if (!nodes.length) return;
+    if (!nodes.length) {
+      if (captionMethodEl) {
+        captionMethodEl.textContent = "";
+        delete captionMethodEl.dataset.src;
+      }
+      return;
+    }
     const noun = NODE_NOUN[view] || "point";
     let visible = 0;
     for (let i = 0; i < nodes.length; i++) {
@@ -5073,7 +5095,7 @@
         : layout === LAYOUT_REGIONS
           ? REGION_BLURB[view]
           : VIEW_BLURB[view];
-    captionEl.appendChild(textEl("span", "cn-caption-blurb", blurb || ""));
+    const methodParas = [blurb];
 
     /* What the citation maps measure and what they do not. Three
      * separate corrections in three separate spans, because folding any
@@ -5081,14 +5103,11 @@
      * is the one that must never be dropped: a refutation count read on
      * its own says something the data does not say. */
     if (citeMode) {
-      captionEl.appendChild(
-        textEl("span", "cn-caption-key", CITE_LINE_KEY[view] || CITE_LINE_KEY.cited)
-      );
-      captionEl.appendChild(textEl("span", "cn-caption-caveat", CITE_SCOPE_CAVEAT));
-      captionEl.appendChild(textEl("span", "cn-caption-caveat", CITE_TRADITION_CAVEAT));
-      if (view === "contested") {
-        captionEl.appendChild(textEl("span", "cn-caption-caveat", CITE_CONTESTED_CAVEAT));
-      }
+      methodParas.push(CITE_LINE_KEY[view] || CITE_LINE_KEY.cited);
+      methodParas.push(CITE_SCOPE_CAVEAT);
+      methodParas.push(CITE_TRADITION_CAVEAT);
+      if (view === "contested") methodParas.push(CITE_CONTESTED_CAVEAT);
+      methodParas.push(CITE_FLOOR_NOTE);
     }
 
     /* The one thing this view cannot do, in its own span rather than
@@ -5102,6 +5121,19 @@
      * lines start hidden here (see setShelf) and hence this line. */
     if (isAll) {
       captionEl.appendChild(textEl("span", "cn-caption-caveat", ALL_LINKS_CAVEAT));
+    }
+
+    /* One Methodology disclosure for the whole caption, rebuilt only when its
+     * text changes so a reader's open/closed choice survives a redraw. */
+    if (captionMethodEl) {
+      const html = methodHTML(methodParas);
+      if (captionMethodEl.dataset.src !== html) {
+        const wasOpen = !!captionMethodEl.querySelector("details[open]");
+        captionMethodEl.dataset.src = html;
+        captionMethodEl.innerHTML = html;
+        const d = captionMethodEl.querySelector("details");
+        if (d && wasOpen) d.open = true;
+      }
     }
 
     if (canvas) {
@@ -5208,8 +5240,8 @@
     // block, so the "has been mined for" sentence below would be a
     // claim about a shelf that does not exist.
     if (onCiteShelf()) {
-      viewsNote.hidden = false;
-      viewsNote.textContent = `${CITE_VIEWS_NOTE} ${CITE_FLOOR_NOTE}`;
+      viewsNote.hidden = true;
+      viewsNote.textContent = "";
       return;
     }
 

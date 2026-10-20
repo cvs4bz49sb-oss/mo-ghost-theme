@@ -281,3 +281,7 @@ main.tfr-guide-page [data-guide-root] .tile h3 { font-weight: 400; }
   main.tfr-guide-page [data-guide-root] .chron { max-height: 44vh; }
 }
 main.tfr-guide-page [data-guide-root] .tg-case2-after { padding-block: 8px 40px; }
+
+/* Guide captions and notes became <div>s so a Methodology <details> can sit inside them (a <details> may not live in a <p>).
+   They keep the paragraph margin the guides relied on. :where() keeps this at zero specificity, so any margin a guide states wins. */
+:where(main.tfr-guide-page [data-guide-root]) :where(div.cap, #tg-pnote, #tg-unote, #tg-ynote, #tf-vkey) { margin: 1em 0; }

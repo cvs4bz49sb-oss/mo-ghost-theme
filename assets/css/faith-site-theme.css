@@ -120,3 +120,47 @@ html.fr-ghost-site #page ::selection { background: var(--hl); color: var(--fg); 
 
 html.fr-ghost-site .scripture-page .vv { scroll-margin-top: calc(var(--mo-head, 85px) + 84px); }
 html.fr-ghost-site .scripture-page .vv.is-passage { background: var(--hl); }
+
+/* ═══ Methodology (2026-10-20, Ian) ═══════════════════════════════════════════════════════════════════════════════
+   One closed disclosure for every note that says HOW a number, chart, ranking or match was produced, or what a term
+   means. Markup: <details class="tfr-method"><summary class="tfr-method-s">Methodology</summary><div class="tfr-method-b">
+   (assets/js/lib/tfr-method.js for the renderers, partials/tfr-method.hbs for templates). Trust and safety notes do not
+   use it.
+   - Quiet: body face, 14px, a hairline above, no box, no pill, no display face, no scroll box.
+   - Every color is currentColor mixed down, so it reads in light, in dark (data-theme or data-sd-theme) and in the
+     port without a token of its own.
+   - Doubled class on the body rules so the page rules that size their own paragraphs (.tdk-lede, .vd-note) lose to it.
+   - Closed notes print open. */
+details.tfr-method {
+  display: block; box-sizing: border-box; margin: 14px 0 8px; padding: 0;
+  border: 0; border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent); border-radius: 0;
+  background: none; box-shadow: none; max-height: none; overflow: visible;
+  font: 400 14px/1.5 var(--font-body, 'Source Serif Pro', Georgia, serif); letter-spacing: 0; text-transform: none;
+}
+details.tfr-method > summary.tfr-method-s {
+  display: flex; align-items: center; gap: 8px; box-sizing: border-box; width: 100%; min-height: 36px; margin: 0; padding: 6px 0;
+  cursor: pointer; list-style: none; border: 0; background: none;
+  font: 400 14px/1.3 var(--font-body, 'Source Serif Pro', Georgia, serif); letter-spacing: 0; text-transform: none; font-style: normal;
+  color: color-mix(in srgb, currentColor 80%, transparent);
+  -webkit-tap-highlight-color: transparent;
+}
+details.tfr-method > summary.tfr-method-s::-webkit-details-marker { display: none; }
+details.tfr-method > summary.tfr-method-s::marker { content: ""; }
+details.tfr-method > summary.tfr-method-s::after {
+  content: ""; flex: none; width: 6px; height: 6px; margin-top: -3px;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg);
+}
+details.tfr-method[open] > summary.tfr-method-s::after { margin-top: 3px; transform: rotate(-135deg); }
+details.tfr-method > summary.tfr-method-s:hover { color: inherit; }
+details.tfr-method > summary.tfr-method-s:focus-visible { outline: 2px solid var(--accent, currentColor); outline-offset: 2px; border-radius: 2px; }
+details.tfr-method.tfr-method > .tfr-method-b { box-sizing: border-box; max-width: 44rem; margin: 0; padding: 2px 0 8px; background: none; border: 0; }
+details.tfr-method.tfr-method > .tfr-method-b :is(p, li, ul, ol) { margin: 0 0 8px; padding-top: 0; font: 400 14px/1.55 var(--font-body, 'Source Serif Pro', Georgia, serif); font-style: normal; letter-spacing: 0; color: inherit; max-width: none; }
+details.tfr-method.tfr-method > .tfr-method-b :is(ul, ol) { padding-left: 1.25em; }
+details.tfr-method.tfr-method > .tfr-method-b > :last-child { margin-bottom: 0; }
+@media (max-width: 640px), (pointer: coarse) {
+  details.tfr-method > summary.tfr-method-s { min-height: 44px; }
+}
+@media print {
+  details.tfr-method > summary.tfr-method-s::after { display: none; }
+  details.tfr-method::details-content { content-visibility: visible; display: block; }
+}

@@ -20,11 +20,11 @@
 <link rel=stylesheet href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Source+Serif+Pro:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="{{asset "css/port/web.in01.css"}}&amp;frv=72d0d0b74046db2c">
 <link rel="stylesheet" href="{{asset "css/port/scripture-navigation.css"}}&amp;frv=d801f3f16cf05f52">
-<link rel="stylesheet" href="{{asset "css/port/constellations.css"}}&amp;frv=44041063b9a5d90f">
-<link rel="stylesheet" href="{{asset "css/port/shelf-constellations.css"}}&amp;frv=4810b0739b0fa607"><script src="{{asset "js/port/shelf-constellations.js"}}&amp;frv=c6cf1cacafdd3189"></script>
+<link rel="stylesheet" href="{{asset "css/port/constellations.css"}}&amp;frv=f9aaba36b764400e">
+<link rel="stylesheet" href="{{asset "css/port/shelf-constellations.css"}}&amp;frv=4810b0739b0fa607"><script src="{{asset "js/port/shelf-constellations.js"}}&amp;frv=a77e61bfe2fa2bc2"></script>
 <script src="{{asset "js/port/research-tools.js"}}&amp;frv=cc06d56d5f953a58"></script>
 <script src="{{asset "js/port/scripture-tools.js"}}&amp;frv=2bc199fc13bb8f71"></script>
-<script src="{{asset "js/port/web.in01.js"}}&amp;frv=ee6de72d22f48fe7"></script><link rel="stylesheet" href="{{asset "css/port/fr-reading-system.css"}}&amp;frv=74b92debb2557057"><link rel="stylesheet" href="{{asset "built/faith-ask-workspace.min.css"}}&amp;frv=f96fc5e924711651"><script defer src="{{asset "js/port/ask-store.js"}}&amp;frv=adef8dbf17b627ad"></script><script src="{{asset "js/page/faith-ask-config.js"}}&amp;frv=ccd1c7702c51c000"></script><script defer src="{{asset "js/port/ask-workspace.js"}}&amp;frv=67e0b6b13fd005ad"></script><script src="{{asset "js/port/research-data.js"}}&amp;frv=7a8a8dc3e166283a"></script><script src="{{asset "js/port/research-notebook.js"}}&amp;frv=c5faba0179c5d5db"></script><script src="{{asset "js/port/pld-reading.js"}}&amp;frv=42310bb7ef661c18"></script><script src="{{asset "js/port/connection-evidence.js"}}&amp;frv=f5a3a2bbb9b471b9"></script><link rel="stylesheet" href="{{asset "css/port/connection-evidence.css"}}&amp;frv=62ef89e4148c2cda">
+<script src="{{asset "js/port/web.in01.js"}}&amp;frv=ee6de72d22f48fe7"></script><link rel="stylesheet" href="{{asset "css/port/fr-reading-system.css"}}&amp;frv=74b92debb2557057"><link rel="stylesheet" href="{{asset "built/faith-ask-workspace.min.css"}}&amp;frv=f96fc5e924711651"><script defer src="{{asset "js/port/ask-store.js"}}&amp;frv=adef8dbf17b627ad"></script><script src="{{asset "js/page/faith-ask-config.js"}}&amp;frv=ccd1c7702c51c000"></script><script defer src="{{asset "js/port/ask-workspace.js"}}&amp;frv=67e0b6b13fd005ad"></script><script src="{{asset "js/port/research-data.js"}}&amp;frv=7a8a8dc3e166283a"></script><script src="{{asset "js/port/research-notebook.js"}}&amp;frv=c5faba0179c5d5db"></script><script src="{{asset "js/port/pld-reading.js"}}&amp;frv=42310bb7ef661c18"></script><script src="{{asset "js/port/connection-evidence.js"}}&amp;frv=417b2f2e046ac288"></script><link rel="stylesheet" href="{{asset "css/port/connection-evidence.css"}}&amp;frv=62ef89e4148c2cda">
 {{!-- Our colour, loaded last so it wins; then the offsets that start
      this page under our masthead. Keep both last. --}}
 <link rel="stylesheet" href="{{asset "css/faith-port-reader-skin.css"}}&amp;frv=aab6457ac750aa06">
@@ -135,11 +135,11 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   </div>
   <div class="index-tools"><p id="index-count" role="status">Loading citation index…</p><label class="sr-only" for="index-sort">Sort authors</label><select id="index-sort"><option value="readers">Most cited by others</option><option value="citations">Most citations received</option><option value="name">Name A–Z</option></select></div>
   <div id="author-index"></div><button id="index-more" hidden>Show more authors</button>
-  <p class="index-note">Counts describe indexed citation records. Alternate witnesses can record the same citation.</p>
+  <div class="index-method">{{#> tfr-method}}<p>Counts describe indexed citation records. Alternate witnesses can record the same citation.</p>{{/tfr-method}}</div>
 </aside>
 <main id="atlas" aria-label="Citation map">
-  <div id="map-heading"><div><h2 id="map-title">The citation network</h2><p id="map-summary" role="status">Loading connections…</p></div><div class="map-top-controls"><label for="map-density" class="sr-only">Points on the map</label><select id="map-density"><option value="20">20 most cited</option><option value="60" selected>60 most cited</option><option value="200">200 most cited</option><option value="0">All entries</option></select><button id="map-help-button" aria-expanded="false" aria-controls="map-help">How to read this</button></div></div>
-  <div id="map-help" hidden><p>Each point is an author or collection. Lines are recorded citations; larger points have higher PageRank. Horizontal position follows time. Vertical spacing is arranged for readability; proximity does not imply agreement. The overview starts with the 60 authors cited by the most other authors. The complete index remains searchable.</p><p>Point colors identify historical periods. In an author’s map, ochre lines lead to sources and green lines to citing authors; the labels and positions show the same direction. Some dates are estimated for placement. Shelf filters include connected authors outside that shelf. Selecting an author shows up to eight sources on the left and eight citing authors on the right. The panel lists all available relationships.</p></div>
+  <div id="map-heading"><div><h2 id="map-title">The citation network</h2><p id="map-summary" role="status">Loading connections…</p></div><div class="map-top-controls"><label for="map-density" class="sr-only">Points on the map</label><select id="map-density"><option value="20">20 most cited</option><option value="60" selected>60 most cited</option><option value="200">200 most cited</option><option value="0">All entries</option></select></div></div>
+
 <section id="faith-web-constellations" aria-label="Constellation layouts" hidden>
   {{> "faith-received/_constellations-panel"}}
 </section>
@@ -148,6 +148,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   <div id="web-zoom" aria-label="Graph controls"><button id="zoom-in" aria-label="Zoom in">+</button><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-reset">Fit map</button></div></div>
   <div id="period-key" aria-label="Point colors show historical periods"></div>
   <div id="map-caption"><span id="map-key">Earlier authors to the left · Later authors to the right</span><span>Drag to pan · Use + or − to zoom</span></div>
+  <div id="map-help">{{#> tfr-method}}<p>Each point is an author or collection. Lines are recorded citations; larger points have higher PageRank. Horizontal position follows time. Vertical spacing is arranged for readability; proximity does not imply agreement. The overview starts with the 60 authors cited by the most other authors. The complete index remains searchable.</p><p>Point colors identify historical periods. In an author’s map, ochre lines lead to sources and green lines to citing authors; the labels and positions show the same direction. Some dates are estimated for placement. Shelf filters include connected authors outside that shelf. Selecting an author shows up to eight sources on the left and eight citing authors on the right. The panel lists all available relationships.</p>{{/tfr-method}}</div>
   <section id="connection-discovery" aria-label="Explore recorded connections"><h3>Explore a recorded connection</h3><div id="connection-examples"></div></section>
 </main>
 <div id="tip"></div><div id="legend" hidden></div><div id="fstat" hidden></div><div id="intro" hidden></div>
@@ -156,7 +157,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   <button type="button" id="network-author-map" hidden>View this author’s map</button><button class="x" id="px" aria-label="Close details">×</button></div><div id="pbody"></div></aside>
 
 <script data-shelves="{{asset "data/faith-received/web-author-shelves.json"}}&amp;frv=ef3e2e56c60291d0" src="{{asset "js/lib/faith-web-graph.js"}}&amp;frv=ea7281e18c37a0a1"></script>
-<script src="{{asset "js/port/web.in02.js"}}&amp;frv=a034b916c7e81d78"></script>
+<script src="{{asset "js/port/web.in02.js"}}&amp;frv=9b369eb0042cb8a4"></script>
 {{else}}
 <main class="faith-received"><span hidden data-gate-on-arrival data-feature-gate="tfr-connections"></span><section class="bhero bhero--tool"><div class="bhero-inner container"><p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a></p><h1>Connections</h1><p class="bhero-sub">The entire library mapped by citation: who an author reads, who reads them, and the texts behind each link.</p></div></section>{{> "faith-received/_beta-gate"}}</main>
 {{/if}}

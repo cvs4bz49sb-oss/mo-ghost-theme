@@ -473,11 +473,17 @@
 
     // The same disclosure the curated topic pages and /doctrines/ carry,
     // in the same words. These statements come from the same extraction.
-    const ai = el("div", "fr-ai-note");
-    ai.appendChild(el("p", "fr-ai-note-head", "These statements were extracted and summarized by AI."));
+    const ai = el("div", "fr-ai-method");
+    const aiBody = "<p>These statements were extracted and summarized by AI. The stance labels and the English are the extraction's, not an editor's.</p>";
+    if (window.TFRMethod) {
+      ai.innerHTML = window.TFRMethod.html(aiBody); // static markup, no data
+    } else {
+      ai.className = "fr-ai-note";
+      ai.innerHTML = aiBody;
+    }
+    // The caution stays in view: it prevents misreading a statement, and says nothing about how it was made.
     ai.appendChild(el("p", "fr-ai-note-body",
-      "The stance labels and the English are the extraction's, not an editor's. "
-      + "A statement can report an objection or a view its author rejects, so read the passage "
+      "A statement can report an objection or a view its author rejects, so read the passage "
       + "in its source before attributing it to anyone."));
     wrap.appendChild(ai);
 

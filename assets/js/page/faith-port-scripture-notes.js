@@ -142,6 +142,8 @@
   // the author's life as the catalogue gives it ("c. 185–c. 254"), else the year the history dates him by
   const life = (x) => x.d || (x.y ? `fl. c. ${x.y}` : "");
   const REC_NOTE = "From every page in the library that cites the verse, dated by its author's life.";
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
+  const recNote = () => method(`<p>${REC_NOTE}</p>`);
   /* The century strip: works citing the verse in each century, the busiest at full height. */
   /* The century strip: works citing the verse in each century, the busiest at full height, the centuries where it is cited more
    * than the library's usual share in the accent colour; a sentence above says what the bars show. */
@@ -163,7 +165,7 @@
     const peak = base && base.peak;
     const cap = `Works citing it in each century.${peak ? ` The library holds the most from the ${ord(peak)} century, so that bar runs tall for most verses.` : ""}${outs.length > 1 ? " The colored bars are the centuries where this verse is cited more than the library's usual share."
       : outs.length ? " The colored bar is the century where this verse is cited more than the library's usual share." : ""}`;
-    return `<p class="fr-rh-lede">${lede}</p><figure class="fr-rh-strip-wrap"><ol class="fr-rh-strip">${cols.join("")}</ol><figcaption class="sd-muted">${cap}</figcaption></figure>`;
+    return `<p class="fr-rh-lede">${lede}</p><figure class="fr-rh-strip-wrap"><ol class="fr-rh-strip">${cols.join("")}</ol></figure>${method(`<p>${cap}</p><p>${REC_NOTE}</p>`)}`;
   }
   // the page's gist, ended at a word (the files keep 180 characters of it), the whole on hover
   const gist = (g) => {
@@ -299,7 +301,7 @@
       <h3 class="sd-h3">Reception history, verse by verse</h3>
       <ol class="sd-ov-top fr-sn-told">${told.map(([v, x], i) => ovRow(v, S.refLabel(book, c, v), line(x), i >= SHOW)).join("")}</ol>
       ${told.length > SHOW ? `<button type="button" class="sd-commentary-more fr-sn-all">Show all ${fmt(told.length)} verses</button>` : ""}
-      <p class="sd-muted fr-sn-note">${REC_NOTE}</p></div>`;
+      ${recNote()}</div>`;
   }
 
   // ── A verse's readings, each with who holds, reports and rejects it ──
@@ -480,9 +482,9 @@
           // Closed until opened, on every screen (2026-10-16): open by default the history and the commentaries made the panel
           // 9,400px tall beside a chapter of 2,500, and working in it scrolled the text out of sight (the panel is not sticky:
           // Ian, 09-23). The fold rows say what each holds; the Verse Desk shows them whole.
-          const lead = `${parts.history ? fold("fr_history", "Reception history", parts.nWorks, `${parts.history}<p class="sd-muted fr-sn-note">${REC_NOTE}</p>`, false, parts.nWorks === 1 ? "work" : "works") : ""}` +
-            `${parts.readings ? fold("fr_readings", "Readings", parts.nReadings, `${parts.readings}<p class="sd-muted fr-sn-note">${parts.readingsNote}</p>`) : ""}` +
-            `${parts.disputes ? fold("fr_disputes", "Points in dispute", parts.nDisputes, `${parts.disputes}<p class="sd-muted fr-sn-note">${parts.readingsNote}</p>`) : ""}`;
+          const lead = `${parts.history ? fold("fr_history", "Reception history", parts.nWorks, `${parts.history}${recNote()}`, false, parts.nWorks === 1 ? "work" : "works") : ""}` +
+            `${parts.readings ? fold("fr_readings", "Readings", parts.nReadings, `${parts.readings}${method(`<p>${parts.readingsNote}</p>`)}`) : ""}` +
+            `${parts.disputes ? fold("fr_disputes", "Points in dispute", parts.nDisputes, `${parts.disputes}${method(`<p>${parts.readingsNote}</p>`)}`) : ""}`;
           const $count = $panel.querySelector("[data-sd-count]");
           if (lead) {
             const html = `<div class="fr-sn-verse" data-fr-sn="verse">${lead}</div>`;
@@ -534,8 +536,8 @@
         const $trans = $desk.querySelector('[aria-labelledby="sd-h-trans"]');
         const html = `<section class="sd-desk-sec fr-sn-desk" aria-labelledby="sd-h-reads" data-fr-sn="verse">
         <h2 class="sd-h2" id="sd-h-reads">Reception history of ${esc(label)}</h2>
-        ${parts.deskHistory ? `${parts.deskHistory}<p class="sd-muted fr-sn-note">${REC_NOTE}</p>` : ""}
-        ${parts.readings ? `<h3 class="sd-h3">Readings</h3><div class="fr-sn-desk-readings">${parts.readings}</div><p class="sd-muted fr-sn-note">${parts.readingsNote}</p>` : ""}
+        ${parts.deskHistory ? `${parts.deskHistory}${parts.deskHistory.includes("fr-rh-strip-wrap") ? "" : recNote()}` : ""}
+        ${parts.readings ? `<h3 class="sd-h3">Readings</h3><div class="fr-sn-desk-readings">${parts.readings}</div>${method(`<p>${parts.readingsNote}</p>`)}` : ""}
         ${parts.disputes ? `<h3 class="sd-h3">Points in dispute</h3><div class="fr-sn-desk-disputes">${parts.disputes}</div>` : ""}</section>`;
         if ($trans) $trans.insertAdjacentHTML("afterend", html); else $desk.insertAdjacentHTML("beforeend", html);
         const $toc = $desk.querySelector("[data-sd-toc-reads]");

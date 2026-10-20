@@ -50,6 +50,13 @@
     const link = (label, href) => {const node=element('a','wrs-link',label);node.href=href;return node;};
     const button = (label, callback) => {const node=element('button','wrs-button',label);node.type='button';node.addEventListener('click',callback);return node;};
     const note = (parent, text) => parent.appendChild(element('p','wrs-note',text));
+    // How a count or selection was made goes in the shared Methodology dropdown (tfr-method.js); text here is constant, escaped anyway.
+    const methodNote = (parent, text) => {
+      if (!root.TFRMethod) return note(parent, text);
+      const box = element('div','wrs-method');
+      box.innerHTML = root.TFRMethod.html('<p>' + string(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>');
+      return parent.appendChild(box);
+    };
     // One work, one set of sections (work-hub.js): the rail's folds take the work page's names and order, and each ends in a
     // link to its tab there. On the work page itself (opts.desk) a section renders open, without the fold or the link.
     const HUB=root.FRWorkHub,only=Array.isArray(opts.only)?new Set(opts.only):null;
@@ -157,7 +164,7 @@
       if(!topics.length){missing(body,list(result.data.books).length?'Topics have not been indexed for this work yet. Its Scripture citations are indexed under “Scripture in this work”.':'Topics have not been indexed for this work yet.');body.appendChild(link('Browse all topics','/the-faith-received/topics/'));return;}
       // 09-24: curated creeds/confessions/catechisms carry topics filed from their own headings (scripts/build-heading-topics.mjs); ph = the heading printed on each page, twin = a mined edition of the same text.
       const headings=result.data.topics_src==='headings';
-      note(body,headings?'Topics here are assigned from this document’s own article and question headings. No statements are extracted; each link opens that section.':'Page counts describe the index. Extracted statements and page links below are the selection supplied in this overview; they are not every recorded position.');
+      methodNote(body,headings?'Topics here are assigned from this document’s own article and question headings. No statements are extracted; each link opens that section.':'Page counts describe the index. Extracted statements and page links below are the selection supplied in this overview; they are not every recorded position.');
       if(headings&&result.data.twin&&string(result.data.twin.w))body.appendChild(link('Statements extracted from another edition: '+(string(result.data.twin.t)||'this text'),'/the-faith-received/read/?w='+encodeURIComponent(string(result.data.twin.w))));
       paginate(body,topics,topic => {
         const parent=element('div'),positions=list(topic.pos).map(value=>({...value,kind:'position'})),pages=list(topic.pp).map(p=>({p,kind:'page'}));
@@ -174,7 +181,7 @@
       let bible=[];
       try {const catalogue=await json('/v1/bible/all/books.json',data=>Array.isArray(data?.books));if(!catalogue.missing)bible=catalogue.data.books;else note(body,'The Scripture navigation index is not published; source-page links remain available.');}
       catch (_) {note(body,'Scripture navigation could not load; source-page links remain available.');body.appendChild(link('Browse Scripture','/the-faith-received/bible/'));}
-      note(body,'Counts describe recorded citations. The available source rows may be a selection of those citations.');
+      methodNote(body,'Counts describe recorded citations. The available source rows may be a selection of those citations.');
       // KINDS (owner 2026-09-26: "this is important for research rail for Ian … basically every surface"): each row says how the
       // verse is used — quotation, citation, allusion (echoed without a citation), exposition — by the one rule of
       // scripture-kinds.js, and a kind bar filters the rows of every book.

@@ -71,7 +71,6 @@
               foot     false to leave out the "All Mere Orthodoxy articles" button
               allHref/allLabel   where the foot button goes (an on-site path), "All Mere Orthodoxy articles" by default
               cap      most rows ever drawn (a narrow panel: 2); moreHref/moreLabel then name where the rest are (an on-site path)
-              note     one short muted sentence under the heading (the trust line); "" for none
        groups (resources only) see resources() */
   const KIND_NAME = { doc: "Creeds and confessions", work: "Works and authors", retrieval: "Theological retrieval", topic: "Doctrine and Scripture" };
   const FALLBACK_WHY = { doc: "On creeds and confessions", work: "Engages works and authors in the library", retrieval: "On theological retrieval", topic: "Engages doctrine and Scripture" };
@@ -141,7 +140,7 @@
     const foot = o.foot === false ? rest : `${rest}<a class="moa-btn" href="${esc(allHref)}">${esc(plain(o.allLabel) || "All Mere Orthodoxy articles")}</a>`;
     return `<section class="moa moa--${variant}${o.resources ? " moa--res" : ""}" data-moa aria-labelledby="${id}-h">` +
       `<div class="moa-head">${eyebrow}<${tag} class="moa-h" id="${id}-h">${esc(title || "From Mere Orthodoxy")}${ctx ? `<span class="moa-ctx"> ${esc(ctx)}</span>` : ""}</${tag}>` +
-      `${o.note ? `<p class="moa-note">${esc(plain(o.note))}</p>` : ""}</div>` +
+      `</div>` +
       `${lists}${foot ? `<div class="moa-foot moa-foot--end">${foot}</div>` : ""}</section>`;
   }
 

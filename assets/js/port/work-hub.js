@@ -288,7 +288,9 @@
     });
   }
 
-  const NOTE = "Library notes: machine-written from this work's own pages; every page reference was checked against the text.";
+  const NOTE = "Library notes are machine-written from this work's own pages; every page reference was checked against the text.";
+  // The note sits in the closed Methodology dropdown (tfr-method.js); a plain line where that script is not loaded.
+  const noteHtml = () => (root.TFRMethod ? root.TFRMethod.html(`<p>${esc(NOTE)}</p>`) : `<p class="wh-note">${esc(NOTE)}</p>`);
 
   // A page reference on the work page opens the page window right under its line (page-window.js); a second click
   // closes it. Without the page window it opens the reader at that page.
@@ -422,7 +424,7 @@
         const n = Array.isArray(d[id]) ? d[id].length : 0;
         if (!n) return;
         present[id] = true; num[id] = n;
-        panel(id).innerHTML = `<h2 class="sect">${esc(label(id))}</h2>${render(id, d)}<p class="wh-note">${esc(NOTE)}</p>`;
+        panel(id).innerHTML = `<h2 class="sect">${esc(label(id))}</h2>${render(id, d)}${noteHtml()}`;
       });
       addSet("terms");
       show(want && present[want] ? want : active || order.find((x) => present[x]), false);
@@ -433,7 +435,7 @@
       GUIDE.forEach((id) => {
         if (!c[id]) return;
         present[id] = true; num[id] = id === "overview" ? 0 : c[id];
-        panel(id).innerHTML = `<h2 class="sect">${esc(label(id))}</h2>${render(id, d)}${id === "overview" ? `<p class="wh-note">${esc(NOTE)}</p>` : ""}`;
+        panel(id).innerHTML = `<h2 class="sect">${esc(label(id))}</h2>${render(id, d)}${id === "overview" ? noteHtml() : ""}`;
       });
       addSet("index");
       body.parentElement?.querySelector(".wk-unmined")?.remove();
@@ -447,6 +449,6 @@
     return true;
   }
 
-  root.FRWorkHub = { SECTIONS, GUIDE, label, config, cfg, guide, counts, render, wire, esc, NOTE, desk, deskSwitch, inlinePage, citedBy, names, mountLater, citerRow, fullIndex, setOf,
+  root.FRWorkHub = { SECTIONS, GUIDE, label, config, cfg, guide, counts, render, wire, esc, NOTE, noteHtml, desk, deskSwitch, inlinePage, citedBy, names, mountLater, citerRow, fullIndex, setOf,
     deskHref: (slug, id) => cfg.deskHref(slug, id), readerHref: (slug, p) => cfg.readerHref(slug, p) };
 })(typeof window === "undefined" ? globalThis : window);

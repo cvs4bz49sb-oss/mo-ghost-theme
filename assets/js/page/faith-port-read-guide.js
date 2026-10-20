@@ -181,12 +181,13 @@
     HUB.wire(guide, (page) => go(page));
     const anchor = $("nbWorkSources");
     if (anchor) panel.insertBefore(guide, anchor); else panel.appendChild(guide);
-    // The library notes are machine-written: said once, at the foot of the tab's sections.
+    // The library notes are machine-written: said once, in a Methodology dropdown at the foot of the tab's sections.
     if (data && !$("nbWorkNote")) {
-      const note = document.createElement("p");
+      const note = document.createElement("div");
       note.id = "nbWorkNote";
       note.className = "wrs-note wh-note";
-      note.textContent = HUB.NOTE;
+      note.innerHTML = HUB.noteHtml ? HUB.noteHtml() : "";
+      if (!note.innerHTML) note.textContent = HUB.NOTE;
       const after = $("nbWorkSources");
       if (after && after.parentNode === panel) panel.insertBefore(note, after.nextSibling); else guide.appendChild(note);
     }

@@ -529,9 +529,6 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credits summar
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credits p { margin: 0 0 10px; overflow-wrap: anywhere; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credits a { color: inherit; text-underline-offset: 3px; }
 
-/* "Library notes: machine-written..." is moved into the Methodology disclosure by the methodology PR (shared component not on main yet):
-   hidden here, not deleted from faith-port-room-notes.js, so that PR can take the text over. */
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes .rn-note { display: none; }
 
 /* The sidebar owns the identity facts, so the hero keeps only the numbers once About is drawn. */
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile).ah-has-about .rx-profile .ar-stats { display: none; }

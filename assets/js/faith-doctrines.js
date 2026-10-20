@@ -107,10 +107,8 @@
       // .hbs — this page renders the identical MOTopicSynth output for
       // the ~175 topics those pages don't cover, so it carries the same
       // AI involvement and needs the same notice, not a lesser one.
-      const aiNote = `<div class="fr-ai-note">` +
-        `<p class="fr-ai-note-head">Positions below were extracted and summarized by AI.</p>` +
-        `<p class="fr-ai-note-body">Author rankings and position counts are computed directly from citations. The quoted positions themselves were extracted from the source texts and put into English by AI, and have not been reviewed by a human editor &mdash; open the page link on any one to check it against the source.</p>` +
-        `</div>`;
+      const aiBody = `<p>Author rankings and position counts are computed directly from citations. The quoted positions were extracted from the source texts, summarized and put into English by AI, and have not been reviewed by a human editor. Open the page link on any one to check it against the source.</p>`;
+      const aiNote = window.TFRMethod ? window.TFRMethod.html(aiBody) : `<div class="fr-ai-note">${aiBody}</div>`;
       root.innerHTML = `<div class="faith-topic-synthesis-inner faith-doctrines-detail">${aiNote}${html}</div>`;
     });
   }

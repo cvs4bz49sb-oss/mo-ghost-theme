@@ -120,9 +120,10 @@
   function orderNote() {
     const note = document.getElementById("author-order-note");
     if (!note) return;
-    const t = note.textContent;
+    const target = note.querySelector("p") || note;
+    const t = target.textContent;
     const fixed = t.replace("Counts are the works each author has in the research rooms", "Counts are every work the library holds by each author");
-    if (fixed !== t) note.textContent = fixed;
+    if (fixed !== t) target.textContent = fixed;
   }
 
   /* The port writes "(1 works)" in an author's "Also on" line. */

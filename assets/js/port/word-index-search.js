@@ -20,6 +20,7 @@
                              set, and the counts are made from it, so "N works · pages · times" is the set's, not the room's. */
 (function () {
   'use strict';
+  const method = html => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const STOP = new Set(('et in est non ad cum ut quod qui quae quo de sed per ab ex se si enim etiam autem quia hoc esse sunt eius nec vel uel aut ita sic tamen nam id ea eo ' +
     'the of and to in a is that it be as by for not which with this his he but are from or they we all was have so an their on him them you our shall will hath doth were').split(' '));
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -372,7 +373,7 @@
     slot.className = 'wix wcx';
     slot.innerHTML = `<p class="wcx-k">Concept</p><h3>${esc(c.label)}</h3>${c.gloss ? `<p class="wcx-gl">${esc(c.gloss)}</p>` : ''}<p class="wcx-meta">${meta}</p>
       ${rows}${vrow}${offList}${nearLine}
-      <p class="wcx-why">Works that treat it most: ranked where its words, its verses and the statements filed under it meet on the same pages. Each word above is a search of its own.</p>
+      ${method('<p class="wcx-why">Works that treat it most: ranked where its words, its verses and the statements filed under it meet on the same pages. Each word above is a search of its own.</p>')}
       ${trads.length > 1 ? `<div class="wix-trad" role="group" aria-label="Tradition"><button type="button" data-ct="*" aria-pressed="true">All traditions</button>${trads.map(t => `<button type="button" data-ct="${esc(t.t)}" aria-pressed="false">${esc(t.t)}<span>${n(t.works)}</span></button>`).join('')}</div>` : ''}
       <p class="wcx-start"></p><ol class="wcx-list"></ol><div class="wcx-foot"></div>`;
     const forms = [...new Set(on.filter(t => t.kind === 'word').flatMap(t => t.forms || []))];

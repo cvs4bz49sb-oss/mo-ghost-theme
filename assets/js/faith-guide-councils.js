@@ -121,7 +121,7 @@
     if (now >= 0 && canPin) { const li = lis[now]; chron.scrollTop = Math.max(0, li.offsetTop - chron.clientHeight * 0.35); }
     const P = D.people.filter((p) => p.y0 - 15 <= year && year <= p.y1 + 15).slice(0, 10);
     document.getElementById('ribbon').innerHTML = P.map((p) => `<span class="${/^Pope/.test(p.name) ? 'pope' : ''}">${esc(p.name)}</span>`).join('');
-    document.getElementById('mapNote').textContent = `${total.toLocaleString('en-US')} councils at ${shown} places by ${Math.round(year)}. Larger circles held more councils. Red ones met in the last forty years.`;
+    document.getElementById('mapNote').textContent = `${total.toLocaleString('en-US')} councils at ${shown} places by ${Math.round(year)}. Red ones met in the last forty years.`;
   }
   mapSetup(); let mrt; new ResizeObserver(() => { clearTimeout(mrt); mrt = setTimeout(() => { mapSetup(); mapAt(curYear); }, 120); }).observe(mapbox);
   if (canPin) ScrollTrigger.create({ trigger: fitIn('#s-map'), start: () => foot('#s-map'), end: '+=3600', pin: true, scrub: 0.5, onUpdate: (st) => mapAt(50 + st.progress * 1852) });

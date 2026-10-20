@@ -676,7 +676,13 @@
       fig.appendChild(sr);
     });
     const note = host.querySelector("[data-faith-scripture-figure-note]");
-    if (note) note.textContent = t && t.note ? t.note : "";
+    // The note on how the figures were counted is a closed Methodology (assets/js/lib/tfr-method.js); one paragraph a line.
+    if (note) {
+      const lines = t && t.note ? String(t.note).split("\n") : [];
+      note.textContent = "";
+      if (lines.length && window.TFRMethod) note.innerHTML = window.TFRMethod.html(lines.map((l) => `<p>${escapeHtml(l)}</p>`).join(""));
+      else lines.forEach((l) => { const p = document.createElement("p"); p.textContent = l; note.appendChild(p); });
+    }
   }
 
   // faith-scripture-totals.js may finish before this file renders or
@@ -738,8 +744,8 @@
 
     // The note travels with the figures rather than with the panel that
     // fetched them, because it is the figures it explains.
-    const figNote = document.createElement("p");
-    figNote.className = "fa-fp-source faith-scripture-figure-note";
+    const figNote = document.createElement("div");
+    figNote.className = "faith-scripture-figure-note";
     figNote.setAttribute("data-faith-scripture-figure-note", "");
     wrap.appendChild(figNote);
 

@@ -45,6 +45,8 @@
   const S = window.MOScriptureDev;
   if (!S) return;
   const { esc, fmt, plural } = S;
+  // How a figure was made is a closed Methodology under it (assets/js/lib/tfr-method.js); without the helper it stays the paragraph it was.
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const $root = document.querySelector("[data-td-root]");
   if (!$root) return;
 
@@ -263,12 +265,12 @@
         // one line with its chevron.
         `<details class="td-block" open>` +
           `<summary class="td-fold-sum"><h3 class="td-block-h" id="td-h-conf">Creeds, Confessions, and Catechisms</h3>` +
-          `<p class="sd-muted td-note">The creeds, confessions, catechisms and councils, in their own words.</p></summary>` +
+          `</summary>` +
           `${tabs("c", state.cview)}<div class="td-view" data-td-cview></div>` +
         `</details>` +
         `<details class="td-block" open>` +
           `<summary class="td-fold-sum"><h3 class="td-block-h" id="td-h-teach">Works</h3>` +
-          `<p class="sd-muted td-note">The classic treatments of this topic in each tradition's major works, read in place.</p></summary>` +
+          `</summary>` +
           `${tabs("w", state.view)}<div class="td-view" data-td-view></div>` +
         `</details>` +
       `</div>` +
@@ -565,7 +567,7 @@
       docs.get(k).n += 1;
     });
     const items = [...docs.values()].filter((d) => d.x);
-    $view.innerHTML = `${from}<p class="sd-muted td-note">Each point is a document, placed by its date and sized by how many of its articles treat this topic. Select one to read it.</p><div data-td-tl></div>`;
+    $view.innerHTML = `${from}${method(`<p class="sd-muted td-note">Each point is a document, placed by its date and sized by how many of its articles treat this topic. Select one to read it.</p>`)}<div data-td-tl></div>`;
     timeline($view.querySelector("[data-td-tl]"), items, {
       rows: CGROUPS.filter(([k]) => items.some((d) => d.row === k)),
       colour: (k) => `var(--td-g-${k})`,
@@ -858,7 +860,7 @@
       items = [...g.values()];
     }
     $view.innerHTML =
-      `<p class="sd-muted td-note">Everyone the library holds on ${esc(INDEX.get(state.id).locus.label.toLowerCase())}, placed by when they wrote, a row for each tradition, and sized by how much they wrote on it. ${grouped ? "Each point is a century; select one to see who wrote then." : "Select anyone to read what they said."}</p>` +
+      `${method(`<p class="sd-muted td-note">Everyone the library holds on ${esc(INDEX.get(state.id).locus.label.toLowerCase())}, placed by when they wrote, a row for each tradition, and sized by how much they wrote on it. ${grouped ? "Each point is a century; select one to see who wrote then." : "Select anyone to read what they said."}</p>`)}` +
       `<div data-td-tl></div><div class="td-tl-people" data-td-people></div>`;
     const $people = $view.querySelector("[data-td-people]");
     timeline($view.querySelector("[data-td-tl]"), items, {
@@ -935,9 +937,9 @@
     const {locus} = INDEX.get(state.id);
     const conf = Boolean(given);
     $view.innerHTML = `${from || "" 
-      }<p class="sd-muted td-note">${conf
+      }${method(`<p class="sd-muted td-note">${conf
         ? "The proof-texts the confessions cite in their articles on this topic, most cited first. Each opens its Verse Desk."
-        : `The passages the teachers cite where they treat ${esc(locus.label.toLowerCase())}, those most particular to it first. Each opens its Verse Desk.`}</p>` +
+        : `The passages the teachers cite where they treat ${esc(locus.label.toLowerCase())}, those most particular to it first. Each opens its Verse Desk.`}</p>`)}` +
       `<ol class="td-proofs" data-td-proofs><li class="sd-muted">Loading…</li></ol>` +
       `<button type="button" class="sd-more" data-td-pmore hidden>Show more</button>`;
     const $ol = $view.querySelector("[data-td-proofs]");

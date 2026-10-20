@@ -93,6 +93,19 @@
  * present.
  */
 (function () {
+  // How a count or limit was made goes in the shared Methodology dropdown (tfr-method.js); the plain note is the fallback.
+  function methodNote(text, cls) {
+    const box = document.createElement("div");
+    if (window.TFRMethod) {
+      const p = document.createElement("p");
+      p.textContent = text;
+      box.innerHTML = window.TFRMethod.html(p.outerHTML);
+    } else {
+      box.className = cls;
+      box.textContent = text;
+    }
+    return box;
+  }
   const form = document.querySelector("[data-ps-form]");
   if (!form) return;
 
@@ -579,13 +592,10 @@
       group.appendChild(row);
 
       if (dim === "century" && values.some(([k]) => k === UNKNOWN)) {
-        const note = document.createElement("p");
-        note.className = "ps-facet-note";
         // Two things a reader will otherwise work out the hard way:
         // why the counts sum to more than the result total, and where
         // the undated works went.
-        note.textContent = "An author whose life crosses a century counts under both. Not every author here carries a date. Those works sit under Century unknown, and picking a century leaves them out.";
-        group.appendChild(note);
+        group.appendChild(methodNote("An author whose life crosses a century counts under both. Not every author here carries a date. Those works sit under Century unknown, and picking a century leaves them out.", "ps-facet-note"));
       }
 
       facetsEl.appendChild(group);
@@ -718,10 +728,7 @@
     region.appendChild(ol);
 
     if (capped) {
-      const note = document.createElement("p");
-      note.className = "ps-passages-note";
-      note.textContent = "The twenty closest passages in this work. A long work may hold more.";
-      region.appendChild(note);
+      region.appendChild(methodNote("The twenty closest passages in this work. A long work may hold more.", "ps-passages-note"));
     }
 
     const n = list.length;

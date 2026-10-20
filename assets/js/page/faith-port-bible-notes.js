@@ -19,6 +19,7 @@
   const BASE = window.__FR_BLOB_BASE__ || "https://mo-tfr-library.mo-podcast-feed.workers.dev";
   const READ = "/the-faith-received/read/?w=";
   const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const getJSON = (url) => fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   const pageLink = (w, p, label) => `<a href="${READ}${encodeURIComponent(w)}#b${encodeURIComponent(p)}-0" target="_blank" rel="noopener">${esc(label)}</a>`;
 
@@ -95,7 +96,7 @@
       box.dataset.key = key;
       box.innerHTML = `<details class="rx-fold bn-fold" open><summary><span><strong>How the library reads ${esc(r.ch ? `${d.book} ${r.ch}` : d.book)}</strong></span></summary>
         <div class="rx-fold-body">${body}
-        <p class="rx-note">Machine-written from the library's pages that use this passage; every page link is checked. Open a page to read it.</p></div></details>`;
+        ${method(`<p>Machine-written from the library's pages that use this passage; every page link is checked. Open a page to read it.</p>`)}</div></details>`;
       box.addEventListener("click", (e) => {
         const a = e.target.closest("[data-bn-verse]");
         if (!a) return;

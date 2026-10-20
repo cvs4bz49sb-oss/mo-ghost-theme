@@ -34,7 +34,7 @@
   if (!MOA || !MOD) return;
   const P = MOD.pick;
 
-  const NOTE = "Essays that engage this. They do not speak for the library.";
+  // Wording rule (Ian, 2026-10-20): the module carries no disclaimer line. Never word a title, label or button as if an essay states the library's position.
   // The theme hash this script was loaded under (Ghost stamps it on every deploy), for the data file the CDN keys on ?v= alone.
   const SELF_V = (() => {
     try { const m = /[?&]v=([a-z0-9]+)/i.exec((document.currentScript && document.currentScript.src) || ""); return m ? m[1] : ""; } catch (e) { return ""; }
@@ -119,7 +119,7 @@
         // Right after the translations: the desk's modules below run 12,000px on a wide screen, and an essay list after them is never found.
         const after = $desk.querySelector('[aria-labelledby="sd-h-trans"]') || $desk.querySelector('[data-vd="modules"]');
         if (after) after.after(host); else $desk.append(host);
-      }, items, { id: "moa-verse", title: "On this passage", image: imageOf, tag: "h2", note: NOTE }));
+      }, items, { id: "moa-verse", title: "On this passage", image: imageOf, tag: "h2" }));
     }).catch(() => false);
   }
 
@@ -133,7 +133,7 @@
       return Boolean(MOD.mountAt((el) => {
         const about = host.querySelector("#tdk-chron");
         if (about) about.after(el); else host.append(el);
-      }, items, { id: "moa-topic", title: "On this topic", image: imageOf, tag: "h3", note: NOTE }));
+      }, items, { id: "moa-topic", title: "On this topic", image: imageOf, tag: "h3" }));
     }).catch(() => false);
   }
 
@@ -172,8 +172,7 @@
     MOD.mountAt((el) => {
       // Under the save buttons, above the work's guide (its sections run long, and the guide is drawn after this).
       if (place) place.after(el); else rail.append(el);
-    }, [], { id: "moa-reader", kinds: readerData.kinds, variant: "rows", image: imageOf, title: "Resources on this work", tag: "h3", allHref: readerData.allHref, allLabel: "See all resources",
-      note: "Essays that engage this work. They do not speak for the library." });
+    }, [], { id: "moa-reader", kinds: readerData.kinds, variant: "rows", image: imageOf, title: "Resources on this work", tag: "h3", allHref: readerData.allHref, allLabel: "See all resources" });
   }
   function reader() {
     const rail = document.getElementById("nbWorkPanel");
@@ -225,7 +224,7 @@
           if (name && !/^Compare\b/.test(name) && state.room !== key) {
             const items = P.author(ALL, name);
             if (!items.length) state.room = key;
-            else MOD.mountAt((el) => room.append(el), items, { id: "moa-author", title: `Mere Orthodoxy on ${name}`, context: "", image: imageOf, tag: "h2", note: NOTE });
+            else MOD.mountAt((el) => room.append(el), items, { id: "moa-author", title: `Mere Orthodoxy on ${name}`, context: "", image: imageOf, tag: "h2" });
           }
         }
         const work = document.querySelector("main.research-work");
@@ -242,8 +241,7 @@
             if (!g.kinds.length) { state.work = `${slug}|none`; return; }
             const now = document.querySelector("main.research-work");
             if (!now || hashWork() !== slug || now.querySelector('[data-moa-host="moa-work"]')) return;
-            const host = MOD.mountAt((el) => now.append(el), [], { id: "moa-work", kinds: g.kinds, image: imageOf, title: "Resources on this work", tag: "h2", allHref: g.allHref, allLabel: "See all resources",
-              note: "Essays that engage this work. They do not speak for the library." });
+            const host = MOD.mountAt((el) => now.append(el), [], { id: "moa-work", kinds: g.kinds, image: imageOf, title: "Resources on this work", tag: "h2", allHref: g.allHref, allLabel: "See all resources" });
             if (host) host.dataset.moaFor = slug;
           });
         }
@@ -272,7 +270,7 @@
         wrap.append(el);
         const after = main.querySelector(".faith-intro") || main.querySelector(".faith-doc-header");
         if (after) after.after(wrap); else main.prepend(wrap);
-      }, [], { id: "moa-doc", kinds: g.kinds, image: imageOf, title: "Resources on this document", tag: "h2", allHref: g.allHref, allLabel: "See all resources", note: "Essays that engage this document. They do not speak for the library." });
+      }, [], { id: "moa-doc", kinds: g.kinds, image: imageOf, title: "Resources on this document", tag: "h2", allHref: g.allHref, allLabel: "See all resources" });
     });
   }
 
@@ -290,7 +288,7 @@
         wrap.className = "container";
         wrap.append(el);
         root.after(wrap);
-      }, items, { id: "moa-councils", title: "Mere Orthodoxy on the councils", context: "", image: imageOf, tag: "h2", note: "Essays that engage the councils. They do not speak for the library." });
+      }, items, { id: "moa-councils", title: "Mere Orthodoxy on the councils", context: "", image: imageOf, tag: "h2" });
     });
   }
 

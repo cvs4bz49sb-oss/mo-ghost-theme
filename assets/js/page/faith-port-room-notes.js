@@ -18,7 +18,8 @@
   "use strict";
 
   const BASE = window.__FR_BLOB_BASE__ || "https://mo-tfr-library.mo-podcast-feed.workers.dev";
-  const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
+const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const getJSON = (url) => fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   const desk = (a, b) => `/the-faith-received/compare/#a=${encodeURIComponent(a)},${encodeURIComponent(b)}`;
   const read = (w) => `/the-faith-received/read/?w=${encodeURIComponent(w)}`;
@@ -102,7 +103,7 @@
         <div class="rn-tabs" role="tablist" aria-label="From the library">${views.map(([k, l, n], i) =>
           `<button type="button" role="tab" id="rnt-${k}" aria-controls="rnp-${k}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-view="${k}">${esc(l)}${k !== "start" ? ` <span>${n.toLocaleString()}</span>` : ""}</button>`).join("")}</div></div>
       ${views.map(([k], i) => `<div class="rn-panel" role="tabpanel" id="rnp-${k}" aria-labelledby="rnt-${k}"${i ? " hidden" : ""}>${k === "start" ? startView(d) : listView(k, k === "compare" ? d.compare : d.controversies, room)}</div>`).join("")}
-      <p class="rx-note rn-note">Library notes: machine-written from the authors' own pages. The compare desk shows the pages behind each.</p>`;
+      ${method(`<p>Library notes are machine-written from the authors' own pages. The compare desk shows the pages behind each.</p>`)}`;
     views.forEach(([k]) => { if (k !== "start") wireList(box.querySelector(`#rnp-${k}`), k, k === "compare" ? d.compare : d.controversies, room); });
     box.querySelector(".rn-tabs").addEventListener("click", (e) => {
       const b = e.target.closest("[data-view]");

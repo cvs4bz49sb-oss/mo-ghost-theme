@@ -226,6 +226,14 @@
     return n;
   }
 
+  // How the quotations were found goes in the shared Methodology dropdown (tfr-method.js); a plain note is the fallback.
+  function methodEl(text, cls) {
+    if (!window.TFRMethod) return el("p", cls, text);
+    const p = el("p", "", text), box = el("div", cls);
+    box.innerHTML = window.TFRMethod.html(p.outerHTML);
+    return box;
+  }
+
   function clear(node) {
     while (node && node.firstChild) node.removeChild(node.firstChild);
   }
@@ -1008,7 +1016,7 @@
         if (s.unresolved) {
           line += ` ${fmt(s.unresolved)} could not be reached and are shown as citations alone.`;
         }
-        if (line) col.appendChild(el("p", "cmp-note", line.trim()));
+        if (line) col.appendChild(methodEl(line.trim(), "cmp-note"));
       }
 
       const body = el("div", "cmp-col-body");

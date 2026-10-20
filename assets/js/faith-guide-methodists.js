@@ -1,5 +1,6 @@
 /* The Methodists guide: the shelf as a hymn, the Atlantic crossings and presses, free grace, the hymnbook's order, four commentaries. */
 (async () => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const {TG} = window, D = await TG.load('data');
   const { esc, fmt, clamp, ease, lerp } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null;
   const FAMS = D.fam.map((f) => f[0]), fc = (k) => TG.css(`--f${FAMS.indexOf(k) + 1}`), famName = (k) => (D.fam.find((f) => f[0] === k) || [])[1];
@@ -44,12 +45,13 @@
         fill: type === 'quarter' ? c : TG.css('--card'), stroke: c, 'stroke-width': type === 'whole' ? 1.8 : 1.4 }));
       if (type !== 'whole') g.appendChild(mk('line', { x1: x + 4.1, x2: x + 4.1, y1: y - 1, y2: y - 22, stroke: c, 'stroke-width': 1.1 }));
       NG.appendChild(a);
-      const say = () => { cap.textContent = `${n.t}${n.v ? `, ${n.v}` : ''} · ${n.a} · ${fmt(n.p)} pages${n.note ? ` · ${n.note}` : ''}`; };
+      const say = () => { cap.dataset.m = ''; cap.textContent = `${n.t}${n.v ? `, ${n.v}` : ''} · ${n.a} · ${fmt(n.p)} pages${n.note ? ` · ${n.note}` : ''}`; };
       a.addEventListener('mouseenter', say); a.addEventListener('focus', say);
       return { g, x, n };
     });
     const def = 'Each note is a book on the shelf. It sits in the year of its edition and on the line of its kind. Whole notes are long books and quarter notes are short ones. After 1800 the years are drawn closer together.';
-    svg.addEventListener('mouseleave', () => { cap.textContent = def; }); cap.textContent = def;
+    const showDef = () => { if (cap.dataset.m !== '1') { cap.dataset.m = '1'; cap.innerHTML = method(def); } };
+    svg.addEventListener('mouseleave', showDef); showDef();
     if (!G) return;
     const ph = svg.appendChild(mk('line', { x1: X0, x2: X0, y1: T0 - 16, y2: B0 + 8 * GAP + 6, class: 'ph' })), phy = svg.appendChild(mk('text', { x: X0, y: T0 - 22, class: 'phy', 'text-anchor': 'middle' }));
     gsap.set(els.map((e) => e.g), { opacity: 0, scale: 0.2, transformOrigin: 'center center' });

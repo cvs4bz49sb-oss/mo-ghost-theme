@@ -1,5 +1,6 @@
 /* The Medieval shelf guide: rose window, the masters' journeys, the Sentences ledger, an article of the Summa, the glossed law, Aristotle. */
 (async () => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const {TG} = window, D = await TG.load('data'), LAND = await TG.load('land');
   const { esc, fmt, clamp, ease, lerp } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null;
   const FAMS = D.fam.map((f) => f[0]), fc = (k) => TG.css(`--f${FAMS.indexOf(k) + 1}`), famName = (k) => (D.fam.find((f) => f[0] === k) || [])[1];
@@ -49,7 +50,10 @@
     const big = panes.slice().sort((p, q) => q.a.p - p.a.p).slice(0, 9);
     const labels = big.map(({ a, th }) => { const [x, y] = pt(RMAX + 24, th), right = Math.cos(th) >= 0;
       const t = mk('text', { x, y: y + 4, 'text-anchor': Math.abs(Math.cos(th)) < 0.2 ? 'middle' : right ? 'start' : 'end', class: 'lbl' }); t.textContent = a.n.replace(/^John /, ''); svg.appendChild(t); return t; });
-    const say = (p) => { cap.textContent = p ? `${p.a.n}, ${TG.yr(p.a)} · ${p.a.w.length} ${p.a.w.length === 1 ? 'work' : 'works'}, ${fmt(p.a.p)} pages · ${famName(p.a.f)}` : 'Each pane is a writer. The panes run clockwise from the top in order of birth. The colored glass fills with the pages on the shelf.'; };
+    const say = (p) => {
+      if (p) { cap.dataset.m = ''; cap.textContent = `${p.a.n}, ${TG.yr(p.a)} · ${p.a.w.length} ${p.a.w.length === 1 ? 'work' : 'works'}, ${fmt(p.a.p)} pages · ${famName(p.a.f)}`; }
+      else if (cap.dataset.m !== '1') { cap.dataset.m = '1'; cap.innerHTML = method('Each pane is a writer. The panes run clockwise from the top in order of birth. The colored glass fills with the pages on the shelf.'); }
+    };
     panes.forEach((p) => {
       const on = () => { say(p); yr.textContent = p.a.y0; yr2.textContent = 'born'; };
       p.g.addEventListener('mouseenter', on); p.g.addEventListener('focus', on);

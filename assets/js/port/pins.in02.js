@@ -94,7 +94,7 @@ function itemName(k,act){
 function consHTML(act,removable=true){
   const all=notebookTools().resolveEdges(act);if(!all.length)return '<p class="note">No relationships recorded. Use Collection actions to link two saved items.</p>';
   const rows=all.map(e=>'<div class="edge-row"><span>'+esc(e.resolved?itemName(e.a,act):'Unresolved saved item')+'</span><span class="rel">'+esc(e.rel)+'</span><span>'+esc(e.resolved?itemName(e.b,act):'Original relation retained')+'</span>'+(removable?'<button class="ex" data-ei="'+e.index+'" aria-label="Remove this relationship">Remove</button>':'')+'</div>').join('');
-  return '<div class="cons">'+rows+(all.some(e=>!e.resolved)?'<p class="note">Some older endpoints are missing or ambiguous. Their original relations are retained.</p>':'')+'</div>';
+  return '<div class="cons">'+rows+(all.some(e=>!e.resolved)?''+(window.TFRMethod?window.TFRMethod.html('<p class="note">Some older endpoints are missing or ambiguous. Their original relations are retained.</p>'):'<p class="note">Some older endpoints are missing or ambiguous. Their original relations are retained.</p>'):'')+'</div>';
 }
 function authorOf(i){const site=i.site||"fr";
   if(site==="fr")return ((WIDX||{})[i.slug]||{}).author||i.author||"Unattributed";
