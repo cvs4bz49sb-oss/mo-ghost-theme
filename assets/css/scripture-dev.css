@@ -120,13 +120,19 @@
 /* The deuterocanon's text, where the translation picker sits on every
    other book: a fact in the same place and the same size as the value
    it replaces, not a dropdown that refuses to open. */
-.sd .sd-fixed-text { margin: 0; }
+.sd .sd-fixed-text { margin: 0; align-self: flex-start; }
+/* Same box as the Book and Chapter selects beside it (16px, 44px tall,
+   the same underline), so the label and the value sit on their lines. */
 .sd .sd-fixed-text-name {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 16px;
+  min-height: 44px;
   color: var(--color-dark);
-  padding: 4px 0;
-  border-bottom: 1px solid transparent;
+  padding: 4px 18px 4px 0;
+  border-bottom: 1px solid var(--color-card-border);
 }
 /* THE TFR BUTTON (faith-received.css, "THE TFR BUTTON", Ian 2026-09-18):
    quiet at rest (off-black outline and ink, 3px), filled on hover, and
