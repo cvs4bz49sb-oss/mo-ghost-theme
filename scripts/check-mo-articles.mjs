@@ -128,7 +128,7 @@ const B = MOArticles.create();
 B.use(data);
 const byId = new Map(data.articles.map((a) => [a.id, a]));
 
-test("size under 400 KB", () => assert.ok(Buffer.byteLength(text) < 400 * 1024, `${text.length} bytes`));
+test("size under 450 KB", () => assert.ok(Buffer.byteLength(text) < 450 * 1024, `${text.length} bytes`));
 test("all 493 approved essays are present, once", () => {
   assert.equal(data.articles.length, 493);
   assert.equal(byId.size, 493);
@@ -224,6 +224,14 @@ test("kinds: every essay has valid kinds with its primary first; filters overlap
   assert.equal(B.search("").length, 493);
   const flat = B.search("", { kind: "work" }).map((a) => a.id);
   assert.equal(new Set(flat).size, flat.length);
+});
+test("why lines: strong signals only, so no loose 'Death and Judgment' or 'Person and Work of Christ'", () => {
+  for (const re of [/Dante/i, /Dostoevsk|Brothers Karamazov/i, /Tucker Carlson/, /Dark Triad/, /Secular Protestantism/, /Annunciation/, /Magician and Mechanic/]) {
+    for (const a of data.articles.filter((x) => re.test(x.t))) assert.ok(!/Death and Judgment|Person and Work of Christ|Humanity/.test(a.y || ""), `${a.t}: ${a.y}`);
+  }
+  assert.ok(data.articles.filter((a) => a.y).length >= 300);
+  for (const a of data.articles) if (a.y) assert.ok(!/ and .* and .* and /.test(a.y) && a.y.split("; ").length <= 2, `${a.t}: ${a.y}`);
+  for (const a of data.articles) assert.ok(!/(\w+ \d+)(:\d+)? and \1/.test(a.y || ""), `${a.t} repeats a chapter: ${a.y}`);
 });
 test("the lookups answer from the built file", () => {
   assert.ok(B.forAuthor("Augustine of Hippo").length >= 30, "Augustine's essays");
@@ -362,7 +370,9 @@ test("a card is one link with an image or a placeholder, a sized image box, alt 
   assert.match(pageJs, /<img class="fr-res-photo"[^`]*width="600" height="400" alt="[^`]*loading="lazy" decoding="async"/);
   assert.match(pageJs, /class="fr-res-ph" aria-hidden="true"/);
   assert.match(css, /\.fr-res-img \{[^}]*aspect-ratio: 3 \/ 2/);
-  assert.match(css, /min-width: 1000px\) \{ \.fr-res \.fr-res-grid \{ grid-template-columns: repeat\(6, minmax\(0, 1fr\)\)/);
+  assert.match(css, /min-width: 1000px\) \{ \.fr-res \.fr-res-grid \{ grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
+  assert.ok(!/line-clamp|text-overflow/.test(css), "a card clamps or ellipsizes text");
+  assert.match(css, /align-items: start/);
   assert.match(css, /\.fr-res-img \{[^}]*border-radius: 8px/);
   assert.match(pageJs, /class="fr-res-cwhy"/);
   assert.ok(!/max-width: 820px/.test(css), "the narrow column is back");

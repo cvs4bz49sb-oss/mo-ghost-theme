@@ -77,13 +77,11 @@
 .fr-res .fr-res-section + .fr-res-section { margin-top: 34px; }
 .fr-res .fr-res-h { margin: 26px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--fr-rule); font-size: 22px; font-weight: 600; line-height: 1.25; color: var(--fr-ink); }
 .fr-res .fr-res-n { font-size: 14px; font-weight: 400; color: var(--fr-muted); margin-left: 6px; }
-.fr-res .fr-res-grid { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 24px 20px; grid-template-columns: minmax(0, 1fr); }
+.fr-res .fr-res-grid { list-style: none; margin: 16px 0 0; padding: 0; display: grid; align-items: start; gap: 28px 20px; grid-template-columns: minmax(0, 1fr); }
 .fr-res .fr-res-h + .fr-res-grid { margin-top: 0; }
-@media (min-width: 380px) { .fr-res .fr-res-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 540px) { .fr-res .fr-res-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (min-width: 700px) { .fr-res .fr-res-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-@media (min-width: 900px) { .fr-res .fr-res-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
-@media (min-width: 1000px) { .fr-res .fr-res-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (min-width: 520px) { .fr-res .fr-res-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 800px) { .fr-res .fr-res-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { .fr-res .fr-res-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .fr-res .fr-res-card { margin: 0; min-width: 0; content-visibility: auto; contain-intrinsic-size: auto 190px; }
 .fr-res .fr-res-cardlink { display: block; min-height: 44px; color: var(--fr-ink); text-decoration: none; }
 .fr-res .fr-res-cardlink:focus-visible { outline: 2px solid var(--fr-ink); outline-offset: 4px; }
@@ -94,15 +92,14 @@
   font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; text-align: center; line-height: 1.4; color: var(--fr-muted);
 }
 .fr-res .fr-res-ctitle {
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
-  margin: 10px 0 4px; font-size: 15.5px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere;
+  display: block; margin: 10px 0 4px; font-size: 17px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere;
 }
 .fr-res .fr-res-cardlink:hover .fr-res-ctitle { color: var(--fr-accent); text-decoration: underline; text-underline-offset: 3px; }
-.fr-res .fr-res-cmeta,
-.fr-res .fr-res-cmore { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; margin-top: 3px; font-size: 12px; font-style: italic; line-height: 1.35; color: var(--fr-muted); }
-.fr-res .fr-res-cwhy { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; margin-top: 3px; font-size: 12px; line-height: 1.4; color: var(--fr-muted); }
-.fr-res .fr-res-ckind { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; line-height: 1.45; color: var(--fr-muted); }
-.fr-res .fr-res-ckind { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+/* Nothing on a card is clipped: text wraps and the card grows. */
+.fr-res .fr-res-cmeta { display: block; font-size: 13px; line-height: 1.45; color: var(--fr-muted); }
+.fr-res .fr-res-cwhy { display: block; margin-top: 4px; font-size: 13px; line-height: 1.4; color: var(--fr-ink); }
+.fr-res .fr-res-cmore { display: block; margin-top: 3px; font-size: 12.5px; font-style: italic; line-height: 1.35; color: var(--fr-muted); }
+.fr-res .fr-res-ckind { display: block; margin-top: 6px; font-size: 11px; line-height: 1.45; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fr-muted); }
 .fr-res .fr-res-ctitle mark { color: inherit; background: color-mix(in srgb, var(--fr-accent) 16%, transparent); border-radius: 2px; padding: 0 1px; }
 
 

@@ -4,7 +4,7 @@
  *
  * Builds a harness from custom-faith-resources.hbs (partials and helpers stripped, its scripts and stylesheet kept), serves the
  * theme's assets locally, drives headless Chrome over the DevTools protocol, and at 1920, 1440, 1280, 1024, 768 and 375 asserts:
- *   - the column count (6 at 1920, 1440, 1280 and 1024, 4 at 768, 1 at 375)
+ *   - the column count (4 at 1920, 1440, 1280 and 1024, 2 at 768, 1 at 375)
  *   - the grid, tab bar and hero share the theme's .container edges (1180px, 28px padding) within 1px
  *   - no horizontal overflow of the page
  *   - tiles of one grid are the same width within 1px
@@ -102,6 +102,12 @@ const MEASURE = `(async () => {
   document.querySelector('[data-kind=""]').click();
   out.renderMs = (performance.now() - t0) / 2;
   g = document.querySelector(".fr-res-grid");
+  // nothing on a card is clipped: no line-clamp or ellipsis, and every text line holds its own text
+  for (const el of document.querySelectorAll(".fr-res-card .fr-res-ctitle, .fr-res-card .fr-res-cmeta, .fr-res-card .fr-res-cwhy, .fr-res-card .fr-res-ckind, .fr-res-card .fr-res-cmore")) {
+    const cs = getComputedStyle(el);
+    if (cs.textOverflow === "ellipsis" || (cs.webkitLineClamp && cs.webkitLineClamp !== "none") || cs.maxHeight !== "none") { out.problems.push("clipping style on " + el.className); break; }
+    if (el.scrollHeight > el.clientHeight + 1) { out.problems.push("clipped text in " + el.className); break; }
+  }
   const img = document.querySelector(".fr-res-img");
   out.radius = img ? getComputedStyle(img).borderTopLeftRadius : "";
   out.whyMissing = [...document.querySelectorAll(".fr-res-card")].filter((c) => !c.querySelector(".fr-res-cwhy") || !c.querySelector(".fr-res-cwhy").textContent.trim()).length;
@@ -128,7 +134,7 @@ const MEASURE = `(async () => {
   return out;
 })()`;
 
-const WANT = { 1920: 6, 1440: 6, 1280: 6, 1024: 6, 768: 4, 375: 1 };
+const WANT = { 1920: 4, 1440: 4, 1280: 4, 1024: 4, 768: 2, 375: 1 };
 let failed = 0;
 await send("Page.navigate", { url: `${base}/h` });
 await new Promise((res) => setTimeout(res, 800));

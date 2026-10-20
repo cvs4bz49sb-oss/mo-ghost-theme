@@ -24,7 +24,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const rel = (p) => path.join(root, p);
 const readJson = (p) => JSON.parse(readFileSync(rel(p), "utf8"));
 const OUT = "assets/data/faith-received/mo-articles.json";
-const MAX_BYTES = 400 * 1024;
+const MAX_BYTES = 450 * 1024; // was 400 KB; the why line adds about 20 KB
 
 const KIND = {
   "CREED-CONFESSION": "doc",
@@ -37,13 +37,16 @@ const input = readJson("scripts/mo-articles-input.json");
 const imageInput = readJson("scripts/mo-articles-images.json");
 const IMG_PATH = /^\d{4}\/\d{2}\/[A-Za-z0-9._%()~-]+\.(?:jpe?g|png|gif|webp|avif)$/i;
 let withImage = 0;
+let topicsWeak = 0;
 
 // ── what the library has ──
 const loci = new Map();
+const lociObj = new Map();
 for (const part of readJson("assets/data/faith-received/loci.json").parts) {
   for (const l of part.loci) {
     loci.set(l.id, l.label);
-    for (const c of l.children || []) loci.set(c.id, c.label);
+    lociObj.set(l.id, l);
+    for (const c of l.children || []) { loci.set(c.id, c.label); lociObj.set(c.id, c); }
   }
 }
 const docTitle = new Map(readJson("assets/data/faith-received/confession-proofs/index.json").docs.map((d) => [d.s, d.t]));
@@ -51,10 +54,11 @@ const councils = JSON.stringify(readJson("assets/data/faith-received/guides/coun
 const DOC_SLUG = /^(cf|rc|lc)-\d{3}-[a-z0-9-]+$/;
 const docKnown = (s) => DOC_SLUG.test(s) && (docTitle.has(s) || councils.includes(`"${s}"`));
 const books = new Map();
+const bookNames = new Map();
 {
   const core = readFileSync(rel("assets/js/page/scripture-dev-core.js"), "utf8");
   const canon = core.slice(core.indexOf("const CANON = ["), core.indexOf("const APOCRYPHA = ["));
-  for (const m of canon.matchAll(/\["([a-z0-9-]+)", "[^"]+", (\d+)/g)) books.set(m[1], +m[2]);
+  for (const m of canon.matchAll(/\["([a-z0-9-]+)", "([^"]+)", (\d+)/g)) { books.set(m[1], Number(m[3])); bookNames.set(m[1], m[2] === "Psalms" ? "Psalm" : m[2]); }
   if (books.size !== 66) throw new Error(`mo-articles: expected 66 canon books in scripture-dev-core.js, found ${books.size}`);
 }
 
@@ -81,6 +85,98 @@ const parseVerse = (ref) => {
   if (to < from) return null;
   return { book: m[1], c, from, to };
 };
+
+// ── the strong-signal rule for a topic (the Topic Desk's, assets/js/lib/mo-articles-module.js topic()): a loose keyword somewhere is not enough ──
+const COMMON = new Set(["works", "merit", "word", "the word", "prophecy", "prophets", "cross", "mass", "canon", "bible", "ministry", "preaching",
+  "discipline", "decree", "decrees", "sacrifice", "salvation", "persecution", "martyrdom", "reason", "tradition", "heresy", "revelation",
+  "adoption", "theology", "method", "forgiveness", "faith", "law", "church", "christ", "god", "sin", "grace", "love", "death", "life", "worship"]);
+const reEsc = (t) => String(t).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function topicTerms(l) {
+  if (!l) return [];
+  const raw = [l.label, ...(l.aliases || []).map((x) => String(x).replace(/-/g, " ")), ...(l.find || [])];
+  const label = String(l.label || "").replace(/^(the|of|on)\s+/i, "").replace(/^person and work of /i, "");
+  return [...new Set([...raw, label].map((x) => String(x || "").toLowerCase().trim()).filter((x) => x.length > 3 && !COMMON.has(x)))];
+}
+const termRe = (terms) => (terms.length ? new RegExp(`\\b(?:${terms.map(reEsc).join("|")})`, "i") : null);
+const strongTopic = (o, id, order) => {
+  const re = termRe(topicTerms(lociObj.get(id)));
+  if (!re) return false;
+  const tk = `${o.t} ${(o.w || []).join(" ")}`;
+  return re.test(o.t) || (re.test(tk) && re.test(o.x)) || /^[\u2018\u2019'"]?Passages[,.:]? (Season|Chapter|Episode)/i.test(o.t) ||
+    ((o.k === "doc" || o.k === "work") && o.f === "high" && order.slice(0, 2).includes(id) && re.test(`${tk} ${o.x}`));
+};
+
+// ── why an essay is here, in words: from what it matched and the scan's own reason, never from anything else ──
+const DOC_NAMES = {
+  "cf-001-apostolic-and-ancient-creeds": "the ancient creeds", "cf-013-council-of-nicea-i-325": "the Council of Nicaea",
+  "cf-025-council-of-chalcedon-451": "the Council of Chalcedon", "cf-048-council-of-nicea-ii-787": "the Second Council of Nicaea",
+  "cf-092-council-of-trent-1545-1563": "the Council of Trent", "lc-002-augsburg-confession-1530": "the Augsburg Confession",
+  "rc-057-belgic-confession-1561": "the Belgic Confession", "rc-061-heidelberg-catechism-1563": "the Heidelberg Catechism",
+  "rc-105-canons-of-dort-1618": "the Canons of Dort", "rc-111-westminster-confession-of-faith-1646": "the Westminster Confession",
+  "rc-114-westminster-larger-catechism-1647": "the Westminster Larger Catechism", "rc-115-westminster-shorter-catechism-1647": "the Westminster Shorter Catechism",
+  "x:bcp": "the Book of Common Prayer", "x:thirty-nine-articles": "the Thirty-Nine Articles", "x:confessionalism": "confessional standards",
+  "x:savoy-declaration": "the Savoy Declaration", "x:vatican-ii": "Vatican II", "x:ccc": "the Catechism of the Catholic Church",
+  "umb:westminster-standards": "the Westminster Standards",
+};
+const lowerThe = (t) => String(t).replace(/^The /, "the ");
+const shortWork = (t) => lowerThe(String(t).replace(/\s*\([^)]*\)\s*$/, "").replace(/\.$/, ""));
+const shortAuthor = (n) => (/ of | the /.test(n) ? n.split(/ of | the /)[0] : n);
+function verseWords(refs) {
+  const parsed = refs.map((r) => ({ r, v: parseVerse(r) })).filter((x) => x.v);
+  const pick = parsed.find((x) => x.v.from) || parsed[0];
+  if (!pick) return "";
+  const v = pick.v;
+  return `${bookNames.get(v.book)} ${v.c}${v.from ? `:${v.from}${v.to > v.from ? `-${v.to}` : ""}` : ""}`;
+}
+const FALLBACK = { doc: "On creeds and confessions", work: "Engages works and authors in the library", retrieval: "On theological retrieval", topic: "Engages doctrine and Scripture" };
+function whyOf(o, a, docNames) {
+  const clauses = [];
+  const about = new Set(a.about || []);
+  const slugs = a.docs;
+  if (o.ks && o.ks.includes("retrieval") || o.k === "retrieval") clauses.push("On theological retrieval");
+  // (a) creeds, confessions, councils: About when the essay is about them (title or central), Mentions otherwise
+  const docs = slugs.map((slug) => ({ slug, name: docNames.get(slug) })).filter((d) => d.name);
+  if (docs.length && clauses.length < 2) {
+    const isAbout = docs.filter((d) => about.has(`doc:${d.slug}`));
+    const use = (isAbout.length ? isAbout : docs).slice(0, 2);
+    clauses.push(`${isAbout.length ? "About" : "Mentions"} ${use.map((d) => d.name).join(" and ")}`);
+  }
+  // (b) works and (c) authors, the author only when the essay shows the name or the scan counted two or more mentions
+  const text = `${o.t} ${(o.w || []).join(" ")} ${o.x}`.toLowerCase();
+  const strongAuthors = a.authors.filter((n) => {
+    const word = shortAuthor(n).split(" ").pop().toLowerCase();
+    const m = new RegExp(`${n.replace(/[.*+?^$()|[\]\\]/g, "\\$&")}[^;]*?(\\d+) mentions`, "i").exec(a.reason || "");
+    return text.includes(word) || about.has(`author:${n}`) || (m && Number(m[1]) >= 2);
+  });
+  // a work counts when the scan marked it central, or counted it cited twice or more, or the essay shows its title
+  const strongWork = (o.works || []).find((slug) => {
+    const title = shortWork(labels.works[slug]).replace(/^the /i, "").toLowerCase();
+    const m = new RegExp(`${reEsc(labels.works[slug].replace(/\s*\([^)]*\)\s*$/, ""))}[^;]*? cited (\\d+)x`, "i").exec(a.reason || "");
+    return about.has(`work:${slug}`) || (m && Number(m[1]) >= 2) || (title.length > 4 && text.includes(title));
+  });
+  const workName = strongWork ? shortWork(labels.works[strongWork]) : "";
+  if (clauses.length < 2 && (strongAuthors.length || workName)) {
+    const parts = [];
+    if (strongAuthors.length) parts.push(shortAuthor(strongAuthors[0]));
+    if (workName) parts.push(workName);
+    clauses.push(`Engages ${parts.join(" and ")}`);
+  }
+  // (d) Scripture, once
+  const ref = verseWords(a.verses);
+  if (ref && clauses.length < 2) clauses.push(`On ${ref}`);
+  // (e) strong topics
+  // Only the topic's own name counts here, not its looser aliases: "hell" in a reading of Dante is not the doctrine of Death and Judgment.
+  const nameRe = (id) => {
+    const l = lociObj.get(id);
+    const label = String(l.label || "").replace(/^(the|of|on)\s+/i, "").replace(/^person and work of /i, "").toLowerCase();
+    const terms = [String(l.label).toLowerCase(), label].filter((x) => x.length > 3 && !COMMON.has(x));
+    return termRe(terms);
+  };
+  const topicId = (o.topics || []).find((id) => { const re = nameRe(id); return re && (re.test(o.t) || (re.test(`${o.t} ${(o.w || []).join(" ")}`) && re.test(o.x)) || /^[\u2018\u2019'"]?Passages[,.:]? (Season|Chapter|Episode)/i.test(o.t)); });
+  if (topicId && clauses.length < 2) clauses.push(`Discusses ${lowerThe(labels.topics[topicId])}`);
+  if (!clauses.length) return "";
+  return clauses.map((c, i) => (i ? `${c.charAt(0).toLowerCase()}${c.slice(1)}` : c)).join("; ");
+}
 
 const articles = [];
 const labels = { docs: {}, works: {}, topics: {} };
@@ -115,9 +211,14 @@ for (const a of input.articles) {
     else drop(a.id, "doc", s, "not in the confession-proofs index or the councils guide");
   }
   const topics = [];
+  let weakTopics = 0;
   for (const s of a.topics) {
-    if (loci.has(s)) { topics.push(s); labels.topics[s] = loci.get(s); } else drop(a.id, "topic", s, "not in loci.json");
+    if (!loci.has(s)) { drop(a.id, "topic", s, "not in loci.json"); continue; }
+    // Only a strong signal keeps a topic: a word for it in the title, or in both a keyword and the excerpt, a Passages episode, or a high-confidence document or work essay.
+    if (!strongTopic(o, s, a.topics)) { weakTopics++; continue; }
+    topics.push(s); labels.topics[s] = loci.get(s);
   }
+  topicsWeak += weakTopics;
   const verses = [];
   for (const s of a.verses) {
     if (parseVerse(s)) verses.push(s); else drop(a.id, "verse", s, "not a verse of the canon");
@@ -134,6 +235,9 @@ for (const a of input.articles) {
   // Written only when there is more than one (to stay under the size cap); the loader answers [k] otherwise.
   const ks = [kind, ...["doc", "work", "retrieval", "topic"].filter((x) => x !== kind && has[x])];
   if (ks.length > 1) o.ks = ks;
+  const docNames = new Map(a.docs.map((slug) => [slug, DOC_NAMES[slug] || (docTitle.get(slug) && lowerThe(docTitle.get(slug))) || (input.docLabels[slug] && lowerThe(input.docLabels[slug]))]));
+  const y = whyOf(o, a, docNames);
+  if (y) o.y = y;
   o.about = a.about; // consumed below, removed before writing
   articles.push(o);
 }
@@ -203,6 +307,7 @@ const report = [
   `  kinds: ${Object.entries(kinds).map(([k, n]) => `${k} ${n}`).join(", ")}`,
   ...Object.entries(sortedIdx).map(([name, t]) => `  idx.${name}: ${Object.keys(t).length} keys, ${Object.values(t).reduce((n, l) => n + l.length, 0)} entries`),
   `  kinds per article: ${[1, 2, 3, 4].map((n) => `${n}: ${articles.filter((o) => (o.ks || [o.k]).length === n).length}`).join(", ")}`,
+  `  topics dropped as weak signals: ${topicsWeak}; articles with a why line: ${articles.filter((o) => o.y).length} of ${articles.length}`,
   `  with a featured image: ${withImage} of ${articles.length}`,
   `  without any entity: ${articles.filter((o) => !o.works && !o.authors && !o.docs && !o.verses && !o.topics).length}`,
   `  unresolved or dropped: ${dropped.length}`,

@@ -147,32 +147,14 @@
   const plural = (n, one, many) => `${n.toLocaleString("en-US")} ${n === 1 ? one : many}`;
 
   const KIND_LABEL = { doc: "Creeds and confessions", work: "Works and authors", retrieval: "Theological retrieval", topic: "Doctrine and Scripture" };
-  const SIZES = "(min-width: 1180px) 180px, (min-width: 1000px) 15vw, (min-width: 900px) 20vw, (min-width: 700px) 25vw, (min-width: 540px) 33vw, (min-width: 380px) 50vw, 100vw";
+  const SIZES = "(min-width: 1180px) 270px, (min-width: 1000px) 22vw, (min-width: 800px) 30vw, (min-width: 520px) 46vw, 100vw";
   const monthYear = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", timeZone: "UTC" });
   const niceMonth = (d) => { const t = new Date(`${d}T00:00:00Z`); return Number.isNaN(t.getTime()) ? d : monthYear.format(t); };
 
-  // Why an essay is on the page, in words, from what the data says it serves and nothing else: its kind, then the first two of the things it
-  // matched that fit that kind (documents for a creed piece; authors, then works, for a work piece; topics, then verses, for a doctrine piece).
-  const lower = (t) => t.replace(/^The /, "the ");
-  const VERB = { doc: "About", work: "Engages", retrieval: "On", topic: "Discusses" };
-  const FALLBACK = { doc: "About the creeds and confessions", work: "Engages the works and authors of the library", retrieval: "On theological retrieval", topic: "On doctrine and Scripture" };
-  const ORDER = { doc: ["doc", "topic"], work: ["author", "work"], retrieval: ["topic", "doc"], topic: ["topic", "verse"] };
-  function why(a) {
-    const all = M.entities(a);
-    const ks = M.kindsOf(a);
-    const label = (e) => (e.type === "verse" ? verseLabel(e.key) : e.type === "work" ? lower(shortTitle(e.label)) : e.type === "doc" || e.type === "topic" ? lower(e.label) : e.label);
-    // One clause per kind (up to three); a single-kind essay gets its first two entities in one clause.
-    const clauses = [];
-    for (const k of ks.slice(0, 3)) {
-      if (k === "retrieval") { clauses.push(FALLBACK.retrieval); continue; }
-      const picked = [];
-      for (const t of ORDER[k] || []) for (const e of all) if (e.type === t && picked.length < (ks.length > 1 ? 1 : 2) && !picked.some((p) => p.type === t && p.key === e.key)) picked.push(e);
-      const names = picked.map(label);
-      if (!names.length && k === "doc" && (a.n || []).length) names.push(...a.n.slice(0, ks.length > 1 ? 1 : 2).map(lower));
-      clauses.push(names.length ? `${VERB[k]} ${names.join(" and ")}` : FALLBACK[k]);
-    }
-    return clauses.map((c, i) => (i ? `${c.charAt(0).toLowerCase()}${c.slice(1)}` : c)).join("; ");
-  }
+  // Why an essay is on the page: the build writes it (y) from what the essay matched and the scan's own reason; an essay with no strong signal
+  // gets its kind in plain words, never a specific topic.
+  const FALLBACK = { doc: "On creeds and confessions", work: "Engages works and authors in the library", retrieval: "On theological retrieval", topic: "Engages doctrine and Scripture" };
+  const why = (a) => a.y || FALLBACK[a.k] || "";
 
   // One card, one link: the image (or a tinted tile with the kind), the title, author and month, the kind. What the essay serves rides in the title attribute.
   function card(a, ts, q) {
