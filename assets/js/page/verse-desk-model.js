@@ -376,7 +376,13 @@
   }
 
   // ── markup ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  const sec = (id, eyebrow, h2, dek, body) => `<section class="vd-sec" id="vd-${id}" aria-labelledby="vd-${id}-h" data-vd="${id}"><p class="vd-eyebrow">${esc(eyebrow)}</p><h2 class="vd-h2" id="vd-${id}-h">${esc(h2)}</h2>${dek ? `<p class="vd-dek">${dek}</p>` : ''}${body}</section>`;
+  // How a figure was made is a closed Methodology (assets/js/lib/tfr-method.js); without the helper (Node) it stays the paragraph it was.
+  const method = (html) => {
+    const M = typeof window !== 'undefined' ? window.TFRMethod : globalThis.TFRMethod;
+    return M ? M.html(html) : (/^</.test(html) ? html : `<p class="vd-dek">${html}</p>`);
+  };
+  // dek stays in view; how (HTML paragraphs: the section's selection and counting rule, and any machine-written disclosure) goes in a Methodology under the heading.
+  const sec = (id, eyebrow, h2, dek, body, how) => `<section class="vd-sec" id="vd-${id}" aria-labelledby="vd-${id}-h" data-vd="${id}"><p class="vd-eyebrow">${esc(eyebrow)}</p><h2 class="vd-h2" id="vd-${id}-h">${esc(h2)}</h2>${dek ? `<p class="vd-dek">${dek}</p>` : ''}${how ? method(how) : ''}${body}</section>`;
   const initials = (n) => { const w = String(n).split(/\s+/).filter((x) => /^[A-ZÀ-Ý]/.test(x)); return ((w[0] || '?')[0] + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase(); };
 
   function renderHero(m) {
@@ -384,10 +390,11 @@
     const r = m.hero.ruler;
     const ruler = r ? `<figure class="vd-ruler"><figcaption class="vd-ruler-t">${esc(r.title)}</figcaption><ol class="vd-ruler-bars">${r.cols.map((c) =>
       `<li class="${c.hot ? 'is-hot' : ''}" style="--vd-h:${c.h}%"><span class="vd-bar-n" aria-hidden="true">${c.n ? fmt(c.n) : ''}</span><i aria-hidden="true"></i><b aria-hidden="true">${c.axis ? c.c : ''}</b><span class="vd-sr">${esc(c.text)}</span></li>`).join('')
-    }</ol><p class="vd-ruler-axis" aria-hidden="true">Century</p><p class="vd-note">${esc(r.caption)}</p></figure>` : '';
+    }</ol><p class="vd-ruler-axis" aria-hidden="true">Century</p>${method(`<p class="vd-note">${esc(r.caption)}</p>${m.lede ? `<p class="vd-note">${esc(m.lede.note)}</p>` : ''}`)}</figure>` : '';
     const tiles = m.hero.tiles.length ? `<ul class="vd-tiles">${m.hero.tiles.map((t) =>
       `<li class="vd-tile"><b>${fmt(t.n)}</b><span>${esc(t.label)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</li>`).join('')}</ul>` : '';
-    const lede = m.lede ? `<p class="vd-lede">${esc(m.lede.text)}<span class="vd-note">${esc(m.lede.note)}</span></p>` : '';
+    // The lede's "composed by fixed rules" note joins the ruler's Methodology; with no ruler it has one of its own.
+    const lede = m.lede ? `<p class="vd-lede">${esc(m.lede.text)}</p>${r ? '' : method(`<p class="vd-note">${esc(m.lede.note)}</p>`)}` : '';
     return `<div class="vd-hero" data-vd="hero">${ruler}${tiles}${lede}</div>`;
   }
 
@@ -399,7 +406,7 @@
       const meta = [v.life, v.era].filter(Boolean).join(' · ');
       return `<li class="vd-voice"><div class="vd-port">${pic}</div><div class="vd-vbody"><h3 class="vd-vname">${esc(v.author)}</h3>${meta ? `<p class="vd-vmeta">${esc(meta)}</p>` : ''}<p class="vd-gist">${esc(v.gist)}</p><a class="vd-vlink" href="${esc(ctx.read(v.w, v.p, v.h))}">${esc(v.title)}, p. ${esc(v.p)}</a></div></li>`;
     }).join('');
-    return sec('voices', 'Key voices', 'Who to read first', 'The library\u2019s importance ranking puts these authors first. Each has a page that comments on this verse or cites it by name. They are listed oldest first. Each link opens that page.', `<ul class="vd-voices">${li}</ul>${m.voices.some((v) => v.gistFromData) ? '<p class="vd-note">Each description is machine-written from the page it links to. A line that only says how the page uses the verse is not.</p>' : ''}`);
+    return sec('voices', 'Key voices', 'Who to read first', '', `<ul class="vd-voices">${li}</ul>`, `<p class="vd-dek">The library\u2019s importance ranking puts these authors first. Each has a page that comments on this verse or cites it by name. They are listed oldest first. Each link opens that page.</p>${m.voices.some((v) => v.gistFromData) ? '<p class="vd-dek">Each description is machine-written from the page it links to. A line that only says how the page uses the verse is not.</p>' : ''}`);
   }
 
   function renderReadingItem(it, of, ctx) {
@@ -417,14 +424,14 @@
       ? `<h3 class="vd-rh">${esc(c.best.label)}</h3><p class="vd-sm">Most pages: ${fmt(c.best.k)} of ${fmt(c.placed)} placed</p>`
       : `<h3 class="vd-rh vd-dim">${c.why === 'tie' ? 'No single leading reading' : c.why === 'few' && c.placed ? 'Too few pages to name a leading reading' : 'No reading placed'}</h3><p class="vd-sm">${c.why === 'tie' ? `Two or more readings are level among ${fmt(c.placed)} placed pages.` : c.placed ? `Only ${plural(c.placed, 'page', 'pages')} from this period ${c.placed === 1 ? 'is' : 'are'} placed.` : 'The readings pass has no page dated to this period.'}</p>`}</li>`).join('')}</ol>` : '';
     const list = rd ? `<p class="vd-sublabel vd-gap">${rd.items.length === 1 ? 'The reading' : `All ${fmt(rd.items.length)} readings`}, by pages sorted to it (of ${fmt(rd.of)} pages read)</p><ul class="vd-readings">${rd.items.map((it) => renderReadingItem(it, rd.of, ctx)).join('')}</ul>` : '';
-    return sec('church', 'How the church read it', rb ? 'The reading in each age' : 'The readings', rb ? 'For each period, the reading with the most placed pages. A period needs five placed pages, and no other reading may be level. Counts of works are works citing the verse.' : '', `${ribbon}${list}<p class="vd-note">Sorted by machine from the pages of the library read on this verse. Open a reading for its pages. A page can report or refute a position without holding it, so no author is named.</p>`);
+    return sec('church', 'How the church read it', rb ? 'The reading in each age' : 'The readings', '', `${ribbon}${list}<p class="vd-note">A page can report or refute a position without holding it, so no author is named.</p>`, `${rb ? '<p class="vd-dek">For each period, the reading with the most placed pages. A period needs five placed pages, and no other reading may be level. Counts of works are works citing the verse.</p>' : ''}<p class="vd-dek">Sorted by machine from the pages of the library read on this verse.</p>`);
   }
 
   function renderDisputes(m) {
     if (!m.disputes) return '';
     const q = m.disputes.map((d) => `<li class="vd-dq"><h3 class="vd-qh">${esc(d.question)}</h3><ul class="vd-sides">${d.sides.map((s) =>
       `<li class="vd-side"><p class="vd-pos">${esc(s.position)}</p>${s.pages ? `<p class="vd-cnt">${plural(s.pages, 'page discusses', 'pages discuss')} this position${s.authors > 1 ? ` (${plural(s.authors, 'author', 'authors')})` : ''}</p>` : ''}</li>`).join('')}</ul></li>`).join('');
-    return sec('dispute', 'Points in dispute', 'Positions the library records', 'The library records which pages discuss each position. It does not record who holds one, so no names are listed.', `<ol class="vd-dqs">${q}</ol><p class="vd-note">Questions and positions are sorted by machine from the pages of the library read on this verse.</p>`);
+    return sec('dispute', 'Points in dispute', 'Positions the library records', 'The library records which pages discuss each position. It does not record who holds one, so no names are listed.', `<ol class="vd-dqs">${q}</ol>`, '<p class="vd-dek">Questions and positions are sorted by machine from the pages of the library read on this verse.</p>');
   }
 
   function renderConfess(m, ctx) {
@@ -432,7 +439,7 @@
     if (!c) return '';
     const g = c.groups.map((gr) => `<section class="vd-church"><h3 class="vd-chname">${esc(gr.church)} <small>${fmt(gr.n)}</small></h3><ul>${gr.rows.map((r) =>
       `<li><a href="${esc(r.href)}"><b>${esc(r.title)}</b> <small>${esc([r.year, r.label].filter(Boolean).join(' · '))}</small></a>${r.part ? `<span class="vd-part">${esc(r.part)}</span>` : ''}${r.words ? `<q class="vd-q">${esc(r.words)}</q>` : ''}</li>`).join('')}</ul></section>`).join('');
-    return sec('confess', 'Who confesses it', `Creeds and confessions that cite ${ctx.label}`, `${plural(c.n, 'article', 'articles')} in ${plural(c.docs, 'document', 'documents')}. They are grouped by tradition. Each shows the words it stands behind. Each link opens the document at that article.`, `<div class="vd-confs">${g}</div>`);
+    return sec('confess', 'Who confesses it', `Creeds and confessions that cite ${ctx.label}`, `${plural(c.n, 'article', 'articles')} in ${plural(c.docs, 'document', 'documents')}.`, `<div class="vd-confs">${g}</div>`);
   }
 
   function renderLadder(m, ctx) {
@@ -440,7 +447,7 @@
     if (!l) return '';
     const r = l.rungs.map((u) => `<li class="vd-rung"><span class="vd-lab">${esc(u.name)}</span><p class="vd-sm">${esc([u.years, plural(u.works, 'work', 'works'), plural(u.authors, 'author', 'authors')].filter(Boolean).join(' · '))}</p><ul>${u.rows.map((x) =>
       `<li><a href="${esc(ctx.read(x.w, x.p))}"><b>${esc(x.author)}</b>${x.life ? ` <small>${esc(x.life)}</small>` : ''}<span>${esc(x.title)}, p. ${esc(x.p)}</span></a></li>`).join('')}</ul></li>`).join('');
-    return sec('ladder', 'The commentary ladder', 'The note on this verse, by age', `One rung per period. Each link opens the commentary at the page that treats ${esc(ctx.label)}. Every commentary with a note on it is listed under Commentaries below.`, `<ol class="vd-ladder">${r}</ol>`);
+    return sec('ladder', 'The commentary ladder', 'The note on this verse, by age', '', `<ol class="vd-ladder">${r}</ol>`);
   }
 
   function renderHeat(m, ctx) {
@@ -453,7 +460,7 @@
     }).join('')}</ol>`;
     const top = `<p class="vd-sublabel vd-gap">Most cited in ${esc(ctx.chapter)}</p><ol class="vd-top">${h.top.map((t) =>
       `<li>${t.cur ? `<span class="vd-here"><b>${esc(t.label)}</b> <small>${plural(t.n, 'work', 'works')} · this verse</small></span>` : `<a href="${esc(ctx.desk(ctx.c, t.v))}"><b>${esc(t.label)}</b> <small>${plural(t.n, 'work', 'works')}</small></a>`}</li>`).join('')}</ol>`;
-    return sec('heat', `Where it sits in ${ctx.chapter}`, 'Chapter heat', `Works citing each verse of the chapter, one bar a verse. ${esc(ctx.label)} is marked.`, `${bars}${top}`);
+    return sec('heat', `Where it sits in ${ctx.chapter}`, 'Chapter heat', '', `${bars}${top}`, `<p class="vd-dek">Works citing each verse of the chapter, one bar a verse. ${esc(ctx.label)} is marked.</p>`);
   }
 
   function renderShare(m, ctx) {

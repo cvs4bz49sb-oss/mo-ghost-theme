@@ -2,6 +2,7 @@
    where they served in Britain, the printed sermons sorted by the pulpit they were preached from, and the finder. */
 (async () => {
   const {TG} = window, D = await TG.load('data'), LAND = await TG.load('land');
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const { esc, fmt, clamp, ease, lerp } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null;
   const FAMS = D.fam.map((f) => f[0]), fcI = (i) => TG.css(`--f${i + 1}`), fc = (k) => fcI(FAMS.indexOf(k)), famName = (k) => (D.fam.find((f) => f[0] === k) || [])[1];
   const ALL = D.authors.concat(D.undated);
@@ -47,7 +48,10 @@
     const imprint = [mk('text', { x: X, y: 462, 'text-anchor': 'middle', class: 't-cap' }, 'LONDON,'),
       mk('text', { x: X, y: 478, 'text-anchor': 'middle', class: 't-sm' }, 'Printed for the library of The Faith Received,'),
       mk('text', { x: X, y: 492, 'text-anchor': 'middle', class: 't-sm' }, `${fmt(D.n_works)} books, from the Reformers to the Oxford Movement.`)];
-    const say = (o) => { cap.textContent = o ? `${o.a.n}, ${o.a.d || TG.yr(o.a)} · ${o.a.w.length} ${o.a.w.length === 1 ? 'work' : 'works'} · ${famName(o.a.f)}` : 'Each ornament in the border is one of the shelf’s writers. They run clockwise from the top left in order of birth. Writers with no dates close the border. Larger ornaments mean more pages. Point at one to read it.'; };
+    const say = (o) => {
+      if (o) { cap.dataset.m = ''; cap.textContent = `${o.a.n}, ${o.a.d || TG.yr(o.a)} · ${o.a.w.length} ${o.a.w.length === 1 ? 'work' : 'works'} · ${famName(o.a.f)}`; }
+      else if (cap.dataset.m !== '1') { cap.dataset.m = '1'; cap.innerHTML = method('Each ornament in the border is one of the shelf’s writers. They run clockwise from the top left in order of birth. Writers with no dates close the border. Larger ornaments mean more pages. Point at one to read it.'); }
+    };
     let hot = null;
     svg.addEventListener('mousemove', (e) => { const b = svg.getBoundingClientRect(), k = Wd / b.width, mx = (e.clientX - b.left) * k, my = (e.clientY - b.top) * k;
       let best = null, bd = 9; for (const o of orns) { const d = Math.hypot(o.x - mx, o.y - my); if (d < bd) { bd = d; best = o; } }
@@ -76,7 +80,7 @@
     const chron = TG.chronicle(document.getElementById('tg-chron'), D.events.filter((e) => e[0] <= 1700), ([y, e, w]) => `<li><span class="d">${y}</span><span class="e">${esc(e)}</span><span class="w">${esc(w)}</span></li>`);
     document.getElementById('tg-plegend').innerHTML = D.fam.map(([k, nm], i) => [nm, i, D.press.filter((r) => r[1] === i).length]).filter((x) => x[2]).map(([nm, i, c]) => `<span><i style="background:${fcI(i)}"></i>${esc(nm)} <span class="num">${fmt(c)}</span></span>`).join('');
     const pre = P.filter((r) => r[0] < Y0).length;
-    document.getElementById('tg-pnote').textContent = `${fmt(P.length)} printings dated from 1530 to 1700${pre ? ` (and ${pre} earlier)` : ''}. The Early English Books end in 1700. The shelf goes on after them in later editions: Wesley and Whitefield, the Methodist preachers, and Pusey.`;
+    document.getElementById('tg-pnote').innerHTML = method(`<p>Each mark is one printed book on the shelf. It stands in the year it came from the press and takes the color of its party.</p><p>${fmt(P.length)} printings dated from 1530 to 1700${pre ? ` (and ${pre} earlier)` : ''}. The Early English Books end in 1700. The shelf goes on after them in later editions: Wesley and Whitefield, the Methodist preachers, and Pusey.</p>`);
     // stack each year's printings by party
     const byY = new Map(); P.forEach((r, i) => { if (r[0] < Y0) return; if (!byY.has(r[0])) byY.set(r[0], []); byY.get(r[0]).push(i); });
     const maxN = Math.max(...[...byY.values()].map((a) => a.length));
@@ -214,10 +218,10 @@
     const lis = [...stepsEl.children];
     document.getElementById('tg-ulegend').innerHTML = D.fam.map(([, nm], i) => [nm, i, S.filter((r) => r[2] === i).length]).filter((x) => x[2]).map(([nm, i, c]) => `<span><i style="background:${fcI(i)};border-radius:50%"></i>${esc(nm)} <span class="num">${fmt(c)}</span></span>`).join('');
     const out = U.out.reduce((a, b) => a + b, 0);
-    document.getElementById('tg-unote').textContent = `The pulpit is read from each title as it was first printed. ${fmt(out)} more sermons on the shelf carry no printed date or come after ${Y1}, and are not drawn.`;
+    document.getElementById('tg-unote').innerHTML = method(`The pulpit is read from each title as it was first printed. ${fmt(out)} more sermons on the shelf carry no printed date or come after ${Y1}, and are not drawn.`);
     // the card: the sermon of the step, or the one chosen
     const showCard = (i, label) => {
-      if (i == null) { card.innerHTML = `<p class="k">How to read it</p><p class="ft">Each dot is one printed sermon. Point at one for its title. Choose it to read the title as first printed and open the book.</p>`; return; }
+      if (i == null) { card.innerHTML = method(`<p class="k">How to read it</p><p class="ft">Each dot is one printed sermon. Point at one for its title. Choose it to read the title as first printed and open the book.</p>`); return; }
       const r = S[i], a = D.authors[r[3]];
       card.innerHTML = `<p class="k">${esc(label)}${r[6] ? ' · as first printed' : ''}</p><p class="ft">${esc(r[6] || r[5])}</p><p class="by"><i style="background:${fcI(r[2])}"></i>${r[0]}${a ? ` · ${esc(a.n)}` : ''} · <a href="${TG.read(r[4])}" target="_blank" rel="noopener">Read it</a></p>`;
     };

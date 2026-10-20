@@ -272,7 +272,7 @@
                   worker on its own. --}}
             <div class="ps-empty" data-ps-empty>
               <p class="ps-empty-lede">Search by meaning.</p>
-              <p class="ps-empty-note">A search for God&rsquo;s unchangeableness finds the passage that says immutability and never uses the word. Ask for an idea in your own English and the library answers in Latin, Greek and four centuries of English prose.</p>
+              {{#> tfr-method}}<p class="ps-empty-note">A search for God&rsquo;s unchangeableness finds the passage that says immutability and never uses the word. Ask for an idea in your own English and the library answers in Latin, Greek and four centuries of English prose.</p>{{/tfr-method}}
               <ul class="ps-examples">
                 <li><button type="button" class="ps-example" data-ps-example>justification by faith alone</button></li>
                 <li><button type="button" class="ps-example" data-ps-example>the real presence in the eucharist</button></li>
@@ -297,7 +297,7 @@
                 <span class="ps-filters-state" data-ps-filters-state></span>
               </summary>
               <div class="ps-filters-body">
-                <p class="ps-filters-note">These narrow the works already found. They do not run a new search.</p>
+                {{#> tfr-method}}<p class="ps-filters-note">These narrow the works already found. They do not run a new search.</p>{{/tfr-method}}
 
                 <div class="ps-narrow-field">
                   <label class="ps-facet-legend" for="ps-narrow">Author or title</label>
@@ -344,7 +344,7 @@
                   can never run to a third page. Better to state that
                   than to let a reader read a short list as the library
                   having little to say. --}}
-            <p class="ps-ceiling" data-ps-ceiling hidden>Power Search reads the fifty closest passages in the library and groups them into works, so this is a shortlist rather than every match. Change the scope above, or ask for the idea a different way, to reach further in.</p>
+            <div class="ps-ceiling" data-ps-ceiling hidden>{{#> tfr-method}}<p>Power Search reads the fifty closest passages in the library and groups them into works, so this is a shortlist rather than every match. Change the scope above, or ask for the idea a different way, to reach further in.</p>{{/tfr-method}}</div>
 
             <div class="ps-noresults" data-ps-noresults hidden>
               <p class="ps-noresults-lede">Nothing close enough to that.</p>
@@ -575,6 +575,6 @@
      boot.min.js in <head> and are therefore already on the page. --}}
 <script src="{{asset "js/feature-gate.js"}}&amp;frv=fc7ab1758de0a3d6"></script>
 <script src="{{asset "js/page/faith-ask.js"}}&amp;frv=73e38ea5011d7243"></script>
-<script src="{{asset "js/page/faith-power-search.js"}}&amp;frv=eaf6c14730cf0079"></script>
+<script src="{{asset "js/page/faith-power-search.js"}}&amp;frv=0f3f964f70238183"></script>
 <script src="{{asset "js/page/faith-research.js"}}&amp;frv=87c0bb7553ef696b"></script>
 {{/if}}

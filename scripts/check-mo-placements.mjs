@@ -250,7 +250,7 @@ for (const [kind, list] of keysToDraw) {
       : kind === "topic" ? P.topic(A, key, [], termsOf(key)) : kind === "author" ? P.author(A, key) : kind === "work" ? P.work(A, key, ctx) : P.doc(A, key);
     // every page shows every essay it is given: no "Show all", no cap (the verse panel is the one exception, below)
     const limit = Infinity;
-    const out = M.html(items, { id: "m", limit: Number.isFinite(limit) ? limit : undefined, image: (a, w) => A.image(a, w), tag: "h2", title: kind === "author" ? `Mere Orthodoxy on ${key}` : "", context: kind === "verse" ? "on this passage" : "", note: "Essays that engage this. They do not speak for the library." });
+    const out = M.html(items, { id: "m", limit: Number.isFinite(limit) ? limit : undefined, image: (a, w) => A.image(a, w), tag: "h2", title: kind === "author" ? `Mere Orthodoxy on ${key}` : "", context: kind === "verse" ? "on this passage" : "" });
     ok(Boolean(out) === items.length > 0, `${kind} ${key}: drawn exactly when there are essays`);
     if (!out) continue;
     // The words this module writes (label, note, buttons, links) are checked; an essay's own title and excerpt are the essay's words.

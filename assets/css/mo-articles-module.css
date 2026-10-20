@@ -33,7 +33,6 @@ main.research .moa { --moa-accent: var(--color-secondary, var(--ink)); }
 .moa .moa-eyebrow { margin: 0 0 8px; font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: 0.16em; text-transform: uppercase; color: var(--moa-muted); }
 .moa .moa-h { margin: 0; font: 600 clamp(24px, 3vw, 30px)/1.15 var(--font-body); letter-spacing: -0.01em; color: var(--moa-ink); text-wrap: balance; }
 .moa .moa-ctx { font-weight: 400; color: var(--moa-muted); }
-.moa .moa-note { margin: 8px 0 0; max-width: 62ch; font-size: 16px; line-height: 1.55; color: var(--moa-muted); }
 
 /* A kind of resource (articles now, podcasts later) under "Resources on this work". */
 .moa .moa-kind + .moa-kind { margin-top: 38px; }
@@ -67,7 +66,6 @@ main.research .moa { --moa-accent: var(--color-secondary, var(--ink)); }
 .moa--rows { padding-top: 22px; }
 .moa--rows .moa-h { font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: 0.14em; text-transform: uppercase; color: var(--moa-muted); }
 .moa--rows .moa-head { margin-bottom: 8px; }
-.moa--rows .moa-note { font-size: 13px; line-height: 1.5; }
 .moa--rows .moa-kh { margin: 14px 0 4px; padding: 0; border: 0; font-size: 15px; }
 .moa--rows .moa-row { border-bottom: 1px solid var(--moa-rule); }
 .moa--rows .moa-row:last-child { border-bottom: 0; }
@@ -96,7 +94,6 @@ main.research .moa { --moa-accent: var(--color-secondary, var(--ink)); }
 @media (max-width: 640px) {
   .moa-host { margin-top: 34px; }
   .moa { padding-top: 28px; }
-  .moa .moa-note { font-size: 15px; }
   .moa .moa-t { font-size: 17px; }
 }
 @media print { .moa-host { display: none; } }

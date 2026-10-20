@@ -2,6 +2,7 @@
    reader links, pinned scroll chapters (GSAP ScrollTrigger; stacked and static on phones or with reduced motion), count-ups,
    reveal-on-scroll, a conic map of Europe and the Mediterranean, and the lifelines explorer every shelf ends with. */
 window.TG = (() => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hasG = !!(window.gsap && window.ScrollTrigger);
   if (hasG) gsap.registerPlugin(ScrollTrigger);
@@ -258,7 +259,7 @@ window.TG = (() => {
       <div class="fx-tabs" role="tablist" aria-label="Ways into the shelf"><button type="button" role="tab" data-t="author" aria-selected="true">By author</button><button type="button" role="tab" data-t="century" aria-selected="false">${(opt.range[1] - opt.range[0]) > 350 ? 'By century' : 'Over time'}</button><span class="fx-ink" aria-hidden="true"></span></div>
       <section class="fx-panel" data-p="author" role="tabpanel"><div class="fx-folds"></div></section>
       <section class="fx-panel" data-p="century" role="tabpanel" hidden><div class="instrument"><div style="position:relative;overflow-x:auto"><svg class="lives" role="img" aria-label="${esc(opt.label || 'Lifelines of every author on the shelf')}"></svg><div class="tip" hidden></div></div>
-        <p class="small hint" style="margin:6px 0 0">${esc(opt.hint || 'Each line is a life. Choose one to see the works on the shelf.')}</p></div><div class="card pick" style="margin-top:14px" aria-live="polite"></div></section>`;
+        <div class="hint" style="margin:6px 0 0">${method(esc(opt.hint || 'Each line is a life. Choose one to see the works on the shelf.'))}</div></div><div class="card pick" style="margin-top:14px" aria-live="polite"></div></section>`;
     const $ = (s2) => host.querySelector(s2), svg = $('svg.lives'), tip = $('.tip'), input = $('input'), pick = $('.pick'), folds = $('.fx-folds'), count = $('.fx-count');
     let on = new Set(fams.map((f) => f[0])), q = '', cur = null, tab = 'author';
     $('.fams').innerHTML = fams.filter((f) => AU.some((a) => a.f === f[0])).map(([k, n]) => `<button type="button" class="chip" aria-pressed="true" data-f="${k}"><i style="background:var(--f${fams.findIndex((x) => x[0] === k) + 1})"></i>${esc(n)}</button>`).join('');

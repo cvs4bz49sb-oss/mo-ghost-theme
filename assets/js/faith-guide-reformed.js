@@ -1,6 +1,7 @@
 /* The Continental Reformed shelf guide: Ramus's braces, the Institutes growing, the Reformed International, the confessions dealt,
    Polanus's tree, the stream of generations. */
 (async () => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const {TG} = window, D = await TG.load('data'), LAND = await TG.load('land');
   const { esc, fmt, clamp, ease, lerp } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null;
   const FAMS = D.fam.map((f) => f[0]), fc = (k) => TG.css(`--f${FAMS.indexOf(k) + 1}`), famName = (k) => (D.fam.find((f) => f[0] === k) || [])[1];
@@ -36,7 +37,7 @@
       t.addEventListener('mouseenter', show); t.addEventListener('focus', show);
       t.addEventListener('click', () => explorer && explorer.show(a.n)); t.addEventListener('keydown', (e) => { if (e.key === 'Enter') explorer && explorer.show(a.n); });
       leafEls.push(g); }));
-    cap.textContent = 'The shelf divided as Ramus divided a subject: first by where its writers taught and then by the three with the most pages in each.';
+    cap.innerHTML = method('The shelf divided as Ramus divided a subject: first by where its writers taught and then by the three with the most pages in each.');
     if (!G) return;
     const tl = TG.intro({ delay: 0.3 });
     tl.from([rootT, rootS], { opacity: 0, x: -14, duration: 0.7, ease: 'power2.out', stagger: 0.1 })

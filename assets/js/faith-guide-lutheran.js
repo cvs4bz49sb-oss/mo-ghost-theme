@@ -2,6 +2,7 @@
    of Concord, the systems and Gerhard's loci; added 10-10: Melanchthon's Loci in its ages, the Magdeburg Centuries, whom they answered,
    Calov; the explorer. */
 (async () => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const {TG} = window, D = await TG.load('data'), LAND = await TG.load('land');
   const { esc, fmt, clamp, ease, lerp } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null;
   const FAMS = D.fam.map((f) => f[0]), fc = (k) => TG.css(`--f${FAMS.indexOf(k) + 1}`), famName = (k) => (D.fam.find((f) => f[0] === k) || [])[1] || '';
@@ -47,8 +48,8 @@
       while (clash(lvl)) lvl++;
       const [x, y] = pt(RB + lvl * 15, ang), g = mk('g', { class: 'bead', tabindex: 0, role: 'button', 'aria-label': `${a.n}, ${TG.yr(a)}` }, svg);
       mk('circle', { cx: x, cy: y, r, fill: fc(a.f) }, g); const b = { a, g, r, ang, lvl }; placed.push(b); return b; });
-    const say = (a) => { cap.textContent = a ? `${a.n}, ${a.d || TG.yr(a)} · ${a.w.length} ${a.w.length === 1 ? 'work' : 'works'}, ${fmt(a.p)} pages · ${famName(a.f)}`
-      : 'Luther explained his seal in 1530. A black cross sits in a red heart. The heart is set in a white rose on a sky-blue field in a ring of gold. Every writer on the shelf sits on the ring at the year of his birth.'; };
+    const say = (a) => { if (!a && cap.dataset.m === '1') return; cap.dataset.m = a ? '' : '1'; if (a) cap.textContent = `${a.n}, ${a.d || TG.yr(a)} · ${a.w.length} ${a.w.length === 1 ? 'work' : 'works'}, ${fmt(a.p)} pages · ${famName(a.f)}`;
+      else cap.innerHTML = method('Luther explained his seal in 1530. A black cross sits in a red heart. The heart is set in a white rose on a sky-blue field in a ring of gold. Every writer on the shelf sits on the ring at the year of his birth.'); };
     beads.forEach(({ a, g }) => { g.addEventListener('mouseenter', () => say(a)); g.addEventListener('focus', () => say(a)); g.addEventListener('mouseleave', () => say(null));
       g.addEventListener('click', () => explorer && explorer.show(a.n)); g.addEventListener('keydown', (e) => { if (e.key === 'Enter') explorer && explorer.show(a.n); }); });
     say(null);
@@ -67,7 +68,7 @@
       .to(heartWrap, { scale: 1.05, duration: 0.16, yoyo: true, repeat: 3, ease: 'sine.inOut', svgOrigin: `${C} ${C + 8}` }, 3.5);
     // the beads come in order of birth, each one named as it lands
     beads.forEach((b, i) => { const t = 0.9 + i * 0.075; tl.fromTo(b.g, { scale: 0, transformOrigin: '50% 50%', opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(2.4)', transformOrigin: '50% 50%' }, t);
-      tl.call(() => { cap.textContent = `${b.a.y0} · ${b.a.n}`; }, null, t); });
+      tl.call(() => { cap.dataset.m = ''; cap.textContent = `${b.a.y0} · ${b.a.n}`; }, null, t); });
     tl.call(() => say(null), null, '+=0.4');
   })();
 

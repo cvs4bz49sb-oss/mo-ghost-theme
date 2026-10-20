@@ -232,8 +232,8 @@
   }
 
   // The unit is defined here, once, because it is the thing the two
-  // counts on this page differ about and the reader meets this sentence
-  // before either figure.
+  // counts on this page differ about. It opens the Methodology under the
+  // book list (faith-indexes.js paintTotals), with the note on the figures.
   const UNIT = "A citation is one place a work names or quotes a passage, so a work that returns to the"
     + " same verse ten times is counted ten times.";
 
@@ -250,7 +250,7 @@
       : `${n(total)} citations of scripture, counted across every tradition the library now sorts into:`
         + ` Latin and Greek Fathers, the English Divines, the schoolmen, the Reformers and those who`
         + ` answered them.`;
-    return `${opening} ${UNIT} <b>${escapeHtml(top.book || "")}</b>`
+    return `${opening} <b>${escapeHtml(top.book || "")}</b>`
       + ` is cited more than any other book${scopeLabel ? " there" : ""}, at ${n(top.n)}.`;
   }
 
@@ -273,14 +273,14 @@
   // (Psalms outweighs Philemon 785 to 1, and a linear bar would render
   // Philemon at a third of a pixel), and say that the count inside an
   // opened book is a different measure rather than a contradiction.
-  const ALL_NOTE = "The figure beside each book counts citation occurrences: every place a work in the"
+  const ALL_NOTE = [UNIT, "The figure beside each book counts citation occurrences: every place a work in the"
     + " library names or quotes a passage from it. Counted from v1/bible/all/books.json, the 2026-08-25"
     + " library-wide index, across all nine traditions. The bar is on a square-root scale so that the"
     + " shorter books stay visible beside Psalms, so read the figure for the size and the bar only for the"
-    + " shape. Open a book and the chapter rows count something narrower, and say so there.";
+    + " shape. Open a book and the chapter rows count something narrower, and say so there."].join("\n");
 
   function scopedNote(codes, labels) {
-    return `The figure beside each book counts citation occurrences, from v1/bible/${codes.join(", ")}/books.json,`
+    return `${UNIT}\nThe figure beside each book counts citation occurrences, from v1/bible/${codes.join(", ")}/books.json,`
       + ` scoped to ${labels.join(" + ")}. A dash means that tradition cites nothing in the book. The chapters`
       + ` inside a book do not narrow with these chips: the generated index this list opens into records where a`
       + ` citation is, not which tradition made it.`;

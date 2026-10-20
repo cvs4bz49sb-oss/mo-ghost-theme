@@ -1,6 +1,7 @@
 /* The Westminster Assembly guide: the Jerusalem Chamber, the sittings as a ledger of days, the Confession as a building, where the
    divines came from, and the press of their books. */
 (async () => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const {TG} = window, D = await TG.load('data'), LAND = await TG.load('land');
   const { esc, fmt, clamp, ease, lerp } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null;
   const FAMS = D.fam.map((f) => f[0]), fc = (k) => TG.css(`--f${FAMS.indexOf(k) + 1}`), famName = (k) => (D.fam.find((f) => f[0] === k) || [])[1];
@@ -60,7 +61,8 @@
     const placed = new Set(seats.map((s) => s.a.n)), rest = ALL.filter((a) => !placed.has(a.n)).sort((a, b) => (a.y0 || 1600) - (b.y0 || 1600));
     const step = pos.length / Math.max(1, rest.length); // spread the divines over every form, as a full chamber looks
     rest.forEach((a, i) => { const q = pos[Math.min(pos.length - 1, Math.floor(i * step))]; if (q) place(a.n, q[0], q[1]); });
-    const say = (s) => { cap.textContent = s ? `${s.a.n}${s.a.role ? `, ${s.a.role.toLowerCase()}` : ''} · ${s.a.d || TG.yr(s.a) || 'dates unknown'} · ${famName(s.a.f)} · ${s.a.w.length} ${s.a.w.length === 1 ? 'work' : 'works'}` : 'The Jerusalem Chamber as the Scots commissioner Robert Baillie described it in December 1643. Each seat is a divine whose books are on the shelf. The divines sat where they pleased.'; };
+    const say = (s) => { if (!s && cap.dataset.m === '1') return; cap.dataset.m = s ? '' : '1'; if (s) cap.textContent = `${s.a.n}${s.a.role ? `, ${s.a.role.toLowerCase()}` : ''} · ${s.a.d || TG.yr(s.a) || 'dates unknown'} · ${famName(s.a.f)} · ${s.a.w.length} ${s.a.w.length === 1 ? 'work' : 'works'}`;
+      else cap.innerHTML = method('The Jerusalem Chamber as the Scots commissioner Robert Baillie described it in December 1643. Each seat is a divine whose books are on the shelf. The divines sat where they pleased.'); };
     seats.forEach((s) => { s.r.addEventListener('mouseenter', () => say(s)); s.r.addEventListener('focus', () => say(s));
       s.r.addEventListener('click', () => explorer && explorer.show(s.a.n)); s.r.addEventListener('keydown', (e) => { if (e.key === 'Enter') explorer && explorer.show(s.a.n); }); });
     svg.addEventListener('mouseleave', () => say(null)); say(null);

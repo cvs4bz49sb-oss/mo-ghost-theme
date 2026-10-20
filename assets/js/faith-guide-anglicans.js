@@ -1,5 +1,6 @@
 /* The Anglicans guide: a cathedral floor of ledger stones, the formularies, the Church in print, Andrewes's year, the bench of bishops. */
 (async () => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const {TG} = window, D = await TG.load('data');
   const { esc, fmt, clamp, ease, lerp } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null, NS = 'http://www.w3.org/2000/svg';
   const FAMS = D.fam.map((f) => f[0]), fc = (k) => TG.css(`--f${FAMS.indexOf(k) + 1}`), famName = (k) => (D.fam.find((f) => f[0] === k) || [])[1];
@@ -64,8 +65,8 @@
         mk('path', { class: 'mitre', d: `M${mx - s2},${my + s2} L${mx - s2},${my - s2 * 0.2} L${mx - s2 * 0.45},${my - s2} L${mx},${my - s2 * 0.35} L${mx + s2 * 0.45},${my - s2} L${mx + s2},${my - s2 * 0.2} L${mx + s2},${my + s2} Z` }, g); }
       stones.push({ a, g });
     });
-    const say = (a) => { cap.innerHTML = a ? `<b>${esc(a.n)}</b>, ${esc(a.d)}${BISH.get(A.indexOf(a)) ? ` · ${esc(BISH.get(A.indexOf(a)).arch ? 'archbishop' : 'bishop')}` : ''} · ${a.w.length} ${a.w.length === 1 ? 'work' : 'works'}, ${fmt(a.p)} pages · ${esc(famName(a.f))}`
-      : 'Each ledger stone is a writer on the shelf. The earliest born lie at the west door. A miter marks a bishop and a gilt edge an archbishop. Larger stones mean more pages. Pusey lies alone in the Lady chapel.'; };
+    const say = (a) => { if (!a && cap.dataset.m === '1') return; cap.dataset.m = a ? '' : '1'; cap.innerHTML = a ? `<b>${esc(a.n)}</b>, ${esc(a.d)}${BISH.get(A.indexOf(a)) ? ` · ${esc(BISH.get(A.indexOf(a)).arch ? 'archbishop' : 'bishop')}` : ''} · ${a.w.length} ${a.w.length === 1 ? 'work' : 'works'}, ${fmt(a.p)} pages · ${esc(famName(a.f))}`
+      : method('Each ledger stone is a writer on the shelf. The earliest born lie at the west door. A miter marks a bishop and a gilt edge an archbishop. Larger stones mean more pages. Pusey lies alone in the Lady chapel.'); };
     stones.forEach(({ a, g }) => { const on = () => say(a); g.addEventListener('mouseenter', on); g.addEventListener('focus', on);
       g.addEventListener('click', () => explorer && explorer.show(a.n)); g.addEventListener('keydown', (e) => { if (e.key === 'Enter') explorer && explorer.show(a.n); }); });
     svg.addEventListener('mouseleave', () => say(null)); say(null);
@@ -229,7 +230,7 @@
       if (s.prep) c.setAttribute('stroke', COL[k]);
       return { s, c, ln, x, y, k, nd: !(s.m && s.d), ring: !!(s.y && day) };
     });
-    document.getElementById('tg-ynote').textContent = `Hollow beads mark sermons that were prepared but not preached. Andrewes was too ill to preach them. ${off.length ? `${off.length} sermons with no day printed (${off.map((s) => s.y).join(', ')}) stand only in the book’s columns. ` : ''}${S.length} of the ninety-six are shown. Years are as printed. The English year then began on 25 March.`;
+    document.getElementById('tg-ynote').innerHTML = method(`Hollow beads mark sermons that were prepared but not preached. Andrewes was too ill to preach them. ${off.length ? `${off.length} sermons with no day printed (${off.map((s) => s.y).join(', ')}) stand only in the book’s columns. ` : ''}${S.length} of the ninety-six are shown. Years are as printed. The English year then began on 25 March.`);
     const DAYN = (s) => (s.m && s.d ? `${s.d} ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][s.m - 1]} ${s.y}` : `${s.y || ''}`);
     const show = (b) => { const {s} = b, g = GR[s.g]; card.innerHTML = `<b>${esc(g[1])}</b>${g[2] ? ` · ${esc(g[2])}` : ''}<small>${esc(DAYN(s))}${s.pl ? `, ${esc(s.pl)}` : ''}${s.who ? `, before ${s.who === 'James' ? 'King James' : 'Queen Elizabeth'}` : ''}${s.prep ? ' · prepared, not preached' : ''}</small><small><a href="${TG.read(X.slug, s.p)}" target="_blank" rel="noopener">Read it, page ${s.p} of the 1629 book</a></small>`; };
     beads.forEach((b) => { b.c.addEventListener('mouseenter', () => show(b)); b.ln.addEventListener('focus', () => show(b)); });

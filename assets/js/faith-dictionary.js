@@ -439,8 +439,8 @@
       .trim();
   }
 
-  const AI_NOTE = `<p class="fr-ai-note-head">This entry was translated by AI.</p>`
-    + `<p class="fr-ai-note-body">The Dictionnaire de Théologie Catholique is a French `
+  // The provenance sits in the closed Methodology dropdown (tfr-method.js); the visible boxed note is only the fallback.
+  const AI_BODY = `<p>This entry was translated by AI. The Dictionnaire de Théologie Catholique is a French `
     + `theological reference work, and the English beside it is a machine translation that `
     + `has not been reviewed by a human editor. See `
     + `<a href="/the-faith-received/transparency/">Translation Transparency</a>. A paragraph `
@@ -521,8 +521,8 @@
     articleBody.appendChild(h2);
     if (titleFr) articleBody.appendChild(el("p", "faith-dictionary-title-fr", titleFr));
 
-    const note = el("div", "fr-ai-note");
-    note.innerHTML = AI_NOTE; // static markup, no data
+    const note = el("div", window.TFRMethod ? "fr-ai-method" : "fr-ai-note");
+    note.innerHTML = window.TFRMethod ? window.TFRMethod.html(AI_BODY) : AI_BODY; // static markup, no data
     articleBody.appendChild(note);
 
     // ── The meta bar ──────────────────────────────────────────

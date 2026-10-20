@@ -1,5 +1,6 @@
 /* The Puritans guide: a plain-glass window, the press year by year, a chain of preachers, Richard Baxter's pen, the plain style, three countries. */
 (async () => {
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const {TG} = window, D = await TG.load('data');
   const { esc, fmt, clamp, ease, lerp } = TG, G = TG.hasG && !TG.reduce ? window.gsap : null;
   const FAMS = D.fam.map((f) => f[0]), fc = (k) => TG.css(`--f${FAMS.indexOf(k) + 1}`), famName = (k) => (D.fam.find((f) => f[0] === k) || [])[1];
@@ -44,7 +45,10 @@
     const beam = LX.map((x, i) => mk('path', { d: lightPath(x), fill: 'url(#tg-sun)', 'pointer-events': 'none', opacity: 0 }));
     const yr = mk('text', { x: 282, y: 712, 'text-anchor': 'middle', fill: TG.css('--muted'), 'font-size': 13, 'font-family': TG.css('--body') });
     const light = (pn, on) => pn.p.setAttribute('fill', on ? `color-mix(in srgb, #efc978 ${Math.round(pn.lit * 100)}%, ${pn.base})` : pn.base);
-    const say = (a) => { cap.textContent = a ? `${a.n}, ${a.d || TG.yr(a)} · ${a.w.length} ${a.w.length === 1 ? 'work' : 'works'} · ${fmt(a.p)} pages · ${famName(a.f)}` : 'Each quarry of plain glass is a writer on the shelf. The writers run in order of birth from the top. Brighter panes hold more pages.'; };
+    const say = (a) => {
+      if (a) { cap.dataset.m = ''; cap.textContent = `${a.n}, ${a.d || TG.yr(a)} · ${a.w.length} ${a.w.length === 1 ? 'work' : 'works'} · ${fmt(a.p)} pages · ${famName(a.f)}`; }
+      else if (cap.dataset.m !== '1') { cap.dataset.m = '1'; cap.innerHTML = method('Each quarry of plain glass is a writer on the shelf. The writers run in order of birth from the top. Brighter panes hold more pages.'); }
+    };
     panes.forEach((pn) => { const on = () => say(pn.a); pn.p.addEventListener('mouseenter', on); pn.p.addEventListener('focus', on);
       pn.p.addEventListener('click', () => explorer && explorer.show(pn.a.n)); pn.p.addEventListener('keydown', (e) => { if (e.key === 'Enter') explorer && explorer.show(pn.a.n); }); });
     svg.addEventListener('mouseleave', () => say(null)); say(null);

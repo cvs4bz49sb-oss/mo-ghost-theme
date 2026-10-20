@@ -635,8 +635,13 @@
 
   // ── Rendering ─────────────────────────────────────────────────
   const link = (href, text, cls) => `<a${cls ? ` class="${cls}"` : ""} href="${esc(href)}">${esc(text)}</a>`;
+  // How a figure was made is a closed Methodology under the heading (assets/js/lib/tfr-method.js). Without the helper (Node) the note is a plain paragraph.
+  const method = (html) => {
+    const M = typeof window !== "undefined" ? window.TFRMethod : globalThis.TFRMethod;
+    return M ? M.html(html) : (/^</.test(html) ? html : `<p class="tdk-lede">${html}</p>`);
+  };
   const modHead = (eyebrow, title, lede) =>
-    `<div class="tdk-head"><p class="tdk-eyebrow">${esc(eyebrow)}</p><h3 class="tdk-h">${esc(title)}</h3>${lede ? `<p class="tdk-lede">${lede}</p>` : ""}</div>`;
+    `<div class="tdk-head"><p class="tdk-eyebrow">${esc(eyebrow)}</p><h3 class="tdk-h">${esc(title)}</h3>${lede ? method(lede) : ""}</div>`;
 
   function renderHero(h, tier, ids) {
     const jumps = [];
@@ -714,15 +719,17 @@
       return `<li class="tdk-era tdk-era--${e.id}"><h4 class="tdk-era-h">${esc(e.label)} <span>${esc(e.span)}</span></h4><ol class="tdk-rows">${rows}</ol></li>`;
     }).join("");
     const loose = c.loose.length ? `<div class="tdk-loose"><h4 class="tdk-era-h">Other periods</h4>${c.loose.map((pd) => `<details class="tdk-loose-d"><summary>${esc(pd.period)}</summary>${periodHtml(pd, true, 0)}</details>`).join("")}</div>` : "";
-    const caption = c.compact ? "" : `<p class="tdk-small tdk-cap">Documents only: what each says is in the document. Each links to its first article on this topic.${c.hasCouncil ? ` For every council see the ${link(COUNCILS_GUIDE, "Councils guide")}.` : ""}</p>`;
-    const lede = `<p class="tdk-lede">${fmt(c.positions)} indexed passages in the library, counted by century, with the ${c.nDocs ? `${plural(c.nDocs, "dated document", "dated documents")} on this topic` : "documents"} where the library has them. Bar length is square-root scaled so the early centuries show. A passage is a place in a work where the index finds this topic treated.</p>${c.lede ? `<p class="tdk-lede tdk-hist-lede">${esc(c.lede)}</p>${c.nPeriods ? `<p class="tdk-small">Machine-written from the authors' own claims, not their words. Every page is checked. Open a century to read the period it falls in.</p>` : ""}` : ""}`;
+    const caption = c.compact ? "" : `<p>Each document links to its first article on this topic.${c.hasCouncil ? ` For every council see the ${link(COUNCILS_GUIDE, "Councils guide")}.` : ""}</p>`;
+    const histLede = c.lede ? `<p class="tdk-lede tdk-hist-lede">${esc(c.lede)}</p>` : "";
+    const aiNote = c.lede && c.nPeriods ? `<p>Machine-written from the authors' own claims, not their words. Every page is checked.</p>` : "";
+    const lede = `${histLede}${method(`<p>${fmt(c.positions)} indexed passages in the library, counted by century, with the ${c.nDocs ? `${plural(c.nDocs, "dated document", "dated documents")} on this topic` : "documents"} where the library has them. Bar length is square-root scaled so the early centuries show. A passage is a place in a work where the index finds this topic treated.</p>${caption}<p>Era bands: the early church to 1054, medieval to 1517, Reformation to 1648, post-Reformation to 1800, then modern.</p>${aiNote}`)}`;
     // One section, "About <topic>", with one tablist. History (this ruler) is the first tab and the default. faith-port-topic-dev-notes.js adds the others
     // (Scripture, A course of reading, Traditions compared, Concept guides) through MOAbout (topic-desk.js) when the topic has them.
     return `<section class="tdk-mod tdk-cent" id="tdk-chron" aria-labelledby="tdk-cent-h"><div class="tdk-head"><p class="tdk-eyebrow">Through time</p><h3 class="tdk-h tdk-cent-h" id="tdk-cent-h">${esc(c.title)}</h3></div>` +
       `<div class="tdk-tabs" role="tablist" aria-label="${esc(c.title)}" data-about-tabs><button type="button" role="tab" class="tdk-tab" id="about-history" aria-controls="about-panel-history" aria-selected="true" tabindex="0" data-k="history">History</button></div>` +
       `<div role="tabpanel" class="tdk-panel" id="about-panel-history" aria-labelledby="about-history" tabindex="0" data-about-panel="history">${lede}` +
       `<ul class="tdk-legend" aria-label="Shelves">${c.shelves.map((k) => `<li><i class="b-${k}"></i>${esc(SHELF[k])}</li>`).join("")}</ul>` +
-      `<ol class="tdk-eras${c.compact ? " is-compact" : ""}">${eras}</ol>${loose}${caption}<p class="tdk-small">Era bands: the early church to 1054, medieval to 1517, Reformation to 1648, post-Reformation to 1800, then modern.</p></div></section>`;
+      `<ol class="tdk-eras${c.compact ? " is-compact" : ""}">${eras}</ol>${loose}</div></section>`;
   }
 
   function renderVerses(v) {

@@ -23,6 +23,7 @@
  */
 (function () {
   "use strict";
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const S = window.MOScriptureDev;
   if (!S) return;
   const { esc, fmt, plural } = S;
@@ -101,7 +102,7 @@
      * each"). */
     `<section class="sd-desk-sec" aria-labelledby="sd-h-comm">` +
       `<h2 class="sd-h2" id="sd-h-comm">Commentaries</h2>` +
-      `<p class="sd-section-intro">The commentaries with their own note on this verse come first. Then come the commentaries on the book by tradition and the commentaries on the whole Bible. Last are the commentaries on other books that cite this chapter. Preview any of them without leaving the desk.</p>` +
+      `${method("<p>The commentaries with their own note on this verse come first. Then come the commentaries on the book by tradition and the commentaries on the whole Bible. Last are the commentaries on other books that cite this chapter. Preview any of them without leaving the desk.</p>")}` +
       `<div data-sd-verse-comm></div>` +
       `<div class="sd-collection-index" data-sd-commentary-index>${["book", "whole", "cited", "other"].map((k) =>
         `<button type="button" class="sd-index-card" data-sd-commentary-tab="${k}" aria-expanded="false"><span>${esc(COMM_NAMES[k])}</span><small data-sd-comm-n="${k}">Loading…</small></button>`).join("")}</div>${ 
@@ -117,7 +118,7 @@
       `<h3 class="sd-h3">Most-cited sources</h3>` +
       `<ol class="sd-sources sd-top" data-sd-top></ol>` +
       `<h3 class="sd-h3" id="sd-h-all" data-sd-all-h>All citations</h3>` +
-      `<p class="sd-muted">By author, then by work; a work that cites the verse on several pages is one row.</p>` +
+      `${method("<p>By author, then by work; a work that cites the verse on several pages is one row.</p>")}` +
       `<div class="sd-kinds" data-sd-kinds hidden></div>` +
       `<div class="sd-groups" data-sd-rows></div>` +
       `<button type="button" class="sd-more" data-sd-more hidden>Show more</button>` +
@@ -128,11 +129,11 @@
       `<div class="sd-similar-grid">` +
       `<div class="sd-similar-block">` +
       `<h3 class="sd-h3">Similar Scripture use</h3>` +
-      `<p class="sd-muted">Verses of this chapter cited on the same pages as ${esc(label)}, from the citations loaded above. A shared page does not mean a shared interpretation.</p>` +
+      `${method(`<p>Verses of this chapter cited on the same pages as ${esc(label)}, from the citations loaded above. A shared page does not mean a shared interpretation.</p>`)}` +
       `<ol class="sd-companions" data-sd-companions><li class="sd-muted">Loading…</li></ol>` +
       `</div><div class="sd-similar-block">` +
       `<h3 class="sd-h3">Similar wording</h3>` +
-      `<p class="sd-muted">Passages whose wording resembles this verse, found by meaning search when you ask. Similarity does not establish agreement. Open to members.</p>` +
+      `${method("<p>Passages whose wording resembles this verse, found by meaning search when you ask. Similarity does not establish agreement.</p>")}<p class="sd-muted">Open to members.</p>` +
       `<button type="button" class="sd-btn" data-sd-similar data-feature-gate="ask">Find passages like this verse</button>` +
       `<ol class="sd-sources" data-sd-similar-rows></ol>` +
       `</div></div>` +

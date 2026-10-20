@@ -317,10 +317,8 @@
     // This paragraph is a single AI-generated synthesis across the
     // corpus, not editorial prose despite the summary label -- it needs
     // the same disclosure the positions above it already carry.
-    const overviewNote = `<div class="fr-ai-note">` +
-      `<p class="fr-ai-note-head">This overview was written by AI.</p>` +
-      `<p class="fr-ai-note-body">It summarizes across the sources cited inline; it has not been reviewed by a human editor.</p>` +
-      `</div>`;
+    const overviewBody = `<p>This overview was written by AI. It summarizes across the sources cited inline; it has not been reviewed by a human editor.</p>`;
+    const overviewNote = window.TFRMethod ? window.TFRMethod.html(overviewBody) : `<div class="fr-ai-note">${overviewBody}</div>`;
     const overviewBlock = overviewHtml ? `
       <details class="faith-topic-overview">
         <summary class="faith-topic-overview-summary">Editorial overview <span class="faith-chev" aria-hidden="true"></span></summary>

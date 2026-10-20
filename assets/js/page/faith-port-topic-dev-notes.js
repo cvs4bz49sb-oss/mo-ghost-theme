@@ -17,6 +17,8 @@
   const BASE = window.__FR_BLOB_BASE__ || "https://mo-tfr-library.mo-podcast-feed.workers.dev";
   const READ = "/the-faith-received/read/?w=";
   const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  // A note on how a figure was made is a closed Methodology (assets/js/lib/tfr-method.js); without the helper it stays the paragraph it was.
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const getJSON = (url) => fetch(url, { credentials: "omit" }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   const pageLink = (w, p, label) => `<a href="${READ}${encodeURIComponent(w)}#b${encodeURIComponent(p)}-0">${esc(label)}</a>`;
   // A page names whose words it carries; a compiled page names its compiler ("Augustine of Hippo, via Eugippius").
@@ -88,7 +90,7 @@
     if (!pages) return "";
     const by = (side) => [...new Set(refs.filter((r) => r.side === side).map((r) => r.author).filter(Boolean))];
     const list = [p.x, p.y].map((t) => `${esc(t)}: ${by(t).map(esc).join(", ") || "none"}`).join(". ");
-    return `<p class="fr-dn-sample">Drawn from a sample of ${pages} cited ${pages === 1 ? "page" : "pages"} by ${authors.size} ${authors.size === 1 ? "author" : "authors"}. Not every author in a tradition is represented. Sampled authors, ${list}.</p>`;
+    return method(`<p class="fr-dn-sample">Drawn from a sample of ${pages} cited ${pages === 1 ? "page" : "pages"} by ${authors.size} ${authors.size === 1 ? "author" : "authors"}. Not every author in a tradition is represented. Sampled authors, ${list}.</p>`);
   }
   function halfHtml(label, extra, used) {
     // Latin and Greek Fathers share one column (the early church): its documents are shown once in a card, in the first half that asks.
@@ -100,7 +102,7 @@
     const names = extra && extra.principal && extra.principal.traditions && extra.principal.traditions[label];
     const rows = names && window.MOTopicPrincipal && extra.topic ? window.MOTopicPrincipal.principalRows(names, extra.topic.authors, extra.topic.works, 8) : [];
     const writers = rows.length ? `<div class="fr-dn-row"><h5>Principal writers on this topic in the library</h5><ul>${rows.map((r) =>
-      `<li><a href="${esc(r.href)}">${esc(r.name)}</a> <span>${r.n.toLocaleString("en-US")} passages</span></li>`).join("")}</ul><p class="fr-dn-note">Listed from the library's passages on this topic. The comparison above was written from a sample and may not draw on every writer here.</p></div>` : "";
+      `<li><a href="${esc(r.href)}">${esc(r.name)}</a> <span>${r.n.toLocaleString("en-US")} passages</span></li>`).join("")}</ul>${method(`<p class="fr-dn-note">Listed from the library's passages on this topic. The comparison above was written from a sample and may not draw on every writer here.</p>`)}</div>` : "";
     return docs || writers ? `<div class="fr-dn-half"><h5 class="fr-dn-half-h">${esc(label)}</h5>${docs}${writers}</div>` : "";
   }
   function traditionsView(prs, extra) {
@@ -198,7 +200,7 @@
           if (!panel.dataset.lazy) return;
           delete panel.dataset.lazy;
           if (k === "scripture") { panel.innerHTML = `<div class="tsc" data-tsc></div>`; root_MOTS.fill(panel.querySelector("[data-tsc]"), id, sc); return; }
-          panel.innerHTML = `<p class="sd-muted td-note">Machine-written from their own claims, not their words; every page is checked.</p>${fn()}`;
+          panel.innerHTML = `${method(`<p class="sd-muted td-note">Machine-written from their own claims, not their words; every page is checked.</p>`)}${fn()}`;
         });
         bindConcepts(panel);
         window.MOAbout.add(k, lab, panel);
@@ -211,7 +213,8 @@
     box.dataset.frDn = "";
     box.dataset.id = id;
     box.innerHTML = `<summary class="td-fold-sum"><h3 class="td-block-h" id="td-h-history">${merged ? "Ways into this topic" : "The doctrine through the centuries"}</h3>
-      <p class="sd-muted td-note">${merged ? "A course of reading, the traditions compared, and concept guides. " : "How the library's authors developed it, period by period, with a course of reading and the traditions compared. "}Machine-written from their own claims, not their words; every page is checked.</p></summary>
+</summary>
+      ${method(`<p class="sd-muted td-note">Machine-written from their own claims, not their words; every page is checked.</p>`)}
       <div class="fr-dn-tabs" role="tablist" aria-label="Ways into this topic">${views.map(([k, lab], i) =>
         `<button type="button" class="fr-dn-tab" role="tab" id="fr-dn-tab-${k}" aria-controls="fr-dn-panel" aria-selected="${i ? "false" : "true"}" tabindex="${i ? "-1" : "0"}" data-fr-view="${k}">${esc(lab)}</button>`).join("")}</div>
       <div class="td-view fr-dn-view" id="fr-dn-panel" role="tabpanel" tabindex="0" aria-labelledby="fr-dn-tab-${views[0][0]}" data-fr-dn-view>${views[0][2]()}</div>`;

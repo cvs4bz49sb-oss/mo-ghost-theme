@@ -84,11 +84,14 @@
       `<p class="tsc-count">Cited in ${plural(c.articles, "confession article", "confession articles")}.${esc(topic)}</p>${confs}${works}</li>`;
   }
 
+  // How the list was made is a closed Methodology (assets/js/lib/tfr-method.js); without the helper it stays the paragraph it was.
+  const method = (html) => (typeof window !== "undefined" && window.TFRMethod ? window.TFRMethod.html(html) : html);
+
   function render(model, opt = {}) {
     if (!model.cards.length) return "";
     const open = opt.openAll ? model.cards : model.cards.slice(0, FIRST);
     const rest = opt.openAll ? [] : model.cards.slice(FIRST);
-    return `<p class="tsc-lede">The verses the confession articles on this topic cite most, each with the creeds and confessions that cite it and the works the library holds on it. A work is listed because it cites the verse. What it says is in the work.</p>` +
+    return `${method(`<p class="tsc-lede">The verses the confession articles on this topic cite most, each with the creeds and confessions that cite it and the works the library holds on it. A work is listed because it cites the verse.</p>`)}` +
       `<ol class="tsc-grid">${open.map((c) => card(c, false)).join("")}${rest.map((c) => card(c, true)).join("")}</ol>` +
       `${opt.openAll ? `<button type="button" class="fr-dn-open tsc-all" aria-expanded="true" data-tsc-all>Show fewer</button>` : (rest.length || opt.more > 0) ? `<button type="button" class="fr-dn-open tsc-all" aria-expanded="false" data-tsc-all>Show all${opt.more > 0 ? "" : ` ${fmt(model.cards.length)}`}</button>` : ""}`;
   }

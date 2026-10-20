@@ -23,6 +23,7 @@
   const BASE = window.__FR_BLOB_BASE__ || "https://mo-tfr-library.mo-podcast-feed.workers.dev";
   const READ = "/the-faith-received/read/?w=";
   const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const method = (html) => (window.TFRMethod ? window.TFRMethod.html(html) : html);
   const getJSON = (url) => fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   const pageLink = (w, p, label) => `<a href="${READ}${encodeURIComponent(w)}#b${encodeURIComponent(p)}-0" target="_blank" rel="noopener">${esc(label)}</a>`;
   const slugNow = () => decodeURIComponent(String(location.hash || "").slice(1).split("?")[0].split("/")[0] || "");
@@ -98,7 +99,7 @@
       box.id = "tnNotes";
       box.className = "cn-notes tn-notes";
       box.dataset.slug = slug;
-      box.innerHTML = `${body}<p class="rx-note">Machine-written from the authors' own claims, not their words; every page is checked. Open a page to read the passage.</p>`;
+      box.innerHTML = `${body}${method(`<p>Machine-written from the authors' own claims, not their words; every page is checked. Open a page to read the passage.</p>`)}`;
       box.addEventListener("click", async (e) => {
         const b = e.target.closest(".tn-open");
         if (!b) return;

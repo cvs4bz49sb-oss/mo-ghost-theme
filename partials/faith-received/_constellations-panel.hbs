@@ -225,6 +225,7 @@
       </div>
 
       <p class="cn-caption" data-cn-caption></p>
+      <div class="cn-method" data-cn-caption-method></div>
 
       <div class="cn-legend" data-cn-legend role="group" aria-label="Categories. Press one to hide it."></div>
 
@@ -264,7 +265,7 @@
   <details class="cn-index" data-cn-index>
     <summary class="cn-index-summary">Read this map as a list</summary>
     <div class="cn-index-body">
-      <p class="cn-index-intro">The same points, largest first. Choosing one selects it on the map and opens it beside the map above.</p>
+      {{#> tfr-method}}<p class="cn-index-intro">The same points, largest first. Choosing one selects it on the map and opens it beside the map above.</p>{{/tfr-method}}
       <label class="visually-hidden" for="cn-index-filter">Filter these points by name</label>
       <input id="cn-index-filter" class="cn-index-filter" type="search" data-cn-index-filter maxlength="80" autocomplete="off" placeholder="Filter by name&hellip;" />
       <p class="cn-index-note" data-cn-index-note></p>
@@ -281,4 +282,4 @@
       No dependency on anything bundled — window.MOSafeHref ships in
       boot.min.js in <head>, and page-template scripts run before
       site.min.js (FRONTEND §6.18). --}}
-<script src="{{asset "js/page/faith-constellations.js"}}&amp;frv=56129832470e2f4c"></script>
+<script src="{{asset "js/page/faith-constellations.js"}}&amp;frv=77e1f8ca7e643b7f"></script>
