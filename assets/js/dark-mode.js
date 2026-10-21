@@ -36,9 +36,20 @@
 
   // Resolve initial state immediately (before DOM ready) so the page
   // paints in the correct theme on first render.
+  //
+  // The Faith Received owns data-theme on its own pages (Light / Sepia / Dark,
+  // saved as fr_theme, first visit follows the OS). This script is bundled
+  // into site.min.js and runs after the reader has set it, so on any dark-OS
+  // device it rewrote a saved Light or Sepia to "dark" and the whole reader,
+  // its toolbar included, went dark against the reader's own choice. Stand
+  // down there.
+  const owned = /^\/the-faith-received(\/|$)/.test(location.pathname) ||
+    document.documentElement.hasAttribute("data-site");
   let saved = null;
   try { saved = localStorage.getItem(KEY); } catch (e) { /* no-op */ }
-  if (saved === "dark" || saved === "light") {
+  if (owned) {
+    /* the reader's theme, not the article theme */
+  } else if (saved === "dark" || saved === "light") {
     apply(saved);
   } else if (
     window.matchMedia &&

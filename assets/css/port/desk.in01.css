@@ -10,7 +10,7 @@
 /* ACADEMIC MONOCHROME v3 (2026-09-06): stone under a white sheet, ink accents, EB Garamond
    identity — the same tokens as /search and the reader; dark is graphite, not brown. */
 :root{--bg:#F0F0ED;--panel:#FFFFFF;--fg:#1C1C1A;--muted:#5A5A56;--line:#D8D8D3;--accent:#1C1C1A;--highlight:#E7E7E2;--sans:'Source Serif Pro',Georgia,serif;--serif:'EB Garamond','Source Serif Pro',Georgia,"Times New Roman",serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#131312;--panel:#1C1B1A;--fg:#E9E9E5;--muted:#96918A;--line:#3A3835;--accent:#E9E9E5;--highlight:#242322}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){--bg:#131312;--panel:#1C1B1A;--fg:#E9E9E5;--muted:#96918A;--line:#3A3835;--accent:#E9E9E5;--highlight:#242322}}
 :root[data-theme="dark"]{--bg:#131312;--panel:#1C1B1A;--fg:#E9E9E5;--muted:#96918A;--line:#3A3835;--accent:#E9E9E5;--highlight:#242322}
 *{box-sizing:border-box}
 html,.faith-port-desk-page{margin:0;height:100%}

@@ -58,7 +58,7 @@ body.web-page #pt:focus,body.web-page .sat-detail h4:focus{outline:none}body.web
 
 /* Period colors retain their meaning in daylight and graphite. Text stays in ink. */
 :root{--era-E:#8B641F;--era-L:#627342;--era-C:#416D8C;--era-H:#86607F;--era-R:#A35F42;--era-P:#3F796B;--graph-source:#8B641F;--graph-reception:#3C7567;--graph-path:#86607F}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--era-E:#D6B374;--era-L:#B0BF8B;--era-C:#93B4CA;--era-H:#C1A0BC;--era-R:#D6A087;--era-P:#91BCAE;--graph-source:#D6B374;--graph-reception:#91BCAE;--graph-path:#C1A0BC}}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){--era-E:#D6B374;--era-L:#B0BF8B;--era-C:#93B4CA;--era-H:#C1A0BC;--era-R:#D6A087;--era-P:#91BCAE;--graph-source:#D6B374;--graph-reception:#91BCAE;--graph-path:#C1A0BC}}
 :root[data-theme="dark"]{--era-E:#D6B374;--era-L:#B0BF8B;--era-C:#93B4CA;--era-H:#C1A0BC;--era-R:#D6A087;--era-P:#91BCAE;--graph-source:#D6B374;--graph-reception:#91BCAE;--graph-path:#C1A0BC}
 [data-era="E"]{--period:var(--era-E)}[data-era="L"]{--period:var(--era-L)}[data-era="C"]{--period:var(--era-C)}[data-era="H"]{--period:var(--era-H)}[data-era="R"]{--period:var(--era-R)}[data-era="P"]{--period:var(--era-P)}
 #period-key{display:flex;flex-wrap:wrap;gap:8px 18px;padding:12px 28px 4px;flex:none;color:var(--muted);font:11px/1.5 var(--body)}#period-key span{display:inline-flex;gap:7px;align-items:center}#period-key i,.era-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--period,var(--fg));flex:none}.era-dot{margin-right:6px}body.web-page .hop .dot{background:var(--period,var(--fg))}

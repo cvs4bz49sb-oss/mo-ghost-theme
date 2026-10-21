@@ -12,7 +12,7 @@
   --cp-heat: var(--fg, #1C1C1A);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --cp-rule: #3A3A36; --cp-mark: #2E2C26; --cp-hit: #353020; }
+  :root:not([data-theme="light"]):not([data-theme="sepia"]) { --cp-rule: #3A3A36; --cp-mark: #2E2C26; --cp-hit: #353020; }
 }
 :root[data-theme="dark"] { --cp-rule: #3A3A36; --cp-mark: #2E2C26; --cp-hit: #353020; }
 
@@ -244,7 +244,7 @@ body.cp-on .scripture-verse-wrap.cp-focus { background: var(--cp-mark); }
   html body.cp-on main .scripture-reader-layout:has(.cp-pane) { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .cp-body.cp-loading { transition: none; } }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cp-rec-strip .cp-bar { opacity: 0.85; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="sepia"]) .cp-rec-strip .cp-bar { opacity: 0.85; } }
 
 /* ── Mere Orthodoxy (the theme's Scripture reader, html.cp-site-mo): its own tokens, its two-column .sd-layout ── */
 html.cp-site-mo {

@@ -5,7 +5,7 @@
 :root{--bg:#F0F0ED;--fg:#1C1C1A;--muted:#5A5A56;--accent:#1C1C1A;--accent2:#3A3A36;--accent-soft:#B9B9B3;
   --border:#D8D8D3;--card-bg:#FFFFFF;--highlight:#E7E7E2;--ink-soft:#4A4A46;
   --font-display:'EB Garamond',Georgia,serif;--font-body:'Source Serif Pro',Georgia,serif;--sans:'Source Serif Pro',Georgia,serif;}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#131312;--fg:#E9E9E5;--muted:#96918A;
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){--bg:#131312;--fg:#E9E9E5;--muted:#96918A;
   --accent:#E9E9E5;--accent2:#C9C9C4;--accent-soft:#5A5A54;--border:#3A3835;--card-bg:#1C1B1A;--highlight:#242322;--ink-soft:#B5B0A9}}
 :root[data-theme="dark"]{--bg:#131312;--fg:#E9E9E5;--muted:#96918A;
   --accent:#E9E9E5;--accent2:#C9C9C4;--accent-soft:#5A5A54;--border:#3A3835;--card-bg:#1C1B1A;--highlight:#242322;--ink-soft:#B5B0A9}

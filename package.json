@@ -24,6 +24,7 @@
     "build:digest:check": "node scripts/build-digest.mjs --check",
     "check:meta": "node scripts/check-meta.mjs",
     "check:author-layout": "node scripts/check-author-layout.mjs",
+    "check:reader-header-color": "node scripts/check-reader-header-color.mjs",
     "check:topic-desk": "node scripts/check-topic-desk.mjs",
     "check:mo-placements": "node scripts/check-mo-placements.mjs",
     "build:mo-articles": "node scripts/build-mo-articles.mjs",
