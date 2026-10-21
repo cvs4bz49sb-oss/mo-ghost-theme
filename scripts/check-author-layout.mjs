@@ -7,11 +7,14 @@
  *   - a block whose left or right edge is off the page's content edge by more than 1px (the nav row, the bio column, the sidebar's right,
  *     the library module, the tabs, the Mere Orthodoxy module);
  *   - a fact printed twice (a Quick facts label repeated, or a hero tile that restates a sidebar row);
+ *   - on a screen 981px and wider, Quick facts not being the right-hand sidebar (right of the main column, level with its top), or a hole of more
+ *     than 120px under the main column; below 981px, the card not following the bio;
+ *   - any vertical gap of more than 72px anywhere on the page between consecutive visible blocks (the union of every visible leaf, across columns);
  *   - horizontal scroll;
  *   - the Mere Orthodoxy module not being the last block.
  *
  *   node scripts/check-author-layout.mjs [baseUrl] [--quick]       baseUrl defaults to https://mereorthodoxy.com
- * --quick runs 1440 and 375, light only. Needs network (the library worker) and Chrome (CHROME env or the macOS default path).
+ * --quick runs 1440 and 375, light only; --light runs every width in light only. Needs network (the library worker) and Chrome (CHROME env or the macOS default path).
  */
 import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
@@ -27,12 +30,13 @@ const SAMPLE = [
   ["room, short bio", "?sh=ed#james-ussher"],
   ["room, minor", "?sh=ed#isaac-ambrose"],
   ["room, Middle Ages", "?sh=md#bonaventure"],
+  ["room, long dek, Puritan", "?sh=ed#richard-baxter"],
   ["no room, biography", "?a=boethius"],
   ["no room, works only", "?a=jean-mabillon"],
   ["no room, one work", "?a=jonathan-edwards"],
 ];
-const WIDTHS = QUICK ? [1440, 375] : [1440, 820, 375];
-const THEMES = QUICK ? ["light"] : ["light", "dark"];
+const WIDTHS = QUICK ? [1440, 375] : [1920, 1440, 1024, 820, 375];
+const THEMES = QUICK || process.argv.includes("--light") ? ["light"] : ["light", "dark"];
 
 const probe = () => {
   const m = document.querySelector("main.research-room:has(> .rx-profile)");
@@ -71,6 +75,40 @@ const probe = () => {
   edge("#rnNotes", true, true);
   edge("#ah-room", true, true);
   edge(".moa-host", true, true);
+  const facts = m.querySelector(".ah-facts");
+  if (facts) {
+    const mc = m.querySelector(".ah-main");
+    const f = rect(facts);
+    if (innerWidth >= 981) {
+      if (mc && vis(mc)) {
+        const c = rect(mc);
+        if (!(f.left >= c.right - 1)) problems.push("Quick facts is not right of the main column on a wide screen");
+        if (Math.abs(f.top - c.top) > 24) problems.push(`Quick facts top is ${Math.round(f.top - c.top)}px off the main column's top`);
+        if (f.bottom - c.bottom > 120) problems.push(`${Math.round(f.bottom - c.bottom)}px hole under the main column beside Quick facts`);
+      } else if (f.left < innerWidth / 2) problems.push("Quick facts is not the right-hand sidebar on a wide screen");
+    } else {
+      const life = m.querySelector(".ah-life");
+      if (life && f.top < rect(life).bottom - 1) problems.push("Quick facts does not follow the bio below 981px");
+    }
+  }
+  // Whole page: every visible leaf element, swept top to bottom; a stretch with nothing in it over 72px is a hole.
+  {
+    // A card (a work, a Start reading entry) is one block: the room inside an even-height card is not a hole in the page.
+    const CARD = ".rx-work-row, .ah-works > li, .rn-start > li, .rn-rows > li, .moa-card, .moa-list > li";
+    const leaves = Array.from(m.querySelectorAll("*")).filter((e) => {
+      if (!vis(e) || e.closest(".ah-portrait-slot")) return false;
+      const r = rect(e);
+      if (r.width < 1) return false;
+      if (e.matches(CARD)) return true;
+      if (e.closest(CARD)) return false;
+      return !Array.from(e.children).some((c) => vis(c));
+    }).map((e) => { const r = rect(e); return [r.top + scrollY, r.bottom + scrollY, e]; }).sort((a, b) => a[0] - b[0]);
+    let reach = leaves.length ? leaves[0][1] : 0;
+    for (const [top, bottom, e] of leaves) {
+      if (top - reach > 72) problems.push(`page: ${Math.round(top - reach)}px of empty space above ${nm(e)}`);
+      if (bottom > reach) reach = bottom;
+    }
+  }
   const labels = Array.from(m.querySelectorAll(".ah-facts dt")).map((d) => d.textContent.trim().toLowerCase());
   labels.forEach((l, i) => { if (labels.indexOf(l) !== i) problems.push(`Quick facts prints "${l}" twice`); });
   if (labels.length) {

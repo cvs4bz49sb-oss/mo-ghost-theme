@@ -193,7 +193,7 @@
 
   const fact = (dl, label, value) => {
     if (!value) return;
-    const row = el("div", "ah-fact");
+    const row = el("div", String(value).length > 18 ? "ah-fact ah-fact--long" : "ah-fact");
     row.append(el("dt", null, label), el("dd", null, value));
     dl.append(row);
   };
@@ -229,21 +229,28 @@
     return b;
   }
 
-  /* Quick facts is a sidebar from 981px up. It is sticky when it fits under the masthead and rail, and the row is
-     only kept two-column while the bio is within 64px of the sidebar's height; otherwise the card drops under the
-     bio, so no column ever leaves a hole. Measured with the stacked class off, in one frame, so nothing flickers. */
+  /* Quick facts is ALWAYS the right-hand sidebar from 981px up, for every author. It is sticky when it fits under the masthead and
+     rail. The main column beside it (the bio and the When strip) is kept as tall as the sidebar by moving the next natural blocks
+     of About (Cites most and Cited by, Related authors) up into it while the sidebar is more than 120px taller; below 981px they
+     go back and the card follows the bio. Measured in one frame, so nothing flickers. */
   const wide = window.matchMedia("(min-width: 981px)");
-  function balance(sec, grid, life, card) {
+  const FILL_SLACK = 120;
+  function balance(sec, grid, mainCol, card, more) {
     if (!sec.isConnected) return;
-    grid.classList.remove("is-stacked", "is-sticky");
+    grid.classList.remove("is-sticky");
+    // Anything moved up on an earlier pass goes back first, in order, so each pass starts from the same page.
+    Array.from(mainCol.querySelectorAll(":scope > [data-ah-moved]")).reverse().forEach((n) => { n.removeAttribute("data-ah-moved"); more.prepend(n); });
     if (!wide.matches) return;
-    const mainH = life.offsetHeight;
-    const sideH = card.offsetHeight;
-    if (sideH - mainH > 64) { grid.classList.add("is-stacked"); return; }
+    while (card.offsetHeight - mainCol.offsetHeight > FILL_SLACK) {
+      const next = more.querySelector(":scope > .ah-two, :scope > .ah-block");
+      if (!next) break;
+      next.setAttribute("data-ah-moved", "");
+      mainCol.append(next);
+    }
     const room = window.innerHeight - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--mo-head")) || 85) - 64 - 24;
-    if (sideH < room) grid.classList.add("is-sticky");
+    if (card.offsetHeight < room) grid.classList.add("is-sticky");
   }
-  function watchSide(sec, grid, life, card) {
+  function watchSide(sec, grid, mainCol, card, more) {
     let queued = false;
     const run = () => {
       if (!sec.isConnected) {
@@ -253,16 +260,16 @@
       }
       if (queued) return;
       queued = true;
-      requestAnimationFrame(() => { queued = false; balance(sec, grid, life, card); });
+      requestAnimationFrame(() => { queued = false; balance(sec, grid, mainCol, card, more); });
     };
-    if (window.ResizeObserver) new ResizeObserver(run).observe(life);
+    if (window.ResizeObserver) new ResizeObserver(run).observe(mainCol);
     window.addEventListener("resize", run);
     wide.addEventListener("change", run);
     run();
   }
 
   function buildAbout(main, ctx) {
-    const { name, room, nb, notes, portrait, tiles, bioText, bioSource } = ctx;
+    const { name, room, nb, notes, tiles, bioText } = ctx;
     const sec = el("section", "ah-about");
     const more = el("div", "ah-about-more");
     more.id = "ah-about-more";
@@ -290,14 +297,13 @@
     fact(dl, "Works", tiles.Works || (room.n_works ? num(room.n_works) : ""));
     fact(dl, "Pages", tiles.Pages || (room.n_pages ? num(room.n_pages) : ""));
     fact(dl, "Scripture citations", tiles["Scripture citations"] || (room.n_cit ? num(room.n_cit) : ""));
-    fact(dl, "Tradition", tiles.Tradition);
-    fact(dl, "Denomination", tiles.Denomination);
-    fact(dl, "Order", tiles.Order);
-    fact(dl, "Church", tiles.Church);
+    // Tradition and its denomination, order or church read as one line ("Protestant \u00b7 Presbyterian, Puritan").
+    fact(dl, "Tradition", [tiles.Tradition, tiles.Denomination || tiles.Order || tiles.Church].filter(Boolean).join(" \u00b7 "));
     // The shelf only when it says something the church or order has not ("Latin Fathers" under "Latin Church" still does; "Lutheran" under "Lutheran" does not).
     const shelf = SHELF[ctx.sh];
     const said = [tiles.Tradition, tiles.Denomination, tiles.Order, tiles.Church].filter(Boolean).map(fold);
-    if (shelf && !said.includes(fold(shelf))) fact(dl, "Library shelf", shelf);
+    const saidAll = fold([tiles.Tradition, tiles.Denomination, tiles.Order, tiles.Church].filter(Boolean).join(" "));
+    if (shelf && !said.includes(fold(shelf)) && !saidAll.includes(fold(shelf))) fact(dl, "Library shelf", shelf);
     card.append(dl);
     // Bio first, then the card: the card is a sidebar beside the bio on a wide screen and follows it everywhere else (CSS grid areas).
     const mainCol = el("div", "ah-main");
@@ -307,12 +313,10 @@
       tl.append(eraStrip(name, years));
       mainCol.append(tl);
     }
-    if (mainCol.children.length) grid.append(mainCol);
-    grid.append(card);
-    if (!mainCol.children.length) grid.classList.add("is-solo");
+    grid.append(mainCol, card);
     sec.append(grid);
     sec.classList.add("ah-side");
-    watchSide(sec, grid, mainCol, card);
+    watchSide(sec, grid, mainCol, card, more);
 
     const by = (nb && nb.cited_by || []).filter((x) => x && x.a && x.w).sort((a, b) => b.w - a.w);
     const of = (nb && nb.cites || []).filter((x) => x && x.a && x.w).sort((a, b) => b.w - a.w);
@@ -348,22 +352,6 @@
       more.append(b);
     }
 
-    const src = el("p", "ah-sources");
-    src.append(`Biography: ${bioSource}.`);
-    more.append(src);
-    if (portrait && T) {
-      const det = el("details", "ah-credits");
-      det.append(el("summary", null, "Image credits"));
-      const line = el("p", null, `${name}. ${T.credit(portrait).replace(/\. Source: https:\/\/\S+$/, "")}. `);
-      if (/^https:\/\//.test(portrait.u)) {
-        const a = link(portrait.u, "Source", "ah-credit-link");
-        a.rel = "noopener noreferrer";
-        a.target = "_blank";
-        line.append(a);
-      }
-      det.append(line);
-      more.append(det);
-    }
     return { sec, more };
   }
 
@@ -443,7 +431,7 @@
     const target = main.querySelector(":scope > #rnNotes") || main.querySelector(":scope > .rgrid") || main.querySelector(":scope > .moa-host");
     if (!target) return;
     const deck = profile.querySelector(".deck");
-    const { sec, more } = buildAbout(main, { name: d.name, key: tag, sh: d.sh, room: d.room, nb: d.nb, notes: d.notes, portrait: portraitFor(d.m, d.name, d.slug), tiles, bioText: d.bioText, bioSource: d.bioSource, deck: deck ? deck.textContent : "", years: lifeYears(deck && deck.textContent) });
+    const { sec, more } = buildAbout(main, { name: d.name, key: tag, sh: d.sh, room: d.room, nb: d.nb, notes: d.notes, tiles, bioText: d.bioText, deck: deck ? deck.textContent : "", years: lifeYears(deck && deck.textContent) });
     sec.dataset.tiles = sig;
     if (prevMore) prevMore.remove();
     if (prev) prev.replaceWith(sec);
@@ -468,7 +456,7 @@
     const state = ABOUT.get(tag);
     const mount = (nb, m) => {
       if (main.querySelector(":scope > .ah-about") && main.querySelector(":scope > .ah-about").dataset.tiles === sig) return;
-      mountAbout(main, tag, { room: {}, nb, notes: null, m, bioText: paras.join("\n"), bioSource: "the library's author records", sh: "", name, slug: a }, tiles, sig, profile);
+      mountAbout(main, tag, { room: {}, nb, notes: null, m, bioText: paras.join("\n"), sh: "", name, slug: a }, tiles, sig, profile);
     };
     if (state) { mount(state.nb, state.m); return; }
     if (main.getAttribute("data-ah-loading") === tag) return;
@@ -526,13 +514,12 @@
             if (!room) return;
             const m = await manifestP();
             let bioText = room.bio || "";
-            let bioSource = "the library's research record";
             if (!bioText) {
               const cur = await curatedP();
               const c = cur && cur[room.a || name];
-              if (c && c.bio) { bioText = c.bio; bioSource = "Mere Orthodoxy"; }
+              if (c && c.bio) { bioText = c.bio; }
             }
-            ABOUT.set(tag, { room, nb, notes, m, bioText, bioSource, sh: key.sh, name, slug });
+            ABOUT.set(tag, { room, nb, notes, m, bioText, sh: key.sh, name, slug });
             scan();
           });
         }

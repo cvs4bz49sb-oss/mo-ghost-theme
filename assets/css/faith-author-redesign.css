@@ -394,7 +394,7 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-portrait .tfr-
 }
 
 /* ═══ Jump line and theme button ════════════════════════════════ */
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 0 22px; margin: 18px 0 32px; padding: 0 0 18px; border-bottom: 1px solid var(--ah-rule); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 0 22px; margin: 18px 0 24px; padding: 0 0 12px; border-bottom: 1px solid var(--ah-rule); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-jump button:not(.ah-theme) {
   border: 0;
   background: transparent;
@@ -446,9 +446,9 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-eyebrow { marg
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about h2 { margin: 0; font: 600 clamp(24px, 3vw, 30px) / 1.15 var(--ah-body); color: var(--ah-ink); text-wrap: balance; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid { display: block; }
 @media (min-width: 981px) {
-  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid:not(.is-stacked) { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 0 48px; align-items: start; }
-  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid:not(.is-stacked) > .ah-main { grid-column: 1; grid-row: 1; min-width: 0; }
-  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid:not(.is-stacked) > .ah-facts { grid-column: 2; grid-row: 1; margin: 8px 0 0; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 0 48px; align-items: start; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid > .ah-main { grid-column: 1; grid-row: 1; min-width: 0; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid > .ah-facts { grid-column: 2; grid-row: 1; margin: 8px 0 0; }
   main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid.is-sticky > .ah-facts { position: sticky; top: calc(var(--mo-head, 85px) + 64px); }
 }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-life p { margin: 0 0 1.1em; max-width: 70ch; font: 18px / 1.7 var(--ah-body); color: var(--ah-ink2); text-wrap: pretty; }
@@ -475,9 +475,8 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-names li:last-
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-names a { display: inline-flex; align-items: center; min-height: 44px; font: 17px / 1.35 var(--ah-body); color: var(--ah-ink); text-underline-offset: 3px; text-decoration-color: var(--ah-rule); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-names span { flex: none; font: 14px / 1.4 var(--ah-body); color: var(--ah-muted); font-variant-numeric: tabular-nums; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-related { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 0 32px; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-sources { margin: 28px 0 22px; max-width: 72ch; font: 14px / 1.55 var(--ah-body); color: var(--ah-muted); }
 /* Era strip: the Topic Desk's bands, the author's years marked on them. */
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era { margin: 14px 0 0; max-width: 760px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era { margin: 14px 0 0; max-width: none; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-bar { position: relative; display: flex; height: 16px; border: 1px solid var(--ah-rule); border-radius: 3px; overflow: visible; background: var(--ah-card); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-seg { display: block; flex-basis: 0; border-left: 1px solid var(--ah-rule); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-seg:first-child { border-left: 0; }
@@ -524,10 +523,6 @@ html[data-sd-theme="dark"] main:is(#page, #frAuthorOwn).research-room:has(> .rx-
 /* Light accent fills in dark carry dark text (white on #e6a08b would fail AA). */
 html[data-sd-theme="dark"] main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) :is(.ar-links a:hover, .ar-links a:focus-visible, #rnNotes .rn-n) { color: #1d1e1b; }
 
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credits { margin: 0 0 22px; max-width: 72ch; font: 14px / 1.5 var(--ah-body); color: var(--ah-muted); }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credits summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credits p { margin: 0 0 10px; overflow-wrap: anywhere; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-credits a { color: inherit; text-underline-offset: 3px; }
 
 
 /* The sidebar owns the identity facts, so the hero keeps only the numbers once About is drawn. */
@@ -537,7 +532,22 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .moa-eyebrow { dis
 
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-main > .ah-block { margin-top: 28px; }
 
-/* Stacked (or alone, with no bio and no dates): the card is a compact strip of facts across the full width, not a tall column. */
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid.is-stacked .ah-facts dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 28px; }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-grid.is-solo .ah-facts { margin-top: 0; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile).ah-has-about .rx-profile .stats { margin-bottom: 0; }
+
+/* Compact sidebar: short facts are one line, label left and value right; long ones keep label over value. */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-fact { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 0; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-fact dt { margin: 0; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-fact dd { text-align: right; font-variant-numeric: lining-nums tabular-nums; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-fact--long { display: block; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-fact--long dd { text-align: left; margin-top: 3px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-main > .ah-two { margin-top: 28px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-main > .ah-two { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
+
+/* One rhythm between sections, about 48px: the blocks that stacked margins into 80px and more. */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) #rnNotes { margin-bottom: 36px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about { margin-bottom: 36px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-about-more > :first-child { margin-top: 0; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-two > .ah-block { margin-top: 0; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .moa-host { margin-top: 28px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .moa { padding-top: 24px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-main:empty + .ah-facts { margin-top: 0; }
