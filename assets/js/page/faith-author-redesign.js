@@ -36,14 +36,13 @@
   };
   const centuryOf = (year) => Math.floor((year - 1) / 100) + 1;
 
-  // "1483–1546" -> "15th–16th"; "c. 296–298 – 2 May 373" -> "3rd–4th"; BC and undated -> "".
+  // The dates under the name as a span of centuries: "1483–1546" -> "15th–16th". BC and undated give "".
   function centuryLabel(deck) {
-    const dates = String(deck || "").split(" · ")[0];
-    if (/\b(?:B\.?C\.?|BCE)\b/i.test(dates)) return "";
-    const years = (dates.match(/\b\d{3,4}\b/g) || []).map(Number).filter((y) => y >= 30 && y <= 2100);
-    if (!years.length) return "";
-    const first = centuryOf(years[0]);
-    const last = centuryOf(years[years.length - 1]);
+    const Y = window.MOAuthorYears;
+    const span = Y && Y.parse(deck);
+    if (!span) return "";
+    const first = centuryOf(span.from);
+    const last = centuryOf(span.to);
     return first === last ? ordinal(first) : `${ordinal(first)}–${ordinal(last)}`;
   }
 
@@ -95,10 +94,6 @@
     const full = pair.slice(split + 1);
     BOOKS[abbr] = full;
   });
-  // The era bands the Topic Desk draws: early church to 1054, medieval to 1517, Reformation to 1648, post-Reformation to 1800, then modern.
-  const ERAS = [
-    ["Early church", 0, 1054], ["Medieval", 1054, 1517], ["Reformation", 1517, 1648], ["Post-Reformation", 1648, 1800], ["Modern", 1800, 2000],
-  ];
   const num = (n) => Number(n).toLocaleString("en-US");
   const el = (tag, cls, text) => {
     const e = document.createElement(tag);
@@ -147,34 +142,48 @@
     main.prepend(fig);
   }
 
-  // Dates the port prints, before the first " · ": "1483–1546" -> [1483, 1546]. BC and undated give null.
-  function lifeYears(deck) {
-    const dates = String(deck || "").split(" · ")[0];
-    if (/\b(?:B\.?C\.?|BCE)\b/i.test(dates)) return null;
-    const ys = (dates.match(/\b\d{3,4}\b/g) || []).map(Number).filter((y) => y >= 30 && y <= 2100);
-    return ys.length ? [ys[0], ys[ys.length - 1]] : null;
-  }
+  // The dates the page prints under the name, as a span on the shared scale (assets/js/lib/author-years.js). BC and undated give null.
+  const lifeYears = (deck) => (window.MOAuthorYears ? window.MOAuthorYears.parse(deck) : null);
 
-  function eraStrip(name, years) {
-    const [from, to] = years;
+  /* The timeline. One scale for everything: linear years 0 to 2000. A band is as wide as its years; the marker starts where the life starts
+     and is as wide as the life. Each band's name sits under its own band (centered on it; the narrow bands are staggered onto a second
+     row so no two collide), and on a phone the same bands are a list in order with their colors. The bar says in words who, which dates
+     (as printed) and which era or eras. */
+  function eraStrip(name, span) {
+    const Y = window.MOAuthorYears;
+    const end = Y.SCALE_END;
+    const range = (e) => (e.from ? `${e.from}\u2013${e.to}` : `to ${e.to}`);
     const wrap = el("div", "ah-era");
+    const said = `${name}, ${span.text}, ${Y.eraWords(span)}`;
     const bar = el("div", "ah-era-bar");
     bar.setAttribute("role", "img");
-    bar.setAttribute("aria-label", from === to ? `${name}, around ${from}` : `${name} lived from ${from} to ${to}`);
-    ERAS.forEach(([label, a, b], i) => {
+    bar.setAttribute("aria-label", said);
+    bar.title = said;
+    Y.ERAS.forEach((e, i) => {
       const seg = el("i", `ah-era-seg ah-era-${i}`);
-      seg.style.flexGrow = String(b - a);
-      seg.title = `${label}, ${a || "to"}${a ? " to " : " "}${b}`;
+      seg.style.flexGrow = String(e.to - e.from);
       bar.append(seg);
     });
     const mark = el("b", "ah-era-mark");
-    const left = Math.min(98, Math.max(0, (from / 2000) * 100));
-    mark.style.left = `${left}%`;
-    mark.style.width = `${Math.max(0.8, Math.min(100 - left, ((to - from) / 2000) * 100))}%`;
+    const at = Y.placement(span);
+    mark.style.left = `${at.left}%`;
+    mark.style.width = `${at.width}%`;
     bar.append(mark);
+    const labels = el("div", "ah-era-labels");
+    labels.setAttribute("aria-hidden", "true");
+    Y.ERAS.forEach((e, i) => {
+      const l = el("span", `ah-era-label${i === 3 ? " is-low" : ""}`);
+      l.style.left = `${(((e.from + e.to) / 2) / end) * 100}%`;
+      l.append(el("b", null, e.short), el("small", null, range(e)));
+      labels.append(l);
+    });
     const legend = el("ul", "ah-era-legend");
-    ERAS.forEach(([label, a, b]) => legend.append(el("li", null, `${label} ${a ? `${a}` : "to"}${a ? "–" : " "}${b}`)));
-    wrap.append(bar, legend);
+    Y.ERAS.forEach((e, i) => {
+      const li = el("li");
+      li.append(el("i", `ah-era-swatch ah-era-${i}`), `${e.name} ${range(e)}`);
+      legend.append(li);
+    });
+    wrap.append(bar, labels, legend);
     return wrap;
   }
 

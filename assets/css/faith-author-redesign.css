@@ -486,7 +486,6 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-2 { backgr
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-3 { background: color-mix(in srgb, var(--ah-accent) 15%, transparent); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-4 { background: color-mix(in srgb, var(--ah-accent) 8%, transparent); }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-mark { position: absolute; top: -5px; bottom: -5px; min-width: 6px; border-radius: 2px; background: var(--ah-accent); box-shadow: 0 0 0 2px var(--ah-ground, var(--bg, #f6f3f2)); }
-main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 12px 0 0; padding: 0; font: 13px / 1.4 var(--ah-body); color: var(--ah-muted); }
 @media (max-width: 900px) {
   main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-two { grid-template-columns: minmax(0, 1fr); }
 }
@@ -551,3 +550,16 @@ main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-two > .ah-bloc
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) > .moa-host { margin-top: 28px; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .moa { padding-top: 24px; }
 main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-main:empty + .ah-facts { margin-top: 0; }
+
+/* Timeline labels sit under their own bands; narrow bands are staggered onto a second row. On a phone the labels give way to a list. */
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-labels { position: relative; height: 62px; margin: 8px 0 0; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-label { position: absolute; top: 0; transform: translateX(-50%); text-align: center; white-space: nowrap; font: 12px / 1.3 var(--ah-body); color: var(--ah-ink); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-label.is-low { top: 31px; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-label b { display: block; font-weight: 600; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-label small { display: block; font-size: 11px; color: var(--ah-muted); font-variant-numeric: tabular-nums; }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-legend { display: none; list-style: none; margin: 12px 0 0; padding: 0; font: 13px / 1.6 var(--ah-body); color: var(--ah-muted); }
+main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-swatch { display: inline-block; width: 12px; height: 12px; margin-right: 8px; vertical-align: -1px; border: 1px solid var(--ah-rule); border-radius: 2px; }
+@media (max-width: 640px) {
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-labels { display: none; }
+  main:is(#page, #frAuthorOwn).research-room:has(> .rx-profile) .ah-era-legend { display: block; }
+}
