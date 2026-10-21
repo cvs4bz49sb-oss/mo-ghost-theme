@@ -1000,20 +1000,23 @@ body:has(#app.faith-port-read-page) { background: var(--bg); }
 /* The reader's toolbar is ours, not his, and it was pinned to the cream
    masthead colour in every scheme — a bright band across the top of an
    otherwise dark reader. It takes the dark surface with everything else,
-   and only in dark scheme, so the light reader is untouched. */
-@media (prefers-color-scheme: dark) {
-  #app.faith-port-read-page .ph {
-    background: var(--card-bg);
-    color: var(--fg);
-    border-bottom-color: var(--border);
-  }
-  #app.faith-port-read-page .ph button,
-  #app.faith-port-read-page .ph a,
-  #app.faith-port-read-page .ph input { color: var(--fg); }
-  #app.faith-port-read-page .ph .pg-total,
-  #app.faith-port-read-page .ph .sub,
-  #app.faith-port-read-page .ph .ploc { color: var(--muted); }
+   and only in the dark theme, so the light and sepia readers are untouched.
+   Keyed to the reader's own data-theme, not the OS: the OS media query
+   also matched a reader set to Light on a dark-OS machine and painted its
+   toolbar #fffdfa (white) instead of the cream above (Ian, 2026-10-21).
+   reader-core.js sets data-theme="dark" itself when the OS is dark and
+   nothing is stored, so no first-visit dark reader loses its dark bar. */
+html[data-theme="dark"] #app.faith-port-read-page .ph {
+  background: var(--card-bg);
+  color: var(--fg);
+  border-bottom-color: var(--border);
 }
+html[data-theme="dark"] #app.faith-port-read-page .ph button,
+html[data-theme="dark"] #app.faith-port-read-page .ph a,
+html[data-theme="dark"] #app.faith-port-read-page .ph input { color: var(--fg); }
+html[data-theme="dark"] #app.faith-port-read-page .ph .pg-total,
+html[data-theme="dark"] #app.faith-port-read-page .ph .sub,
+html[data-theme="dark"] #app.faith-port-read-page .ph .ploc { color: var(--muted); }
 
 /* ── The contents panel's header scrolls away with everything else ───
    
