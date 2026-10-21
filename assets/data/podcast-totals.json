@@ -1,16 +1,11 @@
 {
-  "generated_at": "2026-10-21T04:56:44.793Z",
+  "generated_at": "2026-10-21T11:58:13.068Z",
   "shows": {
     "mere-fidelity": {
-      "episodes": 322,
+      "episodes": 323,
       "plays": 0,
       "earliest": "2017-02-15",
       "recent": [
-        {
-          "date": "2025-07-02",
-          "title": "The Deep Weird of the Book of Daniel",
-          "plays": 0
-        },
         {
           "date": "2025-07-09",
           "title": "Is \"Covenant\" Overused?",
@@ -304,6 +299,11 @@
         {
           "date": "2026-10-14",
           "title": "How to Handle Difficult Bible Passages",
+          "plays": 0
+        },
+        {
+          "date": "2026-10-21",
+          "title": "Replay: Martin Luther and the Rule of Faith, with Dr. Todd Hains",
           "plays": 0
         }
       ],
@@ -836,7 +836,7 @@
         {
           "month": "2026-10",
           "avg": 0,
-          "episodes": 2
+          "episodes": 3
         }
       ]
     },
