@@ -108,6 +108,40 @@
  },
  "articles": [
   {
+   "id": "6ad7ac859d1a6d00018c46af",
+   "title": "Against Theological Retrieval as Resource Gathering",
+   "url": "https://mereorthodoxy.com/against-theological-retrieval-as-resource-gathering/",
+   "date": "2026-10-21",
+   "byline": "Cody Barnhart",
+   "class": "RETRIEVAL-GENERAL",
+   "confidence": "high",
+   "works": [],
+   "authors": [
+    "Augustine of Hippo"
+   ],
+   "docs": [],
+   "verses": [],
+   "topics": [],
+   "retrieval": true,
+   "reason": "Augustine of Hippo 5 mentions; retrieval markers: 11 strong, 2 general",
+   "about": [],
+   "excerpt": "A few years after its 1998 publication, theologian John Webster republished his Scottish Journal of Theology article “Hermeneutics in Modern Theology” as part of an essay collection titled Word and Church: Essays in Christian Dogmatics (T&T…",
+   "keywords": [
+    "retrieves",
+    "intrusive",
+    "webster",
+    "hardness",
+    "retrieve",
+    "basil",
+    "discipline",
+    "hermeneutical",
+    "scriptura",
+    "stores",
+    "sola",
+    "patristic"
+   ]
+  },
+  {
    "id": "6acfce1cf15d59000131dd29",
    "title": "The Trojan Horse in Nolan’s Odyssey: Christianity Hidden in Zeus’s Law",
    "url": "https://mereorthodoxy.com/the-trojan-horse-in-nolans-odyssey-christianity-hidden-in-zeuss-law/",

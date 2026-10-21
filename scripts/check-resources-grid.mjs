@@ -164,7 +164,7 @@ const judge = (m, cols) => {
 for (const [w, cols] of Object.entries(WANT)) {
   await send("Emulation.setDeviceMetricsOverride", { width: Number(w), height: 900, deviceScaleFactor: 1, mobile: false });
   await new Promise((res) => setTimeout(res, 300));
-  const m = await evaluate(measure("articles", "res", WANT_KIND, WANT_CARDS, "493 articles"));
+  const m = await evaluate(measure("articles", "res", WANT_KIND, WANT_CARDS, `${dataFile.articles.length} articles`));
   const pm = await evaluate(measure("podcasts", "pod", WANT_SHOW, WANT_POD_CARDS, `${PODS.length} episodes`));
   const bad = [...judge(m, cols).map((x) => `articles: ${x}`), ...judge(pm, cols).map((x) => `podcasts: ${x}`)];
   if (bad.length) { failed += 1; console.error(`FAIL ${w}px: ${bad.join("; ")}`); } else console.log(`ok   ${w}px: ${cols} columns, ${m.cards} article cards (${m.renderMs.toFixed(0)} ms), ${pm.cards} episode cards`);

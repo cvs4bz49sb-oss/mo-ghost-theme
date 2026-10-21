@@ -129,9 +129,10 @@ B.use(data);
 const byId = new Map(data.articles.map((a) => [a.id, a]));
 
 test("size under 450 KB", () => assert.ok(Buffer.byteLength(text) < 450 * 1024, `${text.length} bytes`));
-test("all 493 approved essays are present, once", () => {
-  assert.equal(data.articles.length, 493);
-  assert.equal(byId.size, 493);
+test("the 493 approved essays, and any added since (Ian's requests), are present once each", () => {
+  assert.ok(data.articles.length >= 493);
+  assert.equal(byId.size, data.articles.length);
+  assert.ok(byId.has("6ad7ac859d1a6d00018c46af"), "Against Theological Retrieval as Resource Gathering");
 });
 test("every entry is attributed: title, author, date, a link back to mereorthodoxy.com", () => {
   for (const a of data.articles) {
@@ -205,7 +206,7 @@ test("namesakes: no Martin Luther King essay is tagged Martin Luther, and no Cal
     if (/calvin and hobbes/i.test(a.x) && !/john calvin/i.test(a.x)) assert.ok(!(a.authors || []).includes("John Calvin"), a.t);
   }
 });
-test("kinds: every essay has valid kinds with its primary first; filters overlap and the unique total stays 493", () => {
+test("kinds: every essay has valid kinds with its primary first; filters overlap and the unique total is every essay", () => {
   const K = ["doc", "work", "retrieval", "topic"];
   let multi = 0;
   for (const a of data.articles) {
@@ -220,8 +221,8 @@ test("kinds: every essay has valid kinds with its primary first; filters overlap
   assert.ok(multi >= 30, `only ${multi} multi-kind essays`);
   const counts = Object.fromEntries(B.kinds().map((k) => [k.k, k.n]));
   for (const k of K) assert.equal(B.search("", { kind: k }).length, counts[k]);
-  assert.ok(K.reduce((n, k) => n + counts[k], 0) > 493, "the kind counts should overlap");
-  assert.equal(B.search("").length, 493);
+  assert.ok(K.reduce((n, k) => n + counts[k], 0) > data.articles.length, "the kind counts should overlap");
+  assert.equal(B.search("").length, data.articles.length);
   const flat = B.search("", { kind: "work" }).map((a) => a.id);
   assert.equal(new Set(flat).size, flat.length);
 });
