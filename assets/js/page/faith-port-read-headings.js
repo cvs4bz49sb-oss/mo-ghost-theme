@@ -456,6 +456,11 @@
       // KNOWLEDGE OF GOD ..."). One with a label of its own is not.
       return text.length < 200 && !HEAD.test(text) && !(QNUM.test(text) && /\?$/.test(text)) ? "head" : "";
     }
+    // A line that opens on a number is a numbered verse or paragraph: the
+    // text itself, never a heading's title. Migne's Scripture text ("CHAPTER
+    // IX." / "1. And the Lord said to Moses: ...", Scripturae V p. 508) set
+    // verse 1 in the chapter's card as its title (owner 2026-10-20).
+    if (/^[(\[]?\d/.test(text)) return "";
     const lenT = text.length;
     const ital = (() => {
       const it = [...n.querySelectorAll("i, em")].reduce((s, e) => s + clean(e.textContent).length, 0);
