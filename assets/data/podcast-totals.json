@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-22T04:57:15.994Z",
+  "generated_at": "2026-10-22T12:00:20.818Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 323,
@@ -841,7 +841,7 @@
       ]
     },
     "christians-reading-classics": {
-      "episodes": 56,
+      "episodes": 57,
       "plays": 0,
       "earliest": "2025-07-24",
       "recent": [
@@ -1124,6 +1124,11 @@
           "date": "2026-10-15",
           "title": "All Quiet on the Western Front, with Jason Barnhart",
           "plays": 0
+        },
+        {
+          "date": "2026-10-22",
+          "title": "Moby-Dick, with Kyle Harper",
+          "plays": 0
         }
       ],
       "per_episode": [
@@ -1200,7 +1205,7 @@
         {
           "month": "2026-10",
           "avg": 0,
-          "episodes": 3
+          "episodes": 4
         }
       ]
     }
