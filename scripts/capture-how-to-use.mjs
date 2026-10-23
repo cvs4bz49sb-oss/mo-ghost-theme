@@ -13,10 +13,9 @@
  * stays under MAX_BYTES. Fixed elements (the feedback tab) are always hidden; sticky ones (the masthead and
  * the rail) are hidden unless a shot sets sticky: true.
  *
- * Blocks that need a signed-in account have no screenshot yet (laity-ask, laity-bookmarks, laity-notebook, pastors-ask,
- * pastors-compare, pastors-notebook, pastors-desk, academics-power-search, academics-compare, academics-connections,
- * academics-notebook, academics-desk, academics-ask). Capture each by hand while signed in, keep the account menu, name and
- * saved items out of frame, save it here as <block id>.webp (1200x750) and add an <figure class="ht-fig"> to its block.
+ * Signed-in blocks (Ask, Power Search, Compare, Connections, Bookmarks, Notebook, Desk, Report) are not made here. They are
+ * 800x500 crops of the real pages taken in a signed-in browser pane with harmless examples (the Trinity, the creeds,
+ * Augustine and Calvin on grace, justification by faith), then deleted. Keep the account menu, name and saved items out of frame.
  *
  * Add a shot: append to SHOTS. url is relative to the base. prep is a JS expression run after load (click,
  * type, scroll). vh is the viewport height (default 900). inView captures only what the viewport shows (for panes sized to the viewport). wait is the milliseconds to let the page settle (default 9000). scroll is the page's scrollY before the crop. clip is {x, y, w} in viewport pixels after
@@ -41,6 +40,7 @@ const SHOTS = [
   { id: "laity-creeds", url: "/the-faith-received/read/?w=nicene-creed", clip: { x: 0, y: 133, w: 1440 }, sticky: true },
   { id: "laity-scripture", url: "/the-faith-received/scripture/?ref=romans.8.1", scroll: 495, clip: { x: 40, y: 0, w: 1360 } },
   { id: "laity-guides", url: "/the-faith-received/guide/", scroll: 480, clip: { x: 80, y: 0, w: 1280 } },
+  { id: "laity-topics", url: "/the-faith-received/topics/?t=de-justificatione", scroll: 520, clip: { x: 80, y: 0, w: 1280 } },
   { id: "laity-lexicon", url: "/the-faith-received/lexicon/#grace", scroll: 330, clip: { x: 100, y: 0, w: 1240 } },
   { id: "laity-resources", url: "/the-faith-received/resources/", scroll: 540, clip: { x: 120, y: 0, w: 1200 }, prep: SEARCH("Nicene") },
   // Pastors
@@ -54,9 +54,10 @@ const SHOTS = [
   { id: "academics-lexicon", url: "/the-faith-received/lexicon/?q=fides", scroll: 330, clip: { x: 100, y: 0, w: 1240 } },
   { id: "academics-disputed", url: "/the-faith-received/disputed-questions/", scroll: 520, clip: { x: 120, y: 0, w: 1200 } },
   { id: "academics-set-index", url: "/the-faith-received/set-index/?set=luther-wa", scroll: 360, clip: { x: 120, y: 0, w: 1200 } },
+  { id: "academics-decks", url: "/the-faith-received/commentary-decks/", scroll: 330, wait: 15000, inView: true, sticky: true, vh: 1000, clip: { x: 0, y: 45, w: 1440 },
+    prep: "[...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Both').click()" },
   { id: "academics-scans", url: "/the-faith-received/read/?w=pg-2880&p=95", wait: 12000, sticky: true, inView: true, vh: 1100, clip: { x: 0, y: 133, w: 1440 },
     prep: "(async () => { document.getElementById('rdTools').click(); await new Promise((r) => setTimeout(r, 600)); document.getElementById('m-study').click(); await new Promise((r) => setTimeout(r, 4000)); })()" },
-    prep: "[...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Both').click()" },
 ];
 
 const args = process.argv.slice(2);

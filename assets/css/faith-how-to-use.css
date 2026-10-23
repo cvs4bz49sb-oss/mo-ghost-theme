@@ -1,7 +1,7 @@
 /* /the-faith-received/how-to-use/ (2026-10-23): three guides behind underlined tabs. Loaded after faith-tool-skin.css, which owns the
    tokens (light, and dark on html[data-sd-theme="dark"], never the OS setting alone), the hero and the page ground. Everything here is
-   scoped under main.tfr-howto with ht- class names. COMPACT (Ian, 2026-10-23, DESIGN-AGENT 6.22): body 15px, block headings 19px, gaps 20 to
-   32px, screenshots 416px wide (about 260px tall) beside the words. Rules kept: serif face throughout, underlined tabs, hollow terracotta
+   scoped under main.tfr-howto with ht- class names. COMPACT (Ian, 2026-10-23, DESIGN-AGENT 6.22): body 15px, block headings 19px, gaps 24 to
+   32px, screenshots fill their column (about 350px tall). Rules kept: serif face throughout, underlined tabs, hollow terracotta
    buttons with 3px corners, hairline borders, no shadows, no scroll box in the page. Without script all three guides show in turn. */
 .bhero--tool.bhero--desk:has(+ script + main.tfr-howto) { padding: 36px 0 30px; }
 .bhero--tool.bhero--desk:has(+ script + main.tfr-howto) h1 { margin-bottom: 12px; }
@@ -39,18 +39,17 @@ main.tfr-howto .ht-top { display: grid; grid-template-columns: minmax(0, 4fr) mi
 main.tfr-howto .ht-intro { margin: .4rem 0 0; font: 1rem/1.5 var(--font-body); text-wrap: pretty; }
 main.tfr-howto .ht-index { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 2rem; font: .9375rem/1.3 var(--font-body); }
 main.tfr-howto .ht-index li { break-inside: avoid; }
-main.tfr-howto .ht-index a { display: inline-flex; align-items: center; min-height: 2.25rem; color: var(--fg); }
+main.tfr-howto .ht-index a { display: inline-flex; align-items: center; min-height: 2rem; color: var(--fg); }
 main.tfr-howto .ht-index a:hover { color: var(--ht-accent); }
 
-/* ── A feature: the words, then a 416px screenshot ── */
-main.tfr-howto .ht-item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 26rem); gap: 1rem 2rem; align-items: start; padding: 1rem 0; border-top: 1px solid var(--border); scroll-margin-top: 8rem; }
-main.tfr-howto .ht-item--text { grid-template-columns: minmax(0, 1fr); padding: .9rem 0; }
-main.tfr-howto .ht-copy { min-width: 0; }
+/* ── The features: two columns on a desktop, one stack per block (label, heading, words, screenshot, button) ── */
+main.tfr-howto .ht-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.75rem 2rem; align-items: stretch; }
+main.tfr-howto .ht-item { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding-top: .9rem; border-top: 1px solid var(--border); scroll-margin-top: 8rem; }
 main.tfr-howto .ht-feature { margin: 0 0 .2rem; font: 600 .6875rem/1.4 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-main.tfr-howto .ht-item h2 { margin: 0 0 .4rem; font: 600 1.1875rem/1.3 var(--font-body); text-wrap: balance; }
-main.tfr-howto .ht-item .ht-copy > p:not(.ht-feature) { margin: 0 0 .75rem; max-width: 44ch; font: .9375rem/1.5 var(--font-body); text-wrap: pretty; }
-main.tfr-howto .ht-item .ht-copy > p.ht-note { margin: -.25rem 0 .75rem; font-size: .8125rem; color: var(--muted); }
-main.tfr-howto .ht-fig { margin: 0; min-width: 0; }
+main.tfr-howto .ht-item h2 { margin: 0 0 .35rem; font: 600 1.1875rem/1.3 var(--font-body); text-wrap: balance; }
+main.tfr-howto .ht-item p.ht-text { margin: 0 0 .7rem; max-width: 52ch; font: .9375rem/1.5 var(--font-body); text-wrap: pretty; }
+main.tfr-howto .ht-item p.ht-note { margin: -.3rem 0 .7rem; font: .8125rem/1.4 var(--font-body); color: var(--muted); }
+main.tfr-howto .ht-fig { margin: auto 0 .75rem; width: 100%; }
 main.tfr-howto .ht-fig img { display: block; width: 100%; height: auto; aspect-ratio: 8 / 5; border: 1px solid var(--border); border-radius: 3px; background: var(--tint); }
 
 /* ── Buttons: hollow, 3px, terracotta ink; filled on hover. None is solid on this page. ── */
@@ -63,12 +62,10 @@ main.tfr-howto .ht-sr { position: absolute; width: 1px; height: 1px; margin: -1p
 main.tfr-howto .ht-foot { margin: 1rem 0 0; padding-top: 1.25rem; border-top: 1px solid var(--border); }
 @media (pointer: coarse) { main.tfr-howto :is(.ht-btn, .ht-index a) { min-height: 2.75rem; } }
 
-/* ── Tablet and phone: one column, the screenshot under the words ── */
-@media (max-width: 900px) {
+/* ── Below 900px: one column, the same stack ── */
+@media (max-width: 899px) {
   main.tfr-howto .ht-top { grid-template-columns: minmax(0, 1fr); }
-  main.tfr-howto .ht-item { grid-template-columns: minmax(0, 1fr); gap: .75rem; }
-  main.tfr-howto .ht-item .ht-copy > p:not(.ht-feature) { max-width: 56ch; }
-  main.tfr-howto .ht-fig { max-width: 26rem; }
+  main.tfr-howto .ht-grid { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
 }
 @media (max-width: 640px) {
   main.tfr-howto .wrap { padding: 0 20px 2.5rem; }

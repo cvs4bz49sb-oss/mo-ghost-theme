@@ -14,12 +14,12 @@
 <script src="{{asset "js/page/scripture-view-boot.js"}}&amp;frv=b619c4b13b360add"></script>
 <link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
 <script src="{{asset "js/page/faith-how-to-use.js"}}&amp;frv=031e84d10be3d934"></script>
-<link rel="stylesheet" href="{{asset "css/faith-how-to-use.css"}}&amp;frv=2c9e299aca4eeb9f">
+<link rel="stylesheet" href="{{asset "css/faith-how-to-use.css"}}&amp;frv=0f6358da782f7200">
 {{/contentFor}}
 {{!-- /the-faith-received/how-to-use/ (Ian, 2026-10-23): three guides on one page, Laity, Pastors and Academics, each a short list of
      real features with a screenshot and a Try it button. Tabs are links to #laity, #pastors and #academics. Without script all
      three guides show in turn; faith-how-to-use.js turns the links into tabs and shows one. Screenshots are made by
-     scripts/capture-how-to-use.mjs from the live site. Features that need an account have no screenshot until one is captured while signed in.
+     scripts/capture-how-to-use.mjs from the live site. Account features are marked Needs a free account.
 
      ROUTE: needs /the-faith-received/how-to-use/ in routes.yaml, which only staff can upload. --}}
 <section class="bhero bhero--tool bhero--desk">
@@ -39,290 +39,256 @@
       <p class="ht-eyebrow">Laity</p>
       <div class="ht-top">
         <p class="ht-intro">Read on your own, lead a home group, teach a Bible study or mentor someone.</p>
-        <ul class="ht-index" aria-label="In this guide"><li><a href="#laity-reader">Read a classic on your own</a></li><li><a href="#laity-creeds">Lead a home group through a creed, confession, or catechism</a></li><li><a href="#laity-scripture">Teach a Bible study from a passage</a></li><li><a href="#laity-guides">Pick a century for your group to read</a></li><li><a href="#laity-lexicon">Look up a word your study stumbles on</a></li><li><a href="#laity-resources">Hand your group an essay</a></li><li><a href="#laity-ask">Ask a question in plain English</a></li><li><a href="#laity-bookmarks">Save the works for next week&rsquo;s session</a></li><li><a href="#laity-notebook">Keep passages for a mentee</a></li></ul>
+        <ul class="ht-index" aria-label="In this guide"><li><a href="#laity-reader">Read a classic on your own</a></li><li><a href="#laity-creeds">Lead a home group through a creed</a></li><li><a href="#laity-resources">Hand your group an essay</a></li><li><a href="#laity-guides">Pick a century for your group to read</a></li><li><a href="#laity-lexicon">Look up a word your study stumbles on</a></li><li><a href="#laity-scripture">Teach a Bible study from a passage</a></li><li><a href="#laity-topics">Answer a doctrine question</a></li><li><a href="#laity-ask">Ask a question in plain English</a></li><li><a href="#laity-bookmarks">Save the works for next week&rsquo;s session</a></li><li><a href="#laity-notebook">Keep passages for a mentee</a></li></ul>
       </div>
+      <div class="ht-grid">
       <article class="ht-item" id="laity-reader">
-        <div class="ht-copy">
-          <p class="ht-feature">Reader</p>
-          <h2>Read a classic on your own</h2>
-          <p>Open a work and read it in English. The outline on the left lists its books. Click one to jump to it.</p>
-          <a class="ht-btn" href="/the-faith-received/read/?w=calvin-institutes-of-the-christian-religion">Try it<span class="ht-sr"> Reader</span></a>
-        </div>
+        <p class="ht-feature">Reader</p>
+        <h2>Read a classic on your own</h2>
+        <p class="ht-text">Open a work and read it in English. The outline on the left lists its books. Click one to jump to it.</p>
         <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-reader.webp"}}" width="1200" height="750" alt="The reader open to Calvin&rsquo;s Institutes of the Christian Religion. The outline on the left lists Book I to Book IV and the text is on the right."></figure>
+        <a class="ht-btn" href="/the-faith-received/read/?w=calvin-institutes-of-the-christian-religion">Try it<span class="ht-sr"> Reader</span></a>
       </article>
       <article class="ht-item" id="laity-creeds">
-        <div class="ht-copy">
-          <p class="ht-feature">Creeds and confessions</p>
-          <h2>Lead a home group through a creed, confession, or catechism</h2>
-          <p>The Nicene Creed opens in English with its three parts listed on the left. Click a part to read it.</p>
-          <a class="ht-btn" href="/the-faith-received/read/?w=nicene-creed">Try it<span class="ht-sr"> Creeds and confessions</span></a>
-        </div>
-        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-creeds.webp"}}" width="1200" height="750" alt="The Nicene Creed in the reader. The outline lists God the Father, God the Son and God the Holy Spirit." loading="lazy" decoding="async"></figure>
-      </article>
-      <article class="ht-item" id="laity-scripture">
-        <div class="ht-copy">
-          <p class="ht-feature">Scripture</p>
-          <h2>Teach a Bible study from a passage</h2>
-          <p>Open a chapter and click a verse. The panel on the right lists the creeds and confessions that cite it and the commentators on it.</p>
-          <a class="ht-btn" href="/the-faith-received/scripture/?ref=romans.8.1">Try it<span class="ht-sr"> Scripture</span></a>
-        </div>
-        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-scripture.webp"}}" width="1200" height="750" alt="Romans 8 on the Scripture page. Verse 1 is selected and the panel on the right lists confessions that cite it and commentators on Romans." loading="lazy" decoding="async"></figure>
-      </article>
-      <article class="ht-item" id="laity-guides">
-        <div class="ht-copy">
-          <p class="ht-feature">Guides</p>
-          <h2>Pick a century for your group to read</h2>
-          <p>Each shelf of the library has a guide. Click a century on the ruler to see what the shelves hold from it. Then open a guide.</p>
-          <a class="ht-btn" href="/the-faith-received/guide/">Try it<span class="ht-sr"> Guides</span></a>
-        </div>
-        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-guides.webp"}}" width="1200" height="750" alt="The century ruler on the Guides page with a band for each shelf. The fourth century is chosen and three shelves are shown below it." loading="lazy" decoding="async"></figure>
-      </article>
-      <article class="ht-item" id="laity-lexicon">
-        <div class="ht-copy">
-          <p class="ht-feature">Lexicon</p>
-          <h2>Look up a word your study stumbles on</h2>
-          <p>Search a word such as grace. Each meaning lists the authors who define it and the page.</p>
-          <p class="ht-note">Gathered by machine from the library&rsquo;s texts.</p>
-          <a class="ht-btn" href="/the-faith-received/lexicon/#grace">Try it<span class="ht-sr"> Lexicon</span></a>
-        </div>
-        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-lexicon.webp"}}" width="1200" height="750" alt="The Lexicon entry for grace. Its first meaning is defined by three authors with an Open button for each page." loading="lazy" decoding="async"></figure>
+        <p class="ht-feature">Creeds and confessions</p>
+        <h2>Lead a home group through a creed</h2>
+        <p class="ht-text">The Nicene Creed opens in English with its three parts listed on the left. Click a part to read it.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-creeds.webp"}}" width="1200" height="750" alt="The Nicene Creed in the reader. The outline lists God the Father, God the Son and God the Holy Spirit."></figure>
+        <a class="ht-btn" href="/the-faith-received/read/?w=nicene-creed">Try it<span class="ht-sr"> Creeds and confessions</span></a>
       </article>
       <article class="ht-item" id="laity-resources">
-        <div class="ht-copy">
-          <p class="ht-feature">Resources</p>
-          <h2>Hand your group an essay</h2>
-          <p>Type a word such as Nicene to list the Mere Orthodoxy essays that match. The Podcasts tab lists podcast episodes.</p>
-          <a class="ht-btn" href="/the-faith-received/resources/">Try it<span class="ht-sr"> Resources</span></a>
-        </div>
+        <p class="ht-feature">Resources</p>
+        <h2>Hand your group an essay</h2>
+        <p class="ht-text">Type a word such as Nicene to list the Mere Orthodoxy essays that match. The Podcasts tab lists podcast episodes.</p>
         <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-resources.webp"}}" width="1200" height="750" alt="The Resources page with Nicene typed into the article search. Four of the 48 matching essays are shown." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/resources/">Try it<span class="ht-sr"> Resources</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="laity-ask">
-        <div class="ht-copy">
-          <p class="ht-feature">Ask</p>
-          <h2>Ask a question in plain English</h2>
-          <p>Type a question about a doctrine or a passage. The answer cites the pages of the library it drew on.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <p class="ht-note">AI-assisted: answers cite the library&rsquo;s pages.</p>
-          <a class="ht-btn" href="/the-faith-received/ask/">Try it<span class="ht-sr"> Ask</span></a>
-        </div>
+      <article class="ht-item" id="laity-guides">
+        <p class="ht-feature">Guides</p>
+        <h2>Pick a century for your group to read</h2>
+        <p class="ht-text">Each shelf of the library has a guide. Click a century on the ruler to see what the shelves hold from it. Then open a guide.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-guides.webp"}}" width="1200" height="750" alt="The century ruler on the Guides page with a band for each shelf. The fourth century is chosen and three shelves are shown below it." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/guide/">Try it<span class="ht-sr"> Guides</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="laity-bookmarks">
-        <div class="ht-copy">
-          <p class="ht-feature">Bookmarks</p>
-          <h2>Save the works for next week&rsquo;s session</h2>
-          <p>Keep the works you are reading and the place you stopped in each one.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <a class="ht-btn" href="/the-faith-received/research/#bookmarks">Try it<span class="ht-sr"> Bookmarks</span></a>
-        </div>
+      <article class="ht-item" id="laity-lexicon">
+        <p class="ht-feature">Lexicon</p>
+        <h2>Look up a word your study stumbles on</h2>
+        <p class="ht-text">Search a word such as grace. Each meaning lists the authors who define it and the page.</p>
+        <p class="ht-note">Gathered by machine from the library&rsquo;s texts.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-lexicon.webp"}}" width="1200" height="750" alt="The Lexicon entry for grace. Its first meaning is defined by three authors with an Open button for each page." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/lexicon/#grace">Try it<span class="ht-sr"> Lexicon</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="laity-notebook">
-        <div class="ht-copy">
-          <p class="ht-feature">Notebook</p>
-          <h2>Keep passages for a mentee</h2>
-          <p>Save a passage from the reader to your notebook. It keeps the citation. Gather saved passages into collections.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <a class="ht-btn" href="/the-faith-received/research/#notebook">Try it<span class="ht-sr"> Notebook</span></a>
-        </div>
+      <article class="ht-item" id="laity-scripture">
+        <p class="ht-feature">Scripture</p>
+        <h2>Teach a Bible study from a passage</h2>
+        <p class="ht-text">Open a chapter and click a verse. The panel on the right lists the confessions that cite it and the commentators on it.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-scripture.webp"}}" width="1200" height="750" alt="Romans 8 on the Scripture page. Verse 1 is selected and the panel on the right lists confessions that cite it and commentators on Romans." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/scripture/?ref=romans.8.1">Try it<span class="ht-sr"> Scripture</span></a>
       </article>
+      <article class="ht-item" id="laity-topics">
+        <p class="ht-feature">Topics</p>
+        <h2>Answer a doctrine question</h2>
+        <p class="ht-text">Choose a doctrine such as justification. The page counts the confession articles, works and authors on it.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-topics.webp"}}" width="1200" height="750" alt="The Topics page for Justification with counts of confession articles, works, authors and verses cited." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/topics/?t=de-justificatione">Try it<span class="ht-sr"> Topics</span></a>
+      </article>
+      <article class="ht-item" id="laity-ask">
+        <p class="ht-feature">Ask</p>
+        <h2>Ask a question in plain English</h2>
+        <p class="ht-text">Type a question about a doctrine or a passage. The answer cites the pages of the library it drew on.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <p class="ht-note">AI-assisted: answers cite the library&rsquo;s pages.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-ask.webp"}}" width="800" height="500" alt="The Ask answer to the question in the title bar, What did the early church teach about the Trinity. Page citations such as p. 384 are buttons in the text." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/ask/">Try it<span class="ht-sr"> Ask</span></a>
+      </article>
+      <article class="ht-item" id="laity-bookmarks">
+        <p class="ht-feature">Bookmarks</p>
+        <h2>Save the works for next week&rsquo;s session</h2>
+        <p class="ht-text">Bookmark a work in the reader. The Bookmarks tab lists every work you saved.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-bookmarks.webp"}}" width="800" height="500" alt="The Bookmarks tab listing The Apostles&rsquo; Creed as a saved work with a Remove link." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/research/#bookmarks">Try it<span class="ht-sr"> Bookmarks</span></a>
+      </article>
+      <article class="ht-item" id="laity-notebook">
+        <p class="ht-feature">Notebook</p>
+        <h2>Keep passages for a mentee</h2>
+        <p class="ht-text">Save a passage from the reader to your notebook. Each entry keeps its citation.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/laity-notebook.webp"}}" width="800" height="500" alt="The Notebook tab showing three saved passages and the first entry from The Didache." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/research/#notebook">Try it<span class="ht-sr"> Notebook</span></a>
+      </article>
+      </div>
     </section>
     <section class="ht-panel" id="pastors" data-ht-panel="pastors" aria-label="Pastors">
       <p class="ht-eyebrow">Pastors</p>
       <div class="ht-top">
         <p class="ht-intro">Prepare sermons, teach, counsel and lead a church.</p>
-        <ul class="ht-index" aria-label="In this guide"><li><a href="#pastors-scripture">Prepare a sermon on a passage</a></li><li><a href="#pastors-verse-desk">Gather the sources for one verse</a></li><li><a href="#pastors-lexicon">Check the word behind a doctrine</a></li><li><a href="#pastors-decks">Read the commentators on a text</a></li><li><a href="#pastors-repentance">Prepare to counsel on repentance</a></li><li><a href="#pastors-traditions">See what your tradition confesses</a></li><li><a href="#pastors-ask">Ask what a tradition taught</a></li><li><a href="#pastors-compare">Set two authors side by side</a></li><li><a href="#pastors-notebook">Collect quotations for a sermon</a></li><li><a href="#pastors-desk">Write with your sources beside you</a></li></ul>
+        <ul class="ht-index" aria-label="In this guide"><li><a href="#pastors-scripture">Prepare a sermon on a passage</a></li><li><a href="#pastors-verse-desk">Gather the sources for one verse</a></li><li><a href="#pastors-decks">Read the commentators on a text</a></li><li><a href="#pastors-lexicon">Check the word behind a doctrine</a></li><li><a href="#pastors-counsel">Find what pastors taught a doubting believer</a></li><li><a href="#pastors-repentance">Study a doctrine across the centuries</a></li><li><a href="#pastors-traditions">See what your tradition confesses</a></li><li><a href="#pastors-compare">Set two authors side by side</a></li><li><a href="#pastors-notebook">Gather passages for a sermon</a></li><li><a href="#pastors-desk">Write with your sources beside you</a></li></ul>
       </div>
+      <div class="ht-grid">
       <article class="ht-item" id="pastors-scripture">
-        <div class="ht-copy">
-          <p class="ht-feature">Scripture</p>
-          <h2>Prepare a sermon on a passage</h2>
-          <p>Click a verse in the chapter. Commentary on it is listed by author. Click an author to read their note.</p>
-          <a class="ht-btn" href="/the-faith-received/scripture/?ref=john.1.1">Try it<span class="ht-sr"> Scripture</span></a>
-        </div>
+        <p class="ht-feature">Scripture</p>
+        <h2>Prepare a sermon on a passage</h2>
+        <p class="ht-text">Click a verse in the chapter. Commentary on it is listed by author. Click an author to read their note.</p>
         <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-scripture.webp"}}" width="1200" height="750" alt="John 1 on the Scripture page. Verse 1 is selected and the panel lists confessions that cite it and commentators on John." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/scripture/?ref=john.1.1">Try it<span class="ht-sr"> Scripture</span></a>
       </article>
       <article class="ht-item" id="pastors-verse-desk">
-        <div class="ht-copy">
-          <p class="ht-feature">Verse Desk</p>
-          <h2>Gather the sources for one verse</h2>
-          <p>The Verse Desk shows one verse with a chart of the works that cite it by century. Counts of commentaries and of confessions that cite it sit below.</p>
-          <a class="ht-btn" href="/the-faith-received/scripture/desk/?ref=romans.3.28">Try it<span class="ht-sr"> Verse Desk</span></a>
-        </div>
+        <p class="ht-feature">Verse Desk</p>
+        <h2>Gather the sources for one verse</h2>
+        <p class="ht-text">The Verse Desk shows one verse with a chart of the works that cite it by century. Counts of commentaries and of confessions that cite it sit below.</p>
         <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-verse-desk.webp"}}" width="1200" height="750" alt="The Verse Desk for Romans 3:28 with a chart of the works that cite it by century and counts below." loading="lazy" decoding="async"></figure>
-      </article>
-      <article class="ht-item" id="pastors-lexicon">
-        <div class="ht-copy">
-          <p class="ht-feature">Lexicon</p>
-          <h2>Check the word behind a doctrine</h2>
-          <p>Look up a term such as fides. The entry gives its Latin and Greek words and the meanings authors gave it.</p>
-          <p class="ht-note">Gathered by machine from the library&rsquo;s texts.</p>
-          <a class="ht-btn" href="/the-faith-received/lexicon/#fides">Try it<span class="ht-sr"> Lexicon</span></a>
-        </div>
-        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-lexicon.webp"}}" width="1200" height="750" alt="The Lexicon entry for fides with its Latin and Greek forms and a first meaning defined by three authors." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/scripture/desk/?ref=romans.3.28">Try it<span class="ht-sr"> Verse Desk</span></a>
       </article>
       <article class="ht-item" id="pastors-decks">
-        <div class="ht-copy">
-          <p class="ht-feature">Commentary Decks</p>
-          <h2>Read the commentators on a text</h2>
-          <p>Choose a commentator from the list on the right. Their comments appear beside the text.</p>
-          <a class="ht-btn" href="/the-faith-received/commentary-decks/">Try it<span class="ht-sr"> Commentary Decks</span></a>
-        </div>
+        <p class="ht-feature">Commentary Decks</p>
+        <h2>Read the commentators on a text</h2>
+        <p class="ht-text">Choose a commentator from the list on the right. Their comments appear beside the text.</p>
         <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-decks.webp"}}" width="1200" height="750" alt="A Commentary Deck open to Lombard&rsquo;s Sentences Book I. The text is on the left and a list of commentators is on the right." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/commentary-decks/">Try it<span class="ht-sr"> Commentary Decks</span></a>
+      </article>
+      <article class="ht-item" id="pastors-lexicon">
+        <p class="ht-feature">Lexicon</p>
+        <h2>Check the word behind a doctrine</h2>
+        <p class="ht-text">Look up a term such as fides. The entry gives its Latin and Greek words and the meanings authors gave it.</p>
+        <p class="ht-note">Gathered by machine from the library&rsquo;s texts.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-lexicon.webp"}}" width="1200" height="750" alt="The Lexicon entry for fides with its Latin and Greek words and a first meaning defined by three authors." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/lexicon/#fides">Try it<span class="ht-sr"> Lexicon</span></a>
+      </article>
+      <article class="ht-item" id="pastors-counsel">
+        <p class="ht-feature">Ask</p>
+        <h2>Find what pastors taught a doubting believer</h2>
+        <p class="ht-text">Ask in plain words what the church&rsquo;s pastors taught about doubting your salvation. The answer outlines the teaching and cites the pages it drew on.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <p class="ht-note">AI-assisted: answers cite the library&rsquo;s pages.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-counsel.webp"}}" width="800" height="500" alt="The Ask answer on doubting your salvation. Its outline includes Pastoral Direction: Consoling the Doubting Conscience." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/ask/">Try it<span class="ht-sr"> Ask</span></a>
       </article>
       <article class="ht-item" id="pastors-repentance">
-        <div class="ht-copy">
-          <p class="ht-feature">Topics</p>
-          <h2>Prepare to counsel on repentance</h2>
-          <p>The Topics page for repentance counts the confession articles and authors who wrote on it. A chart places the authors in time.</p>
-          <a class="ht-btn" href="/the-faith-received/topics/?t=repentance">Try it<span class="ht-sr"> Topics</span></a>
-        </div>
+        <p class="ht-feature">Topics</p>
+        <h2>Study a doctrine across the centuries</h2>
+        <p class="ht-text">Open a topic such as repentance. A chart places the authors who wrote on it in time.</p>
         <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-repentance.webp"}}" width="1200" height="750" alt="The Topics page for Repentance. It shows counts of confession articles, authors and verses cited. A chart of authors through time follows." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/topics/?t=repentance">Try it<span class="ht-sr"> Topics</span></a>
       </article>
       <article class="ht-item" id="pastors-traditions">
-        <div class="ht-copy">
-          <p class="ht-feature">Traditions</p>
-          <h2>See what your tradition confesses</h2>
-          <p>Each tradition is listed with a line on who it is and how many documents and authors the library holds.</p>
-          <a class="ht-btn" href="/the-faith-received/tradition/">Try it<span class="ht-sr"> Traditions</span></a>
-        </div>
+        <p class="ht-feature">Traditions</p>
+        <h2>See what your tradition confesses</h2>
+        <p class="ht-text">Each tradition is listed with a line on who it is and how many documents and authors the library holds.</p>
         <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-traditions.webp"}}" width="1200" height="750" alt="The Traditions page listing each church with its number of documents and authors." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/tradition/">Try it<span class="ht-sr"> Traditions</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="pastors-ask">
-        <div class="ht-copy">
-          <p class="ht-feature">Ask</p>
-          <h2>Ask what a tradition taught</h2>
-          <p>Name a doctrine and a tradition in your question. The answer cites the pages of the library it drew on.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <p class="ht-note">AI-assisted: answers cite the library&rsquo;s pages.</p>
-          <a class="ht-btn" href="/the-faith-received/ask/">Try it<span class="ht-sr"> Ask</span></a>
-        </div>
+      <article class="ht-item" id="pastors-compare">
+        <p class="ht-feature">Compare</p>
+        <h2>Set two authors side by side</h2>
+        <p class="ht-text">Add two to four authors, then choose a topic. Their statements on it sit side by side.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-compare.webp"}}" width="800" height="500" alt="The Compare tab with Augustine of Hippo and John Calvin added and the author box below them." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/research/#compare">Try it<span class="ht-sr"> Compare</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="pastors-compare">
-        <div class="ht-copy">
-          <p class="ht-feature">Compare</p>
-          <h2>Set two authors side by side</h2>
-          <p>Choose two to four authors and one topic. Their writing on it appears side by side, grouped by work.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <a class="ht-btn" href="/the-faith-received/research/#compare">Try it<span class="ht-sr"> Compare</span></a>
-        </div>
+      <article class="ht-item" id="pastors-notebook">
+        <p class="ht-feature">Notebook</p>
+        <h2>Gather passages for a sermon</h2>
+        <p class="ht-text">Save passages from the reader. Each keeps its citation. Use Copy citation to paste it into your notes.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-notebook.webp"}}" width="800" height="500" alt="The Notebook tab with saved entries from The Apostles&rsquo; Creed and The Nicene Creed. Each has Open in the reader, Copy citation and Remove links." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/research/#notebook">Try it<span class="ht-sr"> Notebook</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="pastors-notebook">
-        <div class="ht-copy">
-          <p class="ht-feature">Notebook</p>
-          <h2>Collect quotations for a sermon</h2>
-          <p>Save a passage from the reader to your notebook. It keeps the citation and the exact paragraph.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <a class="ht-btn" href="/the-faith-received/research/#notebook">Try it<span class="ht-sr"> Notebook</span></a>
-        </div>
+      <article class="ht-item" id="pastors-desk">
+        <p class="ht-feature">Desk</p>
+        <h2>Write with your sources beside you</h2>
+        <p class="ht-text">The Desk has a Write tab and a Research tab. Research is where your saved items appear to bring into what you write.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/pastors-desk.webp"}}" width="800" height="500" alt="The Desk with the Research tab chosen. It shows a paper picker, a notebook picker and the Personal research heading with a search box." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/desk/">Try it<span class="ht-sr"> Desk</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="pastors-desk">
-        <div class="ht-copy">
-          <p class="ht-feature">Desk</p>
-          <h2>Write with your sources beside you</h2>
-          <p>The Desk holds the passages you saved while you write. Each stays linked to the text it came from.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <a class="ht-btn" href="/the-faith-received/desk/">Try it<span class="ht-sr"> Desk</span></a>
-        </div>
-      </article>
+      </div>
     </section>
     <section class="ht-panel" id="academics" data-ht-panel="academics" aria-label="Academics">
       <p class="ht-eyebrow">Academics</p>
       <div class="ht-top">
         <p class="ht-intro">Research, teach from primary sources and cite them.</p>
-        <ul class="ht-index" aria-label="In this guide"><li><a href="#academics-lexicon">Look up a term across languages</a></li><li><a href="#academics-power-search">Search by meaning</a></li><li><a href="#academics-disputed">See how authors answered a question</a></li><li><a href="#academics-set-index">Search an edition&rsquo;s index</a></li><li><a href="#academics-scans">Check the text against the printed page</a></li><li><a href="#academics-compare">Set authors side by side on a topic</a></li><li><a href="#academics-connections">Follow who cited whom</a></li><li><a href="#academics-notebook">Collect passages with their citations</a></li><li><a href="#academics-desk">Write with your saved sources beside you</a></li><li><a href="#academics-ask">Find the pages that discuss a claim</a></li></ul>
+        <ul class="ht-index" aria-label="In this guide"><li><a href="#academics-scans">Check a quotation against the printed page</a></li><li><a href="#academics-lexicon">Look up a term across languages</a></li><li><a href="#academics-decks">Read the text in English and Latin</a></li><li><a href="#academics-power-search">Search by meaning</a></li><li><a href="#academics-disputed">See how authors answered a question</a></li><li><a href="#academics-set-index">Search an edition&rsquo;s index</a></li><li><a href="#academics-compare">Read two authors on one topic</a></li><li><a href="#academics-connections">Follow who cited whom</a></li><li><a href="#academics-report">Report an error to the library&rsquo;s team</a></li><li><a href="#academics-notebook">Collect passages with their citations</a></li></ul>
       </div>
-      <article class="ht-item" id="academics-lexicon">
-        <div class="ht-copy">
-          <p class="ht-feature">Lexicon</p>
-          <h2>Look up a term across languages</h2>
-          <p>Search a Latin, Greek or English term. Each result shows its Latin and Greek words and the number of works that define it.</p>
-          <p class="ht-note">Gathered by machine from the library&rsquo;s texts.</p>
-          <a class="ht-btn" href="/the-faith-received/lexicon/?q=fides">Try it<span class="ht-sr"> Lexicon</span></a>
-        </div>
-        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-lexicon.webp"}}" width="1200" height="750" alt="Lexicon results for fides. Each term lists its Latin and Greek words and the number of works that define it." loading="lazy" decoding="async"></figure>
+      <div class="ht-grid">
+      <article class="ht-item" id="academics-scans">
+        <p class="ht-feature">Page Scans</p>
+        <h2>Check a quotation against the printed page</h2>
+        <p class="ht-text">Choose Scan in the reader. The Source Scan pane shows the printed page beside the text.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-scans.webp"}}" width="1200" height="750" alt="Athanasius&rsquo;s On the Incarnation in the reader with Scan chosen. The English text is on the left and the scanned printed page is on the right." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/read/?w=pg-2880&amp;p=95">Try it<span class="ht-sr"> Page Scans</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="academics-power-search">
-        <div class="ht-copy">
-          <p class="ht-feature">Power Search</p>
-          <h2>Search by meaning</h2>
-          <p>Describe an idea in plain English. Power Search finds passages that say it even if they never use your word. Narrow by tradition or by author or title.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <a class="ht-btn" href="/the-faith-received/search/#power">Try it<span class="ht-sr"> Power Search</span></a>
-        </div>
+      <article class="ht-item" id="academics-lexicon">
+        <p class="ht-feature">Lexicon</p>
+        <h2>Look up a term across languages</h2>
+        <p class="ht-text">Search a Latin, Greek or English term. Each result shows its Latin and Greek words and the number of works that define it.</p>
+        <p class="ht-note">Gathered by machine from the library&rsquo;s texts.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-lexicon.webp"}}" width="1200" height="750" alt="Lexicon results for fides. Each term lists its Latin and Greek words and the number of works that define it." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/lexicon/?q=fides">Try it<span class="ht-sr"> Lexicon</span></a>
+      </article>
+      <article class="ht-item" id="academics-decks">
+        <p class="ht-feature">Commentary Decks</p>
+        <h2>Read the text in English and Latin</h2>
+        <p class="ht-text">Choose Both to set the English and Latin texts in two columns. Commentators are listed on the right.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-decks.webp"}}" width="1200" height="750" alt="A Commentary Deck with Both chosen. Lombard&rsquo;s Sentences is in Latin and English columns and a list of commentators is on the right." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/commentary-decks/">Try it<span class="ht-sr"> Commentary Decks</span></a>
+      </article>
+      <article class="ht-item" id="academics-power-search">
+        <p class="ht-feature">Power Search</p>
+        <h2>Search by meaning</h2>
+        <p class="ht-text">Describe an idea in plain English. Power Search lists the works with passages that say it even if they never use your word.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-power-search.webp"}}" width="800" height="500" alt="Power Search for justification by faith. The results show 47 works with the first work listed." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/research/#power-search">Try it<span class="ht-sr"> Power Search</span></a>
       </article>
       <article class="ht-item" id="academics-disputed">
-        <div class="ht-copy">
-          <p class="ht-feature">Disputed Questions</p>
-          <h2>See how authors answered a question</h2>
-          <p>Choose a question in the list on the left. A chart plots how authors answered it by century.</p>
-          <p class="ht-note">Software reads each answer from the author&rsquo;s pages.</p>
-          <a class="ht-btn" href="/the-faith-received/disputed-questions/">Try it<span class="ht-sr"> Disputed Questions</span></a>
-        </div>
+        <p class="ht-feature">Disputed Questions</p>
+        <h2>See how authors answered a question</h2>
+        <p class="ht-text">Choose a question in the list on the left. A chart plots how authors answered it by century.</p>
+        <p class="ht-note">Software reads each answer from the author&rsquo;s pages.</p>
         <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-disputed.webp"}}" width="1200" height="750" alt="The Disputed Questions page. A list of questions on Scripture is on the left and a chart of answers by century is on the right." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/disputed-questions/">Try it<span class="ht-sr"> Disputed Questions</span></a>
       </article>
       <article class="ht-item" id="academics-set-index">
-        <div class="ht-copy">
-          <p class="ht-feature">Set Indexes</p>
-          <h2>Search an edition&rsquo;s index</h2>
-          <p>Choose an edition from the list. Its subjects are listed by letter. Each entry gives the volume and page numbers.</p>
-          <a class="ht-btn" href="/the-faith-received/set-index/?set=luther-wa">Try it<span class="ht-sr"> Set Indexes</span></a>
-        </div>
+        <p class="ht-feature">Set Indexes</p>
+        <h2>Search an edition&rsquo;s index</h2>
+        <p class="ht-text">Choose an edition from the list. Its subjects are listed by letter. Each entry gives the volume and page numbers.</p>
         <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-set-index.webp"}}" width="1200" height="750" alt="The index of the Weimar Edition of Luther. Subjects are listed by letter and the entry for Aaron gives its volume and page numbers." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/set-index/?set=luther-wa">Try it<span class="ht-sr"> Set Indexes</span></a>
       </article>
-      <article class="ht-item" id="academics-scans">
-        <div class="ht-copy">
-          <p class="ht-feature">Page Scans</p>
-          <h2>Check the text against the printed page</h2>
-          <p>Choose Scan in the reader. The Source Scan pane shows the printed page beside the text.</p>
-          <a class="ht-btn" href="/the-faith-received/read/?w=pg-2880&amp;p=95">Try it<span class="ht-sr"> Page Scans</span></a>
-        </div>
-        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-scans.webp"}}" width="1200" height="750" alt="Athanasius&rsquo;s On the Incarnation in the reader with Scan chosen. The English text is on the left and the scanned printed page is on the right." loading="lazy" decoding="async"></figure>
+      <article class="ht-item" id="academics-compare">
+        <p class="ht-feature">Compare</p>
+        <h2>Read two authors on one topic</h2>
+        <p class="ht-text">Choose a topic after adding authors. Each author&rsquo;s statements sit in their own column, grouped by work.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-compare.webp"}}" width="800" height="500" alt="The Compare results for a topic with Augustine of Hippo and John Calvin in two columns. Each column lists statements with the work and page cited." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/research/#compare">Try it<span class="ht-sr"> Compare</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="academics-compare">
-        <div class="ht-copy">
-          <p class="ht-feature">Compare</p>
-          <h2>Set authors side by side on a topic</h2>
-          <p>Choose two to four authors and one topic. Read their writing on it side by side.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <a class="ht-btn" href="/the-faith-received/research/#compare">Try it<span class="ht-sr"> Compare</span></a>
-        </div>
+      <article class="ht-item" id="academics-connections">
+        <p class="ht-feature">Connections</p>
+        <h2>Follow who cited whom</h2>
+        <p class="ht-text">Open an author. The page lists the authors who cite them with a count of citations.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-connections.webp"}}" width="800" height="500" alt="Connections for John Calvin showing Cited by 489 authors with citation counts for Matthew Poole and Robert Bellarmine." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/connections/">Try it<span class="ht-sr"> Connections</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="academics-connections">
-        <div class="ht-copy">
-          <p class="ht-feature">Connections</p>
-          <h2>Follow who cited whom</h2>
-          <p>Connections maps the library by citation. Click an author to see the passages behind each link.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <a class="ht-btn" href="/the-faith-received/connections/">Try it<span class="ht-sr"> Connections</span></a>
-        </div>
+      <article class="ht-item" id="academics-report">
+        <p class="ht-feature">Report</p>
+        <h2>Report an error to the library&rsquo;s team</h2>
+        <p class="ht-text">Select a passage and choose Report. Pick an issue type and describe the problem. The library&rsquo;s team looks at it.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-report.webp"}}" width="800" height="500" alt="The Report an issue form opened from a selected passage. The work, author and passage are filled in and Issue type is a menu." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/read/?w=calvin-institutes-of-the-christian-religion">Try it<span class="ht-sr"> Report</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="academics-notebook">
-        <div class="ht-copy">
-          <p class="ht-feature">Notebook</p>
-          <h2>Collect passages with their citations</h2>
-          <p>Save a passage from the reader to your notebook. It keeps the citation. Gather saved passages into collections.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <a class="ht-btn" href="/the-faith-received/research/#notebook">Try it<span class="ht-sr"> Notebook</span></a>
-        </div>
+      <article class="ht-item" id="academics-notebook">
+        <p class="ht-feature">Notebook</p>
+        <h2>Collect passages with their citations</h2>
+        <p class="ht-text">Save a passage from the reader. Open in the reader returns to it. Copy citation copies the reference.</p>
+        <p class="ht-note">Needs a free account.</p>
+        <figure class="ht-fig"><img src="{{asset "images/faith-received/how-to-use/academics-notebook.webp"}}" width="800" height="500" alt="A Notebook entry from The Didache with a note box and the links Open in the reader, Copy citation and Remove." loading="lazy" decoding="async"></figure>
+        <a class="ht-btn" href="/the-faith-received/research/#notebook">Try it<span class="ht-sr"> Notebook</span></a>
       </article>
-      <article class="ht-item ht-item--text" id="academics-desk">
-        <div class="ht-copy">
-          <p class="ht-feature">Desk</p>
-          <h2>Write with your saved sources beside you</h2>
-          <p>The Desk holds the passages you saved while you write. Each stays linked to the text it came from.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <a class="ht-btn" href="/the-faith-received/desk/">Try it<span class="ht-sr"> Desk</span></a>
-        </div>
-      </article>
-      <article class="ht-item ht-item--text" id="academics-ask">
-        <div class="ht-copy">
-          <p class="ht-feature">Ask</p>
-          <h2>Find the pages that discuss a claim</h2>
-          <p>Ask in plain English whether the library discusses a claim. The answer cites the pages it drew on.</p>
-          <p class="ht-note">Needs a free account.</p>
-          <p class="ht-note">AI-assisted: answers cite the library&rsquo;s pages.</p>
-          <a class="ht-btn" href="/the-faith-received/ask/">Try it<span class="ht-sr"> Ask</span></a>
-        </div>
-      </article>
+      </div>
     </section>
   </div>
   <p class="ht-foot"><a class="ht-btn" href="/the-faith-received/tutorial/">Take the guided tour</a></p>
