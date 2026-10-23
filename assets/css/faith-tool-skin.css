@@ -1,0 +1,171 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   THE RESEARCH TOOLS IN OUR SKIN (Ian, 2026-10-23: "This needs to be
+   rerun through the TFR design agent and deslopped").
+   Commentary decks, Disputed questions, Lexicon and Index of the set came
+   in with #184 carrying Stiven's palette, display face and chips. The
+   templates and scripts are his bones. This sheet is the skin: the
+   house ground, ink, rule and terracotta; Source Serif throughout;
+   3px corners; hollow buttons; underlined tabs; cards with a terracotta
+   top rule. It loads after the templates' own <style>, so every rule
+   here carries one more class than the rule it replaces.
+
+   RULES THIS FILE KEEPS
+   - No display face on a working surface: --font-display is the body
+     face on these pages. The hero title keeps the site's.
+   - No pill radius, no heavy black chip: a chosen tab is underlined, a
+     chosen button is filled terracotta.
+   - No scroll box in the page. The two panes of the decks keep their own
+     scroll as the reader does (a column beside a column); on a phone and
+     a tablet they stack and the page scrolls.
+   - Dark keys on the page's own switch, html[data-sd-theme="dark"], as the
+     Scripture pages and the author room do. Never the OS setting alone.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Tokens ─────────────────────────────────────────────────────────── */
+main.tfr-tool {
+  --bg: #f6f3f2; --fg: #2d2927; --muted: #6b6660; --border: #d9c6a7;
+  --card-bg: #fffdfa; --card: #fffdfa; --highlight: #f3ebdd; --hl: #efe5d3; --tint: #faf5ec;
+  --rule2: color-mix(in srgb, var(--border) 60%, transparent);
+  --accent: #a9472c; --on-accent: #fffdfa;
+  --font-display: "Source Serif Pro", Georgia, serif;
+  --font-body: "Source Serif Pro", Georgia, serif;
+  --sans: "Source Serif Pro", Georgia, serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+html[data-sd-theme="dark"] main.tfr-tool {
+  color-scheme: dark;
+  --bg: #222320; --fg: #e9e9e5; --muted: #b0b0a8; --border: #454740;
+  --card-bg: #2b2c29; --card: #2b2c29; --highlight: #373932; --hl: #373932; --tint: #272824;
+  --accent: #e6a08b; --on-accent: #1d1e1b;
+  --affirms: #7fb896; --denies: #e08f78;
+  /* the ground runs edge to edge behind the tool, as in the author room */
+  box-shadow: 0 0 0 100vmax #222320;
+  clip-path: inset(0 -100vmax);
+}
+main.tfr-tool a { color: var(--fg); }
+main.tfr-tool :is(input, select, textarea)::placeholder { color: var(--muted); }
+
+/* ── The hero: the sibling pages', tighter, with a dek of one or two short sentences ── */
+.bhero--tool.bhero--desk { padding: 56px 0 48px; }
+.bhero--desk h1 { font-size: clamp(32px, 3.8vw, 46px); max-width: none; }
+.bhero--desk .bhero-sub { margin-top: 14px; max-width: 54ch; }
+@media (max-width: 640px) { .bhero--tool.bhero--desk { padding: 36px 0 32px; } .bhero--desk .bhero-sub { font-size: 16px; } }
+
+/* ── Buttons: hollow, 3px, terracotta ink on the page and when chosen ── */
+main.tfr-tool :is(.stepper button, .deskbtn, .morebar button, .retry, .dl-more) {
+  border: 1px solid var(--accent); background: transparent; color: var(--accent);
+  border-radius: 3px; font: 600 .875rem/1.2 var(--font-body); min-height: 2.5rem; padding: .45rem .9rem; cursor: pointer;
+}
+main.tfr-tool :is(.stepper button, .deskbtn, .morebar button, .retry):hover:not(:disabled),
+main.tfr-tool :is(.stepper button, .deskbtn, .morebar button, .retry):focus-visible { background: var(--accent); color: var(--on-accent); }
+main.tfr-tool :is(.stepper button, .deskbtn):disabled { opacity: .4; cursor: default; }
+main.tfr-tool .stepper #prev, main.tfr-tool .stepper #next { min-width: 2.75rem; padding: .45rem .5rem; font-size: 1.125rem; }
+main.tfr-tool .deskbtn[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+main.tfr-tool .seg { border: 1px solid var(--accent); border-radius: 3px; background: transparent; }
+main.tfr-tool .seg button { color: var(--accent); background: transparent; font: 600 .875rem/1.2 var(--font-body); min-height: 2.5rem; padding: .45rem .9rem; }
+main.tfr-tool .seg button + button { border-left: 1px solid var(--accent); }
+main.tfr-tool .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+main.tfr-tool :is(select, .find, .gq) { border-radius: 3px; border-color: var(--border); background: var(--card-bg); color: var(--fg); }
+
+/* ── The tab row: underlined, group names as small-caps eyebrows ── */
+main.tfr-decks .tabs { gap: .5rem 2.2rem; border-bottom: 1px solid var(--border); margin: 0 0 1rem; }
+main.tfr-decks .tgk { font: 600 .75rem/1.2 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: .2rem 0 .1rem; }
+main.tfr-decks .tabs [role="tab"] { font: 600 1rem/1.25 var(--font-body); color: var(--muted); padding: .55rem 0 .65rem; border-bottom: 2px solid transparent; }
+main.tfr-decks .tabs [role="tab"]:hover { color: var(--fg); }
+main.tfr-decks .tabs [role="tab"][aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+main.tfr-decks .dlede { max-width: 66ch; margin: -.4rem 0 1rem; color: var(--muted); }
+
+/* ── The bar: sections as a sub-tab row, then one tool row ── */
+main.tfr-decks .bar { display: grid; grid-template-columns: minmax(0, 1fr); gap: .85rem; margin: 0 0 1rem; }
+main.tfr-decks .bar > * { min-width: 0; }
+main.tfr-decks .parts { display: flex; flex-wrap: wrap; gap: 0 1.4rem; margin: 0; border-bottom: 1px solid var(--rule2); }
+main.tfr-decks .parts:empty { display: none; }
+main.tfr-decks .parts .chip { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--muted); padding: .45rem 0 .55rem; margin-bottom: -1px; font: 600 .9375rem/1.25 var(--font-body); }
+main.tfr-decks .parts .chip:hover { color: var(--fg); }
+main.tfr-decks .parts .chip[aria-pressed="true"] { background: transparent; color: var(--fg); border-bottom-color: var(--accent); }
+main.tfr-decks .parts .chip small { color: var(--muted); }
+main.tfr-decks .tools { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; }
+main.tfr-decks .stepper { flex: 1 1 18rem; min-width: 0; max-width: 34rem; display: flex; gap: .4rem; }
+main.tfr-decks .stepper #pick { flex: 1; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+main.tfr-decks .deskact { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+main.tfr-decks .deskmsg { font: .8125rem/1.2 var(--font-body); color: var(--muted); min-width: 5.5rem; }
+main.tfr-decks .tools #lanes { margin-left: auto; }
+main.tfr-decks .arts .chip { border: 1px solid var(--accent); border-radius: 3px; background: transparent; color: var(--accent); font: 600 .8125rem/1.2 var(--font-body); }
+main.tfr-decks .arts .chip[aria-pressed="true"], main.tfr-decks .grid button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+main.tfr-decks .arts .chip[aria-pressed="true"] small, main.tfr-decks .grid button[aria-pressed="true"] small { color: var(--on-accent); }
+
+/* ── The place picker: a card ── */
+main.tfr-decks .grid { background: var(--card-bg); border: 1px solid var(--border); border-top: 2px solid var(--accent); border-radius: 3px; }
+main.tfr-decks .grid button { border-radius: 3px; border-color: var(--border); background: var(--card-bg); color: var(--fg); }
+main.tfr-decks .grid button:hover { border-color: var(--accent); }
+
+main.tfr-decks .desk { padding: 0; margin: 0; }
+main.tfr-tool .wrap { padding-left: 1.5rem; padding-right: 1.5rem; }
+@media (max-width: 640px) { main.tfr-tool .wrap { padding-left: 1rem; padding-right: 1rem; } }
+
+/* ── The panes: cards with a terracotta top rule, hairline dividers ── */
+main.tfr-decks .pane { background: var(--card-bg); border: 1px solid var(--border); border-top: 2px solid var(--accent); border-radius: 3px; }
+main.tfr-decks .ph { border-bottom: 1px solid var(--border); }
+main.tfr-decks .ph h2 { font: 600 1.375rem/1.25 var(--font-body); }
+main.tfr-decks .ph .what { font: 400 .9375rem/1.4 var(--font-body); font-style: normal; color: var(--muted); }
+main.tfr-decks .ph .open, main.tfr-decks .back { color: var(--accent); }
+main.tfr-decks .srcl > span { font: 600 .75rem/1.2 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+main.tfr-decks .pane select { border-radius: 3px; }
+main.tfr-decks .trad { font: 600 .75rem/1.3 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); border-bottom-color: var(--border); }
+main.tfr-decks .trad span { letter-spacing: 0; color: var(--muted); }
+main.tfr-decks .c, main.tfr-decks .pgno::after { border-color: var(--border); }
+main.tfr-decks .who { font: 600 1.0625rem/1.25 var(--font-body); }
+main.tfr-decks .c-read { border-radius: 3px; }
+main.tfr-decks .card, main.tfr-decks .sk i { border-radius: 3px; }
+main.tfr-decks .c-toc, main.tfr-decks .c .ext, main.tfr-decks .toc li a { color: var(--accent); }
+main.tfr-decks .note { max-width: 60ch; }
+main.tfr-decks .note.err { color: var(--fg); }
+main.tfr-decks .note .retry { margin-left: .4rem; }
+main.tfr-decks .ln { max-width: 68ch; }
+main.tfr-decks :is(.tabs [role="tab"], .chip, .seg button, .stepper button, .deskbtn, .retry, .c-read, .grid button, .pane select, .find):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── Tablet and phone: the panes stack, the pane switcher sticks ── */
+@media (max-width: 980px) {
+  main.tfr-decks .tools #lanes { margin-left: 0; }
+  main.tfr-decks .stepper { max-width: none; flex-basis: 100%; }
+  main.tfr-decks .switch { background: var(--bg); }
+  main.tfr-tool :is(.stepper button, .deskbtn, .seg button, .retry, .morebar button), main.tfr-tool .stepper :is(#pick, #prev, #next) { min-height: 2.75rem; }
+  main.tfr-decks :is(.tabs [role="tab"], .parts .chip) { min-height: 2.75rem; display: inline-flex; align-items: center; }
+}
+@media (max-width: 640px) {
+  main.tfr-decks .tabs { flex-wrap: nowrap; overflow-x: auto; gap: 0 1.6rem; scrollbar-width: none; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+  main.tfr-decks .tabs::-webkit-scrollbar { display: none; }
+  main.tfr-decks .tgrp, main.tfr-decks .tgb { flex: none; flex-wrap: nowrap; }
+  main.tfr-decks .tabs [role="tab"] { min-height: 2.75rem; display: inline-flex; align-items: center; }
+  main.tfr-decks .parts { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  main.tfr-decks .parts::-webkit-scrollbar { display: none; }
+  main.tfr-decks .parts .chip { flex: none; min-height: 2.75rem; }
+  main.tfr-decks :is(.stepper button, .deskbtn, .seg button) { min-height: 2.75rem; }
+  main.tfr-decks .deskact { width: 100%; }
+  /* the panes take turns on a phone: the pane switcher and "All commentators" do the work of Swap and Clear */
+  main.tfr-decks .deskact .deskbtn:is([data-act="swap"], [data-act="clear-a"], [data-act="clear-b"]) { display: none; }
+  main.tfr-decks .tools #lanes { width: 100%; }
+  main.tfr-decks .tools #lanes button { flex: 1; }
+}
+
+/* ── Disputed questions, Lexicon and Index of the set ──────────────────
+   A chosen letter, term, kind or preview is filled terracotta, not black. */
+main.tfr-tool :is(.letters button[aria-pressed="true"], .list li button[aria-current="true"], .chips button[aria-pressed="true"], .pvb[aria-expanded="true"], .pvw-pp button[aria-pressed="true"]) {
+  background: var(--accent); border-color: var(--accent); color: var(--on-accent);
+}
+main.tfr-tool :is(.list li button[aria-current="true"], .letters button[aria-pressed="true"]) :is(small, span, i) { color: inherit; }
+main.tfr-tool :is(.chips button, .more, .tg-more, .pvb, .dkinds button) { border-radius: 3px; }
+main.tfr-tool :is(.lexicon h2, .entry h2, .q h2, .q h3, .entry h3) { font-family: var(--font-body); }
+main.tfr-tool :is(.find input, .find, .dfind, #dfind, .pick select) { border-radius: 3px; }
+main.tfr-tool :is(.entry, .q) a { color: var(--fg); }
+main.tfr-tool .retry { margin-left: .4rem; }
+
+/* No scroll box in the page: the lexicon's history of a term runs down the page. The side lists keep their own scroll, as every sidebar does. */
+main.tfr-tool .hpane { max-height: none; overflow: visible; }
+
+/* A problem's moves and forks (Quenstedt, Voetius) run in grid tracks with min-width:auto, so one long unbroken line pushed the card past
+   a 375px viewport. Their text wraps inside the track. */
+main.tfr-decks :is(.argued, .fork, .objs, .stated, .pth-rows, .cc-rows) > li { min-width: 0; }
+main.tfr-decks :is(.mv, .mv-h, .mv-q, .mv-a, .fork li, .ob, .op) { overflow-wrap: anywhere; }
+main.tfr-decks .adv { white-space: normal; }

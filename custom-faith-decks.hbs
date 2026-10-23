@@ -3,9 +3,9 @@
 {{> "faith-received/_tfr-rail"}}
 {{#contentFor "moHead"}}
 <title>Commentary decks | The Faith Received | Mere Orthodoxy</title>
-<meta name="description" content="Lombard's Sentences, Aquinas's Summa, Suárez's Metaphysical Disputations, Voetius's problems, Vitringa's aphorisms, Quenstedt's questions, the Decretals and Gratian's Decretum, place by place: the text and its commentators or systems, read side by side, each with his own questions and articles and their pages; Suárez between the authors he cites and the authors who received him." />
-<link rel=preconnect href="https://fonts.googleapis.com"><link rel=preconnect href="https://fonts.gstatic.com" crossorigin>
-<link rel=stylesheet href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap">
+<meta name="description" content="Read a commented text beside its commentators, or compare any two. Decks for Lombard, Aquinas, Suárez, Voetius, Vitringa, Quenstedt, the Decretals and Gratian." />
+{{!-- Dark mode: sets html[data-sd-theme] before paint, as the Scripture pages and the author room do. --}}
+<script src="{{asset "js/page/scripture-view-boot.js"}}&amp;frv=b619c4b13b360add"></script>
 <style>
 .tfr-tool{--bg:#FFFFFF;--fg:#1C1C1A;--muted:#5A5A56;--border:#D8D8D3;--card-bg:#FFFFFF;--highlight:#EFEFEA;--card:#FFFFFF;--hl:#E7E7E2;--tint:#F6F6F3;
   --affirms:#3F6B4E;--denies:#A8462B;--s-thomist:#2F5E99;--s-scotist:#7A4E9B;--s-nominalist:#A87420;--s-jesuit:#1F7A80;--s-augustinian:#94506E;--s-other:#7A7A76;
@@ -786,15 +786,15 @@
 {{/contentFor}}
 {{!-- /the-faith-received/commentary-decks/: Commentary decks, as The Faith Received has it (tools/prdl_reader_prototype/decks.html), in this site's
      shell: the hero is the theme's, the body and its script (faith-decks.js) the library's, reading the library worker. --}}
-<section class="bhero bhero--tool">
+<section class="bhero bhero--tool bhero--desk">
   <div class="bhero-inner container">
     <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> Commentary decks</p>
-    <h1 class="bhero-title">The commented texts, with their commentators</h1>
-    <p class="bhero-lede">Read a distinction of Lombard's Sentences, a question of Aquinas's Summa, a title of the Decretals or a distinction or causa of Gratian's Decretum beside any commentator the library holds on it, each with his own questions and articles; Suárez's Metaphysical Disputations section by section, between the authors he cites and the authors who received him; Voetius's problems or Vitringa's aphorisms beside the Reformed systems and disputations, and Quenstedt's questions beside the Lutheran systems. Either pane can hold a commentator or a system, so two can be compared.</p>
+    <h1>Commentary decks</h1>
+    <p class="bhero-sub">Pick a text and open any place to read it beside the commentators the library holds. Put a second commentator in the other pane to compare.</p>
   </div>
 </section>
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
-<main class="tfr-tool"><div class="wrap">
+<main class="tfr-tool tfr-decks"><div class="wrap">
   <div class="tabs" role="tablist" aria-label="Commented text">
     <div class="tgrp" role="presentation"><span class="tgk" aria-hidden="true">Scholastic</span><div class="tgb" role="presentation">
       <a role="tab" aria-selected="true" tabindex="0" href="#sentences" data-deck="sentences">Lombard's Sentences</a>
@@ -813,17 +813,22 @@
   <button type="button" class="dl-more" id="dlMore" aria-expanded="false" aria-controls="dlede" hidden>More</button>
   <div class="bar">
     <div class="parts" id="parts" role="group" aria-label="Book or part"></div>
-    <nav class="stepper" aria-label="Places"><button type="button" id="pick" aria-expanded="false" aria-controls="grid">Choose a place</button><button type="button" id="prev" aria-label="Previous place">‹</button><button type="button" id="next" aria-label="Next place">›</button></nav>
-    <div class="seg" id="lanes" role="group" aria-label="Language"><button type="button" data-lane="en">English</button><button type="button" data-lane="la">Latin</button><button type="button" data-lane="both">Both</button></div>
+    <div class="tools">
+      <nav class="stepper" aria-label="Places"><button type="button" id="pick" aria-expanded="false" aria-controls="grid">Choose a place</button><button type="button" id="prev" aria-label="Previous place">&lsaquo;</button><button type="button" id="next" aria-label="Next place">&rsaquo;</button></nav>
+      <div class="deskact" id="deskact" role="group" aria-label="Panes"></div>
+      <div class="seg" id="lanes" role="group" aria-label="Language"><button type="button" data-lane="en">English</button><button type="button" data-lane="la">Latin</button><button type="button" data-lane="both">Both</button></div>
+    </div>
   </div>
   <div class="grid" id="grid" role="group" aria-label="Places" hidden></div>
   <div class="switch"><div class="seg" role="group" aria-label="Pane"><button type="button" data-show="a" aria-pressed="true" id="showA">Text</button><button type="button" data-show="b" aria-pressed="false" id="showB">Commentators</button></div></div>
   <div class="desk" id="desk" data-show="a">
-    <section class="pane" id="paneA" aria-label="Left pane"><p class="note" style="padding:1rem 1.2rem">Loading the decks…</p></section>
+    <section class="pane" id="paneA" aria-label="Left pane"><div class="scroll"><p class="note">Loading the decks&hellip;</p></div></section>
     <section class="pane" id="paneB" aria-label="Right pane"></section>
   </div>
-
 </div></main>
 <link rel="stylesheet" href="{{asset "css/port/work-hub.css"}}&amp;frv=0374a552e8452478"><script src="{{asset "js/port/page-window.js"}}&amp;frv=2023bacb69cf7ee4"></script>
+<link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
 <link rel="stylesheet" href="{{asset "css/port/tradition-graphics.css"}}&amp;frv=cc8cf6f7c7831d99"><script src="{{asset "js/port/tradition-graphics.js"}}&amp;frv=3780efc0f7559ddf"></script>
-<script src="{{asset "js/faith-decks.js"}}&amp;frv=290e4b1fc3788e0e"></script>
+<script src="{{asset "js/page/commentary-pages.js"}}&amp;frv=9c286408d1cfdaf8"></script>
+<script src="{{asset "js/faith-decks-desk.js"}}&amp;frv=4efc7b6db6ad14c7"></script>
+<script src="{{asset "js/faith-decks.js"}}&amp;frv=8063f4269314b37d"></script>

@@ -6,7 +6,11 @@ const BLOB=(window.__FR_BLOB_BASE__||"").replace(/\/$/,"");
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fold=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9Ͱ-Ͽἀ-῿ ]+/g,' ').replace(/\s+/g,' ').trim().replace(/^(the|a|an) /,'');
-const J=u=>fetch(BLOB+u).then(r=>r.ok?r.json():null).catch(()=>null);
+// A file the library has not got (404) is null. One it could not be asked for (the network, a 5xx, a 429) is tried again twice first.
+const J=u=>{let n=0;const go=()=>fetch(BLOB+u).then(r=>{if(r.ok)return r.json();if(r.status===404||r.status===410)return null;throw new Error(String(r.status));})
+  .catch(()=>{if(++n<3)return new Promise(res=>setTimeout(res,350*n)).then(go);return null;});return go();};
+const RETRY='<button type="button" class="retry" data-retry>Try again</button>';
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-retry]'))location.reload();});
 // MereO hosts the same page with its own reader path (window.__FR_READER_PATH__ = '/the-faith-received/read/') and data address
 const READER=(window.__FR_READER_PATH__||'/read');
 const read=(w,p)=>`${READER}?w=${encodeURIComponent(w)}#b${encodeURIComponent(p)}-0`;
@@ -107,7 +111,7 @@ const unit=n=>{const u=(M&&M.unit)||'volume';return n===1?u:`${u}s`;};
 const cache=new Map();const load=f=>{if(!cache.has(f))cache.set(f,J(base+f));return cache.get(f);};
 function pagesHTML(slug,ps){return ps.map(p=>PVW.loc(slug,p)).join(', ');}
 /* the line under an entry's name says what a page number does, where one opens its page here */
-const opensHere=slugs=>slugs.some(s=>PVW.can(s))?' A page number opens its page here.':'';
+const opensHere=slugs=>slugs.some(s=>PVW.can(s))?' A page number opens that page here.':'';
 /* AN INDEX LINE'S LOCATOR (2026-10-22): the volume of Migne ("PL 87", "PO Tome 1") or of a numbered set ("Vol. 3") before the work's
    own title; a short label that is itself the volume ("Schriften 1", "Tischreden 5"); a shelf's label (its author and title) has none */
 const locOf=label=>{const s=String(label||''),m=s.match(/^((?:PL|PG|PO)(?: Tome)? \S+|Vol\. [^·]{1,14}?) · (.+)$/);
@@ -247,7 +251,7 @@ async function findNow(){const raw=$('#q').value,f=fold(raw);
   const l=/[a-z]/.test(f[0])?f[0]:'_';await showLetter(l);
   const rows=ROWS.filter(r=>fold(r[0]).startsWith(f)),near=rows.length?rows:ROWS.filter(r=>fold(r[0]).includes(f));
   renderList(near,CUR,{mark:l==='_'?'#':l.toUpperCase(),range:`“${raw.trim()}”`,count:near.length?`${counted(near.length)} found`:'Nothing found',col:near.length?unit(2):''});
-  if(near.length)await showEntry(near[0][0],near[0][2],true);else $('#entry').innerHTML='<p class="muted">No heading begins with or holds these letters. Try fewer letters, or browse by letter above.</p>';}
+  if(near.length)await showEntry(near[0][0],near[0][2],true);else $('#entry').innerHTML='<p class="muted">No heading begins with or holds these letters. Try fewer letters or browse by letter.</p>';}
 let findT=0;
 $('#q').addEventListener('input',()=>{clearTimeout(findT);findT=setTimeout(findNow,260);});
 $('#find').addEventListener('submit',e=>{e.preventDefault();clearTimeout(findT);findNow();});
@@ -293,11 +297,11 @@ function dirTraditions(){
 }
 // no set named: the directory of every set that has one index, the Weimar Edition and Migne first
 if(!SET){
-  $('#title').textContent='Indexes of whole sets';document.title='Set Indexes | The Faith Received | Mere Orthodoxy';
+  $('#title').textContent='Set indexes';document.title='Set indexes | The Faith Received | Mere Orthodoxy';
   for(const id of ['tabs','find','letters','cols'])$(`#${id}`).hidden=true;
   J('/v1/enrich/sets/index.json').then(d=>{
-    if(!d){$('#by').textContent='The list of sets could not be loaded. Reload the page to try again.';return;}
-    $('#by').textContent=`One index for each of ${d.sets.length} editions and sets of volumes: subjects, persons, Scripture, terms and questions, every entry naming its volume and pages.`;
+    if(!d){$('#by').innerHTML=`The list of sets did not load. ${RETRY}`;return;}
+    $('#by').textContent=`${d.sets.length} editions and sets have an index. Each entry names its volume and pages.`;
     DIR=d.sets.map(([id,t,a,n,u,e])=>{const kind=/^(pl|pg|po)$/.test(id)?'pat':/^shelf-/.test(id)?'shelf':'set';
       return {id,t,a,n,u,e,kind,y:null,trad:kind==='pat'?{pl:'pl',pg:'gf',po:'po'}[id]:kind==='shelf'?SHELF_OF[id.slice(6)]||'':'',hay:fold(`${t} ${a} ${id.replace(/-/g,' ')}`)};});
     const kept=dirKept();
@@ -317,7 +321,7 @@ if(!SET){
 }else J(`${base}meta.json`).then(async m=>{
   if(!m){$('#by').textContent='This set has no index yet.';return;}
   M=m;document.title=`${m.t} Index | The Faith Received | Mere Orthodoxy`;$('#title').textContent=m.t;
-  $('#by').textContent=`${m.a?`${m.a} · `:''}${m.vols.length.toLocaleString()} ${unit(m.vols.length)} indexed together: every entry names its ${unit(1)} and its pages.`;
+  $('#by').textContent=`${m.a?`${m.a} · `:''}${m.vols.length.toLocaleString()} ${unit(m.vols.length)} indexed together. Each entry names its ${unit(1)} and pages.`;
   $('#tabs').innerHTML=SECS.map(([k,l])=>`<button type="button" role="tab" id="tab-${k}" data-s="${k}" aria-selected="false" aria-controls="cols" tabindex="-1">${l}<small>${(m.n[k]||0).toLocaleString()}</small></button>`).join('');
   await route();
   addEventListener('hashchange',route);

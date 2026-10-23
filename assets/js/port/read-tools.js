@@ -1368,7 +1368,7 @@ function __initReaderTools(){
     const h=await lexHistory(t.id);
     if(!h||!h.works||lexPop.hidden||tok!==lexTok)return;
     const dated=h.rows.map(r=>h.authors[r[2]]).filter(a=>a&&a[2]!=null),a0=dated[0],a1=dated[dated.length-1];
-    const span=a0&&a1&&a0!==a1?`, from ${lexEsc(a0[0])} to ${lexEsc(a1[0])}`:'';
+    const span=a0&&a1&&a0!==a1?` from ${lexEsc(a0[0])} to ${lexEsc(a1[0])}`:'';
     lexPop.querySelector('.lx-open')?.insertAdjacentHTML('beforebegin',`<p class="lx-hist">Defined in ${h.works.toLocaleString()} ${h.works===1?'work':'works'}${span}. <a href="${LEX}#${encodeURIComponent(t.id)}">How each defines it</a></p>`);
     place();
   }

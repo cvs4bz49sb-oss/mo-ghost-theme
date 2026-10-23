@@ -5,7 +5,11 @@ window.__FR_LEXICON_PATH__=window.__FR_LEXICON_PATH__||"/the-faith-received/lexi
 const BLOB=(window.__FR_BLOB_BASE__||"").replace(/\/$/,"");
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const J=u=>fetch(BLOB+u).then(r=>r.ok?r.json():null).catch(()=>null);
+// A file the library has not got (404) is null. One it could not be asked for (the network, a 5xx, a 429) is tried again twice first.
+const J=u=>{let n=0;const go=()=>fetch(BLOB+u).then(r=>{if(r.ok)return r.json();if(r.status===404||r.status===410)return null;throw new Error(String(r.status));})
+  .catch(()=>{if(++n<3)return new Promise(res=>setTimeout(res,350*n)).then(go);return null;});return go();};
+const RETRY='<button type="button" class="retry" data-retry>Try again</button>';
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-retry]'))location.reload();});
 // MereO hosts the same page with its own reader path (window.__FR_READER_PATH__ = '/the-faith-received/read/') and data address
 const READER=(window.__FR_READER_PATH__||'/read');
 const read=(w,p)=>`${READER}?w=${encodeURIComponent(w)}#b${encodeURIComponent(p)}-0`;
@@ -223,7 +227,7 @@ function renderQ(){
   const d=DATA;if(!d)return;const A=answersOf(d);
   const counts=Object.fromEntries(A.map(([k])=>[k,d.answers.filter(a=>a.answer===k).length]));
   const ps=splitOf(counts);PARTS=Object.fromEntries(ps.map(x=>[x.k,x]));
-  $('#q').innerHTML=`<h2>${esc(d.q)}</h2><p class="meta">${esc(d.locus)} · ${d.answers.length} authors · ${d.n_pages.toLocaleString()} pages · <a href="${MAPS}#${esc(d.id)}">the map of the tradition</a></p>${window.TFRMethod?window.TFRMethod.html("<p>Each answer is read by machine from the claims recorded on the author's pages: open the pages to check it.</p>"):'<p class="note">Each answer is read by machine from the claims recorded on the author\'s pages: open the pages to check it.</p>'}${
+  $('#q').innerHTML=`<h2>${esc(d.q)}</h2><p class="meta">${esc(d.locus)} · ${d.answers.length} authors · ${d.n_pages.toLocaleString()} pages · <a href="${MAPS}#${esc(d.id)}">the map of the tradition</a></p>${window.TFRMethod?window.TFRMethod.html("<p>Each answer is read by machine from the claims recorded on the author's pages. Open the pages to check it.</p>"):'<p class="note">Each answer is read by machine from the claims recorded on the author\'s pages. Open the pages to check it.</p>'}${
     splitHTML(ps)}${lanesHTML(MODEL,PARTS)}${MODEL&&MODEL.traditions.length>1?tradsHTML(MODEL):''}${positionsHTML(MODEL,d)
     }<section class="ev" aria-labelledby="ev-h"><h3 class="sec-h" id="ev-h">Each author's answer</h3><div id="ev"></div></section>${
     stepsHTML(d.id)}`;
@@ -260,7 +264,7 @@ async function showQ(id,write){
   keepInView(document.querySelector(`#loci [data-q="${CSS.escape(id)}"]`));
   /* a question chosen while another was loading wins: the older answer is dropped; its map comes with it where it has one */
   const [got,map]=await Promise.all([J(`/v1/atlas/q/${encodeURIComponent(id)}.json`),mapOf(id),TG&&TG.dates?TG.dates.ready:null]);if(CUR!==id)return;DATA=got;
-  if(!DATA){$('#q').innerHTML='<p class="muted">This question could not be loaded. Choose it again to retry.</p>';return;}
+  if(!DATA){$('#q').innerHTML=`<p class="muted">This question did not load. ${RETRY}</p>`;return;}
   MODEL=modelOf(DATA,map&&Array.isArray(map.positions)?map:null);
   renderQ();if(write)history.replaceState(null,'',`#${id}`);
   document.title=`${DATA.q}${TAIL}`;
@@ -280,7 +284,7 @@ addEventListener('keydown',e=>{
 });
 if(TG)TG.mount($('#q'));
 Promise.all([J('/v1/atlas/index.json'),J('/v1/maps/index.json')]).then(([d,mi])=>{
-  if(!d){$('#loci').innerHTML='<p class="muted">The atlas could not be loaded. Reload the page to try again.</p>';return;}
+  if(!d){$('#loci').innerHTML=`<p class="muted">The questions did not load. ${RETRY}</p>`;return;}
   for(const x of (mi&&mi.questions)||[])MAPPED.add(x.id);
   for(const x of d.questions)TALLY.set(x.id,x.tally||{});
   QS=d.questions;const by=new Map();for(const x of d.questions){if(!by.has(x.locus))by.set(x.locus,[]);by.get(x.locus).push(x);}
@@ -288,3 +292,5 @@ Promise.all([J('/v1/atlas/index.json'),J('/v1/maps/index.json')]).then(([d,mi])=
   $('#loci').innerHTML=[...by.entries()].map(([l,qs])=>`<details${l===wl?' open':''}><summary>${esc(l)}<small>${qs.length}</small></summary><ul>${qs.map(x=>`<li><button type="button" data-q="${esc(x.id)}" aria-current="false">${esc(x.q)}${barHTML(splitOf(x.tally),'mt')}</button></li>`).join('')}</ul></details>`).join('');
   showQ(want,false);
 });
+// an address typed or followed from another page opens its question without a reload
+addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id&&id!==CUR&&QS.some(x=>x.id===id))showQ(id,false);});

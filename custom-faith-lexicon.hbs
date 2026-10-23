@@ -3,7 +3,7 @@
 {{> "faith-received/_tfr-rail"}}
 {{#contentFor "moHead"}}
 <title>Lexicon | The Faith Received | Mere Orthodoxy</title>
-<meta name="description" content="Latin and Greek terms as the authors themselves define them: each term's senses, each sense with the pages that define it." />
+<meta name="description" content="Look up a Latin or Greek term to see how the library's authors define it. Each sense lists the pages that define it." />
 <link rel=preconnect href="https://fonts.googleapis.com"><link rel=preconnect href="https://fonts.gstatic.com" crossorigin>
 <link rel=stylesheet href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap">
 <style>
@@ -118,18 +118,19 @@
 {{/contentFor}}
 {{!-- /the-faith-received/lexicon/: Lexicon, as The Faith Received has it (tools/prdl_reader_prototype/lexicon.html), in this site's
      shell: the hero is the theme's, the body and its script (faith-lexicon.js) the library's, reading the library worker. --}}
-<section class="bhero bhero--tool">
+<section class="bhero bhero--tool bhero--desk">
   <div class="bhero-inner container">
     <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> Lexicon</p>
-    <h1 class="bhero-title">Terms as the authors define them</h1>
-    <p class="bhero-lede">Each term gathers the definitions the library's authors give of it, from the Fathers to the post-Reformation divines, sorted into its senses. Every sense lists the pages that define it.</p>
+    <h1>Lexicon</h1>
+    <p class="bhero-sub">Look up a term to see how the library&rsquo;s authors define it. Each sense lists the pages that define it.</p>
   </div>
 </section>
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
-<main class="tfr-tool"><div class="wrap">
+<main class="tfr-tool tfr-lexicon"><div class="wrap">
   <form class="find" role="search" id="find"><label class="sr" for="q">Find a term</label><input id="q" type="search" placeholder="Find a term: grace, gratia, χάρις" autocomplete="off" spellcheck="false"></form>
   <div class="letters" id="letters" role="group" aria-label="Browse by letter"></div>
   <div class="cols"><div class="side"><div class="runhead" id="runhead" aria-live="polite" aria-atomic="true" hidden></div><ul class="list" id="list" aria-label="Terms"></ul></div><article class="entry" id="entry" aria-live="polite"><p class="muted">Loading the lexicon…</p></article></div>
 
 </div></main>
-<script src="{{asset "js/faith-lexicon.js"}}&amp;frv=08e761a91bd94044"></script>
+<link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
+<script src="{{asset "js/faith-lexicon.js"}}&amp;frv=3f7ef7fb58d2876a"></script>

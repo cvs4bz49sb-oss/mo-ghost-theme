@@ -29,7 +29,15 @@ const MAXP=50;
 // at= names the heading the link means: the reader opens on it, not on the top of its page.
 const READER=(window.__FR_READER_PATH__||'/read');
 const read=(slug,page,at)=>`${READER}?w=${encodeURIComponent(slug)}${at?`&at=${encodeURIComponent(String(at).slice(0,200))}`:''}${page!=null&&page!==''?`#b${encodeURIComponent(page)}-0`:''}`;
-const J=u=>fetch(BLOB+u).then(r=>r.ok?r.json():null).catch(()=>null);
+// A file the library has not got (404) is null. A file it could not be asked for (the network, a 5xx, a 429) is tried again twice,
+// then recorded in FRDecksNet.failed, so a pane says it did not load and offers a retry, and the miss is not kept (memo below).
+const NET=window.FRDecksNet={failed:new Map()};
+const getJ=u=>{let n=0;const go=()=>fetch(u).then(r=>{if(r.ok)return r.json();if(r.status===404||r.status===410)return null;throw new Error(String(r.status));})
+  .catch(()=>{if(++n<3)return new Promise(res=>setTimeout(res,350*n)).then(go);NET.failed.set(u,Date.now());return null;});return go();};
+const J=u=>getJ(BLOB+u);
+const noText=()=>(PL.failed?retryNote('This text did not load.'):`<p class="note">The library has no text for this ${noun()} yet.</p>`);
+const retryNote=(msg,extra='')=>`<p class="note err" role="alert">${msg} <button type="button" class="retry" data-retry>Try again</button>${extra}</p>`;
+const memo=(m,k,make)=>{if(!m.has(k)){const p=make();m.set(k,p);p.then(v=>{if(v==null&&m.get(k)===p)m.delete(k);});}return m.get(k);};
 const fold=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 let S={deck:'sentences',part:'1',place:null,art:null,r:null,i:null,l:null,j:null},D=null,LANE='en';
 try{LANE=localStorage.getItem('fr_deck_lane')||'en';}catch(_){}
@@ -52,7 +60,7 @@ const GRID={
   metaphysics:{noun:'disputation',nouns:'disputations',one:'work',many:'works',head:'Works beside',find:'work',name:"Suárez's Metaphysical Disputations",text:"Suárez's text",cell:['section','sections']}
 };
 // a deck's own lede, under the tabs while it is open
-const DECKLEDE={metaphysics:"Each disputation section by section: the opinions Suárez sets out with the authors he cites for them, his verdict and his resolution in his own words, and beside them the authors who received him, from the Reformed and Lutheran metaphysicians to the whole works written against him."};
+const DECKLEDE={metaphysics:"Suárez's Metaphysical Disputations, section by section. Each section shows the authors he cites and the authors who received him."};
 const GD=()=>Object.prototype.hasOwnProperty.call(GRID,S.deck);
 const G=()=>(D&&D.grids&&D.grids[S.deck])||null;
 const NAMED=()=>SYS()||GD();
@@ -170,6 +178,7 @@ async function loadPlace(){
   const rf=S.deck==='metaphysics'?`/v1/decks/metaphysics/reception/${encodeURIComponent(S.part)}/${encodeURIComponent(S.place)}.json${VER}`:null;
   PL.wait=Promise.all([SYS()||PL.lazyText?null:J(`/v1/decks/read/${f}`),rowsFor().length||S.art?J(`/v1/decks/outline/${f}`):null,pf?J(pf):null,rf?J(rf):null]).then(([t,o,pr,rc])=>{
     if(PL.key!==key)return;
+    PL.failed=NET.failed.has(`${BLOB}/v1/decks/read/${f}`)||NET.failed.has(`${BLOB}/v1/decks/outline/${f}`);
     PL.text=t;PL.out=o;PL.props=pr&&((Array.isArray(pr.problems)&&pr.problems.length)||(Array.isArray(pr.sections)&&pr.sections.length))?pr:null;
     PL.rec=rc&&((Array.isArray(rc.answers)&&rc.answers.length)||(rc.sections&&typeof rc.sections==='object'&&Object.keys(rc.sections).length))?rc:null;
   });
@@ -269,19 +278,19 @@ function absentNote(slug,side){
   const L=p=>placeLink(p,slug,side,true),inPart=p=>p&&p.part===pk,His=sys?'Its':'His',he=sys?'it':'he',work=sys?'treatment of':'commentary on';
   // a system's place named inside a sentence: "the covenants", not "The covenants"
   const here=sys?placeName(S.place).replace(/^The /,'the '):placeName(S.place);
-  const s1=sys?`${esc(name)}, ${esc(w[1]||'')}, has nothing filed under ${esc(here)}.`:`${esc(name)} has no commentary on ${esc(here)}.`;
+  const s1=sys?`${esc(name)} has nothing filed under ${esc(here)}.`:`${esc(name)} has no commentary on ${esc(here)}.`;
   let s2='';
   if(!N.count)s2=`${sys?'It':'He'} is not aligned to any ${noun()} of ${esc(DECKNAME[S.deck])}.`;
-  else if(inPart(N.before)&&inPart(N.after))s2=`The nearest ${nouns()} ${he} treats are ${L(N.before)}, before, and ${L(N.after)}, after.`;
+  else if(inPart(N.before)&&inPart(N.after))s2=`The nearest ${noun()} ${he} treats before this is ${L(N.before)}. The nearest after it is ${L(N.after)}.`;
   else if(inPart(N.after))s2=`${His} ${work} ${esc(partPhrase(pk))} begins at ${L(N.after)}.${N.before?` The last ${noun()} ${he} treats before it is ${L(N.before)}.`:''}`;
   else if(inPart(N.before))s2=`${His} ${work} ${esc(partPhrase(pk))} ends at ${L(N.before)}.${N.after?` The next ${noun()} ${he} treats is ${L(N.after)}.`:''}`;
-  else s2=`${sys?'It':'He'} treats ${N.count} other ${N.count===1?noun():nouns()} of ${esc(DECKNAME[S.deck])}; the nearest ${N.before&&N.after?'are':'is'} ${[N.before&&L(N.before),N.after&&L(N.after)].filter(Boolean).join(' and ')}.`;
+  else s2=`${sys?'It':'He'} treats ${N.count} other ${N.count===1?noun():nouns()} of ${esc(DECKNAME[S.deck])}. The nearest ${N.before&&N.after?'are':'is'} ${[N.before&&L(N.before),N.after&&L(N.after)].filter(Boolean).join(' and ')}.`;
   return `<div class="abs-note"><p>${s1}</p><p>${s2}</p></div>`;
 }
 // the line under an absent work in the list: where it begins, ends, or the nearest on either side
 function nearHTML(slug){
   const N=nearest(slug),L=p=>placeLink(p,slug,'b',false,true);
-  if(N.before&&N.after)return `Nearest: ${L(N.before)}, before; ${L(N.after)}, after`;
+  if(N.before&&N.after)return `Before: ${L(N.before)}. After: ${L(N.after)}.`;
   if(N.after)return `Begins at ${L(N.after)}`;
   if(N.before)return `Ends at ${L(N.before)}`;
   return '';
@@ -292,14 +301,13 @@ function deckWorks(){if(!DWC.has(S.deck)&&deckPlaces().length)DWC.set(S.deck,[..
 // ── a work's pages: its page files (about a hundred pages a file), else its TEI; fetched once ─────────────────────────
 const META=new Map(),FILES=new Map(),TEIS=new Map();
 const wurl=(slug,f)=>`${BLOB}/v1/works/${encodeURIComponent(slug)}/${f}`;
-const getJ=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-function metaOf(slug){if(!META.has(slug))META.set(slug,getJ(wurl(slug,'meta.json')+VER));return META.get(slug);}
+function metaOf(slug){return memo(META,slug,()=>getJ(wurl(slug,'meta.json')+VER));}
 async function blocksOf(slug,lane,n){
   const m=await metaOf(slug);if(!m)return null;
   const sh=Array.isArray(m.shards)?m.shards.find(x=>n>=+x.from&&n<=+x.to):null,file=sh?sh.file:(m.single||null);
   if(file){
-    const key=`${slug}/${file}`;if(!FILES.has(key))FILES.set(key,getJ(wurl(slug,file)));
-    const d=await FILES.get(key),p=((d&&d.pages)||[]).find(x=>+String(x.n).replace(/^0+(?=\d)/,'')===n);
+    const key=`${slug}/${file}`;
+    const d=await memo(FILES,key,()=>getJ(wurl(slug,file))),p=((d&&d.pages)||[]).find(x=>+String(x.n).replace(/^0+(?=\d)/,'')===n);
     const t=p&&p[lane==='en'?'en':'la'];
     if(t&&t.trim())return t.split(/\n+/).map(s=>({t:s.trim(),h:false})).filter(b=>b.t);
     if(!m.has_tei)return [];
@@ -350,7 +358,14 @@ function pageHTML(side,slug,n,cols,items,colLabel){
     else if(last<0||!lanes.includes(lane))lead.push(id);
     else{const a=after[lane].get(last)||[];a.push(id);after[lane].set(last,a);}
   }
-  const col=l=>`<div class="ln" lang="${l}">${(cols[l]&&cols[l].length)?linesHTML(cols[l],l,marks[l],after[l]):`<p class="note">No ${l==='en'?'English':'Latin'} on this ${colLabel}.</p>`}</div>`;
+  const NAME={en:'English',la:'Latin'};
+  // one language chosen and this page has only the other: it is shown, with a line saying so, rather than a blank page
+  const col=l=>{
+    if(cols[l]&&cols[l].length)return `<div class="ln" lang="${l}">${linesHTML(cols[l],l,marks[l],after[l])}</div>`;
+    const o=l==='en'?'la':'en';
+    if(lanes.length===1&&cols[o]&&cols[o].length)return `<div class="ln" lang="${o}"><p class="note">No ${NAME[l]} for this ${colLabel}. Showing the ${NAME[o]}.</p>${linesHTML(cols[o],o,marks[o],after[o])}</div>`;
+    return `<div class="ln" lang="${l}"><p class="note">No ${NAME[l]} for this ${colLabel}.</p></div>`;
+  };
   return `<section class="pg" data-n="${n}">${lead.map(id=>`<span class="anc" id="${id}" data-item="${id}"></span>`).join('')}<a class="pgno" href="${read(slug,n)}" title="Open this ${colLabel} in the reader">${colLabel==='column'?'col.':'p.'} ${esc(n)}</a>${lanes.length>1?`<div class="duo">${col('la')}${col('en')}</div>`:col(lanes[0])}</section>`;
 }
 
@@ -383,8 +398,8 @@ async function paneText(side){
     <h2>${esc(h2)}</h2>${sub?`<p class="what">${esc(sub)}</p>`:''}${S.deck==='summa'?artsBar():''}</header>`;
   if(SHOWN[side]===key){host.querySelector('.ph').outerHTML=head;if(S.deck==='summa')jumpArt(side);return;}
   SHOWN[side]=key;host.dataset.moved='';
-  if(SYS()){host.innerHTML=`${head}<div class="scroll"><p class="note">The systems have no common text: they are compared place by place. Choose a system for either pane from the lists.</p></div>`;return;}
-  if(!t){host.innerHTML=`${head}<div class="scroll"><p class="note">The text of this ${noun()} is not cut yet. ${S.deck==='sentences'?'':'Open its first page in the reader from the commentators beside it.'}</p></div>`;return;}
+  if(SYS()){host.innerHTML=`${head}<div class="scroll"><p class="note">The systems have no common text. They are compared place by place. Choose a system for either pane.</p></div>`;return;}
+  if(!t){host.innerHTML=`${head}<div class="scroll">${noText()}</div>`;return;}
   const byPage=new Map();for(const l of ['en','la'])for(const [hh,txt,pg] of (t[l]||[])){if(!byPage.has(pg))byPage.set(pg,{en:[],la:[]});byPage.get(pg)[l].push({t:txt,h:hh});}
   const unit=t.slug==='pld-7607'?'column':'page';
   host.innerHTML=`${head}<div class="scroll">${[...byPage].map(([n,cols])=>pageHTML(side,t.slug,n,cols,[],unit)).join('')}<p class="end">${t.to&&t.to>t.from?`${unit==='column'?'Columns':'Pages'} ${esc(t.from)}–${esc(t.to)}. `:''}<a href="${read(t.slug,t.to||t.from)}">Read on in the reader ↗</a></p></div>`;
@@ -578,9 +593,10 @@ async function altPages(side,alt,token){
   footAlt(side,alt,'Loading…');
   for(let n=from;n<=last;n++){
     const cols={};for(const l of lanes)cols[l]=await blocksOf(alt.slug,l,n);
+    if(lanes.length===1&&cols[lanes[0]]&&!cols[lanes[0]].length){const o=lanes[0]==='en'?'la':'en';cols[o]=await blocksOf(alt.slug,o,n);}
     if(token!==RUN[side])return;
     if(lanes.every(l=>cols[l]==null)){
-      if(n===+alt.from){pagesEl.innerHTML=`<p class="note">These pages could not be loaded. <a href="${read(alt.slug,alt.from)}">Open them in the reader ↗</a></p>`;host._alt=+alt.to+1;break;}
+      if(n===+alt.from){pagesEl.innerHTML=retryNote('These pages did not load.',` <a href="${read(alt.slug,alt.from)}">Open them in the reader ↗</a>`);host._alt=+alt.to+1;break;}
       host._alt=+alt.to+1;break;
     }
     pagesEl.insertAdjacentHTML('beforeend',pageHTML(side,alt.slug,n,cols,[],'page'));
@@ -612,7 +628,7 @@ async function paneBase(side){
   const key=['base',PL.key,LANE,S.alt||''].join('|');
   if(SHOWN[side]===key){host.querySelector('.ph').outerHTML=head;if(!alt)await jumpAph(side,token);return;}
   SHOWN[side]=key;host.dataset.moved='';host._to=0;
-  if(!t0){host.innerHTML=`${head}<div class="scroll"><p class="note">The text of this ${noun()} is not cut yet. Open its first page in the reader from the ${esc(WHO())} beside it.</p></div>`;return;}
+  if(!t0){host.innerHTML=`${head}<div class="scroll">${noText()}</div>`;return;}
   host.innerHTML=`${head}<div class="scroll bscroll"><div class="pages"></div>${alt?'<div class="sk" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>':''}<div class="morebar" hidden></div><p class="end" hidden></p></div>`;
   if(alt){host._alt=+alt.from;await altPages(side,alt,token);return;}
   drawBase(side);
@@ -746,7 +762,7 @@ function qbHTML(q){
   return `<figure class="qb${full?' is-cut':''}"${en?` data-tg-pv-hl="${esc(en.slice(0,400))}"`:''}${full}>${bq(...first)}${second&&!alt?bq(...second):''}${cap||tog?`<figcaption>${cap}${tog}</figcaption>`:''}${alt?`<div class="qb-src" hidden data-done="1">${bq(...second)}</div>`:tog?'<div class="qb-src" hidden></div>':''}${q.says?`<p class="qb-says">${esc(q.says)}</p>`:''}</figure>`;
 }
 const WMETA=new Map(),WSHARD=new Map();
-const wmeta=slug=>{if(!WMETA.has(slug))WMETA.set(slug,J(`/v1/works/${encodeURIComponent(slug)}/meta.json`));return WMETA.get(slug);};
+const wmeta=slug=>memo(WMETA,slug,()=>J(`/v1/works/${encodeURIComponent(slug)}/meta.json`));
 const pnum=v=>Number(String(v).replace(/^0+(?=\d)/,''));
 async function wpage(slug,n){
   const m=await wmeta(slug);
@@ -756,8 +772,7 @@ async function wpage(slug,n){
   else if(m.single)file=m.single;
   if(!file)return {m,p:null};
   const k=`${slug}/${file}`;
-  if(!WSHARD.has(k))WSHARD.set(k,J(`/v1/works/${encodeURIComponent(slug)}/${file}`));
-  const d=await WSHARD.get(k);
+  const d=await memo(WSHARD,k,()=>J(`/v1/works/${encodeURIComponent(slug)}/${file}`));
   return {m,p:((d&&d.pages)||[]).find(x=>pnum(x.n)===n)||null};
 }
 // the English passage in a text: by its first words, else by words from its middle or its end, measured back to its start
@@ -801,9 +816,9 @@ async function qbFill(fig,b,box){
   if(!m){say(`The ${lang} of p. ${esc(p)} could not be loaded.`);return;}
   if(m.en_only){say('This work is in English only.');return;}
   const la=String((pg&&pg.la)||''),en=String((pg&&pg.en)||'');
-  if(!la.trim()){say(`The ${lang} of p. ${esc(p)} is not in the library; Preview shows the page.`);return;}
+  if(!la.trim()){say(`The ${lang} of p. ${esc(p)} is not in the library. Preview shows the page.`);return;}
   const hit=en.trim()?qalign(en,la,q):null;
-  if(!hit){say(`This passage could not be placed in the ${lang} of p. ${esc(p)}; Preview shows the page in both languages.`);return;}
+  if(!hit){say(`This passage could not be placed in the ${lang} of p. ${esc(p)}. Preview shows the page in both languages.`);return;}
   box.setAttribute('lang',m.src_lang||'la');
   box.innerHTML=`<p class="qb-sh">The ${lang} around this place on p. ${esc(p)}</p><p class="qb-lt">${hit}</p>`;
 }
@@ -1227,11 +1242,11 @@ function mGraphHTML(P){
   const R=PL.rec&&PL.rec.sections?Object.values(PL.rec.sections):[];
   for(const x of R)for(const r of (x&&x.reception)||[]){const nm=String(r.author||'').trim(),yy=Number(r.year);if(!nm||seen.has(nm))continue;seen.add(nm);if(yy>0&&yy<2100)items.push({y:yy,t:TGK[mschool(r.school)],name:nm});}
   const marks=[{y:SUAREZ_Y,label:'Suárez',p:-1}].concat(items.slice().sort((a,b)=>(cnt.get(b.name)-cnt.get(a.name))||(a.y-b.y)).map((x,i)=>({y:x.y,label:x.name,p:i})));
-  const strip=items.length?TG.eraStrip(TG.bin(items,25),{unit:'author',units:'authors',labels:TGL,title:'The authors Suárez cites and those who received him, at their birth years',legendLabel:'Schools shown',marks}):'';
+  const strip=items.length?TG.eraStrip(TG.bin(items,25),{unit:'author',units:'authors',labels:TGL,title:'Authors Suárez cites and authors who received him, by birth year',legendLabel:'Schools shown',marks}):'';
   const box=(h,body)=>`<div class="pg-c"><h3 class="pg-h">${h}</h3>${body}</div>`;
   return `<section class="pgraph pg-schools tg" aria-label="This disputation in figures">${parts.length?box('The opinions’ holders, by school',tgBar(parts,'The holders of the opinions in this disputation, by school')):''}`
     +`${vs.length?box('Suárez’s verdicts on the opinions',tgBar(vs,'Suárez’s verdicts on the opinions of this disputation')):''}`
-    +`${strip?`<div class="pg-wide"><h3 class="pg-h">Before and after Suárez: the authors he cites and those who received him</h3>${strip}${early.length?`<p class="pg-note">Born before the axis, not drawn: ${esc(early.join(', '))}</p>`:''}</div>`:''}</section>`;
+    +`${strip?`<div class="pg-wide"><h3 class="pg-h">Before and after Suárez</h3>${strip}${early.length?`<p class="pg-note">Earlier than the chart: ${esc(early.join(', '))}</p>`:''}</div>`:''}</section>`;
 }
 async function paneSections(side){
   const host=PANE[side],P=PL.props,cfg=PRB(),cs=commentators(true),key=['secs',PL.key,LANE,PL.rec?1:0].join('|');
@@ -1315,7 +1330,7 @@ const rmode=()=>isPhone()?'works':RMODE[S.deck]||'dossier';
 let PAIRP=null,PAIRD=null;
 const pairFile=()=>PAIRP||(PAIRP=J('/v1/enrich/controversies/suarez-schools.json').then(d=>{if(!d||!Array.isArray(d.controversies)){PAIRP=null;return null;}d._by=new Map(d.controversies.map(c=>[c.id,c]));PAIRD=d;return d;}));
 const QF=new Map();
-const qfile=(kind,id)=>{const k=`${kind}/${id}`;if(!QF.has(k))QF.set(k,J(`/v1/${kind}/q/${encodeURIComponent(id)}.json`));return QF.get(k);};
+const qfile=(kind,id)=>memo(QF,`${kind}/${id}`,()=>J(`/v1/${kind}/q/${encodeURIComponent(id)}.json`));
 const hslug=h=>fold(h.author||h.name).replace(/\s+/g,'-');
 const cap1=t=>String(t||'').replace(/^./,c=>c.toUpperCase());
 // ── THE CONTROVERSY CARD, as controversies.html draws one (show, opinionsHTML, resolutionHTML, quoteHTML): the question, where the
@@ -1499,11 +1514,11 @@ function pivotHTML(before,after){
   const ticks=[];for(let c=Math.ceil(lo/200)*200;c<hi;c+=200)if(Math.abs(c-SUAREZ_Y)>90)ticks.push(`<span style="left:${X(c).toFixed(2)}%">${c}</span>`);
   ticks.push(`<span class="pv-sy" style="left:${X(SUAREZ_Y).toFixed(2)}%"><b>Suárez</b> 1548</span>`);
   const und=B.length-bd.length+A.length-ad.length;
-  const say=`${B.length} ${B.length===1?'author':'authors'} he cites${bd.length?`, born ${span(bd)}`:''}; ${A.length} who received him${ad.length?`, ${span(ad)}`:''}`;
-  return `<figure class="pv" role="img" aria-label="${esc(`Before and after Suárez, born 1548: ${say}`)}"><div class="pv-plot">`
+  const say=`${B.length} ${B.length===1?'author':'authors'} he cites${bd.length?` (born ${span(bd)})`:''}. ${A.length} received him${ad.length?` (born ${span(ad)})`:''}.`;
+  return `<figure class="pv" role="img" aria-label="${esc(`Before and after Suárez (born 1548). ${say}`)}"><div class="pv-plot">`
     +`<span class="pv-n pv-nb">He cites <b>${B.length}</b></span><span class="pv-n pv-na">Received by <b>${A.length}</b></span>`
     +`<i class="pv-axis"></i><span class="pv-piv" style="left:${X(SUAREZ_Y).toFixed(2)}%"></span>${place(bd,-1)}${place(ad,1)}</div>`
-    +`<div class="pv-ax" aria-hidden="true">${ticks.join('')}</div><figcaption class="pg-note">${bd.length?`Those he cites born ${span(bd)}`:''}${bd.length&&ad.length?'; ':''}${ad.length?`those who received him ${span(ad)}`:''}${und?`; ${und} undated, counted and not drawn`:''}.</figcaption></figure>`;
+    +`<div class="pv-ax" aria-hidden="true">${ticks.join('')}</div><figcaption class="pg-note">${bd.length?`He cites authors born ${span(bd)}.`:''}${ad.length?` Authors who received him were born ${span(ad)}.`:''}${und?` ${und} undated, not drawn.`:''}</figcaption></figure>`;
 }
 async function recFill(root,s,sel,c){
   const info=selInfo(s,sel,c),mapBox=root.querySelector('.rec-map'),atBox=root.querySelector('.rec-atlas'),rcvBox=root.querySelector('.rcv-box[data-rcv]'),pv=root.querySelector('.pv-box[data-pv]'),rd=root.querySelector('.rcv-read[data-who]');
@@ -1944,7 +1959,7 @@ async function paneWork(side,slug,focus){
   // the pane says so and links the reader at the page
   const fam=isFam(slug),T=fam?await commentaryText():null;
   if(token!==RUN[side])return;
-  const famNote=()=>{pagesEl.innerHTML=`<p class="note">This work's pages open in the reader. <a href="${read(slug,start,cur[3])}">Open ${atw(slug)} ${esc(start)} in the reader ↗</a></p>`;host.querySelector('.sk')?.remove();};
+  const famNote=()=>{pagesEl.innerHTML=`<p class="note"><a href="${read(slug,start,cur[3])}">Open ${atw(slug)} ${esc(start)} in the reader ↗</a></p>`;host.querySelector('.sk')?.remove();};
   if(fam&&!T){famNote();keepInView(side);return;}
   const unit=/^(?:pld|pg)-/.test(slug)?'column':'page',step=fam&&T.stride?T.stride(slug):1;
   let first=false;
@@ -1955,11 +1970,13 @@ async function paneWork(side,slug,focus){
       if(token!==RUN[side])return;
       if(!g||!g.p){if(n===start){famNote();keepInView(side);return;}break;}
       at=+g.p.n||n;n=at;
-      for(const l of lanes)cols[l]=String((l==='en'?g.p.en:g.p.la)||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).map(x=>({t:x,h:false}));
+      for(const l of ['en','la'])cols[l]=String((l==='en'?g.p.en:g.p.la)||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).map(x=>({t:x,h:false}));
     }else{
       for(const l of lanes)cols[l]=await blocksOf(slug,l,n);
+      // the other language is asked for only when the chosen one is empty, so a page with one language shows it
+      if(lanes.length===1&&cols[lanes[0]]&&!cols[lanes[0]].length){const o=lanes[0]==='en'?'la':'en';cols[o]=await blocksOf(slug,o,n);}
       if(token!==RUN[side])return;
-      if(lanes.every(l=>cols[l]==null)){if(n===start){pagesEl.innerHTML=`<p class="note">These pages could not be loaded. <a href="${read(slug,c.from,items[0][3])}">Open them in the reader ↗</a></p>`;host.querySelector('.sk').remove();return;}break;}
+      if(lanes.every(l=>cols[l]==null)){if(n===start){pagesEl.innerHTML=retryNote('These pages did not load.',` <a href="${read(slug,c.from,items[0][3])}">Open them in the reader ↗</a>`);host.querySelector('.sk').remove();return;}break;}
     }
     const on=items.map((x,k)=>({x,k})).filter(o=>+o.x[1]>=at&&+o.x[1]<at+step);
     pagesEl.insertAdjacentHTML('beforeend',pageHTML(side,slug,at,cols,on,unit));drawn=at+step-1;
@@ -2011,6 +2028,12 @@ function foldCopies(list){
 }
 // how another copy is named: the year (and place) its catalogue entry gives in brackets
 const copyOf=c=>{const m=/\(([^)]*\d{4}[^)]*)\)/.exec(`${c.fv||''} ${c.ft||''}`);return m&&m[1].length<=60?m[1]:'';};
+// a place with nothing aligned to it names the nearest one that has something
+function nearestFilled(){
+  const ps=places().filter(p=>!p.part||p.part===S.part),i=ps.findIndex(p=>p.k===S.place);
+  for(let d=1;d<ps.length;d++){const p=[ps[i-d],ps[i+d]].find(x=>x&&x.n);if(p)return ` Nearest with ${GD()?GRID[S.deck].many:SYS()?'systems':'commentators'}: <a href="#${esc([S.deck,p.part||S.part,p.k].join('/'))}">${esc(NAMED()?p.name:placeName(p.k,p.part))}</a>.`;}
+  return '';
+}
 function paneDir(side){
   const host=PANE[side],key=['dir',PL.key,S.art||''].join('|');
   if(SHOWN[side]===key)return;
@@ -2048,7 +2071,7 @@ function paneDir(side){
   const absent=away.length?`<details class="absent"><summary>${away.length} more ${away.length===1?one:many}, not on this ${noun()}</summary>${byGroup(away).map(([t,g])=>group(t,g,awayRow)).join('')}</details>`:'';
   const n=cs.length;
   host.innerHTML=`<header class="ph">${DOSDECK()&&PL.props&&!isPhone()?`<div class="ph-row">${rmodeHTML()}</div>`:''}<div class="ph-row">${sourceSelect(side,all,'')}</div>
-    <h2>${GD()?GRID[S.deck].head:SYS()?'Systems':'Commentators'}</h2><p class="count">${n?`${n} ${n===1?one:many} ${verb} this ${noun()}${S.deck==='summa'&&S.art?`, article ${esc(S.art)}`:''}; choose one to read beside ${SYS()?'the other pane':'the text'}.`:`None aligned to this ${noun()} yet.`}</p>
+    <h2>${GD()?GRID[S.deck].head:SYS()?'Systems':'Commentators'}</h2><p class="count">${n?`${n} ${n===1?one:many} ${verb} this ${noun()}${S.deck==='summa'&&S.art?` (article ${esc(S.art)})`:''}. Choose one to read beside ${SYS()?'the other pane':'the text'}.`:`No ${many} on this ${noun()} yet.${nearestFilled()}`}</p>
     ${n+away.length>8?`<input class="find" type="search" autocomplete="off" spellcheck="false" placeholder="Find a ${GD()?GRID[S.deck].find:SYS()?'system':'commentator'}…" aria-label="Find a ${GD()?GRID[S.deck].find:SYS()?'system':'commentator'}">`:''}</header>
     <div class="scroll">${PV&&PV.size?`<p class="pvnote">${esc(pvNote())}</p>`:''}${byGroup(cs).map(([t,g])=>group(t,g,hereRow)).join('')}${absent}</div>`;
 }
@@ -2069,22 +2092,26 @@ function leftSlug(){
   const cs=new Set(commentators(true).map(c=>c.slug)),ok=sl=>cs.has(sl)&&sl!==S.r,rows=rowsFor(true).map(r=>r[0]);
   return rows.find(sl=>ok(sl)&&!/^(pg|pld|po|eebo)-\d+$/.test(sl))||rows.find(ok)||null;
 }
+// A render that was overtaken by a newer address stops where it is: it would otherwise draw the new place from the old render's
+// half-loaded state, and the pane would keep that blank (the place's own render finds the pane already drawn).
+let RSEQ=0;
 let DOSLAST='';
 async function render(){
   if(!D)return;
+  const seq=++RSEQ;
   if(SYS()){
     if(!D.sys){renderNav();PANE.a.innerHTML='<p class="note" style="padding:1rem 1.2rem">Loading the systems…</p>';PANE.b.innerHTML='';SHOWN.a=SHOWN.b='';
-      await loadSystems();if(!SYS())return;
-      if(!D.sys){PANE.a.innerHTML='<p class="note" style="padding:1rem 1.2rem">The systems could not be loaded. Reload the page to try again.</p>';return;}}
-    if(await redirectSystem())return;
+      await loadSystems();if(!SYS()||seq!==RSEQ)return;
+      if(!D.sys){PANE.a.innerHTML=`<div class="scroll">${retryNote('The systems did not load.')}</div>`;return;}}
+    if(await redirectSystem()||seq!==RSEQ)return;
     // a place belongs to one part: the address's part follows the place it names
     const pl=S.place&&D.sys._places.find(x=>x[1]===S.place);
     if(pl)S.part=pl[0];else{S.place=null;if(!D.sys._parts.some(p=>p[0]===S.part))S.part='I';}
   }
   if(GD()){
     if(!G()){renderNav();PANE.a.innerHTML=`<p class="note" style="padding:1rem 1.2rem">Loading ${esc(DECKNAME[S.deck])}…</p>`;PANE.b.innerHTML='';SHOWN.a=SHOWN.b='';
-      const {deck} = S;await loadGrid(deck);if(S.deck!==deck)return;
-      if(!G()){const n=DECKNAME[S.deck];PANE.a.innerHTML=`<p class="note" style="padding:1rem 1.2rem">${esc(n.charAt(0).toUpperCase()+n.slice(1))} could not be loaded. Reload the page to try again.</p>`;return;}}
+      const {deck} = S;await loadGrid(deck);if(S.deck!==deck||seq!==RSEQ)return;
+      if(!G()){const n=DECKNAME[S.deck];PANE.a.innerHTML=`<div class="scroll">${retryNote(`${esc(n.charAt(0).toUpperCase()+n.slice(1))} did not load.`)}</div>`;return;}}
     // a place key is unique only inside its part: the address's part stands when the place is in it, else the place's own part
     const g=G();
     if(!g._parts.some(p=>p[0]===S.part)){const pl=S.place&&g._places.find(x=>x[1]===S.place);S.part=pl?pl[0]:((g._parts[0]||[])[0]||'');}
@@ -2095,12 +2122,14 @@ async function render(){
   renderNav();
   if(!S.place)return;
   await loadPlace();
+  if(seq!==RSEQ)return;
   const left=leftSlug(),pv=!left&&probOn();
   $('#desk').dataset.view=pv?'problems':S.deck;
   $('#showA').textContent=left?((D.texts.works[left]||[])[0]||'Left'):pv?PRB().tab:'Text';
   $('#showB').textContent=S.r?((D.texts.works[S.r]||[])[0]||'Commentator'):`${GD()?GRID[S.deck].head:SYS()?'Systems':'Commentators'} (${commentators().length})`;
   await Promise.all([left?paneWork('a',left,S.j):pv?(PL.props.sections?paneSections('a'):paneProblems('a')):GD()?paneBase('a'):paneText('a'),S.r?paneWork('b',S.r,S.i):DOSDECK()&&PL.props&&rmode()==='dossier'?paneDossier('b'):Promise.resolve(paneDir('b'))]);
   markSel();
+  if(seq===RSEQ&&window.FRDecks)window.FRDecks.rendered=hashOf();
   // an address that names a view, a holder or a problem raises its dossier on a phone, once
   if(isPhone()&&DOSDECK()&&PL.props&&(S.sel||/^[pa]\d+$/.test(S.art||''))){const k=`${PL.key}|${S.art}|${S.sel}`;if(DOSLAST!==k){DOSLAST=k;dossierSheet();}}
 }
@@ -2222,7 +2251,20 @@ document.addEventListener('keydown',e=>{
   }
 },true);
 window.addEventListener('hashchange',()=>{state();render();});
-Promise.all([J(`/v1/sentences.json${VER}`),J(`/v1/summa.json${VER}`),J(`/v1/decks/texts.json${VER}`),J(`/v1/decks/canon.json${VER}`)])
-  .then(([sent,summa,texts,canonD])=>{if(!sent||!summa||!texts)throw new Error('decks');if(canonD)texts.works={...canonD.works,...texts.works};
-    D={sent,summa,texts,canon:canonD};state();if(S.r&&isPhone())show('b');render();})
-  .catch(()=>{PANE.a.innerHTML='<p class="note" style="padding:1rem 1.2rem">The decks could not be loaded. Reload the page to try again.</p>';});
+function boot(){
+  PANE.a.innerHTML='<div class="scroll"><p class="note">Loading the decks…</p></div>';
+  return Promise.all([J(`/v1/sentences.json${VER}`),J(`/v1/summa.json${VER}`),J(`/v1/decks/texts.json${VER}`),J(`/v1/decks/canon.json${VER}`)])
+    .then(([sent,summa,texts,canonD])=>{if(!sent||!summa||!texts)throw new Error('decks');if(canonD)texts.works={...canonD.works,...texts.works};
+      D={sent,summa,texts,canon:canonD};state();if(S.r&&isPhone())show('b');render();})
+    .catch(()=>{PANE.a.innerHTML=`<div class="scroll">${retryNote('The decks did not load.')}</div>`;});
+}
+// Try again: forget what failed, ask again for what is on the page
+function retryAll(){
+  NET.failed.clear();[META,FILES,TEIS,WMETA,WSHARD,QF].forEach(m=>m.clear());
+  PAIRP=null;Object.keys(GRIDP).forEach(k=>{if(!(D&&D.grids&&D.grids[k]))delete GRIDP[k];});
+  PL={key:''};SHOWN.a=SHOWN.b='';
+  if(!D)boot();else render();
+}
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-retry]')){e.preventDefault();retryAll();}});
+window.FRDecks={retry:retryAll,net:NET};
+boot();

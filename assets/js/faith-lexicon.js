@@ -6,7 +6,11 @@ const BLOB=(window.__FR_BLOB_BASE__||"").replace(/\/$/,"");
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fold=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu,' ').replace(/\s+/g,' ').trim();
-const J=u=>fetch(BLOB+u).then(r=>r.ok?r.json():null).catch(()=>null);
+// A file the library has not got (404) is null. One it could not be asked for (the network, a 5xx, a 429) is tried again twice first.
+const J=u=>{let n=0;const go=()=>fetch(BLOB+u).then(r=>{if(r.ok)return r.json();if(r.status===404||r.status===410)return null;throw new Error(String(r.status));})
+  .catch(()=>{if(++n<3)return new Promise(res=>setTimeout(res,350*n)).then(go);return null;});return go();};
+const RETRY='<button type="button" class="retry" data-retry>Try again</button>';
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-retry]'))location.reload();});
 // MereO hosts the same page with its own reader path (window.__FR_READER_PATH__ = '/the-faith-received/read/') and data address
 const READER=(window.__FR_READER_PATH__||'/read');
 const read=(w,p)=>`${READER}?w=${encodeURIComponent(w)}#b${encodeURIComponent(p)}-0`;
@@ -31,12 +35,16 @@ function histRows(h,from,to,last){let out='';
 async function showHistory(id,head){const box=$('#hist');if(!box)return;const h=await histOf(id);if(CUR!==id)return;
   if(!h||!h.rows.length){box.innerHTML='';return;}
   const dated=h.rows.map(r=>h.authors[r[2]]).filter(a=>a&&a[2]!=null),first=dated[0],last=dated[dated.length-1];
-  const span=first&&last&&first!==last?`, from ${esc(first[0])} to ${esc(last[0])}`:'';
+  const span=first&&last&&first!==last?` from ${esc(first[0])} to ${esc(last[0])}`:'';
   const [html,first40]=histRows(h,0,HSTEP,null);let lastC=first40,drawn=Math.min(HSTEP,h.rows.length);
-  box.innerHTML=`<h3 id="hist-h">How the library defines it <small>${nf(h.works)} ${h.works===1?'work':'works'}</small></h3><p class="hnote">${nf(h.works)} ${h.works===1?'work':'works'}${span}, the oldest first. Each line is a one-line English summary, made by machine, of how that page defines the term; open the page to read the author's own words.</p><div class="hpane" role="region" tabindex="0" aria-label="Every work that defines ${esc(head)}, the oldest first"><ol>${html}</ol></div>`;
+  box.innerHTML=`<h3 id="hist-h">How the library defines it <small>${nf(h.works)} ${h.works===1?'work':'works'}</small></h3><p class="hnote">${nf(h.works)} ${h.works===1?'work':'works'}${span}. Oldest first.</p>${window.TFRMethod?window.TFRMethod.html("<p>Each line is a one-line English summary made by machine. Open the page to read the author's own words.</p>"):''}<div class="hpane" role="region" aria-label="Every work that defines ${esc(head)}, the oldest first"><ol>${html}</ol></div>`;
   const pane=box.querySelector('.hpane'),ol=pane.querySelector('ol');
-  pane.addEventListener('scroll',()=>{if(drawn>=h.rows.length||pane.scrollTop+pane.clientHeight<pane.scrollHeight-500)return;
-    const [more,lc]=histRows(h,drawn,drawn+HSTEP,lastC);lastC=lc;drawn=Math.min(drawn+HSTEP,h.rows.length);ol.insertAdjacentHTML('beforeend',more);},{passive:true});}
+  // the list is part of the page, not a box of its own: more rows are drawn as the page scrolls toward its end
+  const more=()=>{
+    if(!pane.isConnected||drawn>=h.rows.length){removeEventListener('scroll',more);return;}
+    if(pane.getBoundingClientRect().bottom>innerHeight+600)return;
+    const [rows,lc]=histRows(h,drawn,drawn+HSTEP,lastC);lastC=lc;drawn=Math.min(drawn+HSTEP,h.rows.length);ol.insertAdjacentHTML('beforeend',rows);};
+  addEventListener('scroll',more,{passive:true});more();}
 const SIBS=new Map();
 /* the list scrolls itself to the term open, never the page */
 function keepInView(el){const l=el&&el.closest('.list');if(!l)return;const lr=l.getBoundingClientRect(),er=el.getBoundingClientRect();
@@ -74,7 +82,7 @@ async function showTerm(id,write){
   // an id merged into another entry (the duplicate headwords, 10-22): v1/lexicon/redirects.json names the entry that holds it now
   if(!t){if(REDIR===null)REDIR=(await J('/v1/lexicon/redirects.json'))||{};const to=REDIR[id];if(to&&to!==id){id=to;t=await J(`/v1/lexicon/terms/${encodeURIComponent(id)}.json`);}}
   if(seq!==TSEQ)return;
-  if(!t){$('#entry').innerHTML='<p class="muted">This term could not be loaded.</p>';return;}
+  if(!t){$('#entry').innerHTML=`<p class="muted">This term did not load. ${RETRY}</p>`;return;}
   CUR=id;document.querySelectorAll('#list button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.id===id)));
   keepInView($('#list [aria-current="true"]'));
   // opened by its address before any letter list loaded: the headword's letter file tells whether it is filed more than once
@@ -132,7 +140,7 @@ let findT=0;
 $('#q').addEventListener('input',()=>{clearTimeout(findT);const v=$('#q').value;if(fold(v).length<2)return;findT=setTimeout(()=>find(v,false),260);});
 $('#find').addEventListener('submit',e=>{e.preventDefault();clearTimeout(findT);find($('#q').value,true);});
 J('/v1/lexicon/index.json').then(async d=>{
-  if(!d){$('#entry').innerHTML='<p class="muted">The lexicon could not be loaded. Reload the page to try again.</p>';return;}
+  if(!d){$('#entry').innerHTML=`<p class="muted">The lexicon did not load. ${RETRY}</p>`;return;}
   // one row per alphabet: Greek capitals Α and Β are not the Latin A and B beside them
   const SCRIPTS=[['Latin and English',/^[a-zæœ]$/],['Greek',/^[Ͱ-Ͽἀ-῿]$/],['Hebrew',/^[֐-׿]$/]];
   const btn=([l,n])=>`<button type="button" data-l="${esc(l)}" aria-pressed="false" title="${nf(n)} terms">${esc(l.toUpperCase())}</button>`;
@@ -144,3 +152,5 @@ J('/v1/lexicon/index.json').then(async d=>{
   const want=decodeURIComponent(location.hash.slice(1));
   if(want)await showTerm(want,false);else if(d.top.length)await showTerm(d.top[0][0],false);
 });
+// an address typed or followed from another page opens its term without a reload
+addEventListener('hashchange',()=>{let id='';try{id=decodeURIComponent(location.hash.slice(1));}catch(_){id='';}if(id&&id!==CUR&&INDEX)showTerm(id,false);});

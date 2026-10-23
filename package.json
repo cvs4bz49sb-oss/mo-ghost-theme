@@ -38,6 +38,7 @@
     "check:ask": "node scripts/check-ask-selectors.mjs && node scripts/check-author-display.mjs && node scripts/check-room-corpora.mjs && node scripts/check-ask-cite-quote.mjs",
     "check:commentary-browser": "node scripts/check-commentary-browser.mjs",
     "check:commentary-pages": "node scripts/check-commentary-pages.mjs",
+    "check:decks": "node scripts/check-decks-panes.mjs",
     "check:commentary-pages:live": "node scripts/check-commentary-pages.mjs --live",
     "check:scripture-view": "node scripts/check-scripture-view.mjs",
     "check:verse-desk": "node scripts/check-verse-desk.mjs",

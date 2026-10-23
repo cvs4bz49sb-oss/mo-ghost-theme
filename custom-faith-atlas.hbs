@@ -3,7 +3,7 @@
 {{> "faith-received/_tfr-rail"}}
 {{#contentFor "moHead"}}
 <title>Disputed questions | The Faith Received | Mere Orthodoxy</title>
-<meta name="description" content="The classic disputed questions of theology, with every place the library treats them and each author's answer." />
+<meta name="description" content="Questions the schools and the confessions argued, with every place the library treats them and each author's answer." />
 <link rel=preconnect href="https://fonts.googleapis.com"><link rel=preconnect href="https://fonts.gstatic.com" crossorigin>
 <link rel=stylesheet href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap">
 <style>
@@ -146,18 +146,19 @@
 {{/contentFor}}
 {{!-- /the-faith-received/disputed-questions/: Disputed questions, as The Faith Received has it (tools/prdl_reader_prototype/atlas.html), in this site's
      shell: the hero is the theme's, the body and its script (faith-atlas.js) the library's, reading the library worker. --}}
-<section class="bhero bhero--tool">
+<section class="bhero bhero--tool bhero--desk">
   <div class="bhero-inner container">
     <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> Disputed questions</p>
-    <h1 class="bhero-title">The classic disputed questions</h1>
-    <p class="bhero-lede">The questions the schools and the confessions argued, from whether God's existence can be demonstrated to whether the saints are to be invoked. Each lists the authors in the library who answer it, what each answers in his own terms, and the pages where he says it.</p>
+    <h1>Disputed questions</h1>
+    <p class="bhero-sub">Questions the schools and the confessions argued. Open one to see who answered it and on which pages.</p>
   </div>
 </section>
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
-<main class="tfr-tool"><div class="wrap">
+<main class="tfr-tool tfr-atlas"><div class="wrap">
   <div class="cols"><nav aria-label="Questions by locus"><div class="loci" id="loci"><p class="muted">Loading…</p></div></nav><article class="q" id="q" aria-live="polite"></article></div>
 
 </div></main>
 <link rel="stylesheet" href="{{asset "css/port/work-hub.css"}}&amp;frv=0374a552e8452478"><script src="{{asset "js/port/page-window.js"}}&amp;frv=2023bacb69cf7ee4"></script>
 <link rel="stylesheet" href="{{asset "css/port/tradition-graphics.css"}}&amp;frv=cc8cf6f7c7831d99"><script src="{{asset "js/port/tradition-graphics.js"}}&amp;frv=3780efc0f7559ddf"></script>
-<script src="{{asset "js/faith-atlas.js"}}&amp;frv=313711799e0dd109"></script>
+<link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
+<script src="{{asset "js/faith-atlas.js"}}&amp;frv=e9436b620c93c8a0"></script>
