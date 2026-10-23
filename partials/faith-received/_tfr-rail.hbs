@@ -48,9 +48,6 @@
         <div class="tfr-rail-drawer" id="tfrDrawerRead" data-tfr-drawer-for="read" hidden>
           <a href="/the-faith-received/curated/">Curated</a>
           <a href="/the-faith-received/all-works/?collection=all">Full Library</a>
-          {{!-- The works that can be read beside the printed page
-               (Ian, 2026-09-24). --}}
-          <a href="/the-faith-received/scans/">Page Scans</a>
           {{!-- Every author in the library, by shelf (Ian, 2026-09-24). --}}
           <a href="/the-faith-received/authors/">Authors</a>
           {{!-- The library by church: an overview of each tradition with
@@ -65,11 +62,6 @@
                work in, so it sits with the other two ways into the text
                rather than among the research tools. --}}
           <a href="/the-faith-received/dictionary/">Dictionary</a>
-          {{!-- Two more books to look things up in (2026-10-20): the terms as
-               the authors themselves define them, and one index for a whole
-               edition (the Weimar Luther, Migne, every set of volumes). --}}
-          <a href="/the-faith-received/lexicon/">Lexicon</a>
-          <a href="/the-faith-received/set-index/">Set Indexes</a>
         </div>
       </li>
 
@@ -97,13 +89,20 @@
                questions with each author's answer (2026-10-20). --}}
           <a href="/the-faith-received/commentary-decks/">Commentary Decks</a>
           <a href="/the-faith-received/disputed-questions/">Disputed Questions</a>
+          {{!-- Moved from Read (Ian, 2026-10-23: "Lexicon, Set Indexes, Page
+               Scans all need to be moved to Research"). Page Scans: the works
+               that can be read beside the printed page. Lexicon: the terms as
+               the authors define them. Set Indexes: one index for a whole edition. --}}
+          <a class="tfr-rail-cluster" href="/the-faith-received/lexicon/">Lexicon</a>
+          <a href="/the-faith-received/set-index/">Set Indexes</a>
+          <a href="/the-faith-received/scans/">Page Scans</a>
           {{!-- Was /the-faith-received/pins/, which is the ported
                notebook and a different store from the Bookmarks panel on
                the Research desk. Ian, 2026-09-22: "Bookmark and Notebook
                in the navrail need to be the same thing as those on the
                research page." Both items now name the same two panels
                the Research desk shows; /pins/ forwards here as well. --}}
-          <a href="/the-faith-received/research/#bookmarks" data-feature-gate="tfr-bookmarks">Bookmarks</a>
+          <a class="tfr-rail-cluster" href="/the-faith-received/research/#bookmarks" data-feature-gate="tfr-bookmarks">Bookmarks</a>
           <a href="/the-faith-received/research/#notebook" data-feature-gate="tfr-notebook">Notebook</a>
           <a href="/the-faith-received/desk/" data-feature-gate="tfr-desk">Desk</a>
         </div>

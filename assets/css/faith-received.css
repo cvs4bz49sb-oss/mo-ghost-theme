@@ -18101,6 +18101,15 @@ a.fr-btn:hover,
   text-decoration: none;
 }
 .tfr-rail-drawer a[aria-current="page"] { color: var(--color-secondary, #c1593c); }
+/* THE RESEARCH DRAWER HAS TWELVE LINKS, in three kinds: the tools, the
+   books to look things up in (Lexicon, Set Indexes, Page Scans), and
+   the reader's own things (Bookmarks, Notebook, Desk). Spacing only, no
+   rules or boxes: an extra 14px before the first link of each kind. A
+   phone's drawer is a dropped column, where this margin would indent, so
+   it is desktop and tablet only. */
+@media (min-width: 641px) {
+  .tfr-rail-drawer a.tfr-rail-cluster { margin-left: 14px; }
+}
 
 /* THAT THE RAIL SCROLLS HAS TO BE VISIBLE. With Research open the line
    runs past the viewport, and nothing said so: the row simply ended.
