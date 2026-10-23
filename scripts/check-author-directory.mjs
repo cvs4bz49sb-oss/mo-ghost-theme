@@ -16,7 +16,7 @@ const B = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/130 Safari/537.36";
 const j = async (u) => { const r = await fetch(u, { headers: { "user-agent": UA } }); if (!r.ok) throw new Error(`${r.status} ${u}`); return r.json(); };
 await import(new URL("../assets/js/port/author-address.js", import.meta.url));
-const { fold, plain, words, years, slug } = globalThis.MOAuthorAddress;
+const { fold, plain, words, years, slug, unnamed, bare, numerals } = globalThis.MOAuthorAddress;
 const DIR = new URL("../assets/data/faith-received/authors/", import.meta.url);
 const read = (f) => JSON.parse(readFileSync(new URL(f, DIR), "utf8"));
 const names = read("names.json").names;
@@ -33,11 +33,15 @@ for (const e of rosters) {
   const w = words(e.a); if (!roomWords.has(w)) roomWords.set(w, []); roomWords.get(w).push(e);
 }
 
-// The page's order: rosters by fold, rosters by words (year-checked), directory.
+// The page's order: rosters by fold, rosters by words (year-checked), directory. A designation that names nobody
+// ("Uncertain author (Bede?)") meets the rosters under its whole name only, a bare one ("Anonymous") not at all, and a
+// match by words agrees on a regnal number (author-address.js, 2026-10-23).
 function resolve(a) {
   const pl = plain(a), ys = years(a);
-  for (const f of [fold(a), fold(pl)]) if (roomFold.has(f)) return `room ${roomFold.get(f).s}`;
-  const by = roomWords.get(words(pl)) || [];
+  const nobody = unnamed(a) || unnamed(pl);
+  const rosters = !bare(a);
+  if (rosters) for (const f of nobody ? [fold(a)] : [fold(a), fold(pl)]) if (roomFold.has(f)) return `room ${roomFold.get(f).s}`;
+  const by = rosters && !nobody ? (roomWords.get(words(pl)) || []).filter((e) => numerals(e.a) === numerals(pl)) : [];
   if (by.length) {
     let best = by[0];
     if (by.length > 1 && ys.length) {
@@ -81,6 +85,19 @@ for (const a of all) {
     if (!resolve(shape)) fails.push(shape === a ? a : `${a}  (folded: ${shape})`);
   }
 }
+// Names that once opened someone else's room (Ian, 2026-10-23: "for migne we name pelagius but clicking we get to
+// uncertain author"): each must land where its name says, or at least not in the room it used to reach.
+const RULES = [
+  ["Uncertain author (Jerome of Stridon?)", (r) => !/^room /.test(r || "")],
+  ["Uncertain author", (r) => !/^room /.test(r || "")],
+  ["uncertainauthor", (r) => !/^room /.test(r || "")],
+  ["Anonymous", (r) => !/^room /.test(r || "")],
+  ["Anonymous (Paschal Chronicle)", (r) => r === "room anonymous-paschal-chronicle"],
+  ["Pelagius", (r) => /^room (pl\/)?pelagius$/.test(r || "")],
+  ["Pelagius the Heresiarch", (r) => /^room (pl\/)?pelagius$/.test(r || "")],
+  ["Pelagius I", (r) => !/^room (pl\/)?pelagius$/.test(r || "")],
+];
+for (const [a, ok] of RULES) if (!ok(resolve(a))) fails.unshift(`${a}  (lands on ${resolve(a) || "no page"}, against the rule)`);
 const ownKeys = Object.keys(people).length;
 console.log(`${all.size.toLocaleString()} distinct author names (${n.toLocaleString()} link shapes); ${rosters.length} rooms; ${ownKeys.toLocaleString()} directory pages`);
 console.log(`${fails.length} names reach no page`);

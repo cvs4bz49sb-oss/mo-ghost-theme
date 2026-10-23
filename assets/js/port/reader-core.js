@@ -8414,6 +8414,16 @@ async function loadWork(ws){
     // on the classic path below the early returns — Latin h1 on every canon work)
     try{if(!_EN_TITLES)_EN_TITLES=await jfetch(BLOB+"/v1/titles_en.json"+(window.__FR_VER?("?v="+window.__FR_VER):""),1);}catch(e){_EN_TITLES=_EN_TITLES||{};}
     D.title_en=(_EN_TITLES&&_EN_TITLES[ws])||D.title_en||"";
+    // THE CATALOGUE'S AUTHOR (10-23, Ian: "for migne we name pelagius but clicking we get to uncertain author"): the TEI header
+    // carries Migne's attribution (pld-2269: "Auctor incertus (Hieronymus Stridonensis?)"), while the library, the lexicon, the
+    // Scripture rails and the rooms name the catalogue's person (Pelagius). v1/reader-authors.json (The Faith Received,
+    // runs/acct20/pelagius_1023/reader_authors.py) names him for every PL, PG and PO work where the two differ: [name, bio key]
+    // where his life is filed otherwise.
+    if(/^(pld|pg|po)-\d+$/.test(ws)){try{
+      const ra=await ((window.__frEarly&&window.__frEarly.auCat)||jfetch(BLOB+"/v1/reader-authors.json"+(window.__FR_VER?("?v="+window.__FR_VER):""),1));
+      const o=ra&&ra.a&&ra.a[ws];
+      if(o){const [n,b]=Array.isArray(o)?o:[o,null];if(n){D.author=n;D.author_la=b||undefined;}}
+    }catch(e){}}
     return D;
   }
   const base=BLOB+"/v1/works/"+encodeURIComponent(ws);

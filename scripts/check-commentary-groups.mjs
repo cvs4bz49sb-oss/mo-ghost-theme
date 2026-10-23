@@ -66,7 +66,8 @@ for (const [slug, c] of CHAPTERS) {
   let dupes = [];
   for (const [k, e] of rows) {
     if (!isFirm(e)) continue;
-    const key = strip(nameOf(e));
+    // a whole-Bible set (sets.json, 2026-10-23) has its own row: Poole's Synopsis and his Annotations are two sets of one author
+    const key = e.setId ? `set:${e.setId}` : strip(nameOf(e));
     if (seen.has(key)) dupes.push(`${nameOf(e)} (${seen.get(key)} and ${k})`); else seen.set(key, k);
   }
   ok(!dupes.length, `${label}: one row per author across the four lists${dupes.length ? ` -- ${dupes.slice(0, 4).join('; ')}` : ''}`);

@@ -536,14 +536,14 @@
       // when that script is absent, fails, or has nothing to show for the verse, so the desk never loses its reception history.
       const placeReception = () => {
         if ($desk.querySelector("#sd-h-reads")) return;
-        const $trans = $desk.querySelector('[aria-labelledby="sd-h-trans"]');
+        const $trans = $desk.querySelector('[aria-labelledby="sd-h-trans"]'), $place = $desk.querySelector("[data-vd-place]");
         const html = `<section class="sd-desk-sec fr-sn-desk" aria-labelledby="sd-h-reads" data-fr-sn="verse">
         <h2 class="sd-h2" id="sd-h-reads">Reception history of ${esc(label)}</h2>
         ${parts.deskHistory || ""}
         ${parts.readings ? `<h3 class="sd-h3">Readings</h3><div class="fr-sn-desk-readings">${parts.readings}</div>` : ""}
         ${parts.disputes ? `<h3 class="sd-h3">Points in dispute</h3><div class="fr-sn-desk-disputes">${parts.disputes}</div>` : ""}
         ${method(`<p>${[parts.deskHistory ? REC_NOTE : "", parts.readings || parts.disputes ? parts.readingsNote : ""].filter(Boolean).join(" ")}</p>`)}</section>`;
-        if ($trans) $trans.insertAdjacentHTML("afterend", html); else $desk.insertAdjacentHTML("beforeend", html);
+        if ($place) $place.insertAdjacentHTML("beforeend", html); else if ($trans) $trans.insertAdjacentHTML("afterend", html); else $desk.insertAdjacentHTML("beforeend", html);
         const $toc = $desk.querySelector("[data-sd-toc-reads]");
         if ($toc) $toc.hidden = false;
       };

@@ -117,7 +117,7 @@ const MEASURE = `((sel) => {
   if (!root) return { error: "no container" };
   const vw = document.documentElement.clientWidth;
   const desc = (el) => { if (!el) return "?"; const c = (typeof el.className === "string" ? el.className : (el.className && el.className.baseVal) || "").trim().split(/\\s+/).filter(Boolean).slice(0, 2).join("."); return el.tagName.toLowerCase() + (c ? "." + c : ""); };
-  const hiddenUp = (el) => { for (let e = el; e && e !== root.parentElement; e = e.parentElement) { const cs = getComputedStyle(e); if (e.hidden || cs.display === "none" || cs.visibility === "hidden" || parseFloat(cs.opacity) < 0.05) return true; if (e.tagName === "DETAILS" && !e.open && !el.closest("summary")) return true; if (cs.clip !== "auto" && cs.position === "absolute" && /rect\\(0/.test(cs.clip)) return true; if (/inset\\(50%\\)/.test(cs.clipPath)) return true; } return false; };
+  const hiddenUp = (el) => { for (let e = el; e && e !== root.parentElement; e = e.parentElement) { const cs = getComputedStyle(e); if (e.hidden || cs.display === "none" || cs.visibility === "hidden" || parseFloat(cs.opacity) < 0.05) return true; if (e.tagName === "DETAILS" && !e.open && !(el.closest("summary") && el.closest("summary").parentElement === e)) return true; if (cs.clip !== "auto" && cs.position === "absolute" && /rect\\(0/.test(cs.clip)) return true; if (/inset\\(50%\\)/.test(cs.clipPath)) return true; } return false; };
   const texts = [];
   const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   while (tw.nextNode()) {

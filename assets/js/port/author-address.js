@@ -30,6 +30,19 @@
  *   4. a name nobody has written is handed to faith-author-page.js too,
  *      which says so and offers the nearest authors. Never a search bounce.
  *
+ * Ian, 2026-10-23: "for migne we name pelagius but clicking we get to
+ * uncertain author. fix this and elsewhere." The reader linked
+ * "Uncertain author (Jerome of Stridon?)", plain() took the bracket
+ * off, and the rosters' one room called "Uncertain author", a single
+ * Greek work's, answered for every uncertain author in the library.
+ * Now a designation that names nobody ("Unknown author ...",
+ * "Anonymous (Paschal Chronicle)", "Various Popes") reaches a room only
+ * under its whole name, never by its plain form or its words, and a
+ * bare one ("Uncertain author", "Anonymous") never reaches a room: the
+ * directory's page under that name lists every such work. A match by
+ * words must also agree on a regnal number: "Pelagius I", the pope, is
+ * not Pelagius.
+ *
  * The name rules are exported as window.MOAuthorAddress so the build
  * script and the page run the very same functions.
  * An external file because the site's CSP forbids inline scripts.
@@ -52,15 +65,25 @@
   };
   var words = function (s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").split(/[^a-z]+/).filter(function (w) { return w.length > 1; }).sort().join(" "); };
   var slug = function (s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); };
+  // A designation that names nobody: any name that begins "Unknown",
+  // "Uncertain", "Anonymous", "Various" or "Unattributed", and the bare
+  // forms (folded) that name no one at all.
+  var UNNAMED = /^(?:unknown|anonymous|anonymus|uncertain|various|unattributed)\b/i;
+  var BARE = /^(?:anon|anonymous|anonymus|anonymousauthors?|unknown|unknownauthors?|uncertain|uncertainauthors?|various|variousauthors|unattributed|authornotrecorded|incertus|incerti|auctorincertus|scriptorincertus)$/;
+  var unnamed = function (s) { return UNNAMED.test(String(s || "").replace(/^[\s[(]+/, "")); };
+  var bare = function (s) { return BARE.test(fold(s)); };
+  // A regnal number: words() drops a one-letter word, so "Pelagius I"
+  // and "Pelagius" share their words; their numbers tell them apart.
+  var numerals = function (s) { return (String(s || "").match(/\b[ivx]+\b/gi) || []).join(" ").toLowerCase(); };
   var DIRECTORY = "/assets/data/faith-received/authors/";
   // The directory's content hash, rewritten by build-author-directory.mjs.
   // Ghost serves /assets/** for a year and the theme's own ?v= does not
   // change when only data does, so the data carries its own version. It
   // must be the `v` parameter: the CDN drops any other query string from
   // its cache key and would serve the first copy it ever cached.
-  var DATA_V = "c228649dec91";
+  var DATA_V = "eefb653c2d6f";
   var dataUrl = function (f) { return DIRECTORY + f + "?v=" + DATA_V; };
-  var api = { fold: fold, plain: plain, words: words, years: years, slug: slug, DATE_PART: DATE_PART, DIRECTORY: DIRECTORY, dataUrl: dataUrl };
+  var api = { fold: fold, plain: plain, words: words, years: years, slug: slug, unnamed: unnamed, bare: bare, numerals: numerals, UNNAMED: UNNAMED, BARE: BARE, DATE_PART: DATE_PART, DIRECTORY: DIRECTORY, dataUrl: dataUrl };
   root.MOAuthorAddress = api;
   if (typeof location === "undefined" || typeof document === "undefined") return;
 
@@ -70,8 +93,13 @@
     if (!a || location.hash) return;
     var ys = years(a);
     var pl = plain(a);
-    var wantFolds = [fold(a), fold(pl)];
-    var wantWords = words(pl);
+    // A designation is matched under its whole name only: its plain form
+    // ("Uncertain author" for "Uncertain author (Bede?)") and its words
+    // would find a room of that bare name, someone else's work.
+    var nobody = unnamed(a) || unnamed(pl);
+    var wantFolds = nobody ? [fold(a)] : [fold(a), fold(pl)];
+    var wantWords = nobody ? "" : words(pl);
+    var wantNumerals = numerals(pl);
     // The page script waits on this; it resolves to the directory target
     // ("@key", "@@base") or "" for a name the library does not know.
     var miss = null;
@@ -91,6 +119,9 @@
         miss(t || "?");
       });
     };
+    // A bare designation ("Uncertain author", "Anonymous") names no one,
+    // whatever room bears it: the directory's page lists every such work.
+    if (bare(a)) { toDirectory(); return; }
     var B = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
     var NS = ["pl", "gf", "po", "ed", "md", "rc", "lu", "rf", "hl"];
     Promise.all(NS.map(function (ns) {
@@ -103,7 +134,7 @@
         for (var j = 0; j < d.authors.length; j++) {
           var e = d.authors[j];
           if (wantFolds.indexOf(fold(e.s)) >= 0 || wantFolds.indexOf(fold(e.a)) >= 0) { location.hash = e.s; return; }
-          if (wantWords && words(e.a) === wantWords) byWords.push(e);
+          if (wantWords && words(e.a) === wantWords && numerals(e.a) === wantNumerals) byWords.push(e);
         }
       }
       if (byWords.length) {

@@ -56,62 +56,17 @@
   const label = S.refLabel(book, c, v);
   document.title = `${label} | Verse Desk | The Faith Received | Mere Orthodoxy`;
 
-  // The commentary lists' names: on this chapter, on the book, on the whole Bible (2026-10-15).
-  const COMM_NAMES = S.commentaryTitles(book, c);
-  // The deuterocanon is in none of the four translations, and mo-bible
-  // has no book number for it, so that section is replaced by the one
-  // line that says so rather than left as four rows that all fail.
-  const transSection = book.ap
-    ? `<section class="sd-desk-sec" aria-labelledby="sd-h-trans">` +
-        `<h2 class="sd-h2" id="sd-h-trans">The text</h2>` +
-        `<p class="sd-muted">${esc(S.APOCRYPHA_TEXT)}, from the library's own index. The four translations this reader offers do not carry the deuterocanon.</p>` +
-      `</section>`
-    : `<section class="sd-desk-sec" aria-labelledby="sd-h-trans">` +
-        `<h2 class="sd-h2" id="sd-h-trans">In four translations</h2>` +
-        `<dl class="sd-parallel" data-sd-parallel></dl>` +
-      `</section>`;
-
+  /* THE VERSE DESK, SHARED WITH THE FAITH RECEIVED (2026-10-22, the owner: "do a whole design restructuring and graphics pass and ui and
+   * collapsibility and organizational pass on verse deck"; "make sure its both mereo and tfr"). scripture-verse-desk.js draws, word for
+   * word as The Faith Received's desk draws it: the verse (the translation beside it, the verses before and after as arrows, the four
+   * translations a press away), who treats it as one band of graphics (the authors by tradition and century, the landmark commentators
+   * named on it, the kinds as a bar that filters), then folded groups, one open at a time: the landmark commentaries, the others by
+   * tradition, the homilies and sermons, the hymns, and the citations, each row opening in place to the work's passage on the verse.
+   * This page's own citation tools (the charts, filters and every citation from the citation worker) are the citations' Browse sources;
+   * the verse's modules (verse-desk.js), the similar passages and Ask follow. */
   $root.innerHTML =
-    `<header class="sd-desk-head">` +
-      `<h2 class="sd-desk-title">${esc(label)}</h2>` +
-      `<blockquote class="sd-desk-verse" data-sd-verse><span class="sd-muted">Loading the verse…</span></blockquote>` +
-      `<p class="sd-desk-trans sd-muted" data-sd-verse-trans></p>` +
-      `<nav class="sd-desk-nav" aria-label="Verse navigation">` +
-        `<a data-sd-prev hidden>Previous verse</a>` +
-        `<a href="${esc(S.readerHref(book, c, v, tParam))}">Back to ${esc(S.refLabel(book, c))}</a>` +
-        `<a data-sd-next hidden>Next verse</a>` +
-      `</nav>` +
-    `</header>` +
-    // The page runs long (ten screens on Romans 5:12): its sections by name, under the verse. The reception history's link
-    // appears when faith-port-scripture-notes.js places that section.
-    `<nav class="sd-desk-toc" aria-label="On this page"><span>On this page:</span>` +
-      `<a href="#sd-h-trans">${book.ap ? "The text" : "Translations"}</a>` +
-      `<a href="#sd-h-reads" data-sd-toc-reads hidden>Reception history</a>` +
-      `<a href="#sd-h-comm">Commentaries</a><a href="#sd-h-cite">Citations</a><a href="#sd-h-sim">Similar passages</a><a href="#sd-h-ask">Ask</a>` +
-    `</nav>` +
-
-    `${transSection}` +
-
-    /* The corpus owner's order (2026-09-25: "display first the chapter commentaries + whole bible
-     * commentaries and the specific citations … and then similarity for verse desk"; "groupings by
-     * author, work, etc and even when the same work might cite the same passage over many pages";
-     * "allow the collapsing or expansion without going to a new link"): his two commentary lists,
-     * the citations grouped by author and then work, similar passages, then Ask. Every section folds
-     * in place. The two commentary lists start closed, with their counts, and every commentary
-     * previews in place, as on the verse panel (2026-09-25: "for desk make same thing preview for
-     * each"). */
-    `<section class="sd-desk-sec" aria-labelledby="sd-h-comm">` +
-      `<h2 class="sd-h2" id="sd-h-comm">Commentaries</h2>` +
-      `${method("<p>The commentaries with their own note on this verse come first. Then come the commentaries on the book by tradition and the commentaries on the whole Bible. Last are the commentaries on other books that cite this chapter. Preview any of them without leaving the desk.</p>")}` +
-      `<div data-sd-verse-comm></div>` +
-      `<div class="sd-collection-index" data-sd-commentary-index>${["book", "whole", "cited", "other"].map((k) =>
-        `<button type="button" class="sd-index-card" data-sd-commentary-tab="${k}" aria-expanded="false"><span>${esc(COMM_NAMES[k])}</span><small data-sd-comm-n="${k}">Loading…</small></button>`).join("")}</div>${ 
-      ["book", "whole", "cited", "other"].map((k) =>
-        `<section class="sd-expand-panel sd-commentary-panel" data-sd-commentary-panel="${k}" hidden><header><div><h3>${esc(COMM_NAMES[k])}</h3><p data-sd-comm-meta="${k}"></p></div><button type="button" class="sd-panel-close" data-sd-commentary-close aria-label="Close commentary collection">×</button></header><div data-sd-comm-body="${k}"><p class="sd-muted" role="status">Loading commentaries…</p></div></section>`).join("") 
-    }</section>` +
-
-    `<section class="sd-desk-sec" aria-labelledby="sd-h-cite">` +
-      `<h2 class="sd-h2" id="sd-h-cite">Citations</h2>` +
+    `<div class="sd-vdb" data-sd-vdb></div>` +
+    `<div class="sd-cite-tools" data-sd-cite-tools hidden>` +
       `<p class="sd-count" data-sd-count><span class="sd-muted">Counting citations…</span></p>` +
       `<div class="sd-charts" data-sd-charts></div>` +
       `<div data-sd-filters></div>` +
@@ -122,7 +77,9 @@
       `<div class="sd-kinds" data-sd-kinds hidden></div>` +
       `<div class="sd-groups" data-sd-rows></div>` +
       `<button type="button" class="sd-more" data-sd-more hidden>Show more</button>` +
-    `</section>` +
+    `</div>` +
+    // the verse's modules (verse-desk.js) are placed here
+    `<div data-vd-place></div>` +
 
     `<section class="sd-desk-sec" aria-labelledby="sd-h-sim">` +
       `<h2 class="sd-h2" id="sd-h-sim">Similar passages</h2>` +
@@ -152,9 +109,7 @@
       `</form>` +
     `</section>`;
 
-  // ── The verse, its neighbours, and four translations ──────────
-  const $verse = $root.querySelector("[data-sd-verse]");
-  const $verseTrans = $root.querySelector("[data-sd-verse-trans]");
+  // ── The verse, its neighbours, and four translations: drawn by the shared desk ──
   const short = S.textShort(book, t);
   /* A canonical verse is read out of its chapter, which the Desk needs
    * anyway for the parallel translations. An apocryphal one is not: the
@@ -171,62 +126,63 @@
   verseAndLast.then((d) => {
     const text = d.text || "";
     deskVerseText = text;
-    $verse.textContent = text || `${label} is not in the ${short}.`;
-    $verseTrans.textContent = S.textName(book, t);
     const $ask = $root.querySelector("#sd-ask-q");
-    if (!$ask.value) {
+    if ($ask && !$ask.value) {
       const quote = text.length > 240 ? `${text.slice(0, 240).replace(/\s+\S*$/, "")}…` : text;
       $ask.value = `What does the historic Christian tradition say about ${label}${quote ? ` (“${quote}”)` : ""}?`;
     }
-    neighbours(d.last || 0);
-  }).catch(() => {
-    $verse.innerHTML = `<span class="sd-muted">The verse did not load in the ${esc(short)}.</span>`;
-    neighbours(0);
-  });
+  }).catch(() => { /* the desk says the verse did not load */ });
 
-  // Previous and next cross chapter and book boundaries the same way the
-  // reader's arrows do. The last verse of a chapter is only known once
-  // the chapter has loaded; without it, Next steps to the next verse and
-  // the page there says if it does not exist.
-  function neighbours(last) {
-    const $p = $root.querySelector("[data-sd-prev]");
-    const $n = $root.querySelector("[data-sd-next]");
-    const chain = S.chainOf(book);
-    const at = chain.indexOf(book);
-    let prev = null;
-    if (v > 1) prev = [book, c, v - 1];
-    else if (c > 1) prev = [book, c - 1, 0];
-    else if (at > 0) { const b = chain[at - 1]; prev = [b, b.chapters, 0]; }
-    let next = null;
-    if (!last || v < last) next = [book, c, v + 1];
-    else if (c < book.chapters) next = [book, c + 1, 1];
-    else if (at < chain.length - 1) next = [chain[at + 1], 1, 1];
-    // The last verse of the previous chapter is not known here, so that
-    // step goes to the chapter in the reader rather than to a guess.
-    if (prev) {
-      window.MOSafeHref.set($p, prev[2] ? S.deskHref(prev[0], prev[1], prev[2], tParam) : S.readerHref(prev[0], prev[1], 0, tParam));
-      $p.textContent = prev[2] ? `Previous: ${S.refLabel(prev[0], prev[1], prev[2])}` : `Previous: ${S.refLabel(prev[0], prev[1])}`;
-      $p.hidden = false;
+  // Previous and next cross chapter and book boundaries as the reader's arrows do; inside the chapter the desk steps itself. The last
+  // verse of the previous chapter is not known here, so that step goes to the chapter in the reader rather than to a guess.
+  const chain = S.chainOf(book), at = chain.indexOf(book);
+  const step = (dir) => {
+    if (dir < 0) {
+      if (c > 1) return { href: S.readerHref(book, c - 1, 0, tParam), label: S.refLabel(book, c - 1) };
+      if (at > 0) { const b = chain[at - 1]; return { href: S.readerHref(b, b.chapters, 0, tParam), label: S.refLabel(b, b.chapters) }; }
+      return null;
     }
-    if (next) {
-      window.MOSafeHref.set($n, S.deskHref(next[0], next[1], next[2], tParam));
-      $n.textContent = `Next: ${S.refLabel(next[0], next[1], next[2])}`;
-      $n.hidden = false;
-    }
-  }
-
-  const $parallel = $root.querySelector("[data-sd-parallel]");
-  if ($parallel) {
-    $parallel.innerHTML = S.TRANSLATIONS.map((x) =>
-      `<div class="sd-parallel-row"><dt title="${esc(x[2])}">${esc(x[1])}</dt><dd data-code="${esc(x[0])}"><span class="sd-muted">Loading…</span></dd></div>`,
-    ).join("");
-    S.TRANSLATIONS.forEach((x) => {
-      const $dd = $parallel.querySelector(`dd[data-code="${x[0]}"]`);
-      S.fetchVerseText(x[0], book, c, v)
-        .then((txt) => { $dd.textContent = txt || "Not in this translation."; })
-        .catch(() => { $dd.innerHTML = `<span class="sd-muted">Did not load.</span>`; });
+    if (c < book.chapters) return { href: S.deskHref(book, c + 1, 1, tParam), label: S.refLabel(book, c + 1, 1) };
+    if (at < chain.length - 1) { const b = chain[at + 1]; return { href: S.deskHref(b, 1, 1, tParam), label: S.refLabel(b, 1, 1) }; }
+    return null;
+  };
+  // a page this desk sends the reader to (another translation): a link followed, the same way as every other link here
+  const follow = (href) => { const a = document.createElement("a"); if (window.MOSafeHref) window.MOSafeHref.set(a, href); else a.setAttribute("href", href); document.body.append(a); a.click(); a.remove(); };
+  // The library's data on its worker; the drawings' author dates are read from it too (tradition-graphics.js reads __FR_BLOB_BASE__).
+  const deskLibMeta = document.querySelector('meta[name="tfr-library-base"]');
+  window.__FR_BLOB_BASE__ = window.__FR_BLOB_BASE__ || ((deskLibMeta && deskLibMeta.content) || "https://mo-tfr-library.mo-podcast-feed.workers.dev").replace(/\/$/, "");
+  const $citeTools = $root.querySelector("[data-sd-cite-tools]");
+  const deskParams = new URLSearchParams(location.search);
+  const VD = window.FRVerseDesk;
+  if (VD) {
+    VD.mount($root.querySelector("[data-sd-vdb]"), {
+      base: window.__FR_BLOB_BASE__, site: "mo", book: { slug: book.lib, name: book.name }, ch: c, verse: v, verses: [],
+      text: () => verseAndLast.then((d) => d.text || `${label} is not in the ${short}.`),
+      translation: book.ap ? { name: S.APOCRYPHA_TEXT } : { code: t, name: S.textName(book, t), options: S.TRANSLATIONS.map((x) => [x[0], x[1], x[2]]),
+        set(code) { S.rememberTranslation(code); follow(S.deskHref(book, c, v, code === "ESV" ? "" : code)); } },
+      compare: book.ap ? null : () => Promise.all(S.TRANSLATIONS.map((x) => S.fetchVerseText(x[0], book, c, v)
+        .then((text) => ({ label: x[1], title: x[2], text })).catch(() => ({ label: x[1], title: x[2], text: "" })))),
+      read: (slug, p) => S.sourceHref(`/read?w=${slug}#b${p}-0`, slug, p),
+      // beside the text: the Scripture reader at the verse, the commentary pane opened on this work (commentary-pane.js reads cp)
+      beside: (slug, vv) => `${S.readerHref(book, c, vv, tParam)}&cp=${encodeURIComponent(slug)}`,
+      chapterHref: (vv) => S.readerHref(book, c, vv, tParam),
+      deskHref: (vv) => S.deskHref(book, c, vv, tParam),
+      step,
+      state: { g: deskParams.has("g") ? deskParams.get("g") : null, r: deskParams.get("r") || "" },
+      // the open group and row in the address, as on The Faith Received (?ref=romans.5.12&g=landmark&r=…)
+      onState({ g, r }) {
+        try {
+          const u = new URL(location.href);
+          if (g != null) u.searchParams.set("g", g); else u.searchParams.delete("g");
+          if (r) u.searchParams.set("r", r); else u.searchParams.delete("r");
+          history.replaceState(history.state, "", `${u.pathname}${u.search}${u.hash}`);
+        } catch (err) { /* the address is left as it is */ }
+      },
+      // Browse sources: this page's citation tools, moved into the citations' fold; Compare passages: the shared desk's own
+      tools: { browse(el) { if ($citeTools.parentElement !== el) el.append($citeTools); $citeTools.hidden = false; }, compare: "builtin" },
+      method,
     });
-  }
+  } else $citeTools.hidden = false;
 
   // ── Citations ─────────────────────────────────────────────────
   const $count = $root.querySelector("[data-sd-count]");
@@ -417,6 +373,7 @@
     S.commentaryRowsWithMore($ol, items, ctx, S.INITIAL_ROWS[key] || 9);
   };
   const $commentaryIndex = $root.querySelector("[data-sd-commentary-index]");
+  if ($commentaryIndex) {
   const setCommentaryPanel = (name) => {
     $commentaryIndex.querySelectorAll("[data-sd-commentary-tab]").forEach((button) => {
       button.setAttribute("aria-expanded", String(button.dataset.sdCommentaryTab === name));
@@ -449,6 +406,7 @@
   }).catch(() => {
     $root.querySelectorAll("[data-sd-comm-body]").forEach(($b) => { $b.innerHTML = `<p class="sd-muted">Commentaries did not load.</p>`; });
   });
+  }
 
   // ── Kinds: quotes, cites, alludes ─────────────────────────────
   // Corpus owner, 2026-09-25: "verses should include citations allusion classification". Each row
