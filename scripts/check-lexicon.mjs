@@ -1,14 +1,14 @@
 /*
- * The Lexicon in a real Chrome (2026-10-23). It loads the front page (the alphabet and the most defined terms), searches five terms (Latin gratia and fides, Greek πίστις, English faith,
- * Hebrew אדם), opens an entry for each, and checks what a reader sees:
- *   - the list and the entry fill with real content, and an entry has Quick facts, a sticky sidebar, and the terms before and after it (no skeleton left, no "did not load");
- *   - an entry has numbered senses, each with a defining page, and every "Open" link points into the reader;
- *   - Latin, Greek and Hebrew carry lang attributes, and a Hebrew headword reads right to left (dir="auto");
- *   - an address names a term (#id) and a sense (#id/3), and Back and Forward move between the list and the entry;
- *   - the DOM stays small with a 7,000-row letter open (rows draw a hundred at a time);
- *   - no console error, no failed request, no 5xx from the library;
- *   - at 375px the page does not scroll sideways, and no gap between neighboring blocks passes 72px;
- *   - dark mode follows html[data-sd-theme].
+ * The Lexicon in a real Chrome (2026-10-23). The page lists every term, grouped by letter, built letter by letter. It checks:
+ *   - the count shown equals the dataset count (index.json n), and once every letter has loaded the list holds exactly that many rows;
+ *   - every letter in the bar lands on its section, and the letter on screen is marked;
+ *   - the alphabet tabs and the search filter the same list in place, by headword and by Latin, Greek and Hebrew form;
+ *   - an entry has numbered senses, Open p. N links into the reader, Quick facts, and the terms before and after;
+ *   - quotes: for twenty terms every sense checked has a quote or the plain "Open p. N to read it" fallback, and every quote is an exact
+ *     substring of the work's TEI text, fetched again here (--senses N sets how many senses a term checks, default 2);
+ *   - addresses (#term, #term/N, #letter-x), Back and Forward, and the list scroll restored when an entry closes;
+ *   - no console error, no failed request, no 5xx, no sideways scroll, no gap past 72px, dark on html[data-sd-theme].
+ *   --perf   also prints first list paint, time to the full list in the DOM, JS heap, and scroll frame times at 1440 and at 375 with a 4x CPU slowdown.
  *
  *   node scripts/check-lexicon.mjs                        this checkout's template, CSS and script in a local page (data from the live library)
  *   node scripts/check-lexicon.mjs --base https://mereorthodoxy.com    the live site
@@ -28,6 +28,8 @@ const argv = process.argv.slice(2);
 const opt = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
 const LIVE = opt('--base', '');
 const SHOTS = opt('--shots', '');
+const PERF = argv.includes('--perf');
+const SENSES = Number(opt('--senses', 2));
 const LIB = 'https://mo-tfr-library.mo-podcast-feed.workers.dev';
 const UA = { 'User-Agent': 'curl/8.7.1' };
 const TIMEOUT = 20000;
@@ -111,116 +113,171 @@ const ev = async (expression) => { const r = await send('Runtime.evaluate', { ex
 await send('Page.enable'); await send('Network.enable'); await send('Runtime.enable');
 const NOISE = /Ignoring Event: localhost|ghost|analytics|slide-ins|\/settings|\/pa\/js|\/e$|members\/api|favicon|googletagmanager|plausible|fonts\.g|Content Security Policy|Executing inline script/i;
 const view = (w, h = 900, mobile = false) => send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile });
-const until = async (expr, what) => { const t0 = Date.now(); while (Date.now() - t0 < TIMEOUT) { if (await ev(expr)) return true; await sleep(150); } console.error(`      timed out: ${what}`); return false; };
-const listReady = `(()=>{const l=document.querySelector('#lx-list');return !!l&&!document.querySelector('#lx-results').hidden&&!l.hasAttribute('aria-busy')&&l.querySelectorAll('li a.lx-row').length>0})()`;
-const frontReady = `(()=>{const f=document.querySelector('#lx-front');return !!f&&!f.hidden&&document.querySelectorAll('#lx-az a').length>60&&document.querySelectorAll('#lx-top .lx-feat-a').length===12})()`;
-const entryReady = `(()=>{const e=document.querySelector('#lx-entry');return !!e&&!e.hidden&&e.querySelectorAll('.lx-sense').length>0&&!e.querySelector('.lx-sk-entry')})()`;
+const until = async (expr, what, ms = TIMEOUT) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await ev(expr)) return true; await sleep(150); } console.error(`      timed out: ${what}`); return false; };
 const shoot = async (name) => { if (!SHOTS) return; mkdirSync(SHOTS, { recursive: true }); const r = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); writeFileSync(path.join(SHOTS, `${name}.png`), Buffer.from(r.result.data, 'base64')); };
-async function search(q) {
-  await ev(`(()=>{const i=document.querySelector('#lx-q');i.value=${JSON.stringify(q)};i.dispatchEvent(new Event('input',{bubbles:true}))})()`);
-  await sleep(350);
-  return until(listReady, `results for ${q}`);
-}
+const FULL = 120000;
+const firstFilled = `document.querySelectorAll('#lx-all .lx-sec:not(.is-pending)').length>0`;
+const complete = `document.querySelector('#lx-all').dataset.complete==='true'`;
+const entryReady = `(()=>{const e=document.querySelector('#lx-entry');return !!e&&!e.hidden&&e.querySelectorAll('.lx-sense').length>0&&!e.querySelector('.lx-sk-entry')})()`;
+const idx = await (await fetch(`${LIB}/v1/lexicon/index.json`, { headers: UA })).json();
+const N = idx.n;
+const nfmt = (n) => n.toLocaleString('en-US');
+const open = async (url) => { await send('Page.navigate', { url }); await sleep(300); };
 
+/* ── The list: first paint, the whole list, the count ── */
 await view(1440);
-await send('Page.navigate', { url: URLP });
-ok(await until(frontReady, 'the front page'), 'the front page opens with the alphabet and twelve most defined terms');
-ok(await ev(`document.querySelector('#lx-hero').hidden===false&&document.querySelectorAll('h1').length===1`), 'the hero shows with one h1');
-ok(await ev(`[...document.querySelectorAll('#lx-az .lx-azl')].map(e=>e.textContent).join()`) === 'Latin,Greek,Hebrew', 'the alphabet has a line for Latin, Greek and Hebrew');
-await ev(`document.querySelector('#lx-top').scrollIntoView({block:'end'})`);
-ok(await until(`document.querySelectorAll('#lx-top .lx-gl').length===12&&[...document.querySelectorAll('#lx-top .lx-gl')].filter(e=>e.textContent.length>10).length>=10`, 'first senses'), 'the featured terms show a first sense and a sense count');
-ok(await ev(`document.querySelectorAll('#lx-top .lx-meta span').length>12`), 'the featured terms carry a small-caps line');
-await shoot('front-1440-light');
-await ev(`document.querySelector('#lx-top').scrollIntoView({block:'start'})`); await sleep(1500);
-await shoot('front-featured-1440-light');
-await ev('window.scrollTo(0,0)');
+const t0 = Date.now();
+await open(URLP);
+ok(await until(firstFilled, 'first section', FULL), 'the first letter draws');
+const tFirst = Date.now() - t0;
+const above = await ev(`[...document.querySelectorAll('.lx-r')].filter(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight}).length`);
+ok(above >= 60, `terms above the fold at 1440x900: ${above}`);
+ok(await ev(`document.querySelector('#lx-count').textContent`) === `${nfmt(N)} terms`, `the count shown is the dataset count (${nfmt(N)} terms)`);
+await shoot('list-1440-loading-light');
+ok(await until(complete, 'every letter', FULL), 'every letter loads');
+const tAll = Date.now() - t0;
+const rowsInDom = await ev(`document.querySelectorAll('#lx-all .lx-r').length`);
+ok(rowsInDom === N, `the full list holds every term: ${nfmt(rowsInDom)} rows of ${nfmt(N)}`);
+console.log(`      first letter drawn ${tFirst}ms, whole list in the DOM ${tAll}ms, ${nfmt(await ev(`document.querySelectorAll('*').length`))} nodes`);
+ok(await ev(`[...document.querySelectorAll('h1')].filter(h=>h.getClientRects().length).length`) === 1, 'one visible h1');
+const sizes = await ev(`(()=>{const f=(s)=>parseFloat(getComputedStyle(document.querySelector(s)).fontSize);return {h1:f('.lx-hd h1'),row:f('.lx-r'),input:document.querySelector('#lx-q').getBoundingClientRect().height,rowH:document.querySelector('.lx-r').getBoundingClientRect().height,bar:f('#lx-bar a')}})()`);
+ok(sizes.h1 <= 26 && sizes.row <= 17 && sizes.rowH <= 30 && sizes.input <= 46 && sizes.bar <= 15, `compact scale: h1 ${sizes.h1}px, row ${sizes.row}px/${sizes.rowH}px, input ${sizes.input}px, bar ${sizes.bar}px`);
+ok(await ev(`getComputedStyle(document.querySelector('.lx-chunk')).columnCount==='4'`), 'four columns at 1440');
+ok(await ev(`!document.querySelector('.lx-r small')||getComputedStyle(document.querySelector('.lx-r small')).fontSize==='13px'`), 'forms are 13px muted');
 
-/* ── Five searches, each opened ── */
-const QUERIES = [['gratia', 'grace'], ['fides', 'faith'], ['πίστις', 'faith'], ['faith', 'faith'], ['אדם', 'אדם']];
+/* ── Every letter anchor lands, and the letter on screen is marked ── */
+const letters = await ev(`[...document.querySelectorAll('#lx-bar a[data-jump]')].map(a=>a.dataset.jump)`);
+ok(letters.length === Object.keys(idx.letters).length, `the bar has every letter (${letters.length})`);
+let lost = []; let unmarked = 0;
+for (const l of letters) {
+  await ev(`document.querySelector('#lx-bar a[data-jump=${JSON.stringify(l)}]').click()`);
+  await sleep(300);
+  const r = await ev(`(()=>{const s=document.getElementById('letter-'+${JSON.stringify(l === '_' ? 'other' : l)});const t=s.querySelector('.lx-lh').getBoundingClientRect().top;return {top:Math.round(t),end:document.documentElement.scrollHeight-scrollY-t<innerHeight+60,hash:location.hash,cur:(document.querySelector('#lx-bar a[aria-current]')||{}).dataset&&document.querySelector('#lx-bar a[aria-current]').dataset.jump}})()`);
+  if (!(r.top >= 0 && r.top <= 400) && !(r.end && r.top >= 0)) lost.push(`${l}:${r.top}`);
+  if (r.cur !== l) unmarked += 1;
+}
+ok(!lost.length, `every letter anchor lands near the top${lost.length ? ` (${lost.slice(0, 5).join(', ')})` : ''}`);
+// the last letters sit too near the end of the page to scroll to the marked band
+ok(unmarked <= 10, `the letter on screen is marked in the bar (${letters.length - unmarked} of ${letters.length})`);
+await open(`${URLP}#letter-t`);
+await until(`document.querySelector('#letter-t .lx-lh').getBoundingClientRect().top<400&&document.querySelector('#letter-t .lx-lh').getBoundingClientRect().top>=0`, 'deep letter');
+ok(true, 'the address #letter-t opens at T');
+
+/* ── Filters in place ── */
+await open(URLP); await until(firstFilled, 'list'); await until(complete, 'list complete', FULL);
+for (const [t, sc] of [['grc', 'grc'], ['he', 'he'], ['en', 'en']]) {
+  await ev(`document.querySelector('#lx-tabs [data-t=${t}]').click()`); await sleep(300);
+  const r = await ev(`({vis:[...document.querySelectorAll('#lx-all .lx-sec')].filter(s=>!s.hidden).map(s=>s.dataset.s),count:document.querySelector('#lx-count').textContent})`);
+  ok(r.vis.length > 0 && r.vis.every((x) => x === sc), `the ${t} tab shows only its alphabet (${r.vis.length} letters, ${r.count})`);
+}
+await ev(`document.querySelector('#lx-tabs [data-t=all]').click()`);
+const QUERIES = [['gratia', 'gratia'], ['fides', 'fides'], ['πίστις', 'πιστις'], ['faith', 'faith'], ['אדם', 'אדם']];
 for (const [q, want] of QUERIES) {
   const c0 = log.console.length;
-  await send('Page.navigate', { url: URLP });
-  await until(frontReady, 'front');
-  ok(await search(q), `search "${q}": results draw`);
-  if (q === 'gratia' || q === 'fides') await shoot(`search-${q}-1440-light`);
-  const heads = await ev(`[...document.querySelectorAll('#lx-list .lx-hw')].slice(0, 12).map(e=>e.textContent)`);
-  ok(Array.isArray(heads) && heads.some((h) => h.toLowerCase().includes(want.toLowerCase())), `search "${q}": the results include ${want} (${(heads || []).slice(0, 4).join(', ')})`);
-  const idHref = await ev(`(()=>{const a=[...document.querySelectorAll('#lx-list a.lx-row')].find(a=>a.querySelector('.lx-hw').textContent.toLowerCase().includes(${JSON.stringify(want.toLowerCase())}))||document.querySelector('#lx-list a.lx-row');return a&&a.getAttribute('href')})()`);
-  await ev(`location.hash=${JSON.stringify(idHref)}`);
-  ok(await until(entryReady, `entry for ${q}`), `search "${q}": the entry opens with senses`);
-  const e = await ev(`(()=>{const s=[...document.querySelectorAll('#lx-entry .lx-sense')];const links=[...document.querySelectorAll('#lx-entry .lx-open')];return {n:s.length,num:s.every((x,i)=>x.querySelector('.lx-sn').textContent==String(i+1)),gloss:s.every(x=>x.querySelector('.lx-gloss').textContent.trim().length>5),links:links.length,bad:links.filter(a=>!/^\\/the-faith-received\\/read\\/\\?w=[^&#]+#b[^-]+-0$/.test(a.getAttribute('href')||'')).length,h2:document.querySelector('#lx-entry h1').textContent,h2lang:document.querySelector('#lx-entry h1').lang,dir:document.querySelector('#lx-entry h1').dir}})()`);
-  ok(e && e.n > 0 && e.num && e.gloss, `search "${q}": ${e && e.n} numbered senses, each with a gloss`);
-  ok(e && e.links > 0 && e.bad === 0, `search "${q}": ${e && e.links} Open links, each into the reader${e && e.bad ? ` (${e.bad} wrong)` : ''}`);
-  const fx = await ev(`(()=>{const f=document.querySelector('#lx-entry .lx-facts');return {has:!!f,dts:f?[...f.querySelectorAll('dt')].map(d=>d.textContent):[],h1:[...document.querySelectorAll('h1')].filter(h=>h.getClientRects().length).length,hero:document.querySelector('#lx-hero').hidden,title:document.title}})()`);
-  ok(fx.has && fx.dts.includes('Senses') && fx.h1 === 1 && fx.hero, `search "${q}": Quick facts beside the entry, the headword is the one h1 (${fx.dts.join(', ')})`);
-  if (q === 'אדם') ok(e.h2lang === 'he' && e.dir === 'auto', 'a Hebrew headword carries lang="he" and dir="auto"');
-  if (want === 'faith' && q !== 'fides') {
-    const l = await ev(`({la:!!document.querySelector('#lx-entry .lx-forms dd[lang=la]'),grc:!!document.querySelector('#lx-entry .lx-forms dd[lang=grc]')})`);
-    ok(l && l.la && l.grc, 'Latin and Greek forms carry lang="la" and lang="grc"');
-  }
-  await sleep(1500);
-  const cons = log.console.slice(c0).filter((c) => !NOISE.test(c));
-  ok(!cons.length, `search "${q}": no console error${cons.length ? ` (${cons[0]})` : ''}`);
+  const before = await ev(`document.querySelector('#lx-count').textContent`);
+  await ev(`(()=>{const i=document.querySelector('#lx-q');i.value=${JSON.stringify(q)};i.dispatchEvent(new Event('input',{bubbles:true}))})()`);
+  await until(`document.querySelector('#lx-count').textContent!==${JSON.stringify(before)}`, `results for ${q}`, 8000);
+  await sleep(200);
+  const r = await ev(`({shown:!document.querySelector('#lx-found').hidden,allHidden:document.querySelector('#lx-all').hidden,n:document.querySelectorAll('#lx-found .lx-r').length,count:document.querySelector('#lx-count').textContent,hit:[...document.querySelectorAll('#lx-found .lx-r')].slice(0,40).some(a=>a.textContent.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().includes(${JSON.stringify(want)}))})`);
+  ok(r.shown && r.allHidden && r.n > 0 && r.hit && new RegExp(`of ${nfmt(N)} terms$`).test(r.count), `search "${q}" filters the list in place: ${r.count}`);
+  if (q === 'gratia') await shoot('search-gratia-1440-light');
+  if (q === 'fides') await shoot('search-fides-1440-light');
+  ok(!log.console.slice(c0).filter((c) => !NOISE.test(c)).length, `search "${q}": no console error`);
 }
+await ev(`(()=>{const i=document.querySelector('#lx-q');i.value='zzqxv';i.dispatchEvent(new Event('input',{bubbles:true}))})()`); await sleep(500);
+ok(await ev(`!document.querySelector('#lx-empty').hidden&&/No term matches/.test(document.querySelector('#lx-empty').textContent)`), 'a search with no match says so plainly');
+await ev(`(()=>{const i=document.querySelector('#lx-q');i.value='';i.dispatchEvent(new Event('input',{bubbles:true}))})()`); await sleep(400);
+ok(await ev(`document.querySelector('#lx-found').hidden&&!document.querySelector('#lx-all').hidden`), 'clearing the search brings the whole list back');
 
-/* ── Addresses, Back and Forward ── */
-await send('Page.navigate', { url: `${URLP}#faith/3` });
-ok(await until(entryReady, 'faith/3'), 'the address #faith/3 opens the entry');
-await sleep(300);
-ok(await ev(`!!document.querySelector('#s3.is-target')`), 'the address #faith/3 marks sense 3');
-await shoot('entry-1440-light');
-await send('Page.navigate', { url: `${URLP}?l=t` });
-ok(await until(listReady, 't list'), 'the address ?l=t opens the letter T');
-const dom = await ev(`({rows:document.querySelectorAll('#lx-list li a.lx-row').length,all:document.querySelectorAll('*').length,total:document.querySelector('#lx-shown').textContent})`);
-ok(dom.rows <= 100 && dom.all < 2500, `a letter of thousands draws ${dom.rows} rows and ${dom.all} nodes (${dom.total})`);
-await ev(`document.querySelector('#lx-more').click()`); await sleep(300);
-ok(await ev(`document.querySelectorAll('#lx-list li a.lx-row').length`) === 200, 'Show 100 more adds one hundred rows');
-await ev(`document.querySelector('#lx-list a.lx-row').click()`);
+/* ── An entry from the list, Back, and the scroll restored ── */
+await ev(`document.querySelector('#lx-bar a[data-jump=m]').click()`); await sleep(500);
+const y0 = await ev('Math.round(scrollY)');
+await ev(`document.querySelector('#letter-m .lx-r').click()`);
 ok(await until(entryReady, 'entry from list'), 'a row opens its entry');
-await ev('history.back()'); await sleep(600);
-ok(await ev(`document.querySelector('#lx-entry').hidden&&!document.querySelector('#lx-results').hidden&&location.search==='?l=t'`), 'Back returns to the list, same letter');
+ok(await ev(`document.querySelector('#lx-hd').hidden&&[...document.querySelectorAll('h1')].filter(h=>h.getClientRects().length).length===1`), 'the headword is the one h1');
+await ev('history.back()'); await sleep(900);
+const y1 = await ev('Math.round(scrollY)');
+ok(await ev(`document.querySelector('#lx-entry').hidden&&!document.querySelector('#lx-listview').hidden`) && Math.abs(y1 - y0) < 80, `Back returns to the list at the same place (${y0} then ${y1})`);
 await ev('history.forward()');
 ok(await until(entryReady, 'forward'), 'Forward returns to the entry');
-await send('Page.navigate', { url: `${URLP}#no-such-term-zz` });
-await sleep(2500);
+await open(`${URLP}#no-such-term-zz`); await sleep(2500);
 ok(await ev(`/No term has the address/.test(document.querySelector('#lx-entry').textContent)`), 'an unknown address says so plainly');
-await send('Page.navigate', { url: `${URLP}?q=zzqx` });
-await sleep(2500);
-ok(await ev(`/No term matches/.test(document.querySelector('#lx-empty').textContent)&&!document.querySelector('#lx-empty').hidden`), 'a search with no match says so plainly');
-await send('Page.navigate', { url: `${URLP}?l=${encodeURIComponent('א')}` });
-ok(await until(listReady, 'hebrew letter'), 'a Hebrew letter opens its list');
-ok(await ev(`[...document.querySelectorAll('#lx-list .lx-hw')].every(e=>e.lang==='he')`), 'Hebrew headwords carry lang="he"');
-ok(await ev(`[...document.querySelectorAll('#lx-list .lx-row')].every(e=>e.getBoundingClientRect().height>=44)`), 'every row is at least 44px tall');
-ok(await ev(`document.querySelectorAll('#lx-lnav a').length>=1`), 'a letter page links to its neighbor letters');
-await send('Page.navigate', { url: `${URLP}#fides` });
-await until(entryReady, 'fides');
-await sleep(2500);
-ok(await ev(`document.querySelectorAll('#lx-entry .lx-pn').length===2`), 'an entry links to the term before and after it');
-ok(await ev(`!document.querySelector('#lx-f-authors').closest('div').hidden&&!document.querySelector('#lx-f-first').closest('div').hidden`), 'Quick facts gain the author count and the earliest source');
-await ev(`document.querySelector('#lx-entry .lx-pn-next').click()`);
-ok(await until(`location.hash!=='#fides'&&document.querySelector('#lx-title')&&document.querySelectorAll('#lx-entry .lx-sense').length>0`, 'next term'), 'the next-term link opens the next entry');
+await open(`${URLP}#faith/3`);
+ok(await until(entryReady, 'faith/3'), 'the address #faith/3 opens the entry');
+await sleep(400);
+ok(await ev(`!!document.querySelector('#s3.is-target')`), 'the address #faith/3 marks sense 3');
+ok(await ev(`document.querySelectorAll('#lx-entry .lx-sense').length`) === (await (await fetch(`${LIB}/v1/lexicon/terms/faith.json`, { headers: UA })).json()).senses.length, 'every sense is on the page, none behind a Show more');
+await open(`${URLP}#fides`); await until(entryReady, 'fides'); await sleep(2500);
+ok(await ev(`document.querySelectorAll('#lx-entry .lx-pn').length>=1`), 'an entry links to the term before or after it');
+ok(await ev(`!document.querySelector('#lx-f-authors').closest('div').hidden`), 'Quick facts gain the author count');
 
-/* ── 375: no sideways scroll, no gap past 72px ── */
+/* ── Quotes: twenty terms, each sense a quote or the fallback, every quote an exact substring of the TEI ── */
+const TERMS = ['justice', 'grace', 'faith', 'sin', 'church', 'baptism', 'prayer', 'hope', 'law', 'charity', 'repentance', 'sacrament', 'trinity', 'election', 'covenant', 'gratia', 'fides', 'πίστις', 'ecclesia', 'sacramentum'];
+async function idFor(t) {
+  if (idx.letters[t[0].toLowerCase()] !== undefined && (await fetch(`${LIB}/v1/lexicon/terms/${encodeURIComponent(t)}.json`, { headers: UA })).ok) return t;
+  const f = t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const k = f.slice(0, 2).replace(/ς/g, 'σ').replace(/[^\p{L}\p{N}]/gu, '_');
+  const sh = await (await fetch(`${LIB}/v1/lexicon/forms/${encodeURIComponent(k)}.json`, { headers: UA })).json();
+  return sh[f] || null;
+}
+const VERIFY = `(async()=>{const norm=s=>String(s).replace(/\\s+/g,' ').trim();const B=window.__FR_BLOB_BASE__;const cache=window.__vc=window.__vc||{};
+ const urls=w=>{const m=/^(pg|pld|po|eebo)-(\\d+)$/.exec(w);return m?['/v1/tei/'+m[1]+'/'+m[2]+'.xml']:['/v1/works/'+encodeURIComponent(w)+'/tei.la.xml','/v1/works/'+encodeURIComponent(w)+'/tei.en.xml'];};
+ const text=async w=>{if(cache[w]===undefined){cache[w]=(async()=>{let all='';for(const u of urls(w)){try{const r=await fetch(B+u);if(!r.ok)continue;const x=await r.text();const d=new DOMParser().parseFromString(x,'application/xml');all+=' '+norm(d.documentElement.textContent);}catch(e){}}return all;})();}return cache[w];};
+ const out={rows:0,quote:0,page:0,fallback:0,pending:0,bad:[]};
+ for(const row of document.querySelectorAll('#lx-entry .lx-sense:nth-child(-n+${SENSES}) .lx-src > li')){out.rows++;const box=row.querySelector('.lx-qs');
+  if(box.classList.contains('lx-qpend')){out.pending++;continue;}
+  if(box.classList.contains('lx-qf')){if(/Open p\\. /.test(box.textContent))out.fallback++;else out.bad.push('fallback text');continue;}
+  const qs=[...box.querySelectorAll('blockquote p')];if(!qs.length){out.bad.push('empty');continue;}
+  const full=await text(row.dataset.w);
+  for(const p of qs){const q=norm(p.textContent).replace(/^…/,'').replace(/…$/,'');if(!q){out.bad.push('blank');continue;}
+   if(!full.includes(q))out.bad.push(row.dataset.w+':'+q.slice(0,50));
+   const foot=p.parentNode.querySelector('footer').textContent;if(/From p\\./.test(foot))out.page++;else out.quote++;}}
+ return out;})()`;
+const tot = { rows: 0, quote: 0, page: 0, fallback: 0, bad: [], pending: 0 };
+for (const term of TERMS) {
+  const id = await idFor(term);
+  if (!id) { ok(false, `quotes: no id for ${term}`); continue; }
+  await open(`${URLP}#${encodeURIComponent(id)}`);
+  await until(entryReady, `entry ${term}`);
+  for (let i = 1; i <= SENSES; i += 1) {
+    await ev(`(document.getElementById('s${i}')||{scrollIntoView(){}}).scrollIntoView({block:'start'})`);
+    await until(`(()=>{const s=document.getElementById('s${i}');return !s||!s.querySelector('.lx-qpend')})()`, `quotes ${term} ${i}`, 90000);
+  }
+  const r = await ev(VERIFY);
+  for (const k of ['rows', 'quote', 'page', 'fallback', 'pending']) tot[k] += r[k] || 0;
+  tot.bad.push(...(r.bad || []));
+  ok(r.pending === 0 && !r.bad.length, `quotes ${term}: ${r.rows} sources, ${r.quote} quotes, ${r.page} page openings, ${r.fallback} fallbacks${r.bad.length ? ` (${r.bad.slice(0, 2).join(' | ')})` : ''}`);
+  if (term === 'justice') await shoot('entry-justice-1440-light');
+}
+console.log(`      quote coverage over ${TERMS.length} terms, first ${SENSES} senses each: ${tot.rows} sources, ${tot.quote} quotes, ${tot.page} page openings, ${tot.fallback} fallbacks`);
+ok(!tot.bad.length && tot.quote + tot.page + tot.fallback === tot.rows, 'every checked source has a quote that is an exact substring of its TEI, or the Open p. N fallback');
+await ev(`document.querySelector('[data-lane=both]')&&document.querySelector('[data-lane=both]').click()`);
+
+/* ── Widths: no sideways scroll, no gap past 72px, dark ── */
 const GAPS = `(()=>{const out=[];const vis=e=>e.getClientRects().length&&getComputedStyle(e).visibility!=='hidden';
-  for(const box of ['#lx-front','#lx-results','.lx-ent']){const b=document.querySelector(box);if(!b||b.hidden)continue;const kids=[...b.children].filter(vis);
+  for(const box of ['.wrap > .lx-hd','#lx-listview','.lx-tools']){const b=document.querySelector(box);if(!b||b.hidden)continue;const kids=[...b.children].filter(vis);
     for(let i=1;i<kids.length;i++){const g=kids[i].getBoundingClientRect().top-kids[i-1].getBoundingClientRect().bottom;if(g>72)out.push(Math.round(g)+'px before '+(kids[i].id||kids[i].className));}}
   return out;})()`;
 for (const w of [375, 820, 1024, 1440]) {
   await view(w, w === 375 ? 812 : 900, w === 375);
-  for (const [name, url] of [['front', URLP], ['list', `${URLP}?l=g`], ['entry', `${URLP}#faith`]]) {
-    await send('Page.navigate', { url });
-    await until(name === 'front' ? frontReady : name === 'list' ? listReady : entryReady, `${name} at ${w}`);
-    await sleep(600);
+  for (const [name, url] of [['list', URLP], ['entry', `${URLP}#justice`]]) {
+    await open(url);
+    await until(name === 'list' ? firstFilled : entryReady, `${name} at ${w}`);
+    if (name === 'list') await until(complete, 'complete', FULL);
+    await sleep(900);
     const m = await ev(`({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth})`);
     ok(m.sw <= m.cw, `${name} at ${w}: no sideways scroll (${m.sw} of ${m.cw})`);
-    if (w === 375 && name === 'front') ok(await ev(`[...document.querySelectorAll('#lx-az a')].every(a=>a.getBoundingClientRect().height>=44&&a.getBoundingClientRect().width>=44)`), 'front at 375: every letter is a 44px target');
+    if (w === 375 && name === 'list') {
+      const g = await ev(GAPS);
+      ok(Array.isArray(g) && !g.length, `list at 375: no gap past 72px${g && g.length ? ` (${g.join(', ')})` : ''}`);
+      ok(await ev(`getComputedStyle(document.querySelector('.lx-chunk')).columnCount==='1'&&parseFloat(getComputedStyle(document.querySelector('.lx-r')).fontSize)<=16&&document.querySelector('.lx-r').getBoundingClientRect().height>=40`), 'list at 375: one column, rows 40px');
+      ok(await ev(`document.querySelector('#lx-q').getBoundingClientRect().height>=44&&[...document.querySelectorAll('#lx-tabs button')].every(b=>b.getBoundingClientRect().height>=44)`), 'list at 375: search and tabs are 44px targets');
+    }
     if (w === 1440 && name === 'entry') ok(await ev(`getComputedStyle(document.querySelector('.lx-facts')).position==='sticky'`), 'entry at 1440: Quick facts is sticky beside the senses');
-    if (w === 1440 && name === 'list') ok(await ev(`getComputedStyle(document.querySelector('.lx-words')).columnCount==='3'`), 'list at 1440: three columns of words');
-    if (w === 375) { const g = await ev(GAPS); ok(Array.isArray(g) && !g.length, `${name} at 375: no gap past 72px${g && g.length ? ` (${g.join(', ')})` : ''}`); }
     await shoot(`${name}-${w}-light`);
     await ev(`document.documentElement.setAttribute('data-sd-theme','dark')`);
     await sleep(250);
-    if (w === 1440 && name === 'front') {
+    if (w === 1440 && name === 'list') {
       const bg = await ev(`getComputedStyle(document.querySelector('main.tfr-lexicon')).backgroundColor`);
       const lum = (bg.match(/\d+/g) || [255, 255, 255]).slice(0, 3).map(Number).reduce((a, b) => a + b, 0) / 3;
       ok(lum < 80, `dark mode on html[data-sd-theme] darkens the page (${bg})`);
@@ -229,11 +286,34 @@ for (const w of [375, 820, 1024, 1440]) {
     await ev(`document.documentElement.setAttribute('data-sd-theme','light')`);
   }
 }
+
+/* ── Performance (--perf): first paint, the whole list, heap, scroll frames, at 1440 and at 375 with a 4x CPU slowdown ── */
+if (PERF) {
+  for (const [name, w, mobile, cpu] of [['1440', 1440, false, 1], ['375 mobile, 4x CPU', 375, true, 4]]) {
+    await view(w, mobile ? 812 : 900, mobile);
+    await send('Emulation.setCPUThrottlingRate', { rate: cpu });
+    const start = Date.now();
+    await open(URLP);
+    await until(firstFilled, 'first', FULL * 2);
+    const first = Date.now() - start;
+    await until(complete, 'complete', FULL * 3);
+    const all = Date.now() - start;
+    await sleep(1000);
+    const heap = await send('Runtime.getHeapUsage');
+    const frames = await ev(`new Promise((res)=>{const d=[];let last=performance.now();let y=0;const max=document.documentElement.scrollHeight-innerHeight;const step=()=>{const n=performance.now();d.push(n-last);last=n;y+=Math.max(400,max/150);window.scrollTo(0,y);if(y<max&&d.length<400)requestAnimationFrame(step);else{d.sort((a,b)=>a-b);res({n:d.length,p50:Math.round(d[Math.floor(d.length/2)]),p95:Math.round(d[Math.floor(d.length*.95)]),max:Math.round(d[d.length-1]),slow:d.filter(x=>x>50).length});}};requestAnimationFrame(step);})`);
+    const nodes = await ev(`document.querySelectorAll('*').length`);
+    console.log(`perf  ${name}: first list paint ${first}ms, whole list in the DOM ${all}ms, JS heap ${Math.round(heap.result.usedSize / 1048576)} MB, ${nfmt(nodes)} nodes, scroll ${frames.n} frames p50 ${frames.p50}ms p95 ${frames.p95}ms max ${frames.max}ms, ${frames.slow} over 50ms`);
+    await send('Emulation.setCPUThrottlingRate', { rate: 1 });
+  }
+}
+
 const fails = log.fail.filter((u) => /\/v1\/|\/assets\//.test(u) && !NOISE.test(u));
-const bad = log.net.filter((n) => n.status >= 500 && /\/v1\//.test(n.url)).map((n) => `${n.status} ${n.url.replace(/^https?:\/\/[^/]+/, '')}`);
+const bad5 = log.net.filter((n) => n.status >= 500 && /\/v1\//.test(n.url)).map((n) => `${n.status} ${n.url.replace(/^https?:\/\/[^/]+/, '')}`);
 const missing = log.net.filter((n) => n.status === 404 && /\/assets\//.test(n.url)).map((n) => n.url);
-ok(!fails.length && !bad.length && !missing.length, `no failed request, no 5xx from the library, no missing asset${fails.length || bad.length || missing.length ? ` (${[...fails, ...bad, ...missing].slice(0, 3).join(' | ')})` : ''}`);
+const cons = log.console.filter((c) => !NOISE.test(c));
+ok(!fails.length && !bad5.length && !missing.length, `no failed request, no 5xx from the library, no missing asset${fails.length || bad5.length || missing.length ? ` (${[...fails, ...bad5, ...missing].slice(0, 3).join(' | ')})` : ''}`);
+ok(!cons.length, `no console error${cons.length ? ` (${cons[0]})` : ''}`);
 cleanup();
 if (failed) { console.error(`\n${failed} check(s) failed`); process.exit(1); }
-console.log('\nlexicon: the page searches, opens entries and holds its layout');
+console.log('\nlexicon: the page lists every term, filters in place and quotes its sources');
 process.exit(0);

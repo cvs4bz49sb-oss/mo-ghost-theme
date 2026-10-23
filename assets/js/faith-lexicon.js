@@ -1,13 +1,16 @@
-/* The Lexicon (/the-faith-received/lexicon/), a reading reference. The library worker's v1/lexicon files:
+/* The Lexicon (/the-faith-received/lexicon/): every term on one page, and each term as an entry with the words that define it.
+   The library worker's v1/lexicon files:
      index.json                 the alphabet (letters and their counts) and the most defined terms
      letters/<letter>.json      rows [id, headword, works, Latin form, Greek form] for a letter
      forms/<two letters>.json   form -> term id, for the search box
      terms/<id>.json            the headword, its forms and its senses; a sense is a gloss and the pages that define it
      history/<n>.json.gz        every work that defines a term, oldest author first
      redirects.json             an id merged into another entry
+   The sense files name a work and a page, not the words on it. A quote is read from the work's TEI (tei/pg, tei/pld, tei/po, tei/eebo or
+   works/<slug>/tei.<lane>.xml), found by page, and cut as an exact substring of that page's text. Nothing is paraphrased.
    Every string in these files is data. Each one goes through esc() before it is drawn, and a link is built from encodeURIComponent.
-   Three views, one address. No query and no hash is the front page. ?l=<letter> or ?q=<text> is a list. #<term id> is an entry and
-   #<term id>/<n> its nth sense (the reader's Define popover links to #<term id>). */
+   One address. No hash is the list. #letter-<l> is a letter of it. #<term id> is an entry and #<term id>/<n> its nth sense
+   (the reader's Define popover links to #<term id>). ?q=<text> and ?t=<en|grc|he> filter the list in place. */
 (() => {
   'use strict';
   window.__FR_BLOB_BASE__ = window.__FR_BLOB_BASE__ || 'https://mo-tfr-library.mo-podcast-feed.workers.dev';
@@ -24,7 +27,9 @@
   const scriptOf = (s) => (/[Ͱ-Ͽἀ-῿]/.test(s) ? 'grc' : /[֐-׿]/.test(s) ? 'he' : 'en');
   const read = (w, p) => `${READER}?w=${encodeURIComponent(w)}#b${encodeURIComponent(p)}-0`;
   const plural = (n, one, many) => `${nf(n)} ${n === 1 ? one : many}`;
-  const SCRIPTS = [['en', 'Latin', /^[a-zæœ]$/], ['grc', 'Greek', /^[Ͱ-Ͽἀ-῿]$/], ['he', 'Hebrew', /^[֐-׿]$/]];
+  const SCRIPTS = [['en', 'Latin', /^[a-zæœ_]$/], ['grc', 'Greek', /^[Ͱ-Ͽἀ-῿]$/], ['he', 'Hebrew', /^[֐-׿]$/]];
+  const scriptOfLetter = (l) => (SCRIPTS.find(([, , rx]) => rx.test(l)) || ['en'])[0];
+  const idle = () => new Promise((res) => { if (window.requestIdleCallback) window.requestIdleCallback(() => res(), { timeout: 150 }); else setTimeout(res, 0); });
 
   /* A file the library has not got (404, 410) is status 404. One it could not be asked for (the network, a 5xx, a 429) is asked again twice
      first, then status 0. A missing term says so. A failed one offers another try. */
@@ -46,173 +51,399 @@
   };
   const termOf = (id) => once(`t:${id}`, async () => { const r = await get(`/v1/lexicon/terms/${encodeURIComponent(id)}.json`); return r.status === 404 ? { missing: true } : r.data; });
 
-  const S = { q: '', letter: '', rows: [], shown: 0, id: '', rendered: '', sense: 0 };
+  const S = { tab: 'all', q: '', id: '', rendered: '', sense: 0, lane: 'en' };
+  try { const v = localStorage.getItem('fr_lex_lane'); if (v === 'en' || v === 'orig' || v === 'both') S.lane = v; } catch (_) { /* storage blocked: English */ }
   let INDEX = null;
-  let LSEQ = 0;
   let TSEQ = 0;
   let IO = null;
-  const PAGE = 100;
+  let QIO = null;
+  const ROW = 28;
+  const CHUNK = 200;
+  const DATA = new Map(); // letter -> rows
+  const FOLD = new Map(); // letter -> folded 'headword|latin|greek' per row
+  const BYID = new Map(); // id -> [row, letter]
+  const LANE_KEY = 'fr_lex_lane';
 
   function parseHash() {
     let h = '';
     try { h = decodeURIComponent(location.hash.slice(1)); } catch (_) { h = location.hash.slice(1); }
+    if (/^letter-/.test(h)) return { letter: h.slice(7), id: '', sense: 0 };
     const m = /^(.*?)(?:\/(\d+))?$/.exec(h);
-    return { id: m ? m[1] : '', sense: m && m[2] ? Number(m[2]) : 0 };
+    return { id: m ? m[1] : '', sense: m && m[2] ? Number(m[2]) : 0, letter: '' };
   }
-  const urlFor = (o) => {
+  const urlFor = () => {
     const p = new URLSearchParams();
-    if (o.q) p.set('q', o.q); else if (o.letter) p.set('l', o.letter);
+    if (S.q) p.set('q', S.q);
+    if (S.tab !== 'all') p.set('t', S.tab);
     const s = p.toString();
     return `${PATH}${s ? `?${s}` : ''}`;
   };
   const go = (url, push) => { history[push ? 'pushState' : 'replaceState'](null, '', url); viaHistory = false; route(); };
 
-  /* ── Pieces ──────────────────────────────────────────────────────────────────────────────────────────────────────── */
-  const skRows = (n) => Array.from({ length: n }, (_, i) => `<li class="lx-sk-row" aria-hidden="true"><span class="lx-sk lx-sk-w" style="width:${40 + ((i * 17) % 40)}%"></span><span class="lx-sk lx-sk-s" style="width:${50 + ((i * 11) % 30)}%"></span></li>`).join('');
-  const skEntry = '<div class="lx-sk-entry" aria-hidden="true"><span class="lx-sk lx-sk-h"></span><span class="lx-sk" style="width:60%"></span><span class="lx-sk" style="width:92%"></span><span class="lx-sk" style="width:86%"></span><span class="lx-sk" style="width:74%"></span></div>';
-  const retry = (what) => `<p class="lx-note">${what} <button type="button" class="lx-btn" data-retry>Try again</button></p>`;
-  const letterRows = (l) => (l && INDEX && Object.hasOwn(INDEX.letters, l) ? once(`l:${l}`, async () => { const r = await get(`/v1/lexicon/letters/${encodeURIComponent(l)}.json`); return r.data || (r.status === 404 ? [] : null); }) : Promise.resolve([]));
-  /* one row a headword: the lexicon filed some headwords several times (wages: merces, merces with ὀψώνια, opsōnion). A list shows each once,
-     with the fullest entry, and the entry opened names the others under "Also filed as". */
-  function groupRows(rows) {
-    const by = new Map();
-    rows.forEach((r) => { const k = String(r[1]).toLowerCase(); if (!by.has(k)) by.set(k, []); by.get(k).push(r); });
-    return [...by.values()].map((v) => { v.sort((a, b) => (b[2] || 0) - (a[2] || 0)); const r = v[0]; return { id: r[0], hw: r[1], works: r[2], la: r[3], grc: r[4], n: v.length, via: r.via || '' }; });
-  }
-  const metaHTML = (r, extra) => {
-    const bits = [];
-    if (r.la) bits.push(`<span>Latin <i lang="la">${esc(r.la)}</i></span>`);
-    if (r.grc) bits.push(`<span>Greek <span lang="grc">${esc(r.grc)}</span></span>`);
-    if (extra) bits.push(`<span>${extra}</span>`);
-    if (r.works) bits.push(`<span>${plural(r.works, 'work', 'works')}</span>`);
-    if (r.n > 1) bits.push(`<span>${r.n} entries</span>`);
-    if (r.via) bits.push(`<span>as ${esc(r.via)}</span>`);
-    return bits.join('');
+  /* ── The whole list: one section a letter, built as each letter's file arrives ───────────────────────────────────── */
+  const letters = () => Object.keys(INDEX.letters).sort((a, b) => (a === '_') - (b === '_'));
+  const slug = (l) => (l === '_' ? 'other' : l);
+  const letterName = (l) => (l === '_' ? 'Other' : l.toUpperCase());
+  const rowHTML = (r) => {
+    const forms = [r[3], r[4]].filter(Boolean).join(' · ');
+    const sc = scriptOf(r[1]);
+    return `<a class="lx-r" href="#${encodeURIComponent(r[0])}"${sc === 'en' ? '' : ` lang="${sc}"`}>${esc(r[1])}${forms ? `<small>${esc(forms)}</small>` : ''}</a>`;
   };
-  const rowHTML = (r) => `<li><a class="lx-row" href="#${encodeURIComponent(r.id)}"><span class="lx-hw" lang="${scriptOf(r.hw)}" dir="auto">${esc(r.hw)}</span><span class="lx-meta">${metaHTML(r)}</span></a></li>`;
-
-  /* ── The front page: the alphabet as large letters, then the most defined terms ──────────────────────────────────── */
-  function paintFront() {
-    const all = Object.keys(INDEX.letters).filter((l) => l !== '_');
-    $('#lx-az').innerHTML = SCRIPTS.map(([k, name, rx]) => [k, name, all.filter((l) => rx.test(l))]).filter(([, , ls]) => ls.length)
-      .map(([k, name, ls]) => `<div class="lx-azg"><p class="lx-azl">${name}</p><div class="lx-azs">${ls.map((l) => `<a href="${esc(urlFor({ letter: l }))}" data-nav lang="${k === 'en' ? 'en' : k}" aria-label="${esc(l.toUpperCase())}, ${plural(INDEX.letters[l], 'term', 'terms')}">${esc(l.toUpperCase())}</a>`).join('')}</div></div>`).join('');
-    const top = groupRows(INDEX.top.slice(0, 12));
-    $('#lx-top').innerHTML = top.map((r) => `<li><a class="lx-feat-a" href="#${encodeURIComponent(r.id)}" data-fid="${esc(r.id)}"><span class="lx-hw" lang="${scriptOf(r.hw)}" dir="auto">${esc(r.hw)}</span><span class="lx-meta">${metaHTML(r)}</span><span class="lx-gl"></span></a></li>`).join('');
-    // each featured term's first sense and sense count, read as the row nears the screen
-    const io = new IntersectionObserver((es) => es.forEach((e) => {
-      if (!e.isIntersecting) return;
-      io.unobserve(e.target);
-      termOf(e.target.dataset.fid).then((t) => {
-        if (!t || !t.senses || !t.senses.length || !e.target.isConnected) return;
-        e.target.querySelector('.lx-gl').textContent = t.senses[0].gloss;
-        e.target.querySelector('.lx-meta').insertAdjacentHTML('afterbegin', `<span>${plural(t.senses.length, 'sense', 'senses')}</span>`);
-      });
-    }), { rootMargin: '200px 0px' });
-    $('#lx-top').querySelectorAll('[data-fid]').forEach((a) => io.observe(a));
+  function chunksHTML(rows) {
+    let out = '';
+    for (let i = 0; i < rows.length; i += CHUNK) {
+      const part = rows.slice(i, i + CHUNK);
+      out += `<div class="lx-chunk" style="--r:${part.length}">${part.map(rowHTML).join('')}</div>`;
+    }
+    return out;
+  }
+  function buildShells() {
+    $('#lx-all').innerHTML = letters().map((l) => `<section class="lx-sec is-pending" id="letter-${esc(slug(l))}" data-l="${esc(l)}" data-s="${scriptOfLetter(l)}" style="--n:${Number(INDEX.letters[l]) | 0}"><h2 class="lx-lh"><span${scriptOfLetter(l) === 'en' ? '' : ` lang="${scriptOfLetter(l)}"`}>${esc(letterName(l))}</span> <small>${nf(INDEX.letters[l])}</small></h2><div class="lx-chunks"></div></section>`).join('');
+    window.addEventListener('scroll', () => { if (!curT) curT = requestAnimationFrame(updateCurrent); }, { passive: true });
+  }
+  let curT = 0;
+  /* the letter whose section holds the line just under the letter bar */
+  function updateCurrent() {
+    curT = 0;
+    if ($('#lx-listview').hidden || $('#lx-all').hidden) return;
+    const secs = document.querySelectorAll('#lx-all .lx-sec');
+    const line = $('#lx-bar').getBoundingClientRect().bottom + 12;
+    let cur = null;
+    for (let i = 0; i < secs.length; i += 1) {
+      if (secs[i].hidden) continue;
+      const r = secs[i].getBoundingClientRect();
+      if (r.top <= line + 100 && r.bottom > line) cur = secs[i];
+    }
+    if (cur) markCurrent(cur.dataset.l);
+  }
+  function markCurrent(l) {
+    document.querySelectorAll('#lx-bar a[aria-current]').forEach((a) => a.removeAttribute('aria-current'));
+    const a = document.querySelector(`#lx-bar a[data-jump="${CSS.escape(l)}"]`);
+    if (a) a.setAttribute('aria-current', 'true');
+  }
+  const stat = { loaded: 0, t0: performance.now(), firstPaint: 0, complete: 0 };
+  let pendingJump = '';
+  let userScrolled = false;
+  ['wheel', 'touchmove', 'keydown'].forEach((ev) => window.addEventListener(ev, () => { userScrolled = true; }, { passive: true }));
+  /* a letter: fetched once, folded for the search, drawn into its section */
+  const load = (l) => once(`load:${l}`, async () => {
+    const r = await get(`/v1/lexicon/letters/${encodeURIComponent(l)}.json`);
+    if (!r.data) return r.status === 404 ? [] : null;
+    const rows = r.data;
+    DATA.set(l, rows);
+    FOLD.set(l, rows.map((x) => `${fold(x[1])}|${fold(x[3])}|${fold(x[4])}`));
+    rows.forEach((x) => BYID.set(x[0], [x, l]));
+    await idle();
+    const sec = document.getElementById(`letter-${slug(l)}`);
+    if (sec) {
+      sec.querySelector('.lx-chunks').innerHTML = chunksHTML(rows);
+      sec.classList.remove('is-pending');
+      sec.style.removeProperty('--n');
+    }
+    stat.loaded += 1;
+    if (!stat.firstPaint) stat.firstPaint = performance.now() - stat.t0;
+    if (stat.loaded >= letters().length) stat.complete = performance.now() - stat.t0;
+    if (pendingJump && !userScrolled) { const t = document.getElementById(`letter-${slug(pendingJump)}`); if (t) t.scrollIntoView({ block: 'start', behavior: 'instant' }); }
+    progress();
+    return rows;
+  });
+  window.__lexStat = stat;
+  const letterRows = (l) => (l && INDEX && Object.hasOwn(INDEX.letters, l) ? load(l) : Promise.resolve([]));
+  let started = false;
+  function startAll(first) {
+    if (started) { if (first) load(first); return; }
+    started = true;
+    const queue = letters();
+    if (first && queue.includes(first)) queue.unshift(first);
+    const worker = async () => { while (queue.length) { const l = queue.shift(); await load(l); } };
+    Promise.all([worker(), worker(), worker(), worker()]).then(() => { if (S.q) applyFilter(); });
+  }
+  function progress() {
+    const total = letters().length;
+    const done = stat.loaded >= total;
+    if (done) $('#lx-all').setAttribute('data-complete', 'true');
   }
 
-  /* ── Lists: a letter or a search, in chunks of a hundred, each chunk three columns on a wide screen ─────────────── */
-  function paintRows(from) {
-    const upto = Math.min(S.rows.length, S.shown);
-    const list = $('#lx-list');
-    if (!from) list.innerHTML = '';
-    list.removeAttribute('aria-busy');
-    if (upto > from) list.insertAdjacentHTML('beforeend', `<ul class="lx-words">${S.rows.slice(from, upto).map(rowHTML).join('')}</ul>`);
-    const more = $('#lx-more');
-    more.hidden = upto >= S.rows.length;
-    more.textContent = `Show ${Math.min(PAGE, S.rows.length - upto)} more`;
-    $('#lx-shown').textContent = S.rows.length > PAGE ? `Showing ${nf(upto)} of ${nf(S.rows.length)}` : '';
+  /* ── Filters in place: the alphabet tabs and the search ──────────────────────────────────────────────────────────── */
+  function paintBar() {
+    const tab = S.tab;
+    const all = letters();
+    $('#lx-bar').innerHTML = SCRIPTS.filter(([k]) => tab === 'all' || tab === k).map(([k, , rx]) => all.filter((l) => rx.test(l))
+      .map((l) => `<a href="#letter-${esc(encodeURIComponent(slug(l)))}" data-jump="${esc(l)}"${k === 'en' ? '' : ` lang="${k}"`} aria-label="${esc(letterName(l))}, ${plural(INDEX.letters[l], 'term', 'terms')}">${esc(letterName(l))}</a>`).join('')).filter(Boolean)
+      .map((g) => `<span class="lx-bg">${g}</span>`).join('');
+    document.querySelectorAll('#lx-tabs [data-t]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.t === tab)));
+    setBarH();
   }
-  function setRows(rows, head, count, empty) {
-    S.rows = rows; S.shown = PAGE;
-    $('#lx-head').textContent = head;
-    $('#lx-count').textContent = count;
-    $('#lx-empty').textContent = empty;
-    $('#lx-empty').hidden = rows.length > 0;
-    paintRows(0);
-  }
-  function busy(head) {
-    $('#lx-head').textContent = head; $('#lx-count').textContent = '';
-    $('#lx-list').innerHTML = `<ul class="lx-words">${skRows(9)}</ul>`;
-    $('#lx-list').setAttribute('aria-busy', 'true');
-    $('#lx-empty').hidden = true; $('#lx-more').hidden = true; $('#lx-shown').textContent = ''; $('#lx-lnav').innerHTML = '';
-  }
-  const failed = (msg) => { $('#lx-list').innerHTML = ''; $('#lx-list').removeAttribute('aria-busy'); $('#lx-empty').hidden = false; $('#lx-empty').innerHTML = retry(msg); };
-
-  async function showLetter(l) {
-    const seq = ++LSEQ;
-    busy(l.toUpperCase());
-    const rows = await letterRows(l);
-    if (seq !== LSEQ) return;
-    if (rows === null) { failed('This letter did not load.'); return; }
-    const g = groupRows(rows);
-    setRows(g, l.toUpperCase(), plural(g.length, 'term', 'terms'), `No term under ${l.toUpperCase()}.`);
-    // the letters on either side, in the same alphabet
-    const mine = SCRIPTS.find(([, , rx]) => rx.test(l));
-    const ls = Object.keys(INDEX.letters).filter((x) => mine && mine[2].test(x));
-    const i = ls.indexOf(l);
-    const link = (x, arrow) => (x ? `<a href="${esc(urlFor({ letter: x }))}" data-nav>${arrow === 'prev' ? '← ' : ''}${esc(x.toUpperCase())}${arrow === 'next' ? ' →' : ''}</a>` : '<span></span>');
-    $('#lx-lnav').innerHTML = `${link(ls[i - 1], 'prev')}${link(ls[i + 1], 'next')}`;
-  }
-
-  /* THE SEARCH. A form's shard (its first two letters) names the term for each Latin, Greek and English form that begins with what was typed.
-     The headword's letter file holds the headwords that begin with it. Both land on the same rows. */
+  const setBarH = () => { const b = $('#lx-bar'); if (b && b.offsetHeight) $('main.tfr-lexicon').style.setProperty('--lx-bar', `${b.offsetHeight + 4}px`); };
+  window.addEventListener('resize', setBarH);
+  const tabOk = (sc) => S.tab === 'all' || S.tab === sc;
   const shardKey = (f) => f.slice(0, 2).replace(/ς/g, 'σ').replace(/[^\p{L}\p{N}]/gu, '_');
   const shardOf = (f) => once(`f:${shardKey(f)}`, async () => { const r = await get(`/v1/lexicon/forms/${encodeURIComponent(shardKey(f))}.json`); return r.data || (r.status === 404 ? {} : null); });
-  async function search(q) {
+  const SEQ = { f: 0 };
+  /* a term matches when its headword, or its Latin or Greek form, begins with what was typed or has a word that does; the forms file adds
+     the terms a form beyond the first names. Exact and leading matches come first, then the alphabet. */
+  async function matches(q) {
     const f = fold(q);
-    const [shard, own] = await Promise.all([shardOf(f), letterRows(f.slice(0, 1))]);
-    if (shard === null && own === null) return null;
-    const hits = new Map();
-    const add = (id, rank, via) => { const h = hits.get(id); if (!h || rank < h.rank) hits.set(id, { rank, via }); };
-    Object.entries(shard || {}).forEach(([k, id]) => { if (k === f) add(id, 0, k); else if (k.startsWith(f)) add(id, 2, k); });
-    const byId = new Map();
-    (own || []).forEach((r) => {
-      byId.set(r[0], r);
-      const h = fold(r[1]);
-      if (h === f) add(r[0], 0, '');
-      else if (h.startsWith(f)) add(r[0], 1, '');
-      else if (h.split(' ').some((w) => w.startsWith(f))) add(r[0], 3, '');
-      else if (fold(r[3]).startsWith(f) || fold(r[4]).startsWith(f)) add(r[0], 2, '');
+    const shard = await shardOf(f);
+    const hits = [];
+    const seen = new Set();
+    letters().forEach((l) => {
+      const rows = DATA.get(l);
+      if (!rows) return;
+      const fl = FOLD.get(l);
+      rows.forEach((r, i) => {
+        const [h, la, gr] = fl[i].split('|');
+        let rank = 9;
+        if (h === f) rank = 0; else if (h.startsWith(f)) rank = 1; else if (la.startsWith(f) || gr.startsWith(f)) rank = 2; else if (` ${h}`.includes(` ${f}`)) rank = 3; else if (` ${la}`.includes(` ${f}`) || ` ${gr}`.includes(` ${f}`)) rank = 4;
+        if (rank < 9 && tabOk(scriptOf(r[1]))) { hits.push([rank, r]); seen.add(r[0]); }
+      });
     });
-    const ordered = [...hits.entries()].sort((a, b) => a[1].rank - b[1].rank || ((byId.get(b[0]) || [])[2] || 0) - ((byId.get(a[0]) || [])[2] || 0)).slice(0, 200);
-    // the terms a form names that sit under another letter: that letter's file gives their row
-    const need = [...new Set(ordered.filter(([id]) => !byId.has(id)).slice(0, 60).map(([id]) => fold(id).slice(0, 1)))].slice(0, 10);
-    const more = await Promise.all(need.map(letterRows));
-    more.forEach((rs) => (rs || []).forEach((r) => { if (!byId.has(r[0])) byId.set(r[0], r); }));
-    return ordered.map(([id, h]) => {
-      const r = byId.get(id) || [id, id.replace(/-/g, ' '), 0, '', ''];
-      return { id, hw: r[1], works: r[2], la: r[3], grc: r[4], n: 1, via: h.via && fold(h.via) !== fold(r[1]) ? h.via : '' };
+    Object.entries(shard || {}).forEach(([k, id]) => {
+      if (seen.has(id) || !k.startsWith(f)) return;
+      const hit = BYID.get(id);
+      if (hit && tabOk(scriptOf(hit[0][1]))) { hits.push([2, hit[0]]); seen.add(id); }
     });
+    return hits.sort((a, b) => a[0] - b[0]).map((h) => h[1]);
   }
-  async function showSearch(q) {
-    const seq = ++LSEQ;
-    const head = `Results for “${q}”`;
-    busy(head);
-    if (fold(q).length < 2) { $('#lx-list').innerHTML = ''; $('#lx-list').removeAttribute('aria-busy'); $('#lx-empty').hidden = false; $('#lx-empty').textContent = 'Type two letters or more.'; return; }
-    const rows = await search(q);
-    if (seq !== LSEQ) return;
-    if (rows === null) { failed('The search did not load.'); return; }
-    setRows(rows, head, rows.length >= 200 ? '200 or more terms' : plural(rows.length, 'term', 'terms'), `No term matches “${q}”.`);
+  async function applyFilter() {
+    const seq = ++SEQ.f;
+    const total = INDEX.n;
+    const searching = fold(S.q).length >= 2;
+    $('#lx-all').hidden = searching; $('#lx-bar').hidden = searching; $('#lx-found').hidden = !searching;
+    $('#lx-empty').hidden = true;
+    paintBar();
+    document.querySelectorAll('#lx-all .lx-sec').forEach((s) => { s.hidden = !tabOk(s.dataset.s); });
+    if (!searching) {
+      const n = letters().filter((l) => tabOk(scriptOfLetter(l))).reduce((a, l) => a + INDEX.letters[l], 0);
+      $('#lx-count').textContent = n === total ? `${nf(total)} terms` : `${nf(n)} of ${nf(total)} terms`;
+      return;
+    }
+    const rows = await matches(S.q);
+    if (seq !== SEQ.f) return;
+    const complete = stat.loaded >= letters().length;
+    $('#lx-count').textContent = `${nf(rows.length)} of ${nf(total)} terms${complete ? '' : ' so far'}`;
+    $('#lx-found-cols').innerHTML = chunksHTML(rows);
+    $('#lx-empty').textContent = `No term matches “${S.q}”.`;
+    $('#lx-empty').hidden = rows.length > 0 || !complete;
+    S.found = rows;
+  }
+
+  /* ── Pieces ──────────────────────────────────────────────────────────────────────────────────────────────────────── */
+  const skEntry = '<div class="lx-sk-entry" aria-hidden="true"><span class="lx-sk lx-sk-h"></span><span class="lx-sk" style="width:60%"></span><span class="lx-sk" style="width:92%"></span><span class="lx-sk" style="width:86%"></span></div>';
+  const retry = (what) => `<p class="lx-note">${what} <button type="button" class="lx-btn" data-retry>Try again</button></p>`;
+
+  /* ── Quotes: the words on the page that a sense is drawn from, read from the work's TEI ──────────────────────────── */
+  const QUOTE = { quote: 0, page: 0, none: 0 };
+  window.__lexQuotes = QUOTE;
+  let slots = 2;
+  const waitQ = [];
+  const take = () => new Promise((res) => { if (slots > 0) { slots -= 1; res(); } else waitQ.push(res); });
+  const give = () => { const n = waitQ.shift(); if (n) n(); else slots += 1; };
+  const normPage = (v) => String(v == null ? '' : v).trim().replace(/^0+(?=\d)/, '');
+  const teiUrls = (w) => {
+    const m = /^(pg|pld|po|eebo)-(\d+)$/.exec(w);
+    return m ? [`/v1/tei/${m[1]}/${m[2]}.xml`] : [`/v1/works/${encodeURIComponent(w)}/tei.la.xml`, `/v1/works/${encodeURIComponent(w)}/tei.en.xml`];
+  };
+  /* one work's pages: page -> blocks [{lang, text, mt}], from its TEI. A TEI over eight megabytes is not read. */
+  async function indexXml(url, pages, defLang) {
+    let text = '';
+    try {
+      const r = await fetch(BLOB + url);
+      if (!r.ok) return false;
+      if (Number(r.headers.get('content-length') || 0) > 8e6) return false;
+      const rd = r.body.getReader();
+      const dec = new TextDecoder();
+      let got = 0;
+      for (;;) {
+        const { done, value } = await rd.read();
+        if (done) break;
+        got += value.length;
+        if (got > 8e6) { rd.cancel(); return false; }
+        text += dec.decode(value, { stream: true });
+      }
+    } catch (_) { return false; }
+    const doc = new DOMParser().parseFromString(text, 'application/xml');
+    if (doc.getElementsByTagName('parsererror').length) return false;
+    const textEl = doc.documentElement.getElementsByTagName('text')[0];
+    const root = (textEl && textEl.getAttribute('xml:lang')) || defLang;
+    const machine = /English translation \(machine\)|machine[- ]translat/i.test(text.slice(0, 4000));
+    let page = '';
+    const langOf = (el) => { for (let e = el; e && e.nodeType === 1; e = e.parentNode) { const v = e.getAttribute('xml:lang'); if (v) return v; } return root; };
+    const els = doc.getElementsByTagName('*');
+    for (let i = 0; i < els.length; i += 1) {
+      const el = els[i];
+      const ln = el.localName;
+      if (ln === 'pb' || (ln === 'milestone' && el.getAttribute('unit') === 'column')) { page = normPage((el.getAttribute('n') || '').replace(/^\d+:0*(\d+)[A-Z]?$/, '$1')); continue; }
+      if ((ln !== 'p' && ln !== 'l' && ln !== 'head' && ln !== 'item') || !page) continue;
+      if (el.closest('note') || el.getElementsByTagName('p').length) continue;
+      // a footnote inside a block ends the text before it and starts a new piece after it, so each piece is a contiguous run of the page
+      let c = el;
+      if (el.getElementsByTagName('note').length) { c = el.cloneNode(true); Array.from(c.getElementsByTagName('note')).forEach((n) => n.replaceWith('\u0001')); }
+      const pieces = c.textContent.split('\u0001').map((x) => x.replace(/\s+/g, ' ').trim()).filter((x) => x.length >= 2);
+      if (!pieces.length) continue;
+      if (!pages.has(page)) pages.set(page, []);
+      pieces.forEach((t) => pages.get(page).push({ lang: (langOf(el) || 'und').slice(0, 2).toLowerCase(), text: t, mt: /machine/i.test(el.getAttribute('resp') || '') || machine }));
+    }
+    return true;
+  }
+  window.__lexWork = (w) => workPages(w);
+  let QGEN = 0;
+  const workPages = (w) => once(`w:${w}`, async () => {
+    const gen = QGEN;
+    await take();
+    try {
+      if (gen !== QGEN) return { pages: null };
+      const pages = new Map();
+      const oks = await Promise.all(teiUrls(w).map((u, i, all) => indexXml(u, pages, all.length > 1 ? (i === 0 ? 'la' : 'en') : '')));
+      return oks.some(Boolean) ? { pages } : { pages: null };
+    } finally { give(); }
+  });
+  /* fold with a map back to the printed characters, so a match in the folded text marks the exact printed span */
+  function foldMap(text) {
+    let s = '';
+    const map = [];
+    for (let i = 0; i < text.length; i += 1) {
+      const f = text[i].normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+      for (let k = 0; k < f.length; k += 1) { s += f[k]; map.push(i); }
+    }
+    return { s, map };
+  }
+  const CUE = /\b(is|are|was|called|termed|named|defined?|defines|means|meaning|namely|est|sunt|dicitur|vocatur|definitur|appellatur|nominatur|esse|sive|id est)\b|ἐστι|καλεῖται|λέγεται|ὁρίζ/i;
+  function locate(blocks, forms) {
+    const fs = [...new Set(forms.map(fold).filter((f) => f.length >= 3))];
+    let best = null;
+    blocks.forEach((b) => {
+      const sents = [];
+      const re = /[^.!?;·]+[.!?;·]*["”’)\]]*|[^.!?;·]+$/g;
+      let m;
+      while ((m = re.exec(b.text))) { const raw = m[0]; const lead = raw.length - raw.trimStart().length; const t = raw.trim(); if (t) sents.push({ start: m.index + lead, end: m.index + lead + t.length }); }
+      sents.forEach((s, i) => {
+        const seg = b.text.slice(s.start, s.end);
+        const { s: fs0, map } = foldMap(seg);
+        const spans = [];
+        fs.forEach((f) => {
+          const rx = new RegExp(`(^|[^\\p{L}\\p{N}])(${f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\p{L}*)`, 'gu');
+          let mm;
+          while ((mm = rx.exec(fs0))) { const st = mm.index + mm[1].length; spans.push([map[st], (map[st + mm[2].length - 1] ?? map[map.length - 1]) + 1]); }
+        });
+        if (!spans.length) return;
+        const score = (CUE.test(seg) ? 2 : 1) + (seg.length < 500 ? 0.5 : 0);
+        if (best && best.score >= score) return;
+        let a = s.start;
+        // a short sentence takes the one before it in the same block, for a little context
+        if (seg.length < 80 && i > 0) a = sents[i - 1].start;
+        const { end } = s;
+        let cutS = false;
+        let cutE = false;
+        let q = b.text.slice(a, end);
+        if (q.length > 460) {
+          const first = spans[0][0] + (a === s.start ? 0 : s.start - a);
+          let x = Math.max(0, first - 180);
+          let y = Math.min(q.length, first + 280);
+          if (x > 0) { const sp = q.indexOf(' ', x); if (sp > -1 && sp < first) x = sp + 1; }
+          if (y < q.length) { const sp = q.lastIndexOf(' ', y); if (sp > first) y = sp; }
+          cutS = x > 0; cutE = y < q.length;
+          q = q.slice(x, y);
+          a += x;
+        }
+        const off = a - s.start;
+        const marks = spans.map(([x, y]) => [x - off, y - off]).filter(([x, y]) => x >= 0 && y <= q.length && y > x);
+        best = { score, text: q, marks, cutS, cutE, lang: b.lang, mt: b.mt };
+      });
+    });
+    return best;
+  }
+  const firstLines = (blocks) => {
+    const b = blocks[0];
+    if (!b) return null;
+    let t = b.text.slice(0, 260);
+    const cut = b.text.length > 260;
+    if (cut) { const sp = t.lastIndexOf(' '); if (sp > 120) t = t.slice(0, sp); }
+    return { text: t, marks: [], cutS: false, cutE: cut, lang: b.lang, mt: b.mt, page: true };
+  };
+  const LANGNAME = { la: 'Latin', en: 'English', grc: 'Greek', gr: 'Greek', fr: 'French', de: 'German', it: 'Italian', es: 'Spanish', nl: 'Dutch', he: 'Hebrew', sy: 'Syriac', cu: 'Slavonic' };
+  /* a source row's quote, per lane: { en, orig } or null when the page text is not there */
+  const qcache = new Map();
+  async function quoteOf(w, p, forms) {
+    const key = `${w}\u0000${p}\u0000${forms[0]}`;
+    if (!qcache.has(key)) {
+      qcache.set(key, (async () => {
+        const wp = await workPages(w);
+        const blocks = wp.pages && wp.pages.get(normPage(p));
+        if (!blocks || !blocks.length) return null;
+        const en = blocks.filter((b) => b.lang === 'en');
+        const orig = blocks.filter((b) => b.lang !== 'en');
+        const pick = (bs, fm) => (bs.length ? locate(bs, fm) || firstLines(bs) : null);
+        const out = { en: pick(en, [forms[0]]), orig: pick(orig, forms) };
+        return out.en || out.orig ? out : null;
+      })());
+    }
+    return qcache.get(key);
+  }
+  function markHTML(q) {
+    let out = '';
+    let at = 0;
+    const ms = [...q.marks].sort((a, b) => a[0] - b[0]);
+    ms.forEach(([x, y]) => { if (x < at) return; out += `${esc(q.text.slice(at, x))}<mark>${esc(q.text.slice(x, y))}</mark>`; at = y; });
+    return `${q.cutS ? '…' : ''}${out}${esc(q.text.slice(at))}${q.cutE ? '…' : ''}`;
+  }
+  const lanesFor = (res) => {
+    const a = res.en;
+    const b = res.orig;
+    if (S.lane === 'en') return a ? [['en', a]] : [['orig', b]];
+    if (S.lane === 'orig') return b ? [['orig', b]] : [['en', a]];
+    return [b && ['orig', b], a && ['en', a]].filter(Boolean);
+  };
+  function paintQuote(box, res, w, p, au, ti) {
+    const cite = `${au ? `${au}, ` : ''}${ti || w}, p. ${p}`;
+    const lanes = lanesFor(res);
+    box.className = 'lx-qs';
+    box.removeAttribute('aria-hidden');
+    box.innerHTML = lanes.map(([lane, q]) => {
+      const lang = lane === 'en' ? 'en' : (q.lang && q.lang !== 'und' ? q.lang : '');
+      const label = `${q.page ? `From p. ${esc(p)}` : esc(LANGNAME[lang] || (lang ? lang.toUpperCase() : 'Original'))}${lane === 'en' && q.mt ? ' (machine translation)' : ''}`;
+      return `<blockquote class="lx-q"><p${lang ? ` lang="${esc(lang)}"` : ''}>${markHTML(q)}</p><footer><span class="lx-ql">${label}</span><button type="button" class="lx-link" data-cite data-cite-text="${esc(`${cite}\n“${q.text}”`)}">Copy citation</button></footer></blockquote>`;
+    }).join('');
+    if (lanes.some(([, q]) => !q.page)) QUOTE.quote += 1; else QUOTE.page += 1;
+  }
+  /* each sense draws its quotes as it nears the screen */
+  async function fillSense(li, forms) {
+    li.dataset.q = '1';
+    if (!li.isConnected) return;
+    const rows = [...li.querySelectorAll('.lx-src > li[data-w]')];
+    await Promise.all(rows.map(async (row) => {
+      const box = row.querySelector('.lx-qs');
+      const w = row.dataset.w;
+      const p = row.dataset.p;
+      let res = null;
+      try { res = await quoteOf(w, p, forms); } catch (_) { res = null; }
+      if (!box.isConnected) return;
+      if (!res) { box.removeAttribute('aria-hidden'); box.className = 'lx-qs lx-qf'; box.textContent = `Open p. ${p} to read it.`; QUOTE.none += 1; return; }
+      row._res = res;
+      paintQuote(box, res, w, p, row.dataset.a, row.dataset.t);
+    }));
+  }
+  function watchSenses(forms) {
+    if (QIO) QIO.disconnect();
+    QIO = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting && !e.target.dataset.q) { QIO.unobserve(e.target); fillSense(e.target, forms); } }), { rootMargin: '500px 0px' });
+    document.querySelectorAll('#lx-entry .lx-sense').forEach((li) => QIO.observe(li));
+  }
+  function repaintQuotes() {
+    document.querySelectorAll('#lx-entry .lx-src > li[data-w]').forEach((row) => {
+      if (row._res) paintQuote(row.querySelector('.lx-qs'), row._res, row.dataset.w, row.dataset.p, row.dataset.a, row.dataset.t);
+    });
+    document.querySelectorAll('#lx-lane button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lane === S.lane)));
   }
 
   /* ── An entry, as a page of its own ──────────────────────────────────────────────────────────────────────────────── */
-  const SRC = 3;
-  const SSTEP = 10;
-  const STEP = 20;
-  const srcRow = ([w, p, a, ti]) => `<li><span class="lx-who">${a ? `<span class="lx-au">${esc(a)}</span>` : ''}<span class="lx-wk">${esc(ti || w)}</span></span><a class="lx-btn lx-open" href="${esc(read(w, p))}" aria-label="Open p. ${esc(p)} of ${esc(ti || w)}${esc(a ? ` by ${a}` : '')} in the reader">Open p. ${esc(p)}</a></li>`;
-  function senseHTML(s, i, id) {
-    const src = s.src || [];
-    const n = src.length - SRC;
-    const list = src.map((x, j) => srcRow(x).replace('<li>', j >= SRC ? '<li hidden>' : '<li>')).join('');
-    return `<li class="lx-sense" id="s${i + 1}"><a class="lx-sn" href="#${encodeURIComponent(id)}/${i + 1}" aria-label="Sense ${i + 1}, link to this sense">${i + 1}</a><div><p class="lx-gloss">${esc(s.gloss)}</p>${src.length ? `<p class="lx-def">Defined by</p><ul class="lx-src">${list}${n > 0 ? `<li class="lx-srcmore"><button type="button" class="lx-link" data-srcmore aria-expanded="false" data-n="${n}">Show ${plural(n, 'more page', 'more pages')}</button></li>` : ''}</ul>` : ''}</div></li>`;
-  }
+  const srcRow = ([w, p, a, ti]) => `<li data-w="${esc(w)}" data-p="${esc(p)}" data-a="${esc(a || '')}" data-t="${esc(ti || '')}"><div class="lx-sr"><span class="lx-who">${a ? `<span class="lx-au">${esc(a)}</span>` : ''}<span class="lx-wk">${esc(ti || w)}</span></span><a class="lx-btn lx-open" href="${esc(read(w, p))}" aria-label="Open p. ${esc(p)} of ${esc(ti || w)}${esc(a ? ` by ${a}` : '')} in the reader">Open p. ${esc(p)}</a></div><div class="lx-qs lx-qpend" aria-hidden="true"><span class="lx-sk"></span></div></li>`;
+  const senseHTML = (s, i, id) => `<li class="lx-sense" id="s${i + 1}"><a class="lx-sn" href="#${encodeURIComponent(id)}/${i + 1}" aria-label="Sense ${i + 1}, link to this sense">${i + 1}</a><div><p class="lx-gloss">${esc(s.gloss)}</p>${(s.src || []).length ? `<p class="lx-def">Defined by</p><ul class="lx-src">${s.src.map(srcRow).join('')}</ul>` : ''}</div></li>`;
   function formsHTML(t) {
     const part = (name, lang, xs) => {
       if (!xs || !xs.length) return '';
       const first = xs.slice(0, 10);
       const rest = xs.slice(10);
-      return `<div><dt>${name}</dt><dd lang="${lang}">${first.map(esc).join(', ')}${rest.length ? `<span class="lx-rest" hidden>, ${rest.map(esc).join(', ')}</span> <button type="button" class="lx-link" data-formsmore aria-expanded="false" data-n="${rest.length}">and ${nf(rest.length)} more</button>` : ''}</dd></div>`;
+      return `<div><dt>${name}</dt><dd lang="${lang}">${first.map(esc).join(', ')}${rest.length ? `<span class="lx-rest" hidden>, ${rest.map(esc).join(', ')}</span> <button type="button" class="lx-link" data-formsmore data-n="${rest.length}">and ${nf(rest.length)} more</button>` : ''}</dd></div>`;
     };
     const html = part('Latin', 'la', t.latin) + part('Greek', 'grc', t.greek);
     return html ? `<dl class="lx-forms">${html}</dl>` : '';
@@ -265,7 +496,7 @@
     const [html, lastC0] = histRows(h, 0, HSTEP, null);
     let lastC = lastC0;
     let drawn = Math.min(HSTEP, h.rows.length);
-    const method = window.TFRMethod ? window.TFRMethod.html("<p>Each line is a one-line English summary made by machine. Open the page to read the author\u2019s own words.</p>") : '';
+    const method = window.TFRMethod ? window.TFRMethod.html('<p>Each line is a one-line English summary made by machine. Open the page to read the author’s own words.</p>') : '';
     box.innerHTML = `<h2 id="lx-hist-h">Every work that defines it <small>${nf(h.works)}</small></h2><p class="lx-hnote">${span}</p>${method}<ol class="lx-hlist">${html}</ol><div class="lx-sentinel" aria-hidden="true"></div>`;
     const ol = box.querySelector('.lx-hlist');
     const sentinel = box.querySelector('.lx-sentinel');
@@ -297,19 +528,23 @@
     const el = n ? document.getElementById(`s${n}`) : null;
     if (!el) return;
     el.classList.add('is-target');
-    el.scrollIntoView({ block: 'start', behavior: 'auto' });
+    el.scrollIntoView({ block: 'start', behavior: 'instant' });
   }
-  const crumb = (l) => `<nav class="lx-crumb" aria-label="Breadcrumb"><a href="${PATH}" data-nav>Lexicon</a>${l ? ` <span aria-hidden="true">/</span> <a href="${esc(urlFor({ letter: l }))}" data-nav>${esc(l.toUpperCase())}</a>` : ''}</nav>`;
+  const crumb = (l) => `<nav class="lx-crumb" aria-label="Breadcrumb"><a href="${PATH}${l ? `#letter-${encodeURIComponent(slug(l))}` : ''}" data-nav>Lexicon</a>${l ? ` <span aria-hidden="true">/</span> <a href="${PATH}#letter-${encodeURIComponent(slug(l))}" data-nav>${esc(letterName(l))}</a>` : ''}</nav>`;
   async function openEntry(id, sense) {
     show('entry');
     if (S.id === id) { if (S.rendered === id) focusSense(sense); else S.sense = sense; return; }
     const seq = ++TSEQ;
     S.id = id; S.rendered = ''; S.sense = sense;
     if (IO) { IO.disconnect(); IO = null; }
+    // a new entry drops the last one's page text and any quote fetch still waiting
+    QGEN += 1;
+    [...memo.keys()].filter((k) => k.startsWith('w:')).forEach((k) => memo.delete(k));
+    qcache.clear();
     const box = $('#lx-entry');
     box.innerHTML = `${crumb('')}${skEntry}`;
     $('#lx-live').textContent = 'Loading the term';
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
     const t = await loadTerm(id);
     if (seq !== TSEQ) return;
     if (t && t.missing) { box.innerHTML = `${crumb('')}<p class="lx-note">No term has the address “${esc(id)}”.</p>`; return; }
@@ -319,143 +554,122 @@
     // the headword's letter file: whether the term is filed more than once, and the terms on either side
     const hw = String(t.headword || '');
     const hk = hw.toLowerCase();
-    const hl = fold(hk).slice(0, 1);
+    let hl = fold(hk).slice(0, 1);
+    if (!Object.hasOwn(INDEX.letters, hl)) hl = BYID.has(tid) ? BYID.get(tid)[1] : '_';
     const rows = (await letterRows(hl)) || [];
     if (seq !== TSEQ) return;
     const sib = rows.filter((x) => String(x[1]).toLowerCase() === hk && x[0] !== tid).sort((a, b) => (b[2] || 0) - (a[2] || 0));
-    const order = groupRows(rows);
-    const at = order.findIndex((r) => String(r.hw).toLowerCase() === hk);
-    const pn = (r, dir) => (r ? `<a class="lx-pn lx-pn-${dir}" href="#${encodeURIComponent(r.id)}"><span>${dir === 'prev' ? 'Previous term' : 'Next term'}</span><b lang="${scriptOf(r.hw)}" dir="auto">${esc(r.hw)}</b></a>` : '<span></span>');
+    const at = rows.findIndex((r) => r[0] === tid);
+    const pn = (r, dir) => (r ? `<a class="lx-pn lx-pn-${dir}" href="#${encodeURIComponent(r[0])}"><span>${dir === 'prev' ? 'Previous' : 'Next'}</span><b lang="${scriptOf(r[1])}" dir="auto">${esc(r[1])}</b></a>` : '<span></span>');
     const also = sib.length ? `<p class="lx-also">Also filed as ${sib.map((x) => `<a href="#${encodeURIComponent(x[0])}">${esc([x[3], x[4]].filter(Boolean).join(' / ') || x[1])}</a> <span class="lx-via">${plural(x[2], 'work', 'works')}</span>`).join(', ')}</p>` : '';
     const senses = t.senses || [];
-    let shown = Math.min(senses.length, Math.max(SSTEP, Math.ceil(S.sense / STEP) * STEP));
-    const moreLabel = () => `Show ${plural(Math.min(STEP, senses.length - shown), 'more sense', 'more senses')}`;
-    const moreBtn = () => (senses.length > shown ? `<button type="button" class="lx-btn" id="lx-smore">${moreLabel()}</button>` : '');
     document.title = `${hw} | ${TITLE}`;
     const lang = scriptOf(hw);
     const langs = [t.latin && t.latin.length ? 'Latin' : '', t.greek && t.greek.length ? 'Greek' : ''].filter(Boolean);
     const fact = (k, v, idv, hide) => `<div${hide ? ' hidden' : ''}><dt>${k}</dt><dd${idv ? ` id="${idv}"` : ''}>${v}</dd></div>`;
+    const laneBtns = [['en', 'English'], ['orig', 'Original'], ['both', 'Both']].map(([k, n]) => `<button type="button" data-lane="${k}" aria-pressed="${S.lane === k}">${n}</button>`).join('');
     box.innerHTML = `${crumb(hl)}<div class="lx-ent">
 <header class="lx-eh"><h1 id="lx-title" tabindex="-1" lang="${lang}" dir="auto">${esc(hw)}</h1>${formsHTML(t)}${also}</header>
 <aside class="lx-facts" aria-label="Quick facts about ${esc(hw)}"><h2>Quick facts</h2><dl>${fact('Headword', { en: 'English', grc: 'Greek', he: 'Hebrew' }[lang])}${langs.length ? fact('Forms in', langs.join(' and ')) : ''}${fact('Senses', nf(senses.length))}${t.works ? fact('Works', nf(t.works)) : ''}${fact('Authors', '', 'lx-f-authors', true)}${fact('Earliest source', '', 'lx-f-first', true)}</dl><button type="button" class="lx-btn" data-copy>Copy link</button></aside>
-<div class="lx-body">${senses.length ? `<section aria-labelledby="lx-sen-h"><h2 id="lx-sen-h">Senses <small>${nf(senses.length)}</small></h2><ol class="lx-senses">${senses.slice(0, shown).map((s, i) => senseHTML(s, i, tid)).join('')}</ol>${moreBtn()}</section>` : '<p class="lx-note">This term has no sense recorded yet.</p>'}
+<div class="lx-body">${senses.length ? `<section aria-labelledby="lx-sen-h"><div class="lx-sh"><h2 id="lx-sen-h">Senses <small>${nf(senses.length)}</small></h2><div class="lx-lane" id="lx-lane" role="group" aria-label="Quotation language">${laneBtns}</div></div><ol class="lx-senses">${senses.map((s, i) => senseHTML(s, i, tid)).join('')}</ol></section>` : '<p class="lx-note">This term has no sense recorded yet.</p>'}
 <section class="lx-hist" id="lx-hist"></section>
-<nav class="lx-pnav" aria-label="Neighboring terms">${pn(order[at - 1], 'prev')}${pn(order[at + 1], 'next')}</nav></div></div>`;
+<nav class="lx-pnav" aria-label="Neighboring terms">${pn(rows[at - 1], 'prev')}${pn(rows[at + 1], 'next')}</nav></div></div>`;
     S.rendered = tid;
     $('#lx-live').textContent = `${hw}, ${plural(senses.length, 'sense', 'senses')}`;
     const want = S.sense;
+    const forms = [hw, ...(t.latin || []), ...(t.greek || [])];
     box.onclick = (e) => {
-      const sm = e.target.closest('#lx-smore');
-      if (sm) {
-        const from = shown;
-        shown = Math.min(senses.length, shown + STEP);
-        $('#lx-entry .lx-senses').insertAdjacentHTML('beforeend', senses.slice(from, shown).map((s, j) => senseHTML(s, from + j, tid)).join(''));
-        if (senses.length > shown) { sm.textContent = moreLabel(); return; }
-        const next = $('#lx-entry .lx-senses').children[from];
-        sm.remove();
-        if (next) { next.tabIndex = -1; next.focus({ preventScroll: true }); }
-        return;
-      }
-      const sr = e.target.closest('[data-srcmore]');
+      const sr = e.target.closest('[data-formsmore]');
       if (sr) {
-        const open = sr.getAttribute('aria-expanded') !== 'true';
-        const n = Number(sr.dataset.n);
-        sr.closest('ul').querySelectorAll('li:not(.lx-srcmore)').forEach((li, j) => { if (j >= SRC) li.hidden = !open; });
-        sr.setAttribute('aria-expanded', String(open));
-        sr.textContent = open ? 'Show fewer pages' : `Show ${plural(n, 'more page', 'more pages')}`;
+        const open = sr.previousElementSibling.hidden;
+        sr.previousElementSibling.hidden = !open;
+        sr.textContent = open ? 'Show fewer' : `and ${nf(Number(sr.dataset.n))} more`;
         return;
       }
-      const fm = e.target.closest('[data-formsmore]');
-      if (fm) {
-        const open = fm.getAttribute('aria-expanded') !== 'true';
-        fm.previousElementSibling.hidden = !open;
-        fm.setAttribute('aria-expanded', String(open));
-        fm.textContent = open ? 'Show fewer' : `and ${nf(Number(fm.dataset.n))} more`;
-        return;
-      }
+      const ln = e.target.closest('[data-lane]');
+      if (ln) { S.lane = ln.dataset.lane; try { localStorage.setItem(LANE_KEY, S.lane); } catch (_) { /* storage blocked */ } repaintQuotes(); $('#lx-live').textContent = `Showing ${{ en: 'English', orig: 'original', both: 'both' }[S.lane]} quotes`; return; }
+      const ci = e.target.closest('[data-cite]');
+      if (ci) { copyText(ci, ci.dataset.citeText, 'Copy citation', 'Citation copied'); return; }
       const cp = e.target.closest('[data-copy]');
-      if (cp) copyLink(cp, tid);
+      if (cp) copyText(cp, `${location.origin}${PATH}#${encodeURIComponent(tid)}`, 'Copy link', 'Link copied');
     };
+    watchSenses(forms);
     const title = $('#lx-title');
     if (want) focusSense(want); else if (title) title.focus({ preventScroll: true });
     showHistory(tid, seq);
   }
-  async function copyLink(btn, id) {
-    const url = `${location.origin}${PATH}#${encodeURIComponent(id)}`;
-    try { await navigator.clipboard.writeText(url); btn.textContent = 'Link copied'; $('#lx-live').textContent = 'Link copied'; } catch (_) { btn.textContent = 'Copy failed'; }
-    setTimeout(() => { btn.textContent = 'Copy link'; }, 2000);
+  async function copyText(btn, text, idle0, done) {
+    try { await navigator.clipboard.writeText(text); btn.textContent = done; $('#lx-live').textContent = done; } catch (_) { btn.textContent = 'Copy failed'; }
+    setTimeout(() => { btn.textContent = idle0; }, 2000);
   }
 
   /* ── Routing: the address is the state ───────────────────────────────────────────────────────────────────────────── */
   function show(view) {
-    $('#lx-hero').hidden = view === 'entry';
-    $('#lx-front').hidden = view !== 'front';
-    $('#lx-results').hidden = view !== 'list';
+    $('#lx-hd').hidden = view === 'entry';
+    $('#lx-listview').hidden = view === 'entry';
     $('#lx-entry').hidden = view !== 'entry';
-    $('#lx-find').hidden = false;
   }
   let listScroll = 0;
   let wasEntry = false;
   let viaHistory = false;
-  let booted = false;
+  async function jump(l) {
+    if (!Object.hasOwn(INDEX.letters, l)) return;
+    pendingJump = l; userScrolled = false;
+    startAll(l);
+    await load(l);
+    const t = document.getElementById(`letter-${slug(l)}`);
+    if (t) t.scrollIntoView({ block: 'start', behavior: 'instant' });
+    updateCurrent();
+    setTimeout(() => { pendingJump = ''; }, 4000);
+  }
   function route() {
     if (!INDEX) return;
-    const { id, sense } = parseHash();
+    const h = parseHash();
     const sp = new URLSearchParams(location.search);
     S.q = (sp.get('q') || '').slice(0, 80);
-    S.letter = sp.get('l') && Object.hasOwn(INDEX.letters, sp.get('l')) ? sp.get('l') : '';
-    if (id) {
+    S.tab = ['en', 'grc', 'he'].includes(sp.get('t')) ? sp.get('t') : 'all';
+    if (h.id) {
       if (!wasEntry) listScroll = window.scrollY;
       wasEntry = true;
-      openEntry(id, sense);
+      openEntry(h.id, h.sense);
       return;
     }
     const back = wasEntry && viaHistory;
     viaHistory = false;
     wasEntry = false; S.id = ''; S.rendered = ''; TSEQ += 1;
-    const mine = TSEQ;
     if (IO) { IO.disconnect(); IO = null; }
+    if (QIO) { QIO.disconnect(); QIO = null; }
     document.title = TITLE;
+    show('list');
     if (document.activeElement !== $('#lx-q')) $('#lx-q').value = S.q;
-    let done;
-    if (S.q) { show('list'); done = showSearch(S.q); } else if (S.letter) { show('list'); done = showLetter(S.letter); } else { show('front'); done = Promise.resolve(); }
-    Promise.resolve(done).then(() => {
-      if (mine !== TSEQ) return;
-      const typing = document.activeElement === $('#lx-q');
-      if (back) window.scrollTo(0, listScroll); else if (!typing) window.scrollTo(0, 0);
-      if (booted && !typing) { const h = S.q || S.letter ? $('#lx-head') : $('#lx-az-h'); h.tabIndex = -1; h.focus({ preventScroll: true }); }
-      booted = true;
-    });
+    startAll(h.letter && Object.hasOwn(INDEX.letters, h.letter === 'other' ? '_' : h.letter) ? (h.letter === 'other' ? '_' : h.letter) : '');
+    applyFilter();
+    if (h.letter) jump(h.letter === 'other' ? '_' : h.letter);
+    else if (back) window.scrollTo({ top: listScroll, behavior: 'instant' });
   }
 
   /* ── Wiring ──────────────────────────────────────────────────────────────────────────────────────────────────────── */
   document.addEventListener('click', (e) => {
     if (e.target.closest('[data-retry]')) { S.id = ''; if (INDEX) route(); else init(); return; }
+    const jp = e.target.closest('#lx-bar a[data-jump]');
+    if (jp && !(e.metaKey || e.ctrlKey || e.shiftKey || e.button)) { e.preventDefault(); history.replaceState(null, '', `${location.pathname}${location.search}#letter-${encodeURIComponent(slug(jp.dataset.jump))}`); jump(jp.dataset.jump); return; }
     const nav = e.target.closest('a[data-nav]');
     if (nav && !(e.metaKey || e.ctrlKey || e.shiftKey || e.button)) { e.preventDefault(); go(nav.getAttribute('href'), true); return; }
-    if (e.target.closest('#lx-more')) {
-      const from = S.shown;
-      S.shown = Math.min(S.rows.length, S.shown + PAGE);
-      paintRows(from);
-      const next = $('#lx-list').lastElementChild.querySelector('a');
-      if (next) next.focus({ preventScroll: true });
-    }
+    const t = e.target.closest('#lx-tabs [data-t]');
+    if (t) { S.tab = t.dataset.t; history.replaceState(null, '', urlFor()); applyFilter(); }
   });
   let findT = 0;
   $('#lx-q').addEventListener('input', () => {
     clearTimeout(findT);
-    findT = setTimeout(() => {
-      S.q = $('#lx-q').value.trim();
-      go(urlFor({ q: S.q }), !!parseHash().id);
-    }, 200);
+    findT = setTimeout(() => { S.q = $('#lx-q').value.trim(); history.replaceState(null, '', urlFor()); applyFilter(); }, 150);
   });
   $('#lx-find').addEventListener('submit', async (e) => {
     e.preventDefault();
     clearTimeout(findT);
     S.q = $('#lx-q').value.trim();
-    if (fold(S.q).length < 2) return;
-    const rows = await search(S.q);
-    if (rows && rows.length) { history.pushState(null, '', urlFor({ q: S.q })); location.hash = `#${encodeURIComponent(rows[0].id)}`; } else go(urlFor({ q: S.q }), false);
+    history.replaceState(null, '', urlFor());
+    await applyFilter();
+    if (S.found && S.found.length && fold(S.q).length >= 2) { history.pushState(null, '', urlFor()); location.hash = `#${encodeURIComponent(S.found[0][0])}`; }
   });
   // Back and Forward between hash states fire both events: one route a tick
   let routeT = 0;
@@ -464,14 +678,14 @@
   window.addEventListener('popstate', routeSoon);
 
   async function init() {
-    // a link to a term (the reader's Define popover) opens on the entry: no hero and no front page flash first
-    if (parseHash().id) { $('#lx-hero').hidden = true; $('#lx-front').hidden = true; $('#lx-entry').hidden = false; $('#lx-entry').innerHTML = skEntry; }
-    $('#lx-top').innerHTML = skRows(6);
+    // a link to a term (the reader's Define popover) opens on the entry: no list flashes first
+    if (parseHash().id) { $('#lx-hd').hidden = true; $('#lx-listview').hidden = true; $('#lx-entry').hidden = false; $('#lx-entry').innerHTML = skEntry; }
     const r = await get('/v1/lexicon/index.json');
-    if (!r.data) { $('#lx-top').innerHTML = ''; $('#lx-boot').hidden = false; $('#lx-boot').innerHTML = retry('The lexicon did not load.'); return; }
+    if (!r.data) { $('#lx-boot').hidden = false; $('#lx-boot').innerHTML = retry('The lexicon did not load.'); return; }
     INDEX = r.data;
     $('#lx-boot').hidden = true;
-    paintFront();
+    buildShells();
+    paintBar();
     route();
   }
   init();

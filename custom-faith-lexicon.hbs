@@ -3,39 +3,35 @@
 {{> "faith-received/_tfr-rail"}}
 {{#contentFor "moHead"}}
 <title>Lexicon | The Faith Received | Mere Orthodoxy</title>
-<meta name="description" content="Latin, Greek, Hebrew and English terms as the library's authors define them." />
+<meta name="description" content="Every term in the library, as its authors define it." />
 {{!-- Dark mode: sets html[data-sd-theme] before paint, as the Scripture pages, the decks and the author room do. --}}
 <script src="{{asset "js/page/scripture-view-boot.js"}}&amp;frv=b619c4b13b360add"></script>
 <link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
-<link rel="stylesheet" href="{{asset "css/faith-lexicon.css"}}&amp;frv=ca2c5aff3accc828">
+<link rel="stylesheet" href="{{asset "css/faith-lexicon.css"}}&amp;frv=360cf048097b4a2d">
 {{/contentFor}}
 {{!-- /the-faith-received/lexicon/: the Lexicon, in this site's shell. The hero is the theme's; the body and its script (faith-lexicon.js)
      read the library worker's v1/lexicon files. Styles: css/faith-lexicon.css (scoped under main.tfr-lexicon). --}}
-<section class="bhero bhero--tool bhero--desk" id="lx-hero">
-  <div class="bhero-inner container">
-    <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> Lexicon</p>
-    <h1>Lexicon</h1>
-    <p class="bhero-sub">How the library&rsquo;s authors define a term. Each sense names the works that define it.</p>
-  </div>
-</section>
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
 <main class="tfr-tool tfr-lexicon"><div class="wrap">
-  <form class="lx-find" role="search" id="lx-find"><label class="lx-eyebrow" for="lx-q">Find a term</label><input id="lx-q" type="search" placeholder="Grace, gratia, &chi;&#940;&rho;&iota;&sigmaf;" autocomplete="off" spellcheck="false" maxlength="80" enterkeyhint="search"></form>
+  <header class="lx-hd" id="lx-hd">
+    <p class="lx-eyebrow"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> Lexicon</p>
+    <h1>Lexicon</h1>
+    <p class="lx-sub">Every term in the library, as its authors define it.</p>
+  </header>
   <p class="sr" id="lx-live" role="status" aria-live="polite"></p>
   <div id="lx-boot" hidden></div>
-  <div id="lx-front">
-    <section aria-labelledby="lx-az-h"><h2 id="lx-az-h" class="lx-h2">Browse A to Z</h2><div class="lx-az" id="lx-az"></div></section>
-    <section aria-labelledby="lx-top-h"><h2 id="lx-top-h" class="lx-h2">Most defined</h2><ol class="lx-feat" id="lx-top"></ol></section>
+  <div id="lx-listview">
+    <div class="lx-tools">
+      <form class="lx-find" role="search" id="lx-find"><label class="sr" for="lx-q">Search the lexicon</label><input id="lx-q" type="search" placeholder="Search terms: grace, gratia, &chi;&#940;&rho;&iota;&sigmaf;" autocomplete="off" spellcheck="false" maxlength="80" enterkeyhint="search"></form>
+      <div class="lx-tabs" id="lx-tabs" role="group" aria-label="Alphabet"><button type="button" data-t="all" aria-pressed="true">All</button><button type="button" data-t="en" aria-pressed="false">English</button><button type="button" data-t="grc" aria-pressed="false">Greek</button><button type="button" data-t="he" aria-pressed="false">Hebrew</button></div>
+      <p class="lx-count"><span id="lx-count" role="status" aria-live="polite"></span></p>
+    </div>
+    <nav class="lx-bar" id="lx-bar" aria-label="Jump to a letter"></nav>
+    <div id="lx-all"></div>
+    <div id="lx-found" hidden><div id="lx-found-cols"></div></div>
+    <p class="lx-empty" id="lx-empty" hidden></p>
   </div>
-  <section id="lx-results" aria-labelledby="lx-head" hidden>
-    <nav class="lx-crumb" aria-label="Breadcrumb"><a href="/the-faith-received/lexicon/" data-nav>Lexicon</a></nav>
-    <header class="lx-rh"><h2 id="lx-head"></h2><p id="lx-count" role="status" aria-live="polite"></p></header>
-    <div id="lx-list" aria-busy="true"></div>
-    <div class="lx-empty" id="lx-empty" hidden></div>
-    <div class="lx-pager"><button type="button" class="lx-btn" id="lx-more" hidden>Show 100 more</button><p id="lx-shown"></p></div>
-    <nav class="lx-lnav" id="lx-lnav" aria-label="Neighboring letters"></nav>
-  </section>
   <article class="lx-entry" id="lx-entry" hidden></article>
-  {{#> tfr-method}}<p>Terms, senses and the pages that define them were gathered by machine from the library&rsquo;s texts. A term&rsquo;s forms are the Latin and Greek words the authors use for it.</p>{{/tfr-method}}
+  {{#> tfr-method}}<p>Terms, senses and the pages that define them were gathered by machine from the library&rsquo;s texts. A quote is the sentence on that page where the term or one of its forms appears. Where none does, the first lines of the page are shown. English lines of some works are machine translations.</p>{{/tfr-method}}
 </div></main>
-<script src="{{asset "js/faith-lexicon.js"}}&amp;frv=98c584e342296494"></script>
+<script src="{{asset "js/faith-lexicon.js"}}&amp;frv=6fcd84767a0417f1"></script>
