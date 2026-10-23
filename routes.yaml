@@ -418,6 +418,14 @@ routes:
   # and assets/js/page/faith-tour.js.
   /the-faith-received/tutorial/:
     template: custom-faith-tutorial
+  # The Resources page (2026-10-20, #193 to #203): Mere Orthodoxy articles and podcasts. The rail links here;
+  # Ghost Admin has had this route since 10-20, the repo file did not.
+  /the-faith-received/resources/:
+    template: custom-faith-resources
+  # How to use (Ian, 2026-10-23): one page, three tabs (Laity, Pastors, Academics), each a short list of features with a screenshot.
+  # Deep links: #laity, #pastors, #academics. See custom-faith-how-to-use.hbs.
+  /the-faith-received/how-to-use/:
+    template: custom-faith-how-to-use
   /the-faith-received/search/:
     template: custom-faith-port-search
   # A question answered from the library with citations - POSTs to

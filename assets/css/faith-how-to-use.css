@@ -1,0 +1,65 @@
+/* /the-faith-received/how-to-use/ (2026-10-23): three guides behind underlined tabs. Loaded after faith-tool-skin.css, which owns the
+   tokens (light, and dark on html[data-sd-theme="dark"], never the OS setting alone), the hero and the page ground. Everything here is
+   scoped under main.tfr-howto with ht- class names. Rules kept: serif face throughout, underlined tabs, hollow terracotta buttons with
+   3px corners, hairline borders, no shadows, no scroll box in the page, 44px targets. Without script all three guides show in turn. */
+main.tfr-howto { --ht-accent: var(--accent, #a9472c); --ht-on: var(--on-accent, #fffdfa); }
+main.tfr-howto *, main.tfr-howto *::before, main.tfr-howto *::after { box-sizing: border-box; }
+main.tfr-howto [hidden] { display: none !important; }
+main.tfr-howto .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px 4.5rem; }
+main.tfr-howto a { text-underline-offset: 3px; text-decoration-thickness: 1px; }
+main.tfr-howto :is(a, button, [tabindex]):focus-visible { outline: 2px solid var(--ht-accent); outline-offset: 2px; }
+
+/* ── Tabs: plain labels on one baseline rule, the chosen one underlined ── */
+main.tfr-howto .ht-tabs { display: flex; gap: 0 2.2rem; margin: 0 0 .5rem; padding: .6rem .25rem 0; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+main.tfr-howto .ht-tabs::-webkit-scrollbar { display: none; }
+main.tfr-howto .ht-tab {
+  flex: none; display: inline-flex; align-items: center; min-height: 2.75rem; margin-bottom: -1px; padding: .55rem 0 .65rem;
+  border-bottom: 2px solid transparent; color: var(--muted); font: 600 1.0625rem/1.25 var(--font-body); text-decoration: none; white-space: nowrap;
+}
+main.tfr-howto .ht-tab:hover { color: var(--fg); }
+main.tfr-howto .ht-tab:focus-visible { outline-offset: -2px; }
+html.ht-js main.tfr-howto .ht-tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--ht-accent); }
+html:not(.ht-js) main.tfr-howto .ht-tab { text-decoration: underline; }
+
+/* ── A guide: with script, the one named on <html> shows from the first paint, so nothing collapses after load ── */
+html.ht-js .ht-panel { display: none; }
+html[data-ht-open="laity"] #laity, html[data-ht-open="pastors"] #pastors, html[data-ht-open="academics"] #academics { display: block; }
+main.tfr-howto .ht-panel { scroll-margin-top: 8rem; padding-top: 2rem; }
+main.tfr-howto .ht-panel:focus-visible { outline-offset: 6px; }
+html:not(.ht-js) main.tfr-howto .ht-panel + .ht-panel { margin-top: 3rem; border-top: 1px solid var(--fg); }
+html.ht-js main.tfr-howto .ht-eyebrow { display: none; }
+main.tfr-howto .ht-eyebrow { margin: 0 0 .5rem; font: 600 .75rem/1.4 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--ht-accent); }
+main.tfr-howto .ht-intro { margin: 0 0 .5rem; max-width: 46ch; font: 1.375rem/1.45 var(--font-body); text-wrap: pretty; }
+
+/* ── A feature: the words on the left, the screenshot on the right ── */
+main.tfr-howto .ht-item { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 1.5rem 3.5rem; align-items: start; padding: 2.75rem 0; border-top: 1px solid var(--border); }
+main.tfr-howto .ht-intro + .ht-item { margin-top: 1.75rem; }
+main.tfr-howto .ht-item:last-child { padding-bottom: 1rem; }
+main.tfr-howto .ht-copy { min-width: 0; }
+main.tfr-howto .ht-item h2 { margin: 0 0 .7rem; font: 600 1.625rem/1.25 var(--font-body); text-wrap: balance; }
+main.tfr-howto .ht-item p { margin: 0 0 1.25rem; max-width: 40ch; font: 1.125rem/1.6 var(--font-body); text-wrap: pretty; }
+main.tfr-howto .ht-item p.ht-note { margin: -.5rem 0 1.25rem; font-size: .9375rem; color: var(--muted); }
+main.tfr-howto .ht-fig { margin: 0; min-width: 0; }
+main.tfr-howto .ht-fig img { display: block; width: 100%; height: auto; aspect-ratio: 8 / 5; border: 1px solid var(--border); border-radius: 3px; background: var(--tint); }
+
+/* ── Buttons: hollow, 3px, terracotta ink; filled on hover. None is solid on this page. ── */
+main.tfr-howto .ht-btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: .45rem 1.1rem; border: 1px solid var(--ht-accent); border-radius: 3px;
+  background: transparent; color: var(--ht-accent); font: 600 .9375rem/1.2 var(--font-body); text-decoration: none; cursor: pointer; position: relative;
+}
+main.tfr-howto a.ht-btn:hover, main.tfr-howto a.ht-btn:focus-visible { background: var(--ht-accent); color: var(--ht-on); }
+main.tfr-howto .ht-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+main.tfr-howto .ht-foot { margin: 1.5rem 0 0; padding-top: 2rem; border-top: 1px solid var(--border); }
+
+/* ── Tablet and phone: one column, the screenshot under the words ── */
+@media (max-width: 900px) {
+  main.tfr-howto .ht-item { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; padding: 2.25rem 0; }
+  main.tfr-howto .ht-item p { max-width: 56ch; }
+}
+@media (max-width: 640px) {
+  main.tfr-howto .wrap { padding: 0 20px 3rem; }
+  main.tfr-howto .ht-tabs { gap: 0 1.6rem; }
+  main.tfr-howto .ht-intro { font-size: 1.1875rem; }
+  main.tfr-howto .ht-item h2 { font-size: 1.4375rem; }
+  main.tfr-howto .ht-btn { width: 100%; }
+}
