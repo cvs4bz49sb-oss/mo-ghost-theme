@@ -3,134 +3,35 @@
 {{> "faith-received/_tfr-rail"}}
 {{#contentFor "moHead"}}
 <title>Lexicon | The Faith Received | Mere Orthodoxy</title>
-<meta name="description" content="Look up a Latin or Greek term to see how the library's authors define it. Each sense lists the pages that define it." />
-<link rel=preconnect href="https://fonts.googleapis.com"><link rel=preconnect href="https://fonts.gstatic.com" crossorigin>
-<link rel=stylesheet href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap">
-<style>
-/* THE LEXICON (2026-10-20, owner item 8: "Latin and Greek terms as the authors themselves define them, with senses and sources").
-   v1/lexicon (runs/minimax_1019/lexicon): index.json, letters/<a>.json, forms/<xx>.json, terms/<id>.json. Academic Monochrome v3.
-   THE DESIGN PASS (2026-10-22, owner: "design is impeccable"): an entry reads as a lexicon's does: the headword, its Latin and Greek
-   forms under their language, the senses numbered, each with its first sources and the rest one press away, a dozen senses at a time,
-   then every work that defines the term in a pane that fills as it scrolls; the alphabets are rows of plain letters. */
-.tfr-tool{--bg:#FFFFFF;--fg:#1C1C1A;--muted:#5A5A56;--border:#D8D8D3;--card-bg:#FFFFFF;--highlight:#EFEFEA;--font-display:'EB Garamond',Georgia,serif;--font-body:'Source Serif Pro',Georgia,serif;--sans:'Source Serif Pro',Georgia,serif;--ease:cubic-bezier(.22,1,.36,1);--r:6px;color-scheme:light}
-.tfr-tool *{box-sizing:border-box}
-.tfr-tool{margin:0;background:var(--bg);color:var(--fg);font:16px/1.62 var(--font-body);-webkit-font-smoothing:antialiased}
-.tfr-tool a{color:var(--fg);text-underline-offset:3px}
-.tfr-tool button,.tfr-tool input,.tfr-tool select{font:inherit;color:inherit}
-.tfr-tool [hidden]{display:none!important}
-.tfr-tool .sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-.tfr-tool .wrap{max-width:70rem;margin:0 auto;padding:1.8rem 1.5rem 4rem}
-.tfr-tool h1{font:500 2rem/1.15 var(--font-display);margin:.2rem 0 .4rem;text-wrap:balance}
-.tfr-tool .lede{max-width:62ch;color:var(--muted);margin:0 0 1.5rem;text-wrap:pretty}
-.tfr-tool .muted{color:var(--muted)}
-.tfr-tool :is(a,button,input,select,summary,[tabindex]):focus-visible{outline:2px solid var(--fg);outline-offset:2px}
-.tfr-tool input:focus-visible{outline-offset:1px}
-/* ── the find box and the three alphabets, each one row of plain letters ──────────────────────────────────────────────── */
-.tfr-tool .find{max-width:40rem;margin:0 0 1.1rem}
-.tfr-tool .find input{display:block;width:100%;min-height:2.75rem;padding:.55rem .8rem;border:1px solid var(--border);border-radius:var(--r);background:var(--card-bg);color:var(--fg);font:1.0625rem/1.3 var(--font-body)}
-.tfr-tool .find input::placeholder{color:var(--muted)}
-.tfr-tool .letters{display:grid;gap:.15rem;margin:0 0 1.6rem}
-.tfr-tool .lgroup{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:.75rem;align-items:start}
-.tfr-tool .lname{padding-top:.6rem;font:.8125rem/1.3 var(--font-body);color:var(--muted)}
-.tfr-tool .lbtns{display:flex;flex-wrap:wrap;gap:1px}
-.tfr-tool .letters button{display:inline-grid;place-items:center;min-width:2rem;min-height:2.25rem;padding:0 .3rem;border:0;border-radius:var(--r);background:none;color:var(--fg);font:500 1.0625rem/1 var(--font-display);cursor:pointer}
-.tfr-tool .letters button:hover{background:var(--highlight)}
-.tfr-tool .letters button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
-/* ── the headwords in a pane that keeps its place; its running head ─────────────────────────────────────────────────────── */
-.tfr-tool .cols{display:grid;grid-template-columns:minmax(14rem,19rem) minmax(0,1fr);gap:0 2.75rem;align-items:start}
-.tfr-tool .side{position:sticky;top:calc(var(--fr-sticky-top,0px) + 1rem);display:flex;flex-direction:column;min-width:0;max-height:calc(100vh - var(--fr-sticky-top,0px) - 2rem);max-height:calc(100dvh - var(--fr-sticky-top,0px) - 2rem)}
-.tfr-tool .runhead{display:grid;gap:.15rem;margin:0;padding:0 .5rem .45rem;border-bottom:1px solid var(--fg)}
-.tfr-tool .runhead .rh-1{display:flex;align-items:baseline;gap:.6rem;min-width:0}
-.tfr-tool .runhead b{flex:none;font:500 1.5rem/1.1 var(--font-display);color:var(--fg)}
-.tfr-tool .runhead .rh-range{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:italic 1rem/1.3 var(--font-display);color:var(--muted)}
-.tfr-tool .runhead .rh-2{display:flex;justify-content:space-between;gap:.75rem;font:.8125rem/1.3 var(--font-body);color:var(--muted);font-variant-numeric:tabular-nums}
-.tfr-tool .list{list-style:none;margin:0;padding:0;flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain}
-.tfr-tool .list li button{display:flex;align-items:baseline;justify-content:space-between;gap:.75rem;width:100%;min-height:2.5rem;padding:.45rem .5rem;border:0;border-bottom:1px solid var(--border);background:none;color:var(--fg);font:1rem/1.35 var(--font-body);text-align:left;cursor:pointer}
-.tfr-tool .list li button small{flex:none;color:var(--muted);font:.8125rem/1.35 var(--font-body);font-variant-numeric:tabular-nums}
-.tfr-tool .list li button:hover{background:var(--highlight)}
-.tfr-tool .list li button[aria-current="true"]{background:var(--fg);color:var(--bg)}
-.tfr-tool .list li button[aria-current="true"] :is(small,.lx-form){color:inherit;opacity:.8}
-.tfr-tool .list li button:focus-visible{outline-offset:-2px}
-.tfr-tool .list .empty{padding:.8rem .5rem;color:var(--muted)}
-.tfr-tool .list[aria-busy="true"]{opacity:.55}
-.tfr-tool .lx-form{flex:1;color:var(--muted);font-style:italic;font-size:.8125rem}
-/* ── an entry: the headword, its forms by language, its senses, every work that defines it ─────────────────────────────── */
-.tfr-tool .entry{min-width:0;scroll-margin-top:calc(var(--fr-sticky-top,0px) + 1rem)}
-.tfr-tool .entry h2{font:500 2.25rem/1.1 var(--font-display);margin:0 0 .75rem;text-wrap:balance}
-.tfr-tool .forms{display:grid;gap:.35rem;margin:0 0 1rem;max-width:68ch}
-.tfr-tool .forms>div{display:grid;grid-template-columns:3.75rem minmax(0,1fr);gap:.75rem;align-items:baseline}
-.tfr-tool .forms dt{font:.8125rem/1.5 var(--font-body);color:var(--muted)}
-.tfr-tool .forms dd{margin:0;font:1.0625rem/1.55 var(--font-body);text-wrap:pretty}
-.tfr-tool .forms dd[lang="la"]{font-style:italic}
-.tfr-tool .lnk,.tfr-tool .fmore,.tfr-tool .srcmore{padding:0;border:0;background:none;color:var(--fg);font:inherit;font-style:normal;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
-.tfr-tool .fmore,.tfr-tool .srcmore{color:var(--muted);font-size:.875rem;white-space:nowrap}
-.tfr-tool :is(.lnk,.fmore,.srcmore):hover{color:var(--fg);text-decoration-thickness:2px}
-.tfr-tool .also{color:var(--muted);margin:0 0 1rem;font-size:.9375rem}
-.tfr-tool .also .lnk small{color:var(--muted);text-decoration:none}
-.tfr-tool .entry h3{display:flex;align-items:baseline;gap:.6rem;margin:2rem 0 .2rem;padding-bottom:.4rem;border-bottom:1px solid var(--fg);font:500 1.375rem/1.25 var(--font-display)}
-.tfr-tool .entry h3 small{font:.8125rem/1 var(--font-body);color:var(--muted);font-variant-numeric:tabular-nums}
-.tfr-tool .senses{list-style:none;margin:0;padding:0}
-.tfr-tool .sense{display:grid;grid-template-columns:2.25rem minmax(0,1fr);gap:0 .5rem;padding:.85rem 0 .9rem;border-bottom:1px solid var(--border)}
-.tfr-tool .sense .sn{font:500 1.0625rem/1.5 var(--font-display);color:var(--muted);font-variant-numeric:tabular-nums}
-.tfr-tool .sense .gloss{margin:0;max-width:62ch;font:1.0625rem/1.55 var(--font-body);text-wrap:pretty}
-.tfr-tool .sense .src{list-style:none;max-width:64ch;margin:.4rem 0 0;padding:0;display:grid;gap:.2rem;font:.875rem/1.5 var(--font-body);color:var(--muted)}
-.tfr-tool .sense .src a{color:var(--fg);text-decoration-color:color-mix(in srgb,var(--fg) 38%,transparent)}
-.tfr-tool .sense .src a:hover{text-decoration-color:currentColor}
-.tfr-tool .more{display:inline-flex;align-items:center;min-height:2.5rem;margin:1.1rem 0 0;padding:.45rem 1rem;border:1px solid var(--border);border-radius:var(--r);background:var(--card-bg);color:var(--fg);font:.9375rem/1.2 var(--font-body);cursor:pointer}
-.tfr-tool .more:hover{border-color:var(--muted)}
-.tfr-tool .hist{margin:0}
-.tfr-tool .hist .hnote{max-width:62ch;margin:.5rem 0 .6rem;font-size:.875rem;color:var(--muted);text-wrap:pretty}
-.tfr-tool .hpane{max-height:min(70vh,44rem);overflow:auto;overscroll-behavior:contain;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
-.tfr-tool .hist ol{list-style:none;margin:0;padding:0}
-.tfr-tool .hist .hc{position:sticky;top:0;z-index:1;margin:0;padding:.6rem 0 .3rem;background:var(--bg);border-bottom:1px solid var(--border);font:500 1.0625rem/1.2 var(--font-display);color:var(--fg)}
-.tfr-tool .hist .hr{padding:.55rem 0 .65rem;border-bottom:1px solid var(--border)}
-.tfr-tool .hist .hr:last-child{border-bottom:0}
-.tfr-tool .hist .hw{font-size:.875rem;color:var(--muted)}
-.tfr-tool .hist .hw a,.tfr-tool .hist .hw .ha{color:var(--fg)}
-.tfr-tool .hist .hr p{margin:.2rem 0 0;max-width:62ch;text-wrap:pretty}
-@media (prefers-reduced-motion:no-preference){.tfr-tool :is(.letters button,.list li button,.more){transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease)}
-.tfr-tool .list{transition:opacity .15s var(--ease)}}
-@media (pointer:coarse){.tfr-tool .letters button{min-width:2.75rem;min-height:2.75rem}
-.tfr-tool .list li button{min-height:2.75rem}}
-@media (max-width:760px){.tfr-tool .cols{grid-template-columns:minmax(0,1fr);gap:1.5rem}
-.tfr-tool .side{position:static;max-height:none}
-.tfr-tool .list{max-height:42vh;border-bottom:1px solid var(--border)}}
-@media (max-width:640px){.tfr-tool .wrap{padding:1.25rem 1rem 3rem}
-.tfr-tool h1{font-size:1.625rem}
-.tfr-tool .lede{font-size:.9375rem}
-.tfr-tool .entry h2{font-size:1.875rem}
-.tfr-tool .lgroup{grid-template-columns:4.75rem minmax(0,1fr);gap:.5rem}
-/* on a phone each alphabet is one line that scrolls inside itself, never the page */
-.tfr-tool .lbtns{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;margin-right:-1rem;padding-right:1rem}
-.tfr-tool .lbtns::-webkit-scrollbar{display:none}
-.tfr-tool .lbtns button{flex:none}
-.tfr-tool .forms>div{grid-template-columns:minmax(0,1fr);gap:0}
-.tfr-tool .sense{grid-template-columns:1.75rem minmax(0,1fr)}}
-/* the port: the theme's white page under its hero; sticky parts sit under the masthead and the pinned rail (as the decks port) */
-.tfr-tool{background:transparent}
-.tfr-tool .wrap{padding-top:1.2rem}
-.tfr-tool{--fr-sticky-top:8rem}
-/* the theme's own .entry (its article lists: a 150px plate column, 36px of padding, a rule between entries) is not this entry */
-.tfr-tool .cols>.entry,.tfr-tool .cols>.entry:hover{display:block;grid-template-columns:none;gap:0;padding:0;border-top:0;position:static;color:inherit;text-decoration:none;transition:none}
-/* the theme takes the underline off every link; here a link is told by its underline */
-.tfr-tool a{text-decoration:underline}
-</style>
+<meta name="description" content="Look up a Latin, Greek, Hebrew or English term. See how the library's authors define it." />
+{{!-- Dark mode: sets html[data-sd-theme] before paint, as the Scripture pages, the decks and the author room do. --}}
+<script src="{{asset "js/page/scripture-view-boot.js"}}&amp;frv=b619c4b13b360add"></script>
+<link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
+<link rel="stylesheet" href="{{asset "css/faith-lexicon.css"}}&amp;frv=eee58770eb946ffa">
 {{/contentFor}}
-{{!-- /the-faith-received/lexicon/: Lexicon, as The Faith Received has it (tools/prdl_reader_prototype/lexicon.html), in this site's
-     shell: the hero is the theme's, the body and its script (faith-lexicon.js) the library's, reading the library worker. --}}
+{{!-- /the-faith-received/lexicon/: the Lexicon, in this site's shell. The hero is the theme's; the body and its script (faith-lexicon.js)
+     read the library worker's v1/lexicon files. Styles: css/faith-lexicon.css (scoped under main.tfr-lexicon). --}}
 <section class="bhero bhero--tool bhero--desk">
   <div class="bhero-inner container">
     <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> Lexicon</p>
     <h1>Lexicon</h1>
-    <p class="bhero-sub">Look up a term to see how the library&rsquo;s authors define it. Each sense lists the pages that define it.</p>
+    <p class="bhero-sub">How the library&rsquo;s authors define a term. Each sense lists the pages that define it.</p>
   </div>
 </section>
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
 <main class="tfr-tool tfr-lexicon"><div class="wrap">
-  <form class="find" role="search" id="find"><label class="sr" for="q">Find a term</label><input id="q" type="search" placeholder="Find a term: grace, gratia, χάρις" autocomplete="off" spellcheck="false"></form>
-  <div class="letters" id="letters" role="group" aria-label="Browse by letter"></div>
-  <div class="cols"><div class="side"><div class="runhead" id="runhead" aria-live="polite" aria-atomic="true" hidden></div><ul class="list" id="list" aria-label="Terms"></ul></div><article class="entry" id="entry" aria-live="polite"><p class="muted">Loading the lexicon…</p></article></div>
-
+  <div class="lx-top">
+    <form class="lx-find" role="search" id="lx-find"><label class="sr" for="lx-q">Search the lexicon</label><input id="lx-q" type="search" placeholder="Search a term: grace, gratia, &chi;&#940;&rho;&iota;&sigmaf;" autocomplete="off" spellcheck="false" enterkeyhint="search"></form>
+  </div>
+  <section id="lx-browse" aria-labelledby="lx-head">
+    <div class="lx-tabs" id="lx-tabs" role="group" aria-label="Alphabet"></div>
+    <div class="lx-az" id="lx-letters"></div>
+    <div class="lx-rh"><h2 id="lx-head">The most defined terms</h2><p id="lx-count" role="status" aria-live="polite"></p></div>
+    <ul class="lx-rows" id="lx-list" aria-busy="true"></ul>
+    <div class="lx-empty" id="lx-empty" hidden></div>
+    <div class="lx-pager"><button type="button" class="lx-btn" id="lx-more" hidden>Show 100 more</button><p id="lx-shown"></p></div>
+  </section>
+  <article class="lx-entry" id="lx-entry" hidden></article>
+  {{#> tfr-method}}<p>Terms, senses and the pages that define them were gathered by machine from the library&rsquo;s texts. A term&rsquo;s forms are the Latin and Greek words the authors use for it.</p>{{/tfr-method}}
 </div></main>
-<link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
-<script src="{{asset "js/faith-lexicon.js"}}&amp;frv=3f7ef7fb58d2876a"></script>
+<script src="{{asset "js/faith-lexicon.js"}}&amp;frv=4c02912f4daff2ab"></script>

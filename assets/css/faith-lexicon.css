@@ -1,0 +1,159 @@
+/* The Lexicon (/the-faith-received/lexicon/). Loaded after faith-tool-skin.css, which owns the tokens (light, and dark on
+   html[data-sd-theme="dark"], never the OS setting alone), the hero, and the hollow terracotta button. Everything here is scoped
+   under main.tfr-lexicon and uses lx- class names, so no sibling tool page is touched.
+   Rules kept: serif face throughout (no display face on a working surface), underlined tabs and letters (no pills), 3px corners,
+   hairline dividers, no scroll box inside the page, 44px targets on a touch screen, skeletons and not spinners. */
+main.tfr-lexicon { --fr-sticky-top: 8rem; --lx-accent: var(--accent, #a9472c); --lx-on: var(--on-accent, #fffdfa); }
+main.tfr-lexicon *, main.tfr-lexicon *::before, main.tfr-lexicon *::after { box-sizing: border-box; }
+main.tfr-lexicon [hidden] { display: none !important; }
+main.tfr-lexicon .sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* the hero's own container: 1180px, 28px gutters, so the page, the hero and the rail share a left edge */
+main.tfr-lexicon .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px 4rem; }
+main.tfr-lexicon a { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+main.tfr-lexicon :is(a, button, input, summary):focus-visible { outline: 2px solid var(--lx-accent); outline-offset: 2px; }
+main.tfr-lexicon [lang="grc"] { font-family: "Source Serif Pro", "Gentium Plus", "Palatino Linotype", "Times New Roman", Georgia, serif; }
+main.tfr-lexicon [lang="he"] { font-family: "Source Serif Pro", "SBL Hebrew", "Ezra SIL", "Times New Roman", Georgia, serif; }
+main.tfr-lexicon [lang="la"] { font-style: italic; }
+
+/* ── The search: first and prominent; on a phone it stays under the rail while the page scrolls ── */
+main.tfr-lexicon .lx-top { padding: 1.4rem 0 .9rem; background: var(--bg); }
+main.tfr-lexicon .lx-find { margin: 0; }
+main.tfr-lexicon .lx-find input {
+  display: block; width: 100%; min-height: 3.25rem; padding: .7rem 1rem; border: 1px solid var(--border); border-radius: 3px;
+  background: var(--card-bg); color: var(--fg); font: 1.25rem/1.3 var(--font-body); -webkit-appearance: none; appearance: none;
+}
+main.tfr-lexicon .lx-find input::placeholder { color: var(--muted); }
+main.tfr-lexicon .lx-find input:focus-visible { outline-offset: 0; border-color: var(--lx-accent); }
+
+/* ── Tabs and the A-Z bar: underlined text, no pills ── */
+main.tfr-lexicon .lx-tabs { display: flex; flex-wrap: wrap; gap: 0 1.6rem; border-bottom: 1px solid var(--border); margin: 0 0 .9rem; }
+main.tfr-lexicon .lx-tabs button {
+  appearance: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; padding: .6rem 0 .65rem; min-height: 2.75rem;
+  font: 600 1rem/1.25 var(--font-body); color: var(--muted); cursor: pointer;
+}
+main.tfr-lexicon .lx-tabs button:hover { color: var(--fg); }
+main.tfr-lexicon .lx-tabs button[aria-pressed="true"] { color: var(--fg); border-bottom-color: var(--lx-accent); }
+main.tfr-lexicon .lx-az { display: grid; gap: .15rem; margin: 0 0 1.4rem; }
+main.tfr-lexicon .lx-az-g { display: flex; flex-wrap: wrap; gap: 0 .1rem; width: 100%; }
+main.tfr-lexicon .lx-az-g + .lx-az-g { border-top: 1px solid var(--border); padding-top: .15rem; }
+main.tfr-lexicon .lx-az button {
+  appearance: none; border: 0; border-radius: 0; background: none; min-width: 2.25rem; min-height: 2.5rem; padding: 0 .3rem;
+  font: 600 1.0625rem/1 var(--font-body); color: var(--fg); cursor: pointer; text-decoration: none;
+}
+main.tfr-lexicon .lx-az button:hover { text-decoration: underline; text-underline-offset: 6px; }
+main.tfr-lexicon .lx-az button[aria-pressed="true"] { color: var(--lx-accent); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; background: none; border: 0; }
+
+/* ── The result list: the heading and count, then rows in two columns ── */
+main.tfr-lexicon .lx-rh { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--fg); padding: 0 0 .45rem; }
+main.tfr-lexicon .lx-rh h2 { margin: 0; font: 600 1.375rem/1.25 var(--font-body); }
+main.tfr-lexicon .lx-rh p { margin: 0; font: .875rem/1.3 var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
+main.tfr-lexicon .lx-rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 3rem; }
+main.tfr-lexicon .lx-rows > li { min-width: 0; }
+main.tfr-lexicon .lx-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .1rem .75rem; align-items: baseline; min-height: 2.75rem; padding: .6rem .1rem;
+  border-bottom: 1px solid var(--border); color: var(--fg); text-decoration: none;
+}
+@media (hover: hover) { main.tfr-lexicon .lx-row:hover { background: var(--highlight); } }
+main.tfr-lexicon .lx-row:hover .lx-hw { text-decoration: underline; text-underline-offset: 3px; }
+main.tfr-lexicon .lx-hw { font: 600 1.1875rem/1.3 var(--font-body); overflow-wrap: anywhere; }
+main.tfr-lexicon .lx-n { font: .8125rem/1.3 var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+main.tfr-lexicon .lx-fm { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0 1rem; font: .9375rem/1.45 var(--font-body); color: var(--muted); }
+main.tfr-lexicon .lx-lb { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; margin-right: .2rem; }
+main.tfr-lexicon .lx-via { font: .8125rem/1.3 var(--font-body); color: var(--muted); font-style: normal; }
+main.tfr-lexicon .lx-empty, main.tfr-lexicon .lx-note { margin: 1rem 0; max-width: 60ch; color: var(--muted); }
+main.tfr-lexicon .lx-pager { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem 1.25rem; margin: 1.25rem 0 0; }
+main.tfr-lexicon .lx-pager p { margin: 0; font: .875rem/1.3 var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ── Buttons: hollow, 3px, terracotta ink; filled on hover. None is solid on this page. ── */
+main.tfr-lexicon .lx-btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 2.5rem; padding: .4rem .9rem; border: 1px solid var(--lx-accent); border-radius: 3px;
+  background: transparent; color: var(--lx-accent); font: 600 .875rem/1.2 var(--font-body); text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+main.tfr-lexicon .lx-btn:hover { background: var(--lx-accent); color: var(--lx-on); }
+main.tfr-lexicon a.lx-btn { color: var(--lx-accent); }
+main.tfr-lexicon a.lx-btn:hover { color: var(--lx-on); }
+main.tfr-lexicon .lx-link { padding: 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: .875rem; font-style: normal; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+main.tfr-lexicon .lx-link:hover { color: var(--fg); }
+main.tfr-lexicon .lx-link { position: relative; }
+main.tfr-lexicon .lx-link::after { content: ""; position: absolute; inset: -.7rem -.3rem; }
+
+/* ── An entry ── */
+main.tfr-lexicon .lx-entry { min-width: 0; padding-top: .3rem; }
+main.tfr-lexicon .lx-back { margin: 0 0 1rem; font-size: .9375rem; }
+main.tfr-lexicon .lx-back a::before { content: "\2190\00a0"; text-decoration: none; display: inline-block; }
+main.tfr-lexicon .lx-back a { color: var(--muted); }
+main.tfr-lexicon .lx-eh h2 { margin: 0 0 .4rem; font: 600 2.5rem/1.1 var(--font-body); text-wrap: balance; overflow-wrap: anywhere; }
+main.tfr-lexicon .lx-eh h2:focus { outline: none; }
+main.tfr-lexicon .lx-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.25rem; margin: 0 0 1.1rem; font: .9375rem/1.4 var(--font-body); color: var(--muted); }
+main.tfr-lexicon .lx-forms { display: grid; gap: .4rem; margin: 0 0 1.1rem; max-width: 68ch; }
+main.tfr-lexicon .lx-forms > div { display: grid; grid-template-columns: 4rem minmax(0, 1fr); gap: .75rem; align-items: baseline; }
+main.tfr-lexicon .lx-forms dt { font: 600 .75rem/1.5 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+main.tfr-lexicon .lx-forms dd { margin: 0; font: 1.0625rem/1.55 var(--font-body); text-wrap: pretty; }
+main.tfr-lexicon .lx-also { margin: 0 0 1.1rem; color: var(--muted); font-size: .9375rem; }
+main.tfr-lexicon .lx-entry h3 { display: flex; align-items: baseline; gap: .6rem; margin: 2rem 0 .1rem; padding-bottom: .45rem; border-bottom: 1px solid var(--fg); font: 600 1.375rem/1.25 var(--font-body); }
+main.tfr-lexicon .lx-entry h3 small { font: .8125rem/1 var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
+main.tfr-lexicon .lx-senses { list-style: none; margin: 0; padding: 0; }
+main.tfr-lexicon .lx-sense { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: 0 .5rem; padding: 1rem 0 1.1rem; border-bottom: 1px solid var(--border); scroll-margin-top: calc(var(--fr-sticky-top) + 5.5rem); }
+main.tfr-lexicon .lx-sense.is-target { background: var(--highlight); box-shadow: -.75rem 0 0 var(--highlight), .75rem 0 0 var(--highlight); }
+main.tfr-lexicon .lx-sn { align-self: start; text-decoration: none; display: inline-flex; align-items: center; min-height: 2rem; font: 600 1.125rem/1.4 var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
+main.tfr-lexicon .lx-sn:hover { color: var(--fg); text-decoration: underline; }
+main.tfr-lexicon .lx-gloss { margin: 0; max-width: 62ch; font: 1.125rem/1.55 var(--font-body); text-wrap: pretty; }
+main.tfr-lexicon .lx-def { margin: .7rem 0 .1rem; font: 600 .75rem/1.4 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+main.tfr-lexicon .lx-src { list-style: none; margin: 0; padding: 0; max-width: 64ch; }
+main.tfr-lexicon .lx-src > li { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .3rem 0; border-top: 1px solid var(--border); font: .9375rem/1.45 var(--font-body); }
+main.tfr-lexicon .lx-src > li:first-child { border-top: 0; }
+main.tfr-lexicon .lx-who { min-width: 0; overflow-wrap: anywhere; }
+main.tfr-lexicon .lx-au { color: var(--fg); }
+main.tfr-lexicon .lx-open { flex: none; min-height: 2.25rem; padding: .25rem .7rem; font-size: .8125rem; }
+main.tfr-lexicon .lx-src > li.lx-srcmore { justify-content: flex-start; border-top: 0; padding-top: .5rem; }
+main.tfr-lexicon #lx-smore { margin-top: 1.1rem; }
+
+/* ── Every work that defines it: runs down the page, no box of its own ── */
+main.tfr-lexicon .lx-hnote { max-width: 62ch; margin: .6rem 0 0; font-size: .9375rem; color: var(--muted); }
+main.tfr-lexicon .lx-hlist { list-style: none; margin: .5rem 0 0; padding: 0; }
+main.tfr-lexicon .lx-hc { position: sticky; top: calc(var(--fr-sticky-top) - 1rem); z-index: 1; padding: .55rem 0 .3rem; background: var(--bg); border-bottom: 1px solid var(--border); font: 600 1.0625rem/1.2 var(--font-body); }
+main.tfr-lexicon .lx-hr { padding: .6rem 0 .7rem; border-bottom: 1px solid var(--border); }
+main.tfr-lexicon .lx-hr p { margin: .15rem 0 0; max-width: 62ch; text-wrap: pretty; }
+main.tfr-lexicon .lx-hr .lx-hw2 { margin: 0; font-size: .9375rem; color: var(--muted); }
+main.tfr-lexicon .lx-hr .lx-hw2 a { color: var(--fg); }
+main.tfr-lexicon .lx-sentinel { height: 1px; }
+
+/* ── Skeletons, not spinners ── */
+main.tfr-lexicon .lx-sk { display: block; height: .9rem; border-radius: 3px; background: var(--hl, var(--highlight)); }
+main.tfr-lexicon .lx-sk-row { display: grid; gap: .5rem; padding: .85rem .1rem; border-bottom: 1px solid var(--border); }
+main.tfr-lexicon .lx-sk-s { height: .7rem; }
+main.tfr-lexicon .lx-sk-entry { display: grid; gap: .8rem; padding-top: 1rem; max-width: 40rem; }
+main.tfr-lexicon .lx-sk-h { height: 2.4rem; width: 40%; }
+@media (prefers-reduced-motion: no-preference) {
+  main.tfr-lexicon .lx-sk { animation: lx-pulse 1.4s ease-in-out infinite; }
+  @keyframes lx-pulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+}
+
+/* ── Tablet and phone: one column, a sticky search, 44px targets ── */
+@media (max-width: 900px) {
+  main.tfr-lexicon .lx-rows { grid-template-columns: minmax(0, 1fr); }
+  main.tfr-lexicon .lx-hc { top: calc(var(--fr-sticky-top) + 4.5rem); }
+  main.tfr-lexicon .lx-top { position: sticky; top: var(--fr-sticky-top); z-index: 5; padding: .7rem 0; border-bottom: 1px solid var(--border); }
+}
+@media (max-width: 640px) {
+  main.tfr-lexicon { --fr-sticky-top: 7rem; }
+  main.tfr-lexicon .wrap { padding: 0 18px 3rem; }
+  main.tfr-lexicon .lx-az-g + .lx-az-g { display: none; }
+  main.tfr-lexicon :is(.lx-n, .lx-via, .lx-lb, .lx-def, .lx-forms dt, .lx-entry h3 small, .lx-pager p, .lx-rh p) { font-size: .875rem; }
+  main.tfr-lexicon .lx-find input { font-size: 1.0625rem; min-height: 3rem; }
+  main.tfr-lexicon .lx-tabs { gap: 0 1.2rem; }
+  main.tfr-lexicon .lx-az { margin-bottom: 1rem; }
+  main.tfr-lexicon .lx-az button { min-width: 2.75rem; min-height: 2.75rem; }
+  main.tfr-lexicon .lx-eh h2 { font-size: 2rem; }
+  main.tfr-lexicon .lx-forms > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main.tfr-lexicon .lx-sense { grid-template-columns: 2rem minmax(0, 1fr); }
+  main.tfr-lexicon .lx-src > li { flex-wrap: wrap; }
+  main.tfr-lexicon .lx-open, main.tfr-lexicon .lx-btn { min-height: 2.75rem; }
+  main.tfr-lexicon .lx-rh h2 { font-size: 1.25rem; }
+}
+@media (pointer: coarse) {
+  main.tfr-lexicon .lx-az button, main.tfr-lexicon .lx-tabs button, main.tfr-lexicon .lx-row, main.tfr-lexicon .lx-btn { min-height: 2.75rem; }
+  main.tfr-lexicon .lx-az button { min-width: 2.75rem; }
+  main.tfr-lexicon .lx-sn { min-width: 2.75rem; min-height: 2.75rem; }
+  main.tfr-lexicon .lx-sense { grid-template-columns: 2.75rem minmax(0, 1fr); }
+}
