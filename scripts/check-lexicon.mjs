@@ -184,7 +184,8 @@ for (const [q, want] of QUERIES) {
   if (q === 'fides') await shoot('search-fides-1440-light');
   ok(!log.console.slice(c0).filter((c) => !NOISE.test(c)).length, `search "${q}": no console error`);
 }
-await ev(`(()=>{const i=document.querySelector('#lx-q');i.value='zzqxv';i.dispatchEvent(new Event('input',{bubbles:true}))})()`); await sleep(500);
+await ev(`(()=>{const i=document.querySelector('#lx-q');i.value='zzqxv';i.dispatchEvent(new Event('input',{bubbles:true}))})()`);
+await until(`!document.querySelector('#lx-empty').hidden`, 'no match', 8000);
 ok(await ev(`!document.querySelector('#lx-empty').hidden&&/No term matches/.test(document.querySelector('#lx-empty').textContent)`), 'a search with no match says so plainly');
 await ev(`(()=>{const i=document.querySelector('#lx-q');i.value='';i.dispatchEvent(new Event('input',{bubbles:true}))})()`); await sleep(400);
 ok(await ev(`document.querySelector('#lx-found').hidden&&!document.querySelector('#lx-all').hidden`), 'clearing the search brings the whole list back');

@@ -107,7 +107,8 @@
     curT = 0;
     if ($('#lx-listview').hidden || $('#lx-all').hidden) return;
     const secs = document.querySelectorAll('#lx-all .lx-sec');
-    const line = $('#lx-bar').getBoundingClientRect().bottom + 12;
+    const bb = $('#lx-bar').getBoundingClientRect().bottom;
+    const line = (bb > 0 ? bb : 110) + 12;
     let cur = null;
     for (let i = 0; i < secs.length; i += 1) {
       if (secs[i].hidden) continue;
@@ -620,7 +621,9 @@
     const t = document.getElementById(`letter-${slug(l)}`);
     if (t) t.scrollIntoView({ block: 'start', behavior: 'instant' });
     updateCurrent();
-    setTimeout(() => { pendingJump = ''; }, 4000);
+    // later letters still arriving move the page under it: hold the place until the list is whole, for at most 20 seconds
+    const hold = setInterval(() => { if (stat.loaded >= letters().length || userScrolled || pendingJump !== l) { clearInterval(hold); if (pendingJump === l) pendingJump = ''; } }, 400);
+    setTimeout(() => { clearInterval(hold); if (pendingJump === l) pendingJump = ''; }, 20000);
   }
   function route() {
     if (!INDEX) return;

@@ -4,7 +4,7 @@
    html[data-sd-theme="dark"], never the OS setting alone) and the hollow terracotta button. Scoped under main.tfr-lexicon.
    Rules kept: one serif, no pills, no scroll box inside the page, 3px corners, hairlines, skeletons not spinners, 44px targets
    on controls on a touch screen. */
-main.tfr-lexicon { --fr-sticky-top: 8rem; --lx-accent: var(--accent, #a9472c); --lx-on: var(--on-accent, #fffdfa); --lx-measure: 68ch; --cols: 4; --lx-bar: 3.4rem; --rh: 28px; font-size: 15px; line-height: 1.5; }
+main.tfr-lexicon { --fr-sticky-top: calc(var(--mo-mast, 85px) + var(--tfr-rail-h, 48px)); --lx-accent: var(--accent, #a9472c); --lx-on: var(--on-accent, #fffdfa); --lx-measure: 68ch; --cols: 4; --lx-bar: 3.4rem; --rh: 28px; font-size: 15px; line-height: 1.5; }
 main.tfr-lexicon *, main.tfr-lexicon *::before, main.tfr-lexicon *::after { box-sizing: border-box; }
 main.tfr-lexicon [hidden] { display: none !important; }
 main.tfr-lexicon .sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
@@ -15,6 +15,9 @@ main.tfr-lexicon [lang="grc"] { font-family: "Source Serif Pro", "Gentium Plus",
 main.tfr-lexicon [lang="he"] { font-family: "Source Serif Pro", "SBL Hebrew", "Ezra SIL", "Times New Roman", Georgia, serif; }
 main.tfr-lexicon [lang="la"] { font-style: italic; }
 main.tfr-lexicon :is(h1, h2, h3) { font-family: var(--font-body); font-weight: 600; margin: 0; }
+
+/* the masthead slides away on scroll: the bar and the card then sit under the rail alone */
+body:has(.site-header.is-hidden) main.tfr-lexicon { --fr-sticky-top: calc(var(--tfr-rail-h, 48px) + 2px); }
 
 /* ── The slim header ── */
 main.tfr-lexicon .lx-hd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; margin: 0 0 16px; padding: 0 0 12px; border-bottom: 1px solid var(--border); }
@@ -158,7 +161,7 @@ main.tfr-lexicon .lx-sk-h { height: 28px; width: 30%; }
 }
 /* ── Phone: one column, 15px text, rows 40px, 44px on controls ── */
 @media (max-width: 640px) {
-  main.tfr-lexicon { --cols: 1; --fr-sticky-top: 7rem; }
+  main.tfr-lexicon { --cols: 1; }
   main.tfr-lexicon .wrap { padding: 14px 16px 40px; }
   main.tfr-lexicon .lx-find { flex-basis: 100%; max-width: none; }
   main.tfr-lexicon .lx-count { margin-left: 0; }
