@@ -1,7 +1,7 @@
 /*
- * The Lexicon in a real Chrome (2026-10-23). It loads the page, searches five terms (Latin gratia and fides, Greek πίστις, English faith,
+ * The Lexicon in a real Chrome (2026-10-23). It loads the front page (the alphabet and the most defined terms), searches five terms (Latin gratia and fides, Greek πίστις, English faith,
  * Hebrew אדם), opens an entry for each, and checks what a reader sees:
- *   - the list and the entry fill with real content (no skeleton left, no "did not load");
+ *   - the list and the entry fill with real content, and an entry has Quick facts, a sticky sidebar, and the terms before and after it (no skeleton left, no "did not load");
  *   - an entry has numbered senses, each with a defining page, and every "Open" link points into the reader;
  *   - Latin, Greek and Hebrew carry lang attributes, and a Hebrew headword reads right to left (dir="auto");
  *   - an address names a term (#id) and a sense (#id/3), and Back and Forward move between the list and the entry;
@@ -112,7 +112,8 @@ await send('Page.enable'); await send('Network.enable'); await send('Runtime.ena
 const NOISE = /Ignoring Event: localhost|ghost|analytics|slide-ins|\/settings|\/pa\/js|\/e$|members\/api|favicon|googletagmanager|plausible|fonts\.g|Content Security Policy|Executing inline script/i;
 const view = (w, h = 900, mobile = false) => send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile });
 const until = async (expr, what) => { const t0 = Date.now(); while (Date.now() - t0 < TIMEOUT) { if (await ev(expr)) return true; await sleep(150); } console.error(`      timed out: ${what}`); return false; };
-const listReady = `(()=>{const l=document.querySelector('#lx-list');return !!l&&!l.hasAttribute('aria-busy')&&l.querySelectorAll('li a.lx-row').length>0})()`;
+const listReady = `(()=>{const l=document.querySelector('#lx-list');return !!l&&!document.querySelector('#lx-results').hidden&&!l.hasAttribute('aria-busy')&&l.querySelectorAll('li a.lx-row').length>0})()`;
+const frontReady = `(()=>{const f=document.querySelector('#lx-front');return !!f&&!f.hidden&&document.querySelectorAll('#lx-az a').length>60&&document.querySelectorAll('#lx-top .lx-feat-a').length===12})()`;
 const entryReady = `(()=>{const e=document.querySelector('#lx-entry');return !!e&&!e.hidden&&e.querySelectorAll('.lx-sense').length>0&&!e.querySelector('.lx-sk-entry')})()`;
 const shoot = async (name) => { if (!SHOTS) return; mkdirSync(SHOTS, { recursive: true }); const r = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); writeFileSync(path.join(SHOTS, `${name}.png`), Buffer.from(r.result.data, 'base64')); };
 async function search(q) {
@@ -123,27 +124,35 @@ async function search(q) {
 
 await view(1440);
 await send('Page.navigate', { url: URLP });
-ok(await until(listReady, 'the first list'), 'the list opens with the most defined terms');
-ok(await ev(`document.querySelector('#lx-head').textContent`) === 'The most defined terms', 'the heading names the list');
-ok(await ev(`document.querySelectorAll('#lx-tabs [data-t]').length`) === 4, 'four alphabet tabs');
-ok(await ev(`document.querySelectorAll('#lx-letters [data-l]').length`) > 60, 'the A-Z bar carries every letter');
-await shoot('list-1440-light');
+ok(await until(frontReady, 'the front page'), 'the front page opens with the alphabet and twelve most defined terms');
+ok(await ev(`document.querySelector('#lx-hero').hidden===false&&document.querySelectorAll('h1').length===1`), 'the hero shows with one h1');
+ok(await ev(`[...document.querySelectorAll('#lx-az .lx-azl')].map(e=>e.textContent).join()`) === 'Latin,Greek,Hebrew', 'the alphabet has a line for Latin, Greek and Hebrew');
+await ev(`document.querySelector('#lx-top').scrollIntoView({block:'end'})`);
+ok(await until(`document.querySelectorAll('#lx-top .lx-gl').length===12&&[...document.querySelectorAll('#lx-top .lx-gl')].filter(e=>e.textContent.length>10).length>=10`, 'first senses'), 'the featured terms show a first sense and a sense count');
+ok(await ev(`document.querySelectorAll('#lx-top .lx-meta span').length>12`), 'the featured terms carry a small-caps line');
+await shoot('front-1440-light');
+await ev(`document.querySelector('#lx-top').scrollIntoView({block:'start'})`); await sleep(1500);
+await shoot('front-featured-1440-light');
+await ev('window.scrollTo(0,0)');
 
 /* ── Five searches, each opened ── */
 const QUERIES = [['gratia', 'grace'], ['fides', 'faith'], ['πίστις', 'faith'], ['faith', 'faith'], ['אדם', 'אדם']];
 for (const [q, want] of QUERIES) {
   const c0 = log.console.length;
   await send('Page.navigate', { url: URLP });
-  await until(listReady, 'list');
+  await until(frontReady, 'front');
   ok(await search(q), `search "${q}": results draw`);
+  if (q === 'gratia' || q === 'fides') await shoot(`search-${q}-1440-light`);
   const heads = await ev(`[...document.querySelectorAll('#lx-list .lx-hw')].slice(0, 12).map(e=>e.textContent)`);
   ok(Array.isArray(heads) && heads.some((h) => h.toLowerCase().includes(want.toLowerCase())), `search "${q}": the results include ${want} (${(heads || []).slice(0, 4).join(', ')})`);
   const idHref = await ev(`(()=>{const a=[...document.querySelectorAll('#lx-list a.lx-row')].find(a=>a.querySelector('.lx-hw').textContent.toLowerCase().includes(${JSON.stringify(want.toLowerCase())}))||document.querySelector('#lx-list a.lx-row');return a&&a.getAttribute('href')})()`);
   await ev(`location.hash=${JSON.stringify(idHref)}`);
   ok(await until(entryReady, `entry for ${q}`), `search "${q}": the entry opens with senses`);
-  const e = await ev(`(()=>{const s=[...document.querySelectorAll('#lx-entry .lx-sense')];const links=[...document.querySelectorAll('#lx-entry .lx-open')];return {n:s.length,num:s.every((x,i)=>x.querySelector('.lx-sn').textContent==String(i+1)),gloss:s.every(x=>x.querySelector('.lx-gloss').textContent.trim().length>5),links:links.length,bad:links.filter(a=>!/^\\/the-faith-received\\/read\\/\\?w=[^&#]+#b[^-]+-0$/.test(a.getAttribute('href')||'')).length,h2:document.querySelector('#lx-entry h2').textContent,h2lang:document.querySelector('#lx-entry h2').lang,dir:document.querySelector('#lx-entry h2').dir}})()`);
+  const e = await ev(`(()=>{const s=[...document.querySelectorAll('#lx-entry .lx-sense')];const links=[...document.querySelectorAll('#lx-entry .lx-open')];return {n:s.length,num:s.every((x,i)=>x.querySelector('.lx-sn').textContent==String(i+1)),gloss:s.every(x=>x.querySelector('.lx-gloss').textContent.trim().length>5),links:links.length,bad:links.filter(a=>!/^\\/the-faith-received\\/read\\/\\?w=[^&#]+#b[^-]+-0$/.test(a.getAttribute('href')||'')).length,h2:document.querySelector('#lx-entry h1').textContent,h2lang:document.querySelector('#lx-entry h1').lang,dir:document.querySelector('#lx-entry h1').dir}})()`);
   ok(e && e.n > 0 && e.num && e.gloss, `search "${q}": ${e && e.n} numbered senses, each with a gloss`);
   ok(e && e.links > 0 && e.bad === 0, `search "${q}": ${e && e.links} Open links, each into the reader${e && e.bad ? ` (${e.bad} wrong)` : ''}`);
+  const fx = await ev(`(()=>{const f=document.querySelector('#lx-entry .lx-facts');return {has:!!f,dts:f?[...f.querySelectorAll('dt')].map(d=>d.textContent):[],h1:[...document.querySelectorAll('h1')].filter(h=>h.getClientRects().length).length,hero:document.querySelector('#lx-hero').hidden,title:document.title}})()`);
+  ok(fx.has && fx.dts.includes('Senses') && fx.h1 === 1 && fx.hero, `search "${q}": Quick facts beside the entry, the headword is the one h1 (${fx.dts.join(', ')})`);
   if (q === 'אדם') ok(e.h2lang === 'he' && e.dir === 'auto', 'a Hebrew headword carries lang="he" and dir="auto"');
   if (want === 'faith' && q !== 'fides') {
     const l = await ev(`({la:!!document.querySelector('#lx-entry .lx-forms dd[lang=la]'),grc:!!document.querySelector('#lx-entry .lx-forms dd[lang=grc]')})`);
@@ -162,14 +171,14 @@ ok(await ev(`!!document.querySelector('#s3.is-target')`), 'the address #faith/3 
 await shoot('entry-1440-light');
 await send('Page.navigate', { url: `${URLP}?l=t` });
 ok(await until(listReady, 't list'), 'the address ?l=t opens the letter T');
-const dom = await ev(`({rows:document.querySelectorAll('#lx-list li').length,all:document.querySelectorAll('*').length,total:document.querySelector('#lx-shown').textContent})`);
+const dom = await ev(`({rows:document.querySelectorAll('#lx-list li a.lx-row').length,all:document.querySelectorAll('*').length,total:document.querySelector('#lx-shown').textContent})`);
 ok(dom.rows <= 100 && dom.all < 2500, `a letter of thousands draws ${dom.rows} rows and ${dom.all} nodes (${dom.total})`);
 await ev(`document.querySelector('#lx-more').click()`); await sleep(300);
-ok(await ev(`document.querySelectorAll('#lx-list li').length`) === 200, 'Show 100 more adds one hundred rows');
+ok(await ev(`document.querySelectorAll('#lx-list li a.lx-row').length`) === 200, 'Show 100 more adds one hundred rows');
 await ev(`document.querySelector('#lx-list a.lx-row').click()`);
 ok(await until(entryReady, 'entry from list'), 'a row opens its entry');
 await ev('history.back()'); await sleep(600);
-ok(await ev(`document.querySelector('#lx-entry').hidden&&!document.querySelector('#lx-browse').hidden&&location.search==='?l=t'`), 'Back returns to the list, same letter');
+ok(await ev(`document.querySelector('#lx-entry').hidden&&!document.querySelector('#lx-results').hidden&&location.search==='?l=t'`), 'Back returns to the list, same letter');
 await ev('history.forward()');
 ok(await until(entryReady, 'forward'), 'Forward returns to the entry');
 await send('Page.navigate', { url: `${URLP}#no-such-term-zz` });
@@ -178,29 +187,40 @@ ok(await ev(`/No term has the address/.test(document.querySelector('#lx-entry').
 await send('Page.navigate', { url: `${URLP}?q=zzqx` });
 await sleep(2500);
 ok(await ev(`/No term matches/.test(document.querySelector('#lx-empty').textContent)&&!document.querySelector('#lx-empty').hidden`), 'a search with no match says so plainly');
-await send('Page.navigate', { url: `${URLP}?t=he` });
-ok(await until(listReady, 'hebrew tab'), 'the Hebrew tab opens a Hebrew letter');
+await send('Page.navigate', { url: `${URLP}?l=${encodeURIComponent('א')}` });
+ok(await until(listReady, 'hebrew letter'), 'a Hebrew letter opens its list');
 ok(await ev(`[...document.querySelectorAll('#lx-list .lx-hw')].every(e=>e.lang==='he')`), 'Hebrew headwords carry lang="he"');
 ok(await ev(`[...document.querySelectorAll('#lx-list .lx-row')].every(e=>e.getBoundingClientRect().height>=44)`), 'every row is at least 44px tall');
+ok(await ev(`document.querySelectorAll('#lx-lnav a').length>=1`), 'a letter page links to its neighbor letters');
+await send('Page.navigate', { url: `${URLP}#fides` });
+await until(entryReady, 'fides');
+await sleep(2500);
+ok(await ev(`document.querySelectorAll('#lx-entry .lx-pn').length===2`), 'an entry links to the term before and after it');
+ok(await ev(`!document.querySelector('#lx-f-authors').closest('div').hidden&&!document.querySelector('#lx-f-first').closest('div').hidden`), 'Quick facts gain the author count and the earliest source');
+await ev(`document.querySelector('#lx-entry .lx-pn-next').click()`);
+ok(await until(`location.hash!=='#fides'&&document.querySelector('#lx-title')&&document.querySelectorAll('#lx-entry .lx-sense').length>0`, 'next term'), 'the next-term link opens the next entry');
 
 /* ── 375: no sideways scroll, no gap past 72px ── */
 const GAPS = `(()=>{const out=[];const vis=e=>e.getClientRects().length&&getComputedStyle(e).visibility!=='hidden';
-  for(const box of ['#lx-browse','#lx-entry']){const b=document.querySelector(box);if(!b||b.hidden)continue;const kids=[...b.children].filter(vis);
+  for(const box of ['#lx-front','#lx-results','.lx-ent']){const b=document.querySelector(box);if(!b||b.hidden)continue;const kids=[...b.children].filter(vis);
     for(let i=1;i<kids.length;i++){const g=kids[i].getBoundingClientRect().top-kids[i-1].getBoundingClientRect().bottom;if(g>72)out.push(Math.round(g)+'px before '+(kids[i].id||kids[i].className));}}
   return out;})()`;
 for (const w of [375, 820, 1024, 1440]) {
   await view(w, w === 375 ? 812 : 900, w === 375);
-  for (const [name, url] of [['list', URLP], ['entry', `${URLP}#faith`]]) {
+  for (const [name, url] of [['front', URLP], ['list', `${URLP}?l=g`], ['entry', `${URLP}#faith`]]) {
     await send('Page.navigate', { url });
-    await until(name === 'list' ? listReady : entryReady, `${name} at ${w}`);
+    await until(name === 'front' ? frontReady : name === 'list' ? listReady : entryReady, `${name} at ${w}`);
     await sleep(600);
     const m = await ev(`({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth})`);
     ok(m.sw <= m.cw, `${name} at ${w}: no sideways scroll (${m.sw} of ${m.cw})`);
+    if (w === 375 && name === 'front') ok(await ev(`[...document.querySelectorAll('#lx-az a')].every(a=>a.getBoundingClientRect().height>=44&&a.getBoundingClientRect().width>=44)`), 'front at 375: every letter is a 44px target');
+    if (w === 1440 && name === 'entry') ok(await ev(`getComputedStyle(document.querySelector('.lx-facts')).position==='sticky'`), 'entry at 1440: Quick facts is sticky beside the senses');
+    if (w === 1440 && name === 'list') ok(await ev(`getComputedStyle(document.querySelector('.lx-words')).columnCount==='3'`), 'list at 1440: three columns of words');
     if (w === 375) { const g = await ev(GAPS); ok(Array.isArray(g) && !g.length, `${name} at 375: no gap past 72px${g && g.length ? ` (${g.join(', ')})` : ''}`); }
     await shoot(`${name}-${w}-light`);
     await ev(`document.documentElement.setAttribute('data-sd-theme','dark')`);
     await sleep(250);
-    if (w === 1440 && name === 'list') {
+    if (w === 1440 && name === 'front') {
       const bg = await ev(`getComputedStyle(document.querySelector('main.tfr-lexicon')).backgroundColor`);
       const lum = (bg.match(/\d+/g) || [255, 255, 255]).slice(0, 3).map(Number).reduce((a, b) => a + b, 0) / 3;
       ok(lum < 80, `dark mode on html[data-sd-theme] darkens the page (${bg})`);
