@@ -14,7 +14,10 @@
   const openFromHash = () => {
     let h = "";
     try { h = decodeURIComponent(window.location.hash.slice(1)); } catch (_) { h = ""; }
-    return NAMES.indexOf(h) > -1 ? h : NAMES[0];
+    if (NAMES.indexOf(h) > -1) return h;
+    /* a block's id starts with its guide's name: #pastors-ask opens Pastors */
+    const guide = h.split("-")[0];
+    return NAMES.indexOf(guide) > -1 ? guide : NAMES[0];
   };
   const html = document.documentElement;
   html.classList.add("ht-js");
@@ -83,7 +86,14 @@
       });
     });
 
-    window.addEventListener("hashchange", () => show(fromHash()));
+    const reveal = () => {
+      let h = "";
+      try { h = decodeURIComponent(window.location.hash.slice(1)); } catch (_) { h = ""; }
+      const el = h && names.indexOf(h) < 0 ? document.getElementById(h) : null;
+      if (el) el.scrollIntoView({ behavior: "instant", block: "start" });
+    };
+    window.addEventListener("hashchange", () => { show(fromHash()); reveal(); });
     show(fromHash());
+    reveal();
   }
 })();

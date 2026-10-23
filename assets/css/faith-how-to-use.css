@@ -31,14 +31,23 @@ html.ht-js main.tfr-howto .ht-eyebrow { display: none; }
 main.tfr-howto .ht-eyebrow { margin: 0 0 .5rem; font: 600 .75rem/1.4 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--ht-accent); }
 main.tfr-howto .ht-intro { margin: 0 0 .5rem; max-width: 46ch; font: 1.375rem/1.45 var(--font-body); text-wrap: pretty; }
 
+/* ── The index: one line per feature, as plain links in columns ── */
+main.tfr-howto .ht-index { list-style: none; margin: 0 0 1.75rem; padding: 0; columns: 2 20rem; column-gap: 3rem; font: 1rem/1.4 var(--font-body); }
+main.tfr-howto .ht-index li { break-inside: avoid; }
+main.tfr-howto .ht-index a { display: inline-flex; align-items: center; min-height: 2.75rem; color: var(--fg); }
+main.tfr-howto .ht-index a:hover { color: var(--ht-accent); }
+
 /* ── A feature: the words on the left, the screenshot on the right ── */
 main.tfr-howto .ht-item { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 1.5rem 3.5rem; align-items: start; padding: 2.75rem 0; border-top: 1px solid var(--border); }
-main.tfr-howto .ht-intro + .ht-item { margin-top: 1.75rem; }
+main.tfr-howto .ht-index + .ht-item { margin-top: 0; }
+main.tfr-howto .ht-item { scroll-margin-top: 8rem; }
+main.tfr-howto .ht-item--text { grid-template-columns: minmax(0, 1fr); padding: 2rem 0; }
+main.tfr-howto .ht-feature { margin: 0 0 .35rem; font: 600 .75rem/1.4 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 main.tfr-howto .ht-item:last-child { padding-bottom: 1rem; }
 main.tfr-howto .ht-copy { min-width: 0; }
 main.tfr-howto .ht-item h2 { margin: 0 0 .7rem; font: 600 1.625rem/1.25 var(--font-body); text-wrap: balance; }
-main.tfr-howto .ht-item p { margin: 0 0 1.25rem; max-width: 40ch; font: 1.125rem/1.6 var(--font-body); text-wrap: pretty; }
-main.tfr-howto .ht-item p.ht-note { margin: -.5rem 0 1.25rem; font-size: .9375rem; color: var(--muted); }
+main.tfr-howto .ht-item .ht-copy > p:not(.ht-feature) { margin: 0 0 1.25rem; max-width: 40ch; font: 1.125rem/1.6 var(--font-body); text-wrap: pretty; }
+main.tfr-howto .ht-item .ht-copy > p.ht-note { margin: -.5rem 0 1.25rem; font-size: .9375rem; color: var(--muted); }
 main.tfr-howto .ht-fig { margin: 0; min-width: 0; }
 main.tfr-howto .ht-fig img { display: block; width: 100%; height: auto; aspect-ratio: 8 / 5; border: 1px solid var(--border); border-radius: 3px; background: var(--tint); }
 
@@ -54,7 +63,7 @@ main.tfr-howto .ht-foot { margin: 1.5rem 0 0; padding-top: 2rem; border-top: 1px
 /* ── Tablet and phone: one column, the screenshot under the words ── */
 @media (max-width: 900px) {
   main.tfr-howto .ht-item { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; padding: 2.25rem 0; }
-  main.tfr-howto .ht-item p { max-width: 56ch; }
+  main.tfr-howto .ht-item .ht-copy > p:not(.ht-feature) { max-width: 56ch; }
 }
 @media (max-width: 640px) {
   main.tfr-howto .wrap { padding: 0 20px 3rem; }
