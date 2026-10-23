@@ -16,8 +16,8 @@
 
 .sd .td-root {
   max-width: 1320px;
-  padding-top: 48px;
-  padding-bottom: 96px;
+  padding-top: 16px;
+  padding-bottom: 48px;
   font-family: var(--font-body);
   color: var(--color-dark);
   /* Trace colours belong to the tradition, so Lutheran is the same on
@@ -36,25 +36,25 @@
      for one. */
   --sd-bar-h: 0px;
 }
-.td-title { font-family: var(--font-body); font-weight: 600; font-size: clamp(34px, 5vw, 48px); line-height: 1.1; margin: 6px 0 12px; }
-.td-lede { font-size: 19px; line-height: 1.6; max-width: 680px; margin: 0 0 24px; }
-.td-note { font-size: 15px; margin: -6px 0 16px; max-width: 680px; }
-.td-counts { font-size: 15px; margin: 0; }
-.td-kids { font-size: 15px; margin: 10px 0 0; }
+.td-title { font-family: var(--font-body); font-weight: 600; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.15; margin: 4px 0 8px; }
+.td-lede { font-size: var(--tfr-fs-body, 15.5px); line-height: 1.55; max-width: 680px; margin: 0 0 12px; }
+.td-note { font-size: 14px; margin: -4px 0 10px; max-width: 680px; }
+.td-counts { font-size: 14px; margin: 0; }
+.td-kids { font-size: 14px; margin: 6px 0 0; }
 .td-kids a, .td-head a { color: var(--sd-accent); }
 .td-roman { color: var(--sd-accent); font-weight: 600; margin-right: 6px; }
 
 /* ── The contents page ───────────────────────────────────────── */
-.td-head--contents { max-width: 720px; margin: 0 auto 40px; text-align: center; }
+.td-head--contents { max-width: 720px; margin: 0 auto 16px; text-align: center; }
 .td-head--contents .td-lede { margin-left: auto; margin-right: auto; }
 .td-find { max-width: 420px; margin: 0 auto; text-align: left; }
 .td-find-empty { margin-top: 12px; }
 
 /* ── A topic: full workspace | optional source sidebar ────────── */
 .td-main { min-width: 0; }
-.td-head { padding-bottom: 20px; border-bottom: 1px solid var(--color-rule); }
+.td-head { padding-bottom: 12px; border-bottom: 1px solid var(--color-rule); }
 .td-topic-path { display: flex; flex-wrap: wrap; gap: 0; }
-.td-confessions { padding-top: 28px; }
+.td-confessions { padding-top: 16px; }
 .td-source-sub { font-size: 15px; line-height: 1.4; }
 .td-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
 .td-chip {
@@ -66,7 +66,7 @@
   background: var(--tfr-btn, var(--color-dark)); color: var(--tfr-btn-ink, #fff);
 }
 
-.td-tabs { display: flex; gap: 0; margin: 36px 0 24px; box-shadow: inset 0 -1px 0 var(--color-rule); flex-wrap: wrap; }
+.td-tabs { display: flex; gap: 0; margin: 16px 0 14px; box-shadow: inset 0 -1px 0 var(--color-rule); flex-wrap: wrap; }
 .td-tab {
   flex: 0 0 auto; padding: 12px 18px; min-height: 44px; font-size: 13px; letter-spacing: 0.14em;
   text-transform: uppercase; font-weight: 600; color: var(--color-muted); text-decoration: none;
@@ -74,7 +74,7 @@
 }
 .td-tab:hover, .td-tab:focus-visible { color: var(--color-dark); }
 .td-tab[aria-current="page"], .td-tab[aria-current="true"] { color: var(--color-dark); border-bottom-color: var(--sd-accent); }
-.td-view > section + section { margin-top: 44px; }
+.td-view > section + section { margin-top: var(--tfr-gap-section, 28px); }
 .td-view .sd-h2 { margin-top: 0; }
 
 .td-quote-item .sd-quote { margin-bottom: 10px; }
@@ -87,20 +87,20 @@
 .td-author-link:hover, .td-author-link:focus-visible { color: var(--sd-accent); text-decoration-color: currentColor; }
 
 .td-works { list-style: none; margin: 0; padding: 0; }
-.td-work { padding: 12px 0; border-bottom: 1px solid var(--color-rule); }
+.td-work { padding: 6px 0; border-bottom: 1px solid var(--color-rule); }
 .td-work:last-child { border-bottom: 0; }
 .td-work-head { display: flex; flex-direction: column; gap: 3px; }
-.td-work-title { display: inline-block; padding: 8px 0; font-size: 17px; font-style: italic; color: var(--color-dark); text-decoration: none; }
+.td-work-title { display: inline-block; padding: 6px 0; font-size: 16px; font-style: italic; color: var(--color-dark); text-decoration: none; }
 .td-work-title:hover, .td-work-title:focus-visible { color: var(--sd-accent); text-decoration: underline; }
 .td-secs { margin-top: 8px; }
-.td-secs > summary { font-size: 14px; color: var(--sd-accent); cursor: pointer; padding: 12px 0; min-height: 44px; }
+.td-secs > summary { font-size: 14px; color: var(--sd-accent); cursor: pointer; padding: 8px 0; min-height: 40px; }
 .td-secs .sd-sources { padding-left: 14px; border-left: 2px solid var(--color-rule); }
 
 .td-cmp-pick { margin-bottom: 20px; }
-.td-cmp { display: grid; grid-template-columns: repeat(var(--td-cols, 3), minmax(0, 1fr)); gap: 28px; }
+.td-cmp { display: grid; grid-template-columns: repeat(var(--td-cols, 3), minmax(0, 1fr)); gap: 20px; }
 .td-cmp-col { min-width: 0; }
-.td-cmp-h { font-family: var(--font-body); font-size: 18px; font-weight: 600; margin: 0 0 4px; padding-bottom: 8px; border-bottom: 3px solid var(--sd-accent); }
-.td-cmp-sub { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-muted); font-weight: 600; margin: 20px 0 6px; }
+.td-cmp-h { font-family: var(--font-body); font-size: 16.5px; font-weight: 600; margin: 0 0 4px; padding-bottom: 6px; border-bottom: 3px solid var(--sd-accent); }
+.td-cmp-sub { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-muted); font-weight: 600; margin: 12px 0 4px; }
 .td-cmp-authors { list-style: none; margin: 0; padding: 0; font-size: 14px; }
 .td-cmp-authors li { padding: 3px 0; }
 
@@ -120,12 +120,12 @@
 .td-trace-n { text-align: right; color: var(--color-muted); font-variant-numeric: tabular-nums; }
 
 .td-proofs { list-style: none; margin: 0; padding: 0; }
-.td-proof { padding: 12px 0; border-bottom: 1px solid var(--color-rule); }
+.td-proof { padding: 6px 0; border-bottom: 1px solid var(--color-rule); }
 .td-proof-head { display: grid; grid-template-columns: 170px 1fr 92px; align-items: center; gap: 12px; }
-.td-proof-ref { display: inline-block; padding: 10px 0; font-size: 17px; font-weight: 600; color: var(--color-dark); }
+.td-proof-ref { display: inline-block; padding: 8px 0; font-size: 16px; font-weight: 600; color: var(--color-dark); }
 .td-proof-ref:hover, .td-proof-ref:focus-visible { color: var(--sd-accent); }
 .td-proof-bar { display: block; height: 10px; }
-.td-proof-text { margin: 6px 0 0; font-size: 15px; line-height: 1.55; }
+.td-proof-text { margin: 4px 0 0; font-size: 14.5px; line-height: 1.5; }
 
 .td-panel-meta { margin-top: 4px; grid-column: 1; }
 .td-side-works { list-style: none; margin: 0; padding: 0; font-size: 15px; }
@@ -177,14 +177,14 @@
 /* ═══ Two blocks: what the church confessed / what its teachers wrote
    (Ian, 2026-09-22). Each has the same four tabs. ═══════════════════ */
 .sd .td-root { --td-g-early: #8c3b2a; --td-g-rc: #7a2f4f; --td-g-lu: #2f5d7c; --td-g-rf: #3d6b45; }
-.td-block { padding-top: 40px; }
-.td-block + .td-block { margin-top: 24px; border-top: 1px solid var(--color-rule); }
-.td-block-h { font-family: var(--font-body); font-size: 26px; font-weight: 600; margin: 0 0 6px; }
-.td-block .td-tabs { margin-top: 16px; }
+.td-block { padding-top: 20px; }
+.td-block + .td-block { margin-top: 16px; border-top: 1px solid var(--color-rule); }
+.td-block-h { font-family: var(--font-body); font-size: var(--tfr-fs-h2, 20px); font-weight: 600; margin: 0 0 6px; }
+.td-block .td-tabs { margin-top: 10px; }
 
 /* Confession articles: the article's own words, open on the page. */
 .td-articles { list-style: none; margin: 0; padding: 0; }
-.td-article { padding: 18px 0; border-bottom: 1px solid var(--color-rule); scroll-margin-top: calc(var(--sd-top, 0px) + 16px); }
+.td-article { padding: 10px 0; border-bottom: 1px solid var(--color-rule); scroll-margin-top: calc(var(--sd-top, 0px) + 16px); }
 .td-article:last-child { border-bottom: 0; }
 .td-article.is-picked { background: rgba(238, 125, 81, 0.07); box-shadow: -12px 0 0 rgba(238, 125, 81, 0.07), 12px 0 0 rgba(238, 125, 81, 0.07); }
 .td-article-doc { font-size: 14px; font-style: italic; margin: 0; }
@@ -257,7 +257,7 @@
   border: 1px solid var(--color-rule);
   border-radius: 3px;
   background: #fbf8f3;
-  padding: 20px 24px 18px;
+  padding: 12px 16px 12px;
   margin-bottom: 8px;
 }
 .td-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0 0; }
@@ -362,8 +362,8 @@
     border: 1px solid var(--color-rule);
     border-radius: 3px;
     background: #fbf8f3;
-    padding: 22px 28px;
-    margin: 0 0 24px;
+    padding: 12px 16px;
+    margin: 0 0 12px;
   }
 }
 
@@ -411,7 +411,7 @@ details:not([open]) > .td-fold-sum::after { transform: translateY(-30%) rotate(-
 .td-cen-group > .td-fold-sum::after { top: auto; bottom: 12px; transform: rotate(45deg); }
 .td-treat-group:not([open]) > .td-fold-sum::after,
 .td-cen-group:not([open]) > .td-fold-sum::after { bottom: 9px; transform: rotate(-45deg); }
-.td-treat-group > .td-fold-sum { margin-top: 18px; }
+.td-treat-group > .td-fold-sum { margin-top: 12px; }
 .td-treat-group > .td-fold-sum > .sd-h3 { margin-top: 0; }
 /* The group's rule runs the full width, under the chevron too. */
 .td-treat-group > .td-fold-sum,
@@ -498,3 +498,16 @@ details:not([open]) > .td-fold-sum::after { transform: translateY(-30%) rotate(-
   .td-page .tgi .tgi-row { grid-template-columns: minmax(0, 1fr) 4.5rem; }
   .td-page .tgi .tgi-row > .tgi-cmp { justify-self: end; }
 }
+
+/* ═══ DENSITY PASS (2026-10-23): the contents' parts and rows, one step down. Their sizes come from the shared maps module,
+   so only this page's copy of them changes (.td-page .tgi). ═══ */
+.td-page .tgi .tgi-ph h2 { font-size: 1.2rem; line-height: 1.25; }
+.td-page .tgi-part { margin-top: 1.4rem; }
+.td-page .tgi > .tgi-part:first-child { margin-top: 1rem; }
+.td-page .tgi .tgi-row > a:first-child { min-height: 2.75rem; padding-block: .35rem; }
+.td-page .tgi .tgi-t { font-size: 1.0625rem; line-height: 1.3; }
+.td-page .tgi .tgi-row .tg-mini { height: 1.75rem; }
+.td-page .tgi .tgi-key { margin-top: .5rem; }
+.td-page .tgi .tgi-jump button { min-height: 2.25rem; }
+.td-page .tgi .tgi-cell { padding-block: .5rem .4rem; }
+@media (max-width: 640px) { .td-page .tgi .tgi-jump button { min-height: 2.75rem; } .sd .td-root { padding-top: 12px; } }

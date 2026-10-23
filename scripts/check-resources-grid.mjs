@@ -4,7 +4,7 @@
  *
  * Builds a harness from custom-faith-resources.hbs (partials and helpers stripped, its scripts and stylesheet kept), serves the
  * theme's assets locally, drives headless Chrome over the DevTools protocol, and at 1920, 1440, 1280, 1024, 768 and 375 asserts:
- *   - the column count (4 at 1920, 1440, 1280 and 1024, 2 at 768, 1 at 375)
+ *   - the column count (5 at 1920, 1440 and 1280, 4 at 1024, 2 at 768, 1 at 375)
  *   - the grid, tab bar and hero share the theme's .container edges (1180px, 28px padding) within 1px
  *   - no horizontal overflow of the page
  *   - tiles of one grid are the same width within 1px
@@ -140,7 +140,7 @@ const measure = (panel, prefix, wantFilter, wantCards, wantCount) => `(async () 
   return out;
 })()`;
 
-const WANT = { 1920: 4, 1440: 4, 1280: 4, 1024: 4, 768: 2, 375: 1 };
+const WANT = { 1920: 5, 1440: 5, 1280: 5, 1024: 4, 768: 2, 375: 1 };
 let failed = 0;
 await send("Page.navigate", { url: `${base}/h` });
 await new Promise((res) => setTimeout(res, 800));

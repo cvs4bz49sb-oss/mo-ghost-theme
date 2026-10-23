@@ -312,7 +312,7 @@ const css = fs.readFileSync(path.join(ROOT, "assets/css/mo-articles-module.css")
 ok(!/#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/.test(css), "the module's sheet states no literal color");
 ok(!/IM Fell|font-variant:\s*small-caps|border-radius:\s*(9|[1-9]\d)/.test(css), "no display face and no pill in the module's sheet");
 ok(!/max-height|overflow(-y)?:\s*(auto|scroll)/.test(css), "no scroll box in the module's sheet");
-ok(/@container moa \(min-width: 800px\)[^}]*repeat\(3,/.test(css) && /@container moa \(min-width: 520px\)[^}]*repeat\(2,/.test(css), "three across at desk width, two on a tablet, one on a phone (by the width of the place)");
+ok(/@container moa \(min-width: 1160px\)[^}]*repeat\(5,/.test(css) && /@container moa \(min-width: 900px\)[^}]*repeat\(4,/.test(css) && /@container moa \(min-width: 620px\)[^}]*repeat\(3,/.test(css) && /@container moa \(min-width: 520px\)[^}]*repeat\(2,/.test(css), "five across on a wide desk, four, three, two on a tablet, one on a phone (by the width of the place)");
 ok(/ok/.test("ok") && /\.moa-btn[^{]*\{[^}]*border: 1px solid/.test(css) && !/\.moa-btn[^{]*\{[^}]*background: var/.test(css), "the foot button is hollow");
 ok(/min-height:\s*44px/.test(css) && /:focus-visible/.test(css), "44px targets and a visible focus ring");
 for (const f of ["assets/js/lib/mo-articles-module.js", "assets/js/page/mo-articles-placements.js"]) {

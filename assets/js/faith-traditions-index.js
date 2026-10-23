@@ -36,11 +36,11 @@
 
   const CSS = `
 .tix { --ink: #2d2927; --muted: #6b6660; --rule: #d9c6a7; --card: #fffdfa; --accent: #c1593c; color: var(--ink); font-family: "Source Serif Pro", Georgia, serif; }
-.tix-band { padding-block: 56px 8px; }
-.tix-eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
-.tix h2 { font-size: clamp(1.7rem, 3.4vw, 2.5rem); line-height: 1.12; margin: 0 0 10px; font-weight: 400; text-wrap: balance; }
-.tix-say { max-width: 46rem; color: var(--muted); margin: 0 0 22px; font-size: 1.02rem; line-height: 1.6; }
-.tix-tree { position: relative; overflow-x: auto; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding-block: 14px 6px; }
+.tix-band { padding-block: 20px 4px; }
+.tix-eyebrow { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin: 0 0 4px; }
+.tix h2 { font-size: 1.25rem; line-height: 1.25; margin: 0 0 6px; font-weight: 400; text-wrap: balance; }
+.tix-say { max-width: 46rem; color: var(--muted); margin: 0 0 12px; font-size: 0.97rem; line-height: 1.55; }
+.tix-tree { position: relative; overflow-x: auto; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding-block: 8px 4px; }
 .tix-tree svg { display: block; min-width: 720px; width: 100%; height: auto; overflow: visible; }
 .tix-tree .ax { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
 .tix-tree .grid { stroke: var(--rule); stroke-width: 1; }
@@ -52,37 +52,37 @@
 .tix-tree a:focus { outline: none; }
 .tix-tree a:focus-visible .lb { outline: 2px solid var(--accent); }
 .tix-tree .now { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 4; }
-.tix-tree .yr { font-size: 22px; fill: var(--accent); font-variant-numeric: tabular-nums; }
-.tix-cards { display: grid; gap: 18px; padding-block: 28px 64px; }
-.tix-card { background: var(--card); border: 1px solid var(--rule); border-radius: 3px; padding: 22px 24px 20px; display: grid; gap: 12px; scroll-margin-top: 120px;
+.tix-tree .yr { font-size: 18px; fill: var(--accent); font-variant-numeric: tabular-nums; }
+.tix-cards { display: grid; gap: 10px; padding-block: 16px 32px; }
+.tix-card { background: var(--card); border: 1px solid var(--rule); border-radius: 3px; padding: 12px 16px 12px; display: grid; gap: 8px; scroll-margin-top: 120px;
   opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .tix-card.in { opacity: 1; transform: none; }
-.tix-card .tix-era { margin: 0; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.tix-card .tix-era { margin: 0; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
 .tix-card .tix-era i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: -1px; }
-.tix-card h3 { margin: 2px 0 0; font-size: 1.65rem; font-weight: 400; line-height: 1.15; }
+.tix-card h3 { margin: 2px 0 0; font-size: 1.1rem; font-weight: 600; line-height: 1.25; }
 .tix-card h3 a { color: inherit; text-decoration: none; } .tix-card h3 a:hover { color: var(--accent); }
-.tix-card .tix-dek { margin: 4px 0 0; color: var(--muted); font-style: italic; }
-.tix-card .tix-ov { margin: 0; max-width: 62ch; line-height: 1.6; }
-.tix-faces { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 14px 18px; }
-.tix-faces li { width: 86px; text-align: center; opacity: 0; transform: translateY(8px); transition: opacity 0.45s ease, transform 0.45s ease; }
+.tix-card .tix-dek { margin: 2px 0 0; color: var(--muted); font-style: italic; font-size: 0.9rem; line-height: 1.45; }
+.tix-card .tix-ov { margin: 0; max-width: 68ch; font-size: 0.95rem; line-height: 1.55; }
+.tix-faces { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.tix-faces li { width: 72px; text-align: center; opacity: 0; transform: translateY(8px); transition: opacity 0.45s ease, transform 0.45s ease; }
 .tix-card.in .tix-faces li { opacity: 1; transform: none; }
-.tix-faces a { color: inherit; text-decoration: none; display: grid; justify-items: center; gap: 6px; }
+.tix-faces a { color: inherit; text-decoration: none; display: grid; justify-items: center; gap: 3px; }
 .tix-faces .pic { --por-ground: var(--card); --por-rule: var(--rule); --por-ink: var(--muted); --por-accent: var(--accent); }
 .tix-faces .nm { font-size: 0.82rem; line-height: 1.2; }
-.tix-faces .dt { display: block; font-size: 0.7rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tix-faces .dt { display: block; font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .tix-faces a:hover .nm { color: var(--accent); text-decoration: underline; }
-.tix-docs { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; margin: 0; font-size: 0.95rem; }
-.tix-l { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.tix-docs { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; margin: 0; font-size: 0.9rem; }
+.tix-l { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
 .tix-docs a { color: var(--ink); text-decoration-color: var(--rule); text-underline-offset: 3px; } .tix-docs a:hover { color: var(--accent); }
 .tix-docs small { color: var(--muted); margin-left: 4px; font-variant-numeric: tabular-nums; }
-.tix-go { display: flex; flex-wrap: wrap; gap: 8px 10px; margin: 6px 0 0; padding-top: 12px; border-top: 1px solid var(--rule); }
-.tix-go a { font-size: 13px; letter-spacing: 0.06em; padding: 8px 14px; border: 1px solid var(--accent); border-radius: 3px; color: var(--accent); text-decoration: none; }
+.tix-go { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 2px 0 0; padding-top: 8px; border-top: 1px solid var(--rule); }
+.tix-go a { font-size: 13px; letter-spacing: 0.04em; padding: 6px 12px; border: 1px solid var(--accent); border-radius: 3px; color: var(--accent); text-decoration: none; }
 .tix-go a:hover, .tix-go a:focus-visible { background: var(--accent); color: #fff; }
 .tix-go a.main { background: var(--accent); color: #fff; }
-.tix-sub { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); margin-top: 6px; }
-.tix-sub .tix-card { padding: 18px 18px 16px; } .tix-sub .tix-card h3 { font-size: 1.35rem; }
-.tix-subhead { margin: 10px 0 0; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
-@media (max-width: 640px) { .tix-card { padding: 18px 16px; } .tix-faces li { width: 74px; } }
+.tix-sub { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); margin-top: 6px; }
+.tix-sub .tix-card { padding: 10px 14px 10px; } .tix-sub .tix-card h3 { font-size: 1.05rem; }
+.tix-subhead { margin: 6px 0 0; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+@media (max-width: 640px) { .tix-card { padding: 12px 12px; } .tix-faces li { width: 68px; } .tix-go a { padding: 12px 14px; } }
 @media (prefers-reduced-motion: reduce) { .tix-card, .tix-faces li { opacity: 1; transform: none; transition: none; } }`;
 
   function tree(list, X, host) {
@@ -188,9 +188,9 @@
     const top = list.filter((t) => !t.parent);
     const kids = (p) => list.filter((k) => k.parent === p.slug);
     sec.innerHTML = `<div class="tix-band"><p class="tix-eyebrow">The family tree</p><h2>Two thousand years of the church</h2>`
-      + `<p class="tix-say">Each line is a tradition from the year it begins. A branch shows the church it came out of. Choose a line to read about that tradition below.</p>`
+      + `<p class="tix-say">Each line is a tradition from the year it begins. Choose one to read about it below.</p>`
       + `<div class="tix-tree"></div></div>`
-      + `<div class="tix-band" style="padding-block:40px 0"><p class="tix-eyebrow">The traditions</p><h2>The churches and the people to meet first</h2>`
+      + `<div class="tix-band" style="padding-block:16px 0"><p class="tix-eyebrow">The traditions</p><h2>The churches and the people to meet first</h2>`
       + `<p class="tix-say">For each tradition: where it begins, the writers to read first, its confessions, and the guides and pages that open it.</p></div>`
       + `<div class="tix-cards">${top.map((t) => {
         const ks = kids(t);

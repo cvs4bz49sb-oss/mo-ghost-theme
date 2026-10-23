@@ -1,0 +1,137 @@
+/* ═══════════════════════════════════════════════════════════════
+   TFR DENSITY (Ian, 2026-10-23: "Everything is starting to creep toward being big and I think we need to compact things").
+   One compact scale for the tool, reference and desk pages built or redesigned in October. Every rule here is either a token or
+   keyed on a class the in-scope templates carry (bhero--compact, td-root, sd-desk, tfr-trad-body, ...), so no other page changes.
+   Reference scale: Search, the Topics list, the Dictionary, the reader's Research panel (body 15-16px, meta 12.5-13px).
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --tfr-fs-body: 15.5px;      /* working body text; line-height 1.5 to 1.55 */
+  --tfr-fs-meta: 13px;        /* meta, counts, dates, why lines */
+  --tfr-fs-tiny: 12px;        /* small-caps labels only */
+  --tfr-fs-h1: 30px;          /* tool-page H1, desktop (phone 25px) */
+  --tfr-fs-h2: 20px;          /* section headings */
+  --tfr-fs-h3: 16.5px;        /* card titles */
+  --tfr-gap-section: 28px;    /* between sections */
+  --tfr-gap-block: 16px;      /* between blocks inside a section */
+  --tfr-row-pad: 8px;         /* list row padding (top and bottom) */
+  --tfr-card-pad: 14px;       /* card padding */
+}
+
+/* ── The tool hero: eyebrow, one H1, one sentence. About 150px, not 300+. ── */
+.bhero.bhero--tool.bhero--compact { padding: 26px 0 22px; min-height: 0; }
+.bhero.bhero--compact .bhero-inner { display: block; }
+.bhero.bhero--compact .bhero-kicker { margin: 0 0 6px; font-size: var(--tfr-fs-tiny); line-height: 1.4; }
+.bhero.bhero--compact h1 { margin: 0; max-width: none; font-size: var(--tfr-fs-h1); line-height: 1.15; }
+.bhero.bhero--compact .bhero-sub { margin: 8px 0 0; max-width: 64ch; font-size: 16px; line-height: 1.5; }
+@media (max-width: 640px) {
+  .bhero.bhero--tool.bhero--compact { padding: 20px 0 16px; }
+  .bhero.bhero--compact h1 { font-size: 25px; }
+  .bhero.bhero--compact .bhero-sub { font-size: 15px; margin-top: 6px; }
+}
+
+/* ── Verse Desk: the verse card and its jump line (the modules are in verse-desk.css) ── */
+.sd .sd-desk { padding-top: 12px; }
+.sd-desk .sd-desk-head { padding: 14px 20px 12px; }
+.sd-desk .sd-desk-title { margin: 2px 0 8px; font-size: clamp(24px, 2.4vw, 28px); line-height: 1.15; }
+.sd-desk .sd-desk-nav { gap: 2px 20px; margin-top: 8px; font-size: 14px; }
+.sd-desk .sd-desk-toc { margin-top: 8px; font-size: 14px; line-height: 1.4; gap: 2px 18px; }
+.sd-desk .sd-desk-toc a { padding: 2px 0; }
+@media (max-width: 640px) {
+  .sd-desk .sd-desk-head { padding: 12px 14px 10px; }
+  .sd-desk .sd-desk-title { font-size: 24px; }
+  .sd-desk .sd-desk-verse { font-size: 16.5px; line-height: 1.55; }
+  .sd-desk .sd-desk-nav a { min-height: 44px; }
+}
+
+/* ── Topic Desk: phone keeps 44px tap targets on its list links; desktop rows are tighter (topic-desk.css, topic-ways-in.css) ── */
+@media (max-width: 640px) {
+  .td-desk :is(.tdk-keyworks a, .tdk-tlist .tw, .tdk-step ul a, .tdk-rellist a, .tdk-ev .l a, .tdk-quote figcaption a, .tdk-matrix td a, .tdk-verse .vref, .tdk-kwl a, .tdk-notes a, .tdk-period .tdk-small a) { padding-top: 10px; padding-bottom: 10px; }
+  .td-desk .tdk-jump a, .td-desk .tdk-tab, .td-desk .tdk-row-h, .td-desk .tdk-docs a { min-height: 44px; }
+  .fr-dn :is(.fr-dn-tab, .fr-dn-open) { min-height: 44px; }
+  .fr-dn :is(.tsc-chips a, .tsc-works a, .fr-dn-row li a, .fr-dn-pages a, .fr-dn-notes a, .fr-dn-course .fr-dn-course-head a, .tsc-ref, .tsc-places a) { padding-top: 10px; padding-bottom: 10px; }
+}
+
+/* ── Traditions (index and one tradition): the theme's band padding and list sizes, compacted ── */
+.tfr-trad .tfr-trad-body { padding: 16px 0 28px; }
+.tfr-trad .tfr-trad-sec { margin: 0 0 var(--tfr-gap-section, 28px); }
+.tfr-trad .tfr-trad-sec h2 { font-size: var(--tfr-fs-h2, 20px); line-height: 1.25; padding-top: 12px; margin: 0 0 6px; }
+.tfr-trad .tfr-trad-note { font-size: 14px; margin: 0 0 10px; }
+.tfr-trad .tfr-trad-overview p { font-size: var(--tfr-fs-body, 15.5px); line-height: 1.55; }
+@media (min-width: 900px) { .tfr-trad .tfr-trad-prose p { font-size: var(--tfr-fs-body, 15.5px); } .tfr-trad .tfr-trad-prose { column-gap: 40px; } }
+.tfr-trad .tfr-trad-docs a, .tfr-trad .tfr-trad-docs .tfr-trad-row { padding: 6px 0; gap: 0 14px; }
+.tfr-trad .tfr-trad-t { font-size: 16px; line-height: 1.35; }
+.tfr-trad .tfr-trad-yr { font-size: 13px; }
+.tfr-trad .tfr-trad-kind { font-size: 12px; }
+.tfr-trad .tfr-trad-authors { column-gap: 32px; }
+.tfr-trad .tfr-trad-an { font-size: 15.5px; }
+.tfr-trad .tfr-trad-ad { font-size: 13px; }
+.tfr-trad .tfr-trad-ix { padding: 8px 0; gap: 2px 20px; }
+.tfr-trad .tfr-trad-ixn { font-size: 17px; line-height: 1.3; }
+.tfr-trad .tfr-trad-ixd { font-size: 14.5px; line-height: 1.45; }
+.tfr-trad .tfr-trad-ixm { font-size: 12px; }
+.tfr-trad .tfr-trad-index--sub { margin: 0 0 8px 24px; }
+.tfr-trad .tfr-trad-index--sub .tfr-trad-ixn { font-size: 16px; }
+.tfr-trad .tfr-trad-more { margin: 10px 0 0; }
+@media (max-width: 640px) {
+  .tfr-trad .tfr-trad-body { padding: 12px 0 20px; }
+  .tfr-trad .tfr-trad-ix { padding: 10px 0; }
+}
+
+/* ── Disputed questions, Set indexes, Commentary decks: the page's own inline scale, one step down.
+   Keyed on the three template classes, so the Lexicon and the How to use pages (same tool skin) keep their own. ── */
+main.tfr-tool.tfr-atlas { line-height: 1.55; }
+main.tfr-tool.tfr-atlas .wrap { padding: 12px 16px 28px; }
+main.tfr-tool.tfr-atlas .cols { gap: 0 24px; }
+main.tfr-tool.tfr-atlas .loci summary { padding: 6px 4px; font-size: 15.5px; }
+main.tfr-tool.tfr-atlas .loci li button { padding: 5px 8px; font-size: 15px; line-height: 1.35; }
+main.tfr-tool.tfr-atlas .q h2 { font-size: 21px; line-height: 1.25; margin: 0 0 4px; }
+main.tfr-tool.tfr-atlas .tally { margin: 8px 0 12px; }
+main.tfr-tool.tfr-atlas .tally button { min-height: 36px; padding: 6px 0 5px; }
+main.tfr-tool.tfr-atlas .sec-h { margin: 22px 0 6px; font-size: 18px; }
+main.tfr-tool.tfr-atlas .ans { margin: 12px 0 0; font-size: 15.5px; }
+main.tfr-tool.tfr-atlas .split { margin: 8px 0 6px; }
+main.tfr-tool.tfr-atlas .hr { padding: 6px 0; }
+main.tfr-tool.tfr-atlas .h-who { font-size: 15.5px; }
+main.tfr-tool.tfr-atlas .h-line { font-size: 15px; line-height: 1.5; }
+main.tfr-tool.tfr-atlas .pos-in { margin: 18px 0 0; }
+main.tfr-tool.tfr-atlas .next { margin: 18px 0 0; }
+main.tfr-tool.tfr-atlas .next button { font-size: 15px; }
+main.tfr-tool.tfr-atlas :is(.ct, .meta, .split-n, .al-h, .h-pg, .h-who small, .h-src, .more) { font-size: 13px; }
+
+main.tfr-tool.tfr-set-index .wrap { padding: 10px 24px 28px; }
+main.tfr-tool.tfr-set-index .by { margin: 0 0 8px; max-width: 72ch; font-size: 14.5px; line-height: 1.5; }
+main.tfr-tool.tfr-set-index .tabs button { min-height: 40px; padding: 6px 0 5px; font-size: 15.5px; }
+main.tfr-tool.tfr-set-index .tabs { gap: 0 24px; }
+main.tfr-tool.tfr-set-index .letters { margin: 6px 0 12px; }
+main.tfr-tool.tfr-set-index .letters button { min-width: 32px; min-height: 32px; font-size: 14px; }
+main.tfr-tool.tfr-set-index .cols { gap: 0 28px; }
+main.tfr-tool.tfr-set-index .find { margin: 0 0 8px; }
+main.tfr-tool.tfr-set-index .find input, main.tfr-tool.tfr-set-index .dfind { min-height: 40px; padding: 6px 12px; font-size: 15px; }
+main.tfr-tool.tfr-set-index .runhead b { font-size: 20px; }
+main.tfr-tool.tfr-set-index .runhead .rh-range { font-size: 15px; }
+main.tfr-tool.tfr-set-index .list li button { min-height: 34px; padding: 4px 8px; font-size: 15px; }
+main.tfr-tool.tfr-set-index .entry h2 { font-size: 22px; margin: 0 0 4px; }
+main.tfr-tool.tfr-set-index .entry .count { margin: 0 0 8px; font-size: 14px; }
+main.tfr-tool.tfr-set-index .rows > li { padding: 8px 0; }
+main.tfr-tool.tfr-set-index .rows .vol { font-size: 16px; }
+main.tfr-tool.tfr-set-index .rows .loc, main.tfr-tool.tfr-set-index .rows .subs { font-size: 14px; line-height: 1.5; }
+main.tfr-tool.tfr-set-index .verse { margin: 14px 0 4px; font-size: 17px; }
+main.tfr-tool.tfr-set-index .more { min-height: 36px; margin-top: 8px; }
+
+main.tfr-tool.tfr-decks .wrap { padding: 10px 16px 28px; }
+main.tfr-tool.tfr-decks .tabs .tgb [role="tab"] { padding: 4px 0 6px; font-size: 17px; }
+main.tfr-tool.tfr-decks .ph h2 { font-size: 19px; }
+main.tfr-tool.tfr-decks .ph { padding: 8px 14px 8px; gap: 6px; }
+main.tfr-tool.tfr-decks .ph .what { font-size: 14.5px; }
+main.tfr-tool.tfr-decks .who { font-size: 16.5px; }
+main.tfr-tool.tfr-decks .morebar { margin-top: 12px; padding-top: 8px; }
+@media (max-width: 640px) {
+  main.tfr-tool.tfr-atlas .q h2 { font-size: 19px; }
+  main.tfr-tool.tfr-atlas .loci li button { min-height: 44px; }
+  main.tfr-tool.tfr-atlas .tally button { min-height: 44px; }
+  main.tfr-tool.tfr-set-index .list li button { min-height: 40px; }
+  main.tfr-tool.tfr-set-index .letters button { min-height: 36px; min-width: 36px; }
+  main.tfr-tool.tfr-set-index .tabs button { min-height: 44px; }
+  main.tfr-tool.tfr-set-index :is(.find input, .dfind) { min-height: 44px; }
+  main.tfr-tool.tfr-set-index .wrap { padding: 8px 14px 24px; }
+}

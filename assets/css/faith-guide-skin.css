@@ -285,3 +285,20 @@ main.tfr-guide-page [data-guide-root] .tg-case2-after { padding-block: 8px 40px;
 /* Guide captions and notes became <div>s so a Methodology <details> can sit inside them (a <details> may not live in a <p>).
    They keep the paragraph margin the guides relied on. :where() keeps this at zero specificity, so any margin a guide states wins. */
 :where(main.tfr-guide-page [data-guide-root]) :where(div.cap, #tg-pnote, #tg-unote, #tg-ynote, #tf-vkey) { margin: 1em 0; }
+
+/* DENSITY PASS, 2026-10-23 (Ian: "Everything is starting to creep toward being big and I think we need to compact things"). The skin steps the
+   guide's own display sizes down to the working scale (headings 24-30px, section padding about 32px); his scenes, motion and pinning are untouched. */
+main.tfr-guide-page [data-guide-root] h2 { font-size: clamp(1.45rem, 2.4vw, 1.85rem); line-height: 1.12; margin: 0 0 8px; }
+main.tfr-guide-page [data-guide-root] section.tool { padding-block: 28px 4px; }
+main.tfr-guide-page [data-guide-root] .scene { padding-block: 32px; }
+main.tfr-guide-page [data-guide-root].tfr-guide-skinned .hero .wrap { padding-block: 20px; gap: 12px 32px; }
+main.tfr-guide-page [data-guide-root] .hero .lede { font-size: 1rem; line-height: 1.5; }
+main.tfr-guide-page [data-guide-root] .hero .facts b { font-size: 1.5rem; }
+main.tfr-guide-page [data-guide-root] .hero .scroll { margin-top: 12px; }
+main.tfr-guide-page [data-guide-root] .fx-cent > summary b { font-size: 1.05rem; }
+main.tfr-guide-page [data-guide-root] #names .kn-say { font-size: 1rem; }
+main.tfr-guide-page [data-guide-root] #names .kn-card h3 { font-size: 1.05rem; }
+@media (max-width: 640px) {
+  main.tfr-guide-page [data-guide-root].tfr-guide-skinned .hero .wrap { padding-block: 14px; }
+  main.tfr-guide-page [data-guide-root] .scene { padding-block: 24px; }
+}

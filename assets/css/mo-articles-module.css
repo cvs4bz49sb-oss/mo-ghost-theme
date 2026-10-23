@@ -13,14 +13,14 @@
 
    Working surface: Source Serif (var(--font-body)), no display face. Hollow buttons, no pills, 44px targets, a visible focus ring.
    ═══════════════════════════════════════════════════════════════ */
-.moa-host { margin: 44px 0 0; container: moa / inline-size; }
-.container > .moa-host:first-child, .container-narrow > .moa-host:first-child { margin-top: 20px; }
+.moa-host { margin: var(--tfr-gap-section, 28px) 0 0; container: moa / inline-size; }
+.container > .moa-host:first-child, .container-narrow > .moa-host:first-child { margin-top: 16px; }
 .moa {
   --moa-ink: var(--sd-ink, var(--color-dark));
   --moa-muted: var(--sd-muted, var(--color-muted));
   --moa-rule: var(--color-rule);
   --moa-accent: var(--sd-accent, var(--color-secondary));
-  margin: 0; padding: 36px 0 8px; border-top: 1px solid var(--moa-rule);
+  margin: 0; padding: 18px 0 4px; border-top: 1px solid var(--moa-rule);
   font-family: var(--font-body); color: var(--moa-ink); text-align: left;
 }
 /* The reader's rail and the research rooms carry their own tokens (fr-reading-system.css), light, dark and sepia alike. */
@@ -29,55 +29,68 @@
 }
 main.research .moa { --moa-accent: var(--color-secondary, var(--ink)); }
 
-.moa .moa-head { margin: 0 0 22px; }
-.moa .moa-eyebrow { margin: 0 0 8px; font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: 0.16em; text-transform: uppercase; color: var(--moa-muted); }
-.moa .moa-h { margin: 0; font: 600 clamp(24px, 3vw, 30px)/1.15 var(--font-body); letter-spacing: -0.01em; color: var(--moa-ink); text-wrap: balance; }
+.moa .moa-head { margin: 0 0 12px; }
+.moa .moa-eyebrow { margin: 0 0 4px; font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: 0.16em; text-transform: uppercase; color: var(--moa-muted); }
+.moa .moa-h { margin: 0; font: 600 20px/1.25 var(--font-body); letter-spacing: -0.005em; color: var(--moa-ink); text-wrap: balance; }
 .moa .moa-ctx { font-weight: 400; color: var(--moa-muted); }
 
 /* A kind of resource (articles now, podcasts later) under "Resources on this work". */
-.moa .moa-kind + .moa-kind { margin-top: 38px; }
-.moa .moa-kh { margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--moa-rule); font: 600 20px/1.25 var(--font-body); color: var(--moa-ink); }
-.moa .moa-n { margin-left: 4px; font-size: 14px; font-weight: 400; color: var(--moa-muted); }
+.moa .moa-kind + .moa-kind { margin-top: 22px; }
+.moa .moa-kh { margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--moa-rule); font: 600 17px/1.25 var(--font-body); color: var(--moa-ink); }
+.moa .moa-n { margin-left: 4px; font-size: 13px; font-weight: 400; color: var(--moa-muted); }
 
-/* Cards: three across, two on a tablet, one on a phone. */
+/* Cards: five across on a wide desk, four, three, two on a tablet, one on a phone. */
 .moa .moa-list { list-style: none; margin: 0; padding: 0; }
-.moa--cards .moa-list { display: grid; align-items: start; gap: 30px 24px; grid-template-columns: minmax(0, 1fr); }
+.moa--cards .moa-list { display: grid; align-items: start; gap: 18px 16px; grid-template-columns: minmax(0, 1fr); }
 /* By the width of the place it sits in (a desk is narrower than the window), not the window's. */
 @container moa (min-width: 520px) { .moa--cards .moa-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@container moa (min-width: 800px) { .moa--cards .moa-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@container moa (min-width: 620px) { .moa--cards .moa-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@container moa (min-width: 900px) { .moa--cards .moa-list { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@container moa (min-width: 1160px) { .moa--cards .moa-list { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 .moa .moa-row { margin: 0; padding: 0; min-width: 0; }
 .moa .moa-row[hidden] { display: none; }
 .moa .moa-link { display: block; min-height: 44px; box-sizing: border-box; color: var(--moa-ink); text-decoration: none; }
-.moa .moa-img { display: block; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 8px; background: color-mix(in srgb, var(--moa-rule) 45%, transparent); }
+.moa .moa-img { display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 8px; background: color-mix(in srgb, var(--moa-rule) 45%, transparent); }
 .moa .moa-photo { display: block; width: 100%; height: 100%; object-fit: cover; }
 .moa .moa-ph {
   display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; box-sizing: border-box; padding: 10px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; text-align: center; line-height: 1.4; color: var(--moa-muted);
+  font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; text-align: center; line-height: 1.4; color: var(--moa-muted);
 }
-.moa .moa-t { display: block; margin: 12px 0 4px; font: 600 18px/1.3 var(--font-body); overflow-wrap: anywhere; }
+.moa .moa-t { display: block; margin: 8px 0 2px; font: 600 var(--tfr-fs-h3, 16.5px)/1.3 var(--font-body); overflow-wrap: anywhere; }
 .moa .moa-link:hover .moa-t { color: var(--moa-accent); text-decoration: underline; text-underline-offset: 3px; }
 /* Nothing on a card is clipped: the text wraps and the card grows. */
-.moa .moa-meta { display: block; font-size: 14px; line-height: 1.45; color: var(--moa-muted); }
-.moa .moa-why { display: block; margin-top: 4px; font-size: 14px; line-height: 1.45; color: var(--moa-ink); }
-.moa .moa-x { display: block; margin-top: 6px; font-size: 14px; line-height: 1.5; color: var(--moa-muted); }
+.moa .moa-meta { display: block; font-size: 13px; line-height: 1.4; color: var(--moa-muted); }
+.moa .moa-why { display: block; margin-top: 2px; font-size: 13px; line-height: 1.4; color: var(--moa-ink); }
+.moa .moa-x { display: block; margin-top: 4px; font-size: 13px; line-height: 1.45; color: var(--moa-muted); }
 .moa .moa-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
+/* One column (a phone): the card is a row, a 104px image beside the words, so a screen holds five or six instead of two. */
+@container moa (max-width: 519px) {
+  .moa--cards .moa-list { gap: 4px 0; }
+  .moa--cards .moa-row { border-bottom: 1px solid var(--moa-rule); }
+  .moa--cards .moa-row:last-child { border-bottom: 0; }
+  .moa--cards .moa-link { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; }
+  .moa--cards .moa-img { flex: 0 0 104px; width: 104px; }
+  .moa--cards .moa-txt { display: block; min-width: 0; flex: 1 1 auto; }
+  .moa--cards .moa-t { margin: 0 0 2px; }
+}
+
 /* Compact rows (the rail, the verse panel): a small image beside the words. */
-.moa--rows { padding-top: 22px; }
+.moa--rows { padding-top: 16px; }
 .moa--rows .moa-h { font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: 0.14em; text-transform: uppercase; color: var(--moa-muted); }
 .moa--rows .moa-head { margin-bottom: 8px; }
 .moa--rows .moa-kh { margin: 14px 0 4px; padding: 0; border: 0; font-size: 15px; }
 .moa--rows .moa-row { border-bottom: 1px solid var(--moa-rule); }
 .moa--rows .moa-row:last-child { border-bottom: 0; }
-.moa--rows .moa-link { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; }
-.moa--rows .moa-img { flex: 0 0 76px; width: 76px; border-radius: 6px; }
+.moa--rows .moa-link { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; }
+.moa--rows .moa-img { flex: 0 0 64px; width: 64px; border-radius: 5px; }
 .moa--rows .moa-txt { display: block; min-width: 0; flex: 1 1 auto; }
-.moa--rows .moa-t { margin: 0 0 2px; font-size: 15px; }
+.moa--rows .moa-t { margin: 0 0 2px; font-size: 14.5px; }
 .moa--rows .moa-meta, .moa--rows .moa-why { font-size: 13px; line-height: 1.4; }
 
 /* Hollow buttons (the site's button: off-black outline, 3px corners, sentence case). */
-.moa .moa-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 24px; margin: 14px 0 0; }
-.moa .moa-foot--end { margin-top: 30px; }
+.moa .moa-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; margin: 10px 0 0; }
+.moa .moa-foot--end { margin-top: 16px; }
 .moa--rows .moa-foot--end { margin-top: 12px; }
 .moa .moa-btn, .moa .moa-more {
   display: inline-flex; align-items: center; justify-content: center; min-height: 44px; box-sizing: border-box; margin: 0; padding: 0 20px;
@@ -92,8 +105,8 @@ main.research .moa { --moa-accent: var(--color-secondary, var(--ink)); }
 .moa .moa-all:hover { color: var(--moa-accent); }
 .moa .moa-link:focus-visible, .moa .moa-more:focus-visible, .moa .moa-btn:focus-visible, .moa .moa-all:focus-visible { outline: 2px solid var(--moa-accent); outline-offset: 3px; }
 @media (max-width: 640px) {
-  .moa-host { margin-top: 34px; }
-  .moa { padding-top: 28px; }
-  .moa .moa-t { font-size: 17px; }
+  .moa-host { margin-top: 24px; }
+  .moa { padding-top: 16px; }
+  .moa .moa-t { font-size: 16px; }
 }
 @media print { .moa-host { display: none; } }
