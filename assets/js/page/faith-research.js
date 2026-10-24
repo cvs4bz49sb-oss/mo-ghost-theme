@@ -208,6 +208,22 @@
     showMode(modeOf(window.location.hash));
   });
 
+  /* The Research tools index above the desk (2026-10-24). An Open link whose address is a workspace of THIS page (Compare, Bookmarks,
+     Notebook) opens that tab and brings the desk into view, instead of changing a hash the reader cannot see happen. Every other Open
+     link is an ordinary navigation to the tool's own page. A reader with no account never loads this file (the template wraps it in
+     {{#if @member}}), and feature-gate.js sees these clicks first anyway. */
+  const deskTitle = document.getElementById("rx-desk-title");
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest ? e.target.closest("a.rx-open") : null;
+    if (!a || !deskTitle || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    let u;
+    try { u = new URL(a.getAttribute("href"), window.location.href); } catch (err) { return; }
+    if (u.pathname !== window.location.pathname || MODES.indexOf(modeOf(u.hash)) < 0) return;
+    e.preventDefault();
+    selectMode(modeOf(u.hash), false);
+    deskTitle.scrollIntoView({ block: "start" });
+  });
+
   /* ── Boot ────────────────────────────────────────────────────── *
    *
    * An unknown or absent hash falls through to the first tab rather than

@@ -30,6 +30,11 @@
      link still works the moment they have one. Reading links, Scripture,
      Topics and the Dictionary carry nothing and stay open.
 
+     Every destination in the Research drawer carries its key (2026-10-24),
+     and the list of tools, their keys and their tiers is held in one
+     registry, scripts/data/research-tools.json, which
+     scripts/check-research-tools.mjs compares with this file.
+
      The tier these resolve to lives in ONE place, feature-gate.js's
      TFR_BETA_OPEN_TO_ALL_MEMBERS, checked against both library workers
      by website/workers/scripts/check-tfr-tier.mjs. --}}
@@ -87,15 +92,15 @@
           <a href="/the-faith-received/connections/" data-feature-gate="tfr-connections">Connections</a>
           {{!-- The commented texts place by place, and the classic disputed
                questions with each author's answer (2026-10-20). --}}
-          <a href="/the-faith-received/commentary-decks/">Commentary Decks</a>
-          <a href="/the-faith-received/disputed-questions/">Disputed Questions</a>
+          <a href="/the-faith-received/commentary-decks/" data-feature-gate="tfr-decks">Commentary Decks</a>
+          <a href="/the-faith-received/disputed-questions/" data-feature-gate="tfr-disputed">Disputed Questions</a>
           {{!-- Moved from Read (Ian, 2026-10-23: "Lexicon, Set Indexes, Page
                Scans all need to be moved to Research"). Page Scans: the works
                that can be read beside the printed page. Lexicon: the terms as
                the authors define them. Set Indexes: one index for a whole edition. --}}
-          <a class="tfr-rail-cluster" href="/the-faith-received/lexicon/">Lexicon</a>
-          <a href="/the-faith-received/set-index/">Set Indexes</a>
-          <a href="/the-faith-received/scans/">Page Scans</a>
+          <a class="tfr-rail-cluster" href="/the-faith-received/lexicon/" data-feature-gate="tfr-lexicon">Lexicon</a>
+          <a href="/the-faith-received/set-index/" data-feature-gate="tfr-set-index">Set Indexes</a>
+          <a href="/the-faith-received/scans/" data-feature-gate="tfr-scans">Page Scans</a>
           {{!-- Was /the-faith-received/pins/, which is the ported
                notebook and a different store from the Bookmarks panel on
                the Research desk. Ian, 2026-09-22: "Bookmark and Notebook

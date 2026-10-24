@@ -1376,7 +1376,7 @@ function __initReaderTools(){
   lexPop.addEventListener('click',e=>{if(e.target.closest('.lx-x'))lexClose();});
   document.addEventListener('mousedown',e=>{if(!lexPop.hidden&&!lexPop.contains(e.target)&&!pop.contains(e.target))lexClose();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!lexPop.hidden)lexClose();});
-  $("#spDef")&&($("#spDef").onclick=()=>{const w=passageText(),rc=getSelection()?.rangeCount?getSelection().getRangeAt(0).getBoundingClientRect():pop.getBoundingClientRect();hidePop();defineWord(w,rc);});
+  $("#spDef")&&($("#spDef").onclick=()=>{/* Define is the Lexicon in the reader: it needs an account (2026-10-24) */if(window.MOFeatureGate&&window.MOFeatureGate.open('tfr-lexicon')){hidePop();return;}const w=passageText(),rc=getSelection()?.rangeCount?getSelection().getRangeAt(0).getBoundingClientRect():pop.getBoundingClientRect();hidePop();defineWord(w,rc);});
   pop.querySelectorAll(".sw").forEach(sw=>sw.onclick=e=>{
     e.preventDefault();
     const colour=sw.dataset.hl;

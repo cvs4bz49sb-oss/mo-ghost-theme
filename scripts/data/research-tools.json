@@ -1,0 +1,161 @@
+{
+  "_note": "The registry of Research tools: one place for the rail drawer, the feature keys, the pages and their server tiers. scripts/check-research-tools.mjs compares it with partials/faith-received/_tfr-rail.hbs, assets/js/feature-gate.js, the page templates and the Research page index. scripts/check-research-gate.mjs loads each url in a signed-out Chrome. Server tiers: 'member' = a worker route refuses a caller with no member token (website/workers/scripts/check-tfr-tier.mjs); 'client-only' = the data is public static JSON in R2 that open surfaces (reader, Scripture, Topics) read too, so only the page and the click are gated.",
+  "tools": [
+    {
+      "name": "Ask",
+      "group": "Search and ask",
+      "href": "/the-faith-received/ask/",
+      "gate": "ask",
+      "page": "template",
+      "what": "A question answered from the library, with the pages it drew on.",
+      "server": "member",
+      "serverRoutes": [
+        "/v1/ask"
+      ]
+    },
+    {
+      "name": "Power Search",
+      "group": "Search and ask",
+      "href": "/the-faith-received/search/#power",
+      "gate": "tfr-search",
+      "page": "template",
+      "what": "Search by meaning rather than by word, across every collection.",
+      "server": "member",
+      "serverRoutes": [
+        "/v1/vsearch",
+        "/v1/xsearch"
+      ]
+    },
+    {
+      "name": "Compare",
+      "group": "Compare and connect",
+      "href": "/the-faith-received/research/#compare",
+      "gate": "tfr-compare",
+      "page": "template",
+      "what": "Two to four authors on one topic, side by side.",
+      "server": "client-only",
+      "serverRoutes": []
+    },
+    {
+      "name": "Connections",
+      "group": "Compare and connect",
+      "href": "/the-faith-received/connections/",
+      "gate": "tfr-connections",
+      "page": "template",
+      "what": "The library mapped by citation: who reads whom.",
+      "server": "client-only",
+      "serverRoutes": []
+    },
+    {
+      "name": "Commentary Decks",
+      "group": "Read with the commentators",
+      "href": "/the-faith-received/commentary-decks/",
+      "gate": "tfr-decks",
+      "page": "custom-faith-decks.hbs",
+      "what": "A commented text place by place, with its commentators beside it.",
+      "server": "client-only",
+      "serverRoutes": []
+    },
+    {
+      "name": "Disputed Questions",
+      "group": "Read with the commentators",
+      "href": "/the-faith-received/disputed-questions/",
+      "gate": "tfr-disputed",
+      "page": "custom-faith-atlas.hbs",
+      "what": "The questions the schools argued, with each author's answer.",
+      "server": "client-only",
+      "serverRoutes": []
+    },
+    {
+      "name": "Lexicon",
+      "group": "Look things up",
+      "href": "/the-faith-received/lexicon/",
+      "gate": "tfr-lexicon",
+      "page": "custom-faith-lexicon.hbs",
+      "what": "Every term in the library, as its authors define it.",
+      "server": "client-only",
+      "serverRoutes": []
+    },
+    {
+      "name": "Set Indexes",
+      "group": "Look things up",
+      "href": "/the-faith-received/set-index/",
+      "gate": "tfr-set-index",
+      "page": "custom-faith-set-index.hbs",
+      "what": "One index for a whole set of volumes.",
+      "server": "client-only",
+      "serverRoutes": []
+    },
+    {
+      "name": "Page Scans",
+      "group": "Read with the commentators",
+      "href": "/the-faith-received/scans/",
+      "gate": "tfr-scans",
+      "page": "custom-faith-scans.hbs",
+      "what": "Works you can read beside the printed page they came from.",
+      "server": "client-only",
+      "serverRoutes": []
+    },
+    {
+      "name": "Bookmarks",
+      "group": "Keep your work",
+      "href": "/the-faith-received/research/#bookmarks",
+      "gate": "tfr-bookmarks",
+      "page": "template",
+      "what": "The works you have saved, and where you stopped in each.",
+      "server": "member",
+      "serverRoutes": [
+        "/bookmarks/add"
+      ]
+    },
+    {
+      "name": "Notebook",
+      "group": "Keep your work",
+      "href": "/the-faith-received/research/#notebook",
+      "gate": "tfr-notebook",
+      "page": "template",
+      "what": "Passages you have kept, with your notes and collections.",
+      "server": "client-only",
+      "serverRoutes": []
+    },
+    {
+      "name": "Desk",
+      "group": "Keep your work",
+      "href": "/the-faith-received/desk/",
+      "gate": "tfr-desk",
+      "page": "template",
+      "what": "Write with your saved sources beside you, each linked to its text.",
+      "server": "client-only",
+      "serverRoutes": []
+    }
+  ],
+  "research": {
+    "url": "/the-faith-received/research/",
+    "gate": "tfr-research-desk",
+    "template": "custom-faith-research.hbs"
+  },
+  "pageGated": [
+    "custom-faith-decks.hbs",
+    "custom-faith-atlas.hbs",
+    "custom-faith-scans.hbs",
+    "custom-faith-lexicon.hbs",
+    "custom-faith-set-index.hbs",
+    "custom-faith-research.hbs",
+    "custom-faith-port-web.hbs",
+    "custom-faith-port-compare.hbs",
+    "custom-faith-port-desk.hbs",
+    "custom-faith-port-search.hbs",
+    "custom-faith-ask-workspace.hbs"
+  ],
+  "open": [
+    "/the-faith-received/scripture/",
+    "/the-faith-received/topics/",
+    "/the-faith-received/dictionary/",
+    "/the-faith-received/guide/",
+    "/the-faith-received/curated/",
+    "/the-faith-received/authors/",
+    "/the-faith-received/tradition/",
+    "/the-faith-received/resources/",
+    "/the-faith-received/all-works/?collection=all"
+  ]
+}

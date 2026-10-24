@@ -1,0 +1,63 @@
+/* /the-faith-received/research/ (Ian, 2026-10-24). Loaded after faith-tool-skin.css. The page keeps main.faith-received.faith-feature because the
+   seven desk panels are written against it; everything new is scoped under main.tfr-research with rx- class names.
+   COMPACT (DESIGN-AGENT 6.22): the hero is How to use's (36px over 30px, the shared H1), the index is body 15px in rows, the buttons are
+   the TFR hollow ones (terracotta ink, 3px corners, filled on hover), dividers are hairlines, no shadows, no pills, no scroll box.
+   NO DARK MODE YET: the desk panels (Ask, Compare, Notebook, Desk) and the membership cards are light-only, and a dark ground behind them
+   was tried and read as broken (2026-10-24). Dark here is its own pass over those panels; until then nothing on this page keys on the theme. */
+main.tfr-research {
+  --rx-bg: #f6f3f2; --rx-fg: #2d2927; --rx-muted: #6b6660; --rx-border: #d9c6a7; --rx-accent: #a9472c; --rx-on: #fffdfa;
+  background: var(--rx-bg); color: var(--rx-fg);
+}
+
+/* ── Hero: the same compact one as How to use ── */
+main.tfr-research > .bhero--tool.bhero--desk { padding: 36px 0 30px; }
+main.tfr-research > .bhero--tool.bhero--desk h1 { margin-bottom: 12px; }
+main.tfr-research > .bhero--tool.bhero--desk .bhero-sub { margin-top: 0; }
+main.tfr-research *, main.tfr-research *::before, main.tfr-research *::after { box-sizing: border-box; }
+main.tfr-research :is(.rx-gate, .rx-index) :is(a, button):focus-visible { outline: 2px solid var(--rx-accent); outline-offset: 2px; }
+main.tfr-research .rx-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ── Free account required: one block, one hollow button ── */
+main.tfr-research .rx-gate { padding: 1.5rem 0 0; }
+main.tfr-research .rx-gate .container { max-width: 1180px; padding-top: 1rem; border-top: 1px solid var(--rx-border); }
+main.tfr-research .rx-gate h2 { margin: 0 0 .35rem; font: 600 1.1875rem/1.3 var(--font-body, "Source Serif Pro", Georgia, serif); color: var(--rx-fg); }
+main.tfr-research .rx-gate p { margin: 0 0 .9rem; max-width: 36rem; font: .9375rem/1.5 var(--font-body, "Source Serif Pro", Georgia, serif); color: var(--rx-fg); text-wrap: pretty; }
+main.tfr-research .rx-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.25rem; margin-bottom: 0 !important; }
+main.tfr-research .rx-btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: .35rem 1.1rem; border: 1px solid var(--rx-accent); border-radius: 3px;
+  background: transparent; color: var(--rx-accent); font: 600 .875rem/1.2 var(--font-body, "Source Serif Pro", Georgia, serif); cursor: pointer;
+}
+main.tfr-research .rx-btn:hover, main.tfr-research .rx-btn:focus-visible { background: var(--rx-accent); color: var(--rx-on); }
+main.tfr-research .rx-signin { display: inline-flex; align-items: center; min-height: 2.75rem; color: var(--rx-fg); font: 600 .875rem/1.2 var(--font-body, "Source Serif Pro", Georgia, serif); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+/* ── The index: groups in columns, one row per tool ── */
+main.tfr-research .rx-index { padding: 1.5rem 0 1.75rem; }
+main.tfr-research .rx-index .container { max-width: 1180px; }
+main.tfr-research .rx-index h2 { margin: 0 0 .9rem; font: 600 .75rem/1.4 var(--font-body, "Source Serif Pro", Georgia, serif); letter-spacing: .14em; text-transform: uppercase; color: var(--rx-muted); }
+main.tfr-research .rx-groups { column-count: 3; column-gap: 2rem; }
+main.tfr-research .rx-group { min-width: 0; break-inside: avoid; margin: 0 0 1.5rem; }
+main.tfr-research .rx-group h3 { margin: 0; padding: 0 0 .45rem; border-bottom: 1px solid var(--rx-border); font: 600 1.0625rem/1.3 var(--font-body, "Source Serif Pro", Georgia, serif); color: var(--rx-fg); }
+main.tfr-research .rx-group ul { margin: 0; padding: 0; list-style: none; }
+main.tfr-research .rx-group li { display: flex; align-items: center; justify-content: space-between; gap: .9rem; margin: 0; padding: .6rem 0; border-bottom: 1px solid var(--rx-border); }
+main.tfr-research .rx-group li::before { content: none; }
+main.tfr-research .rx-text { display: flex; flex-direction: column; min-width: 0; }
+main.tfr-research .rx-name { font: 600 .9375rem/1.3 var(--font-body, "Source Serif Pro", Georgia, serif); color: var(--rx-fg); }
+main.tfr-research .rx-what { margin-top: .1rem; font: .875rem/1.4 var(--font-body, "Source Serif Pro", Georgia, serif); color: var(--rx-muted); }
+main.tfr-research .rx-open {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; position: relative; min-height: 2.75rem; padding: .3rem .9rem; border: 1px solid var(--rx-accent); border-radius: 3px;
+  background: transparent; color: var(--rx-accent); font: 600 .875rem/1.2 var(--font-body, "Source Serif Pro", Georgia, serif); text-decoration: none;
+}
+main.tfr-research .rx-open:hover, main.tfr-research .rx-open:focus-visible { background: var(--rx-accent); color: var(--rx-on); }
+
+/* ── The desk: a quiet label over the tab strip ── */
+main.tfr-research .rx-desk-title { margin: 0 0 .5rem; font: 600 .75rem/1.4 var(--font-body, "Source Serif Pro", Georgia, serif); letter-spacing: .14em; text-transform: uppercase; color: var(--rx-muted); scroll-margin-top: 8rem; }
+main.tfr-research .faith-research-band { border-top: 1px solid var(--rx-border); }
+
+@media (max-width: 1023px) {
+  main.tfr-research .rx-groups { column-count: 2; }
+}
+@media (max-width: 640px) {
+  main.tfr-research .rx-groups { column-count: 1; }
+  main.tfr-research .rx-btn { width: 100%; }
+  main.tfr-research .rx-gate { padding-top: 1.25rem; }
+}

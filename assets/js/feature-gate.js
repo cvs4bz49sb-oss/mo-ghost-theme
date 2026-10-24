@@ -213,6 +213,36 @@
       "Desk needs an account",
       "Write with your saved sources beside you, each one still linked to the text it came from."
     ),
+    /* The rest of the Research drawer (Ian, 2026-10-24: "every Research
+       tool needs to be freewalled. Free subscription required."). Same
+       factory and same tier as the keys above. Three places declare each
+       one and scripts/check-research-tools.mjs holds them together: the
+       rail (partials/faith-received/_tfr-rail.hbs), this map, and the
+       template that serves the page (server-side {{#if @member}}). */
+    "tfr-decks": betaFeature(
+      "Commentary Decks need an account",
+      "Read a commented text place by place with its commentators beside it, or put two commentators side by side."
+    ),
+    "tfr-disputed": betaFeature(
+      "Disputed Questions need an account",
+      "Read the questions the schools and the confessions argued, with each author's answer and the pages it comes from."
+    ),
+    "tfr-lexicon": betaFeature(
+      "The Lexicon needs an account",
+      "Look up a term and see how each author in the library defines it, with the page that does."
+    ),
+    "tfr-set-index": betaFeature(
+      "Set Indexes need an account",
+      "Browse one index for a whole set of volumes."
+    ),
+    "tfr-scans": betaFeature(
+      "Page Scans need an account",
+      "Read a work beside the printed page it was transcribed from. The text itself stays open to everyone."
+    ),
+    "tfr-research-desk": betaFeature(
+      "The Research desk needs an account",
+      "Ask, search by meaning, compare authors, keep what you find and write from it. The Research tools are free with an account."
+    ),
   };
 
   function hasAccess(feature) {
@@ -257,8 +287,7 @@
 
      Keys are the first path segment under /the-faith-received/. The
      Research desk routes on its hash, so it is read separately; a bare
-     /research/ is NOT gated, because for a signed-out reader that page
-     is the one that explains the tools and carries the sign-up form.
+     /research/ is gated too (2026-10-24), as the desk itself.
      /scripture/desk/ is the Verse Desk, which is Scripture (reading),
      and does not match: only the FIRST segment is compared. */
   const TFR_ROOT = "/the-faith-received/";
@@ -273,6 +302,12 @@
     "desk": "tfr-desk",
     // /pins/ forwards to /research/#notebook.
     "pins": "tfr-notebook",
+    // The rest of the Research drawer (2026-10-24).
+    "commentary-decks": "tfr-decks",
+    "disputed-questions": "tfr-disputed",
+    "lexicon": "tfr-lexicon",
+    "set-index": "tfr-set-index",
+    "scans": "tfr-scans",
   };
   // The Research desk's modes (faith-research.js), by the hash that
   // opens each one. "#compare&a=…" is mode "compare": the mode is the
@@ -298,7 +333,12 @@
     if (u.origin !== window.location.origin) return null;
     if (u.pathname.indexOf(TFR_ROOT) !== 0) return null;
     const seg = u.pathname.slice(TFR_ROOT.length).split("/")[0];
-    if (seg === "research") return TFR_RESEARCH_MODES[modeOfHash(u.hash)] || null;
+    /* The Research desk itself is a tool now (Ian, 2026-10-24), so a bare
+       /research/ and a hash that names no mode gate too. Before that it
+       was the open sign-up landing; its signed-out branch is now the
+       quiet "Free account required" state, which carries its own
+       sign-up button. */
+    if (seg === "research") return TFR_RESEARCH_MODES[modeOfHash(u.hash)] || "tfr-research-desk";
     return TFR_TOOL_ROUTES[seg] || null;
   }
 
@@ -529,6 +569,8 @@
     );
     if (!f.length) return;
     const first = f[0];
+    // Focus that is outside the dialog (a click on the page behind it) comes back in on the next Tab.
+    if (!modalEl.contains(document.activeElement)) { e.preventDefault(); first.focus(); return; }
     const last = f[f.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }

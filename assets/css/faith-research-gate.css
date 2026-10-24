@@ -1,0 +1,24 @@
+/* The quiet state of a Research tool for a reader with no account (partials/faith-received/_research-gate.hbs, Ian, 2026-10-24).
+   Loaded after faith-tool-skin.css, which owns the tokens (light, and dark on html[data-sd-theme="dark"]), the hero and the page
+   ground. Same compact hero as How to use. One hollow button, 3px corners, a hairline above the block, no shadow, no box. */
+.bhero--tool.bhero--desk:has(+ main.tfr-gated) { padding: 36px 0 30px; }
+.bhero--tool.bhero--desk:has(+ main.tfr-gated) h1 { margin-bottom: 12px; }
+.bhero--tool.bhero--desk:has(+ main.tfr-gated) .bhero-sub { margin-top: 0; }
+main.tfr-gated { --rg-accent: var(--accent, #a9472c); --rg-on: var(--on-accent, #fffdfa); min-height: 40vh; }
+main.tfr-gated *, main.tfr-gated *::before, main.tfr-gated *::after { box-sizing: border-box; }
+main.tfr-gated .wrap { max-width: 1180px; margin: 0 auto; padding: 1.5rem 28px 3rem; }
+main.tfr-gated .rg-state { max-width: 34rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+main.tfr-gated .rg-state h2 { margin: 0 0 .35rem; font: 600 1.1875rem/1.3 var(--font-body); }
+main.tfr-gated .rg-state p { margin: 0 0 .9rem; font: .9375rem/1.5 var(--font-body); color: var(--fg); text-wrap: pretty; }
+main.tfr-gated .rg-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.25rem; margin-bottom: 0; }
+main.tfr-gated .rg-btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: .35rem 1.1rem; border: 1px solid var(--rg-accent); border-radius: 3px;
+  background: transparent; color: var(--rg-accent); font: 600 .875rem/1.2 var(--font-body); cursor: pointer;
+}
+main.tfr-gated .rg-btn:hover, main.tfr-gated .rg-btn:focus-visible { background: var(--rg-accent); color: var(--rg-on); }
+main.tfr-gated .rg-signin { display: inline-flex; align-items: center; min-height: 2.75rem; color: var(--fg); font: 600 .875rem/1.2 var(--font-body); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+main.tfr-gated :is(a, button):focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 2px; }
+@media (max-width: 640px) {
+  main.tfr-gated .wrap { padding: 1.25rem 20px 2.5rem; }
+  main.tfr-gated .rg-btn { width: 100%; }
+}

@@ -4680,6 +4680,17 @@ function frKeepPlace(){
   // rebuild, an off-screen section re-rendering, a web font arriving late.
   return ()=>{fix();requestAnimationFrame(fix);};
 }
+/* THE SCAN PANE IS A RESEARCH TOOL (Ian, 2026-10-24: "the Scan pane inside the reader for signed-out readers must be gated; the plain
+   reader text stays open"). Every way into it ends in LN.fx, so applyLanes() drops it for a reader with no account (silently: a
+   saved fr_lanes2 from before the gate must not open a modal on arrival), and the two click doors below ask scanDoor() first, which
+   shows the subscribe modal. MOFeatureGate is a bundle global that does not exist yet while this file parses, so the quiet check reads
+   the same body[data-member-status] feature-gate.js reads. The guided tour (MOTour.active) counts as allowed, through MOFeatureGate. */
+function scanAllowed(){
+  if(window.MOFeatureGate)return window.MOFeatureGate.allowed('tfr-scans');
+  const st=(document.body&&document.body.getAttribute('data-member-status')||'anonymous').toLowerCase();
+  return st==='free'||st==='paid'||st==='comped';
+}
+function scanDoor(){return !LN.fx&&!scanAllowed()&&!!window.MOFeatureGate&&window.MOFeatureGate.open('tfr-scans');}
 function applyLanes(){
   // An English source is already read in the English lane. A parallel preference
   // carried from a Latin work must not open two English versions side by side.
@@ -4689,6 +4700,7 @@ function applyLanes(){
   if(DATA?.source_only){LN.en=false;LN.la=true;}
   if(!LN.en&&!LN.la)LN.en=true;
   if(!(DATA&&DATA.has_pages))LN.fx=false;                 // born-digital: no scan exists
+  if(LN.fx&&!scanAllowed())LN.fx=false;                   // the Scan pane needs an account (see scanAllowed)
   app.classList.toggle("only-en",LN.en&&!LN.la);
   app.classList.toggle("only-la",LN.la&&!LN.en);
   app.classList.toggle("no-facs",!LN.fx);
@@ -4717,7 +4729,7 @@ document.addEventListener("pointerdown",ev=>{if(ev.target.closest&&ev.target.clo
   window.__frKeepPlace=frKeepPlace();},true);
 $("#m-en").onclick=()=>{LN.en=!LN.en;if(!LN.en&&!LN.la)LN.la=true;applyLanes();};
 $("#m-par").onclick=()=>{LN.la=!LN.la;if(!LN.en&&!LN.la)LN.en=true;applyLanes();};
-$("#m-study")&&($("#m-study").onclick=()=>{LN.fx=!LN.fx;applyLanes();});
+$("#m-study")&&($("#m-study").onclick=()=>{if(scanDoor())return;LN.fx=!LN.fx;applyLanes();});
 function setContentsOpen(open,restoreFocus=false){
   const sidebar=document.querySelector('.sidebar'),focused=document.activeElement;
   app.classList.toggle('nosb',!open);
@@ -4775,7 +4787,7 @@ if($("#contentsClose"))$("#contentsClose").onclick=()=>setContentsOpen(false,tru
     else if(LN.en){LN.en=false;}                 // from Both → Latin-only
     else{LN.en=true;}                            // from Latin-only → Both
     applyLanes();};
-  B.study.onclick=()=>{LN.fx=!LN.fx;applyLanes();};                   // "Scan" = toggle the facsimile
+  B.study.onclick=()=>{if(scanDoor())return;LN.fx=!LN.fx;applyLanes();};                   // "Scan" = toggle the facsimile
   /* MereO delta: Search and Research were open-only on the thumb bar, so a second
      tap on a lit button did nothing and the panel had to be dismissed from its own
      ✕. Contents and Scan beside them have always toggled; these two now match, and

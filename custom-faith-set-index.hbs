@@ -182,13 +182,14 @@
 {{/contentFor}}
 {{!-- /the-faith-received/set-index/: Index of the set, as The Faith Received has it (tools/prdl_reader_prototype/setindex.html), in this site's
      shell: the hero is the theme's, the body and its script (faith-set-index.js) the library's, reading the library worker. --}}
+<script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
+{{#if @member}}
 <section class="bhero bhero--tool bhero--desk">
   <div class="bhero-inner container">
     <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> Index of the set</p>
     <h1 id="title">Set indexes</h1>
   </div>
 </section>
-<script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
 <main class="tfr-tool tfr-set-index"><div class="wrap">
   <p class="by" id="by">Loading…</p>
   <div class="tabs" role="tablist" aria-label="Sections of the index" id="tabs"></div>
@@ -213,3 +214,6 @@
 <link rel="stylesheet" href="{{asset "css/port/work-hub.css"}}&amp;frv=0374a552e8452478"><script src="{{asset "js/port/page-window.js"}}&amp;frv=2023bacb69cf7ee4"></script>
 <link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
 <script src="{{asset "js/faith-set-index.js"}}&amp;frv=1b73d07e42ac3fb5"></script>
+{{else}}
+{{> "faith-received/_research-gate" feature="tfr-set-index" kicker="Set indexes" title="Set indexes" sub="One index for a whole set of volumes."}}
+{{/if}}

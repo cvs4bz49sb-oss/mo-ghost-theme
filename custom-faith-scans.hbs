@@ -14,6 +14,8 @@
      contain page scans"). The same search, filters and A-Z as All Works,
      over only the works whose reader can show the printed page. --}}
 
+<script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
+{{#if @member}}
 <main class="faith-received faith-room">
 
   <section class="bhero bhero--tool">
@@ -26,7 +28,6 @@
       </p>
     </div>
   </section>
-<script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
 
   <section class="bband faith-room-body">
     <div class="container">
@@ -46,3 +47,6 @@
 <script src="{{asset "js/lib/faith-work-bookmarks.js"}}"></script>
 <script src="{{asset "js/port/research-notebook.js"}}&amp;frv=c5faba0179c5d5db"></script>
 <script src="{{asset "js/faith-work-bookmark-rows.js"}}&amp;frv=86f1a15a84204821"></script>
+{{else}}
+{{> "faith-received/_research-gate" feature="tfr-scans" kicker="Page Scans" title="Page Scans" sub="Works you can read beside the printed page they were transcribed from."}}
+{{/if}}

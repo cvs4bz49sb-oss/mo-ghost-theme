@@ -12,6 +12,7 @@
 {{!-- /the-faith-received/lexicon/: the Lexicon, in this site's shell. The hero is the theme's; the body and its script (faith-lexicon.js)
      read the library worker's v1/lexicon files. Styles: css/faith-lexicon.css (scoped under main.tfr-lexicon). --}}
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
+{{#if @member}}
 <main class="tfr-tool tfr-lexicon"><div class="wrap">
   <header class="lx-hd" id="lx-hd">
     <p class="lx-eyebrow"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> Lexicon</p>
@@ -35,3 +36,6 @@
   {{#> tfr-method}}<p>Terms, senses and the pages that define them were gathered by machine from the library&rsquo;s texts. A quote is the sentence on that page where the term or one of its forms appears. Where none does, the first lines of the page are shown. English lines of some works are machine translations.</p>{{/tfr-method}}
 </div></main>
 <script src="{{asset "js/faith-lexicon.js"}}&amp;frv=c63e564da2abc089"></script>
+{{else}}
+{{> "faith-received/_research-gate" feature="tfr-lexicon" kicker="Lexicon" title="Lexicon" sub="Every term in the library, as its authors define it."}}
+{{/if}}

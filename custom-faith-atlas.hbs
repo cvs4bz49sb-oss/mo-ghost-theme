@@ -146,6 +146,8 @@
 {{/contentFor}}
 {{!-- /the-faith-received/disputed-questions/: Disputed questions, as The Faith Received has it (tools/prdl_reader_prototype/atlas.html), in this site's
      shell: the hero is the theme's, the body and its script (faith-atlas.js) the library's, reading the library worker. --}}
+<script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
+{{#if @member}}
 <section class="bhero bhero--tool bhero--desk">
   <div class="bhero-inner container">
     <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> Disputed questions</p>
@@ -153,7 +155,6 @@
     <p class="bhero-sub">Questions the schools and the confessions argued. Open one to see who answered it and on which pages.</p>
   </div>
 </section>
-<script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
 <main class="tfr-tool tfr-atlas"><div class="wrap">
   <div class="cols"><nav aria-label="Questions by locus"><div class="loci" id="loci"><p class="muted">Loading…</p></div></nav><article class="q" id="q" aria-live="polite"></article></div>
 
@@ -162,3 +163,6 @@
 <link rel="stylesheet" href="{{asset "css/port/tradition-graphics.css"}}&amp;frv=cc8cf6f7c7831d99"><script src="{{asset "js/port/tradition-graphics.js"}}&amp;frv=3780efc0f7559ddf"></script>
 <link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
 <script src="{{asset "js/faith-atlas.js"}}&amp;frv=e9436b620c93c8a0"></script>
+{{else}}
+{{> "faith-received/_research-gate" feature="tfr-disputed" kicker="Disputed questions" title="Disputed questions" sub="Questions the schools and the confessions argued. Open one to see who answered it and on which pages."}}
+{{/if}}

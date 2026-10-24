@@ -1,0 +1,35 @@
+{{!-- The quiet state of a Research tool for a reader with no account (Ian, 2026-10-24: "every Research tool needs to be
+     freewalled. Free subscription required.").
+
+     CALLED FROM the signed-out ({{else}}) branch of each Research tool's template, which wraps the tool itself in {{#if @member}}:
+         {{> "faith-received/_research-gate" feature="tfr-lexicon" kicker="Lexicon" title="Lexicon" sub="Every term in the library, as its authors define it."}}
+     So a signed-out reader is never sent the tool's markup or its scripts: nothing paints and then disappears, and no tool data is
+     requested. Same shape as the Connections atlas (custom-faith-port-web.hbs).
+
+     WHAT IT RENDERS. The tool's own hero (eyebrow, H1, one sentence), then a short "Free account required" block with one hollow
+     button and a Sign in link. The hidden empty span is read by feature-gate.js: on arrival it opens the subscribe modal for `feature`,
+     and closing the modal leaves this block on the page, not a blank one. Keep the span empty and hidden: the click gate matches
+     closest("[data-feature-gate]"), so on a wrapper it would swallow clicks inside this block's own links.
+
+     THE BUTTON re-opens the same modal (data-feature-gate), so the sign-up that happens is the one the rest of the library uses.
+     Sign in is Ghost's own Portal link. Portal reads [data-portal] once at init, so it has to be in the served HTML, as here.
+
+     The feature key must exist in feature-gate.js FEATURES, and scripts/check-research-tools.mjs checks each template against the
+     registry in scripts/data/research-tools.json. --}}
+<link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
+<link rel="stylesheet" href="{{asset "css/faith-research-gate.css"}}&amp;frv=46b29a34983f1e2e">
+<section class="bhero bhero--tool bhero--desk">
+  <div class="bhero-inner container">
+    <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> {{kicker}}</p>
+    <h1>{{title}}</h1>
+    <p class="bhero-sub">{{sub}}</p>
+  </div>
+</section>
+<main class="tfr-tool tfr-gated"><div class="wrap">
+  <span hidden data-gate-on-arrival data-feature-gate="{{feature}}"></span>
+  <section class="rg-state" aria-labelledby="rg-title">
+    <h2 id="rg-title">Free account required</h2>
+    <p>Give us your email address and we will send a sign-in link.</p>
+    <p class="rg-actions"><button type="button" class="rg-btn" data-feature-gate="{{feature}}">Create a free account</button> <a class="rg-signin" href="#/portal/signin" data-portal="signin">Sign in</a></p>
+  </section>
+</div></main>

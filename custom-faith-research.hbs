@@ -9,6 +9,8 @@
 <meta property="og:description" content="The research desk for The Faith Received. Ask a question of the library, search it by meaning, compare two authors on a topic, keep what you find, and write from it." />
 <meta name="twitter:title" content="Research | The Faith Received" />
 <meta name="twitter:description" content="The research desk for The Faith Received. Ask a question of the library, search it by meaning, compare two authors on a topic, keep what you find, and write from it." />
+<link rel="stylesheet" href="{{asset "css/faith-tool-skin.css"}}&amp;frv=ef55f0e23f01f5c5">
+<link rel="stylesheet" href="{{asset "css/faith-research-page.css"}}&amp;frv=2dead734a977001d">
 {{/contentFor}}
 {{!-- /the-faith-received/research/ — the research desk. One page, seven
      workspaces, a tab strip under the heading, and whichever workspace
@@ -95,31 +97,95 @@
      wrapping Compare or the Desk again would nest one full-bleed
      breakout inside another and double the workspace padding. --}}
 
-<main class="faith-received faith-feature">
+{{!-- REDESIGN, 2026-10-24 (Ian: "The Research page needs to be updated with new features and design. Also, every Research tool needs to be
+     freewalled."). Three parts, top to bottom: the compact hero (the one How to use and the tool pages use), the Research tools index
+     (one row per tool in the rail's Research drawer, grouped by what you do), and the desk, whose seven tabs and panels are
+     unchanged and keep every hash (#ask, #power-search, #compare, #bookmarks, #notebook, #connections, #desk).
 
-  <section class="bhero bhero--tool">
+     THE INDEX is hand-written markup and the registry is scripts/data/research-tools.json: scripts/check-research-tools.mjs fails the build when a
+     tool is missing here, in the rail or in feature-gate.js, or when a purpose line here differs from the registry. Every Open link carries
+     its feature key, as the rail's do.
+
+     THE WHOLE PAGE IS A TOOL. A reader with no account is served the hero, the quiet "Free account required" block (one hollow button,
+     a Sign in link) and the index, never the desk's panels or their scripts, so nothing is fetched. The empty hidden span in that block
+     opens the subscribe modal on arrival; closing the modal leaves the block, not a blank page. --}}
+<main class="faith-received faith-feature tfr-research">
+
+  <section class="bhero bhero--tool bhero--desk">
     <div class="bhero-inner container">
-      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/research/">Research</a></p>
+      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> Research</p>
       <h1>Research</h1>
-      <p class="bhero-sub">Ask questions, search the texts, compare authors, save passages and write with sources from the library.</p>
+      <p class="bhero-sub">Tools for asking the library, reading it with the commentators, looking things up and keeping your work.</p>
     </div>
   </section>
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
 
+  {{#unless @member}}
+  <section class="rx-gate" aria-labelledby="rx-gate-title">
+    <div class="container">
+      <span hidden data-gate-on-arrival data-feature-gate="tfr-research-desk"></span>
+      <h2 id="rx-gate-title">Free account required</h2>
+      <p>Every Research tool is free with an account. Give us your email address and we will send a sign-in link.</p>
+      <p class="rx-actions"><button type="button" class="rx-btn" data-feature-gate="tfr-research-desk">Create a free account</button> <a class="rx-signin" href="#/portal/signin" data-portal="signin">Sign in</a></p>
+    </div>
+  </section>
+  {{/unless}}
 
-  {{!-- BETA GATE. All seven workspaces are free during the beta and
-       require an account, where "account" is any signed-in Ghost
-       member, free included (Ian, 2026-09-11). Signed-out visitors are
-       not served this markup at all, which also means none of the
-       seven panel scripts below ever run for them. The contract is
-       written out in partials/faith-received/_beta-gate.hbs.
+  <section class="rx-index" aria-labelledby="rx-index-title">
+    <div class="container">
+      <h2 id="rx-index-title">Research tools</h2>
+      <div class="rx-groups">
+        <section class="rx-group" aria-labelledby="rx-g-ask">
+          <h3 id="rx-g-ask">Search and ask</h3>
+          <ul>
+            <li><div class="rx-text"><span class="rx-name">Ask</span><span class="rx-what">A question answered from the library, with the pages it drew on.</span></div><a class="rx-open" href="/the-faith-received/ask/" data-feature-gate="ask">Open<span class="rx-sr"> Ask</span></a></li>
+            <li><div class="rx-text"><span class="rx-name">Power Search</span><span class="rx-what">Search by meaning rather than by word, across every collection.</span></div><a class="rx-open" href="/the-faith-received/search/#power" data-feature-gate="tfr-search">Open<span class="rx-sr"> Power Search</span></a></li>
+          </ul>
+        </section>
+        <section class="rx-group" aria-labelledby="rx-g-read">
+          <h3 id="rx-g-read">Read with the commentators</h3>
+          <ul>
+            <li><div class="rx-text"><span class="rx-name">Commentary Decks</span><span class="rx-what">A commented text place by place, with its commentators beside it.</span></div><a class="rx-open" href="/the-faith-received/commentary-decks/" data-feature-gate="tfr-decks">Open<span class="rx-sr"> Commentary Decks</span></a></li>
+            <li><div class="rx-text"><span class="rx-name">Disputed Questions</span><span class="rx-what">The questions the schools argued, with each author's answer.</span></div><a class="rx-open" href="/the-faith-received/disputed-questions/" data-feature-gate="tfr-disputed">Open<span class="rx-sr"> Disputed Questions</span></a></li>
+            <li><div class="rx-text"><span class="rx-name">Page Scans</span><span class="rx-what">Works you can read beside the printed page they came from.</span></div><a class="rx-open" href="/the-faith-received/scans/" data-feature-gate="tfr-scans">Open<span class="rx-sr"> Page Scans</span></a></li>
+          </ul>
+        </section>
+        <section class="rx-group" aria-labelledby="rx-g-look">
+          <h3 id="rx-g-look">Look things up</h3>
+          <ul>
+            <li><div class="rx-text"><span class="rx-name">Lexicon</span><span class="rx-what">Every term in the library, as its authors define it.</span></div><a class="rx-open" href="/the-faith-received/lexicon/" data-feature-gate="tfr-lexicon">Open<span class="rx-sr"> Lexicon</span></a></li>
+            <li><div class="rx-text"><span class="rx-name">Set Indexes</span><span class="rx-what">One index for a whole set of volumes.</span></div><a class="rx-open" href="/the-faith-received/set-index/" data-feature-gate="tfr-set-index">Open<span class="rx-sr"> Set Indexes</span></a></li>
+          </ul>
+        </section>
+        <section class="rx-group" aria-labelledby="rx-g-compare">
+          <h3 id="rx-g-compare">Compare and connect</h3>
+          <ul>
+            <li><div class="rx-text"><span class="rx-name">Compare</span><span class="rx-what">Two to four authors on one topic, side by side.</span></div><a class="rx-open" href="/the-faith-received/research/#compare" data-feature-gate="tfr-compare">Open<span class="rx-sr"> Compare</span></a></li>
+            <li><div class="rx-text"><span class="rx-name">Connections</span><span class="rx-what">The library mapped by citation: who reads whom.</span></div><a class="rx-open" href="/the-faith-received/connections/" data-feature-gate="tfr-connections">Open<span class="rx-sr"> Connections</span></a></li>
+          </ul>
+        </section>
+        <section class="rx-group" aria-labelledby="rx-g-keep">
+          <h3 id="rx-g-keep">Keep your work</h3>
+          <ul>
+            <li><div class="rx-text"><span class="rx-name">Bookmarks</span><span class="rx-what">The works you have saved, and where you stopped in each.</span></div><a class="rx-open" href="/the-faith-received/research/#bookmarks" data-feature-gate="tfr-bookmarks">Open<span class="rx-sr"> Bookmarks</span></a></li>
+            <li><div class="rx-text"><span class="rx-name">Notebook</span><span class="rx-what">Passages you have kept, with your notes and collections.</span></div><a class="rx-open" href="/the-faith-received/research/#notebook" data-feature-gate="tfr-notebook">Open<span class="rx-sr"> Notebook</span></a></li>
+            <li><div class="rx-text"><span class="rx-name">Desk</span><span class="rx-what">Write with your saved sources beside you, each linked to its text.</span></div><a class="rx-open" href="/the-faith-received/desk/" data-feature-gate="tfr-desk">Open<span class="rx-sr"> Desk</span></a></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </section>
 
-       The {{#if}} wraps the whole band rather than each panel on
-       purpose: the tab strip is meaningless without the panels, and
-       seven separate gates would be seven chances to miss one. --}}
+
+  {{!-- THE DESK IS FOR AN ACCOUNT. All seven workspaces are free and require an account, where "account" is any signed-in Ghost
+       member, free included (Ian, 2026-09-11; the whole page, 2026-10-24). A reader with no account is not served this markup at all,
+       which also means none of the panel scripts below ever run for them: the quiet "Free account required" block above stands in.
+       The {{#if}} wraps the whole band rather than each panel on purpose: the tab strip is meaningless without the panels, and seven
+       separate gates would be seven chances to miss one. --}}
   {{#if @member}}
   <section class="bband faith-feature-body faith-research-band">
     <div class="container" data-research-page>
+      <h2 class="rx-desk-title rx-sr" id="rx-desk-title">Workspace</h2>
 
       {{!-- The tab strip. Same markup and CSS as the Search page's mode
            tabs (.faith-view-toggle + .faith-search-modes overrides,
@@ -454,39 +520,7 @@
 
     </div>
   </section>
-  {{else}}
-  {{!-- THE TABS, FOR A READER WHO CANNOT OPEN THEM YET (Ian, 2026-09-24:
-       "Anywhere any one of these tools shows up ... they need to be met
-       with a subscribe pop-up"). The same seven names in the same order
-       and the same strip styling, so the page shows what is here; each
-       one opens the subscribe modal instead of a panel, because there
-       are no panels in this branch. Plain buttons in a nav rather than
-       role="tab": a tab with no tabpanel is a promise the markup cannot
-       keep. No data-research-mode, so faith-research.js (not loaded for
-       this reader anyway) could never bind them.
-
-       data-gate-hash is what makes a shared link land properly:
-       feature-gate.js reads the hash on arrival, and /research/#compare
-       opens the Compare modal at once rather than leaving the reader
-       looking for a tool that is not on the page. The names match the
-       member branch's data-research-mode values above; keep them in
-       step, since every one is a public address. --}}
-  <section class="bband faith-feature-body faith-research-band faith-research-band--gated">
-    <div class="container">
-      <nav class="faith-view-toggle faith-search-modes faith-research-tabs" aria-label="Research workspaces">
-        <button type="button" class="faith-view-toggle-tab" data-gate-hash="ask" data-feature-gate="ask">Ask</button>
-        <button type="button" class="faith-view-toggle-tab" data-gate-hash="power-search" data-feature-gate="tfr-search">Power Search</button>
-        <button type="button" class="faith-view-toggle-tab" data-gate-hash="compare" data-feature-gate="tfr-compare">Compare</button>
-        <button type="button" class="faith-view-toggle-tab" data-gate-hash="bookmarks" data-feature-gate="tfr-bookmarks">Bookmarks</button>
-        <button type="button" class="faith-view-toggle-tab" data-gate-hash="notebook" data-feature-gate="tfr-notebook">Notebook</button>
-        <button type="button" class="faith-view-toggle-tab" data-gate-hash="connections" data-feature-gate="tfr-connections">Connections</button>
-        <button type="button" class="faith-view-toggle-tab" data-gate-hash="desk" data-feature-gate="tfr-desk">Desk</button>
-      </nav>
-    </div>
-  </section>
   {{/if}}
-
-  {{> "faith-received/_beta-gate"}}
 
 
 {{!-- THE MEMBERSHIP PITCH, FOR THE PEOPLE IT IS FOR.
@@ -504,7 +538,7 @@
      The pricing cards are inside the same condition. They are the other
      half of this block, and hiding the heading while leaving three
      price columns underneath would be worse than leaving both. --}}
-{{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+{{#if @member}}{{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
 <section class="faith-join faith-join--after-tools">
   <div class="container">
     <p class="blabel">Become a member</p>
@@ -522,7 +556,7 @@
 </section>
 
 {{> "membership-pricing"}}
-{{/match}}{{/match}}
+{{/match}}{{/match}}{{/if}}
 {{> "faith-received/_beta-band"}}
 </main>
 {{!-- The sitewide membership CTA used to sit here. It was pulled on
@@ -573,8 +607,8 @@
      site.min.js (FRONTEND §6.18); the only bundle globals any of them
      touch are window.MOAuth and window.MOSafeHref, which ship in
      boot.min.js in <head> and are therefore already on the page. --}}
-<script src="{{asset "js/feature-gate.js"}}&amp;frv=fc7ab1758de0a3d6"></script>
+<script src="{{asset "js/feature-gate.js"}}&amp;frv=cb25d6dd34b40889"></script>
 <script src="{{asset "js/page/faith-ask.js"}}&amp;frv=73e38ea5011d7243"></script>
 <script src="{{asset "js/page/faith-power-search.js"}}&amp;frv=0f3f964f70238183"></script>
-<script src="{{asset "js/page/faith-research.js"}}&amp;frv=87c0bb7553ef696b"></script>
+<script src="{{asset "js/page/faith-research.js"}}&amp;frv=27b416695735a8fc"></script>
 {{/if}}

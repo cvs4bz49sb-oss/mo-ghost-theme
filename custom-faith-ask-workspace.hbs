@@ -65,9 +65,9 @@
      can call open() with no waiting and no polling. The isOpen() guard
      means a URL that ALSO carries ?ask= opens once, not twice. --}}
 
-<main class="faith-received faith-ask-page">
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
-  {{> "faith-received/_beta-gate"}}
+{{#if @member}}
+<main class="faith-received faith-ask-page">
   <noscript>
     <div class="container" style="padding:64px 0">
       <h1>Ask the Library</h1>
@@ -77,6 +77,9 @@
     </div>
   </noscript>
 </main>
+{{else}}
+{{> "faith-received/_research-gate" feature="ask" kicker="Ask" title="Ask the Library" sub="Ask a question and read an answer that cites the pages it drew on."}}
+{{/if}}
 
 <script src="{{asset "js/faith-beta-gate.js"}}"></script>
 {{!-- A shared answer (?share=<id>), for anyone, signed in or not. --}}

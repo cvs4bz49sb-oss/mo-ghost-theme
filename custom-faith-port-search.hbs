@@ -79,6 +79,7 @@
 
 </div>
 {{else}}
-<main class="faith-received"><section class="bhero bhero--tool"><div class="bhero-inner container"><p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a></p><h1>Search</h1></div></section><script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>{{> "faith-received/_beta-gate"}}</main>
+<script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
+{{> "faith-received/_research-gate" feature="tfr-search" kicker="Search" title="Search" sub="Search the library by title, passage, Scripture reference or meaning."}}
 {{/if}}
 {{!-- Source corpus page, kept inside MereO default; edits and data remain on the Ghost/Cloudflare port. --}}
