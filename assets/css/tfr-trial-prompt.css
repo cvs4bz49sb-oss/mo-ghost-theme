@@ -1,0 +1,72 @@
+/* The free-account prompt on Scripture and Topics (tfr-trial-prompt.js, 2026-10-24). A quiet card at the end of the
+   tool's content: in the flow, so it covers nothing and moves nothing that is on screen.
+
+   Page CSS loads before screen.min.css, so every rule is scoped one class deeper (.sd .tfr-prompt...) than the shared
+   .container and .btn it sits beside. Dark keys on html[data-sd-theme], the Scripture page's own switch; Topics never
+   sets it and stays light, like the rest of that page. Compact per DESIGN-AGENT 6.22: 15px text, 44px controls. */
+.sd .tfr-prompt-host {
+  padding-top: 0;
+  padding-bottom: 24px;
+}
+.sd .tfr-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  max-width: 760px; /* the reading column, as the attribution rule under it */
+  margin: 24px auto 0;
+  padding: 8px 8px 8px 16px;
+  border: 1px solid var(--color-rule, #e6ded1);
+  border-radius: 3px;
+  background: var(--sd-panel, #fbf8f3);
+  color: var(--color-dark, #2d2927);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.sd .tfr-prompt-text {
+  flex: 1 1 280px;
+  margin: 0;
+  padding: 4px 0;
+}
+.sd .tfr-prompt-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.sd .tfr-prompt .tfr-prompt-cta {
+  min-height: 44px;
+  margin: 0;
+}
+.sd .tfr-prompt .tfr-prompt-dismiss {
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  color: var(--color-muted, #6b6660);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.sd .tfr-prompt .tfr-prompt-dismiss:hover,
+.sd .tfr-prompt .tfr-prompt-dismiss:focus-visible {
+  color: var(--color-dark, #2d2927);
+}
+@media (max-width: 640px) {
+  .sd .tfr-prompt { padding: 8px 8px 8px 12px; }
+  .sd .tfr-prompt-text { flex-basis: 100%; }
+}
+
+html[data-sd-theme="dark"] .sd .tfr-prompt {
+  --color-dark: var(--sd-dk-ink);
+  --color-white: var(--sd-dk-card);
+  --color-secondary: var(--sd-dk-accent);
+  --color-muted: var(--sd-dk-muted);
+  border-color: var(--sd-dk-rule);
+  background: var(--sd-dk-panel);
+  color: var(--sd-dk-ink);
+}

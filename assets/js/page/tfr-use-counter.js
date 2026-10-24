@@ -13,6 +13,11 @@
  *
  * Ghost's proxied Plausible build replaces window.plausible without replaying the queue (see article-plausible.js), so
  * anything counted before 'load' waits for it.
+ *
+ * The count also reaches tfr-trial-prompt.js (2026-10-24, the dismissible free-account prompt that came of this
+ * measurement): each new use is announced as a "mo:tfr-use" event on document with {tool, n, who}, for every n, not
+ * just the first MAX_SENT. How a use is counted, and the Plausible event above, are unchanged. The prompt script loads
+ * before this one so it hears the use a deep link counts at start-up.
  */
 (function () {
   "use strict";
@@ -59,6 +64,7 @@
     t.n = (Number(t.n) || 0) + 1;
     d[tool] = t;
     save(d);
+    try { document.dispatchEvent(new CustomEvent("mo:tfr-use", { detail: { tool, n: t.n, who } })); } catch (_) { /* nothing listens */ }
     if (t.n <= MAX_SENT) send(t.n);
   }
 

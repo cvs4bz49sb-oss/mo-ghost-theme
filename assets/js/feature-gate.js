@@ -116,6 +116,14 @@
     };
 
   const FEATURES = {
+    /* The dismissible prompt on Scripture and Topics (tfr-trial-prompt.js, Ian 2026-10-24). Its own entry so the
+       sign-up carries source:feature-gate:tfr-trial-prompt, which isTfrSourced counts as a TFR signup. */
+    "tfr-trial-prompt": {
+      requires: "subscriber",
+      eyebrow: "Free",
+      title: "Create a free account",
+      body: "Ask, Power Search, Compare, Commentary Decks, the Lexicon, the Notebook and Bookmarks need an account. Give us an email address and we will send a sign-in link.",
+    },
     audio: {
       requires: "member",
       eyebrow: "Members Only",

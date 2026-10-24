@@ -28,6 +28,7 @@
     "check:author-layout": "node scripts/check-author-layout.mjs",
     "check:reader-header-color": "node scripts/check-reader-header-color.mjs",
     "check:topic-desk": "node scripts/check-topic-desk.mjs",
+    "check:trial-prompt": "node scripts/check-trial-prompt.mjs",
     "check:mo-placements": "node scripts/check-mo-placements.mjs",
     "build:mo-articles": "node scripts/build-mo-articles.mjs",
     "build:mo-podcasts": "node scripts/build-mo-podcasts.mjs",
