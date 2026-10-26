@@ -449,6 +449,8 @@
     const head = (t) => `<h4 class="tg-chosen-h">${esc(t)}</h4>`;
     if (!q.mapped) {
       slot.innerHTML = `${head(q.q)}<p class="tg-meta">${esc(q.locus || "")} · ${nOf(q.authors || 0, "author", "authors")} answer · <a href="${ATLAS}${esc(q.id)}">every answer</a></p><p class="tg-wait">This question has no map of positions yet; the disputed questions give each author's answer.</p>`;
+      // a question with no map is still chosen in view: on a phone the slot sits below the list (10-25)
+      if (focus) slot.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       return;
     }
     slot.innerHTML = `${head(q.q)}<p class="tg-wait" role="status">Drawing its positions…</p>`;

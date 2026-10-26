@@ -15,7 +15,8 @@
   if(cm){var PV=window.__pgV||(window.__pgV="?v="+Math.floor(Date.now()/6e5));   // PG data: a 10-minute version (reader-core loadPgCanon)
     window.__frEarly.canon=fetch(B+"/v1/tei/"+cm[1]+"/"+cm[2]+".xml"+(cm[1]==="pg"?PV:"")).then(function(r){if(!r.ok)throw 0;return r.text();});
     window.__frEarly.canon.catch(function(){});
-    window.__frEarly.auEn=j(B+"/v1/authors_en.json"+V);window.__frEarly.auEn.catch(function(){});}
+    window.__frEarly.auEn=j(B+"/v1/authors_en.json"+V);window.__frEarly.auEn.catch(function(){});
+    window.__frEarly.auCat=j(B+"/v1/reader-authors.json"+V);window.__frEarly.auCat.catch(function(){});}
   else if(eb){window.__frEarly.canonEebo=fetch(B+"/eebo/"+eb[1]+".json.gz").then(function(r){if(!r.ok)throw 0;return r;});
     window.__frEarly.canonEebo.catch(function(){});}
   else if(ws){window.__frEarly.meta=j(B+"/v1/works/"+encodeURIComponent(ws)+"/meta.json"+V);

@@ -1,0 +1,188 @@
+/* THE VERSE DESK (scripture-verse-desk.js, 2026-10-22), word for word on The Faith Received and Mere Orthodoxy. The language of the
+   controversies and the maps: stone ground, ink rules, a display face for names (EB Garamond on The Faith Received; Mere Orthodoxy's desk
+   keeps its body face, Ian's rule for working surfaces), Source Serif for the rest, one type scale (secondary 13px, body 1rem, headings
+   1.25 and 2rem), colour only on data (the traditions' tokens of tradition-graphics.css). Every colour comes from the page's own tokens
+   with the shared light values as fallbacks, so it follows the page's theme: The Faith Received's three states, Mere Orthodoxy's light. */
+.vdb{--vdb-ink:var(--fg,var(--color-dark,#1C1C1A));--vdb-muted:var(--muted,var(--color-muted,#5A5A56));--vdb-line:var(--border,var(--color-rule,#D8D8D3));
+  --vdb-sheet:var(--card-bg,var(--card,var(--color-white,#FFFFFF)));--vdb-stone:var(--bg,var(--color-page,#F0F0ED));--vdb-wash:var(--highlight,var(--hl,var(--color-cream,#E7E7E2)));
+  --vdb-display:var(--display,var(--font-display,"EB Garamond",Georgia,serif));--vdb-body:var(--body,var(--font-body,"Source Serif Pro",Georgia,serif));
+  --vdb-small:.8125rem;--vdb-ease:cubic-bezier(.22,1,.36,1);
+  display:block;min-width:0;margin:0 0 3rem;color:var(--vdb-ink);font-family:var(--vdb-body);-webkit-font-smoothing:antialiased}
+/* Mere Orthodoxy's desk names its colours --color-*: the page tokens the drawings read (tradition-graphics.css) are set from them here */
+.vdb-site-mo{--fg:var(--color-dark,#1C1C1A);--muted:var(--color-muted,#5A5A56);--border:var(--color-rule,#D8D8D3);--card:var(--color-white,#FFFFFF);
+  --bg:var(--color-page,#F0F0ED);--hl:var(--color-cream,#E7E7E2);--vdb-display:var(--font-body,"Source Serif 4","Source Serif Pro",Georgia,serif);--font-display:var(--vdb-display)}
+/* Mere Orthodoxy's Scripture pages keep their own dark (html[data-sd-theme], scripture-view-boot.js): the traditions' colours lifted as
+   tradition-graphics.css lifts them for a dark page */
+html[data-sd-theme="dark"] .vdb{--tg-gf:#6EAED0;--tg-pl:#BC8EE0;--tg-po:#83B386;--tg-md:#D0994B;--tg-rc:#E88097;--tg-lu:#EA8569;--tg-rf:#6CB887;--tg-ed:#7DA3F3;--tg-hl:#B4A282;--tg-x:#A5A5A1}
+.vdb [hidden]{display:none!important}
+.vdb :is(button,select,input){font:inherit;color:inherit}
+.vdb :is(a,button,select,summary,[tabindex]):focus-visible{outline:2px solid var(--vdb-ink);outline-offset:2px}
+.vdb a{color:var(--vdb-ink)}
+.vdb-sr{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+.vdb-wait{margin:.6rem 0;color:var(--vdb-muted);font:var(--vdb-small)/1.6 var(--vdb-body)}
+.vdb .vdb-n{margin-left:.35rem;color:var(--vdb-muted);font:400 var(--vdb-small)/1.3 var(--vdb-body);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* ── the verse ─────────────────────────────────────────────────────────────────────────────────────────────────────────── */
+.vdb-head{margin:0 0 1.6rem}
+.vdb-top{display:flex;flex-wrap:wrap;align-items:center;gap:.2rem 1rem}
+.vdb .vdb-title{margin:0;color:var(--vdb-ink);font:500 2rem/1.15 var(--vdb-display);letter-spacing:-.01em;text-wrap:balance}
+.vdb-title:focus{outline:none}
+.vdb-step{display:flex;align-items:center;gap:.1rem}
+.vdb-arrow{display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:50%;color:var(--vdb-ink);text-decoration:none}
+a.vdb-arrow:hover{background:var(--vdb-wash)}
+span.vdb-arrow{color:var(--vdb-line)}
+.vdb-vsel select,.vdb-tr select{min-height:2.5rem;padding:.25rem 1.6rem .25rem .55rem;border:1px solid var(--vdb-line);border-radius:6px;background:var(--vdb-sheet);font-size:.9375rem;font-variant-numeric:tabular-nums;cursor:pointer}
+.vdb-verse{position:relative;margin:.9rem 0 .7rem;padding:0 0 0 1.6rem;max-width:44rem}
+.vdb-verse::before{content:"\201C";position:absolute;left:-.1rem;top:-.2em;color:var(--vdb-muted);font:400 2.6rem/1 var(--vdb-display)}
+.vdb-verse p{margin:0;color:var(--vdb-ink);font:400 1.5rem/1.45 var(--vdb-display);text-wrap:pretty}
+.vdb-tools{display:flex;flex-wrap:wrap;align-items:center;gap:.15rem 1.1rem;margin:0 0 0 1.6rem;font:.875rem/1.3 var(--vdb-body)}
+.vdb-tool{display:inline-flex;align-items:center;min-height:2.5rem;padding:0;border:0;background:none;color:var(--vdb-ink);font:inherit;text-decoration:underline;text-decoration-color:var(--vdb-line);text-decoration-thickness:1px;text-underline-offset:4px;cursor:pointer}
+.vdb-tool:hover,.vdb-tool[aria-expanded="true"]{text-decoration-color:currentColor}
+.vdb-tool:disabled{opacity:.55;cursor:wait}
+.vdb-trname{color:var(--vdb-muted)}
+.vdb-drawer{margin:.6rem 0 0 1.6rem;padding:.2rem 0 0;border-top:1px solid var(--vdb-line);max-width:56rem}
+.vdb-drawer .chstrip{display:flex;flex-wrap:wrap;gap:.3rem;margin:.6rem 0}
+.vdb-cmp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 2rem;margin:0}
+.vdb-cmp>div{display:grid;grid-template-columns:3.5rem minmax(0,1fr);gap:.6rem;padding:.6rem 0;border-bottom:1px solid var(--vdb-line)}
+.vdb-cmp dt{color:var(--vdb-muted);font:600 var(--vdb-small)/1.6 var(--vdb-body)}
+.vdb-cmp dd{margin:0;font:1rem/1.6 var(--vdb-body);text-wrap:pretty}
+.vdb-said{margin:.4rem 0 0 1.6rem;color:var(--vdb-muted);font:var(--vdb-small)/1.5 var(--vdb-body)}
+
+/* ── the band: who treats the verse ───────────────────────────────────────────────────────────────────────────────────────── */
+.vdb-band{margin:0 0 1.8rem;padding:1rem 0 0;border-top:1px solid var(--vdb-ink)}
+.vdb-band-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:.1rem 1rem;margin:0 0 .3rem}
+.vdb .vdb-band-h h3{margin:0;color:var(--vdb-ink);font:500 1.25rem/1.3 var(--vdb-display)}
+.vdb-band-sum{margin:0;color:var(--vdb-muted);font:var(--vdb-small)/1.5 var(--vdb-body);font-variant-numeric:tabular-nums}
+.vdb-band-sum .vdb-act-in{position:relative;min-height:2rem;font-size:var(--vdb-small)}
+.vdb-band-sum .vdb-act-in::after{content:"";position:absolute;inset:-.4rem -.2rem}
+.vdb-strip{min-height:4rem}
+.vdb-strip .tg-plot{height:7.5rem}
+/* the undated are said in the legend, never over the bars */
+.vdb-strip .tg-plot .tg-und{display:none}
+.vdb-strip .tg-lg .tg-und-lg{display:inline-flex}
+.vdb-cents{position:relative;height:1.1rem;margin-top:-.15rem;color:var(--vdb-ink);font:600 .75rem/1.1rem var(--vdb-body);font-variant-numeric:tabular-nums}
+.vdb-cents span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+@container (max-width:54rem){.vdb-cents span:not(.e2){display:none}}
+@container (max-width:30rem){.vdb-cents span:not(.e4){display:none}}
+.vdb-method{max-width:75ch;margin:.3rem 0 0;color:var(--vdb-muted);font:var(--vdb-small)/1.55 var(--vdb-body);text-wrap:pretty}
+.vdb-kinds{display:flex;flex-wrap:wrap;align-items:center;gap:0 .15rem;margin:.5rem 0 0 -.45rem}
+.vdb-kind{display:inline-flex;align-items:baseline;gap:0;min-height:2.5rem;padding:.35rem .45rem;border:0;border-radius:6px;background:none;color:var(--vdb-ink);font:.9375rem/1.3 var(--vdb-body);cursor:pointer}
+.vdb-kind:hover{box-shadow:inset 0 0 0 1px var(--vdb-line)}
+.vdb-kind[aria-pressed="true"]{background:var(--vdb-ink);color:var(--vdb-stone)}
+.vdb-kind[aria-pressed="true"] .vdb-n{color:inherit;opacity:.8}
+
+/* ── the groups: folds with a count and three names, one open at a time ─────────────────────────────────────────────────── */
+.vdb-groups{border-bottom:1px solid var(--vdb-line)}
+.vdb-g{border-top:1px solid var(--vdb-line)}
+.vdb-g.vdb-g-key{border-top-color:var(--vdb-ink)}
+.vdb .vdb-gh{margin:0;font:inherit}
+.vdb-gb{display:flex;flex-wrap:wrap;align-items:baseline;gap:.05rem 0;width:100%;min-height:3rem;padding:.6rem 0;border:0;background:none;color:var(--vdb-ink);text-align:left;cursor:pointer}
+.vdb-sign{flex:none;width:1.25rem;color:var(--vdb-muted);font:400 1.05rem/1 var(--vdb-body)}
+.vdb-sign::before{content:"+"}
+.vdb-gb[aria-expanded="true"] .vdb-sign::before{content:"\2212"}
+.vdb-gt{font:500 1.125rem/1.35 var(--vdb-display);text-wrap:balance}
+.vdb-g-key>.vdb-gh .vdb-gt{font-size:1.25rem}
+.vdb-glimpse{flex:1 1 14rem;min-width:0;margin-left:1.1rem;color:var(--vdb-muted);font:italic var(--vdb-small)/1.5 var(--vdb-body);text-wrap:pretty}
+.vdb-gb:hover .vdb-gt{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.vdb-gp{padding:0 0 .9rem 1.25rem}
+.vdb-g.is-open>.vdb-gp{animation:vdb-in .18s var(--vdb-ease)}
+
+/* the citations' head: its count, its traditions as a bar, and its two tools */
+.vdb-cith{display:flex;flex-wrap:wrap;align-items:center;gap:0 1.2rem}
+.vdb-cith .vdb-gh{flex:1 1 26rem;min-width:0}
+.vdb-trbar{display:flex;gap:1px;flex:0 1 14rem;width:14rem;height:.45rem;margin:0 0 0 1.1rem;align-self:center;border-radius:2px;overflow:hidden;background:var(--vdb-wash)}
+.vdb-trbar i{display:block;min-width:2px;background:var(--c,var(--tg-x,#7A7A76))}
+.vdb-acts{display:flex;flex-wrap:wrap;gap:0 1rem}
+.vdb-act{display:inline-flex;align-items:center;min-height:2.5rem;padding:0;border:0;background:none;color:var(--vdb-ink);font:.875rem/1.3 var(--vdb-body);text-decoration:underline;text-decoration-color:var(--vdb-line);text-decoration-thickness:1px;text-underline-offset:4px;cursor:pointer}
+.vdb-act:hover{text-decoration-color:currentColor}
+.vdb-act[aria-pressed="true"]{text-decoration-color:currentColor;text-decoration-thickness:2px;font-weight:600}
+.vdb-act:disabled{opacity:.55;cursor:wait}
+.vdb-sub{border-top:1px solid var(--vdb-line)}
+.vdb-sub:first-child{border-top:0}
+.vdb-sub .vdb-gb{min-height:2.75rem;padding:.45rem 0}
+.vdb-sub .vdb-gt{font-size:1.0625rem}
+.vdb-sub>.vdb-gp{max-height:min(70vh,46rem);overflow:auto;overscroll-behavior:contain;padding-right:.4rem}
+.vdb-loadall{display:flex;flex-wrap:wrap;align-items:center;gap:.2rem 1rem;margin:.7rem 0 0;color:var(--vdb-muted);font:var(--vdb-small)/1.5 var(--vdb-body)}
+.vdb-toolarea{margin:.4rem 0 0}
+.vdb-cmpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1.2rem 1.8rem;margin:.6rem 0 0}
+.vdb-cmpcol{min-width:0;padding-top:.6rem;border-top:1px solid var(--vdb-ink)}
+.vdb-cmpsel select{width:100%;min-height:2.5rem;padding:.25rem .5rem;border:1px solid var(--vdb-line);border-radius:6px;background:var(--vdb-sheet);font-size:.875rem}
+.vdb .vdb-cmph{margin:.6rem 0 0;font:500 1.125rem/1.3 var(--vdb-display)}
+.vdb-cmph small{margin-left:.45rem;color:var(--vdb-muted);font:400 var(--vdb-small)/1.3 var(--vdb-body);font-variant-numeric:tabular-nums}
+.vdb-cmpw{margin:.1rem 0 .4rem;font:.9375rem/1.45 var(--vdb-body)}
+.vdb-more{display:inline-flex;align-items:center;min-height:2.5rem;margin:.5rem 0 0;padding:.3rem .8rem;border:1px solid var(--vdb-line);border-radius:6px;background:transparent;color:var(--vdb-ink);font:600 var(--vdb-small)/1.2 var(--vdb-body);cursor:pointer}
+.vdb-more:hover{border-color:var(--vdb-ink)}
+
+/* ── a row: author and dates, the work and what it holds for the verse, its page and Preview ─────────────────────────────── */
+.vdb-r{border-top:1px solid color-mix(in srgb,var(--vdb-line) 70%,transparent)}
+.vdb-r:first-child{border-top:0}
+.vdb-rl{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:0 1rem}
+.vdb-rb{display:grid;grid-template-columns:minmax(10rem,15rem) minmax(0,1fr);align-items:baseline;gap:.1rem 1.2rem;min-width:0;min-height:2.75rem;padding:.45rem 0;border:0;background:none;color:var(--vdb-ink);text-align:left;cursor:pointer}
+.vdb-who{min-width:0;font:500 1.0625rem/1.35 var(--vdb-display);text-wrap:balance}
+.vdb-who small{margin-left:.45rem;color:var(--vdb-muted);font:400 var(--vdb-small)/1.3 var(--vdb-body);font-variant-numeric:tabular-nums}
+.vdb-what{min-width:0;font:.9375rem/1.45 var(--vdb-body);text-wrap:pretty}
+.vdb-what cite{font-style:italic}
+.vdb-what small{margin-left:.6rem;color:var(--vdb-muted);font:var(--vdb-small)/1.4 var(--vdb-body)}
+.vdb-rb:hover .vdb-who{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.vdb-r.is-open>.vdb-rl .vdb-who{font-weight:600}
+.vdb-ra{display:flex;align-items:center;gap:.15rem .6rem;font:var(--vdb-small)/1.3 var(--vdb-body);font-variant-numeric:tabular-nums;white-space:nowrap}
+.vdb-pg{display:inline-flex;align-items:center;min-height:2.5rem;color:var(--vdb-ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.vdb-pgs{display:inline-flex;align-items:center;gap:0;min-height:2.5rem;white-space:pre}
+.vdb-pgs .vdb-pg{min-height:0}
+.vdb-more-n{color:var(--vdb-muted)}
+.vdb-pv,.vdb-lane{position:relative;display:inline-flex;align-items:center;min-height:1.75rem;padding:.1rem .6rem;border:1px solid var(--vdb-line);border-radius:999px;background:var(--vdb-sheet);color:var(--vdb-ink);font:600 var(--vdb-small)/1.2 var(--vdb-body);white-space:nowrap;cursor:pointer}
+.vdb-pv:hover,.vdb-lane:hover{border-color:var(--vdb-ink)}
+.vdb-pv[aria-expanded="true"],.vdb-lane[aria-pressed="true"]{background:var(--vdb-ink);border-color:var(--vdb-ink);color:var(--vdb-stone)}
+.vdb-pv::after,.vdb-lane::after{content:"";position:absolute;inset:-.4rem -.15rem}
+.vdb-ro{max-width:48rem;margin:0 0 .9rem;padding:.2rem 0 .1rem}
+.vdb-r.is-open>.vdb-ro{animation:vdb-in .2s var(--vdb-ease)}
+.vdb-where{margin:0 0 .55rem;color:var(--vdb-muted);font:var(--vdb-small)/1.55 var(--vdb-body);text-wrap:pretty}
+.vdb-q{position:relative;margin:0;padding:0 0 0 1.35rem;color:var(--vdb-ink);font:italic 400 1.0625rem/1.65 var(--vdb-body);text-wrap:pretty}
+.vdb-q::before{content:"\201C";position:absolute;left:-.05rem;top:-.12em;color:var(--vdb-muted);font:400 1.9rem/1 var(--vdb-display)}
+.vdb-q:not([lang="en"]){font-style:normal}
+.vdb-q p{margin:0 0 .6em}
+.vdb-q p:last-child{margin-bottom:0}
+.vdb-q .vdb-qh{font-style:normal;font-weight:600}
+.vdb-q b{font-style:normal;font-weight:600}
+.vdb-go{display:flex;flex-wrap:wrap;gap:0 1.2rem;margin:.55rem 0 0 1.35rem;font:var(--vdb-small)/1.3 var(--vdb-body)}
+.vdb-go a{display:inline-flex;align-items:center;min-height:2.5rem;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.vdb-cps{list-style:none;margin:0;padding:0}
+.vdb-cps li{display:flex;flex-wrap:wrap;align-items:baseline;gap:.1rem .7rem;padding:.25rem 0;font:.9375rem/1.55 var(--vdb-body)}
+.vdb-cps .vdb-pg{min-height:2rem}
+.vdb-k{color:var(--vdb-muted);font:var(--vdb-small)/1.4 var(--vdb-body)}
+.vdb-gist{flex:1 1 20rem;min-width:0;text-wrap:pretty}
+.vdb-pvw{margin:.2rem 0 .9rem;border:1px solid var(--vdb-line);border-radius:6px;background:var(--vdb-sheet);overflow:hidden;container-type:inline-size}
+.vdb-cps li>.vdb-pvw{flex:1 0 100%}
+.vdb-pvw .pw-wait,.vdb-pvw>.vdb-wait{padding:.6rem .75rem;margin:0}
+.vdb-pvw .pw-page h4{display:block;margin:0 0 6px;padding:0;border:0;color:var(--vdb-muted);font:600 var(--vdb-small)/1.3 var(--vdb-body);letter-spacing:0;text-transform:none}
+.vdb-pvw .pw-cited{border-left:0;padding-left:0;margin-left:0}
+.vdb-pvw .pw-page:not(.pw-cited){opacity:1}
+.vdb-pvw .pw-col p{max-width:70ch}
+
+/* ── narrow: the row folds onto two lines, the citations' bar under its head ─────────────────────────────────────────────── */
+@media (max-width:720px){
+  .vdb .vdb-title{font-size:1.6rem}
+  .vdb-verse{padding-left:1.25rem}
+  .vdb-verse::before{font-size:2.1rem}
+  .vdb-verse p{font-size:1.25rem}
+  .vdb-tools,.vdb-drawer,.vdb-said{margin-left:1.25rem}
+  .vdb-cmp{grid-template-columns:minmax(0,1fr)}
+  .vdb-strip .tg-plot{height:6rem}
+  .vdb-glimpse{flex-basis:100%;margin-left:1.25rem}
+  .vdb-gp{padding-left:0}
+  .vdb-rl{grid-template-columns:minmax(0,1fr);gap:0}
+  .vdb-rb{grid-template-columns:minmax(0,1fr);gap:.05rem;padding:.55rem 0 .1rem}
+    .vdb-ra{flex-wrap:wrap;padding:0 0 .45rem}
+  .vdb-trbar{flex-basis:100%;width:auto;margin:0 0 .3rem 1.25rem}
+  .vdb-cith .vdb-gh{flex-basis:100%}
+  .vdb-acts{margin:0 0 .3rem 1.25rem}
+  .vdb-q{font-size:1rem}
+  .vdb-go{margin-left:0}
+}
+@media (pointer:coarse){.vdb-kind,.vdb-act,.vdb-tool,.vdb-pg,.vdb-go a{min-height:2.75rem}.vdb-arrow{width:2.75rem;height:2.75rem}}
+@media (prefers-reduced-motion:reduce){.vdb-g.is-open>.vdb-gp,.vdb-r.is-open>.vdb-ro{animation:none}}
+@media (prefers-reduced-motion:no-preference){.vdb-kind,.vdb-pv,.vdb-lane,.vdb-more{transition:background-color .12s var(--vdb-ease),border-color .12s var(--vdb-ease),color .12s var(--vdb-ease),box-shadow .12s var(--vdb-ease)}}
+@keyframes vdb-in{from{opacity:0;transform:translateY(-3px)}}
+/* the whole-Bible sets, by tradition (10-23) */
+.vdb-wh{margin:.85rem 0 .2rem;color:var(--vdb-muted);font:600 var(--vdb-small)/1.4 var(--vdb-body);letter-spacing:.02em}
+.vdb-gp > .vdb-wh:first-child{margin-top:.35rem}

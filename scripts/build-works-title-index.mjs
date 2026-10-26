@@ -92,6 +92,35 @@ for (const group of (Array.isArray(au) ? au : [])) {
     if (!String(row[5] || "").includes(words)) row[5] = [row[5], words].filter(Boolean).join(" ");
   }
 }
+/* THE CATALOGUE'S AUTHOR (2026-10-23, the owner relaying Ian: "fix this and elsewhere"). The navs above carry Migne's own
+ * attributions ("Dionysius the Areopagite, pt. 2", "Clement of Rome, pt. 1", PO's French names) and this index kept them after
+ * the works-index corrected them: pld-2269 Pelagius, pld-332 and pld-349 Pseudo-Hegesippus, pld-3783 Pseudo-Damasus, the
+ * re-attributed Scotus and Ockham works. A row the works-index lists now takes the catalogue's English name (author_en, else
+ * author) through canonAuthor, as the reader and the lexicon print it. Kept as they were: the confessions (documents), Augustine
+ * and the Mere Orthodoxy texts (not in the catalogue), a retired PG record (the index lists the record itself; the work that holds
+ * its first column can be another man's), and an EEBO row whose catalogue name is the same person in another form: 12,655 of the
+ * 15,569 EEBO rows are not in the works-index, so the rest keep the EEBO catalogue's "Surname, Forename, dates" with them.
+ * OVERRIDES=<runs/work_author_overrides.json> names the re-attributed records the works-index no longer lists (nine PG rows). */
+{
+  const catName = new Map(ll.works.map((w) => [w.slug, w.author_en || w.author || ""]));
+  const ov = process.env.OVERRIDES ? (JSON.parse(readFileSync(process.env.OVERRIDES, "utf8")).works || {}) : {};
+  const keyOf = (c, id) => (["eebo", "pld", "pg", "po"].includes(c) ? `${c}-${id}` : String(id));
+  const STOPW = new Set("saint st blessed venerable bishop archbishop pope sir king doctor dr rev mr of the de la le von van ca fl approximately active pt".split(" "));
+  const person = (a) => new Set((String(a || "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().match(/[a-z]+/g) || []).filter((w) => w.length > 1 && !STOPW.has(w)));
+  const within = (x, y) => [...x].every((w) => y.has(w));
+  let changed = 0;
+  for (const r of rows) {
+    if (r[0] === "confessions" || r[0] === "augustine" || r[0] === "mo") continue;
+    const k = keyOf(r[0], r[1]);
+    const a = catName.has(k) ? catName.get(k) : (ov[k] && ov[k].author) || "";
+    if (!a) continue;
+    const name = canonAuthor(a);
+    if (name === r[3]) continue;
+    if (r[0] === "eebo") { const p = person(name), q = person(r[3]); if (p.size && q.size && (within(p, q) || within(q, p))) continue; }
+    r[3] = name; changed++;
+  }
+  console.log(`catalogue authors: ${changed.toLocaleString()} rows renamed`);
+}
 const body=JSON.stringify({ v:2, n:rows.length, rows });
 writeFileSync(process.env.OUT, body);
 const { gzipSync } = await import("node:zlib");

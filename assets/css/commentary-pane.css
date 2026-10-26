@@ -95,6 +95,16 @@ html.cp-site-mo .cp-top > .cp-eyebrow, html.cp-site-mo .cp-top > .cp-ref { grid-
 .cp-keys-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .cp-keys-lab { flex: none; margin-right: 2px; font-size: 0.8125rem; color: var(--cp-muted, #6b6b6b); }
 .cp-keys:empty { display: none; }
+/* the whole-Bible sets by tradition (10-23): a small label, then one quiet row a tradition */
+.cp-keys-whole { display: flex; flex-direction: column; gap: 4px; padding-top: 6px; border-top: 1px solid var(--cp-rule); }
+.cp-keys-wl { margin-bottom: 1px; }
+/* the sets are a disclosure: open and label-only on a wide screen, one line with its count and a chevron on a phone */
+.cp-keys-whole > summary { display: flex; align-items: baseline; gap: 6px; list-style: none; cursor: default; }
+.cp-keys-whole > summary::-webkit-details-marker { display: none; }
+.cp-keys-n { display: none; }
+.cp-keys-sub { flex: none; width: 9.5em; padding-top: 5px; font-size: 0.75rem; letter-spacing: 0.02em; color: var(--cp-muted, #6b6b6b); }
+.cp-keys-trad { flex-wrap: nowrap; align-items: flex-start; }
+.cp-keys-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .cp-key { padding: 3px 10px; border: 1px solid var(--cp-rule); border-radius: 999px; background: transparent; color: var(--cp-ink); font: inherit; font-size: 12.5px; line-height: 1.4; cursor: pointer; }
 .cp-key:hover { border-color: var(--cp-ink); }
 .cp-key[aria-pressed="true"] { background: var(--cp-ink); border-color: var(--cp-ink); color: var(--cp-paper); }
@@ -376,7 +386,122 @@ html.cp-site-mo .cp-tabs .cp-desk { flex: none; min-height: 36px; margin: 0 0 6p
 .cp-rec-most button:hover { background: var(--cp-ground); }
 .cp-rec-most button:focus-visible, .cp-more:focus-visible { outline: 2px solid var(--cp-ink); outline-offset: 2px; }
 @media (max-width: 640px) {
-  .cp-keys-row { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px; }
+  .cp-keys-row { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
   .cp-keys-row::-webkit-scrollbar { display: none; }
+  .cp-keys-whole > summary { align-items: center; min-height: 36px; cursor: pointer; }
+  .cp-keys-whole > summary::after { content: ""; flex: none; width: 0.4em; height: 0.4em; margin: 0 4px 0 auto; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-0.1em) rotate(45deg); }
+  .cp-keys-whole[open] > summary::after { transform: translateY(0.15em) rotate(-135deg); }
+  .cp-keys-n { display: inline; font-size: 0.75rem; color: var(--cp-faint, var(--cp-muted)); }
+  .cp-keys-sub { width: auto; padding-top: 0; align-self: center; margin-right: 4px; }
+  .cp-keys-trad { align-items: center; }
+  .cp-keys-chips { flex-wrap: nowrap; }
   .cp-key { flex: none; }
+}
+
+/* ── THE PHONE'S SHEET, A DESIGN PASS (2026-10-23, owner: "This is a mess do a design pass on mobile for this for MereO") ──
+   Under 900px the pane is a bottom sheet over the text: a grip, then the views as one row that scrolls sideways (four tabs, the
+   Verse Desk a plain link at its end), then the reading in order: the commentary chosen (title, author, century, Change), its note
+   on the verse (the line saying where, the English or the source beside that line's page link, then the words), the key
+   commentaries as one row that scrolls sideways with fading edges, and last, quiet and folded when they hold nothing for the
+   verse, the creeds. It opens at 55% of the screen with its own scroll and 80px left free at its foot for the site's feedback tab;
+   the grip raises it to the full screen (commentary-pane.js). A control the site floats at the left edge is kept clear
+   (--cp-clear-left, set by commentary-pane.js where that control lies over the sheet). */
+/* the grip belongs to the phone's sheet: beside the text on a wide screen there is nothing to raise */
+html.cp-site-mo .cp-grip { display: none; }
+@media (max-width: 899px) {
+  html.cp-site-mo .cp-pane {
+    --cp-pad-l: max(16px, var(--cp-clear-left, 0px));
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: start; column-gap: 12px;
+    grid-template-areas: "grip grip" "tabs tabs" "top top" "cur cur" "list list" "where lang" "body body" "keys keys" "rec rec" "foot foot" "creeds creeds";
+    /* every row its content's height: a row that scrolls sideways (the views, the key row) has no height of its own to give */
+    grid-template-rows: repeat(11, max-content);
+    height: 55vh; height: 55dvh; max-height: calc(100dvh - var(--sd-top, 0px) - 8px);
+    padding: 0 16px calc(80px + env(safe-area-inset-bottom, 0px)) var(--cp-pad-l);
+    border: 0; border-top: 1px solid var(--cp-rule); border-radius: 14px 14px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.14);
+  }
+  html.cp-site-mo .cp-pane.cp-full { height: calc(100dvh - var(--sd-top, 0px) - 8px); }
+  html.cp-site-mo .cp-pane > * { grid-column: 1 / -1; }
+  /* Citations is the verse panel in the text: the sheet shrinks to its views, with the same 80px free under them for the feedback tab */
+  html.cp-site-mo .cp-pane[data-tab="s"] { height: auto; padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+  html.cp-site-mo .cp-pane[data-tab="s"] > :not(.cp-tabs), html.cp-site-mo .cp-pane[data-tab="s"] > .cp-top:has(.cp-close:not([hidden])) { display: none; }
+  html.cp-site-mo .cp-pane[data-tab="s"] > .cp-tabs { top: 0; margin-top: 4px; }
+  html.cp-site-mo body.cp-on { padding-bottom: 55vh; padding-bottom: 55dvh; }
+  html.cp-site-mo body.cp-on.cp-peek { padding-bottom: 148px; }
+  html.cp-site-mo body.cp-on #fra-launcher { bottom: calc(55dvh + 12px); }
+  html.cp-site-mo body.cp-on.cp-peek #fra-launcher { bottom: 152px; }
+  /* the verse chosen comes to the top of what the sheet leaves of the text, under the site's header */
+  html.cp-site-mo body.cp-on .bible-verse { scroll-margin-top: calc(var(--sd-top, 0px) + 16px); }
+
+  /* the grip: a bar at the sheet's top edge, the whole width a target (tap, or drag up and down) */
+  html.cp-site-mo .cp-pane > .cp-grip { grid-area: grip; position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: center;
+    width: auto; height: 32px; margin: 0 -16px 0 calc(-1 * var(--cp-pad-l)); padding: 0; border: 0; border-radius: 14px 14px 0 0;
+    background: var(--cp-paper); cursor: grab; touch-action: none; }
+  html.cp-site-mo .cp-pane > .cp-grip > span { display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--cp-faint); opacity: 0.7; }
+  html.cp-site-mo .cp-pane > .cp-grip:focus-visible { outline-offset: -4px; }
+  /* its target reaches a little above the sheet's edge: 44px in all */
+  html.cp-site-mo .cp-pane > .cp-grip::after { content: ""; position: absolute; inset: -12px 0 0; }
+  html.cp-site-mo .cp-pane .cp-pick { min-height: 44px; }
+
+  /* the views: one row that scrolls sideways, nothing shrunk into its neighbour, the chosen one underlined */
+  html.cp-site-mo .cp-pane > .cp-tabs, html.cp-site-mo .sd-side > .cp-tabs {
+    display: flex; flex-wrap: nowrap; align-items: stretch; gap: 20px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+  html.cp-site-mo .cp-pane > .cp-tabs::-webkit-scrollbar, html.cp-site-mo .sd-side > .cp-tabs::-webkit-scrollbar { display: none; }
+  /* its scroll starts at the sheet's text edge, so nothing in it passes under a control floated at the screen's left edge */
+  html.cp-site-mo .cp-pane > .cp-tabs { grid-area: tabs; top: 32px; margin: 0 -16px 10px 0; padding: 0 16px 0 0; }
+  html.cp-site-mo .cp-tabs button { flex: none; min-width: 0; min-height: 44px; padding: 4px 0; white-space: nowrap; font-size: 15px; }
+  html.cp-site-mo .cp-tabs button[hidden] { display: none; }
+  html.cp-site-mo .cp-tabs .cp-desk, html.cp-site-mo .cp-tabs .cp-desk.btn {
+    flex: none; display: inline-flex; align-items: center; min-height: 44px; margin: 0 0 0 auto; padding: 4px 0 4px 4px; border: 0; border-radius: 0;
+    background: none; box-shadow: none; color: var(--cp-muted); font: 400 15px/1.3 var(--font-body, Georgia, serif); letter-spacing: 0; text-transform: none;
+    white-space: nowrap; text-decoration: underline; text-decoration-color: var(--cp-rule); text-underline-offset: 4px; }
+  html.cp-site-mo .cp-tabs .cp-desk:hover, html.cp-site-mo .cp-tabs .cp-desk:focus-visible { color: var(--cp-ink); text-decoration-color: currentColor; background: none; }
+
+  /* the reading in order: what is chosen, where its note is, the language beside that line, the words, then the key row */
+  html.cp-site-mo .cp-pane .cp-head, html.cp-site-mo .cp-pane .cp-pickwrap { display: contents; }
+  html.cp-site-mo .cp-pane[data-tab="r"] .cp-head { display: none; }
+  html.cp-site-mo .cp-pane > .cp-top { grid-area: top; }
+  html.cp-site-mo .cp-pane .cp-cur { grid-area: cur; padding: 2px 0 8px; border-top: 0; }
+  html.cp-site-mo .cp-pane .cp-what { font-size: 15px; }
+  html.cp-site-mo .cp-pane .cp-who { font-size: 13px; }
+  html.cp-site-mo .cp-pane .cp-list { grid-area: list; }
+  html.cp-site-mo .cp-pane > .cp-where { grid-area: where; margin: 10px 0 8px; padding: 0; border: 0; font-size: 13.5px; line-height: 1.45; }
+  html.cp-site-mo .cp-pane .cp-lang { grid-area: lang; align-self: start; margin: 8px 0 0; border-radius: 999px; font-size: 12.5px; }
+  html.cp-site-mo .cp-pane .cp-lang button { position: relative; min-width: 0; min-height: 30px; padding: 0 10px; font-size: 12.5px; }
+  html.cp-site-mo .cp-pane .cp-lang button::after { content: ""; position: absolute; inset: -7px 0; }
+  html.cp-site-mo .cp-pane > .cp-body { grid-area: body; }
+  html.cp-site-mo .cp-pane > .cp-rec { grid-area: rec; }
+  html.cp-site-mo .cp-pane > .cp-foot { grid-area: foot; }
+
+  /* the key commentaries: one row that scrolls sideways; at rest it starts at the sheet's edge, and fades where it runs on */
+  html.cp-site-mo .cp-pane .cp-keys { grid-area: keys; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 8px;
+    margin: 14px 0 2px; padding: 4px 0 6px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+  html.cp-site-mo .cp-pane .cp-keys::-webkit-scrollbar { display: none; }
+  html.cp-site-mo .cp-pane .cp-keys-row { display: contents; }
+  /* the whole-Bible sets (10-23) run on in the same sideways row: "Whole Bible", then each tradition's name and its sets */
+  html.cp-site-mo .cp-pane .cp-keys-whole, html.cp-site-mo .cp-pane .cp-keys-chips { display: contents; }
+  html.cp-site-mo .cp-pane .cp-keys-wl { margin-left: 8px; padding-left: 12px; border-left: 1px solid var(--cp-rule); }
+  html.cp-site-mo .cp-pane .cp-keys-sub { width: auto; padding: 0 0 0 4px; white-space: nowrap; font-size: 12px; }
+  html.cp-site-mo .cp-pane .cp-keys-lab { flex: none; white-space: nowrap; font-size: 12.5px; }
+  html.cp-site-mo .cp-pane .cp-keys-row + .cp-keys-row > .cp-keys-lab { margin-left: 8px; padding-left: 12px; border-left: 1px solid var(--cp-rule); }
+  html.cp-site-mo .cp-pane .cp-key { position: relative; flex: none; min-height: 34px; padding: 4px 12px; font-size: 13.5px; white-space: nowrap; }
+  html.cp-site-mo .cp-pane .cp-key::after { content: ""; position: absolute; inset: -5px 0; }
+  html.cp-site-mo .cp-pane > .cp-tabs.is-runs { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+  html.cp-site-mo .cp-pane > .cp-tabs.is-runs.is-scrolled { -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 32px), transparent); }
+  html.cp-site-mo .cp-pane > .cp-tabs.is-runs.is-scrolled.is-end { -webkit-mask-image: linear-gradient(to right, transparent, #000 24px); mask-image: linear-gradient(to right, transparent, #000 24px); }
+  html.cp-site-mo .cp-pane .cp-keys.is-runs { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+  html.cp-site-mo .cp-pane .cp-keys.is-runs.is-scrolled { -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 32px), transparent); }
+  html.cp-site-mo .cp-pane .cp-keys.is-runs.is-scrolled.is-end { -webkit-mask-image: linear-gradient(to right, transparent, #000 24px); mask-image: linear-gradient(to right, transparent, #000 24px); }
+
+  /* the creeds, last; when none names the verse, one quiet line that opens the chapter's (folded) */
+  html.cp-site-mo .cp-pane > .cp-creeds { grid-area: creeds; margin: 18px 0 0; padding: 12px 0 0; border-top: 1px solid var(--cp-rule); }
+  html.cp-site-mo .cp-pane > .cp-creeds .cp-cr-bar { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+  html.cp-site-mo .cp-pane > .cp-creeds .cp-cr-h { margin: 0; font-size: 14px; font-weight: 600; }
+  html.cp-site-mo .cp-pane > .cp-creeds.is-empty .cp-cr-h { font-weight: 400; color: var(--cp-muted); font-size: 13.5px; }
+  html.cp-site-mo .cp-pane > .cp-creeds.is-empty .cp-cr-body { display: none; }
+  html.cp-site-mo .cp-pane > .cp-creeds .cp-cr-all { min-height: 44px; padding: 0; font-size: 13.5px; }
+}
+@media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
+  html.cp-site-mo .cp-pane { transition: height 0.22s cubic-bezier(0.22, 1, 0.36, 1); }
 }

@@ -69,12 +69,25 @@
       .replace(/<span class="pb" data-n="(\d+)"><\/span>/g, (m, n) => `\n\uE000${n}\uE000\n`)
       .replace(/<\/(?:p|h\d|div|li|blockquote|tr)>|<br\s*\/?>/gi, '\n')
       .replace(/<[^>]+>/g, '');
+    // EVERY OCCURRENCE OF A PAGE NUMBER (10-25): a book whose paginations restart (Gouge's four parts, Trapp's volumes, the
+    // Westminster Annotations' misprinted leaves) prints the same number more than once; each printed page is one occurrence in
+    // document order (pages.occ), pages.all lists each number's occurrences, pages.repeats says whether any repeats; the Map
+    // itself keeps the first occurrence under each number, as before
+    // two marks of one number in a row (a page's two columns, a misprinted leaf) are one page; markIdx maps each printed mark, counted
+    // in document order, to its occurrence, for an entry's start mark (spm) on the map
+    const occ = [], all = new Map(), markIdx = [];
+    let o = { n: '0', lines: [] }; occ.push(o); all.set('0', [0]);
     for (const line of decode(flat).split('\n')) {
       const mark = /^\uE000(\d+)\uE000$/.exec(line);
-      if (mark) { cur = mark[1]; continue; }
+      if (mark) {
+        if (mark[1] !== o.n) { o = { n: mark[1], lines: [] }; occ.push(o); if (!all.has(mark[1])) all.set(mark[1], []); all.get(mark[1]).push(occ.length - 1); }
+        markIdx.push(occ.length - 1); continue;
+      }
       const t = line.replace(/\s+/g, ' ').trim();
-      if (t) { if (!pages.has(cur)) pages.set(cur, []); pages.get(cur).push(t); }
+      if (t) o.lines.push(t);
     }
+    for (const [n, is] of all) if (!pages.has(n)) pages.set(n, occ[is[0]].lines);
+    pages.occ = occ; pages.all = all; pages.markIdx = markIdx; pages.repeats = [...all.values()].some((is) => is.length > 1);
     return pages;
   }
 
@@ -132,8 +145,10 @@
       const data = await env.json(`${base}/eebo/${id}.json.gz`);
       const pages = eeboPageMap(data);
       const nums = [...pages.keys()].map(Number).filter((n) => n > 0);
-      return { pages, last: nums.length ? Math.max(...nums) : 0, meta: data.meta || {} };
+      return { pages, occ: pages.occ, all: pages.all, markIdx: pages.markIdx, repeats: pages.repeats, last: nums.length ? Math.max(...nums) : 0, meta: data.meta || {} };
     });
+    // the place a commentary was opened at in a book with repeating page numbers: {slug: occurrence index}, set by the pane
+    const eeboCur = {};
 
     // {meta, p: {n, en, la} | null, last}
     async function page(slug, n) {
@@ -149,11 +164,16 @@
       }
       if (EEBO.test(slug)) {
         const d = await eebo(slug);
-        const lines = d.pages.get(String(n));
-        return { meta: d.meta, p: lines && lines.length ? { n, en: lines.join('\n'), la: '' } : null, last: d.last };
+        // a repeated page number is read at the occurrence at or after the chapter's place (the pane sets eeboCur when it opens a
+        // commentary on a chapter); a book without repeats, or no place known, reads its first
+        const at = eeboCur[slug];
+        let lines = d.pages.get(String(n)), k = 0;
+        if (d.repeats && at != null) { const is = d.all.get(String(n)) || []; const i = is.find((x) => x >= at); if (i != null) { lines = d.occ[i].lines; k = is.indexOf(i); } }
+        return { meta: d.meta, p: lines && lines.length ? { n, en: lines.join('\n'), la: '' } : null, last: d.last, occ: k + 1 };
       }
       const meta = await env.json(`${base}/v1/works/${slug}/meta.json`);
-      const last = meta.n_pages || (meta.shards && meta.shards.length && meta.shards[meta.shards.length - 1].to);
+      // the last page the work HAS: the shards run past n_pages where front matter is appended after the text (the WA volumes; 10-25)
+      const last = Math.max(meta.n_pages || 0, (meta.shards && meta.shards.length && meta.shards[meta.shards.length - 1].to) || 0) || undefined;
       if (!(meta.shards || []).length && meta.has_tei) {
         const lanes = await teiPages(slug, meta);
         const p = { n, en: (lanes.en.get(String(n)) || []).join('\n'), la: (lanes.la.get(String(n)) || []).join('\n') };
@@ -178,9 +198,11 @@
         if (!by.has(slug)) by.set(slug, { slug, a: a || '', t: t || slug, notes: {}, open: null });
         return by.get(slug);
       };
-      const rowsBy = new Map();
+      const rowsBy = new Map(), touch = new Map();
       for (const v of (file && file.verses) || []) {
         for (const r of v.rows || []) if (r.w && !meta[r.w]) meta[r.w] = { a: r.a || '', t: r.t || r.w };
+        // how much of the chapter a work touches (10-25): the verses it has any row on, for the pane's featured strip
+        for (const r of v.rows || []) if (r.w) { if (!touch.has(r.w)) touch.set(r.w, new Set()); touch.get(r.w).add(v.v); }
         for (const r of v.rows || []) if (r.w && (r.how === 'explicit' || r.how === 'exegesis') && +r.p > 0) {
           if (!rowsBy.has(r.w)) rowsBy.set(r.w, {});
           const byV = rowsBy.get(r.w); (byV[v.v] || (byV[v.v] = [])).push({ w: r.w, how: r.how, g: r.g, p: r.p });
@@ -201,6 +223,8 @@
         // its tradition: the shelf, or for the Reformed, Lutheran and Roman Catholic the map's tradition (10-20)
         c.sh = c.sh || (e.sh === 'x' ? (X_SHELF[e.tr] || 'x') : e.sh);
         c.k = c.k || e.k; c.cov = Math.max(c.cov || 0, Object.keys(e.an || {}).length || ((Number(e.c2) || 0) - (Number(e.c1) || 0) + 1));
+        c.an = Object.assign(c.an || {}, e.an || {});   // every chapter's anchor: the pane's eeboCursor walks them in order
+        if (e.spm != null) c.spm = e.spm;   // where the entry's first chapter opens, as a count of the book's printed page marks
         if (e.an && e.an[ch] != null) { c.open = e.an[ch]; if (e.an[String(+ch + 1)] != null) c.close = e.an[String(+ch + 1)]; }
       }
       for (const [slug, w] of Object.entries((ov && ov.works) || {})) if (w.sigla) sigla[slug] = w.sigla;
@@ -210,11 +234,11 @@
         if (x.c) { c.collected = x.c; for (const v of Object.keys(x.c)) if (!(v in c.notes)) c.notes[v] = x.c[v][0][1]; }
         if (x.pv) c.pv = Object.assign(c.pv || {}, x.pv);
       }
-      for (const c of by.values()) c.rows = rowsBy.get(c.slug) || {};
-      return { works: [...by.values()].filter((c) => Object.keys(c.notes).length || c.open != null), meta, sigla };
+      for (const c of by.values()) { c.rows = rowsBy.get(c.slug) || {}; c.touch = (touch.get(c.slug) || new Set()).size; }
+      return { works: [...by.values()].filter((c) => Object.keys(c.notes).length || c.open != null), meta, sigla, nv: ((file && file.verses) || []).length };
     }
 
-    return { page, listWorks, canonCols, teiPages, eebo };
+    return { page, listWorks, canonCols, teiPages, eebo, eeboCur };
   }
 
   return { CANON, EEBO, stride, paragraphs, scanTei, eeboPageMap, createPages, decode };

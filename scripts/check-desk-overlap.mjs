@@ -91,8 +91,9 @@ if (args.includes("--serve")) { console.log(`serving the harness at ${base}/topi
 // ── Headless Chrome over the DevTools protocol ─────────────────
 const profile = mkdtempSync(path.join(tmpdir(), "desk-overlap-"));
 const chrome = spawn(chromePath, ["--headless=new", "--disable-gpu", "--no-first-run", "--hide-scrollbars", `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], { stdio: "ignore" });
-const cleanup = () => { try { chrome.kill(); } catch (_) { /* gone */ } server.close(); try { rmSync(profile, { recursive: true, force: true }); } catch (_) { /* busy */ } };
+const cleanup = () => { try { chrome.kill("SIGKILL"); } catch (_) { /* gone */ } server.close(); try { rmSync(profile, { recursive: true, force: true }); } catch (_) { /* busy */ } };
 process.on("exit", cleanup);
+for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => process.exit(130));
 let port = 0;
 for (let i = 0; i < 100 && !port; i += 1) {
   await new Promise((res) => setTimeout(res, 150));
@@ -117,7 +118,7 @@ const MEASURE = `((sel) => {
   if (!root) return { error: "no container" };
   const vw = document.documentElement.clientWidth;
   const desc = (el) => { if (!el) return "?"; const c = (typeof el.className === "string" ? el.className : (el.className && el.className.baseVal) || "").trim().split(/\\s+/).filter(Boolean).slice(0, 2).join("."); return el.tagName.toLowerCase() + (c ? "." + c : ""); };
-  const hiddenUp = (el) => { for (let e = el; e && e !== root.parentElement; e = e.parentElement) { const cs = getComputedStyle(e); if (e.hidden || cs.display === "none" || cs.visibility === "hidden" || parseFloat(cs.opacity) < 0.05) return true; if (e.tagName === "DETAILS" && !e.open && !el.closest("summary")) return true; if (cs.clip !== "auto" && cs.position === "absolute" && /rect\\(0/.test(cs.clip)) return true; if (/inset\\(50%\\)/.test(cs.clipPath)) return true; } return false; };
+  const hiddenUp = (el) => { for (let e = el; e && e !== root.parentElement; e = e.parentElement) { const cs = getComputedStyle(e); if (e.hidden || cs.display === "none" || cs.visibility === "hidden" || parseFloat(cs.opacity) < 0.05) return true; if (e.tagName === "DETAILS" && !e.open && !(el.closest("summary") && el.closest("summary").parentElement === e)) return true; if (cs.clip !== "auto" && cs.position === "absolute" && /rect\\(0/.test(cs.clip)) return true; if (/inset\\(50%\\)/.test(cs.clipPath)) return true; } return false; };
   const texts = [];
   const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   while (tw.nextNode()) {

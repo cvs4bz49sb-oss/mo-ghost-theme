@@ -17,7 +17,7 @@
  * of an unpushed change). --quick runs 375 and 1440 only. Needs network and Chrome (CHROME env or the macOS default path).
  */
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -98,6 +98,9 @@ const probe = (theme, expectedTan, expectedDark) => {
 
 const profile = mkdtempSync(path.join(tmpdir(), "reader-header-color-"));
 const chrome = spawn(CHROME, ["--headless=new", "--disable-gpu", "--no-first-run", `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], { stdio: "ignore" });
+const cleanup = () => { try { chrome.kill("SIGKILL"); } catch (_) { /* gone */ } try { rmSync(profile, { recursive: true, force: true }); } catch (_) { /* busy */ } };
+process.on("exit", cleanup);
+for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => process.exit(130));
 let port = 0;
 for (let i = 0; i < 100 && !port; i += 1) {
   await new Promise((r) => setTimeout(r, 150));
