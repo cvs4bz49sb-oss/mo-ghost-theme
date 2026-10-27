@@ -1483,7 +1483,7 @@
         })()), /* @__PURE__ */ React.createElement(Group, { title: "Body block" }, /* @__PURE__ */ React.createElement(Field, { label: "Title", value: content.editorTitle, onChange: (v) => updateField("editorTitle", v) }), /* @__PURE__ */ React.createElement(
           Field,
           {
-            label: "Body \u2014 Markdown supported: **bold**, *italic*, __underline__, [link](url), > quote. Blank line = new paragraph.",
+            label: "Body \u2014 Markdown supported: **bold**, *italic*, __underline__, [link](url), > quote, - bullet. Blank line = new paragraph.",
             value: content.editorBody != null ? content.editorBody : (content.editorParagraphs || []).join("\n\n"),
             multiline: true,
             rows: 14,
@@ -1588,7 +1588,7 @@
           color: "#6b6258",
           lineHeight: 1.5,
           marginBottom: 12
-        } }, "Free-form text, button, or image blocks. Each block appears as its own row in the Sections list above \u2014 drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "**bold**"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "*italic*"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "__underline__"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "[link](url)"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "> quote"), "). Image blocks take a hosted image URL plus an optional headline (above the image), body text (below the image, Markdown), a link, and a caption that links below the image."), (content.customBlocks || []).map((block, i) => {
+        } }, "Free-form text, button, or image blocks. Each block appears as its own row in the Sections list above \u2014 drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "**bold**"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "*italic*"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "__underline__"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "[link](url)"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "> quote"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "- bullet"), "). Image blocks take a hosted image URL plus an optional headline (above the image), body text (below the image, Markdown), a link, and a caption that links below the image."), (content.customBlocks || []).map((block, i) => {
           const removeBlock = () => {
             const next = JSON.parse(JSON.stringify(content));
             next.customBlocks = (next.customBlocks || []).filter((_, j) => j !== i);

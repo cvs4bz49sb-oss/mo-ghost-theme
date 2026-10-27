@@ -155,6 +155,11 @@
     if (!lines.every((l) => /^\s*>/.test(l))) return null;
     return lines.map((l) => l.replace(/^\s*> ?/, "")).join("\n");
   }
+  function listItems(p) {
+    const lines = p.split("\n");
+    if (!lines.every((l) => /^\s*[-*] +\S/.test(l))) return null;
+    return lines.map((l) => l.replace(/^\s*[-*] +/, ""));
+  }
   const MD_PARA_STYLE = {
     fontFamily: 'Georgia, "Times New Roman", serif',
     fontSize: 16,
@@ -162,6 +167,17 @@
     margin: "0 0 14px"
   };
   function MdParagraph({ text, tokens }) {
+    const items = listItems(text);
+    if (items) {
+      return /* @__PURE__ */ React.createElement("ul", { style: { ...MD_PARA_STYLE, color: tokens.bodyText, margin: "0 0 14px 22px", padding: 0, listStyleType: "disc" } }, items.map((it, i) => /* @__PURE__ */ React.createElement(
+        "li",
+        {
+          key: i,
+          style: { margin: i === items.length - 1 ? 0 : "0 0 6px", paddingLeft: 2 },
+          dangerouslySetInnerHTML: { __html: markdownInline(it, tokens) }
+        }
+      )));
+    }
     const quote = blockquoteText(text);
     if (quote == null) {
       return /* @__PURE__ */ React.createElement(
