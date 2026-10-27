@@ -60,8 +60,11 @@
        4. Load the module once, page-bottom, with an ordinary
           {{asset "js/faith-beta-gate.js"}} script tag.
 
-          Its only job is to claim the TFR / TFR-Beta tags for a member
-          who is already signed in. It does no hiding and no revealing.
+          It claims the TFR / TFR-Beta tags for a member who is already
+          signed in, and once per Central-time day reports
+          { type: "tfr_used" } to mo-kit's /event, which keeps the Kit
+          fields TFR: 1. Last Used through TFR: 4. Days Used (Lifetime).
+          It does no hiding and no revealing.
           It is safe on a signed-out page (it returns on its first
           check) and safe to load alongside any other page script.
 
