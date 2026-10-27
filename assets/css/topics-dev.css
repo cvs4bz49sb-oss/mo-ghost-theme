@@ -49,6 +49,21 @@
 .td-head--contents .td-lede { margin-left: auto; margin-right: auto; }
 .td-find { max-width: 420px; margin: 0 auto; text-align: left; }
 .td-find-empty { margin-top: 12px; }
+.td-parts { columns: 2 360px; column-gap: 56px; max-width: 1000px; margin: 0 auto; }
+.td-part { break-inside: avoid; margin: 0 0 36px; }
+.td-part-h { font-family: var(--font-body); font-size: 20px; font-weight: 600; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 1px solid var(--color-rule); }
+.td-loci { list-style: none; margin: 0; padding: 0; }
+.td-locus { margin: 0; }
+.td-locus-link {
+  display: block;
+  padding: 9px 0;
+  font-size: 17px;
+  color: var(--color-dark);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(45, 41, 39, 0.06);
+}
+.td-locus-link:hover, .td-locus-link:focus-visible { color: var(--sd-accent); text-decoration: underline; text-underline-offset: 3px; }
+.td-locus--child .td-locus-link { padding-left: 20px; font-size: 15px; color: var(--color-muted); }
 
 /* ── A topic: full workspace | optional source sidebar ────────── */
 .td-main { min-width: 0; }
@@ -152,6 +167,7 @@
 }
 @media (max-width: 640px) {
   .sd .td-root { padding-top: 40px; }
+  .td-parts { columns: 1; }
   .td-trace-row { grid-template-columns: 84px 1fr 44px; min-height: 44px; }
   .td-proof-head { grid-template-columns: 1fr 44px; }
   .td-proof-bar { display: none; }
@@ -250,7 +266,22 @@
    room: "do the same for the Scripture and Topics pages")
    ══════════════════════════════════════════════════════════════════ */
 
+/* The contents: each part of the system is a box, three across on a
+   wide screen. Columns rather than a grid because the parts differ so
+   much in length (God has twelve loci, Christ one) that a grid's equal
+   rows would leave holes; a part never breaks across a column. */
 .sd .td-root:not(.has-topic) { max-width: 1320px; }
+.td-parts { max-width: none; column-gap: 20px; }
+@media (min-width: 1100px) { .td-parts { columns: 3 300px; } }
+.td-part {
+  break-inside: avoid;
+  border: 1px solid var(--color-rule);
+  border-radius: 3px;
+  background: #fbf8f3;
+  padding: 16px 20px 12px;
+  margin: 0 0 20px;
+}
+.td-part-h { margin: 0 -20px 10px; padding: 0 20px 10px; }
 
 /* Its header is a panel, its numbers boxes. */
 .td-head:not(.td-head--contents) {
@@ -293,6 +324,8 @@
 }
 
 @media (max-width: 640px) {
+  .td-part { padding: 14px 16px 10px; }
+  .td-part-h { margin: 0 -16px 10px; padding: 0 16px 10px; }
   .td-head:not(.td-head--contents) { padding: 16px 16px 14px; }
   .td-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .td-stat b { font-size: 21px; }
@@ -418,83 +451,3 @@ details:not([open]) > .td-fold-sum::after { transform: translateY(-30%) rotate(-
 .td-cen-group > .td-fold-sum { padding-right: 0; }
 .td-treat-group > .td-fold-sum > .sd-h3,
 .td-cen-group > .td-fold-sum > .sd-h3 { padding-right: 28px; }
-
-/* ═══ The maps' drawings on Topics (2026-10-22) ═══════════════════
-   assets/css/port/tradition-graphics.css draws the contents' rows and
-   miniatures (.tgi-*) and a topic's three sections (.tgt: Authors
-   through time, Disputed questions, Scripture by chapter), as on The
-   Faith Received. It reads the page's own tokens, so only what this
-   page does differently is here: Source Serif for names and headings
-   (no display face on a working surface, as in topic-desk.css), links
-   in the page's accent like the desk around them, the chosen
-   question's heading one level down (the desk's modules are h3), and
-   the scroll offset under the masthead and the rail. The traditions'
-   colours are the maps' (--tg-*), as on the Maps, Controversies and
-   Disputed questions pages, and since the quality pass of the same day
-   the desk's ruler and the Trace timelines take them too (below). */
-.td-page .tg { --tg-display: var(--font-body); }
-.td-page .tgt a { color: var(--sd-accent); }
-.td-page .tg h4.tg-chosen-h { margin: 0 0 .3rem; color: var(--tg-ink); font: 600 1.25rem/1.3 var(--tg-display); text-wrap: balance; }
-.td-page .tgt-sec, .td-page .tgt .tg-chosen { scroll-margin-top: calc(var(--sd-top, 0px) + 16px); }
-.td-page .tgt .tg-qm { margin-top: 4px; }
-/* The strip's two figures (its tallest column, and the undated) sit in a band of their own above the bars rather than over them,
-   where a tall column at either end would run under the words (scripts/check-desk-overlap.mjs measures it). The bars keep their
-   height; the column a reader points at is marked over the bars only. */
-.td-page .tgt .tg-plot { box-sizing: border-box; height: calc(9.5rem + 1.25rem); padding-top: 1.25rem; }
-.td-page .tgt .tg-hi { top: 1.25rem; }
-/* In the band the two figures stand a little below the top, clear of the hairlines the leading voices drop to the strip. */
-.td-page .tgt :is(.tg-max, .tg-und) { top: .15rem; }
-@media (max-width: 640px) { .td-page .tgt .tg-plot { height: calc(7.5rem + 1.25rem); } }
-/* The contents: the parts' numerals as the topic pages name them ("Part VII"), then the name. */
-.td-page .tgi .tgi-ph h2 .td-roman { margin-right: 0; }
-.td-page .tgi-intro { margin: 0 0 4px; }
-.td-page .tgi-intro .tgi-key { margin-top: 0; }
-.td-page .tgi-intro[hidden] { display: none; }
-.td-page .tgi-jump[hidden] { display: none; }
-.td-page .tgi > .tgi-part:first-child { margin-top: 1.8rem; }
-
-/* ═══ The quality pass (2026-10-22, owner: "we need a pass for the controversies, topics, compare, and commentary decks") ═══ */
-
-/* ONE PALETTE FOR THE TRADITIONS. The page drew two: the maps' colours in its drawings (--tg-*, assets/css/port/
-   tradition-graphics.css: Lutheran a red-orange, English writers a blue) and the desk's own set below them (--tdk-*, and --cn-* on
-   its century ruler, topic-desk.css; Lutheran a blue, English writers near-black), with this page's Trace timelines on a third
-   copy of the desk's (--td-c-*, --td-g-*, above). The owner likes the maps, so the maps' palette wins: the desk's and the
-   timelines' nine shelf tokens point at the module's. Only the shelf colours move; the desk's surfaces, era tints, ink and accent
-   stay its own. Every shelf colour keeps 3:1 on the desk's card (#fffdf9) and on each of its era tints, the closest being
-   Medieval at 3.03:1 and Eastern Fathers at 3.21:1 on the early-church tint (scripts/check-topic-desk.mjs measures the --cn-*
-   hex values written in topic-desk.css, not these). The confessions' trace has a row for the early church (documents before
-   1054), which is no shelf: it takes the Greek Fathers' colour, as it took the desk's. The fallbacks are the module's light
-   values, for a page where its sheet did not load. When the page says data-sd-theme="dark" the desk's own dark set still wins
-   (its selectors are stronger than these), so no light value lands on a dark ground; Mere Orthodoxy keeps these tools light. */
-.td-page .td-desk {
-  --tdk-gf: var(--tg-gf, #2e6e8e); --tdk-pl: var(--tg-pl, #7a4e9b); --tdk-po: var(--tg-po, #5e8c61);
-  --tdk-md: var(--tg-md, #b07b2a); --tdk-rc: var(--tg-rc, #a63d5a); --tdk-lu: var(--tg-lu, #c1593c);
-  --tdk-rf: var(--tg-rf, #2f7d4f); --tdk-ed: var(--tg-ed, #3b5ba5); --tdk-hl: var(--tg-hl, #8c7b5c);
-}
-.td-page .td-desk .tdk-cent {
-  --cn-gf: var(--tg-gf, #2e6e8e); --cn-pl: var(--tg-pl, #7a4e9b); --cn-po: var(--tg-po, #5e8c61);
-  --cn-md: var(--tg-md, #b07b2a); --cn-rc: var(--tg-rc, #a63d5a); --cn-lu: var(--tg-lu, #c1593c);
-  --cn-rf: var(--tg-rf, #2f7d4f); --cn-ed: var(--tg-ed, #3b5ba5); --cn-hl: var(--tg-hl, #8c7b5c);
-}
-.sd.td-page .td-root {
-  --td-c-gf: var(--tg-gf, #2e6e8e); --td-c-pl: var(--tg-pl, #7a4e9b); --td-c-po: var(--tg-po, #5e8c61);
-  --td-c-md: var(--tg-md, #b07b2a); --td-c-rc: var(--tg-rc, #a63d5a); --td-c-lu: var(--tg-lu, #c1593c);
-  --td-c-rf: var(--tg-rf, #2f7d4f); --td-c-ed: var(--tg-ed, #3b5ba5); --td-c-hl: var(--tg-hl, #8c7b5c); --td-c-x: var(--tg-x, #7a7a76);
-  --td-g-early: var(--tg-gf, #2e6e8e); --td-g-rc: var(--tg-rc, #a63d5a); --td-g-lu: var(--tg-lu, #c1593c); --td-g-rf: var(--tg-rf, #2f7d4f);
-}
-
-/* THE CONTENTS' FIND BOX keeps the page's left edge, inside its thin-line panel, like the key and the outline under it (it stood
-   centred in a full-width panel, the one centred thing on the page); the line that says nothing matched follows it. */
-.td-page .td-root .td-head--contents { text-align: left; }
-.td-page .td-head--contents .td-find { margin: 0; max-width: 480px; }
-.td-page .td-find-empty { overflow-wrap: anywhere; }
-
-/* ON A PHONE THE MINIATURES KEEP THEIR AXIS. The module hides a part's axis under 640px; it comes back under the part's name, over
-   the miniatures' own column, with the Compare column a fixed 4.5rem as on a wide screen so the two line up. */
-@media (max-width: 640px) {
-  .td-page .tgi .tgi-ph { grid-template-columns: minmax(0, 1fr) 4.5rem; column-gap: .9rem; }
-  .td-page .tgi .tgi-ph > h2 { grid-column: 1 / -1; }
-  .td-page .tgi .tgi-ph > .tg-mini-ax { display: block; grid-column: 1; margin-top: .3rem; }
-  .td-page .tgi .tgi-row { grid-template-columns: minmax(0, 1fr) 4.5rem; }
-  .td-page .tgi .tgi-row > .tgi-cmp { justify-self: end; }
-}

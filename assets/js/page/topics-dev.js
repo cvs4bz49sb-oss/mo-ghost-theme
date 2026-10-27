@@ -83,140 +83,46 @@
   }
 
   // ── The contents page ─────────────────────────────────────────
-  /* THE CONTENTS IN GRAPHICS (2026-10-22), as The Faith Received's /topics was restructured that day (owner: "restructure
-   * /topics … i would love more graphics and ui similar to /maps"). The ten parts of loci.json, each under a head that carries
-   * the axis its miniatures share; a row for each locus with its counts and its authors through time in miniature
-   * (FRTraditionGraphics.eraMini, assets/js/port/tradition-graphics.js: every row on one axis from AD 100 to 1950, each scaled
-   * to its own busiest half-century); then the part's narrower loci (the children in loci.json, in their order) as a board of
-   * miniatures. The miniatures are topics[t2] of v1/enrich/topic_graphics.json and the counts v1/mine/topic2-all/index.json,
-   * both on the library worker. The rows draw at once and fill in when the files answer; a row whose files do not answer is
-   * its name, as before. The mined topics a locus holds as aliases have no row of their own: each opens its locus. The class
-   * names td-parts, td-part and td-locus stay on the new markup for the site tour (faith-tour.js). */
-  const LIB = String(window.__FR_BLOB_BASE__ || "https://mo-tfr-library.mo-podcast-feed.workers.dev").replace(/\/$/, "");
-  let CONTENTS_DATA = null;
-  const contentsData = () => {
-    if (!CONTENTS_DATA) {
-      const get = (p) => fetch(`${LIB}${p}`, { credentials: "omit" }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-      CONTENTS_DATA = Promise.all([get("/v1/enrich/topic_graphics.json"), get("/v1/mine/topic2-all/index.json")]).then(([g, ix]) => {
-        // A file that did not answer is asked again the next time the contents are drawn.
-        if (!g || !ix) CONTENTS_DATA = null;
-        return { g, counts: new Map(((ix && ix.topics) || []).map((t) => [t.s, t])) };
-      });
-    }
-    return CONTENTS_DATA;
-  };
-  const findWords = (l) => [l.label, l.id.replace(/^de-/, "").replace(/-/g, " "), ...(l.aliases || []).map((a) => a.replace(/-/g, " ")), ...(l.find || [])].join(" ").toLowerCase();
-  const shelfLabels = () => (window.MOTopicDesk && window.MOTopicDesk.SHELF) || null;
-
   function renderContents() {
     document.title = "Topics | The Faith Received | Mere Orthodoxy";
     $root.classList.remove("has-topic", "has-desk");
-    const G = window.FRTraditionGraphics;
-    const view = { g: null, counts: null, q: "" };
     $root.innerHTML =
       `<header class="td-head td-head--contents">` +
         `<label class="sd-search td-find"><span class="sd-filter-label">Find a topic</span><input type="search" data-td-find placeholder="Justification, the Trinity, baptism…" autocomplete="off"></label>` +
         `<p class="sd-muted td-find-empty" data-td-find-empty role="status" hidden>No topic matches. Try a broader word.</p>` +
       `</header>` +
-      `<div class="tgi-intro" data-tgi-intro hidden></div>` +
-      `<nav class="tg tgi-jump" data-tgi-jump aria-label="The parts">${LOCI.parts.map((p) =>
-        `<button type="button" data-tgi-go="td-part-${esc(p.id)}">${esc(p.label)}</button>`).join("")}</nav>` +
-      `<div class="tg tgi td-parts tgi-nostrip" data-tgi></div>`;
+      `<div class="td-parts">${LOCI.parts.map((p) =>
+        `<section class="td-part" aria-labelledby="td-part-${esc(p.id)}">` +
+          `<h2 class="td-part-h" id="td-part-${esc(p.id)}"><span class="td-roman">${esc(p.n)}</span> ${esc(p.label)}</h2>` +
+          `<ol class="td-loci">${p.loci.map((l) => locusRow(l, false)).join("")}</ol>` +
+        `</section>`).join("")}</div>`;
     const $find = $root.querySelector("[data-td-find]");
     const $empty = $root.querySelector("[data-td-find-empty]");
-    const $dir = $root.querySelector("[data-tgi]");
-    const $jump = $root.querySelector("[data-tgi-jump]");
-
-    const strips = () => (G && view.g && view.g.topics) || null;
-    const slugOf = (l) => String(l.t2 || "").toLowerCase();
-    const mini = (l) => {
-      const s = strips() && strips()[slugOf(l)];
-      return s ? G.eraMini({ size: view.g.half || 50, b: s.b, u: s.u, n: s.n }) : "";
-    };
-    const counts = (l) => {
-      const r = view.counts && view.counts.get(slugOf(l));
-      return r ? [r.na != null ? plural(r.na, "author", "authors") : "", r.n != null ? plural(r.n, "page", "pages") : ""].filter(Boolean).join(" · ") : "";
-    };
-    const compare = (l) => `<a class="tgi-cmp" href="${esc(topicHref(l.id, "compare"))}" aria-label="Compare the traditions on ${esc(l.label)}">Compare</a>`;
-    const lead = (l) => `<li class="tgi-row td-locus" data-find="${esc(findWords(l))}" data-id="${esc(l.id)}"><a href="${esc(topicHref(l.id))}"><span><span class="tgi-t">${esc(l.label)}</span>` +
-      `${counts(l) ? `<span class="tgi-c">${counts(l)}</span>` : ""}</span>${mini(l)}</a>${compare(l)}</li>`;
-    const cell = (l, parent) => `<li class="tgi-cell td-locus td-locus--child" data-find="${esc(findWords(l))}" data-parent="${esc(parent.id)}"><a href="${esc(topicHref(l.id))}">${mini(l)}<span class="tgi-t">${esc(l.label)}</span></a>` +
-      `<span class="tgi-line">${counts(l) ? `<span class="tgi-c">${counts(l)}</span>` : ""}${compare(l)}</span></li>`;
-    const part = (p) => {
-      const sub = p.loci.flatMap((l) => (l.children || []).map((ch) => cell(ch, l)));
-      const n = p.loci.length + sub.length;
-      return `<section class="tgi-part td-part" id="td-part-${esc(p.id)}" aria-labelledby="td-part-${esc(p.id)}-h">` +
-        `<header class="tgi-ph"><h2 id="td-part-${esc(p.id)}-h" tabindex="-1"><span class="td-roman">${esc(p.n)}</span>${esc(p.label)}<span class="tg-ct" data-n="${n}">${plural(n, "topic", "topics")}</span></h2>` +
-        `${strips() ? G.miniAxis({ from: 100, to: 1950 }) : ""}<span></span></header>` +
-        `<ul class="tgi-lead">${p.loci.map(lead).join("")}</ul>` +
-        `${sub.length ? `<details class="tgi-more"${phone.matches ? "" : " open"}><summary>${sub.length === 1 ? "1 narrower topic" : `${fmt(sub.length)} narrower topics`}</summary><ul class="tgi-board">${sub.join("")}</ul></details>` : ""}` +
-        `</section>`;
-    };
-
-    // The find box: a locus whose words match stays, a narrower topic that matches keeps its locus in view, and a part with
-    // nothing left is hidden. The parts' buttons are for the whole outline, so they go while a word is in the box.
-    const filter = () => {
-      const {q} = view;
+    $find.addEventListener("input", () => {
+      const q = $find.value.trim().toLowerCase();
       let shown = 0;
-      $dir.querySelectorAll(".td-locus").forEach((li) => {
+      $root.querySelectorAll(".td-locus").forEach((li) => {
         const hit = !q || li.dataset.find.includes(q);
         li.hidden = !hit;
         if (hit) shown += 1;
       });
-      if (q) {
-        $dir.querySelectorAll(".tgi-cell:not([hidden])").forEach((c) => {
-          const parent = $dir.querySelector(`.tgi-row[data-id="${CSS.escape(c.dataset.parent)}"]`);
-          if (parent) parent.hidden = false;
-        });
-      }
-      $dir.querySelectorAll(".tgi-part").forEach((sec) => {
-        const all = sec.querySelectorAll(".td-locus").length;
-        const left = sec.querySelectorAll(".td-locus:not([hidden])").length;
-        sec.hidden = !left;
-        const ct = sec.querySelector("h2 .tg-ct");
-        if (ct) ct.textContent = q ? `${fmt(left)} of ${plural(all, "topic", "topics")}` : plural(all, "topic", "topics");
-        const more = sec.querySelector(".tgi-more");
-        if (more) {
-          const cells = more.querySelectorAll(".tgi-cell:not([hidden])").length;
-          more.hidden = !cells;
-          if (q && cells) more.open = true;
-          more.querySelector("summary").textContent = cells === 1 ? "1 narrower topic" : `${fmt(cells)} narrower topics`;
-        }
+      // A child that matches keeps its parent row visible.
+      $root.querySelectorAll(".td-locus > .td-loci").forEach((ol) => {
+        if (ol.querySelector(".td-locus:not([hidden])")) ol.parentElement.hidden = false;
       });
-      $jump.hidden = Boolean(q);
+      $root.querySelectorAll(".td-part").forEach((sec) => { sec.hidden = !sec.querySelector(".td-locus:not([hidden])"); });
       $empty.hidden = shown > 0;
-      // The line names the word that found nothing (quality pass, 2026-10-22). Text, not markup: the word is the reader's.
       if (!shown) $empty.textContent = q ? `No topic matches “${$find.value.trim()}”. Try a broader word.` : "No topic matches. Try a broader word.";
-    };
-    const paint = () => {
-      $dir.innerHTML = LOCI.parts.map(part).join("");
-      $dir.classList.toggle("tgi-nostrip", !strips());
-      filter();
-    };
-    paint();
-    $find.addEventListener("input", () => { view.q = $find.value.trim().toLowerCase(); filter(); });
-    $jump.addEventListener("click", (e) => {
-      const b = e.target.closest("[data-tgi-go]");
-      const target = b && document.getElementById(b.dataset.tgiGo);
-      if (!target) return;
-      target.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-      const h = target.querySelector("h2");
-      if (h) h.focus({ preventScroll: true });
     });
-    contentsData().then((d) => {
-      if (!$dir.isConnected || (!d.g && !d.counts.size)) return;
-      view.g = d.g;
-      view.counts = d.counts;
-      paint();
-      if (!strips()) return;
-      // The traditions' colours, once, above the parts, and how a miniature is drawn, as a closed Methodology.
-      const labels = shelfLabels();
-      const $intro = $root.querySelector("[data-tgi-intro]");
-      $intro.innerHTML = `<p class="tg tgi-key"><span class="tg-sr">The traditions' colours in the miniatures: </span>${G.TRADITIONS.map(([k]) =>
-        `<span><i class="tg-sw" style="--c:var(--tg-${k})" aria-hidden="true"></i>${esc(G.label(k, labels))}</span>`).join("")}</p>${ 
-        method(`<p>Each miniature counts a topic's authors by half-century, placed by the year the catalogue gives each (most often the year of birth), from AD 100 to 1950. Each is scaled to its own busiest half-century, so the miniatures compare in shape and their counts give their size. The undated are counted, not drawn. The counts are the library's index of the topic: the authors who treat it and the pages they treat it on.</p>`)}`;
-      $intro.hidden = false;
-    });
+  }
+
+  function locusRow(l, child) {
+    const words = [l.label, l.id.replace(/^de-/, "").replace(/-/g, " "), ...(l.aliases || []).map((a) => a.replace(/-/g, " ")), ...(l.find || [])].join(" ").toLowerCase();
+    const kids = (l.children || []).map((ch) => locusRow(ch, true)).join("");
+    return `<li class="td-locus${child ? " td-locus--child" : ""}" data-find="${esc(words)}">` +
+      `<a class="td-locus-link" href="${esc(topicHref(l.id))}">${esc(l.label)}</a>${
+      kids ? `<ol class="td-loci">${kids}</ol>` : ""
+    }</li>`;
   }
 
   // ── A locus ───────────────────────────────────────────────────

@@ -149,7 +149,6 @@
   ],
   "open": [
     "/the-faith-received/dictionary/",
-    "/the-faith-received/guide/",
     "/the-faith-received/curated/",
     "/the-faith-received/authors/",
     "/the-faith-received/tradition/",
@@ -158,6 +157,7 @@
   ],
   "accountSurfaces": [
     "/the-faith-received/scripture/",
-    "/the-faith-received/topics/"
+    "/the-faith-received/topics/",
+    "/the-faith-received/guide/"
   ]
 }
