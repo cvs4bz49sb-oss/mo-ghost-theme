@@ -1,0 +1,106 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Welcome Back | Mere Orthodoxy</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Rejoin Mere Orthodoxy with your first month free or your first year for $90." />
+<meta property="og:title" content="Welcome Back" />
+<meta property="og:description" content="Rejoin Mere Orthodoxy with your first month free or your first year for $90." />
+<meta name="twitter:title" content="Welcome Back" />
+<meta name="twitter:description" content="Rejoin Mere Orthodoxy with your first month free or your first year for $90." />
+{{/contentFor}}
+{{!-- page-welcome-back: /welcome-back/. Win-back landing for former
+     members, linked from the "Win-back: Ended Memberships" Kit email
+     (communications/winback-emails-2026-10-27.md). Bound to a Ghost Page
+     by slug, like page-email-preferences, so it needs no routes.yaml.
+     Leave that Page's excerpt and meta description blank: the og and
+     twitter tags above are the page's own.
+     Not in nav, and noindex because it carries a discount.
+
+     Both card buttons are plain links to Ghost offer URLs. Ghost
+     redirects each to Portal with the offer applied:
+       /welcome-back-monthly  100% off the first month, then $10/mo
+       /welcome-back-annual   10% off the first year ($90), then $100/yr
+     No data-portal on either: Portal binds to that attribute and would
+     send the click to a plain signup without the offer (the same trap
+     membership-toggle.js clones its buttons to escape).
+
+     Annual is featured: in year one monthly costs $0 + 11 x $10 = $110
+     against $90. --}}
+
+<main class="membership membership-support welcome-back-page">
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Welcome back</p>
+      <h1 class="page-hero-headline"><em>Pick up</em> where you left off.</h1>
+      {{!-- The offer line is for former members only. Paid and comped
+           visitors get the "already a member" block below. --}}
+      {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+      <p class="page-hero-sub">Mere&nbsp;Orthodoxy is reader-supported. Rejoin with your first month free or your first year for $90.</p>
+      {{/match}}{{/match}}
+    </div>
+  </section>
+
+  {{!-- Same gate as /membership/: paid and comped visitors get the
+       "already a member" block, everyone else gets the two offers. --}}
+  {{#match @member.status "paid"}}
+    {{> "membership-already"}}
+  {{else}}{{#match @member.status "comped"}}
+    {{> "membership-already"}}
+  {{else}}
+  <section class="pricing" id="offers">
+    <div class="container">
+      <div class="cards">
+        {{!-- data-card-cta: membership-cards.js makes the whole card
+             fire its button. --}}
+        <article class="card card-member" data-card-cta data-hm-goal="winback-monthly-card">
+          <p class="card-label"><em>Monthly</em></p>
+          <div class="card-price">
+            <span class="price-original"><span class="sr-only">Regular price </span>$10</span>
+            <span class="price-amount">$0</span>
+            <span class="price-interval">first month</span>
+          </div>
+          <p class="card-subtext">Then $10 a month.</p>
+          <p class="card-pitch">The same membership, paid month to month.</p>
+          <a class="btn btn-pill btn-primary" href="/welcome-back-monthly" data-hm-goal="winback-monthly">Start with a free month</a>
+          <p class="btn-tagline">Cancel anytime</p>
+        </article>
+
+        <article class="card card-member is-featured" data-card-cta data-hm-goal="winback-annual-card">
+          <span class="card-flag">Best value</span>
+          <p class="card-label"><em>Annual</em></p>
+          <div class="card-price">
+            <span class="price-original"><span class="sr-only">Regular price </span>$100</span>
+            <span class="price-amount">$90</span>
+            <span class="price-interval">first year</span>
+          </div>
+          <p class="card-subtext">Then $100 a year.</p>
+          <p class="card-pitch">Four issues of the print journal. $20 less than a first year on monthly.</p>
+          <a class="btn btn-solid btn-pill btn-primary" href="/welcome-back-annual" data-hm-goal="winback-annual">Rejoin for $90</a>
+          <p class="btn-tagline">Cancel anytime</p>
+        </article>
+      </div>
+
+      <div class="welcome-back-includes">
+        <div class="other-ways-intro">
+          <h2 class="section-heading"><em>Every membership includes</em></h2>
+        </div>
+        {{> "membership-benefits"}}
+      </div>
+    </div>
+  </section>
+  {{/match}}{{/match}}
+
+  <section class="included">
+    <div class="container">
+      {{> "membership-supporting"}}
+      {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+      <div class="included-cta">
+        <a href="#offers" class="btn btn-solid btn-dark btn-inline" data-hm-goal="winback-bottom">Choose your plan</a>
+      </div>
+      {{/match}}{{/match}}
+    </div>
+  </section>
+
+  <script src="{{asset "js/page/membership-cards.js"}}"></script>
+</main>

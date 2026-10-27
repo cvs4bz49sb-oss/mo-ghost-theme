@@ -16037,6 +16037,37 @@ details.bookstore-section[open] > .bookstore-section-header::after {
   .price-original { font-size: 22px; }
 }
 
+/* ── Win-back page (/welcome-back/, page-welcome-back.hbs) ──
+   The two offer cards reuse the /membership/ card system as is. The
+   shared benefits list sits once under both cards, in two columns that
+   line up with the cards and the center rule (the .other-ways pattern:
+   hairline, centered heading). */
+.welcome-back-page .welcome-back-includes {
+  max-width: 960px;
+  margin: 88px auto 0;
+  padding-top: 64px;
+  border-top: 1px solid var(--color-card-border);
+}
+.welcome-back-page .welcome-back-includes .benefits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 72px;
+  margin: 0;
+  padding: 0 16px;
+}
+/* membership-already brings the Lifetime upgrade row for paid and
+   comped visitors. Its layout is built for /manage/'s column, and a
+   $995 ask has no place on a win-back page. */
+.welcome-back-page .lifetime-upgrade { display: none; }
+@media (max-width: 760px) {
+  /* The 760px .pricing top padding clears /membership/'s billing
+     toggle. This page has none. */
+  .welcome-back-page .pricing { padding-top: 48px; }
+  .welcome-back-page .cards { row-gap: 40px; }
+  .welcome-back-page .welcome-back-includes { margin-top: 56px; padding-top: 48px; }
+  .welcome-back-page .welcome-back-includes .benefits { grid-template-columns: 1fr; }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    /bible/ — Scripture reader
    ─── Hero, controls rail, chapter typography, cross-references
