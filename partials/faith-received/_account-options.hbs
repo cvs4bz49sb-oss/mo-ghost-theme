@@ -1,3 +1,4 @@
+{{#unless @member}}
 <section class="lp-band tfr-account-options" aria-label="Free and Member access">
   <div class="container">
     <div class="tfr-access-plans">
@@ -25,7 +26,6 @@
         <a class="tfr-account-link" href="/membership/">Become a member <span aria-hidden="true">&rarr;</span></a>
       </section>
     </div>
-    {{#unless @member}}
     <div class="tfr-account-signup" id="tfr-free-account">
       <div class="tfr-account-copy">
         <h2>Create your free account.</h2>
@@ -34,7 +34,7 @@
       </div>
       {{> "faith-received/_account-form" prefix="tfr-home"}}
     </div>
-    {{/unless}}
     <p class="tfr-access-beta">Research tools are free with an account during beta. They become Member features when beta ends. The texts remain free.</p>
   </div>
 </section>
+{{/unless}}
