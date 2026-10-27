@@ -1,0 +1,40 @@
+<section class="lp-band tfr-account-options" aria-label="Free and Member access">
+  <div class="container">
+    <div class="tfr-access-plans">
+      <section class="tfr-access-plan" aria-labelledby="tfr-free-title">
+        <h2 id="tfr-free-title">Free</h2>
+        <p class="tfr-access-price">$0 <span>Always free to read</span></p>
+        <ul>
+          <li>Read every work in the library</li>
+          <li>Scripture and topics with a free account</li>
+          <li>Tradition guides</li>
+          <li>Translations alongside original texts</li>
+          <li>Research tools with a free account during beta</li>
+        </ul>
+      </section>
+      <section class="tfr-access-plan" aria-labelledby="tfr-member-title">
+        <h2 id="tfr-member-title">Member</h2>
+        <p class="tfr-access-price">$100 <span>/ year</span></p>
+        <ul>
+          <li>Everything in Free</li>
+          <li>Ask, Power Search, Compare, and Connections</li>
+          <li>Notebook and Desk for saving sources and writing</li>
+          <li>Research access after the beta ends</li>
+          <li>Mere Orthodoxy’s print journal and digital benefits</li>
+        </ul>
+        <a class="tfr-account-link" href="/membership/">Become a member <span aria-hidden="true">&rarr;</span></a>
+      </section>
+    </div>
+    {{#unless @member}}
+    <div class="tfr-account-signup" id="tfr-free-account">
+      <div class="tfr-account-copy">
+        <h2>Create your free account.</h2>
+        <p>Read Scripture alongside the church’s teachers and explore Christian doctrine by topic.</p>
+        <p class="tfr-account-signin">Already have an account? <a href="#/portal/signin" data-portal="signin">Sign in</a></p>
+      </div>
+      {{> "faith-received/_account-form" prefix="tfr-home"}}
+    </div>
+    {{/unless}}
+    <p class="tfr-access-beta">Research tools are free with an account during beta. They become Member features when beta ends. The texts remain free.</p>
+  </div>
+</section>

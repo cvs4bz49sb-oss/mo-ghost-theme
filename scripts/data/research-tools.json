@@ -148,8 +148,6 @@
     "custom-faith-ask-workspace.hbs"
   ],
   "open": [
-    "/the-faith-received/scripture/",
-    "/the-faith-received/topics/",
     "/the-faith-received/dictionary/",
     "/the-faith-received/guide/",
     "/the-faith-received/curated/",
@@ -157,5 +155,9 @@
     "/the-faith-received/tradition/",
     "/the-faith-received/resources/",
     "/the-faith-received/all-works/?collection=all"
+  ],
+  "accountSurfaces": [
+    "/the-faith-received/scripture/",
+    "/the-faith-received/topics/"
   ]
 }

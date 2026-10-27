@@ -1,0 +1,101 @@
+/* Free account entry points. Fields and submit inherit the Weekly Digest form. */
+.tfr-account-options { padding-top: 0; }
+.tfr-access-plans { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-top: 1px solid var(--color-card-border); border-bottom: 1px solid var(--color-card-border); }
+.tfr-access-plan { padding: 32px 40px 32px 0; min-width: 0; }
+.tfr-access-plan + .tfr-access-plan { padding: 32px 0 32px 40px; border-left: 1px solid var(--color-card-border); }
+.tfr-access-plan h2 { font-family: var(--font-body); font-size: 32px; line-height: 1.2; margin: 0 0 8px; }
+.tfr-access-price { font-size: 24px; margin: 0 0 24px; }
+.tfr-access-price span { font-size: 16px; color: var(--color-muted); margin-left: 8px; }
+.tfr-access-plan ul { margin: 0; padding-left: 20px; font-size: 18px; line-height: 1.6; }
+.tfr-access-plan li + li { margin-top: 8px; }
+.tfr-account-link, .tfr-account-back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--color-alert-text); }
+.tfr-account-link { margin-top: 16px; }
+.tfr-account-signup { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 48px; align-items: center; padding: 40px 0; border-bottom: 1px solid var(--color-card-border); }
+.tfr-account-copy h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.2; margin: 0 0 16px; }
+.tfr-account-copy > p { max-width: 480px; font-size: 18px; line-height: 1.6; color: var(--color-muted); margin: 0; }
+.tfr-account-copy .tfr-account-signin { margin-top: 16px; font-size: 16px; }
+.tfr-account-signin a { display: inline-block; padding: 8px 0; color: var(--color-alert-text); text-decoration: underline; text-underline-offset: 4px; }
+.tfr-account-form, .tfr-account-form .digest-field { min-width: 0; }
+.tfr-account-form .digest-field input { min-width: 0; min-height: 44px; }
+.tfr-account-form .digest-field input:focus-visible { outline: 2px solid var(--color-alert-text); outline-offset: 4px; }
+.tfr-account-form .digest-submit { min-height: 44px; }
+.tfr-account-form .digest-status { font-size: 14px; }
+.tfr-access-beta { margin: 24px 0 0; font-size: 16px; line-height: 1.6; color: var(--color-muted); max-width: 800px; }
+.tfr-account-overlay { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 32px; overflow-y: auto; background: rgba(35, 31, 28, .46); }
+.tfr-account-dialog { width: 100%; max-width: 640px; margin: auto; padding: 40px; background: var(--color-page); border: 1px solid var(--color-card-border); color: var(--color-dark); }
+.tfr-account-eyebrow { font-size: 16px; color: var(--color-alert-text); margin: 0 0 16px; }
+.tfr-account-dialog h2 { font-family: var(--font-body); font-size: clamp(28px, 4vw, 36px); line-height: 1.2; margin: 0 0 16px; }
+.tfr-account-dialog > p:not(.tfr-account-eyebrow) { font-size: 18px; line-height: 1.6; }
+.tfr-account-dialog .tfr-account-form { margin: 32px 0 16px; }
+.tfr-account-dialog .tfr-account-signin { margin: 16px 0 8px; }
+.tfr-account-back { font-size: 16px; }
+.tfr-account-gated { overflow: hidden; }
+@media (max-width: 820px) {
+  .tfr-account-signup { grid-template-columns: 1fr; gap: 24px; }
+  .tfr-access-plan { padding-right: 24px; }
+  .tfr-access-plan + .tfr-access-plan { padding-left: 24px; }
+}
+@media (max-width: 640px) {
+  .tfr-access-plans { grid-template-columns: 1fr; }
+  .tfr-access-plan, .tfr-access-plan + .tfr-access-plan { padding: 24px 0; border-left: 0; }
+  .tfr-access-plan + .tfr-access-plan { border-top: 1px solid var(--color-card-border); }
+  .tfr-access-plan ul { font-size: 16px; }
+  .tfr-account-signup { padding: 32px 0; }
+  .tfr-account-form { grid-template-columns: 1fr; gap: 16px; }
+  .tfr-account-form .digest-field label { font-size: 14px; letter-spacing: .08em; }
+  .tfr-account-overlay { padding: 16px; }
+  .tfr-account-dialog { padding: 24px; }
+  .tfr-account-dialog > p:not(.tfr-account-eyebrow) { font-size: 16px; }
+  .tfr-account-dialog .tfr-account-form { margin-top: 24px; }
+}
+
+/* The global TFR surface skin also targets fields under #page. Keep
+   these account fields identical to the homepage Digest in both shells. */
+.tfr-account-form .digest-field input,
+html #page .tfr-account-form .digest-field input {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-card-border);
+  border-radius: 0;
+  padding: 6px 2px;
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-size: 16px;
+  min-height: 44px;
+  width: 100%;
+}
+.tfr-account-form .digest-field input:focus-visible,
+html #page .tfr-account-form .digest-field input:focus-visible {
+  outline: 2px solid var(--color-alert-text);
+  outline-offset: 4px;
+  border-bottom-color: var(--color-alert-text);
+}
+.tfr-account-form .digest-submit,
+html #page .tfr-account-form .digest-submit {
+  background: var(--color-dark);
+  color: var(--color-white);
+  border: 0;
+  border-radius: 999px;
+  min-height: 44px;
+  padding: 12px 24px;
+  margin-top: 8px;
+  justify-self: start;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: .16em;
+  white-space: normal;
+}
+.tfr-account-form .digest-submit:hover,
+html #page .tfr-account-form .digest-submit:hover {
+  background: var(--color-alert-text);
+  color: var(--color-white);
+}
+.tfr-account-form .digest-submit:focus-visible,
+.tfr-account-link:focus-visible,
+.tfr-account-back:focus-visible,
+.tfr-account-signin a:focus-visible {
+  outline: 2px solid var(--color-alert-text);
+  outline-offset: 4px;
+}
+.tfr-account-form .digest-status.is-error { color: var(--color-alert-text); }
+.tfr-account-form .digest-field label { color: var(--color-muted); }

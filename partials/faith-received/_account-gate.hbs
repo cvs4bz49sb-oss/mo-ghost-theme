@@ -1,0 +1,15 @@
+{{#unless @member}}
+<link rel="stylesheet" href="{{asset "css/tfr-account.css"}}" />
+<div class="tfr-account-overlay" data-tfr-account-gate role="dialog" aria-modal="true" aria-labelledby="tfr-account-title" aria-describedby="tfr-account-description" tabindex="-1">
+  <div class="tfr-account-dialog">
+    <p class="tfr-account-eyebrow">The Faith Received</p>
+    <h2 id="tfr-account-title">Create your free account.</h2>
+    <p id="tfr-account-description">Read Scripture alongside the church’s teachers and explore Christian doctrine by topic.</p>
+    {{> "faith-received/_account-form" prefix="tfr-gate"}}
+    <p class="tfr-account-signin">Already have an account? <a href="#/portal/signin" data-portal="signin">Sign in</a></p>
+    <a class="tfr-account-back" href="/the-faith-received/curated/">Return to the library</a>
+  </div>
+</div>
+<script src="{{asset "js/page/tfr-account-gate.js"}}" defer></script>
+{{/unless}}
+<script src="{{asset "js/faith-beta-gate.js"}}" defer></script>

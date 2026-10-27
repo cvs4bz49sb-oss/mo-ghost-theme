@@ -7,6 +7,7 @@
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
 {{#contentFor "moHead"}}
 <title>The Faith Received</title>
+<link rel="stylesheet" href="{{asset "css/tfr-account.css"}}" />
 <meta name="description" content="The creeds, confessions, catechisms, and classic works of the Christian tradition, free to read in a reader built for study." />
 <meta property="og:title" content="The Faith Received" />
 <meta property="og:description" content="The creeds, confessions, catechisms, and classic works of the Christian tradition, free to read in a reader built for study." />
@@ -77,6 +78,8 @@
 </section>
 
 
+
+{{> "faith-received/_account-options"}}
 
 <!-- ── II. Devotional ────────────────────────────────────────────── -->
 <section class="lp-band lp-band--cream">
@@ -371,21 +374,6 @@
 </section>
 
 
-<!-- ── For members ───────────────────────────────────────────────
-     One section now, not two. The list of tools and the signup form
-     that unlocks them were separate blocks saying the same thing to
-     the same reader; they were merged into the shared partial on
-     2026-09-11 per Ian, so the landing page and the three tool pages
-     all render the same one and cannot drift apart.
-
-     The old gate here was a "match member.status paid" block nested
-     with "comped", which hid the pitch from paying members and went on
-     showing it to signed-in FREE members, who during the beta already
-     have every tool in the list. The partial gates on "unless member":
-     signed in at all, it is gone. -->
-{{> "faith-received/_beta-gate"}}
-
-
 {{!-- #support: where every Support the Work link on this page lands,
      and the header's Support button too (faith-support-scroll.js).
      Readers who aren't members see membership first; everyone sees the
@@ -466,3 +454,5 @@
 <script src="{{asset "js/faith-resolve.js"}}&amp;frv=65b814be7034de6d"></script>
 
 <script src="{{asset "js/page/faith-landing-counts.js"}}&amp;frv=ab4e4d33da1f92a7"></script>
+
+<script src="{{asset "js/faith-beta-gate.js"}}" defer></script>

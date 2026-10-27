@@ -6,7 +6,6 @@
 <meta name="description" content="Read any chapter of the Bible with the church&#39;s teachers beside it: every verse opens where the creeds, confessions and the library&#39;s authors cite it." />
 <link rel="stylesheet" href="{{asset "css/scripture-dev.css"}}&amp;frv=58021fdd5fbb6df8" />
 <link rel="stylesheet" href="{{asset "css/mo-articles-module.css"}}&amp;frv=2625886e3c465b55" />
-<link rel="stylesheet" href="{{asset "css/tfr-trial-prompt.css"}}&amp;frv=257124280b25adf4" />
 {{!-- Dark or light, and the 50/50 .. Panel Only split, set on <html> before first paint (external: the CSP forbids inline script). --}}
 <script src="{{asset "js/page/scripture-view-boot.js"}}&amp;frv=b619c4b13b360add"></script>
 {{/contentFor}}
@@ -113,6 +112,8 @@
   <p class="container bible-attribution sd-attribution" data-sd-attribution></p>
 </main>
 
+{{> "faith-received/_account-gate"}}
+
 <script src="{{asset "js/port/scripture-kinds.js"}}&amp;frv=45c55191e1820ff3"></script>
 <script src="{{asset "js/page/scripture-source-groups.js"}}&amp;frv=18b4ac140cb9a1ae"></script>
 {{!-- The verse rail (scripture-verse-rail.js, shared with The Faith Received): the Commentary picker, the Reception view and the citations by author, one module for the pane and the verse panel. --}}
@@ -129,8 +130,6 @@
 <link rel="stylesheet" href="{{asset "css/port/dev-notes.css"}}&amp;frv=fafdeff22c1c1996"><script defer src="{{asset "js/page/faith-port-scripture-notes.js"}}&amp;frv=3bac7efb0b2c9c93"></script>
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
 {{!-- The use counter (2026-10-22): counts verses or topics opened and reports the count to Plausible. Nothing on the page changes. --}}
-{{!-- The free-account prompt (2026-10-24): a dismissible card after the third use, signed-out visitors only, added by script. Before the counter so it hears a deep link's use. --}}
-<script src="{{asset "js/page/tfr-trial-prompt.js"}}&amp;frv=e8f7d19d3ffdfe7d" defer></script>
 <script src="{{asset "js/page/tfr-use-counter.js"}}&amp;frv=2d3e6840512c1692" defer></script>
 <script defer src="{{asset "js/page/scripture-view.js"}}&amp;frv=633c328d4b412260"></script>
 {{!-- The commentary beside the text (2026-10-18): a chosen commentary follows the reader verse by verse, and the Critici Sacri show

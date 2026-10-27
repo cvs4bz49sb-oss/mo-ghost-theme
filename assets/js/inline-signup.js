@@ -136,17 +136,18 @@
     const name = [first, last].filter(Boolean).join(" ");
     const endpoint = (root.getAttribute("data-register-endpoint") || "").trim();
 
-    // Registration needs both halves of the name (Zoom requires them,
-    // and a list of first names is no use to anyone). Plain subscribe
-    // forms are happy without, which is why this is scoped.
-    if (endpoint && (!first || !last)) {
+    // Account creation and event registration require both name fields.
+    // Other newsletter forms keep their existing optional-name behavior.
+    const accountSignup = root.hasAttribute("data-account-signup");
+    if ((endpoint || accountSignup) && (!first || !last)) {
       setStatus(root, "Enter your first and last name.", true);
       return;
     }
 
     const originalText = submit.textContent;
     submit.disabled = true;
-    submit.textContent = endpoint ? "Registering\u2026" : "Subscribing\u2026";
+    submit.textContent = endpoint ? "Registering\u2026"
+      : accountSignup ? "Creating account\u2026" : "Subscribing\u2026";
     setStatus(root, "");
 
     if (!endpoint) {
@@ -674,11 +675,10 @@
     const success = document.createElement("div");
     success.className = "inline-signup-success";
     success.setAttribute("role", "status");
-    success.innerHTML =
-      `<p class="eyebrow">Check your inbox</p>` +
-      `<h4><em>Almost there.</em></h4>` +
-      `<p>We sent a link to <strong>${escapeHtml(email)}</strong>. ` +
-      `Open it to finish subscribing and you'll land right back on this page.</p>`;
+    const confirmation = root.hasAttribute("data-account-signup")
+      ? "Open it to confirm your email and sign in to your free account."
+      : "Open it to finish subscribing and you'll land right back on this page.";
+    success.innerHTML = `<p class="eyebrow">Check your inbox</p><h4><em>Almost there.</em></h4><p>We sent a link to <strong>${escapeHtml(email)}</strong>. ${confirmation}</p>`;
     // The form may declare a larger container to swap out (e.g. the
     // whole post-gate card with its pitch copy above the form) so the
     // success state fully replaces the surrounding messaging instead
