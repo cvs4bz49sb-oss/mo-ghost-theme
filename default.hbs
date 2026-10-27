@@ -248,6 +248,24 @@
     {{/unless}}
     {{/unless}}
 
+    {{!-- Twitter card label/data pairs: Ghost's ghost_head auto-fills
+         label1/data1 from primary_author and label2/data2 from the
+         post's tags. MO credits contributors via a public author-*
+         tag (see the Contributor tagging system note), never via
+         primary_author, which is always the house staff account, so
+         every unfurl's "Written by" named that account instead of the
+         real writer, and the real writer's name showed up folded into
+         "Filed under" alongside ordinary topic tags. Overridden here,
+         same first-tag-wins trick as the og:image block above: these
+         sit ABOVE {{ghost_head}}, so scrapers take these and ignore
+         Ghost's own pair further down. --}}
+    {{#post}}
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="{{#foreach tags}}{{#match slug "=~" "^author-"}}{{name}}{{/match}}{{/foreach}}" />
+    <meta name="twitter:label2" content="Filed under" />
+    <meta name="twitter:data2" content="{{#foreach tags visibility="public"}}{{#match slug "=~" "^author-"}}{{else}}{{name}}, {{/match}}{{/foreach}}" />
+    {{/post}}
+
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
