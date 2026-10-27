@@ -23,19 +23,13 @@
 .tfr-account-form .digest-status { font-size: 14px; }
 .tfr-access-beta { margin: 12px 0 0; font-size: 14px; line-height: 1.45; color: var(--color-muted); max-width: 800px; }
 .tfr-account-overlay { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 32px; overflow-y: auto; background: rgba(35, 31, 28, .46); }
-.tfr-account-dialog { width: 100%; max-width: 640px; margin: auto; padding: 40px; background: var(--color-page); border: 1px solid var(--color-card-border); color: var(--color-dark); }
+.tfr-account-dialog { width: 100%; max-width: 640px; max-height: calc(100dvh - 64px); overflow-y: auto; margin: auto; padding: 40px; background: var(--color-page); border: 1px solid var(--color-card-border); color: var(--color-dark); }
 .tfr-account-eyebrow { font-size: 16px; color: var(--color-alert-text); margin: 0 0 16px; }
 .tfr-account-dialog h2 { font-family: var(--font-body); font-size: clamp(28px, 4vw, 36px); line-height: 1.2; margin: 0 0 16px; }
 .tfr-account-dialog > p:not(.tfr-account-eyebrow) { font-size: 18px; line-height: 1.6; }
 .tfr-account-dialog .tfr-account-form { margin: 32px 0 16px; }
 .tfr-account-dialog .tfr-account-signin { margin: 16px 0 8px; }
 .tfr-account-back { font-size: 16px; }
-/* Lock the document, not body: a body scroll container breaks the
-   sticky TFR rail and adds a second masthead offset on gated pages.
-   :has applies as the server-rendered gate parses, before JS runs. */
-html:has([data-tfr-account-gate]) { overflow-y: hidden; }
-body:has([data-tfr-account-gate]),
-body.tfr-account-gated { overflow: clip; }
 @media (max-width: 820px) {
   .tfr-account-signup { grid-template-columns: 1fr; gap: 24px; }
   .tfr-access-plan { padding-right: 24px; }
@@ -50,7 +44,7 @@ body.tfr-account-gated { overflow: clip; }
   .tfr-account-form { grid-template-columns: 1fr; gap: 16px; }
   .tfr-account-form .digest-field label { font-size: 14px; letter-spacing: .08em; }
   .tfr-account-overlay { padding: 16px; }
-  .tfr-account-dialog { padding: 24px; }
+  .tfr-account-dialog { padding: 24px; max-height: calc(100dvh - 32px); }
   .tfr-account-dialog > p:not(.tfr-account-eyebrow) { font-size: 16px; }
   .tfr-account-dialog .tfr-account-form { margin-top: 24px; }
 }

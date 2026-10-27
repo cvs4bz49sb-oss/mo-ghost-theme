@@ -7,7 +7,6 @@
     gate.remove();
     return;
   }
-  document.body.classList.add("tfr-account-gated");
   const main = document.querySelector("main");
   if (main) main.inert = true;
 
