@@ -84,6 +84,14 @@
       method: "GET", mode: "cors", credentials: "omit",
     });
   }
+  function moMembershipPost(path, body) {
+    if (!MEMBERSHIP_API) return Promise.resolve({ ok: false });
+    return window.MOAuth.fetch(MEMBERSHIP_API.replace(/\/$/, "") + path, {
+      method: "POST", mode: "cors", credentials: "omit",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body || {}),
+    });
+  }
 
   hydrateMigrationBanner();
   hydrateEngagement();
@@ -92,6 +100,7 @@
   hydrateHistory();
   hydrateReadingTracker();
   hydrateCardCounts();
+  hydrateLifetimeGift();
   hydrateInstitutions();
   hydrateRenewalBanner();
 
@@ -637,6 +646,97 @@
         });
       })
       .catch(() => {});
+  }
+
+  // --- Lifetime-member gift memberships -----------------------------------
+
+  function hydrateLifetimeGift() {
+    const wrap = document.querySelector("[data-lifetime-gift]");
+    const sep = document.querySelector("[data-lifetime-gift-sep]");
+    if (!wrap) return;
+    if (!MEMBERSHIP_API || !EMAIL) return;
+
+    moMembershipGet("/api/lifetime-gift/status")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        // Server decides eligibility (tier:lifetime) — the client never
+        // guesses from member labels on its own.
+        if (!data || !data.eligible) return;
+        wrap.hidden = false;
+        if (sep) sep.hidden = false;
+        renderGiftState(data);
+      })
+      .catch(() => {});
+
+    function renderGiftState(data) {
+      const remainingEl = wrap.querySelector("[data-lifetime-gift-remaining]");
+      if (remainingEl) remainingEl.textContent = data.credits_remaining;
+
+      const listEl = wrap.querySelector("[data-lifetime-gift-list]");
+      if (listEl) {
+        listEl.innerHTML = "";
+        (data.gifts || []).forEach((g) => {
+          const li = document.createElement("li");
+          const label = g.status === "expired" ? "expired" : "active";
+          li.innerHTML = `Gifted to <em></em> &mdash; ${label}`;
+          li.querySelector("em").textContent = g.recipient_name || g.recipient_email;
+          listEl.appendChild(li);
+        });
+      }
+
+      const form = wrap.querySelector("[data-lifetime-gift-form]");
+      if (!form) return;
+      if (data.credits_remaining <= 0) {
+        form.hidden = true;
+        return;
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const errorEl = form.querySelector("[data-lifetime-gift-error]");
+        const doneEl = form.querySelector("[data-lifetime-gift-done]");
+        const submitBtn = form.querySelector(".dashboard-rail-gift-submit");
+        if (errorEl) errorEl.hidden = true;
+        if (doneEl) doneEl.hidden = true;
+
+        const recipientEmail = (form.recipient_email.value || "").trim();
+        const recipientName = (form.recipient_name.value || "").trim();
+        if (!recipientEmail) return;
+
+        if (submitBtn) submitBtn.disabled = true;
+        moMembershipPost("/api/lifetime-gift", {
+          recipient_email: recipientEmail,
+          recipient_name: recipientName,
+        })
+          .then((r) => r.json().then((body) => ({ ok: r.ok, body })))
+          .then(({ ok, body }) => {
+            if (!ok) {
+              if (errorEl) {
+                errorEl.textContent = (body && body.error) || "Something went wrong. Try again.";
+                errorEl.hidden = false;
+              }
+              return;
+            }
+            if (doneEl) doneEl.hidden = false;
+            form.reset();
+            if (remainingEl) remainingEl.textContent = body.credits_remaining;
+            if (body.credits_remaining <= 0) form.hidden = true;
+            const li = document.createElement("li");
+            li.innerHTML = `Gifted to <em></em> &mdash; active`;
+            li.querySelector("em").textContent = recipientName || recipientEmail;
+            if (listEl) listEl.prepend(li);
+          })
+          .catch(() => {
+            if (errorEl) {
+              errorEl.textContent = "Something went wrong. Try again.";
+              errorEl.hidden = false;
+            }
+          })
+          .finally(() => {
+            if (submitBtn) submitBtn.disabled = false;
+          });
+      });
+    }
   }
 
   // --- Institution curated content ----------------------------------------

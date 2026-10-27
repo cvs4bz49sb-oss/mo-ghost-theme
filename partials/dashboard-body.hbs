@@ -124,7 +124,7 @@
 
       </div>
 
-      <aside class="dashboard-rail" aria-label="Membership">
+      <aside class="dashboard-rail" aria-label="Membership" data-member-labels="{{#foreach @member.labels}}{{name}} {{/foreach}}">
 
         <div class="dashboard-rail-item" data-institution-admin-link hidden>
           <p class="eyebrow">Institution Admin</p>
@@ -237,6 +237,35 @@
             <span class="liturgical-preview-swatch" data-liturgical-swatch></span>
             <span class="liturgical-preview-label" data-liturgical-label></span>
           </div>
+        </div>
+
+        {{!-- Lifetime-member benefit: give up to 2 free one-year
+             memberships. Hidden by default; revealed by
+             assets/js/dashboard.js (hydrateLifetimeGift) only after
+             GET /api/lifetime-gift/status confirms eligibility
+             server-side (the client never decides this on its own). --}}
+        <div class="dashboard-rail-sep" aria-hidden="true" data-lifetime-gift-sep hidden></div>
+
+        <div class="dashboard-rail-item" data-lifetime-gift hidden>
+          <p class="eyebrow">Gift Memberships</p>
+          <p class="dashboard-rail-meta">Give a year of Mere&nbsp;Orthodoxy to someone, free. You have <strong data-lifetime-gift-remaining>2</strong> left to give.</p>
+          <form class="dashboard-rail-gift-form" data-lifetime-gift-form>
+            <label class="dashboard-rail-gift-field">
+              <span class="sr-only">Their name</span>
+              <input type="text" name="recipient_name" placeholder="Their name" autocomplete="off">
+            </label>
+            <label class="dashboard-rail-gift-field">
+              <span class="sr-only">Their email</span>
+              <input type="email" name="recipient_email" placeholder="Their email" required autocomplete="off">
+            </label>
+            <button type="submit" class="btn btn-pill btn-dark dashboard-rail-gift-submit">
+              <span class="btn-label">Send a year, free</span>
+              <span class="btn-spinner" aria-hidden="true"></span>
+            </button>
+            <p class="dashboard-rail-gift-error" data-lifetime-gift-error role="alert" hidden></p>
+            <p class="dashboard-rail-gift-done" data-lifetime-gift-done hidden>Sent! They'll get an email to start reading.</p>
+          </form>
+          <ul class="dashboard-rail-gift-list" data-lifetime-gift-list></ul>
         </div>
 
         <div class="dashboard-rail-sep" aria-hidden="true"></div>
