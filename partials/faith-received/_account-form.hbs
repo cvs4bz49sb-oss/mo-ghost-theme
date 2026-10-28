@@ -1,4 +1,4 @@
-<div class="digest-form tfr-account-form" data-inline-signup data-source="tfr-beta" data-account-signup>
+<div class="digest-form tfr-account-form" data-inline-signup data-source="{{#if source}}{{source}}{{else}}tfr-beta{{/if}}" data-account-signup>
   <div class="digest-field">
     <label for="{{prefix}}-first">First Name</label>
     <input id="{{prefix}}-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />

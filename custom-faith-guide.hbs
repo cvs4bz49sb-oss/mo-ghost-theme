@@ -46,7 +46,7 @@
   </div>
 </main>
 
-{{> "faith-received/_account-gate" description="Create a free account to read the guides."}}
+{{> "faith-received/_account-gate" description="Create a free account to read the guides." source="feature-gate:tfr-guides"}}
 <script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
 {{!-- The loader goes first: it fetches the guide while GSAP and d3 arrive, and runs the scenes once they have. --}}
 <script src="{{asset "js/faith-guide.js"}}&amp;frv=d7fcccf4e6d3bff0"></script>
