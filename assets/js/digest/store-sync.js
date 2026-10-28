@@ -203,6 +203,7 @@
           return {
             id: "v_" + v.id,
             serverId: v.id,
+            label: v.label || "",
             savedAt: v.savedAt ? Date.parse(v.savedAt + "Z") || Date.parse(v.savedAt) : Date.now(),
             content: v.content,
             __synced: true

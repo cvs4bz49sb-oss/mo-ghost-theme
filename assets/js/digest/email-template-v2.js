@@ -451,7 +451,7 @@
       textTransform: "uppercase",
       fontWeight: 600,
       marginBottom: 14
-    } }, "From Mere Orthodoxy"), /* @__PURE__ */ React.createElement(
+    } }, "From Mere Orthodoxy"), (content.editorTitle || "").trim() && /* @__PURE__ */ React.createElement(
       "h1",
       {
         style: {
@@ -463,7 +463,7 @@
           fontWeight: 400,
           letterSpacing: "-0.005em"
         },
-        dangerouslySetInnerHTML: { __html: markdownInline(content.editorTitle || "", tokens) }
+        dangerouslySetInnerHTML: { __html: markdownInline(content.editorTitle, tokens) }
       }
     ), (() => {
       const body = content.editorBody != null ? content.editorBody : (content.editorParagraphs || []).join("\n\n");
@@ -1095,6 +1095,7 @@
     const order = Array.isArray(content.sectionOrder) && content.sectionOrder.length ? content.sectionOrder.filter((k) => KNOWN.has(k)) : DEFAULT_SECTION_ORDER;
     const renderedSections = order.map((key) => ({ key, node: renderSection(key) })).filter((s) => s.node !== null);
     const lastKey = renderedSections.length ? renderedSections[renderedSections.length - 1].key : null;
+    const isButton = (key) => blocksById[key]?.type === "button";
     return /* @__PURE__ */ React.createElement("div", { className: "mo-wrapper", style: {
       // width:100% + maxWidth:600 reflows on narrow viewports without
       // depending on @media — so the email shrinks correctly even if a
@@ -1108,7 +1109,7 @@
       fontFamily: 'Georgia, "Times New Roman", serif',
       textAlign: "left",
       boxShadow: "0 1px 3px rgba(45,41,39,0.06), 0 12px 36px rgba(45,41,39,0.10)"
-    } }, /* @__PURE__ */ React.createElement(Masthead, { tokens, issueNumber: content.issueNumber, dateStr: content.dateStr, mastheadTitle: content.mastheadTitle }), renderedSections.map(({ key, node }, i) => /* @__PURE__ */ React.createElement(React.Fragment, { key }, i > 0 && /* @__PURE__ */ React.createElement(Divider, null), node)), lastKey !== "sponsorBottom" && /* @__PURE__ */ React.createElement(Spacer, { h: 28 }), /* @__PURE__ */ React.createElement(Footer, { tokens, isMember }));
+    } }, /* @__PURE__ */ React.createElement(Masthead, { tokens, issueNumber: content.issueNumber, dateStr: content.dateStr, mastheadTitle: content.mastheadTitle }), renderedSections.map(({ key, node }, i) => /* @__PURE__ */ React.createElement(React.Fragment, { key }, i > 0 && !(isButton(renderedSections[i - 1].key) && isButton(key)) && /* @__PURE__ */ React.createElement(Divider, null), node)), lastKey !== "sponsorBottom" && /* @__PURE__ */ React.createElement(Spacer, { h: 28 }), /* @__PURE__ */ React.createElement(Footer, { tokens, isMember }));
   }
   Object.assign(window, { EmailTemplate, MO_TOKENS, DEFAULT_CONTENT, DEFAULT_SECTION_ORDER, SIGNATURES, tfrSpotlightDay, tfrSpotlightPick });
 })();

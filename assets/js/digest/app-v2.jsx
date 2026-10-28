@@ -1348,7 +1348,7 @@ function HistoryModal({ open, history, onClose, onRestore, onDelete }) {
               }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#2d2927' }}>
-                    {label(c)}
+                    {h.label || label(c)}
                     {i === 0 ? <span style={{ fontSize: 10, fontWeight: 700, color: '#1d9e75', letterSpacing: '0.08em', textTransform: 'uppercase', marginLeft: 6 }}>Latest</span> : null}
                   </p>
                   {sub ? <p style={{ margin: '2px 0 0', fontSize: 12.5, color: '#6b6660', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sub}</p> : null}

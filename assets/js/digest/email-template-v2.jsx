@@ -588,18 +588,21 @@ function LetterFromEditor({ tokens, content }) {
       }}>
         From Mere Orthodoxy
       </div>
-      <h1
-        style={{
-          fontFamily: '"IM Fell English", "IM Fell DW Pica", Georgia, serif',
-          fontSize: 34,
-          lineHeight: 1.2,
-          color: tokens.bodyText,
-          margin: '0 0 18px',
-          fontWeight: 400,
-          letterSpacing: '-0.005em',
-        }}
-        dangerouslySetInnerHTML={{ __html: markdownInline(content.editorTitle || '', tokens) }}
-      />
+      {/* No title, no h1: an appeal letter can open straight into the body. */}
+      {(content.editorTitle || '').trim() && (
+        <h1
+          style={{
+            fontFamily: '"IM Fell English", "IM Fell DW Pica", Georgia, serif',
+            fontSize: 34,
+            lineHeight: 1.2,
+            color: tokens.bodyText,
+            margin: '0 0 18px',
+            fontWeight: 400,
+            letterSpacing: '-0.005em',
+          }}
+          dangerouslySetInnerHTML={{ __html: markdownInline(content.editorTitle, tokens) }}
+        />
+      )}
       {(() => {
         // Read editorBody (new shape) with a fallback to legacy
         // editorParagraphs array. Body supports Markdown:
@@ -1606,6 +1609,8 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
     .filter((s) => s.node !== null);
 
   const lastKey = renderedSections.length ? renderedSections[renderedSections.length - 1].key : null;
+  // Stacked button blocks read as one group, so no rule between them.
+  const isButton = (key) => blocksById[key]?.type === 'button';
 
   return (
     <div className="mo-wrapper" style={{
@@ -1626,7 +1631,7 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
 
       {renderedSections.map(({ key, node }, i) => (
         <React.Fragment key={key}>
-          {i > 0 && <Divider />}
+          {i > 0 && !(isButton(renderedSections[i - 1].key) && isButton(key)) && <Divider />}
           {node}
         </React.Fragment>
       ))}
