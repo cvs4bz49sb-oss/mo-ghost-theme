@@ -10,6 +10,10 @@
  * read-completed (80% scroll OR 60s dwell per post), upgrade-link
  * clicks. Other scripts (article-audio.js, a future comments hook)
  * call __kitEmit directly for their own event types.
+ *
+ * Readers who aren't signed in but came from one of our emails still
+ * get read-completed, through mo-kit /read-from-email. See the
+ * email-link section below.
  */
 (function () {
   const {body} = document;
@@ -33,7 +37,44 @@
     } catch (_) { /* ignore */ }
   };
 
-  if (!WORKER || !EMAIL) return;
+  // ---- email-link identity ----------------------------------------------
+  // Kit adds ?ck_subscriber_id=<id> to every link in our emails. For a
+  // reader who isn't signed in, that id is the only way to know a read
+  // came from a subscriber (two thirds of free subscribers have never
+  // signed in). It comes off the address bar at once, so a copied or
+  // shared link doesn't carry it, and is kept 90 days so a return visit
+  // still counts. It is never used to sign anyone in or to show anything:
+  // mo-kit only moves reading numbers with it. Signed in, the real
+  // identity wins and the stored id is dropped.
+  const KSID_KEY = "mo:ksid";
+  const KSID_TTL_MS = 90 * 24 * 60 * 60 * 1000;
+  const KSID_RE = /^\d{1,12}$/;
+  // Same promise as the homepage measurement in the privacy policy: a Do
+  // Not Track or Global Privacy Control signal means we keep nothing.
+  const optedOut = navigator.globalPrivacyControl === true || navigator.doNotTrack === "1";
+  let ksid = null;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const fromLink = params.get("ck_subscriber_id");
+    if (fromLink !== null) {
+      params.delete("ck_subscriber_id");
+      const qs = params.toString();
+      window.history.replaceState(window.history.state, "",
+        window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash);
+      if (!EMAIL && !optedOut && KSID_RE.test(fromLink)) {
+        window.localStorage.setItem(KSID_KEY, JSON.stringify({ id: fromLink, exp: Date.now() + KSID_TTL_MS }));
+      }
+    }
+    if (EMAIL || optedOut) {
+      window.localStorage.removeItem(KSID_KEY);
+    } else {
+      const saved = JSON.parse(window.localStorage.getItem(KSID_KEY) || "null");
+      if (saved && saved.exp > Date.now() && KSID_RE.test(saved.id)) ksid = saved.id;
+      else if (saved) window.localStorage.removeItem(KSID_KEY);
+    }
+  } catch (_) { /* storage blocked: no email-link reads */ }
+
+  if (!WORKER || (!EMAIL && !ksid)) return;
 
   // The MOAuth IIFE pre-warms the token at module init, so the
   // first __kitEmit firing during pagehide finds a hot cache.
@@ -153,10 +194,24 @@
   function markRead() {
     if (fired) return;
     fired = true;
-    window.__kitEmit("read_completed", {
-      postId,
-      postTags: topicTags,
-    });
+    if (EMAIL) {
+      window.__kitEmit("read_completed", {
+        postId,
+        postTags: topicTags,
+      });
+      return;
+    }
+    // Not signed in, so no JWT: the email-link id is the identity.
+    try {
+      fetch(`${WORKER.replace(/\/$/, "")}/read-from-email`, {
+        method: "POST",
+        mode: "cors",
+        credentials: "omit",
+        keepalive: true,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ sid: ksid, postId, postTags: topicTags }),
+      }).catch(() => { /* best-effort */ });
+    } catch (_) { /* ignore */ }
   }
 
   const startedAt = Date.now();
