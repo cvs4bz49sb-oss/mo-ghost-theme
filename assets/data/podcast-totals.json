@@ -1,16 +1,11 @@
 {
-  "generated_at": "2026-10-28T05:50:40.497Z",
+  "generated_at": "2026-10-28T13:04:49.174Z",
   "shows": {
     "mere-fidelity": {
-      "episodes": 323,
+      "episodes": 324,
       "plays": 0,
       "earliest": "2017-02-15",
       "recent": [
-        {
-          "date": "2025-07-09",
-          "title": "Is \"Covenant\" Overused?",
-          "plays": 0
-        },
         {
           "date": "2025-07-16",
           "title": "AI, The Infinite Work Day, And The Finite Pastor",
@@ -304,6 +299,11 @@
         {
           "date": "2026-10-21",
           "title": "Replay: Martin Luther and the Rule of Faith, with Dr. Todd Hains",
+          "plays": 0
+        },
+        {
+          "date": "2026-10-28",
+          "title": "The Old Testament's Fingerprints on Acts",
           "plays": 0
         }
       ],
@@ -836,7 +836,7 @@
         {
           "month": "2026-10",
           "avg": 0,
-          "episodes": 3
+          "episodes": 4
         }
       ]
     },
