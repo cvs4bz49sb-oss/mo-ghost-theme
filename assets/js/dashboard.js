@@ -664,6 +664,10 @@
         if (!data || !data.eligible) return;
         wrap.hidden = false;
         if (sep) sep.hidden = false;
+        // Only a worker that sends recipients to the address survey says so;
+        // before that deploy the note would promise something that is not true.
+        const addressNote = wrap.querySelector("[data-lifetime-gift-address-note]");
+        if (addressNote && data.asks_address === true) addressNote.hidden = false;
         renderGiftState(data);
       })
       .catch(() => {});
@@ -694,7 +698,7 @@
       form.addEventListener("submit", (e) => {
         e.preventDefault();
         const errorEl = form.querySelector("[data-lifetime-gift-error]");
-        const doneEl = form.querySelector("[data-lifetime-gift-done]");
+        const doneEl = wrap.querySelector("[data-lifetime-gift-done]");
         const submitBtn = form.querySelector(".dashboard-rail-gift-submit");
         if (errorEl) errorEl.hidden = true;
         if (doneEl) doneEl.hidden = true;

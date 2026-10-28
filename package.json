@@ -22,6 +22,7 @@
     "build:check": "node scripts/build-theme.mjs --check",
     "build:digest": "node scripts/build-digest.mjs",
     "build:digest:check": "node scripts/build-digest.mjs --check",
+    "check:lifetime-gift": "node scripts/check-lifetime-gift.mjs",
     "check:meta": "node scripts/check-meta.mjs",
     "check:research-tools": "node scripts/check-research-tools.mjs",
     "check:research-gate": "node scripts/check-research-gate.mjs",
