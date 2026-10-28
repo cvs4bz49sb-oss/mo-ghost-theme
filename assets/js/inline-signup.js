@@ -124,10 +124,14 @@
   });
 
   function handleSubmit(root, submit) {
+    // Enter in the email field also reaches this handler while the button
+    // is disabled. One request stays in flight until it succeeds or retries.
+    if (submit.disabled) return;
     const emailInput = root.querySelector("[data-signup-email]");
     if (!emailInput) return;
     const email = (emailInput.value || "").trim();
-    if (!email || !/.+@.+\..+/.test(email)) {
+    if (!email || !/.+@.+\..+/.test(email)
+      || (typeof emailInput.checkValidity === "function" && !emailInput.checkValidity())) {
       setStatus(root, "Enter a valid email address.", true);
       return;
     }
@@ -199,6 +203,18 @@
     setStatus(root, netMsg || (err && err.message) || "Something went wrong. Try again.", true);
   }
 
+  function signupRedirect(root) {
+    // A feature gate may name the tool that opened it. Never let a form
+    // turn the emailed login link into a redirect to another site.
+    const requested = root.getAttribute("data-signup-redirect");
+    if (requested) {
+      const target = scrubTokens(requested);
+      if (target && target.origin === window.location.origin
+        && (target.protocol === "https:" || target.protocol === "http:")) return target.href;
+    }
+    return (scrubTokens(window.location.href) || window.location).href;
+  }
+
   function ghostSignup(root, email, name) {
     const labels = buildContextLabels(root);
 
@@ -224,7 +240,7 @@
             name,
             labels,
             requestSrc: "portal",
-            redirect: (scrubTokens(window.location.href) || window.location).href,
+            redirect: signupRedirect(root),
             // Ghost derives member attribution from urlHistory — it is how
             // Portal populates referrer_source and the utm_* columns. We were
             // not sending it, so 456 of the last 600 signups recorded their

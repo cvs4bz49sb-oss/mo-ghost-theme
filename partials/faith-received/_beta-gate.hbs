@@ -127,7 +127,7 @@
     {{!-- Plain [data-inline-signup]. inline-signup.js ships in
          site.min.js and binds by delegation on document, so it does not
          matter that this markup parses before the bundle loads. --}}
-    <div class="tfr-gate-form digest-form" data-inline-signup data-source="tfr-beta">
+    <div class="tfr-gate-form digest-form" data-inline-signup data-account-signup data-source="tfr-beta">
       <div class="digest-field">
         <label for="tfr-gate-first">First Name</label>
         <input id="tfr-gate-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
@@ -140,9 +140,9 @@
         <label for="tfr-gate-email">Email</label>
         <input id="tfr-gate-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
       </div>
-      <button type="button" class="digest-submit" data-signup-submit>Get access</button>
+      <button type="button" class="digest-submit" data-signup-submit>Create free account</button>
       <p class="digest-fineprint">We email you a sign-in link. There is no password to keep.</p>
-      <p class="digest-status" data-signup-status></p>
+      <p class="digest-status" data-signup-status role="status" aria-live="polite"></p>
     </div>
 
     {{!-- Said plainly and up front rather than in fine print. Someone
