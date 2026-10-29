@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T05:55:03.192Z",
+  "generated_at": "2026-10-29T13:11:34.300Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 324,
@@ -841,7 +841,7 @@
       ]
     },
     "christians-reading-classics": {
-      "episodes": 57,
+      "episodes": 58,
       "plays": 0,
       "earliest": "2025-07-24",
       "recent": [
@@ -1129,6 +1129,11 @@
           "date": "2026-10-22",
           "title": "Moby-Dick, with Kyle Harper",
           "plays": 0
+        },
+        {
+          "date": "2026-10-29",
+          "title": "Edgar Allan Poe: America's Spookiest Classic with Fr. Ryan Duns and Steven Knepper",
+          "plays": 0
         }
       ],
       "per_episode": [
@@ -1205,7 +1210,7 @@
         {
           "month": "2026-10",
           "avg": 0,
-          "episodes": 4
+          "episodes": 5
         }
       ]
     }
