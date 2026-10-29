@@ -342,7 +342,12 @@
       periodBullets: (rows, prev) => [
         `<b>${usd((lastOf(rows, "mrr") || 0) * 12)}</b> Stripe run-rate at period end`,
         `<b>${usd((lastOf(rows, "rev") || 0) - (lastOf(rows, "mrr") || 0) * 12)}</b> legacy HubSpot subscriptions still billing`,
-        `<b>${usd(sumOf(rows, "cash") + sumOf(rows, "hsc"))}</b> actually collected in the period`
+        `<b>${usd(sumOf(rows, "cash") + sumOf(rows, "hsc"))}</b> actually collected in the period`,
+        // 29 Oct 2026: the HubSpot half switched from trailing checkouts to
+        // live billing. A period spanning that day shows the step as growth.
+        ...(rows.length && rows[0].d < "2026-10-29" && rows[rows.length - 1].d >= "2026-10-29"
+          ? ["Most of the change in this period is the 29 Oct 2026 switch to counting live HubSpot billing, not new revenue"]
+          : [])
       ],
       bullets: (s) => [
         s.stripe ? `<b>${usd(s.stripe.arr)}</b> Stripe run-rate — verified` : "",
