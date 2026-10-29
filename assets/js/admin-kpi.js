@@ -341,12 +341,15 @@
       label: "Membership revenue", key: "rev", agg: "last", f: usd, goodUp: true, cap: "annualised",
       periodBullets: (rows, prev) => [
         `<b>${usd((lastOf(rows, "mrr") || 0) * 12)}</b> Stripe run-rate at period end`,
-        `<b>${usd((lastOf(rows, "rev") || 0) - (lastOf(rows, "mrr") || 0) * 12)}</b> HubSpot, trailing twelve months`,
+        `<b>${usd((lastOf(rows, "rev") || 0) - (lastOf(rows, "mrr") || 0) * 12)}</b> legacy HubSpot subscriptions still billing`,
         `<b>${usd(sumOf(rows, "cash") + sumOf(rows, "hsc"))}</b> actually collected in the period`
       ],
       bullets: (s) => [
         s.stripe ? `<b>${usd(s.stripe.arr)}</b> Stripe run-rate — verified` : "",
-        s.hubspot ? `<b>${usd(s.hubspot.checkout_value_12m)}</b> HubSpot checkouts, 12 months — a floor` : "",
+        s.hubspot && s.hubspot.legacy_billing
+          ? `<b>${usd(s.hubspot.legacy_billing.arr)}</b> a year from <b>${fmt(s.hubspot.legacy_billing.billing)}</b> legacy HubSpot subscriptions still billing, plus <b>${usd(s.hubspot.legacy_billing.arr_failing)}</b> on <b>${fmt(s.hubspot.legacy_billing.failing)}</b> failing cards (not counted)`
+          : "",
+        "From 29 Oct 2026 the HubSpot half is live billing. Before that it was the last twelve months of HubSpot checkouts, so the line steps up that day.",
         s.stripe ? `<b>${usd(s.stripe.mrr)}</b> MRR · <b>${usd(s.stripe.cash_30d)}</b> collected in 30 days` : "",
         // A source that failed tonight is carried from its last good night,
         // so the headline holds steady instead of dropping by that half.
@@ -3427,30 +3430,37 @@
     const g = s.ghost, st = s.stripe, hs = s.hubspot, {kit} = s;
     const flags = [];
     if (hs && g) {
-      flags.push(["critical", "There is no ledger for legacy membership revenue",
-        `HubSpot records the sale, not the billing, and renewals were never written back as deals. Of
-         <b>${fmt(hs.membership_members_total)}</b> legacy members, <b>${fmt(hs.membership_members_12m)}</b> have a checkout on
-         record in the last twelve months, and nobody can say which of the rest are actually being charged. The recurring money
-         runs through the old Stripe/Fulco arrangement, which no key here reaches.`]);
+      const lb = hs.legacy_billing;
+      if (lb) {
+        flags.push(["critical", "Legacy members are still billing through HubSpot",
+          `<b>${fmt(lb.billing)}</b> HubSpot subscriptions are still charging, worth <b>${usd(lb.arr)}</b> a year
+           (<b>${fmt(lb.annual)}</b> annual, <b>${fmt(lb.monthly)}</b> monthly). Another <b>${fmt(lb.failing)}</b> have failing cards,
+           and <b>${fmt(lb.overdue)}</b> are past their charge date. <b>${fmt(lb.annual_due_30d)}</b> annual subscriptions renew in the
+           next 30 days and <b>${fmt(lb.annual_due_90d)}</b> in the next 90.`,
+          `Send each legacy member a migration email shortly before their next HubSpot charge, starting with the
+           ${fmt(lb.annual_due_30d)} annual renewals due in the next 30 days, and reach the ${fmt(lb.failing)} failing cards first.`]);
+      }
       flags.push(["critical", "The comps do not expire, and April 2027 is the wall",
         `<b>${fmt(g.comped)}</b> members hold comps and the migration plan's 31 March 2027 expiry was never set on most of them.
          <b>${fmt((s.kpi || {}).migration_done)}</b> of <b>${fmt((s.kpi || {}).migration_total)}</b> have moved to Stripe with
-         <b>${fmt((s.kpi || {}).days_to_sunset)}</b> days to go. See the Migration tile.`]);
+         <b>${fmt((s.kpi || {}).days_to_sunset)}</b> days to go. See the Migration tile.`,
+        `Set the 31 March 2027 expiry on the ${fmt(g.comped)} comps, paired with the migration sequence.`]);
     }
     if (st && st.renewals) {
       const soon = Object.entries(st.renewals).sort().slice(0, 12).reduce((t, [, n]) => t + n, 0);
       if (soon > 25) {
-        flags.push(["serious", "A renewal wave is coming",
-          `<b>${fmt(soon)}</b> annual subscriptions renew over the next year, and most of the base came in on a launch or
-           migration discount. Those re-bill at full price. Decide whether to hold them with a renewal coupon or signal the
-           step-up, and write the email either way.`]);
+        flags.push(["serious", "A Stripe renewal wave is coming",
+          `<b>${fmt(soon)}</b> annual Stripe subscriptions on the new site renew over the next year, and most of the base came in on
+           a launch or migration discount. Those re-bill at full price.`,
+          `Decide the renewal price for Stripe annual members (a renewal coupon or a signaled step-up) and write the renewal email.`]);
       }
     }
     if (kit && kit.digest) {
       flags.push(["warning", "Promotional sends cost more list than the digest does",
         `The weekly digest averages <b>${pctv(kit.digest.open_free)}</b> open on the free list and
          <b>${pctv(kit.digest.open_paid)}</b> on the paid list, with about <b>${fmt(kit.digest.unsubscribes)}</b> unsubscribes a send.
-         One-off promos run below that on opens and above it on unsubscribes. Space them out and segment them.`]);
+         One-off promos run below that on opens and above it on unsubscribes.`,
+        `Space promotional sends out and send each one to a segment, not the whole list.`]);
     }
     if (s.traffic && s.traffic.channels) {
       const direct = (s.traffic.channels.find((c) => /direct/i.test(c.name)) || {}).visitors || 0;
@@ -3459,7 +3469,8 @@
         flags.push(["warning", "Most traffic is landing in Direct because the links carry no UTMs",
           `<b>${Math.round((direct / total) * 100)}%</b> of visitors are attributed to Direct while Kit mails roughly
            <b>${fmt(kit && kit.digest ? kit.digest.recipients : 0)}</b> people a week. Those clicks are real and currently invisible.
-           One UTM convention in the Email Builder makes the best owned channel measurable.`]);
+           One UTM convention in the Email Builder makes the best owned channel measurable.`,
+          `Add UTM tags to every link the Email Builder exports.`]);
       }
     }
     const f = document.querySelector("[data-kpi-flags]");
@@ -3488,9 +3499,16 @@
       const avgYear = st && charged ? (st.mrr * 12) / charged : null;
 
       if (st && g) {
-        paras.push(`<p><b>Who the members are.</b> <b>${fmt(charged)}</b> pay through Stripe today.
-          <b>${fmt(g.comped)}</b> are carried on comps with nothing charged.${hs ? ` HubSpot holds <b>${fmt(hs.payers)}</b> legacy
-          members, and many of them are the same people now on comps.` : ""} The tiles split these groups because they move for different reasons.</p>`);
+        const mig = g.mig_cohort != null ? g : null;
+        const newPaying = mig && charged != null ? charged - (g.mig_paid || 0) : null;
+        const otherComps = mig ? (g.comped || 0) - (g.mig_comped || 0) : null;
+        const lb = hs && hs.legacy_billing;
+        paras.push(`<p><b>Who the members are.</b> <b>${fmt(charged)}</b> pay through Stripe on the new site${mig
+            ? `: <b>${fmt(g.mig_paid)}</b> legacy members who have moved over and <b>${fmt(newPaying)}</b> new members` : ""}.
+          <b>${fmt(g.comped)}</b> hold comps with nothing charged on the new site${mig
+            ? `: <b>${fmt(g.mig_comped)}</b> legacy members waiting to move, and <b>${fmt(otherComps)}</b> others (students, gifts,
+              institutions and staff)` : ""}.${lb ? ` Separately, <b>${fmt(lb.billing)}</b> legacy subscriptions are still being charged
+          in HubSpot, mostly the same people as the legacy comps.` : ""}</p>`);
       }
       if (st && perDay != null && typeof st.cancels_paid_30d === "number") {
         const lost30 = st.cancels_paid_30d;
@@ -3528,10 +3546,10 @@
               about <b>${fmt(joined)}</b> became paying members. Look at where buyers drop out between the button and payment.</p>`);
         }
       }
-      const actions = flags.map(([sev, title]) => `<li><b>${title}.</b> See the ${sev} flag above.</li>`);
+      const actions = flags.filter((x) => x[3]).map(([, title, , act]) => `<li><b>${title}.</b> ${act}</li>`);
       if (st && st.renewals_next_90d) {
-        actions.push(`<li><b>${fmt(st.renewals_next_90d)} renewals in the next 90 days.</b> Decide the renewal price and write
-          the renewal email before they arrive.</li>`);
+        actions.push(`<li><b>${fmt(st.renewals_next_90d)} Stripe renewals in the next 90 days.</b> These are new-site
+          subscriptions. Send the renewal email before they charge.</li>`);
       }
       a.innerHTML = `${paras.join("")}
         ${actions.length ? `<ol class="kpi-actions">${actions.join("")}</ol>` : ""}
