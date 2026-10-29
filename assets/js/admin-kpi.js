@@ -332,7 +332,7 @@
   const TOTAL_FIELD = {
     rev: "membership_revenue", mem: "total_members", sub: "total_subscribers",
     nnew: "new_members_24h", nsub: "new_subscribers_24h", pv: "web_traffic_30d",
-    pod: "podcast_lifetime", op: "digest_open", migd: "migration_done",
+    podt: "podcast_lifetime", op: "digest_open", migd: "migration_done",
     cmp: "comp_overhang", cxl: "cancels_total", dl: "dl_subscribers",
   };
 
@@ -347,7 +347,11 @@
       bullets: (s) => [
         s.stripe ? `<b>${usd(s.stripe.arr)}</b> Stripe run-rate — verified` : "",
         s.hubspot ? `<b>${usd(s.hubspot.checkout_value_12m)}</b> HubSpot checkouts, 12 months — a floor` : "",
-        s.stripe ? `<b>${usd(s.stripe.mrr)}</b> MRR · <b>${usd(s.stripe.cash_30d)}</b> collected in 30 days` : ""
+        s.stripe ? `<b>${usd(s.stripe.mrr)}</b> MRR · <b>${usd(s.stripe.cash_30d)}</b> collected in 30 days` : "",
+        // A source that failed tonight is carried from its last good night,
+        // so the headline holds steady instead of dropping by that half.
+        ...["stripe", "hubspot"].filter((k) => s.stale_since && s.stale_since[k])
+          .map((k) => `${k === "stripe" ? "Stripe" : "HubSpot"} could not be read in full, so its figure is from ${esc(new Date(`${s.stale_since[k]}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }))}`)
       ]
     },
     {
@@ -638,11 +642,11 @@
       }
     },
     {
-      label: "Podcast plays", key: "pod", agg: "last", f: fmt, goodUp: true, cap: "all shows, since Apr 2026",
+      label: "Podcast plays", key: "podt", agg: "last", f: fmt, goodUp: true, cap: "all shows, since Apr 2026",
       periodBullets: (rows, prev) => [
-        `<b>${signed(changeOf(rows, prev, "pod"))}</b> plays added in the period`,
-        `<b>${fmt(lastOf(rows, "pod"))}</b> total at period end, counted since Apr 2026`,
-        "per-show splits are only kept for the current snapshot"
+        `<b>${signed(changeOf(rows, prev, "podt"))}</b> plays added in the period`,
+        `<b>${fmt(lastOf(rows, "podt"))}</b> total at period end, counted since Apr 2026`,
+        "history starts in late Oct 2026, when Daily Liturgy plays were first counted"
       ],
       bullets: (s) => (s.podcasts ? [
         `<b>${fmt(s.podcasts.daily_liturgy)}</b> Daily Liturgy`,
@@ -1767,6 +1771,17 @@
     "No activity recorded": "on the list but never seen reading — mostly subscribers who predate the new site"
   };
 
+  // Engagement and the "About You" answers have had no collector since the
+  // 2026-08-10 rebuild. The worker carries the last reading forward and
+  // records the date it was taken in `stale_since`; say so on the panel
+  // rather than pass a months-old figure off as tonight's.
+  function frozenNote(s, key) {
+    const since = s.stale_since && s.stale_since[key];
+    if (!since) return "";
+    const when = new Date(`${since}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return `<p class="kpi-note kpi-note--warn">Not updated since ${esc(when)}. Nothing collects this yet, so these are the figures from that date.</p>`;
+  }
+
   function renderLoyalty(s) {
     const host = document.querySelector("[data-kpi-loyalty]");
     if (!host) return;
@@ -1777,7 +1792,7 @@
     }
     const tracked = e.segments.filter((x) => x.name !== "No activity recorded").reduce((a, b) => a + b.n, 0);
     const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
-    host.innerHTML = `
+    host.innerHTML = `${frozenNote(s, "engagement")}
       <div class="kpi-chart">
       <p class="kpi-chart-title">Reader loyalty</p>
       <div class="kpi-stats">
@@ -1864,7 +1879,7 @@
     const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
     const totalUses = e.features.reduce((t, f) => t + (f.uses || 0), 0);
     const anyUser = Math.max(...e.features.map((f) => f.users || 0));
-    host.innerHTML = `
+    host.innerHTML = `${frozenNote(s, "engagement")}
       <div class="kpi-chart">
       <p class="kpi-chart-title">Site features</p>
       <div class="kpi-stats">
@@ -2186,7 +2201,7 @@
         <ol class="kpi-ranks">${top3(list)}</ol>
       </div>`;
 
-    host.innerHTML = `
+    host.innerHTML = `${frozenNote(s, "audience")}
       <div class="kpi-charts">
         ${card("Church tradition", "Free text, grouped into traditions.", a.traditions, a.traditions_n)}
         ${card("Relationship to the church", "Multi-select, so shares can exceed 100%.", a.roles, a.roles_n)}
@@ -3621,7 +3636,7 @@
             new_migrations_24h: row.nmig, new_comps_24h: row.ncmp,
             new_subscribers_24h: row.nsub,
             web_traffic_30d: row.pv || row.totpv,
-            podcast_lifetime: row.pod, digest_open: row.op, digest_click: row.cl,
+            podcast_lifetime: row.podt, digest_open: row.op, digest_click: row.cl,
             // Rows before 2026-08-17 have neither key — the tile reads null
             // rather than the old site-wide numbers under the new label.
             migration_done: row.migd,
