@@ -525,6 +525,12 @@
         out.push(`<b>${signed(changeOf(rows, prev, "dl"))}</b> net change over the period`);
         if (typeof end.dlo === "number") out.push(`<b>${fmt(end.dlo)}</b> take only the Daily Liturgy`);
         if (typeof end.dlb === "number") out.push(`<b>${fmt(end.dlb)}</b> also take a weekly digest`);
+        // 16 Sep to 28 Oct 2026 the collector was broken. Signups for those
+        // days are exact (Kit's join dates); list size is rebuilt between the
+        // measured ends with the departures spread evenly.
+        if (rows.some((r) => r.d > "2026-09-16" && r.d < "2026-10-29")) {
+          out.push("List size for 17 Sep to 28 Oct 2026 is rebuilt from Kit's join dates, with unsubscribes spread evenly across those weeks");
+        }
         if (!hasNew) {
           out.push("net change, not signup events — signup dates start 13 Aug 2026");
         }
