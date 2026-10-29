@@ -22918,8 +22918,12 @@ html[data-theme="dark"] .dlr-podcast:not(.dl-landing-player) .dlr-play-btn {
   gap: 9px 12px;
 }
 .kpi-hbars li { display: contents; }
+/* Card body size, same as .kpi-ranks. Without it the list inherited the 17px
+   page body on desktop and every bar chart read a size larger than the
+   cards around it; only the phone rule below set a size. */
+.kpi-hbars { font-size: 13px; color: var(--k-secondary); }
 
-.kpi-hbar-l { line-height: 1.25; overflow-wrap: anywhere; max-width: 260px; }
+.kpi-hbar-l { line-height: 1.25; overflow-wrap: anywhere; max-width: 260px; color: var(--k-text); }
 .kpi-hbar-t {
   position: relative;
   height: 14px;
