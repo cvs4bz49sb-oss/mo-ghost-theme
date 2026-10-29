@@ -1,4 +1,18 @@
 {
   "mere-fidelity": null,
-  "christians-reading-classics": null
+  "christians-reading-classics": {
+    "id": 20038398,
+    "title": "Edgar Allan Poe: America's Spookiest Classic with Fr. Ryan Duns and Steven Knepper",
+    "slug": "edgar-allan-poe-america-s-spookiest-classic-with-fr-ryan-duns-and-steven-knepper",
+    "pubDate": "2026-10-29T06:00:00.000-04:00",
+    "episode": 56,
+    "season": 2,
+    "description": "Poe doesn’t just write about ravens, floorboards, and crumbling mansions. He writes about what happens when the mind starts feeding on itself and you can’t tell whether the horror is out there, in here, or both. Steve Knepper and Father Ryan Dunn join to discuss three essential Edgar Allan Poe classics: “The Raven,” “The Telltale Heart,” and “The Fall of the House of Usher,” and we ask what it looks like to take spooky literature seriously as Christians.",
+    "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+    "audioUrl": "https://www.buzzsprout.com/2612793/episodes/20038398-edgar-allan-poe-america-s-spookiest-classic-with-fr-ryan-duns-and-steven-knepper.mp3",
+    "link": "https://mereorthodoxy.com/podcasts/christians-reading-classics/",
+    "embedUrl": "https://www.buzzsprout.com/2612793/20038398?client_source=small_player&iframe=true",
+    "hasTranscript": true,
+    "transcriptUrl": "/transcript/christians-reading-classics/edgar-allan-poe-america-s-spookiest-classic-with-fr-ryan-duns-and-steven-knepper/"
+  }
 }
