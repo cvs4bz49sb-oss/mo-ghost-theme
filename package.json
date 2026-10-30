@@ -23,6 +23,7 @@
     "build:digest": "node scripts/build-digest.mjs",
     "build:digest:check": "node scripts/build-digest.mjs --check",
     "check:lifetime-gift": "node scripts/check-lifetime-gift.mjs",
+    "check:slide-ins": "node scripts/check-slide-in-tracking.mjs",
     "check:meta": "node scripts/check-meta.mjs",
     "check:research-tools": "node scripts/check-research-tools.mjs",
     "check:research-gate": "node scripts/check-research-gate.mjs",

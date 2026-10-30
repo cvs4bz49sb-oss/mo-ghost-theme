@@ -70,3 +70,11 @@ jobs:
         # "Could not resolve" in the emailed liturgy, one day at a time,
         # with nothing to notice until a subscriber writes in.
         run: npm run check:refs
+
+      - name: Verify slide-in measurement
+        # The numbers on /admin/slide-ins/ depend on slide-in.js sending a
+        # beacon for each show, click and close, and on its button link
+        # carrying ?slide-in=<id> so a checkout can be credited to it. None
+        # of that is visible on the page, so a refactor that drops it would
+        # leave every count quietly at zero.
+        run: npm run check:slide-ins

@@ -13,6 +13,14 @@
  *   5. Pick the highest-priority remaining item.
  *   6. Render it and animate in after a short delay.
  *
+ * § Measurement. Each slide-in reports three counts to the admin worker,
+ * which shows them on /admin/slide-ins/: shown (it slid into view),
+ * clicked (the button) and closed (the × or a swipe down). The button's
+ * link to a page on this site also gets ?slide-in=<id>, so a checkout
+ * started from the page it leads to can be credited to the slide-in. See
+ * mo-workers membership/lib/slide-in-attribution.js for how a Ghost Portal
+ * membership and a Lifetime purchase each carry that id to Stripe.
+ *
  * § Frequency. The window on each slide-in caps how often it can be
  * SHOWN, not just how long a dismissal lasts. Before 2026-08-28 only a
  * dismissal was recorded, so a visitor who ignored a slide-in — closed
@@ -240,6 +248,20 @@
     try { localStorage.setItem(DISMISS_PREFIX + item.id, String(Date.now())); } catch (e) {}
   }
 
+  // The button's own link plus ?slide-in=<id>, for a page on this site.
+  // A link off the site is left exactly as entered: the id means nothing
+  // there. The hash stays last, so /membership/#lifetime-upgrade becomes
+  // /membership/?slide-in=<id>#lifetime-upgrade and still scrolls to the
+  // Lifetime row.
+  function withSlideInParam(href, id) {
+    try {
+      const u = new URL(href, window.location.href);
+      if (u.origin !== window.location.origin) return href;
+      u.searchParams.set("slide-in", id);
+      return u.pathname + u.search + u.hash;
+    } catch (e) { return href; }
+  }
+
   // ── Render ────────────────────────────────────────────────────
   function render(item) {
     const el = document.createElement("aside");
@@ -293,6 +315,10 @@
     // slide-in.
     const btn = document.createElement("a");
     window.MOSafeHref.set(btn, item.button_url);
+    // Tagged only after the raw value has passed the allowlist, and set
+    // through it again, so the param can never turn an unsafe URL into
+    // one that renders.
+    if (window.MOSafeHref.isSafe(item.button_url)) window.MOSafeHref.set(btn, withSlideInParam(item.button_url, item.id));
     btn.className = "btn btn-solid slide-in-btn";
     btn.textContent = item.button_text;
     content.appendChild(btn);
@@ -301,6 +327,7 @@
 
     close.addEventListener("click", () => {
       dismiss(item);
+      track(item.id, "dismiss");
       el.classList.remove("is-visible");
       setTimeout(() => { el.remove(); }, 400);
     });
