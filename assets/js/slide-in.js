@@ -309,6 +309,28 @@
       track(item.id, "click");
     });
 
+    // On phones the card is a bottom sheet (screen.css), so a swipe
+    // down closes it the same way the close button does.
+    let startY = null;
+    el.addEventListener("touchstart", (e) => {
+      if (!window.matchMedia("(max-width: 640px)").matches) return;
+      startY = e.touches[0].clientY;
+      el.style.transition = "none";
+    }, { passive: true });
+    el.addEventListener("touchmove", (e) => {
+      if (startY === null) return;
+      const dy = Math.max(0, e.touches[0].clientY - startY);
+      el.style.transform = `translateY(${dy}px)`;
+    }, { passive: true });
+    el.addEventListener("touchend", (e) => {
+      if (startY === null) return;
+      const dy = e.changedTouches[0].clientY - startY;
+      startY = null;
+      el.style.transition = "";
+      el.style.transform = "";
+      if (dy > 60) close.click();
+    });
+
     document.body.appendChild(el);
 
     setTimeout(() => {
