@@ -113,6 +113,12 @@
   // status is a free subscriber.
   const isPaid = memberStatus === "paid" || memberStatus === "comped";
   const isFree = isMember && memberStatus === "free";
+  // Already Lifetime, by purchase or by gift. default.hbs writes the flag
+  // from the member's labels, so it is empty for everyone else, signed
+  // out included. Lifetime members are paid (or comped) and so match
+  // "paid"; "paid-not-lifetime" is for an offer they already took, such
+  // as the Lifetime upgrade itself.
+  const isLifetime = isMember && !!document.body.getAttribute("data-member-lifetime");
 
   // ── Fetch ─────────────────────────────────────────────────────
   function load(cb) {
@@ -181,6 +187,7 @@
       if (a === "signed-in") return isMember;
       if (a === "free") return isFree;
       if (a === "paid") return isPaid;
+      if (a === "paid-not-lifetime") return isPaid && !isLifetime;
       return false;
     });
   }
@@ -236,7 +243,7 @@
   // ── Render ────────────────────────────────────────────────────
   function render(item) {
     const el = document.createElement("aside");
-    el.className = `slide-in${item.image ? " has-image" : ""}`;
+    el.className = `slide-in${item.image ? " has-image" : ""}${item.image && item.image_fit === "contain" ? " image-contain" : ""}`;
     el.setAttribute("role", "complementary");
     el.setAttribute("aria-label", item.headline);
 
@@ -286,7 +293,7 @@
     // slide-in.
     const btn = document.createElement("a");
     window.MOSafeHref.set(btn, item.button_url);
-    btn.className = "btn btn-primary slide-in-btn";
+    btn.className = "btn btn-solid slide-in-btn";
     btn.textContent = item.button_text;
     content.appendChild(btn);
 
@@ -300,6 +307,28 @@
 
     btn.addEventListener("click", () => {
       track(item.id, "click");
+    });
+
+    // On phones the card is a bottom sheet (screen.css), so a swipe
+    // down closes it the same way the close button does.
+    let startY = null;
+    el.addEventListener("touchstart", (e) => {
+      if (!window.matchMedia("(max-width: 640px)").matches) return;
+      startY = e.touches[0].clientY;
+      el.style.transition = "none";
+    }, { passive: true });
+    el.addEventListener("touchmove", (e) => {
+      if (startY === null) return;
+      const dy = Math.max(0, e.touches[0].clientY - startY);
+      el.style.transform = `translateY(${dy}px)`;
+    }, { passive: true });
+    el.addEventListener("touchend", (e) => {
+      if (startY === null) return;
+      const dy = e.changedTouches[0].clientY - startY;
+      startY = null;
+      el.style.transition = "";
+      el.style.transform = "";
+      if (dy > 60) close.click();
     });
 
     document.body.appendChild(el);

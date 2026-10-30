@@ -364,6 +364,7 @@
       form.querySelector('[name="eyebrow"]').value = item.eyebrow || "";
       form.querySelector('[name="headline"]').value = item.headline || "";
       setImage(item.image || "");
+      form.querySelector('[name="image_fit"]').checked = item.image_fit === "contain";
       form.querySelector('[name="body"]').value = item.body || "";
       form.querySelector('[name="button_text"]').value = item.button_text || "";
       form.querySelector('[name="button_url"]').value = item.button_url || "";
@@ -417,6 +418,7 @@
       eyebrow: form.querySelector('[name="eyebrow"]').value.trim(),
       headline: form.querySelector('[name="headline"]').value.trim(),
       image: form.querySelector('[name="image"]').value.trim(),
+      image_fit: form.querySelector('[name="image_fit"]').checked ? "contain" : "",
       body: form.querySelector('[name="body"]').value.trim(),
       button_text: form.querySelector('[name="button_text"]').value.trim(),
       button_url: form.querySelector('[name="button_url"]').value.trim(),
@@ -454,7 +456,8 @@
         : pageLabels[item.pages] || item.pages;
       const audLabels = {
         everyone: "Everyone", "not-signed-in": "Not signed in",
-        "signed-in": "Signed in", free: "Free", paid: "Paid"
+        "signed-in": "Signed in", free: "Free", paid: "Paid",
+        "paid-not-lifetime": "Paid, not Lifetime"
       };
       const audience = (item.audience || "everyone").split(",").map((a) => { return audLabels[a] || a; }).join(", ");
 
@@ -582,7 +585,7 @@
     previewStage.innerHTML = "";
 
     const el = document.createElement("aside");
-    el.className = `slide-in${data.image ? " has-image" : ""} is-visible`;
+    el.className = `slide-in${data.image ? " has-image" : ""}${data.image && data.image_fit === "contain" ? " image-contain" : ""} is-visible`;
     el.setAttribute("role", "complementary");
     el.style.position = "relative";
     el.style.transform = "none";
@@ -628,7 +631,7 @@
 
     const btn = document.createElement("a");
     btn.href = "#";
-    btn.className = "btn btn-primary slide-in-btn";
+    btn.className = "btn btn-solid slide-in-btn";
     btn.textContent = data.button_text || "(no button text)";
     btn.addEventListener("click", (e) => { e.preventDefault(); });
     content.appendChild(btn);

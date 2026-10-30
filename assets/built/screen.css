@@ -14769,13 +14769,20 @@ body.mo-search-open { overflow: hidden; }
 /* =============================================================
    Slide-in CTA
    ============================================================= */
+/* Brand colours, Ian 2026-10-30: "These should be in our brand
+   colors." The card sits on the tan the membership surfaces use
+   (--color-background) instead of plain white, the eyebrow takes
+   --color-primary-text (the raw orange is 2.47:1 on tan), and the
+   button is .btn-solid, the filled terracotta that the button sweep
+   above reserves for a surface's one call to action. slide-in.js and
+   the admin preview add btn-solid. */
 .slide-in {
   position: fixed;
   bottom: 24px;
   right: 24px;
   width: 320px;
-  background: var(--color-white, #fff);
-  border: 1px solid var(--color-rule);
+  background: var(--color-background);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
   z-index: 900;
@@ -14795,7 +14802,7 @@ body.mo-search-open { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.85);
+  background: var(--color-cream);
   border: 1px solid var(--color-rule);
   border-radius: 50%;
   font-size: 18px;
@@ -14816,6 +14823,12 @@ body.mo-search-open { overflow: hidden; }
   display: grid;
   grid-template-columns: 170px 1fr;
 }
+/* The book cover option gets a wider column, Ian 2026-10-30: "The book
+   one is better, the journal one is worse." Photos keep 170px. */
+.slide-in.has-image.image-contain {
+  width: 460px;
+  grid-template-columns: 190px 1fr;
+}
 .slide-in.has-image .slide-in-image {
   grid-row: 1 / -1;
   display: block;
@@ -14824,6 +14837,22 @@ body.mo-search-open { overflow: hidden; }
   object-fit: cover;
   filter: sepia(0.12) saturate(0.85) contrast(1.02);
   border-right: 1px solid var(--color-card-border);
+}
+/* Book cover option: a cover or product shot on white sits in a 3:4
+   frame centred in the column, cropped only at the white edges, and
+   multiply drops the white into the tan card. Ian 2026-10-30: "Make more
+   of the book show", then "Is there a middle ground with the book size?":
+   the whole book, larger than a plain fit. */
+.slide-in.has-image.image-contain .slide-in-image {
+  height: auto;
+  aspect-ratio: 3 / 4;
+  align-self: center;
+  object-fit: cover;
+  padding: 8px;
+  box-sizing: border-box;
+  border-right: none;
+  mix-blend-mode: multiply;
+  filter: none;
 }
 
 /* ── No-image (stacked) — kept for backward compat ── */
@@ -14839,7 +14868,7 @@ body.mo-search-open { overflow: hidden; }
   padding: 20px 22px 22px;
 }
 .slide-in-eyebrow {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   margin: 0 0 4px;
   padding-right: 32px;
 }
@@ -14863,67 +14892,113 @@ body.mo-search-open { overflow: hidden; }
   padding: 8px 20px;
 }
 
-/* Mobile: bottom banner */
+/* Phones: a bottom sheet, Ian 2026-10-30: "Can you reformat this to be
+   better on mobile? Like a bottom up slide up?" The card rises from the
+   bottom edge full width, with a grab handle, a cover-sized thumbnail,
+   readable type, a 44px close target and a full-width button. A swipe
+   down closes it (slide-in.js). The admin's phone preview below repeats
+   these rules. */
 @media (max-width: 640px) {
   .slide-in,
   .slide-in.has-image {
-    bottom: 0;
-    right: 0;
+    transform: translateY(calc(100% + 24px));
+  }
+  .slide-in.is-visible {
+    transform: translateY(0);
+  }
+  .slide-in,
+  .slide-in.has-image {
     left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     display: grid;
-    border-radius: var(--radius) var(--radius) 0 0;
-    border-bottom: none;
-    transform: translateY(100%);
+    column-gap: 14px;
+    align-items: start;
+    padding: 24px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-width: 1px 0 0;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 30px rgba(45, 41, 39, 0.18);
+  }
+  .slide-in::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    margin-left: -18px;
+    border-radius: 2px;
+    background: var(--color-card-border);
   }
   .slide-in:not(.has-image) {
     grid-template-columns: 1fr;
   }
   .slide-in.has-image {
-    grid-template-columns: 110px 1fr;
+    grid-template-columns: 96px 1fr;
   }
-  .slide-in.is-visible {
-    transform: translateY(0);
+  .slide-in.has-image.image-contain {
+    width: 100%;
+    grid-template-columns: 96px 1fr;
   }
   .slide-in:not(.has-image) .slide-in-image {
     display: none;
   }
   .slide-in.has-image .slide-in-image {
-    grid-row: 1 / -1;
+    grid-row: auto;
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 96px;
+    height: 128px;
     object-fit: cover;
     filter: sepia(0.12) saturate(0.85) contrast(1.02);
-    border-right: 1px solid var(--color-card-border);
-    border-radius: var(--radius) 0 0 0;
+    border: 1px solid var(--color-card-border);
+    border-radius: 6px;
+  }
+  .slide-in.has-image.image-contain .slide-in-image {
+    height: 128px;
+    align-self: start;
+    object-fit: cover;
+    padding: 4px;
+    border-color: transparent;
+    mix-blend-mode: multiply;
+    filter: none;
   }
   .slide-in-close {
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  .slide-in-close::after {
+    content: "";
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    font-size: 15px;
+    inset: -4px;
   }
   .slide-in-content {
-    padding: 12px 40px 14px 14px;
+    padding: 0;
+  }
+  .slide-in-content > :first-child {
+    padding-right: 40px;
   }
   .slide-in-eyebrow {
-    margin: 0 0 2px;
-    font-size: 10px;
+    margin: 0 0 4px;
+    font-size: 11px;
   }
   .slide-in-headline {
-    font-size: 16px;
-    margin: 0 0 8px;
+    font-size: 18px;
+    margin: 0 0 6px;
   }
   .slide-in-body {
-    font-size: 13px;
-    margin: 0 0 10px;
+    font-size: 14px;
+    margin: 0 0 14px;
   }
   .slide-in-btn {
-    font-size: 12px;
-    padding: 6px 16px;
+    display: flex;
+    width: 100%;
+    min-height: 44px;
+    font-size: 15px;
+    padding: 11px 16px;
   }
 }
 
@@ -15220,7 +15295,7 @@ body.mo-search-open { overflow: hidden; }
 }
 .slide-in-preview-stage {
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
   display: flex;
   justify-content: flex-end;
 }
@@ -15232,55 +15307,100 @@ body.mo-search-open { overflow: hidden; }
   max-width: 375px;
   justify-content: stretch;
 }
+/* Same bottom sheet as the phone media query above. */
 [data-preview-viewport="mobile"] .slide-in,
 [data-preview-viewport="mobile"] .slide-in.has-image {
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   display: grid;
-  border-radius: var(--radius) var(--radius) 0 0;
-  border-bottom: none;
+  column-gap: 14px;
+  align-items: start;
+  padding: 24px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-width: 1px 0 0;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -8px 30px rgba(45, 41, 39, 0.18);
+}
+[data-preview-viewport="mobile"] .slide-in::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 36px;
+  height: 4px;
+  margin-left: -18px;
+  border-radius: 2px;
+  background: var(--color-card-border);
 }
 [data-preview-viewport="mobile"] .slide-in:not(.has-image) {
   grid-template-columns: 1fr;
 }
 [data-preview-viewport="mobile"] .slide-in.has-image {
-  grid-template-columns: 110px 1fr;
+  grid-template-columns: 96px 1fr;
+}
+[data-preview-viewport="mobile"] .slide-in.has-image.image-contain {
+  width: 100%;
+  grid-template-columns: 96px 1fr;
 }
 [data-preview-viewport="mobile"] .slide-in:not(.has-image) .slide-in-image {
   display: none;
 }
 [data-preview-viewport="mobile"] .slide-in.has-image .slide-in-image {
-  grid-row: 1 / -1;
+  grid-row: auto;
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 96px;
+  height: 128px;
   object-fit: cover;
   filter: sepia(0.12) saturate(0.85) contrast(1.02);
-  border-right: 1px solid var(--color-card-border);
-  border-radius: var(--radius) 0 0 0;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+}
+[data-preview-viewport="mobile"] .slide-in.has-image.image-contain .slide-in-image {
+  height: 128px;
+  align-self: start;
+  object-fit: cover;
+  padding: 4px;
+  border-color: transparent;
+  mix-blend-mode: multiply;
+  filter: none;
 }
 [data-preview-viewport="mobile"] .slide-in-close {
-  width: 24px;
-  height: 24px;
-  font-size: 15px;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+}
+[data-preview-viewport="mobile"] .slide-in-close::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
 }
 [data-preview-viewport="mobile"] .slide-in-content {
-  padding: 12px 40px 14px 14px;
+  padding: 0;
+}
+[data-preview-viewport="mobile"] .slide-in-content > :first-child {
+  padding-right: 40px;
 }
 [data-preview-viewport="mobile"] .slide-in-eyebrow {
-  margin: 0 0 2px;
-  font-size: 10px;
+  margin: 0 0 4px;
+  font-size: 11px;
 }
 [data-preview-viewport="mobile"] .slide-in-headline {
-  font-size: 16px;
-  margin: 0 0 8px;
+  font-size: 18px;
+  margin: 0 0 6px;
 }
 [data-preview-viewport="mobile"] .slide-in-body {
-  font-size: 13px;
-  margin: 0 0 10px;
+  font-size: 14px;
+  margin: 0 0 14px;
 }
 [data-preview-viewport="mobile"] .slide-in-btn {
-  font-size: 12px;
-  padding: 6px 16px;
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  font-size: 15px;
+  padding: 11px 16px;
 }
 .slide-in-preview-panel[hidden] { display: none; }
 
