@@ -14961,6 +14961,7 @@ body.mo-search-open { overflow: hidden; }
   .slide-in.has-image:not(.image-contain) .slide-in-image {
     width: 100%;
     height: 140px;
+    object-position: 50% 30%;
     margin-bottom: 14px;
     border-radius: 8px;
   }
@@ -15370,6 +15371,7 @@ body.mo-search-open { overflow: hidden; }
 [data-preview-viewport="mobile"] .slide-in.has-image:not(.image-contain) .slide-in-image {
   width: 100%;
   height: 140px;
+  object-position: 50% 30%;
   margin-bottom: 14px;
   border-radius: 8px;
 }
