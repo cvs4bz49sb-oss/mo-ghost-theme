@@ -16,7 +16,12 @@
      assets/js/lifetime-checkout.js. Those two are mutually exclusive
      branches of partials/membership-body.hbs, so the single global
      [data-lifetime-error] lookup in that script never has two targets. --}}
+{{!-- id="lifetime-upgrade" is the landing spot for links that send a
+     member straight to this offer, such as the Lifetime slide-in's
+     /membership/#lifetime-upgrade. html's scroll-padding-top already
+     clears the fixed header. --}}
 <div class="lifetime-upgrade"
+     id="lifetime-upgrade"
      data-lifetime-upgrade
      data-member-status="{{@member.status}}"
      data-member-labels="{{#foreach @member.labels}}{{name}} {{/foreach}}"

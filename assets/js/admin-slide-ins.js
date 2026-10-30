@@ -454,7 +454,8 @@
         : pageLabels[item.pages] || item.pages;
       const audLabels = {
         everyone: "Everyone", "not-signed-in": "Not signed in",
-        "signed-in": "Signed in", free: "Free", paid: "Paid"
+        "signed-in": "Signed in", free: "Free", paid: "Paid",
+        "paid-not-lifetime": "Paid, not Lifetime"
       };
       const audience = (item.audience || "everyone").split(",").map((a) => { return audLabels[a] || a; }).join(", ");
 

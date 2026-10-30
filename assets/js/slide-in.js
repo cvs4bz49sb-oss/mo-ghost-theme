@@ -113,6 +113,12 @@
   // status is a free subscriber.
   const isPaid = memberStatus === "paid" || memberStatus === "comped";
   const isFree = isMember && memberStatus === "free";
+  // Already Lifetime, by purchase or by gift. default.hbs writes the flag
+  // from the member's labels, so it is empty for everyone else, signed
+  // out included. Lifetime members are paid (or comped) and so match
+  // "paid"; "paid-not-lifetime" is for an offer they already took, such
+  // as the Lifetime upgrade itself.
+  const isLifetime = isMember && !!document.body.getAttribute("data-member-lifetime");
 
   // ── Fetch ─────────────────────────────────────────────────────
   function load(cb) {
@@ -181,6 +187,7 @@
       if (a === "signed-in") return isMember;
       if (a === "free") return isFree;
       if (a === "paid") return isPaid;
+      if (a === "paid-not-lifetime") return isPaid && !isLifetime;
       return false;
     });
   }
