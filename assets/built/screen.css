@@ -14883,7 +14883,7 @@ body.mo-search-open { overflow: hidden; }
 /* Phones: a bottom sheet, Ian 2026-10-30: "Can you reformat this to be
    better on mobile? Like a bottom up slide up?" The card rises from the
    bottom edge full width, with a grab handle, a cover-sized thumbnail,
-   readable type, a 44px close target and a full-width button. A swipe
+   readable type (a photo runs as a band on top), a 44px close target and a full-width button. A swipe
    down closes it (slide-in.js). The admin's phone preview below repeats
    these rules. */
 @media (max-width: 640px) {
@@ -14944,6 +14944,17 @@ body.mo-search-open { overflow: hidden; }
     border-color: transparent;
     mix-blend-mode: multiply;
     filter: none;
+  }
+  /* A photo (not a whole-image cover) runs as a full-width band above the
+     text, so a landscape shot isn't squeezed into the narrow column. */
+  .slide-in.has-image:not(.image-contain) {
+    grid-template-columns: 1fr;
+  }
+  .slide-in.has-image:not(.image-contain) .slide-in-image {
+    width: 100%;
+    height: 140px;
+    margin-bottom: 14px;
+    border-radius: 8px;
   }
   .slide-in-close {
     top: 10px;
@@ -15340,6 +15351,17 @@ body.mo-search-open { overflow: hidden; }
   border-color: transparent;
   mix-blend-mode: multiply;
   filter: none;
+}
+/* A photo (not a whole-image cover) runs as a full-width band above the
+   text, so a landscape shot isn't squeezed into the narrow column. */
+[data-preview-viewport="mobile"] .slide-in.has-image:not(.image-contain) {
+  grid-template-columns: 1fr;
+}
+[data-preview-viewport="mobile"] .slide-in.has-image:not(.image-contain) .slide-in-image {
+  width: 100%;
+  height: 140px;
+  margin-bottom: 14px;
+  border-radius: 8px;
 }
 [data-preview-viewport="mobile"] .slide-in-close {
   top: 10px;
