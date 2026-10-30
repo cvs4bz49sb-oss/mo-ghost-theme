@@ -14774,7 +14774,7 @@ body.mo-search-open { overflow: hidden; }
   bottom: 24px;
   right: 24px;
   width: 320px;
-  background: var(--color-white, #fff);
+  background: var(--color-cream, #f5efe1);
   border: 1px solid var(--color-rule);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
@@ -14861,6 +14861,20 @@ body.mo-search-open { overflow: hidden; }
   display: inline-block;
   font-size: 13px;
   padding: 8px 20px;
+}
+/* Same filled rust button as the Become a Member card on /membership/,
+   so a slide-in reads as Mere O rather than a generic outline button. */
+.slide-in .slide-in-btn {
+  color: var(--color-white, #fff);
+  background-color: var(--color-secondary);
+  background-image: none;
+  border-color: var(--color-secondary);
+}
+.slide-in .slide-in-btn:hover,
+.slide-in .slide-in-btn:focus-visible {
+  color: var(--color-white, #fff);
+  background-color: color-mix(in srgb, var(--color-secondary) 86%, #000);
+  border-color: color-mix(in srgb, var(--color-secondary) 86%, #000);
 }
 
 /* Mobile: bottom banner */
