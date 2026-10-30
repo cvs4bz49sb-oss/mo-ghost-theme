@@ -14832,13 +14832,19 @@ body.mo-search-open { overflow: hidden; }
   filter: sepia(0.12) saturate(0.85) contrast(1.02);
   border-right: 1px solid var(--color-card-border);
 }
-/* "Show the whole image": a book cover or product shot is scaled to fit
-   instead of cropped, and multiply drops its white backdrop into the
-   tan card (Ian 2026-10-30: "Make more of the book show"). */
+/* Book cover option: a cover or product shot on white sits in a 3:4
+   frame centred in the column, cropped only at the white edges, and
+   multiply drops the white into the tan card. Ian 2026-10-30: "Make more
+   of the book show", then "Is there a middle ground with the book size?":
+   the whole book, larger than a plain fit. */
 .slide-in.has-image.image-contain .slide-in-image {
-  object-fit: contain;
-  padding: 14px 10px;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  align-self: center;
+  object-fit: cover;
+  padding: 8px;
   box-sizing: border-box;
+  border-right: none;
   mix-blend-mode: multiply;
   filter: none;
 }
@@ -14939,7 +14945,9 @@ body.mo-search-open { overflow: hidden; }
     border-radius: 6px;
   }
   .slide-in.has-image.image-contain .slide-in-image {
-    object-fit: contain;
+    height: 128px;
+    align-self: start;
+    object-fit: cover;
     padding: 4px;
     border-color: transparent;
     mix-blend-mode: multiply;
@@ -15346,7 +15354,9 @@ body.mo-search-open { overflow: hidden; }
   border-radius: 6px;
 }
 [data-preview-viewport="mobile"] .slide-in.has-image.image-contain .slide-in-image {
-  object-fit: contain;
+  height: 128px;
+  align-self: start;
+  object-fit: cover;
   padding: 4px;
   border-color: transparent;
   mix-blend-mode: multiply;
