@@ -243,7 +243,7 @@
   // ── Render ────────────────────────────────────────────────────
   function render(item) {
     const el = document.createElement("aside");
-    el.className = `slide-in${item.image ? " has-image" : ""}`;
+    el.className = `slide-in${item.image ? " has-image" : ""}${item.image && item.image_fit === "contain" ? " image-contain" : ""}`;
     el.setAttribute("role", "complementary");
     el.setAttribute("aria-label", item.headline);
 
@@ -293,7 +293,7 @@
     // slide-in.
     const btn = document.createElement("a");
     window.MOSafeHref.set(btn, item.button_url);
-    btn.className = "btn btn-primary slide-in-btn";
+    btn.className = "btn btn-solid slide-in-btn";
     btn.textContent = item.button_text;
     content.appendChild(btn);
 

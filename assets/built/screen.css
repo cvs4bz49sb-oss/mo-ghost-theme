@@ -14769,13 +14769,20 @@ body.mo-search-open { overflow: hidden; }
 /* =============================================================
    Slide-in CTA
    ============================================================= */
+/* Brand colours, Ian 2026-10-30: "These should be in our brand
+   colors." The card sits on the tan the membership surfaces use
+   (--color-background) instead of plain white, the eyebrow takes
+   --color-primary-text (the raw orange is 2.47:1 on tan), and the
+   button is .btn-solid, the filled terracotta that the button sweep
+   above reserves for a surface's one call to action. slide-in.js and
+   the admin preview add btn-solid. */
 .slide-in {
   position: fixed;
   bottom: 24px;
   right: 24px;
   width: 320px;
-  background: var(--color-white, #fff);
-  border: 1px solid var(--color-rule);
+  background: var(--color-background);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
   z-index: 900;
@@ -14795,7 +14802,7 @@ body.mo-search-open { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.85);
+  background: var(--color-cream);
   border: 1px solid var(--color-rule);
   border-radius: 50%;
   font-size: 18px;
@@ -14825,6 +14832,16 @@ body.mo-search-open { overflow: hidden; }
   filter: sepia(0.12) saturate(0.85) contrast(1.02);
   border-right: 1px solid var(--color-card-border);
 }
+/* "Show the whole image": a book cover or product shot is scaled to fit
+   instead of cropped, and multiply drops its white backdrop into the
+   tan card (Ian 2026-10-30: "Make more of the book show"). */
+.slide-in.has-image.image-contain .slide-in-image {
+  object-fit: contain;
+  padding: 14px 10px;
+  box-sizing: border-box;
+  mix-blend-mode: multiply;
+  filter: none;
+}
 
 /* ── No-image (stacked) — kept for backward compat ── */
 .slide-in:not(.has-image) .slide-in-image {
@@ -14839,7 +14856,7 @@ body.mo-search-open { overflow: hidden; }
   padding: 20px 22px 22px;
 }
 .slide-in-eyebrow {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   margin: 0 0 4px;
   padding-right: 32px;
 }
@@ -14897,6 +14914,12 @@ body.mo-search-open { overflow: hidden; }
     filter: sepia(0.12) saturate(0.85) contrast(1.02);
     border-right: 1px solid var(--color-card-border);
     border-radius: var(--radius) 0 0 0;
+  }
+  .slide-in.has-image.image-contain .slide-in-image {
+    object-fit: contain;
+    padding: 10px 6px;
+    mix-blend-mode: multiply;
+    filter: none;
   }
   .slide-in-close {
     position: absolute;
@@ -15257,6 +15280,12 @@ body.mo-search-open { overflow: hidden; }
   filter: sepia(0.12) saturate(0.85) contrast(1.02);
   border-right: 1px solid var(--color-card-border);
   border-radius: var(--radius) 0 0 0;
+}
+[data-preview-viewport="mobile"] .slide-in.has-image.image-contain .slide-in-image {
+  object-fit: contain;
+  padding: 10px 6px;
+  mix-blend-mode: multiply;
+  filter: none;
 }
 [data-preview-viewport="mobile"] .slide-in-close {
   width: 24px;
