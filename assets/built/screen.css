@@ -14818,10 +14818,12 @@ body.mo-search-open { overflow: hidden; }
 }
 
 /* ── Image-left layout (matches This Week entry-plate) ── */
+/* A wider image column, Ian 2026-10-30, asking for a middle ground on the
+   book and photo sizes. */
 .slide-in.has-image {
-  width: 440px;
+  width: 460px;
   display: grid;
-  grid-template-columns: 170px 1fr;
+  grid-template-columns: 190px 1fr;
 }
 .slide-in.has-image .slide-in-image {
   grid-row: 1 / -1;
@@ -15297,7 +15299,7 @@ body.mo-search-open { overflow: hidden; }
 }
 .slide-in-preview-stage {
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
   display: flex;
   justify-content: flex-end;
 }
