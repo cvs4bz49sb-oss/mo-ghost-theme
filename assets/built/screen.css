@@ -14818,11 +14818,15 @@ body.mo-search-open { overflow: hidden; }
 }
 
 /* ── Image-left layout (matches This Week entry-plate) ── */
-/* A wider image column, Ian 2026-10-30, asking for a middle ground on the
-   book and photo sizes. */
 .slide-in.has-image {
-  width: 460px;
+  width: 440px;
   display: grid;
+  grid-template-columns: 170px 1fr;
+}
+/* The book cover option gets a wider column, Ian 2026-10-30: "The book
+   one is better, the journal one is worse." Photos keep 170px. */
+.slide-in.has-image.image-contain {
+  width: 460px;
   grid-template-columns: 190px 1fr;
 }
 .slide-in.has-image .slide-in-image {
@@ -14891,7 +14895,7 @@ body.mo-search-open { overflow: hidden; }
 /* Phones: a bottom sheet, Ian 2026-10-30: "Can you reformat this to be
    better on mobile? Like a bottom up slide up?" The card rises from the
    bottom edge full width, with a grab handle, a cover-sized thumbnail,
-   readable type (a photo runs as a band on top), a 44px close target and a full-width button. A swipe
+   readable type, a 44px close target and a full-width button. A swipe
    down closes it (slide-in.js). The admin's phone preview below repeats
    these rules. */
 @media (max-width: 640px) {
@@ -14933,6 +14937,10 @@ body.mo-search-open { overflow: hidden; }
   .slide-in.has-image {
     grid-template-columns: 96px 1fr;
   }
+  .slide-in.has-image.image-contain {
+    width: 100%;
+    grid-template-columns: 96px 1fr;
+  }
   .slide-in:not(.has-image) .slide-in-image {
     display: none;
   }
@@ -14954,18 +14962,6 @@ body.mo-search-open { overflow: hidden; }
     border-color: transparent;
     mix-blend-mode: multiply;
     filter: none;
-  }
-  /* A photo (not a whole-image cover) runs as a full-width band above the
-     text, so a landscape shot isn't squeezed into the narrow column. */
-  .slide-in.has-image:not(.image-contain) {
-    grid-template-columns: 1fr;
-  }
-  .slide-in.has-image:not(.image-contain) .slide-in-image {
-    width: 100%;
-    height: 140px;
-    object-position: 50% 30%;
-    margin-bottom: 14px;
-    border-radius: 8px;
   }
   .slide-in-close {
     top: 10px;
@@ -15343,6 +15339,10 @@ body.mo-search-open { overflow: hidden; }
 [data-preview-viewport="mobile"] .slide-in.has-image {
   grid-template-columns: 96px 1fr;
 }
+[data-preview-viewport="mobile"] .slide-in.has-image.image-contain {
+  width: 100%;
+  grid-template-columns: 96px 1fr;
+}
 [data-preview-viewport="mobile"] .slide-in:not(.has-image) .slide-in-image {
   display: none;
 }
@@ -15364,18 +15364,6 @@ body.mo-search-open { overflow: hidden; }
   border-color: transparent;
   mix-blend-mode: multiply;
   filter: none;
-}
-/* A photo (not a whole-image cover) runs as a full-width band above the
-   text, so a landscape shot isn't squeezed into the narrow column. */
-[data-preview-viewport="mobile"] .slide-in.has-image:not(.image-contain) {
-  grid-template-columns: 1fr;
-}
-[data-preview-viewport="mobile"] .slide-in.has-image:not(.image-contain) .slide-in-image {
-  width: 100%;
-  height: 140px;
-  object-position: 50% 30%;
-  margin-bottom: 14px;
-  border-radius: 8px;
 }
 [data-preview-viewport="mobile"] .slide-in-close {
   top: 10px;
