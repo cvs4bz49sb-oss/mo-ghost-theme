@@ -59,7 +59,7 @@
           const r = (q && S().parseRef && S().parseRef(q)) || (S().legacyRef && S().legacyRef(location));
           return r && r.book ? { book: r.book.lib, ch: String(r.c), v: r.v || 0, name: r.book.name, bk: r.book } : null;
         },
-        read: (slug, p) => (S().sourceHref ? S().sourceHref(`/read?w=${slug}#b${p}-0`, slug, p) : `/the-faith-received/read/?w=${encodeURIComponent(slug)}#b${p}-0`),
+        read: (slug, p, at) => { const q = at ? `&at=${encodeURIComponent(at)}` : ''; return S().sourceHref ? S().sourceHref(`/read?w=${slug}${q}#b${p}-0`, slug, p) : `/the-faith-received/read/?w=${encodeURIComponent(slug)}${q}#b${p}-0`; },
         layout: '.sd-layout', side: '.sd-side', verses: '.bible-verse[data-v]',
         vnum: (el) => +el.dataset.v, clicked(t) { const b = t.closest('.bible-verse[data-v]'); return b ? +b.dataset.v : 0; },
         verseEl: (v) => document.querySelector(`.bible-verse[data-v="${v}"]`),
@@ -75,7 +75,7 @@
         const h = document.querySelector('.scripture-chapter-title, main h1');
         return m ? { book: m[1], ch: m[2], v: +(m[3] || 0), name: ((h && h.textContent) || '').replace(/\s+\d+\s*$/, '').trim() } : null;
       },
-      read: (slug, p) => `/read?w=${encodeURIComponent(slug)}#b${p}-0`,
+      read: (slug, p, at) => `/read?w=${encodeURIComponent(slug)}${at ? `&at=${encodeURIComponent(at)}` : ''}#b${p}-0`,
       layout: '.scripture-reader-layout', side: '.scripture-verse-summary', verses: '.scripture-verse-wrap[id^="v"]',
       vnum: (el) => +el.id.slice(1), clicked(t) { const b = t.closest('[data-select-verse]'); return b ? +b.dataset.selectVerse : 0; },
       verseEl: (v) => document.getElementById(`v${v}`),
@@ -316,7 +316,8 @@
     const is = d.all.get(String(n)) || [], i = is.find((x) => x >= at);
     return i == null ? n : eeboReaderId(n, is.indexOf(i));
   }
-  const readHref = (slug, p) => SITE.read(slug, readerPage(slug, p));
+  // (10-31) at: the heading the view starts at, which the reader lands on inside the page (its ?at= arrival) rather than the page's top
+  const readHref = (slug, p, at) => SITE.read(slug, readerPage(slug, p), at);
   async function eeboCursor(c, ch) {
     if (!c || !window.FRCommentaryPages.EEBO.test(c.slug)) return null;
     const d = await PG.eebo(c.slug).catch(() => null);
@@ -505,19 +506,16 @@
     const closeList = () => setDir(false);
     // a key chosen from the keyboard keeps the focus on that key (the strip is drawn again for the commentary chosen)
     pane.querySelector('.cp-keys').onclick = (e) => {
+      const more = e.target.closest('.cp-keys-more');
+      if (more) { S.restOpen = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded', String(S.restOpen)); const r = pane.querySelector('.cp-keys-rest'); if (r) r.hidden = !S.restOpen; return; }
       const b = e.target.closest('[data-slug]'); if (!b) return;
       const { slug } = b.dataset, kept = document.activeElement === b;
       closeList(); choose(slug, true);
       const nb = kept && [...pane.querySelectorAll('.cp-key')].find((x) => x.dataset.slug === slug); if (nb) nb.focus();
     };
-    // (10-28) a key row is one line on every screen: a mouse wheel turned over it scrolls it sideways, and at either end the pane's own
-    pane.querySelector('.cp-keys').addEventListener('wheel', (e) => {
-      const row = e.target.closest('.cp-keys-row:not(.cp-keys-trad)');
-      if (!row || row.scrollWidth <= row.clientWidth + 1 || Math.abs(e.deltaX) >= Math.abs(e.deltaY)) return;
-      const next = Math.min(row.scrollWidth - row.clientWidth, Math.max(0, row.scrollLeft + e.deltaY));
-      if (next === row.scrollLeft) return;
-      row.scrollLeft = next; e.preventDefault();
-    }, { passive: false });
+    // (10-31) the pointer resting on the pane holds the commentary where it is while the page scrolls under it
+    pane.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') S.overPane = true; });
+    pane.addEventListener('pointerleave', () => { S.overPane = false; if (watch.settle) { clearTimeout(watch.t); watch.t = setTimeout(watch.settle, 150); } });
     // Close (Scripture page only): the same way out as the Citations panel's, which the reader's script carries out
     const closeBtn = pane.querySelector('.cp-close');
     if (closeBtn) closeBtn.onclick = () => window.dispatchEvent(new Event('sd:close-verse'));
@@ -884,7 +882,8 @@
   const aKey = (a) => { const VR = window.FRVerseRail; return VR && VR.authorKey ? VR.authorKey(a) : String(a || '').toLowerCase(); };
   // in the order their authors came, for the directory: the curated key's year, else the year the reception history gives the author
   // (his floruit), else his year in the dates of names (10-22), else the century
-  const whenDir = (c) => { const cen = S.cen[c.slug] || cenOf(c); return c.born || S.years.get(aKey(c.a)) || dateYear(c.a) || (cen < 99 ? cen * 100 - 50 : 9999); };
+  // (10-31, owner: "the order is messed up") the dates of names before the reception history's year, which is a floruit or a work's date
+  const whenDir = (c) => { const cen = S.cen[c.slug] || cenOf(c); return c.born || dateYear(c.a) || S.years.get(aKey(c.a)) || (cen < 99 ? cen * 100 - 50 : 9999); };
   function readYears(rec) {
     S.years = new Map();
     for (const x of Object.values((rec && rec.verses) || {})) for (const e of x.eras || []) for (const r of e.top || []) {
@@ -951,19 +950,22 @@
     const btn = (c) => `<button type="button" class="cp-key" data-slug="${esc(c.slug)}" aria-pressed="${isCur(c)}" title="${esc(`${c.t}${volShort(c.vol) ? ` (${volShort(c.vol)})` : ''}, ${c.a}`)}">${esc(short(c.a))}</button>`;
     const row = (label, xs) => xs.length ? `<div class="cp-keys-row" role="group" aria-label="${esc(label)}"><span class="cp-keys-lab" aria-hidden="true">${esc(label)}</span>${xs.map(btn).join('')}</div>` : '';
     const setBtn = ({ s, c }) => `<button type="button" class="cp-key" data-slug="${esc(c.slug)}" data-set="${esc(s.id)}" aria-pressed="${isCur(c)}" title="${esc(`${s.title}, ${s.author}${volShort(c.vol) ? ` (${volShort(c.vol)})` : ''}`)}">${esc(s.label)}</button>`;
-    const tradRow = ([k, name]) => { const xs = sets.filter((x) => x.s.trad === k); return xs.length ? `<div class="cp-keys-row cp-keys-trad" role="group" aria-label="${esc(name)}"><span class="cp-keys-sub">${esc(name)}</span><span class="cp-keys-chips">${xs.map(setBtn).join('')}</span></div>` : ''; };
-    // on a phone the sets fold behind one line (10-25: five scrolling strips left the commentary no room); on a wide screen they
-    // stand open as before
-    // Mere Orthodoxy's wide pane runs the sets on in the key row's one sideways line (open); on the phone's sheet they fold, open when one
-    // of them is the commentary read (10-28)
-    const narrow = matchMedia('(max-width: 640px)').matches;
-    const wholeRows = sets.length ? `<details class="cp-keys-whole"${!narrow || sets.some(({ c }) => isCur(c)) ? ' open' : ''} role="group" aria-label="Whole-Bible commentaries, by tradition"><summary class="cp-keys-lab cp-keys-wl">Whole Bible<small class="cp-keys-n">${sets.length} ${sets.length === 1 ? 'set' : 'sets'}</small></summary>${SETS.trads.map(tradRow).join('')}</details>` : '';
-    pane.querySelector('.cp-keys').innerHTML = head.length + tail.length + sets.length < 2 ? '' : row(`On ${refName(w) === 'Psalm' ? 'the Psalms' : refName(w)}`, head) + row('Whole Bible', tail) + wholeRows;
-    // the pressed key in sight on its sideways row (10-28)
-    for (const r of pane.querySelectorAll('.cp-keys-row:not(.cp-keys-trad)')) {
-      const on = r.querySelector('.cp-key[aria-pressed="true"]'); if (!on || r.scrollWidth <= r.clientWidth + 1) continue;
-      r.scrollLeft += on.getBoundingClientRect().left - r.getBoundingClientRect().left - (r.clientWidth - on.offsetWidth) / 2;
-    }
+    /* THE LANDMARK SETS IN SIGHT (10-31, owner on Hebrews 12: "in the scrolling of whole bible and chapter i cant see poole synopsis,
+     * and the sacred critics, the order is messed up"): no key row scrolls sideways, so nothing stands past the edge. "Whole Bible"
+     * holds the sets the curated standing puts first (rank.json, 94 and over: the Glossa, Lapide, the English Annotations, the Critici
+     * Sacri, Poole's Synopsis and his Annotations), in the order they were printed (sets.json `year`, the work's date), and "N more
+     * sets" opens the rest, by tradition, in the same order. A chapter with eight sets or fewer shows them all in the row. */
+    const LAND = 94;
+    const setImp = (id) => { let m = 0; for (const [slug, sid] of Object.entries(SETS.of)) if (sid === id) m = Math.max(m, (RANK.works[slug] || [])[0] || 0); return m; };
+    const byYear = (x, y) => x.s.year - y.s.year || setImp(y.s.id) - setImp(x.s.id);
+    const land = (sets.length <= 8 ? sets : sets.filter((x) => setImp(x.s.id) >= LAND)).slice().sort(byYear);
+    const rest = sets.filter((x) => !land.includes(x));
+    const restOpen = !!S.restOpen || rest.some(({ c }) => isCur(c));
+    const tradRow = ([k, name]) => { const xs = rest.filter((x) => x.s.trad === k).sort(byYear); return xs.length ? `<div class="cp-keys-row cp-keys-trad" role="group" aria-label="${esc(name)}"><span class="cp-keys-sub">${esc(name)}</span><span class="cp-keys-chips">${xs.map(setBtn).join('')}</span></div>` : ''; };
+    const more = rest.length ? `<button type="button" class="cp-keys-more" aria-expanded="${restOpen}" aria-controls="cp-keys-rest">${rest.length} more ${rest.length === 1 ? 'set' : 'sets'}</button>` : '';
+    const wholeRow = sets.length ? `<div class="cp-keys-row cp-keys-land" role="group" aria-label="Whole-Bible commentaries"><span class="cp-keys-lab" aria-hidden="true">Whole Bible</span>${land.map(setBtn).join('')}${more}</div>` : '';
+    const restRows = rest.length ? `<div class="cp-keys-rest" id="cp-keys-rest"${restOpen ? '' : ' hidden'}>${SETS.trads.map(tradRow).join('')}</div>` : '';
+    pane.querySelector('.cp-keys').innerHTML = head.length + tail.length + sets.length < 2 ? '' : row(`On ${refName(w) === 'Psalm' ? 'the Psalms' : refName(w)}`, head) + row('Whole Bible', tail) + wholeRow + restRows;
     keyInView();
     if (listOpen()) renderDir();
   }
@@ -1163,6 +1165,23 @@
       return null;
     })();
   }
+  /* A HEADING INSIDE ONE RUN OF TEXT (10-31, owner on Hebrews 12: "i click hebrews 12, and cocejius goes to the middle"): some works'
+   * pages are one paragraph each (Cocceius on Hebrews, p. 576: "... all his works decreed. CHAP. XII. VERSE I. THEREFORE WE ALSO ...").
+   * Where no line of the pages is the chapter's heading, the first place where the run prints it, in capitals after a sentence's end
+   * ("CHAP. XII.", "CAPUT XII.", "PSAL. LI."), is cut out as the heading; a reference in the prose ("from chap. 11.") is left alone. */
+  const INLINE_WORD = (book) => (book === 'psalms' ? 'PSAL(?:M(?:US|I)?)?' : '(?:CHAP(?:TER)?|CAP(?:UT|ITULUM)?|KAP(?:ITEL)?)');
+  function cutInlineHead(all, at, ch, book) {
+    const hx = headRx(ch, book);
+    if (all.some((s) => hx.test(s))) return;
+    const rx = new RegExp(`(^|[.!?;:\\]»”"')]\\s+)(${INLINE_WORD(book)}\\.?\\s+(?:${[String(Number(ch)), ...romans(ch)].join('|')})\\.)(?=\\s|$)`);
+    for (let i = 0; i < all.length; i += 1) {
+      const m = rx.exec(all[i]); if (!m) continue;
+      const k = m.index + m[1].length, before = all[i].slice(0, k).trim(), after = all[i].slice(k + m[2].length).trim();
+      const parts = [before, `### ${m[2]}`, after].filter(Boolean);
+      all.splice(i, 1, ...parts); at.splice(i, 1, ...parts.map(() => at[i]));
+      return;
+    }
+  }
   // the chapter's own run of paragraphs on the pages shown: from its heading, where it stands on them, to the next chapter's heading
   function chapterRun(all, w) {
     const hx = headRx(w.ch, w.book), head = all.findIndex((s) => hx.test(s)), lo = head + 1;
@@ -1261,6 +1280,21 @@
     return `<p class="vr-pv-where">${esc(say)}</p><div class="vr-pv-text" lang="${lane === 'en' ? 'en' : 'la'}">${out.join('') || '<p class="vr-empty">A blank page.</p>'}</div>${acts(t.p)}`;
   }
 
+  /* THE CHAPTER'S START BEFORE AN INNER PAGE (10-31, owner on Hebrews 12: "i click hebrews 12, and cocejius goes to the middle"):
+   * Cocceius prints Hebrews 12:1-3 together under "CHAP. XII. VERSE I. ... VERSE III." (p. 576) and expounds them over the pages after,
+   * labelling few verses; with no note of its own for the verse the pane opened the library's page for 12:1 (p. 579) or his next
+   * labelled note (12:10, p. 587, for 12:2), the middle of the chapter. A place that is not the verse's own note opens where the
+   * chapter does (the map's page, at its printed heading) when it lies within four pages after the chapter's opening; a next note
+   * three verses or more ahead gives way to the nearest earlier note, else to the chapter's opening. */
+  function chapterFirst(c, t, v) {
+    if (!t || !c || c.open == null || !['page', 'later', 'nearest'].includes(t.how)) return t;
+    if (t.how === 'later' && Number(t.v) - Number(v) >= 3) {
+      const before = Object.keys(c.notes || {}).map(Number).filter((x) => x > 0 && x < v).sort((a, b) => b - a);
+      t = before.length ? { p: c.notes[before[0]], how: 'nearest', v: before[0], indexed: true } : { p: c.open, how: 'chapter' };
+    }
+    const d = Number(t.p) - Number(c.open);
+    return t.how !== 'chapter' && d >= 0 && d <= 4 ? { p: c.open, how: 'chapter' } : t;
+  }
   async function show(v, force) {
     S.verse = +v;
     head();
@@ -1284,14 +1318,22 @@
       if (tok !== S.token) return;
       t = quickTarget(S.verse);
     }
+    clearTimeout(S.openT);
     if (!t) {
-      bodyEl.classList.add('cp-loading');
-      whereEl.textContent = `Looking for its note on ${refName(w)} ${w.ch}:${S.verse}…`;
-      if (!bodyEl.textContent.trim()) bodyEl.innerHTML = '<p class="cp-empty">Looking for the note…</p>';
+      // (10-31) said only when the search takes a while: following the reader no longer flashes it at every verse
+      const looking = () => {
+        if (tok !== S.token) return;
+        bodyEl.classList.add('cp-loading');
+        whereEl.textContent = `Looking for its note on ${refName(w)} ${w.ch}:${S.verse}…`;
+        if (!bodyEl.textContent.trim()) bodyEl.innerHTML = '<p class="cp-empty">Looking for the note…</p>';
+      };
+      if (!bodyEl.textContent.trim()) looking(); else S.openT = setTimeout(looking, 350);
       try { t = await resolve(cur, S.verse, w); } catch (err) { t = null; console.error('Scripture pane: finding the note failed', err); }
       if (tok !== S.token) return;
       if (!t && cur.open != null) t = { p: cur.open, how: 'chapter' };
     }
+    t = chapterFirst(cur, t, S.verse);
+    clearTimeout(S.openT);
     if (!t) { bodyEl.classList.remove('cp-loading'); S.shown = null; paint(); return; }
     // the same place keeps the pages already read (they were dropped here, and the view said "This page could not be loaded")
     const prev = S.shown;
@@ -1299,14 +1341,17 @@
     S.shown = { slug: cur.slug, p: +t.p, t, book: w.book, ch: w.ch };
     if (same) Object.assign(S.shown, { pages: prev.pages, byPage: prev.byPage, last: prev.last });
     if (same && !force) return paint(true);
-    bodyEl.classList.add('cp-loading');
-    // a large volume takes a few seconds to open: say what is coming rather than show an empty page
-    if (!bodyEl.textContent.trim() || !same) {
+    // a large volume takes a few seconds to open: say what is coming rather than show an empty page; (10-31) with text already in the
+    // pane, only when the page has not come within a third of a second
+    const opening = () => {
+      if (tok !== S.token) return;
+      bodyEl.classList.add('cp-loading');
       // the verse only where the place is a note on it
       whereEl.textContent = `Opening ${cur.a || cur.t} on ${refName(w)} ${w.ch}${t.v ? `:${t.v}` : ''}, ${pgOf(cur.slug, t.p)}…`;
       // (10-22) EEBO is the module's (commentary-pages.js exports it there), not the loader's: PG.EEBO was undefined and threw here
       if (!bodyEl.textContent.trim()) bodyEl.innerHTML = `<p class="cp-empty">${window.FRCommentaryPages.EEBO.test(cur.slug) ? 'Opening the book (a large file, loaded once)…' : 'Opening the page…'}</p>`;
-    }
+    };
+    if (!bodyEl.textContent.trim()) opening(); else S.openT = setTimeout(opening, 350);
     // an EEBO book with repeating page numbers: the chapter's place first, so the pages read are the right part's
     await eeboCursor(cur, w.ch);
     if (tok !== S.token) return;
@@ -1323,6 +1368,8 @@
         S.shown.pages = [a.p, b && b.p].filter(Boolean); S.shown.last = a.last;
       }
     } catch (err) { console.error('Scripture pane: the commentary page did not load', err); if (tok === S.token) { S.shown.pages = []; } }
+    // the page has come: no late "Opening ..." over the text just drawn
+    clearTimeout(S.openT);
     paint();
   }
 
@@ -1356,9 +1403,9 @@
       : t.how === 'sermon' || t.how === 'sermon-ch' ? sermonSay(t, S.verse, sh.ch, bookName) : 'Reading on';
     // where the text stands, said as a sentence: "Its note on Matthew 1:2, col. 65 · Open in the reader" (10-21); a note found on the
     // page under the chapter's heading is said to be that, at its own page (10-22)
-    const setWhere = (p, found) => {
+    const setWhere = (p, found, at) => {
       const pg = `<span class="cp-pg">${esc(pgOf(sh.slug, p))}</span>`;
-      whereEl.innerHTML = `<span>${found ? `Its note on ${esc(ref(S.verse))}, ${pg}, found on the page` : `${esc(say)}, ${pg}`}</span> <span class="cp-go"><span aria-hidden="true">· </span><a href="${esc(readHref(sh.slug, p))}">Open in the reader</a></span>`;
+      whereEl.innerHTML = `<span>${found ? `Its note on ${esc(ref(S.verse))}, ${pg}, found on the page` : `${esc(say)}, ${pg}`}</span> <span class="cp-go"><span aria-hidden="true">· </span><a href="${esc(readHref(sh.slug, p, at))}">Open in the reader</a></span>`;
     };
     setWhere(sh.p, false);
     const pages = sh.pages || [];
@@ -1370,6 +1417,8 @@
     // the pages as one run of paragraphs, so a note that crosses the page break is one note
     const all = [], pageOf = [];
     pages.forEach((p, i) => { paragraphs(p[lane] || p.la || p.en).forEach((s) => { all.push(s); pageOf.push(i); }); });
+    if (!['collected', 'browse', 'cites', 'treats', 'sermon', 'sermon-ch'].includes(t.how)) cutInlineHead(all, pageOf, wr.ch, wr.book);
+    const headAt = (k) => setWhere(pages[pageOf[k]].n, false, all[k].replace(/^#{1,6}\s+/, ''));
     let h = -1, top = 0, found = false;
     if (t.how === 'note' || t.how === 'later' || t.how === 'nearest' || t.how === 'page') {
       // (10-22) only the chapter's own run of paragraphs is read: Poole's note on Psalm 52:2 was marked as his note on 51:2
@@ -1380,7 +1429,12 @@
     } else if (t.how === 'head' || t.how === 'book') {
       // under the chapter's heading, the verse's own note by its heading word ("Vers. 1."), else the heading itself (10-22)
       const u = underHead(all, wr, (S.cur && S.cur.pv && S.cur.pv[S.verse]) || S.verse);
-      if (u.hit >= 0) { h = u.hit; found = true; setWhere(pages[pageOf[h]].n, true); } else if (u.head > 0) top = u.head;
+      if (u.hit >= 0) { h = u.hit; found = true; setWhere(pages[pageOf[h]].n, true); } else if (u.head > 0) { top = u.head; headAt(top); }
+    } else if (t.how === 'chapter') {
+      // (10-31) the chapter's page: the view starts at its printed heading where that stands below the page's top (Cocceius on
+      // Hebrews 12, p. 576, under the last sections of chapter XI), and the link lands on it
+      const hd = all.findIndex((s) => headRx(wr.ch, wr.book).test(s));
+      if (hd > 0) { top = hd; headAt(hd); }
     } else if (t.how === 'sermon' || t.how === 'sermon-ch') {
       // a sermon starts at its own heading, what came before it on the page folded away
       const k = headingAt(all, t.x); if (k > 0) top = k;
@@ -1452,15 +1506,29 @@
   }
 
   // ── following the reader ──────────────────────────────────────────────────────────────────────────────────────────────────
+  /* FOLLOWING WITHOUT FLICKER (10-31, owner on this page at Hebrews 12: "when i scroll ... this causes too much refreshing making it
+   * impossible to read"): twenty small turns of the wheel through the chapter drew the commentary fourteen times, each time saying
+   * "Looking for its note" and "Opening" first. The pane now moves once, when the scrolling has stopped (SETTLE ms with no scroll,
+   * wheel or touch), to the verse then at the reading line; never while the pointer rests on the pane, where its reader is reading. */
+  const SETTLE = 600;
+  ['scroll', 'wheel', 'touchmove'].forEach((t) => addEventListener(t, () => { S.lastMove = performance.now(); }, { passive: true, capture: true }));
   function watch() {
     if (observer) observer.disconnect();
     const seen = new Map();
+    const settle = () => {
+      clearTimeout(watch.t);
+      const wait = SETTLE - (performance.now() - (S.lastMove || 0));
+      if (wait > 0) { watch.t = setTimeout(settle, wait + 30); return; }
+      if (!S.follow || S.pin || S.overPane) return;
+      const vis = [...seen].filter(([, on]) => on).map(([el]) => el).sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+      const v = vis.length ? SITE.vnum(vis[0]) : null;
+      if (v && v !== S.verse) show(v);
+    };
+    watch.settle = settle;
     observer = new IntersectionObserver((es) => {
       for (const e of es) seen.set(e.target, e.isIntersecting);
       if (!S.follow || S.pin) return;
-      const vis = [...seen].filter(([, on]) => on).map(([el]) => el).sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
-      const v = vis.length ? SITE.vnum(vis[0]) : null;
-      if (v && v !== S.verse) { clearTimeout(watch.t); watch.t = setTimeout(() => show(v), 180); }
+      clearTimeout(watch.t); watch.t = setTimeout(settle, 120);
     }, { rootMargin: '-22% 0px -68% 0px' });
     document.querySelectorAll(SITE.verses).forEach((el) => observer.observe(el));
   }

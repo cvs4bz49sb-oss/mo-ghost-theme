@@ -516,17 +516,31 @@
    * the tradition (v1/scripture/rank.json): the key commentators first, else its author's tier; for the books readers open most, the
    * key commentaries on the book (`books`), and the volumes of commentaries that take in the whole book together (`series`). */
   let rankReady = null, RANKD = null, SETSD = null;
+  // the year of a name (10-31): v1/enrich/author_dates.json, y the birth (else the first attested, else the death), for the lists' order
+  const AUTHY = new Map();
   function loadRank() {
     if (!rankReady) {
       // the whole-Bible sets (v1/scripture/sets.json, 2026-10-23) come with the standing: one row a set in the whole-Bible list
       rankReady = Promise.all([
         fetch(`${LIBRARY_BASE}/v1/scripture/rank.json`, { credentials: "omit" }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))),
-        fetch(`${LIBRARY_BASE}/v1/scripture/sets.json`, { credentials: "omit" }).then((r) => (r.ok ? r.json() : null)).catch(() => null)])
-        .then(([d, sd]) => { RANKD = d; if (sd) SETSD = sd; return d; })
+        fetch(`${LIBRARY_BASE}/v1/scripture/sets.json`, { credentials: "omit" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetch(`${LIBRARY_BASE}/v1/enrich/author_dates.json`, { credentials: "omit" }).then((r) => (r.ok ? r.json() : null)).catch(() => null)])
+        .then(([d, sd, ad]) => {
+          RANKD = d; if (sd) SETSD = sd;
+          for (const [n, x] of Object.entries((ad && ad.authors) || {})) { const y = Number(x.y); if (y > 0) { AUTHY.set(n, y); for (const al of x.aliases || []) if (!AUTHY.has(al)) AUTHY.set(al, y); } }
+          return d;
+        })
         .catch(() => { rankReady = null; return null; });
     }
     return rankReady;
   }
+  // (10-31, owner: "i click hebrews 12, and cocejius goes to the middle") a link to a commentary's page for the chapter lands on the
+  // chapter's printed heading inside the page (the reader's ?at=ch:<c>); not for the Psalms, whose numbering differs between prints
+  const atChapter = (href, e, ctx) => {
+    if (!href || !ctx || !ctx.c || e.anchored !== "chapter" || (ctx.book && ctx.book.lib === "psalms") || /[?&]at=/.test(href)) return href;
+    const i = href.indexOf("#");
+    return (i < 0 ? href : href.slice(0, i)) + (href.includes("?") ? "&" : "?") + "at=ch%3A" + ctx.c + (i < 0 ? "" : href.slice(i));
+  };
   const standingOf = (e, rk) => {
     const r = rk && rk.works && rk.works[e.w];
     return r ? r[0] : ((rk && rk.authors && rk.authors[e.a]) || 0);
@@ -1016,7 +1030,8 @@
     const own = (e) => (e.anchored === "chapter" ? 0 : 1);
     const keyI = (e) => (keyOf.has(e.w) ? keyOf.get(e.w).i : 99);
     const inAuthor = (a, b) => own(a) - own(b) || keyI(a) - keyI(b) || byStanding(a, b);
-    const born = (e) => (keyOf.has(e.w) ? keyOf.get(e.w).born : null);
+    // (10-31, owner: "the order is messed up") every author by his birth: the curated key's year, else the dates of names
+    const born = (e) => (keyOf.has(e.w) && keyOf.get(e.w).born ? keyOf.get(e.w).born : (AUTHY.get(e.a) || null));
     const rowOrder = (a, b) => {
       const x = born(a), y = born(b);
       return (x == null) - (y == null) || (x != null && y != null ? x - y : 0) || byStanding(a, b);
@@ -1132,7 +1147,7 @@
     const li = document.createElement("li");
     li.className = "sd-source sd-commentary";
     li.dataset.w = e.w || "";
-    const href = sourceHref(e.href, e.w);
+    const href = atChapter(sourceHref(e.href, e.w), e, ctx);
     // A range that is the whole book says nothing ("Chapters 1–16" on all of Romans); a part of it does.
     const whole = Number(e.c1) <= 1 && (!e.c2 || Number(e.c2) >= ctx.book.chapters);
     const range = e.c1 && !whole

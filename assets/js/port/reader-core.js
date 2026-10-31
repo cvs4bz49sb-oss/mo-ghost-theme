@@ -1688,6 +1688,15 @@ function jump(p,ttl){
 // then the heading rows, then the rows' opening words, scored by the title's words.
 function frHeadingIn(t,ttl){
   if(!t||!ttl)return null;
+  // A CHAPTER BY ITS NUMBER (2026-10-31, owner on Hebrews 12: "i click hebrews 12, and cocejius goes to the middle"): ?at=ch:12 from
+  // the Scripture pages' chapter links lands on the heading row that prints chapter 12 ("CHAP. XII.", "CAPUT XII.", "Chapter 12", the
+  // old IIII for four), its number matched whole, so chapter XI never takes XII's link; none on the page, the page's top as before
+  {const cm=/^ch:(\d{1,3})$/.exec(String(ttl).trim());
+    if(cm){const n=+cm[1];let r="",x=n;for(const [v,s] of [[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]])while(x>=v){r+=s;x-=v;}
+      const nums=[...new Set([String(n),r,r.replace(/IV/g,"IIII").replace(/IX/g,"VIIII")])];
+      const rx=new RegExp("^\\W*(?:chap(?:ter|itre)?|cap(?:ut|itulum)?|kap(?:itel)?)\\.?\\s+(?:"+nums.join("|")+")(?![A-Za-z0-9])","i");
+      for(const h of t.querySelectorAll(".csub")){if(!h.getClientRects().length)continue;if(rx.test((h.textContent||"").trim()))return h.closest(".row")||h;}
+      return null;}}
   const exact=window.FRReaderNavigation?.exactHeading(DATA,t,ttl)||(/^pld-/.test(DATA?.slug||'')?window.FRPldReading?.renderedHeading(t,ttl):null);
   if(exact)return exact.classList?.contains('reader-inline-target')?exact:(exact.closest(".row")||exact);
   {const _n=s=>String(s||"").toLowerCase().replace(/<[^>]+>/g,"").replace(/[^a-z0-9]+/g," ").trim();
@@ -2942,7 +2951,7 @@ function build(){
     // WHO wrote it (owner 2026-10-01 "the commentary label is just wrong"): p@resp, else the work's meta.apparatus.by[type]
     // (De Anima: Hugh Cavellus, whose own preface claims the scholia, the citations and the commentary), else the edition's editors
     const _apxT=_rnd==="apparatus"?(e.getAttribute("type")||""):"",_apxL=({summary:"Scholium",commentary:"Commentary",sources:"Sources",source:"Sources"})[_apxT]||"Editors’ note",_apxB=_rnd==="apparatus"?apxBy(e,_apxT):"";
-    const cls=(_rnd==="caps")?' class="caps"':(_rnd==="editorial")?' class="editorial"':(_rnd==="apparatus")?` class="apx apx-${esc(_apxT)}" data-apx="${_apxL}" data-by="${esc(_apxB)}" title="${_apxL} (${esc(_apxB)}, not the author’s own text)"`:"";   // WA Einleitung / editor lines (2026-09-01): set petit like the edition
+    const cls=(_rnd==="caps")?' class="caps"':(_rnd==="annot")?' class="eannot"':(_rnd==="editorial")?' class="editorial"':(_rnd==="apparatus")?` class="apx apx-${esc(_apxT)}" data-apx="${_apxL}" data-by="${esc(_apxB)}" title="${_apxL} (${esc(_apxB)}, not the author’s own text)"`:"";   // WA Einleitung / editor lines (2026-09-01): set petit like the edition
     let inner=pre+teiInline(e);
     // PILCROW BREAKS (owner 2026-08-30, Ockham/Biel/Lefèvre incunable-style prints): a ¶ inside running
     // text marks the start of a new paragraph in the print -- break there, keep the mark as a muted lead
@@ -8118,6 +8127,16 @@ async function loadEeboCanon(ws){
     fetch(BLOB+"/eebo/"+encodeURIComponent(id)+".json.gz").then(async r=>{if(!r.ok)throw new Error("eebo "+r.status);return JSON.parse(await gunz(r));}),
     fetch(BLOB+"/eebo_modern/"+encodeURIComponent(id)+".json.gz").then(async r=>r.ok?JSON.parse(await gunz(r)):null).catch(()=>null)]);
   const M=(mod&&mod.m)||null;
+  /* NOTES THAT ARE THE BOOK (2026-10-31, owner: "poole annotations have them all in the margin which makes it impossible to read"):
+     Poole's Annotations upon the Holy Bible are set in this text as notes on the verses, the verses being the scaffold: his two
+     volumes hold 2.8 and 5.3 times more words in their notes than in their running text, every other EEBO commentary 0.31 or less.
+     As margin glosses the commentary stood in a narrow clipped column beside a bare Bible. A book whose notes outweigh its running
+     text sets each note under the paragraph it belongs to, full width, lettered a, b, c ..., the letter left where the note stood. */
+  const NOTES_BELOW=(()=>{let nt=0,all=0;const rx=/<span class="note">([\s\S]*?)<\/span>/g;
+    (function walk(ns){(ns||[]).forEach(nd=>{const h=String(nd.html||"");all+=h.replace(/<[^>]+>/g,"").length;rx.lastIndex=0;let m;
+      while((m=rx.exec(h)))nt+=m[1].replace(/<[^>]+>/g,"").length;walk(nd.kids);});})(d.toc);
+    return nt>0&&nt>all-nt;})();
+  let _below=[],_belowOn=false;const _mark=k=>k<26?String.fromCharCode(97+k):String(k+1);   // _belowOn: only while emitPara fills a paragraph
   const mk=()=>{const D2=document.implementation.createDocument(null,"TEI",null);
     const tx=D2.createElement("text");D2.documentElement.appendChild(tx);return [D2,tx];};
   const [laD,laB]=mk(),[enD,enB]=mk();
@@ -8219,7 +8238,12 @@ async function loadEeboCanon(ws){
       if(close<0)break;
       if(m.index>last)txt(html.slice(last,m.index));
       const inner=html.slice(i,close);
-      if(m[1]==="note"){const t=md(inner);if(t){
+      if(m[1]==="note"&&NOTES_BELOW&&_belowOn){const t=md(inner);if(t){   // the note under its paragraph, its letter here (NOTES_BELOW), against the word before it
+          const lc=el.lastChild;if(lc&&lc.nodeType===3){lc.nodeValue=lc.nodeValue.replace(/\s+$/,"");if(!lc.nodeValue)el.removeChild(lc);}
+          const pv=el.lastChild;if(pv&&pv.nodeType===1&&pv.localName==="hi"&&pv.getAttribute("rend")==="sup")el.appendChild(enD.createTextNode("\u2009"));
+          const mk=_mark(_below.length),s=enD.createElement("hi");s.setAttribute("rend","sup");s.textContent=mk;el.appendChild(s);_below.push([mk,t]);
+          if(!/^[\s,.;:!?)\]]/.test(html.slice(closeEnd,closeEnd+1)))el.appendChild(enD.createTextNode(" "));}}
+      else if(m[1]==="note"){const t=md(inner);if(t){
           const lc=el.lastChild;if(lc&&lc.nodeType===3&&!/\s$/.test(lc.nodeValue))el.appendChild(enD.createTextNode(" "));   // the print glues "and<note>": keep the words apart
           const n=enD.createElement("note");n.setAttribute("place","margin");n.textContent=t;el.appendChild(n);
           if(!/^\s/.test(html.slice(closeEnd,closeEnd+1)))el.appendChild(enD.createTextNode(" "));}}
@@ -8240,7 +8264,10 @@ async function loadEeboCanon(ws){
         if(cut>=0){const after=plain.slice(cut+lab.length).replace(/^[\s.:,—-]+/,"");
           if(after.length>20){const e=sourceBlock(enD.createElement("p"));e.textContent=after;enB.appendChild(e);_lastP=e;_lastHead="";return;}}}
       _lastHead="";}
-    const e=sourceBlock(enD.createElement(asHead?"head":"p"));fillInline(e,inner);enB.appendChild(e);
+    const e=sourceBlock(enD.createElement(asHead?"head":"p"));_below=[];_belowOn=true;fillInline(e,inner);_belowOn=false;enB.appendChild(e);
+    // NOTES_BELOW: the paragraph's notes, each its own paragraph under it, in the order they stand in it
+    for(const [mk,t] of _below){const n=sourceBlock(enD.createElement("p"));n.setAttribute("rend","annot");const s=enD.createElement("hi");s.setAttribute("rend","sup");s.textContent=mk;n.appendChild(s);n.appendChild(enD.createTextNode(" "+t));enB.appendChild(n);}
+    _below=[];
     if(asHead){_lastHead=plain;_lastP=null;
       const t=plain.replace(/[*]/g,"").trim();
       if(!noStruct&&t.length>=4&&t.length<=140)struct.push({title:t.slice(0,140),page:pages.length?pages[pages.length-1]:1,depth:Math.min(_curDepth+1,5)});}

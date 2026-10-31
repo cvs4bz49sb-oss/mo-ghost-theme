@@ -493,6 +493,9 @@ html:not(.railok) .app.grcwork .row .la p{text-align:left}
 .app.grcwork .row .la .milat{font-family:var(--font-body)}
 .capslead{display:block;letter-spacing:.06em;font-family:var(--font-display);color:var(--accent);margin:.2rem 0 .5rem}
 .mnote{display:block;font-size:.82em;color:var(--muted);font-style:italic;margin:.25rem 0 .25rem 1.4rem;padding-left:.6rem;border-left:2px solid var(--rule-soft,#ddd)}
+/* NOTES THAT ARE THE BOOK (2026-10-31, Poole's Annotations): each note under the paragraph it belongs to, full width, lettered */
+p.eannot{font-size:.94em;line-height:1.62;margin:.25rem 0 .5rem 1.4rem;color:var(--fg)}
+p.eannot>sup:first-child{font-size:.74em;font-weight:600;color:var(--muted);margin-right:.15em}
 .mnp{margin:.1rem 0}
 .gapfill.inferred{text-decoration:underline dotted;text-decoration-color:var(--muted);text-underline-offset:.16em}   /* EEBO restored words (illegible-letter campaign 09-07): a quiet dotted mark, hover explains */
 /* margin-note groups (2026-09-02): off the rail (narrow screens / mid widths) a run of glosses reads as one small
