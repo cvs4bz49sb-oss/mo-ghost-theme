@@ -223,6 +223,9 @@
     // (10-22) a set on the whole Bible whose map knows where the book begins in the volume and the chapters it holds, but not the
     // chapter's page (the Westminster Annotations on the Psalms), was left out of the chapter's list: it is offered at the book's first
     // page, said to be only that. An entry with no chapters of its own (Calov's Old Testament filed under Hebrews) is not.
+    // (10-31) each work's chapters on the book as the map gives them, for the keys (curated: a volume whose chapters lie elsewhere is none)
+    S.mapRange = {};
+    for (const e of ((dev && dev.books && dev.books[book]) || [])) (S.mapRange[e.w] = S.mapRange[e.w] || []).push([Number(e.c1) || 0, Number(e.c2 || e.c1) || 0]);
     for (const e of ((dev && dev.books && dev.books[book]) || [])) {
       onMap.add(e.w);
       // (10-22, owner: "make sure this is in english") the map names the piece in English (st, stc), the name as printed beside it
@@ -804,8 +807,13 @@
   }
   function curated(book) {
     const out = [];
+    // (10-31, owner: "where is the whole owens hebrews comm, open up to where he deals wirth heb 12") a volume that only treats this
+    // chapter on a page, its own chapters on the book lying elsewhere on the map (Owen's third volume, Hebrews 6-10, on Hebrews 12), is
+    // no key here; it stays in the list of every commentary
+    const ch = Number((where() || {}).ch);
+    const elsewhere = (x) => { const r = (S.mapRange || {})[x.slug] || []; return !!x.treats && r.length > 0 && r.every(([a, b]) => a > 0 && (ch < a || ch > b)); };
     for (const [, slugs, born] of (RANK.books[book] || [])) {
-      const have = slugs.map((s) => S.list.find((c) => c.slug === s)).filter(Boolean);
+      const have = slugs.map((s) => S.list.find((c) => c.slug === s)).filter(Boolean).filter((x) => !elsewhere(x));
       // (10-28 key audit) a volume of its own (a page or notes on the chapter) before a page that only cites it (wb 2): Luther on Psalm 51
       // opens his 1532 lectures (WA 40.2), not a citation in the Operationes (WA 5); a citing page alone never makes a key stand (saysOn)
       const own = have.filter((x) => x.wb !== 2), placed = own.filter((x) => !x.hit);
@@ -897,8 +905,13 @@
   // a row's page is where its Read opens, as near as the library's index tells it before the pages are read (placeNow)
   // (10-22) keyOrder: the book's curated keys (rank.json `books`), every volume of each, in their order: the directory's first group;
   // volOf: a sermon volume's Patrologia number ("PL 131"), from the sermons index
+  // (10-31) a row that opens a work at its chapter's page lands on the chapter's printed heading inside it (the reader's ?at=ch:<c>)
+  const dirRead = (slug, p) => {
+    const w = where() || {}, c = S.list.find((x) => x.slug === slug);
+    return c && c.open != null && Number(p) === Number(c.open) && !c.treats && c.wb !== 2 && w.ch && w.book !== 'psalms' ? SITE.read(slug, p, `ch:${w.ch}`) : SITE.read(slug, p);
+  };
   const dirCfg = (w) => ({ cur: S.cur && S.cur.slug, verse: dirVerse(), ch: w.ch, bookName: refName(w), tradOf, when: whenDir, rankOf, volShort,
-    read: SITE.read, pg: pgOf, open: S.dirOpen, place: placeNow, volOf: (slug) => S.vols.get(slug) || '',
+    read: dirRead, pg: pgOf, open: S.dirOpen, place: (c, v) => chapterFirst(c, placeNow(c, v), v), volOf: (slug) => S.vols.get(slug) || '',
     keyOrder: (RANK.books[w.book] || []).flatMap(([, slugs]) => slugs || []) });
   // a key button is pressed while its work is read, in whichever of its volumes
   const isCur = (c) => !!(S.cur && (S.cur.slug === c.slug || setOf(S.cur) === setOf(c) || (setIdOf(c.slug) && setIdOf(S.cur.slug) === setIdOf(c.slug))));

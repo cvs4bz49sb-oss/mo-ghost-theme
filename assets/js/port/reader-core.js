@@ -8136,7 +8136,8 @@ async function loadEeboCanon(ws){
     (function walk(ns){(ns||[]).forEach(nd=>{const h=String(nd.html||"");all+=h.replace(/<[^>]+>/g,"").length;rx.lastIndex=0;let m;
       while((m=rx.exec(h)))nt+=m[1].replace(/<[^>]+>/g,"").length;walk(nd.kids);});})(d.toc);
     return nt>0&&nt>all-nt;})();
-  let _below=[],_belowOn=false;const _mark=k=>k<26?String.fromCharCode(97+k):String(k+1);   // _belowOn: only while emitPara fills a paragraph
+  // _belowOn: only while emitPara fills a paragraph
+  let _below=[],_belowOn=false;const _mark=k=>k<26?String.fromCharCode(97+k):String(k+1);
   const mk=()=>{const D2=document.implementation.createDocument(null,"TEI",null);
     const tx=D2.createElement("text");D2.documentElement.appendChild(tx);return [D2,tx];};
   const [laD,laB]=mk(),[enD,enB]=mk();
@@ -8238,7 +8239,8 @@ async function loadEeboCanon(ws){
       if(close<0)break;
       if(m.index>last)txt(html.slice(last,m.index));
       const inner=html.slice(i,close);
-      if(m[1]==="note"&&NOTES_BELOW&&_belowOn){const t=md(inner);if(t){   // the note under its paragraph, its letter here (NOTES_BELOW), against the word before it
+      // NOTES_BELOW: the note under its paragraph, its letter here, against the word before it
+      if(m[1]==="note"&&NOTES_BELOW&&_belowOn){const t=md(inner);if(t){
           const lc=el.lastChild;if(lc&&lc.nodeType===3){lc.nodeValue=lc.nodeValue.replace(/\s+$/,"");if(!lc.nodeValue)el.removeChild(lc);}
           const pv=el.lastChild;if(pv&&pv.nodeType===1&&pv.localName==="hi"&&pv.getAttribute("rend")==="sup")el.appendChild(enD.createTextNode("\u2009"));
           const mk=_mark(_below.length),s=enD.createElement("hi");s.setAttribute("rend","sup");s.textContent=mk;el.appendChild(s);_below.push([mk,t]);
