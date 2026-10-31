@@ -364,6 +364,7 @@
       form.querySelector('[name="eyebrow"]').value = item.eyebrow || "";
       form.querySelector('[name="headline"]').value = item.headline || "";
       setImage(item.image || "");
+      form.querySelector('[name="image_fit"]').checked = item.image_fit === "contain";
       form.querySelector('[name="body"]').value = item.body || "";
       form.querySelector('[name="button_text"]').value = item.button_text || "";
       form.querySelector('[name="button_url"]').value = item.button_url || "";
@@ -417,6 +418,7 @@
       eyebrow: form.querySelector('[name="eyebrow"]').value.trim(),
       headline: form.querySelector('[name="headline"]').value.trim(),
       image: form.querySelector('[name="image"]').value.trim(),
+      image_fit: form.querySelector('[name="image_fit"]').checked ? "contain" : "",
       body: form.querySelector('[name="body"]').value.trim(),
       button_text: form.querySelector('[name="button_text"]').value.trim(),
       button_url: form.querySelector('[name="button_url"]').value.trim(),
@@ -454,7 +456,8 @@
         : pageLabels[item.pages] || item.pages;
       const audLabels = {
         everyone: "Everyone", "not-signed-in": "Not signed in",
-        "signed-in": "Signed in", free: "Free", paid: "Paid"
+        "signed-in": "Signed in", free: "Free", paid: "Paid",
+        "paid-not-lifetime": "Paid, not Lifetime"
       };
       const audience = (item.audience || "everyone").split(",").map((a) => { return audLabels[a] || a; }).join(", ");
 
@@ -475,8 +478,8 @@
         + ` &middot; ${esc(target)}${hiddenLabel} &middot; ${esc(audience)
          } &middot; ${esc(triggerLabel)
          } &middot; ${esc(item.frequency)
-         }${stats[item.id] ? ` &middot; ${stats[item.id].impressions || 0} views, ${stats[item.id].clicks || 0} clicks` : ''
          }</p>`
+        + `${statsLine(stats[item.id])}`
         + `</div>`
         + `<div class="admin-slide-in-actions">`
         + `<button type="button" class="btn btn-ghost btn-sm" data-toggle="${item.id}">${item.active ? 'Deactivate' : 'Activate'}</button>`
@@ -527,6 +530,29 @@
           .catch((err) => { alert(`Delete failed: ${err.message}`); });
       });
     });
+  }
+
+  // Shown, clicked, closed, and what it won. Counts come from the
+  // worker's GET /slide-ins/stats (mo-admin lib/slide-in-stats.js). A
+  // conversion is a paid membership or Lifetime purchase whose checkout
+  // started on the page this slide-in's button led to.
+  function statsLine(s) {
+    if (!s) return `<p class="admin-slide-in-meta admin-slide-in-stats">No views yet</p>`;
+    const n = (v) => { return (v || 0).toLocaleString("en-US"); };
+    const pct = (a, b, of) => { return b ? ` (${((a / b) * 100).toFixed(1)}% of ${of})` : ""; };
+    const parts = [
+      `${n(s.impressions)} shown`,
+      `${n(s.clicks)} clicked${pct(s.clicks, s.impressions, "shown")}`,
+      `${n(s.dismissals)} closed`,
+    ];
+    const won = [];
+    if (s.memberships) won.push(`${n(s.memberships)} ${s.memberships === 1 ? "membership" : "memberships"}`);
+    if (s.lifetimes) won.push(`${n(s.lifetimes)} Lifetime`);
+    let conv = `${n(s.conversions)} converted${pct(s.conversions, s.clicks, "clicks")}`;
+    if (won.length) conv += `: ${won.join(", ")}`;
+    if (s.revenue_cents) conv += `, $${(s.revenue_cents / 100).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+    parts.push(conv);
+    return `<p class="admin-slide-in-meta admin-slide-in-stats">${esc(parts.join(" · "))}</p>`;
   }
 
   function esc(s) {
@@ -582,7 +608,7 @@
     previewStage.innerHTML = "";
 
     const el = document.createElement("aside");
-    el.className = `slide-in${data.image ? " has-image" : ""} is-visible`;
+    el.className = `slide-in${data.image ? " has-image" : ""}${data.image && data.image_fit === "contain" ? " image-contain" : ""} is-visible`;
     el.setAttribute("role", "complementary");
     el.style.position = "relative";
     el.style.transform = "none";
@@ -628,7 +654,7 @@
 
     const btn = document.createElement("a");
     btn.href = "#";
-    btn.className = "btn btn-primary slide-in-btn";
+    btn.className = "btn btn-solid slide-in-btn";
     btn.textContent = data.button_text || "(no button text)";
     btn.addEventListener("click", (e) => { e.preventDefault(); });
     content.appendChild(btn);

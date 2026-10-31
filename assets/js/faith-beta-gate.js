@@ -2,7 +2,7 @@
  * The Faith Received beta gate — the signed-in half.
  *
  * Read partials/faith-received/_beta-gate.hbs first. That file carries
- * the whole contract; this one implements exactly one clause of it.
+ * the whole contract; this one implements clause 4 of it.
  *
  * WHAT THIS FILE DOES NOT DO, and why that matters: it does not hide
  * anything and it does not reveal anything. The gate's visibility is
@@ -36,6 +36,15 @@
  * intended. TFR-Beta is "has access to the tools during the beta", and
  * every signed-in member does.
  *
+ * IT ALSO COUNTS USE, one day at a time. Once per Central-time day it
+ * sends { type: "tfr_used" } to mo-kit's /event, the same signed-in
+ * endpoint the dashboard counter uses. mo-kit turns that into the Kit
+ * fields TFR: 1. Last Used through TFR: 4. Days Used (Lifetime), so an
+ * email can go only to readers who used the tools recently. The day
+ * marker below is a politeness cache like the claim marker; mo-kit holds
+ * its own once-a-day key and counts the day on Central time whatever
+ * this browser's clock says.
+ *
  * MOAuth ships in boot.min.js in <head>, so it is already on the page
  * by the time any page-bottom script runs (page scripts run BEFORE
  * site.min.js; only head/boot globals are safe to depend on, which
@@ -66,9 +75,27 @@
    * Never make a correctness claim rest on storage the reader can wipe.
    */
   const MARK = "mo_tfr_beta_claimed_v1";
+  let claimed = false;
   try {
-    if (window.localStorage && localStorage.getItem(MARK) === status) return;
+    claimed = !!window.localStorage && localStorage.getItem(MARK) === status;
   } catch (_) { /* private mode: fall through and just make the call */ }
+
+  // Today in Central time, as YYYY-MM-DD, for the once-a-day use report.
+  // An empty string (an old browser without the time zone) just means the
+  // report goes every visit and mo-kit's own daily key absorbs it.
+  const USE_MARK = "mo_tfr_use_day_v1";
+  let today = "";
+  try {
+    today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Chicago", year: "numeric", month: "2-digit", day: "2-digit",
+    }).format(new Date());
+  } catch (_) { /* fall through with no marker */ }
+  let reported = false;
+  try {
+    reported = !!today && !!window.localStorage && localStorage.getItem(USE_MARK) === today;
+  } catch (_) { /* private mode: report and let mo-kit dedupe */ }
+
+  if (claimed && reported) return;
 
   function claim() {
     window.MOAuth.fetch(`${base}/tfr-beta`, {
@@ -87,12 +114,30 @@
     });
   }
 
-  // Off the critical path. The tools are already interactive and this
-  // call is bookkeeping, so it waits for an idle moment rather than
+  function reportUse() {
+    window.MOAuth.fetch(`${base}/event`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ type: "tfr_used" }),
+    }).then((res) => {
+      if (!res || !res.ok || !today) return;
+      try { if (window.localStorage) localStorage.setItem(USE_MARK, today); } catch (_) {}
+    }).catch(() => {
+      // Silent for the same reason as claim(): bookkeeping, not a feature.
+    });
+  }
+
+  function run() {
+    if (!claimed) claim();
+    if (!reported) reportUse();
+  }
+
+  // Off the critical path. The tools are already interactive and these
+  // calls are bookkeeping, so they wait for an idle moment rather than
   // competing with the first fetch a reader actually triggers.
   if (typeof window.requestIdleCallback === "function") {
-    window.requestIdleCallback(claim, { timeout: 4000 });
+    window.requestIdleCallback(run, { timeout: 4000 });
   } else {
-    window.setTimeout(claim, 1200);
+    window.setTimeout(run, 1200);
   }
 })();

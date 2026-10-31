@@ -60,10 +60,14 @@
 
     <meta name="mo-digest-assets" content='{"mere-o-logo.png":"{{@site.url}}/assets/images/mere-o-logo.png","mere-o-logo-white.png":"{{@site.url}}/assets/images/mere-o-logo-white.png","mere-fidelity.jpg":"{{@site.url}}/assets/images/mere-fidelity.jpg","christians-reading-classics.jpg":"{{@site.url}}/assets/images/christians-reading-classics.jpg"}' />
 
-    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+    {{!-- React must come from a host in default.hbs's CSP script-src.
+         unpkg.com was dropped from it on 2026-10-22 and this page went
+         blank, so it loads from jsDelivr (byte-identical, same SRI).
+         Regen SRI: curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A --}}
+    <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"
             integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
             crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
             integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
             crossorigin="anonymous"></script>
 

@@ -277,6 +277,7 @@
   // at load, and a `let` read before its line is a ReferenceError.
   let modalEl = null;
   let modalOpener = null;
+  let portalSigninRequested = false;
 
   /* DOORS BY ADDRESS (Ian, 2026-09-24: "Anywhere any one of these
      tools shows up in other places around TFR, they need to be met with
@@ -339,6 +340,7 @@
     let u;
     try { u = new URL(raw, window.location.href); } catch (err) { return null; }
     if (u.origin !== window.location.origin) return null;
+    if (u.hash.indexOf("#/portal/") === 0) return null;
     if (u.pathname.indexOf(TFR_ROOT) !== 0) return null;
     const seg = u.pathname.slice(TFR_ROOT.length).split("/")[0];
     /* The Research desk itself is a tool now (Ian, 2026-10-24), so a bare
@@ -393,6 +395,7 @@
      every later hash change. This file ships at the foot of the page, so
      the markup is already parsed. */
   function gateArrival() {
+    if (portalSigninRequested || window.location.hash.indexOf("#/portal/") === 0) return;
     /* A whole page that is a tool (the Connections atlas, whose signed-out
        branch is only the hero and the beta gate) marks itself with an
        empty, hidden [data-gate-on-arrival][data-feature-gate] element,
@@ -449,6 +452,7 @@
   function showModal(featureName, feature, opener) {
     dismissModal(true);
     modalOpener = opener;
+    portalSigninRequested = false;
 
     const overlay = document.createElement("div");
     overlay.className = "feature-gate-modal";
@@ -494,6 +498,16 @@
     const innerWrap = document.createElement("div");
     if (feature.requires === "subscriber") {
       innerWrap.innerHTML = subscriberInner(featureName, feature);
+      const form = innerWrap.querySelector("[data-inline-signup]");
+      const link = opener && opener.closest && opener.closest("a[href]");
+      if (form && link) {
+        try {
+          const target = new URL(link.getAttribute("href"), window.location.href);
+          if (/^https?:$/.test(target.protocol) && target.origin === window.location.origin) {
+            form.setAttribute("data-signup-redirect", target.href);
+          }
+        } catch (_) { /* keep the current-page return target */ }
+      }
     } else {
       innerWrap.innerHTML = memberInner(feature);
     }
@@ -509,8 +523,13 @@
       signin.append(feature.requires === "member" ? "Already a member? " : "Already a subscriber? ");
       const a = document.createElement("a");
       a.href = "#/portal/signin";
-      a.setAttribute("data-portal", "signin");
-      a.setAttribute("data-fg-dismiss", "");
+      // Portal binds data-portal triggers only at startup. A dynamic
+      // link uses its supported hash route and must not reopen this gate
+      // when Portal consumes that hash.
+      a.addEventListener("click", () => {
+        portalSigninRequested = true;
+        dismissModal(true, false);
+      });
       a.textContent = "Sign in";
       signin.appendChild(a);
       panel.appendChild(signin);
@@ -537,19 +556,22 @@
   }
 
   function subscriberInner(featureName, feature) {
+    const account = featureName === "ask" || featureName.indexOf("tfr-") === 0;
+    const accountAttr = account ? " data-account-signup" : "";
+    const submitText = account ? "Create free account" : "Subscribe";
     // Mirrors partials/digest-cta.hbs form structure so inline-signup.js
     // picks it up unchanged.
     return (
-      `<div class="feature-gate-modal-form digest-form" data-inline-signup data-source="feature-gate:${escapeAttr(featureName)}">` +
+      `<div class="feature-gate-modal-form digest-form" data-inline-signup${accountAttr} data-source="feature-gate:${escapeAttr(featureName)}">` +
         `<div class="digest-field"><label for="fg-first">First Name</label>` +
           `<input id="fg-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required /></div>` +
         `<div class="digest-field"><label for="fg-last">Last Name</label>` +
           `<input id="fg-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required /></div>` +
         `<div class="digest-field"><label for="fg-email">Email</label>` +
           `<input id="fg-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required /></div>` +
-        `<button type="button" class="digest-submit" data-signup-submit>Subscribe</button>` +
+        `<button type="button" class="digest-submit" data-signup-submit>${submitText}</button>` +
         `<p class="digest-fineprint">Free. Unsubscribe anytime.</p>` +
-        `<p class="digest-status" data-signup-status></p>` +
+        `<p class="digest-status" data-signup-status role="status" aria-live="polite"></p>` +
       `</div>`
     );
   }
@@ -584,22 +606,23 @@
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
 
-  function dismissModal(immediate) {
+  function dismissModal(immediate, returnFocus = true) {
     if (!modalEl) return;
     const m = modalEl;
+    const opener = modalOpener;
+    modalOpener = null;
     modalEl = null;
     document.removeEventListener("keydown", escHandler);
     document.body.classList.remove("feature-gate-modal-open");
-    if (immediate) { m.remove(); restoreFocus(); return; }
+    if (immediate) { m.remove(); if (returnFocus) restoreFocus(opener); return; }
     m.classList.add("is-closing");
-    setTimeout(() => { if (m.parentNode) m.remove(); restoreFocus(); }, 220);
+    setTimeout(() => { if (m.parentNode) m.remove(); if (returnFocus && !modalEl) restoreFocus(opener); }, 220);
   }
 
-  function restoreFocus() {
-    if (modalOpener && modalOpener.focus) {
-      try { modalOpener.focus(); } catch (e) { /* no-op */ }
+  function restoreFocus(opener) {
+    if (opener && opener.isConnected && opener.focus) {
+      try { opener.focus({ preventScroll: true }); } catch (e) { /* no-op */ }
     }
-    modalOpener = null;
   }
 
   function escapeHtml(s) {

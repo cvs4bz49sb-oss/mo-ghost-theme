@@ -208,7 +208,7 @@ Load from Google Fonts: `EB Garamond` (400, 400i, 600) and `Inter` (400, 500, 60
 - CTA button: "Become a Lifetime Member" — dark fill (`--color-dark`), white text
 - Benefits list (checkmark icon):
   - Everything in Member, plus:
-  - A copy of Jake Meador's *In Search Of The Common Good: Christian Fidelity In A Fractured World*
+  - A copy of Trevin Wax's *The Lord Is My Light: A Liturgy for Daily Prayer*
 - Small note below button: "Lifetime members help sustain Mere Orthodoxy permanently."
 
 **Section 4: What's Included** (optional, can render below cards)

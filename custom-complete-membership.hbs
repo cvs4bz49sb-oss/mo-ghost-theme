@@ -67,6 +67,9 @@
       <section class="welcome-step is-active" data-step="1" data-target="address">
         <p class="hero-kicker"><span class="dot"></span> Welcome</p>
         <h1 class="welcome-title"><em>You're a member.</em></h1>
+        {{!-- Shown only when GET /api/welcome-survey/me says an active lifetime-member
+              gift is on file for this member (data.gift). Inert until then. --}}
+        <p class="welcome-intro" data-gift-note hidden>A lifetime member gave you this membership, print journal included.</p>
         <p class="welcome-intro">First, where should the print journal go? Then a few quick questions so we know who we're writing for.</p>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">Where should we mail the journal?</legend>
@@ -417,7 +420,7 @@
           </div>
         </fieldset>
       </section>
-      <section class="welcome-step" data-step="8" data-answered-by="join" hidden>
+      <section class="welcome-step" data-step="8" data-answered-by="join" data-gift-skip hidden>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What prompted you to become a member?</legend>
           <p class="welcome-hint">Select any that apply, then press Next.</p>

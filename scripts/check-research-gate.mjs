@@ -6,7 +6,7 @@
  *   - no request went to the library workers or to a /v1/ data path: the page did not fetch tool data;
  *   - closing the modal leaves the quiet "Free account required" state: a hollow "Create a free account" button and a "Sign in" link;
  *   - there is no horizontal scroll at 375px.
- * It then loads the open surfaces (Scripture, Topics, Dictionary, Guides, ...) and asserts they answer 200 with no modal, and opens the
+ * It then loads the open surfaces (Dictionary, Guides, ...) and asserts they answer 200 with no modal, and opens the
  * reader and asserts the Scan button shows the modal while the text stays on the page.
  * Signed-in behavior is verified by hand, in a signed-in pane: this script never signs in and never types credentials.
  *
@@ -68,10 +68,28 @@ for (const path of toolUrls) {
   ok(w.s <= w.c, `the Research page has no horizontal scroll at 375px (${w.s}/${w.c})`);
   await ctx.close();
 }
+for (const path of reg.accountSurfaces || []) {
+  for (const width of [375, 820, 1280]) {
+    const { ctx, page, status } = await visit(path, width);
+    ok(status === 200, `${path} answers 200 at ${width}px`);
+    const state = await page.evaluate(() => ({
+      gate: !!document.querySelector('[data-tfr-account-gate][role="dialog"][aria-modal="true"]'),
+      background: !!document.querySelector("main"),
+      required: document.querySelectorAll("[data-tfr-account-gate] input[required]").length,
+      signin: !!document.querySelector('[data-tfr-account-gate] [data-portal="signin"]'),
+      overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    }));
+    ok(state.gate && state.background && state.required === 3 && state.signin, `${path} shows a free account dialog over the page`);
+    ok(!state.overflow, `${path} has no horizontal overflow at ${width}px`);
+    await page.keyboard.press("Escape");
+    ok(await page.evaluate(() => !!document.querySelector("[data-tfr-account-gate]")), `${path} cannot dismiss the gate with Escape`);
+    await ctx.close();
+  }
+}
 for (const path of reg.open) {
   const { ctx, page, status } = await visit(path);
   ok(status === 200, `${path} (open) answers 200`);
-  ok(await page.evaluate(() => !document.querySelector(".feature-gate-modal") && !document.querySelector("[data-gate-on-arrival]")), `${path} (open) shows no gate`);
+  ok(await page.evaluate(() => !document.querySelector(".feature-gate-modal") && !document.querySelector("[data-gate-on-arrival]") && !document.querySelector("[data-tfr-account-gate]")), `${path} (open) shows no gate`);
   await ctx.close();
 }
 {

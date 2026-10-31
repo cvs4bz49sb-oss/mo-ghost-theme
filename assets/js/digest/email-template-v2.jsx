@@ -131,7 +131,8 @@ const SAMPLE_PODCASTS = [
 // Markdown for email content. Inline: **bold**, *italic*, __underline__,
 // [text](url), and any nesting of them (**[bold link](url)**). Blocks:
 // blank line = new paragraph, a paragraph whose lines all start with
-// "> " = blockquote, single newline (or two trailing spaces + newline)
+// "> " = blockquote, a paragraph whose lines all start with "- " or
+// "* " = bulleted list, single newline (or two trailing spaces + newline)
 // = <br>. HTML in the source is escaped first to prevent XSS. Links are
 // swapped for placeholders before emphasis runs so an underscore or
 // asterisk inside a URL can never be read as formatting.
@@ -183,6 +184,15 @@ function blockquoteText(p) {
   return lines.map((l) => l.replace(/^\s*> ?/, '')).join('\n');
 }
 
+// A paragraph is a bulleted list when every line starts with "- " or
+// "* ". The space is required, so a line that opens with *italic* stays
+// a paragraph. Returns the items with markers stripped, or null.
+function listItems(p) {
+  const lines = p.split('\n');
+  if (!lines.every((l) => /^\s*[-*] +\S/.test(l))) return null;
+  return lines.map((l) => l.replace(/^\s*[-*] +/, ''));
+}
+
 const MD_PARA_STYLE = {
   fontFamily: 'Georgia, "Times New Roman", serif',
   fontSize: 16,
@@ -193,6 +203,20 @@ const MD_PARA_STYLE = {
 // One Markdown paragraph as an email-safe element. A blockquote ending
 // in "— Name" (or "-- Name") sets the attribution on its own line.
 function MdParagraph({ text, tokens }) {
+  const items = listItems(text);
+  if (items) {
+    // Real <ul>/<li> so readers and screen readers see a list. The
+    // indent is margin-left, not padding: Outlook's Word engine ignores
+    // padding on <ul> and would hang the bullets in the gutter.
+    return (
+      <ul style={{ ...MD_PARA_STYLE, color: tokens.bodyText, margin: '0 0 14px 22px', padding: 0, listStyleType: 'disc' }}>
+        {items.map((it, i) => (
+          <li key={i} style={{ margin: i === items.length - 1 ? 0 : '0 0 6px', paddingLeft: 2 }}
+            dangerouslySetInnerHTML={{ __html: markdownInline(it, tokens) }} />
+        ))}
+      </ul>
+    );
+  }
   const quote = blockquoteText(text);
   if (quote == null) {
     return <p style={{ ...MD_PARA_STYLE, color: tokens.bodyText }}
@@ -564,22 +588,26 @@ function LetterFromEditor({ tokens, content }) {
       }}>
         From Mere Orthodoxy
       </div>
-      <h1
-        style={{
-          fontFamily: '"IM Fell English", "IM Fell DW Pica", Georgia, serif',
-          fontSize: 34,
-          lineHeight: 1.2,
-          color: tokens.bodyText,
-          margin: '0 0 18px',
-          fontWeight: 400,
-          letterSpacing: '-0.005em',
-        }}
-        dangerouslySetInnerHTML={{ __html: markdownInline(content.editorTitle || '', tokens) }}
-      />
+      {/* No title, no h1: an appeal letter can open straight into the body. */}
+      {(content.editorTitle || '').trim() && (
+        <h1
+          style={{
+            fontFamily: '"IM Fell English", "IM Fell DW Pica", Georgia, serif',
+            fontSize: 34,
+            lineHeight: 1.2,
+            color: tokens.bodyText,
+            margin: '0 0 18px',
+            fontWeight: 400,
+            letterSpacing: '-0.005em',
+          }}
+          dangerouslySetInnerHTML={{ __html: markdownInline(content.editorTitle, tokens) }}
+        />
+      )}
       {(() => {
         // Read editorBody (new shape) with a fallback to legacy
         // editorParagraphs array. Body supports Markdown:
-        //   **bold**, *italic*, __underline__, [text](url), > quote, \n\n for ¶.
+        //   **bold**, *italic*, __underline__, [text](url), > quote,
+        //   - bullet, \n\n for ¶.
         const body = content.editorBody != null
           ? content.editorBody
           : (content.editorParagraphs || []).join('\n\n');
@@ -1581,6 +1609,8 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
     .filter((s) => s.node !== null);
 
   const lastKey = renderedSections.length ? renderedSections[renderedSections.length - 1].key : null;
+  // Stacked button blocks read as one group, so no rule between them.
+  const isButton = (key) => blocksById[key]?.type === 'button';
 
   return (
     <div className="mo-wrapper" style={{
@@ -1601,7 +1631,7 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
 
       {renderedSections.map(({ key, node }, i) => (
         <React.Fragment key={key}>
-          {i > 0 && <Divider />}
+          {i > 0 && !(isButton(renderedSections[i - 1].key) && isButton(key)) && <Divider />}
           {node}
         </React.Fragment>
       ))}

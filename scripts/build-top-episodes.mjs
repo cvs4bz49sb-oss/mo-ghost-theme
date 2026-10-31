@@ -6,7 +6,7 @@
  *
  * WHY THIS RUNS IN CI (not the Worker): both rankings and scheduled episodes
  * are only exposed by the Buzzsprout JSON API. "Most Listened" needs
- * `total_plays`; the next scheduled episode is future-dated + private and
+ * per-episode play counts; the next scheduled episode is future-dated + private and
  * never appears in the public RSS feed the Worker reads. Buzzsprout's
  * Cloudflare WAF blocks Cloudflare Workers' egress IPs, but NOT GitHub
  * Actions runners — so we fetch the API here, on a non-Cloudflare runner,
@@ -23,6 +23,11 @@ import { fileURLToPath } from "node:url";
 const SHOWS = {
   "mere-fidelity": "2612792",
   "christians-reading-classics": "2612793",
+};
+// Shows counted on the KPI board but kept out of the site's Most Listened
+// and scheduled-episode files, which only cover the two talk shows.
+const TOTALS_ONLY = {
+  "daily-liturgy": "2624965",
 };
 const TOP_N = 5;
 // Episodes kept per show in podcast-totals.json for the KPI board's
@@ -103,6 +108,16 @@ function nextScheduled(list, now, slug, podcastId) {
   };
 }
 
+// Buzzsprout renamed `total_plays` to `total_downloads` around 2026-10-09.
+// The old name vanished outright, and `ep.total_plays || 0` turned every
+// episode into zero plays for three weeks without a single error. Read
+// either name, and treat "neither" as a broken response, not as zero.
+function playsOf(ep) {
+  if (typeof ep.total_downloads === "number") return ep.total_downloads;
+  if (typeof ep.total_plays === "number") return ep.total_plays;
+  return null;
+}
+
 async function fetchShow(slug, podcastId) {
   const res = await fetch(`https://www.buzzsprout.com/api/${podcastId}/episodes.json`, {
     headers: {
@@ -115,9 +130,17 @@ async function fetchShow(slug, podcastId) {
   const list = await res.json();
   const now = Date.now();
 
-  const top = (Array.isArray(list) ? list : [])
-    .filter((ep) => isReleasable(ep, now) && typeof ep.total_plays === "number")
-    .sort((a, b) => (b.total_plays || 0) - (a.total_plays || 0))
+  // Fail the run rather than commit a file of zeros: the last good
+  // podcast-totals.json stays on the branch and the KPI board's staleness
+  // check flags it, which is the outcome we want when the API shape moves.
+  const released = (Array.isArray(list) ? list : []).filter((ep) => isReleasable(ep, now));
+  if (released.length && !released.some((ep) => playsOf(ep) !== null)) {
+    throw new Error(`${slug}: no play count on any episode (fields: ${Object.keys(released[0]).join(",")})`);
+  }
+
+  const top = released
+    .filter((ep) => playsOf(ep) !== null)
+    .sort((a, b) => playsOf(b) - playsOf(a))
     .slice(0, TOP_N)
     .map((ep) => {
       const { slug: epSlug, fromAudio } = slugFromAudio(ep.audio_url, ep.id, ep.title);
@@ -128,7 +151,7 @@ async function fetchShow(slug, podcastId) {
         pubDate: ep.published_at || "",
         episode: ep.episode_number || "",
         season: ep.season_number || "",
-        plays: ep.total_plays || 0,
+        plays: playsOf(ep) || 0,
         embedUrl: ep.id
           ? `https://www.buzzsprout.com/${podcastId}/${ep.id}?client_source=small_player&iframe=true`
           : null,
@@ -142,7 +165,7 @@ async function fetchShow(slug, podcastId) {
 
   // Every released episode, not just the top N: the KPI tile reports
   // lifetime plays across the whole catalogue.
-  const all = (Array.isArray(list) ? list : []).filter((ep) => isReleasable(ep, now));
+  const all = released;
   const byDate = [...all]
     .filter((ep) => ep.published_at)
     .sort((a, b) => String(a.published_at).localeCompare(String(b.published_at)));
@@ -154,7 +177,7 @@ async function fetchShow(slug, podcastId) {
   const recent = byDate.slice(-RECENT_N).map((ep) => ({
     date: String(ep.published_at).slice(0, 10),
     title: ep.title || "",
-    plays: ep.total_plays || 0,
+    plays: playsOf(ep) || 0,
   }));
 
   // Average plays for the episodes published in each month. A fallback for
@@ -164,7 +187,7 @@ async function fetchShow(slug, podcastId) {
   for (const ep of byDate) {
     const m = String(ep.published_at).slice(0, 7);
     const b = months.get(m) || { month: m, plays: 0, episodes: 0 };
-    b.plays += ep.total_plays || 0;
+    b.plays += playsOf(ep) || 0;
     b.episodes++;
     months.set(m, b);
   }
@@ -174,7 +197,7 @@ async function fetchShow(slug, podcastId) {
 
   const totals = {
     episodes: all.length,
-    plays: all.reduce((t, ep) => t + (ep.total_plays || 0), 0),
+    plays: all.reduce((t, ep) => t + (playsOf(ep) || 0), 0),
     earliest: byDate.length ? String(byDate[0].published_at).slice(0, 10) : null,
     recent,
     per_episode: perEpisode,
@@ -191,6 +214,11 @@ for (const [slug, podcastId] of Object.entries(SHOWS)) {
   schedOut[slug] = scheduled;
   totalsOut.shows[slug] = totals;
   console.log(`${slug}: ${top.length} top episodes; scheduled: ${scheduled ? scheduled.title : "none"}`);
+}
+for (const [slug, podcastId] of Object.entries(TOTALS_ONLY)) {
+  const { totals } = await fetchShow(slug, podcastId);
+  totalsOut.shows[slug] = totals;
+  console.log(`${slug}: ${totals.plays} plays across ${totals.episodes} episodes`);
 }
 
 await mkdir(dirname(TOP_OUT), { recursive: true });

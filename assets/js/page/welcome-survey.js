@@ -55,6 +55,24 @@
     TOTAL = steps.length;
   }
 
+  /*
+   * A member whose membership is a lifetime member's gift is told so, and is
+   * not asked why they chose to become a member: they did not choose. The
+   * server says so (data.gift), never the URL, so the line cannot be summoned
+   * by anyone it is not true of. Steps are removed from the DOM, as in prune,
+   * so the progress bar counts only the questions that will be asked.
+   */
+  function applyGift() {
+    const note = form.querySelector("[data-gift-note]");
+    if (note) note.hidden = false;
+    steps = steps.filter((step) => {
+      if (!step.hasAttribute("data-gift-skip")) return true;
+      if (step.parentNode) step.parentNode.removeChild(step);
+      return false;
+    });
+    TOTAL = steps.length;
+  }
+
   // ---- location options ----------------------------------------------------
   // Built here rather than in the template so the markup stays readable; the
   // list is inert data either way.
@@ -376,7 +394,10 @@
   if (form.getAttribute("data-dedupe") === "1" && API && window.MOAuth) {
     window.MOAuth.fetch(`${API}/api/welcome-survey/me`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (d && d.answered) prune(d.answers); })
+      .then((d) => {
+        if (d && d.gift === "lifetime") applyGift();
+        if (d && d.answered) prune(d.answers);
+      })
       .catch(() => { /* ask everything rather than nothing */ })
       .then(() => { show(0); });
   } else {

@@ -124,10 +124,14 @@
   });
 
   function handleSubmit(root, submit) {
+    // Enter in the email field also reaches this handler while the button
+    // is disabled. One request stays in flight until it succeeds or retries.
+    if (submit.disabled) return;
     const emailInput = root.querySelector("[data-signup-email]");
     if (!emailInput) return;
     const email = (emailInput.value || "").trim();
-    if (!email || !/.+@.+\..+/.test(email)) {
+    if (!email || !/.+@.+\..+/.test(email)
+      || (typeof emailInput.checkValidity === "function" && !emailInput.checkValidity())) {
       setStatus(root, "Enter a valid email address.", true);
       return;
     }
@@ -136,17 +140,18 @@
     const name = [first, last].filter(Boolean).join(" ");
     const endpoint = (root.getAttribute("data-register-endpoint") || "").trim();
 
-    // Registration needs both halves of the name (Zoom requires them,
-    // and a list of first names is no use to anyone). Plain subscribe
-    // forms are happy without, which is why this is scoped.
-    if (endpoint && (!first || !last)) {
+    // Account creation and event registration require both name fields.
+    // Other newsletter forms keep their existing optional-name behavior.
+    const accountSignup = root.hasAttribute("data-account-signup");
+    if ((endpoint || accountSignup) && (!first || !last)) {
       setStatus(root, "Enter your first and last name.", true);
       return;
     }
 
     const originalText = submit.textContent;
     submit.disabled = true;
-    submit.textContent = endpoint ? "Registering\u2026" : "Subscribing\u2026";
+    submit.textContent = endpoint ? "Registering\u2026"
+      : accountSignup ? "Creating account\u2026" : "Subscribing\u2026";
     setStatus(root, "");
 
     if (!endpoint) {
@@ -198,6 +203,18 @@
     setStatus(root, netMsg || (err && err.message) || "Something went wrong. Try again.", true);
   }
 
+  function signupRedirect(root) {
+    // A feature gate may name the tool that opened it. Never let a form
+    // turn the emailed login link into a redirect to another site.
+    const requested = root.getAttribute("data-signup-redirect");
+    if (requested) {
+      const target = scrubTokens(requested);
+      if (target && target.origin === window.location.origin
+        && (target.protocol === "https:" || target.protocol === "http:")) return target.href;
+    }
+    return (scrubTokens(window.location.href) || window.location).href;
+  }
+
   function ghostSignup(root, email, name) {
     const labels = buildContextLabels(root);
 
@@ -223,7 +240,7 @@
             name,
             labels,
             requestSrc: "portal",
-            redirect: (scrubTokens(window.location.href) || window.location).href,
+            redirect: signupRedirect(root),
             // Ghost derives member attribution from urlHistory — it is how
             // Portal populates referrer_source and the utm_* columns. We were
             // not sending it, so 456 of the last 600 signups recorded their
@@ -674,11 +691,10 @@
     const success = document.createElement("div");
     success.className = "inline-signup-success";
     success.setAttribute("role", "status");
-    success.innerHTML =
-      `<p class="eyebrow">Check your inbox</p>` +
-      `<h4><em>Almost there.</em></h4>` +
-      `<p>We sent a link to <strong>${escapeHtml(email)}</strong>. ` +
-      `Open it to finish subscribing and you'll land right back on this page.</p>`;
+    const confirmation = root.hasAttribute("data-account-signup")
+      ? "Open it to confirm your email and sign in to your free account."
+      : "Open it to finish subscribing and you'll land right back on this page.";
+    success.innerHTML = `<p class="eyebrow">Check your inbox</p><h4><em>Almost there.</em></h4><p>We sent a link to <strong>${escapeHtml(email)}</strong>. ${confirmation}</p>`;
     // The form may declare a larger container to swap out (e.g. the
     // whole post-gate card with its pitch copy above the form) so the
     // success state fully replaces the surrounding messaging instead

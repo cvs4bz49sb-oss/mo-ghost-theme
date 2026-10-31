@@ -49,6 +49,11 @@
       // migrated:complete label) so the buyer's legacy Membership still
       // gets cancelled and refunded.
       if (btn.dataset.lifetimeSource) payload.source = btn.dataset.lifetimeSource;
+      // A slide-in's button links here with ?slide-in=<id> (slide-in.js),
+      // and passing it on lets the worker credit the purchase to that
+      // slide-in. The worker checks its shape and drops anything else.
+      const slideIn = new URLSearchParams(window.location.search).get('slide-in');
+      if (slideIn) payload.slide_in = slideIn;
       const isSignedIn = !!btn.dataset.memberEmail;
       // For anonymous visitors, prefill name if we have it; Stripe
       // collects email at checkout. For signed-in members we send a

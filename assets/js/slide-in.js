@@ -13,6 +13,14 @@
  *   5. Pick the highest-priority remaining item.
  *   6. Render it and animate in after a short delay.
  *
+ * § Measurement. Each slide-in reports three counts to the admin worker,
+ * which shows them on /admin/slide-ins/: shown (it slid into view),
+ * clicked (the button) and closed (the × or a swipe down). The button's
+ * link to a page on this site also gets ?slide-in=<id>, so a checkout
+ * started from the page it leads to can be credited to the slide-in. See
+ * mo-workers membership/lib/slide-in-attribution.js for how a Ghost Portal
+ * membership and a Lifetime purchase each carry that id to Stripe.
+ *
  * § Frequency. The window on each slide-in caps how often it can be
  * SHOWN, not just how long a dismissal lasts. Before 2026-08-28 only a
  * dismissal was recorded, so a visitor who ignored a slide-in — closed
@@ -113,6 +121,12 @@
   // status is a free subscriber.
   const isPaid = memberStatus === "paid" || memberStatus === "comped";
   const isFree = isMember && memberStatus === "free";
+  // Already Lifetime, by purchase or by gift. default.hbs writes the flag
+  // from the member's labels, so it is empty for everyone else, signed
+  // out included. Lifetime members are paid (or comped) and so match
+  // "paid"; "paid-not-lifetime" is for an offer they already took, such
+  // as the Lifetime upgrade itself.
+  const isLifetime = isMember && !!document.body.getAttribute("data-member-lifetime");
 
   // ── Fetch ─────────────────────────────────────────────────────
   function load(cb) {
@@ -181,6 +195,7 @@
       if (a === "signed-in") return isMember;
       if (a === "free") return isFree;
       if (a === "paid") return isPaid;
+      if (a === "paid-not-lifetime") return isPaid && !isLifetime;
       return false;
     });
   }
@@ -233,10 +248,24 @@
     try { localStorage.setItem(DISMISS_PREFIX + item.id, String(Date.now())); } catch (e) {}
   }
 
+  // The button's own link plus ?slide-in=<id>, for a page on this site.
+  // A link off the site is left exactly as entered: the id means nothing
+  // there. The hash stays last, so /membership/#lifetime-upgrade becomes
+  // /membership/?slide-in=<id>#lifetime-upgrade and still scrolls to the
+  // Lifetime row.
+  function withSlideInParam(href, id) {
+    try {
+      const u = new URL(href, window.location.href);
+      if (u.origin !== window.location.origin) return href;
+      u.searchParams.set("slide-in", id);
+      return u.pathname + u.search + u.hash;
+    } catch (e) { return href; }
+  }
+
   // ── Render ────────────────────────────────────────────────────
   function render(item) {
     const el = document.createElement("aside");
-    el.className = `slide-in${item.image ? " has-image" : ""}`;
+    el.className = `slide-in${item.image ? " has-image" : ""}${item.image && item.image_fit === "contain" ? " image-contain" : ""}`;
     el.setAttribute("role", "complementary");
     el.setAttribute("aria-label", item.headline);
 
@@ -286,7 +315,11 @@
     // slide-in.
     const btn = document.createElement("a");
     window.MOSafeHref.set(btn, item.button_url);
-    btn.className = "btn btn-primary slide-in-btn";
+    // Tagged only after the raw value has passed the allowlist, and set
+    // through it again, so the param can never turn an unsafe URL into
+    // one that renders.
+    if (window.MOSafeHref.isSafe(item.button_url)) window.MOSafeHref.set(btn, withSlideInParam(item.button_url, item.id));
+    btn.className = "btn btn-solid slide-in-btn";
     btn.textContent = item.button_text;
     content.appendChild(btn);
 
@@ -294,12 +327,35 @@
 
     close.addEventListener("click", () => {
       dismiss(item);
+      track(item.id, "dismiss");
       el.classList.remove("is-visible");
       setTimeout(() => { el.remove(); }, 400);
     });
 
     btn.addEventListener("click", () => {
       track(item.id, "click");
+    });
+
+    // On phones the card is a bottom sheet (screen.css), so a swipe
+    // down closes it the same way the close button does.
+    let startY = null;
+    el.addEventListener("touchstart", (e) => {
+      if (!window.matchMedia("(max-width: 640px)").matches) return;
+      startY = e.touches[0].clientY;
+      el.style.transition = "none";
+    }, { passive: true });
+    el.addEventListener("touchmove", (e) => {
+      if (startY === null) return;
+      const dy = Math.max(0, e.touches[0].clientY - startY);
+      el.style.transform = `translateY(${dy}px)`;
+    }, { passive: true });
+    el.addEventListener("touchend", (e) => {
+      if (startY === null) return;
+      const dy = e.changedTouches[0].clientY - startY;
+      startY = null;
+      el.style.transition = "";
+      el.style.transform = "";
+      if (dy > 60) close.click();
     });
 
     document.body.appendChild(el);

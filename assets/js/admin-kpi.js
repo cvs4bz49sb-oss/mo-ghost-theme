@@ -332,7 +332,7 @@
   const TOTAL_FIELD = {
     rev: "membership_revenue", mem: "total_members", sub: "total_subscribers",
     nnew: "new_members_24h", nsub: "new_subscribers_24h", pv: "web_traffic_30d",
-    pod: "podcast_lifetime", op: "digest_open", migd: "migration_done",
+    podt: "podcast_lifetime", op: "digest_open", migd: "migration_done",
     cmp: "comp_overhang", cxl: "cancels_total", dl: "dl_subscribers",
   };
 
@@ -341,13 +341,30 @@
       label: "Membership revenue", key: "rev", agg: "last", f: usd, goodUp: true, cap: "annualised",
       periodBullets: (rows, prev) => [
         `<b>${usd((lastOf(rows, "mrr") || 0) * 12)}</b> Stripe run-rate at period end`,
-        `<b>${usd((lastOf(rows, "rev") || 0) - (lastOf(rows, "mrr") || 0) * 12)}</b> HubSpot, trailing twelve months`,
-        `<b>${usd(sumOf(rows, "cash") + sumOf(rows, "hsc"))}</b> actually collected in the period`
+        // Before 29 Oct 2026 the HubSpot half was trailing-12-month checkouts,
+        // not live billing, so a period ending earlier names it that way.
+        `<b>${usd((lastOf(rows, "rev") || 0) - (lastOf(rows, "mrr") || 0) * 12)}</b> ${
+          rows.length && rows[rows.length - 1].d < "2026-10-29"
+            ? "legacy HubSpot checkouts in the last twelve months"
+            : "legacy HubSpot subscriptions still billing"}`,
+        `<b>${usd(sumOf(rows, "cash") + sumOf(rows, "hsc"))}</b> actually collected in the period`,
+        // 29 Oct 2026: the HubSpot half switched from trailing checkouts to
+        // live billing. A period spanning that day shows the step as growth.
+        ...(rows.length && rows[0].d < "2026-10-29" && rows[rows.length - 1].d >= "2026-10-29"
+          ? ["Most of the change in this period is the 29 Oct 2026 switch to counting live HubSpot billing, not new revenue"]
+          : [])
       ],
       bullets: (s) => [
         s.stripe ? `<b>${usd(s.stripe.arr)}</b> Stripe run-rate — verified` : "",
-        s.hubspot ? `<b>${usd(s.hubspot.checkout_value_12m)}</b> HubSpot checkouts, 12 months — a floor` : "",
-        s.stripe ? `<b>${usd(s.stripe.mrr)}</b> MRR · <b>${usd(s.stripe.cash_30d)}</b> collected in 30 days` : ""
+        s.hubspot && s.hubspot.legacy_billing
+          ? `<b>${usd(s.hubspot.legacy_billing.arr)}</b> a year from <b>${fmt(s.hubspot.legacy_billing.billing)}</b> legacy HubSpot subscriptions still billing, plus <b>${usd(s.hubspot.legacy_billing.arr_failing)}</b> on <b>${fmt(s.hubspot.legacy_billing.failing)}</b> failing cards (not counted)`
+          : "",
+        "From 29 Oct 2026 the HubSpot half is live billing. Before that it was the last twelve months of HubSpot checkouts, so the line steps up that day.",
+        s.stripe ? `<b>${usd(s.stripe.mrr)}</b> MRR · <b>${usd(s.stripe.cash_30d)}</b> collected in 30 days` : "",
+        // A source that failed tonight is carried from its last good night,
+        // so the headline holds steady instead of dropping by that half.
+        ...["stripe", "hubspot"].filter((k) => s.stale_since && s.stale_since[k])
+          .map((k) => `${k === "stripe" ? "Stripe" : "HubSpot"} could not be read in full, so its figure is from ${esc(new Date(`${s.stale_since[k]}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }))}`)
       ]
     },
     {
@@ -513,6 +530,12 @@
         out.push(`<b>${signed(changeOf(rows, prev, "dl"))}</b> net change over the period`);
         if (typeof end.dlo === "number") out.push(`<b>${fmt(end.dlo)}</b> take only the Daily Liturgy`);
         if (typeof end.dlb === "number") out.push(`<b>${fmt(end.dlb)}</b> also take a weekly digest`);
+        // 16 Sep to 28 Oct 2026 the collector was broken. Signups for those
+        // days are exact (Kit's join dates); list size is rebuilt between the
+        // measured ends with the departures spread evenly.
+        if (rows.some((r) => r.d > "2026-09-16" && r.d < "2026-10-29")) {
+          out.push("List size for 17 Sep to 28 Oct 2026 is rebuilt from Kit's join dates, with unsubscribes spread evenly across those weeks");
+        }
         if (!hasNew) {
           out.push("net change, not signup events — signup dates start 13 Aug 2026");
         }
@@ -638,11 +661,11 @@
       }
     },
     {
-      label: "Podcast plays", key: "pod", agg: "last", f: fmt, goodUp: true, cap: "all shows, since Apr 2026",
+      label: "Podcast plays", key: "podt", agg: "last", f: fmt, goodUp: true, cap: "all shows, since Apr 2026",
       periodBullets: (rows, prev) => [
-        `<b>${signed(changeOf(rows, prev, "pod"))}</b> plays added in the period`,
-        `<b>${fmt(lastOf(rows, "pod"))}</b> total at period end, counted since Apr 2026`,
-        "per-show splits are only kept for the current snapshot"
+        `<b>${signed(changeOf(rows, prev, "podt"))}</b> plays added in the period`,
+        `<b>${fmt(lastOf(rows, "podt"))}</b> total at period end, counted since Apr 2026`,
+        "history starts in late Oct 2026, when Daily Liturgy plays were first counted"
       ],
       bullets: (s) => (s.podcasts ? [
         `<b>${fmt(s.podcasts.daily_liturgy)}</b> Daily Liturgy`,
@@ -1052,13 +1075,13 @@
     "paying-members-won-per-send": "Kit's POST /v4/subscribers/filter, with a clicks filter scoped to one broadcast and one URL at a time — the pair ANDs, so each list is exactly the people who clicked that link in that email, and it reconciles to the unique_clicks the broadcast reports. Those addresses are matched, lowercased, against Stripe subscriptions with a non-zero price, dropping never-completed checkouts and keeping each person's first paid subscription. A member counts for a send only if they paid after it went out and within 45 days of it, credited to the most recent qualifying click.",
     "who-converted-by-send": "Same source as the chart. Sends are grouped per broadcast rather than per link, and clickers are deduplicated across a send's links, so an email carrying both a membership and an offer link is one row. Migration links are held separately. Value is annualised: monthly plans counted at twelve months.",
     "email-revenue-by-month": "Every member email is credited with, bucketed by the month their first payment landed — not the month the email was sent, which is why this will not line up row-for-row with the list of sends. Amounts are annualised plan value from Stripe, not invoices, so it is run-rate added rather than cash banked.",
-    "sponsorship-clicks": "Unique clicks per sponsor link, summed across every send held in the click cache. Sponsors are a configured list stored in KV, matched as a substring of the URL. Nothing here is inferred from the domain: only Samford tags its links, the Beeson bit.ly link does not, and treating any external domain as a sponsor would sweep in the whole Mailbag.",
+    "sponsorship-clicks": "Unique clicks per sponsor, summed across every send held in the click cache. Sponsors are a configured list in mo-admin (Crossway, Beeson, CCPL, InBible, IVP as of 29 Oct 2026), each matched against one or more link patterns; Crossway's monthly cway.to links count as one sponsor. Nothing is inferred from the domain, because the Mailbag links to dozens of sites that are not sponsors. Podcast reads (Baker, Lexham, Lifeway) have no link and do not appear.",
     "how-long-before-a-subscriber-pays": "Subscribe date is the earliest record of the person — Kit's created_at, or HubSpot's createdate where that is older, because Kit's created_at for an imported contact is the day of the import. Conversion date is the earliest of their first paid Stripe subscription and their HubSpot deal close date, so someone who bought before Stripe existed still counts, and a migrated member counts from when they first paid rather than when billing moved. HubSpot close dates are only trusted where the contact has a single deal; with several, the exposed date is the latest purchase and would read as a renewal. Two groups are dropped rather than timed, because neither has a journey to measure: anyone whose payment predates any subscriber record, and anyone whose only subscriber record is a HubSpot contact created the same day its own deal closed. That second group is large — 474 of the 1,317 HubSpot contacts carrying a deal close date were created by that sale — and left in it reads as an instant conversion.",
     "subscribe-to-paid-end-to-end": "The same population as the card above. Quartiles and median are computed over every measurable member on each nightly run, so the shape moves as people convert. Read the median with the distribution next to it rather than on its own: this is not a single hump. Roughly a fifth of the population converts inside a month and another third takes more than a year, so a middle value sits in a thin part of the curve and describes almost nobody. The spread between the quartiles is the honest summary.",
     "how-long-they-took": "The same population again, bucketed by elapsed days between subscribing and first paying.",
-    "reader-loyalty": "One nightly sweep of every Kit subscriber, reading the per-person counters mo-kit writes as people use the site: essays read, Daily Liturgy days and streak, audio plays, bookmarks, commonplace entries, and days since last read. The score is recency at half the weight, then reading volume on a log scale, Daily Liturgy habit, and how many topics someone reads across — averaged over people with recorded reading activity, not the whole list. Segments are recency-first. Anonymous visitors are excluded on purpose: Plausible forgets people daily by design, so pageviews per visitor cannot separate a first-time reader from a ten-year one, and it held between 1.68 and 1.83 for eleven straight weeks whatever was published.",
-    "site-features": "Uses is the sum of each feature's per-person counter across every subscriber; people is the count carrying the feature's used: tag, read from the tag itself. Member rate is those same people filtered to a Ghost tier that is not free — the tag's subscriber list carries each person's fields, so no extra lookup is needed. \u201cJoined here\u201d is a different population: people whose source: tag says they came onto the list through that feature, which is what a feature recruits rather than what it retains. Ebook PDFs count a download per title claimed, so two ebooks is two downloads and one person. The article gate has no usage tag at all — it is a door rather than a feature — so it reports only what came through it.",
-    "essays-read-members-against-subscribers": "Per-person lifetime essay counts from the same sweep, banded, and split on the Ghost tier mo-kit stores against each subscriber. Anyone whose tier is not free counts as a member, so comped, student and institutional memberships are included. Bars are each group's own percentage rather than raw counts, because members are a fifth the size of the free list and raw bars would say nothing. Only people who have read at least one essay appear.",
+    "reader-loyalty": "One sweep of every active Kit subscriber on each refresh, reading the per-person counters mo-kit writes as people use the site: essays read, Daily Liturgy days, audio plays, bookmarks, commonplace entries, and the date of the last read. The score is recency at half the weight, then reading volume on a log scale (20%), Daily Liturgy days in the last 30 (15%), and how many of the seven topics someone reads across (15%) — averaged over people with recorded reading activity, not the whole list. Segments are recency-first. Anonymous visitors are excluded on purpose: Plausible forgets people daily by design, so pageviews per visitor cannot separate a first-time reader from a ten-year one, and it held between 1.68 and 1.83 for eleven straight weeks whatever was published.",
+    "site-features": "Uses is the sum of each feature's per-person counter across every active subscriber; people is the count whose counter is above zero. Member rate is those same people who carry a paid, comped or gift membership tag. \u201cJoined here\u201d is a different population: people whose source: tag says they came onto the list through that feature, which is what a feature recruits rather than what it retains. Ebook PDFs count a download per title claimed, so two ebooks is two downloads and one person.",
+    "essays-read-members-against-subscribers": "Per-person lifetime essay counts from the same sweep, banded, and split on the paid, comped and gift membership tags mo-kit keeps on each subscriber, so comped, student, gift and institutional memberships count as members. Bars are each group's own percentage rather than raw counts, because members are a fifth the size of the free list and raw bars would say nothing. Only people who have read at least one essay appear.",
     "where-checkout-was-opened": "Ghost Portal writes attribution_url into the Stripe subscription's metadata at checkout, and it records the page the browser was on when Portal opened — not a referrer and not the page that did the persuading. Because partials/membership-body.hbs is shared by /membership/, the homepage (#join), every post footer and /about/, and because the buy button is an in-place #/portal/signup rather than a link away, almost everyone checks out without ever leaving the page they were reading. That is why the homepage dominates and /membership/ reads single digits: the standalone page is a duplicate of a block most people meet somewhere else. Migrations are excluded on the mo_migrated_at marker rather than the old $75/$7.50 coupon heuristic, which was wrong in both directions. Subscriptions Portal never saw are shown as Not recorded rather than assigned to a guessed bucket.",
     sequences: "Kit's sequence subscriber lists, which carry an added_at per person, matched against the same conversion ledger. Entry-based by necessity: Kit publishes no click or open data per sequence email — the sequences and sequence_emails filter scopes behave exactly like a nonsense scope, a sequence-email id passed as a broadcast matches nothing, and /stats and /clicks both 404. So a sequence cannot be credited the way a broadcast can."
   };
@@ -1767,6 +1790,17 @@
     "No activity recorded": "on the list but never seen reading — mostly subscribers who predate the new site"
   };
 
+  // Engagement and the "About You" answers have had no collector since the
+  // 2026-08-10 rebuild. The worker carries the last reading forward and
+  // records the date it was taken in `stale_since`; say so on the panel
+  // rather than pass a months-old figure off as tonight's.
+  function frozenNote(s, key) {
+    const since = s.stale_since && s.stale_since[key];
+    if (!since) return "";
+    const when = new Date(`${since}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return `<p class="kpi-note kpi-note--warn">Not updated since ${esc(when)}: the last refresh could not reach this source, so these are the figures from that date.</p>`;
+  }
+
   function renderLoyalty(s) {
     const host = document.querySelector("[data-kpi-loyalty]");
     if (!host) return;
@@ -1777,7 +1811,7 @@
     }
     const tracked = e.segments.filter((x) => x.name !== "No activity recorded").reduce((a, b) => a + b.n, 0);
     const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
-    host.innerHTML = `
+    host.innerHTML = `${frozenNote(s, "engagement")}
       <div class="kpi-chart">
       <p class="kpi-chart-title">Reader loyalty</p>
       <div class="kpi-stats">
@@ -1798,9 +1832,7 @@
       <p class="kpi-note">
         The score is recency at half the weight, then reading volume, Daily Liturgy habit and range of
         topics — averaged over the <b>${fmt(e.scored)}</b> people with recorded reading activity, not the
-        whole list. Dormant sits at zero because reading has only been tracked since the site launched on
-        26 May 2026: nobody has had time to go three months without reading yet, and that band will fill
-        from late August. Anonymous visitors are deliberately excluded — Plausible forgets people daily by
+        whole list. Anonymous visitors are deliberately excluded — Plausible forgets people daily by
         design, so pageviews per visitor held between 1.68 and 1.83 for eleven straight weeks no matter
         what was published, which is a number that cannot inform anything.
       </p></div>`;
@@ -1812,7 +1844,7 @@
   // subscribe-to-paid so the two read the same way. Both cohorts share an
   // axis, or each would rescale to its own tail and the comparison would be
   // a lie told with two different rulers.
-  function readsBlock(reads) {
+  function readsBlock(reads, anon) {
     if (!reads || (!reads.members.readers && !reads.subscribers.readers)) return "";
     const M = reads.members, S = reads.subscribers;
     const scaleMax = Math.max(M.max || 0, S.max || 0, 1);
@@ -1832,11 +1864,14 @@
       }
     );
     return `<div class="kpi-charts" style="margin-top:16px">${
-      card("members", M, "Member is anyone whose Ghost tier is not free, so comped, student and institutional count.")
+      card("members", M, "Members are anyone with a paid, comped or gift membership, so student and institutional count.")
     }${
       card("free subscribers", S, "Free subscribers only \u2014 anyone who has not taken a membership.")
     }</div><div class="kpi-chart" style="margin-top:12px"><p class="kpi-chart-title">Members against subscribers</p>
-        <p class="kpi-chart-sub">The same two populations side by side.</p>
+        <p class="kpi-chart-sub">The same two populations side by side. These are only reads we can tie to a person
+          (signed in, or arriving from one of our emails).${anon && anon.article_reads_30d != null
+            ? ` Across the whole site Plausible counted <b>${fmt(anon.article_reads_30d)}</b> essay reads by
+              <b>${fmt(anon.article_readers_30d)}</b> visitors in the last 30 days.` : ""}</p>
         <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
           <thead><tr><th>Group</th><th class="is-num">Readers</th><th class="is-num">Essays read</th>
             <th class="is-num">Lightest</th><th class="is-num">Middle half</th>
@@ -1864,7 +1899,7 @@
     const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
     const totalUses = e.features.reduce((t, f) => t + (f.uses || 0), 0);
     const anyUser = Math.max(...e.features.map((f) => f.users || 0));
-    host.innerHTML = `
+    host.innerHTML = `${frozenNote(s, "engagement")}
       <div class="kpi-chart">
       <p class="kpi-chart-title">Site features</p>
       <div class="kpi-stats">
@@ -1874,11 +1909,12 @@
         ${stat(top ? esc(top.label) : "—", "most used")}
       </div>
       <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
-        <thead><tr><th>Feature</th><th class="is-num">Uses</th><th class="is-num">People</th>
+        <thead><tr><th>Feature</th><th class="is-num">Visitors, 30 days</th><th class="is-num">Uses</th><th class="is-num">People</th>
           <th class="is-num">Per person</th><th class="is-num">Members</th>
           <th class="is-num">Member rate</th><th class="is-num">Joined here</th></tr></thead>
         <tbody>${e.features.map((f) => `<tr>
           <td>${esc(f.label)}</td>
+          <td class="is-num">${f.visitors_30d == null ? "—" : fmt(f.visitors_30d)}</td>
           <td class="is-num">${f.uses == null ? "—" : fmt(f.uses)}</td>
           <td class="is-num">${fmt(f.users)}</td>
           <td class="is-num">${f.per_user == null ? "—" : f.per_user}</td>
@@ -1887,6 +1923,10 @@
           <td class="is-num">${f.joined ? fmt(f.joined) : "—"}</td>
         </tr>`).join("")}</tbody>
       </table></div>
+      <p class="kpi-note">Visitors are everyone Plausible counted on the feature's pages in the last 30 days,
+        signed in or not. Uses, People and Members count only people we can identify: signed-in readers, and
+        since 28 Oct 2026 readers arriving from one of our emails. Daily Liturgy, PDF and The Faith Received
+        counters are newer or were not recorded for a stretch, so they run well below real use.</p>
       ${e.topics && e.topics.length ? `
       <p class="kpi-note" style="margin-top:16px"><b>What gets read</b></p>
       <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
@@ -1897,7 +1937,7 @@
           <td class="is-num">${t.readers ? (t.reads / t.readers).toFixed(1) : "—"}</td>
         </tr>`).join("")}</tbody>
       </table></div>` : ""}
-      ${readsBlock(e.reads)}
+      ${readsBlock(e.reads, e.anon)}
       <p class="kpi-note">
         Uses is a dash where a feature is flagged per person rather than counted, or where its counter was
         only just added and has not been written yet. Member rate is the share of people who used the
@@ -2165,8 +2205,8 @@
     if (!host) return;
     const a = s.audience;
     if (!a) {
-      host.innerHTML = '<p class="kpi-empty">No "About You" answers in this snapshot. '
-        + 'They are collected in Manage Membership and land in the membership database.</p>';
+      host.innerHTML = '<p class="kpi-empty">No survey answers in this snapshot. '
+        + 'They come from the welcome survey, read live from the membership database.</p>';
       return;
     }
     // Top five, in order, with the share of people who answered that
@@ -2186,9 +2226,9 @@
         <ol class="kpi-ranks">${top3(list)}</ol>
       </div>`;
 
-    host.innerHTML = `
+    host.innerHTML = `${frozenNote(s, "audience")}
       <div class="kpi-charts">
-        ${card("Church tradition", "Free text, grouped into traditions.", a.traditions, a.traditions_n)}
+        ${card("Church tradition", "Single choice, from the welcome survey.", a.traditions, a.traditions_n)}
         ${card("Relationship to the church", "Multi-select, so shares can exceed 100%.", a.roles, a.roles_n)}
         ${card("Age range", "Single choice.", a.age, a.age_n)}
         ${card("Gender", "Single choice.", a.gender, a.gender_n)}
@@ -2205,11 +2245,9 @@
       </table></div>`;
     full.innerHTML = `
       <p class="kpi-note" style="margin:0">
-        Church tradition is a free-text box: <b>${fmt(a.distinct_raw)}</b> distinct strings were typed for
-        <b>${fmt(a.traditions_n)}</b> answers, so they are grouped by rule before counting — "PCA",
-        "Presbyterian (PCA)" and "Presbyterian Church in America" are one tradition typed three ways.
-        Two calls worth knowing: Reformed Baptists are counted as Baptist, and bare "Evangelical" or
-        "Protestant" is its own bucket rather than being folded into a denomination.
+        Every figure here is from the welcome survey new subscribers fill in, read live on each refresh
+        (<b>${fmt(a.responses)}</b> responses). Every question is optional, so each share is of the people
+        who answered that question.
       </p>
       ${table("Church tradition", a.traditions, a.traditions_n)}
       ${table("Relationship to the church", a.roles, a.roles_n)}
@@ -2741,22 +2779,30 @@
     if (!stages.length || !stages[0].n) return "";
 
     const top = stages[0].n || 1;
-    const W = chartW(), rowH = 46, H = stages.length * rowH + 18, L = 4, R = 4;
+    // Label and "of previous" on their own line above each bar, so nothing
+    // has to fit beside a bar. The count sits inside the bar when there is
+    // room and just past its end when there is not: below ~2% of the top
+    // stage the old layout drew the count on top of the label.
+    const W = chartW(), rowH = 50, H = stages.length * rowH + 8, L = 4, R = 4;
     const pw = W - L - R;
     let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Membership funnel">`;
     stages.forEach((st, i) => {
-      const y = i * rowH + 6;
+      const y = i * rowH + 4;
       // Width on a log-ish scale would flatter the bottom; linear against the
       // top stage tells the truth, which is that the last stages are tiny.
       const w = Math.max(2, (st.n / top) * pw);
-      svg += `<rect x="${L}" y="${y}" width="${w.toFixed(1)}" height="26" rx="4" fill="${C1}" fill-opacity="${1 - i * 0.14}"/>`;
-      svg += `<text class="kpi-dlabel" x="${L + 8}" y="${y + 17}" fill="#fff">${fmt(st.n)}</text>`;
-      svg += `<text class="kpi-tick" x="${L + w + 10}" y="${y + 17}">${esc(st.label)}</text>`;
+      svg += `<text class="kpi-tick" x="${L}" y="${y + 11}">${esc(st.label)}</text>`;
       if (i > 0) {
         const prev = stages[i - 1].n;
         const pct = prev ? (st.n / prev) * 100 : 0;
-        svg += `<text class="kpi-tick" x="${W - R}" y="${y + 17}" text-anchor="end">${pct.toFixed(1)}% of previous</text>`;
+        svg += `<text class="kpi-tick" x="${W - R}" y="${y + 11}" text-anchor="end">${pct.toFixed(1)}% of previous</text>`;
       }
+      svg += `<rect x="${L}" y="${y + 18}" width="${w.toFixed(1)}" height="22" rx="4" fill="${C1}" fill-opacity="${1 - i * 0.14}"/>`;
+      const label = fmt(st.n);
+      const inside = w > label.length * 8 + 16;
+      svg += inside
+        ? `<text class="kpi-dlabel" x="${L + 8}" y="${y + 33}" style="fill:#fff">${label}</text>`
+        : `<text class="kpi-dlabel" x="${L + w + 6}" y="${y + 33}">${label}</text>`;
     });
     const rowsHtml = stages.map((st, i) => {
       const prev = i > 0 ? stages[i - 1].n : null;
@@ -3084,23 +3130,48 @@
       // Buzzsprout only ever reports cumulative lifetime plays, so "plays in
       // this period" has to come from the difference between the snapshot at
       // each end of it. That fills in as nightly snapshots accumulate.
-      if (gran !== "total") {
-        const g = gran;
-        const perShow = shows.map(([, name, color, key]) => {
-          const b = bucketize(key, "last", g);
-          const deltas = b.slice(1).map((cur, i) => [cur.range || cur.label, Math.max(0, cur.v - b[i].v)]);
-          return { name, color, deltas };
-        }).filter((x) => x.deltas.length);
-        if (perShow.length && perShow[0].deltas.length) {
+      // Always one bar per month across all history, whatever period is
+      // picked: a single-month view would otherwise draw one bar. A month's
+      // plays are its last lifetime reading minus the previous month's last;
+      // the first month with data counts from its own first reading.
+      {
+        const monthly = (key) => {
+          const m = new Map();
+          let readings = 0;
+          series.forEach((r) => {
+            // A lifetime counter is never really zero; a zero is a broken
+            // feed (Buzzsprout's 10/10 field rename) and would turn the next
+            // month into the whole lifetime total.
+            if (typeof r[key] !== "number" || r[key] <= 0) return;
+            readings++;
+            const { k, label } = bucketOf(r.d, "month");
+            const e = m.get(k) || { label, first: r[key], firstDay: r.d, last: r[key] };
+            e.last = r[key];
+            m.set(k, e);
+          });
+          const rows = [...m.values()];
+          // One reading is a starting point, not a month of plays.
+          if (readings < 2) return [];
+          return rows.map((e, i) => {
+            if (i === 0) {
+              const partial = e.firstDay.slice(8, 10) !== "01";
+              return [partial ? `${e.label} (partial)` : e.label, Math.max(0, e.last - e.first)];
+            }
+            return [e.label, Math.max(0, e.last - rows[i - 1].last)];
+          });
+        };
+        const perShow = shows.map(([, name, color, key]) => ({ name, color, deltas: monthly(key) }))
+          .filter((x) => x.deltas.length);
+        if (perShow.length) {
           perShow.forEach((x) => {
-            pods.push(barBlock(`${x.name} — plays added`,
-              "Difference between snapshots at each end of the period. Fills in as nightly snapshots accumulate.",
+            pods.push(barBlock(`${x.name}: plays added by month`,
+              "The lifetime total at each month's end minus the month before. Mere Fidelity and CRC go back to 10 Aug 2026; Daily Liturgy starts 29 Oct 2026.",
               x.deltas.slice(-12), { rotate: true, color: x.color }));
           });
         } else {
-          pods.push(`<div class="kpi-chart"><p class="kpi-chart-title">Plays added per period</p>
-            <p class="kpi-empty">Buzzsprout reports cumulative totals only, so period figures are the difference
-            between two snapshots — there needs to be more than one. This fills in from tonight.</p></div>`);
+          pods.push(`<div class="kpi-chart"><p class="kpi-chart-title">Plays added by month</p>
+            <p class="kpi-empty">Buzzsprout reports cumulative totals only, so monthly figures need a reading
+            at each month's end. None are stored yet.</p></div>`);
         }
       }
 
@@ -3375,30 +3446,37 @@
     const g = s.ghost, st = s.stripe, hs = s.hubspot, {kit} = s;
     const flags = [];
     if (hs && g) {
-      flags.push(["critical", "There is no ledger for legacy membership revenue",
-        `HubSpot records the sale, not the billing — renewals were never written back as deals. So of the legacy base,
-         <b>${fmt(hs.checkout_last_12m)}</b> have a checkout on record in the last twelve months and <b>${fmt(hs.still_flagged_paid)}</b>
-         are still flagged Paid Subscriber, and nobody can say which of the rest are actually being charged. The recurring money
-         runs through the old Stripe/Fulco arrangement, which no key here reaches.`]);
+      const lb = hs.legacy_billing;
+      if (lb) {
+        flags.push(["critical", "Legacy members are still billing through HubSpot",
+          `<b>${fmt(lb.billing)}</b> HubSpot subscriptions are still charging, worth <b>${usd(lb.arr)}</b> a year
+           (<b>${fmt(lb.annual)}</b> annual, <b>${fmt(lb.monthly)}</b> monthly). Another <b>${fmt(lb.failing)}</b> have failing cards,
+           and <b>${fmt(lb.overdue)}</b> are past their charge date. <b>${fmt(lb.annual_due_30d)}</b> annual subscriptions renew in the
+           next 30 days and <b>${fmt(lb.annual_due_90d)}</b> in the next 90.`,
+          `Send each legacy member a migration email shortly before their next HubSpot charge, starting with the
+           ${fmt(lb.annual_due_30d)} annual renewals due in the next 30 days, and reach the ${fmt(lb.failing)} failing cards first.`]);
+      }
       flags.push(["critical", "The comps do not expire, and April 2027 is the wall",
         `<b>${fmt(g.comped)}</b> members hold comps and the migration plan's 31 March 2027 expiry was never set on most of them.
-         <b>${fmt(s.kpi.migration_done)}</b> of <b>${fmt(s.kpi.migration_total)}</b> have moved to Stripe with
-         <b>${fmt(s.kpi.days_to_sunset)}</b> days to go — see the Migration tile.`]);
+         <b>${fmt((s.kpi || {}).migration_done)}</b> of <b>${fmt((s.kpi || {}).migration_total)}</b> have moved to Stripe with
+         <b>${fmt((s.kpi || {}).days_to_sunset)}</b> days to go. See the Migration tile.`,
+        `Set the 31 March 2027 expiry on the ${fmt(g.comped)} comps, paired with the migration sequence.`]);
     }
     if (st && st.renewals) {
       const soon = Object.entries(st.renewals).sort().slice(0, 12).reduce((t, [, n]) => t + n, 0);
       if (soon > 25) {
-        flags.push(["serious", "A renewal wave is coming",
-          `<b>${fmt(soon)}</b> annual subscriptions renew over the next year, and most of the base came in on a launch or
-           migration discount — those re-bill at full price. Decide whether to hold them with a renewal coupon or signal the
-           step-up, and write the email either way.`]);
+        flags.push(["serious", "A Stripe renewal wave is coming",
+          `<b>${fmt(soon)}</b> annual Stripe subscriptions on the new site renew over the next year, and most of the base came in on
+           a launch or migration discount. Those re-bill at full price.`,
+          `Decide the renewal price for Stripe annual members (a renewal coupon or a signaled step-up) and write the renewal email.`]);
       }
     }
     if (kit && kit.digest) {
       flags.push(["warning", "Promotional sends cost more list than the digest does",
         `The weekly digest averages <b>${pctv(kit.digest.open_free)}</b> open on the free list and
          <b>${pctv(kit.digest.open_paid)}</b> on the paid list, with about <b>${fmt(kit.digest.unsubscribes)}</b> unsubscribes a send.
-         One-off promos run below that on opens and above it on unsubscribes — space them out and segment them.`]);
+         One-off promos run below that on opens and above it on unsubscribes.`,
+        `Space promotional sends out and send each one to a segment, not the whole list.`]);
     }
     if (s.traffic && s.traffic.channels) {
       const direct = (s.traffic.channels.find((c) => /direct/i.test(c.name)) || {}).visitors || 0;
@@ -3407,7 +3485,8 @@
         flags.push(["warning", "Most traffic is landing in Direct because the links carry no UTMs",
           `<b>${Math.round((direct / total) * 100)}%</b> of visitors are attributed to Direct while Kit mails roughly
            <b>${fmt(kit && kit.digest ? kit.digest.recipients : 0)}</b> people a week. Those clicks are real and currently invisible.
-           One UTM convention in the Email Builder makes the best owned channel measurable.`]);
+           One UTM convention in the Email Builder makes the best owned channel measurable.`,
+          `Add UTM tags to every link the Email Builder exports.`]);
       }
     }
     const f = document.querySelector("[data-kpi-flags]");
@@ -3417,30 +3496,81 @@
         : '<p class="kpi-empty">Nothing flagged in this snapshot.</p>';
     }
 
+    // Recomputed from this snapshot and the nightly series on every render,
+    // so it can never fall behind the numbers. It replaced a paragraph
+    // written once on 3 Aug 2026 that the page then showed unchanged for
+    // three months.
     const a = document.querySelector("[data-kpi-analysis]");
     if (a) {
-      a.innerHTML = `
-        <p><b>The sheet is accurate; the member row is doing three jobs at once.</b> "Members" fuses people paying Stripe today,
-        legacy members who paid HubSpot within the year, and members carried on comps with no payment on record. Those three move
-        for different reasons and need different responses, which is why the tiles split them.</p>
-        <p><b>Churn is not the problem — acquisition is.</b> Cohorts have held above 99% since the launch and the membership page
-        converts about 44% of the people who click upgrade. The constraint is how few reach it.</p>
-        <p><b>Dated offers are the one repeatable lever.</b> The Summer Journal deadline produced the second-biggest week of the
-        year and its "last call" send produced the best non-launch day. Months without a dated offer revert to roughly two paid
-        signups a day.</p>
-        <p><b>The launch is over; plan against the new baseline.</b> 0.84 paid signups a day before 26 May, 14 a day during the
-        launch window, about 2 a day since. Two a day is roughly 750 members and $64,000 a year — that is the number to budget
-        against until something changes it.</p>
-        <ol class="kpi-actions">
-          <li><b>Set the comp expiry the migration plan already specified</b>, well ahead of the date, paired with the migration sequence.</li>
-          <li><b>Split the legacy base in two.</b> Members with a recent checkout are a renewal ask; the rest are a win-back. Treating them as one list overstates the target.</li>
-          <li><b>Decide the 2027 renewal price before the renewals arrive</b> — hold them with a coupon or signal the step-up, but decide.</li>
-          <li><b>Put a dated offer in the calendar every six weeks.</b></li>
-          <li><b>Tag the digest links with UTMs</b> so the biggest owned channel stops reading as Direct.</li>
-          <li><b>Fix acquisition, not retention.</b> Get more of the list in front of the membership page.</li>
-        </ol>
-        <p class="kpi-note">Written 8/3/2026 from the full platform audit. The numbers in the flags above update nightly; this
-        commentary does not.</p>`;
+      const paras = [];
+      const rowsUpTo = series.filter((r) => r.d <= s.date);
+      const lastN = (n) => rowsUpTo.slice(-n);
+      const sumKey = (rows, k) => rows.reduce((t, r) => t + (typeof r[k] === "number" ? r[k] : 0), 0);
+      const days = (rows, k) => rows.filter((r) => typeof r[k] === "number").length;
+      const r30 = lastN(30), p30 = rowsUpTo.slice(-60, -30);
+      const new30 = sumKey(r30, "nnew"), newPrev = sumKey(p30, "nnew");
+      const perDay = days(r30, "nnew") ? new30 / days(r30, "nnew") : null;
+      const perDayPrev = days(p30, "nnew") ? newPrev / days(p30, "nnew") : null;
+      const charged = st ? st.paying_charged : null;
+      const avgYear = st && charged ? (st.mrr * 12) / charged : null;
+
+      if (st && g) {
+        const mig = g.mig_cohort != null ? g : null;
+        const newPaying = mig && charged != null ? charged - (g.mig_paid || 0) : null;
+        const otherComps = mig ? (g.comped || 0) - (g.mig_comped || 0) : null;
+        const lb = hs && hs.legacy_billing;
+        paras.push(`<p><b>Who the members are.</b> <b>${fmt(charged)}</b> pay through Stripe on the new site${mig
+            ? `: <b>${fmt(g.mig_paid)}</b> legacy members who have moved over and <b>${fmt(newPaying)}</b> new members` : ""}.
+          <b>${fmt(g.comped)}</b> hold comps with nothing charged on the new site${mig
+            ? `: <b>${fmt(g.mig_comped)}</b> legacy members waiting to move, and <b>${fmt(otherComps)}</b> others (students, gifts,
+              institutions and staff)` : ""}.${lb ? ` Separately, <b>${fmt(lb.billing)}</b> legacy subscriptions are still being charged
+          in HubSpot, mostly the same people as the legacy comps.` : ""}</p>`);
+      }
+      if (st && perDay != null && typeof st.cancels_paid_30d === "number") {
+        const lost30 = st.cancels_paid_30d;
+        const gained30 = Math.round(perDay * 30);
+        const headline = gained30 >= lost30 * 2
+          ? "Acquisition is the constraint, not churn."
+          : gained30 > lost30 ? "Growth is thin. New members only just outrun cancellations."
+          : gained30 === lost30 ? "Membership is flat. New members only replace cancellations."
+          : "Churn is outrunning acquisition.";
+        paras.push(`<p><b>${headline}</b> In the last 30 days about <b>${fmt(gained30)}</b> new paying members joined and
+          <b>${fmt(lost30)}</b> Stripe members cancelled${typeof st.churn_paid_30d === "number" ? ` (${pctv(st.churn_paid_30d)} of the paid base)` : ""}.
+          Legacy HubSpot cancellations are not counted here.</p>`);
+      }
+      if (perDay != null) {
+        const trend = perDayPrev == null ? ""
+          : perDay > perDayPrev * 1.15 ? `, up from ${perDayPrev.toFixed(1)} a day the 30 days before`
+          : perDay < perDayPrev * 0.85 ? `, down from ${perDayPrev.toFixed(1)} a day the 30 days before`
+          : ", about the same as the 30 days before";
+        paras.push(`<p><b>The baseline to plan against.</b> <b>${perDay.toFixed(1)}</b> new paying members a day${trend}.
+          Held for a year that is about <b>${fmt(Math.round(perDay * 365))}</b> members${avgYear
+            ? ` and <b>${usd(Math.round(perDay * 365 * avgYear))}</b> a year at today's average price` : ""}.</p>`);
+      }
+      const upgrade = s.engagement && s.engagement.funnel && s.engagement.funnel.find((x) => x.key === "upgrade");
+      if (upgrade && upgrade.daily && perDay != null) {
+        const from = r30.length ? r30[0].d : null;
+        const clicks = Object.entries(upgrade.daily)
+          .filter(([d]) => (!from || d >= from) && d <= s.date)
+          .reduce((t, [, n]) => t + (typeof n === "number" ? n : 0), 0);
+        const joined = Math.round(perDay * 30);
+        if (clicks >= 20 && joined) {
+          paras.push(joined / clicks >= 0.5
+            ? `<p><b>Checkout is not the leak.</b> <b>${fmt(clicks)}</b> people opened checkout in the last 30 days and
+              about <b>${fmt(joined)}</b> became paying members. The work is getting more of the list to the offer.</p>`
+            : `<p><b>Checkout may be the leak.</b> <b>${fmt(clicks)}</b> people opened checkout in the last 30 days and
+              about <b>${fmt(joined)}</b> became paying members. Look at where buyers drop out between the button and payment.</p>`);
+        }
+      }
+      const actions = flags.filter((x) => x[3]).map(([, title, , act]) => `<li><b>${title}.</b> ${act}</li>`);
+      if (st && st.renewals_next_90d) {
+        actions.push(`<li><b>${fmt(st.renewals_next_90d)} Stripe renewals in the next 90 days.</b> These are new-site
+          subscriptions. Send the renewal email before they charge.</li>`);
+      }
+      a.innerHTML = `${paras.join("")}
+        ${actions.length ? `<ol class="kpi-actions">${actions.join("")}</ol>` : ""}
+        <p class="kpi-note">Written from the snapshot for ${mdy(s.date)} and the nightly history. It is recomputed on every
+        refresh.</p>`;
     }
   }
 
@@ -3545,7 +3675,7 @@
     // background where it was silently dropped.
     const NICE = {
       ghost: "Ghost", stripe: "Stripe", hubspot: "HubSpot", kit: "Kit",
-      traffic: "Plausible", podcasts: "Buzzsprout", extras: "Substack and audience",
+      traffic: "Plausible", podcasts: "Buzzsprout", extras: "Substack and audience", engagement: "Reader engagement",
       finish: "Assembling"
     };
     try {
@@ -3621,7 +3751,7 @@
             new_migrations_24h: row.nmig, new_comps_24h: row.ncmp,
             new_subscribers_24h: row.nsub,
             web_traffic_30d: row.pv || row.totpv,
-            podcast_lifetime: row.pod, digest_open: row.op, digest_click: row.cl,
+            podcast_lifetime: row.podt, digest_open: row.op, digest_click: row.cl,
             // Rows before 2026-08-17 have neither key — the tile reads null
             // rather than the old site-wide numbers under the new label.
             migration_done: row.migd,

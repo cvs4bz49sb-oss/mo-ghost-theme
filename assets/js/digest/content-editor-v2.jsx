@@ -1996,7 +1996,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
           <Group title="Body block">
             <Field label="Title" value={content.editorTitle} onChange={(v) => updateField('editorTitle', v)} />
             <Field
-              label="Body — Markdown supported: **bold**, *italic*, __underline__, [link](url), > quote. Blank line = new paragraph."
+              label="Body — Markdown supported: **bold**, *italic*, __underline__, [link](url), > quote, - bullet. Blank line = new paragraph."
               value={content.editorBody != null ? content.editorBody : (content.editorParagraphs || []).join('\n\n')}
               multiline
               rows={14}
@@ -2110,7 +2110,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
               fontFamily: '"Source Sans 3", Arial, sans-serif',
               fontSize: 12, color: '#6b6258', lineHeight: 1.5, marginBottom: 12,
             }}>
-              Free-form text, button, or image blocks. Each block appears as its own row in the Sections list above — drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>&gt; quote</code>). Image blocks take a hosted image URL plus an optional headline (above the image), body text (below the image, Markdown), a link, and a caption that links below the image.
+              Free-form text, button, or image blocks. Each block appears as its own row in the Sections list above — drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>&gt; quote</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>- bullet</code>). Image blocks take a hosted image URL plus an optional headline (above the image), body text (below the image, Markdown), a link, and a caption that links below the image.
             </div>
             {(content.customBlocks || []).map((block, i) => {
               const removeBlock = () => {

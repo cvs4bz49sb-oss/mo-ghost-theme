@@ -16,7 +16,12 @@
      assets/js/lifetime-checkout.js. Those two are mutually exclusive
      branches of partials/membership-body.hbs, so the single global
      [data-lifetime-error] lookup in that script never has two targets. --}}
+{{!-- id="lifetime-upgrade" is the landing spot for links that send a
+     member straight to this offer, such as the Lifetime slide-in's
+     /membership/#lifetime-upgrade. html's scroll-padding-top already
+     clears the fixed header. --}}
 <div class="lifetime-upgrade"
+     id="lifetime-upgrade"
      data-lifetime-upgrade
      data-member-status="{{@member.status}}"
      data-member-labels="{{#foreach @member.labels}}{{name}} {{/foreach}}"
@@ -34,7 +39,7 @@
          Promising them one unconditionally would be a lie told at the
          moment they hand over $995. --}}
     <p class="lifetime-upgrade-body">
-      $995, once. It includes everything in the Membership, plus a copy of Jake Meador's <em>In Search Of The Common Good</em>. If you are paying monthly or annually, we cancel that for you and refund the part of the term you have not used.
+      $995, once. It includes everything in the Membership, plus a copy of Trevin Wax's <em>The Lord Is My Light</em> and two annual memberships to give away. If you are paying monthly or annually, we cancel that for you and refund the part of the term you have not used.
     </p>
   </div>
   <div class="lifetime-upgrade-action">
