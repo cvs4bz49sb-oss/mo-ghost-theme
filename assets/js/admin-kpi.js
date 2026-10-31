@@ -341,7 +341,12 @@
       label: "Membership revenue", key: "rev", agg: "last", f: usd, goodUp: true, cap: "annualised",
       periodBullets: (rows, prev) => [
         `<b>${usd((lastOf(rows, "mrr") || 0) * 12)}</b> Stripe run-rate at period end`,
-        `<b>${usd((lastOf(rows, "rev") || 0) - (lastOf(rows, "mrr") || 0) * 12)}</b> legacy HubSpot subscriptions still billing`,
+        // Before 29 Oct 2026 the HubSpot half was trailing-12-month checkouts,
+        // not live billing, so a period ending earlier names it that way.
+        `<b>${usd((lastOf(rows, "rev") || 0) - (lastOf(rows, "mrr") || 0) * 12)}</b> ${
+          rows.length && rows[rows.length - 1].d < "2026-10-29"
+            ? "legacy HubSpot checkouts in the last twelve months"
+            : "legacy HubSpot subscriptions still billing"}`,
         `<b>${usd(sumOf(rows, "cash") + sumOf(rows, "hsc"))}</b> actually collected in the period`,
         // 29 Oct 2026: the HubSpot half switched from trailing checkouts to
         // live billing. A period spanning that day shows the step as growth.
