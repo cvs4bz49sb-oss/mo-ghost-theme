@@ -1695,7 +1695,8 @@ function frHeadingIn(t,ttl){
     if(cm){const n=+cm[1];let r="",x=n;for(const [v,s] of [[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]])while(x>=v){r+=s;x-=v;}
       const nums=[...new Set([String(n),r,r.replace(/IV/g,"IIII").replace(/IX/g,"VIIII")])];
       const rx=new RegExp("^\\W*(?:chap(?:ter|itre)?|cap(?:ut|itulum)?|kap(?:itel)?)\\.?\\s+(?:"+nums.join("|")+")(?![A-Za-z0-9])","i");
-      for(const h of t.querySelectorAll(".csub")){if(!h.getClientRects().length)continue;if(rx.test((h.textContent||"").trim()))return h.closest(".row")||h;}
+      // an in-flow head (inside a row of running text, as on an English-only TEI page drawn as one row) is the place itself, not its row
+      for(const h of t.querySelectorAll(".csub")){if(!h.getClientRects().length)continue;if(rx.test((h.textContent||"").trim()))return h.classList.contains("inflow")?h:(h.closest(".row")||h);}
       return null;}}
   const exact=window.FRReaderNavigation?.exactHeading(DATA,t,ttl)||(/^pld-/.test(DATA?.slug||'')?window.FRPldReading?.renderedHeading(t,ttl):null);
   if(exact)return exact.classList?.contains('reader-inline-target')?exact:(exact.closest(".row")||exact);

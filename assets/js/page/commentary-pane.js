@@ -181,7 +181,8 @@
   // the book as a reference names it: "Psalm 51:3", not "Psalms 51:3"
   const refName = (w) => (w && w.book === 'psalms' ? 'Psalm' : ((w && w.name) || String((w && w.book) || '').replace(/-/g, ' ')));
   // a page or a column: only Migne's volumes are numbered by the column (as the rest of the site says it)
-  const pgOf = (slug, p) => `${/^(pld|pg)-/.test(String(slug || '')) ? 'col.' : 'p.'} ${p}`;
+  // (10-31) a reader page id in an EEBO book (100000*k+n, the k-th repeat of the printed number n) is labelled with the number
+  const pgOf = (slug, p) => `${/^(pld|pg)-/.test(String(slug || '')) ? 'col.' : 'p.'} ${/^eebo-/.test(String(slug || '')) && Number(p) >= 100000 ? Number(p) % 100000 : p}`;
 
   // ── the commentaries on this chapter ──────────────────────────────────────────────────────────────────────────────────────
   // The loaders (a work's pages, TEI, Migne columns, EEBO books) and the list of works a chapter has are in commentary-pages.js, so
@@ -330,6 +331,10 @@
     // else at the top of the book; a chapter whose number has no page at or after the one before leaves the place where it was
     let cur = c.spm != null && d.markIdx && d.markIdx[Number(c.spm) - 1] != null ? d.markIdx[Number(c.spm) - 1] : 0;
     for (const k of Object.keys(c.an || {}).map(Number).filter((x) => x > 0 && x <= Number(ch)).sort((a, b) => a - b)) {
+      // (10-31) a chapter the map places at a reader page id (ar: the k-th printing of its number, 100000*k+n) is placed at that
+      // printing, and the chain goes on from it
+      const rid = c.ar && c.ar[k] != null ? Number(c.ar[k]) : null;
+      if (rid != null) { const at = (d.all.get(String(rid % 100000)) || [])[Math.floor(rid / 100000)]; if (at != null) { cur = at; continue; } }
       const is = d.all.get(String(c.an[k])) || []; const i = is.find((x) => x >= cur);
       if (i != null) cur = i;
     }
@@ -908,7 +913,11 @@
   // (10-31) a row that opens a work at its chapter's page lands on the chapter's printed heading inside it (the reader's ?at=ch:<c>)
   const dirRead = (slug, p) => {
     const w = where() || {}, c = S.list.find((x) => x.slug === slug);
-    return c && c.open != null && Number(p) === Number(c.open) && !c.treats && c.wb !== 2 && w.ch && w.book !== 'psalms' ? SITE.read(slug, p, `ch:${w.ch}`) : SITE.read(slug, p);
+    const own = !!(c && c.open != null && Number(p) === Number(c.open) && !c.treats && c.wb !== 2 && w.ch);
+    // (10-31) the chapter's opening in a book whose pagination restarts is the reader's id for that printing (map `ar`), not the first
+    // page printed with the number
+    const rp = own && c.ar && c.ar[w.ch] != null ? c.ar[w.ch] : p;
+    return own && w.book !== 'psalms' ? SITE.read(slug, rp, `ch:${w.ch}`) : SITE.read(slug, rp);
   };
   const dirCfg = (w) => ({ cur: S.cur && S.cur.slug, verse: dirVerse(), ch: w.ch, bookName: refName(w), tradOf, when: whenDir, rankOf, volShort,
     read: dirRead, pg: pgOf, open: S.dirOpen, place: (c, v) => chapterFirst(c, placeNow(c, v), v), volOf: (slug) => S.vols.get(slug) || '',

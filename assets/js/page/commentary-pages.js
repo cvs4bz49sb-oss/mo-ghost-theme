@@ -166,6 +166,12 @@
         const d = await eebo(slug);
         // a repeated page number is read at the occurrence at or after the chapter's place (the pane sets eeboCur when it opens a
         // commentary on a chapter); a book without repeats, or no place known, reads its first
+        // (10-31) a reader page id (100000*k+n: the k-th repeat of the printed number n, as the map's `ar` and the reader name it)
+        // reads that printing
+        if (d.repeats && Number(n) >= 100000) {
+          const pn = Number(n) % 100000, kk = Math.floor(Number(n) / 100000), oi = (d.all.get(String(pn)) || [])[kk];
+          if (oi != null) { const ls = d.occ[oi].lines; return { meta: d.meta, p: ls && ls.length ? { n: pn, en: ls.join('\n'), la: '' } : null, last: d.last, occ: kk + 1 }; }
+        }
         const at = eeboCur[slug];
         let lines = d.pages.get(String(n)), k = 0;
         if (d.repeats && at != null) { const is = d.all.get(String(n)) || []; const i = is.find((x) => x >= at); if (i != null) { lines = d.occ[i].lines; k = is.indexOf(i); } }
@@ -225,6 +231,8 @@
         c.k = c.k || e.k; c.cov = Math.max(c.cov || 0, Object.keys(e.an || {}).length || ((Number(e.c2) || 0) - (Number(e.c1) || 0) + 1));
         c.an = Object.assign(c.an || {}, e.an || {});   // every chapter's anchor: the pane's eeboCursor walks them in order
         if (e.spm != null) c.spm = e.spm;   // where the entry's first chapter opens, as a count of the book's printed page marks
+        // (10-31) the reader's page id for a chapter whose anchor is a repeated printed number (map `ar`, 100000*k+n)
+        if (e.ar) c.ar = Object.assign(c.ar || {}, e.ar);
         if (e.an && e.an[ch] != null) { c.open = e.an[ch]; if (e.an[String(+ch + 1)] != null) c.close = e.an[String(+ch + 1)]; }
       }
       for (const [slug, w] of Object.entries((ov && ov.works) || {})) if (w.sigla) sigla[slug] = w.sigla;
