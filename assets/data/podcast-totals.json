@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-11-01T06:16:31.287Z",
+  "generated_at": "2026-11-01T13:37:38.389Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 324,
-      "plays": 105183,
+      "plays": 105268,
       "earliest": "2017-02-15",
       "recent": [
         {
           "date": "2025-07-16",
           "title": "AI, The Infinite Work Day, And The Finite Pastor",
-          "plays": 119
+          "plays": 120
         },
         {
           "date": "2025-07-23",
@@ -119,7 +119,7 @@
         {
           "date": "2026-02-11",
           "title": "The Great Evangelical Hand-Off (That Never Happened) with Jake Meador",
-          "plays": 145
+          "plays": 146
         },
         {
           "date": "2026-02-18",
@@ -159,7 +159,7 @@
         {
           "date": "2026-04-08",
           "title": "Between Nature and Grace",
-          "plays": 225
+          "plays": 226
         },
         {
           "date": "2026-04-15",
@@ -229,7 +229,7 @@
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3085
+          "plays": 3086
         },
         {
           "date": "2026-07-22",
@@ -259,52 +259,52 @@
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 4075
+          "plays": 4076
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 4053
+          "plays": 4054
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 3934
+          "plays": 3936
         },
         {
           "date": "2026-09-16",
           "title": "Remembering Wendell Berry",
-          "plays": 3909
+          "plays": 3910
         },
         {
           "date": "2026-09-23",
           "title": "Why Is The Gospel of John So Unique?",
-          "plays": 3917
+          "plays": 3921
         },
         {
           "date": "2026-09-30",
           "title": "Finding Happiness That Lasts",
-          "plays": 3840
+          "plays": 3842
         },
         {
           "date": "2026-10-07",
           "title": "Resisting Therapy Culture, with Matthew Loftus",
-          "plays": 4094
+          "plays": 4097
         },
         {
           "date": "2026-10-14",
           "title": "How to Handle Difficult Bible Passages",
-          "plays": 3877
+          "plays": 3884
         },
         {
           "date": "2026-10-21",
           "title": "Replay: Martin Luther and the Rule of Faith, with Dr. Todd Hains",
-          "plays": 2971
+          "plays": 2976
         },
         {
           "date": "2026-10-28",
           "title": "The Old Testament's Fingerprints on Acts",
-          "plays": 2851
+          "plays": 2883
         }
       ],
       "per_episode": [
@@ -355,7 +355,7 @@
         },
         {
           "month": "2018-04",
-          "avg": 24,
+          "avg": 25,
           "episodes": 3
         },
         {
@@ -420,7 +420,7 @@
         },
         {
           "month": "2019-05",
-          "avg": 18,
+          "avg": 19,
           "episodes": 2
         },
         {
@@ -430,7 +430,7 @@
         },
         {
           "month": "2019-08",
-          "avg": 17,
+          "avg": 18,
           "episodes": 1
         },
         {
@@ -530,12 +530,12 @@
         },
         {
           "month": "2021-04",
-          "avg": 39,
+          "avg": 40,
           "episodes": 4
         },
         {
           "month": "2021-05",
-          "avg": 40,
+          "avg": 41,
           "episodes": 3
         },
         {
@@ -650,7 +650,7 @@
         },
         {
           "month": "2023-04",
-          "avg": 73,
+          "avg": 74,
           "episodes": 2
         },
         {
@@ -760,7 +760,7 @@
         },
         {
           "month": "2025-07",
-          "avg": 107,
+          "avg": 108,
           "episodes": 4
         },
         {
@@ -830,19 +830,19 @@
         },
         {
           "month": "2026-09",
-          "avg": 3931,
+          "avg": 3933,
           "episodes": 5
         },
         {
           "month": "2026-10",
-          "avg": 3448,
+          "avg": 3460,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 58,
-      "plays": 26933,
+      "plays": 26963,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -878,12 +878,12 @@
         {
           "date": "2025-08-21",
           "title": "J.R.R. Tolkien - The Return of the King with Kirsten Sanders",
-          "plays": 171
+          "plays": 172
         },
         {
           "date": "2025-08-28",
           "title": "The Nicene Creed with Shawn Wilhite and Coleman Ford",
-          "plays": 124
+          "plays": 125
         },
         {
           "date": "2025-09-04",
@@ -908,7 +908,7 @@
         {
           "date": "2025-10-02",
           "title": "Flannery O'Connor - A Good Man Is Hard To Find with Jon Parrish Peede",
-          "plays": 152
+          "plays": 153
         },
         {
           "date": "2025-10-09",
@@ -948,7 +948,7 @@
         {
           "date": "2026-02-12",
           "title": "The Education of Henry Adams with Leah Libresco Sargeant | America 250",
-          "plays": 83
+          "plays": 84
         },
         {
           "date": "2026-02-19",
@@ -968,7 +968,7 @@
         {
           "date": "2026-03-12",
           "title": "The Nichomachean Ethics by Aristotle with Sabrina Little | America 250",
-          "plays": 124
+          "plays": 125
         },
         {
           "date": "2026-03-18",
@@ -983,12 +983,12 @@
         {
           "date": "2026-04-02",
           "title": "Moby Dick by Herman Melville with Christina Bieber Lake",
-          "plays": 179
+          "plays": 180
         },
         {
           "date": "2026-04-09",
           "title": "The Adventures of Tom Sawyer by Mark Twain with Ivana Greco and Dixie Dillon Lane",
-          "plays": 128
+          "plays": 129
         },
         {
           "date": "2026-04-16",
@@ -998,7 +998,7 @@
         {
           "date": "2026-04-23",
           "title": "Thomas Aquinas For Protestants with Miles Smith",
-          "plays": 214
+          "plays": 215
         },
         {
           "date": "2026-05-01",
@@ -1008,12 +1008,12 @@
         {
           "date": "2026-05-07",
           "title": "The Great Gatsby with Katy Carl",
-          "plays": 247
+          "plays": 249
         },
         {
           "date": "2026-05-14",
           "title": "Petrarch's Canzoniere with A. M. Juster",
-          "plays": 241
+          "plays": 242
         },
         {
           "date": "2026-05-21",
@@ -1023,7 +1023,7 @@
         {
           "date": "2026-05-28",
           "title": "Augustine's Confessions with Joey Sherrard",
-          "plays": 1148
+          "plays": 1150
         },
         {
           "date": "2026-06-04",
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-11",
           "title": "James Fenimore Cooper with Dr. Wayne Franklin",
-          "plays": 871
+          "plays": 872
         },
         {
           "date": "2026-06-18",
@@ -1083,47 +1083,47 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 973
+          "plays": 974
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 955
+          "plays": 956
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 1077
+          "plays": 1078
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 895
+          "plays": 897
         },
         {
           "date": "2026-09-17",
           "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
-          "plays": 869
+          "plays": 871
         },
         {
           "date": "2026-09-24",
           "title": "Howard Thurman For Our Time with Myles Werntz",
-          "plays": 753
+          "plays": 754
         },
         {
           "date": "2026-10-01",
           "title": "Aristotle, with Philip Freeman",
-          "plays": 820
+          "plays": 821
         },
         {
           "date": "2026-10-08",
           "title": "Billy Budd, with Christine Norvell",
-          "plays": 739
+          "plays": 740
         },
         {
           "date": "2026-10-15",
           "title": "All Quiet on the Western Front, with Jason Barnhart",
-          "plays": 801
+          "plays": 802
         },
         {
           "date": "2026-10-22",
@@ -1133,7 +1133,7 @@
         {
           "date": "2026-10-29",
           "title": "Edgar Allan Poe: America's Spookiest Classic with Fr. Ryan Duns and Steven Knepper",
-          "plays": 611
+          "plays": 616
         }
       ],
       "per_episode": [
@@ -1184,7 +1184,7 @@
         },
         {
           "month": "2026-05",
-          "avg": 526,
+          "avg": 527,
           "episodes": 5
         },
         {
@@ -1199,24 +1199,24 @@
         },
         {
           "month": "2026-08",
-          "avg": 934,
+          "avg": 935,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 899,
+          "avg": 900,
           "episodes": 4
         },
         {
           "month": "2026-10",
-          "avg": 746,
+          "avg": 747,
           "episodes": 5
         }
       ]
     },
     "daily-liturgy": {
       "episodes": 190,
-      "plays": 188811,
+      "plays": 188977,
       "earliest": "2026-03-02",
       "recent": [
         {
@@ -1312,17 +1312,17 @@
         {
           "date": "2026-09-14",
           "title": "Monday, September 14, 2026",
-          "plays": 2194
+          "plays": 2195
         },
         {
           "date": "2026-09-15",
           "title": "Tuesday, September 15, 2026",
-          "plays": 2136
+          "plays": 2137
         },
         {
           "date": "2026-09-16",
           "title": "Wednesday, September 16, 2026",
-          "plays": 2145
+          "plays": 2146
         },
         {
           "date": "2026-09-17",
@@ -1442,7 +1442,7 @@
         {
           "date": "2026-10-14",
           "title": "Wednesday, October 14, 2026",
-          "plays": 2201
+          "plays": 2202
         },
         {
           "date": "2026-10-15",
@@ -1457,67 +1457,67 @@
         {
           "date": "2026-10-17",
           "title": "Saturday, October 17, 2026",
-          "plays": 2041
+          "plays": 2042
         },
         {
           "date": "2026-10-19",
           "title": "Monday, October 19, 2026",
-          "plays": 2204
+          "plays": 2206
         },
         {
           "date": "2026-10-20",
           "title": "Tuesday, October 20, 2026",
-          "plays": 2202
+          "plays": 2203
         },
         {
           "date": "2026-10-21",
           "title": "Wednesday, October 21, 2026",
-          "plays": 2151
+          "plays": 2152
         },
         {
           "date": "2026-10-22",
           "title": "Thursday, October 22, 2026",
-          "plays": 2218
+          "plays": 2221
         },
         {
           "date": "2026-10-23",
           "title": "Friday, October 23, 2026",
-          "plays": 2152
+          "plays": 2155
         },
         {
           "date": "2026-10-24",
           "title": "Saturday, October 24, 2026",
-          "plays": 2056
+          "plays": 2057
         },
         {
           "date": "2026-10-26",
           "title": "Monday, October 26, 2026",
-          "plays": 2246
+          "plays": 2251
         },
         {
           "date": "2026-10-27",
           "title": "Tuesday, October 27, 2026",
-          "plays": 2259
+          "plays": 2263
         },
         {
           "date": "2026-10-28",
           "title": "Wednesday, October 28, 2026",
-          "plays": 2166
+          "plays": 2171
         },
         {
           "date": "2026-10-29",
           "title": "Thursday, October 29, 2026",
-          "plays": 2077
+          "plays": 2090
         },
         {
           "date": "2026-10-30",
           "title": "Friday, October 30, 2026",
-          "plays": 1863
+          "plays": 1888
         },
         {
           "date": "2026-10-31",
           "title": "Saturday, October 31, 2026",
-          "plays": 1376
+          "plays": 1473
         }
       ],
       "per_episode": [
@@ -1553,12 +1553,12 @@
         },
         {
           "month": "2026-09",
-          "avg": 2120,
+          "avg": 2121,
           "episodes": 26
         },
         {
           "month": "2026-10",
-          "avg": 2099,
+          "avg": 2105,
           "episodes": 27
         }
       ]
