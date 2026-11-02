@@ -81,7 +81,7 @@
   // change when only data does, so the data carries its own version. It
   // must be the `v` parameter: the CDN drops any other query string from
   // its cache key and would serve the first copy it ever cached.
-  var DATA_V = "eefb653c2d6f";
+  var DATA_V = "bb05f1621eac";
   var dataUrl = function (f) { return DIRECTORY + f + "?v=" + DATA_V; };
   var api = { fold: fold, plain: plain, words: words, years: years, slug: slug, unnamed: unnamed, bare: bare, numerals: numerals, UNNAMED: UNNAMED, BARE: BARE, DATE_PART: DATE_PART, DIRECTORY: DIRECTORY, dataUrl: dataUrl };
   root.MOAuthorAddress = api;
