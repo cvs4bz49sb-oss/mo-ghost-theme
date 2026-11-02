@@ -3,15 +3,28 @@ name: Podcast Wiki
 # Rebuilds assets/data/podcast-wiki.json — the full per-show episode index
 # (each episode tagged with guest[s] + topic[s]) that powers the "Browse by
 # Topic / Guest" lenses on the show pages. The mo-podcast-feed Worker caps
-# live requests at 20 episodes, so the wiki reads this committed asset for
-# the WHOLE archive. A daily run means a newly published episode is
-# auto-sorted into the wiki with no manual tagging.
+# live requests at 20 episodes, so the wiki reads this asset for the WHOLE
+# archive. A daily run means a newly published episode is auto-sorted into
+# the wiki with no manual tagging.
 #
 # Runs on a GitHub-hosted (non-Cloudflare) runner because Buzzsprout's
 # Cloudflare WAF blocks Cloudflare Workers' egress IPs but not GitHub's
-# (same reason as podcast-top-episodes.yml). The theme loads the JSON as a
-# same-origin asset, so the commit DOES need to deploy — it omits [skip ci]
-# so the Deploy Ghost Theme action picks up the refreshed data.
+# (same reason as podcast-top-episodes.yml).
+#
+# Publishes to the `podcast-data` branch, NOT main. main is covered by the
+# "main — TFR contributor gate" ruleset (pull request + status checks, admin
+# bypass only), so GITHUB_TOKEN can't push there: every run from 2026-08-08
+# to 2026-11-01 failed on "push declined due to repository rule violations".
+# Top Episodes hit the same wall on 2026-07-31 and moved to podcast-data.
+#
+# The theme serves the JSON as a same-origin asset, so a changed index has
+# to ship in a theme deploy. Deploy Ghost Theme copies the index from
+# podcast-data into the build (see deploy-theme.yml), and this job starts
+# that deploy whenever the index changes.
+#
+# It also runs when this workflow, the build script or the Mere Fidelity
+# topic map changes on main, so a merged fix or a new topic map goes live
+# without waiting for the next morning.
 #
 # Force a refresh now: gh workflow run "Podcast Wiki" --ref main
 
@@ -19,9 +32,16 @@ on:
   schedule:
     - cron: "37 7 * * *"   # daily at 07:37 UTC
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/podcast-wiki.yml
+      - scripts/build-podcast-wiki.mjs
+      - data/mere-fidelity-topics.json
 
 permissions:
-  contents: write
+  contents: write   # push to the podcast-data branch
+  actions: write    # start Deploy Ghost Theme after the index changes
 
 concurrency:
   group: podcast-wiki
@@ -39,29 +59,68 @@ jobs:
         env:
           BUZZSPROUT_API_TOKEN: ${{ secrets.BUZZSPROUT_API_TOKEN }}
         run: node scripts/build-podcast-wiki.mjs
-      - name: Commit if changed
+      - name: Publish the wiki index to the data branch
+        id: publish
+        env:
+          DATA_BRANCH: podcast-data
+          FILE: assets/data/podcast-wiki.json
         run: |
+          set -euo pipefail
           git config user.name "mo-bot"
           git config user.email "bot@users.noreply.github.com"
-          if git diff --quiet -- assets/data/podcast-wiki.json; then
-            echo "No change to podcast wiki."
-            exit 0
+
+          # Carry the fresh index across the branch switch, then drop
+          # everything else the build touched so the checkout is clean.
+          tmp="$(mktemp -d)"
+          cp "$FILE" "$tmp/podcast-wiki.json"
+          git checkout -- . || true
+
+          git fetch origin "$DATA_BRANCH" --depth=1 || true
+          if git rev-parse --verify "origin/$DATA_BRANCH" >/dev/null 2>&1; then
+            git checkout -B "$DATA_BRANCH" "origin/$DATA_BRANCH"
+          else
+            git checkout -B "$DATA_BRANCH"
           fi
-          git add assets/data/podcast-wiki.json
-          git commit -m "Update podcast wiki index"
-          # Same push race as podcast-top-episodes.yml — see the comment
-          # there for why there is no merge strategy option.
-          for attempt in 1 2 3; do
-            if git push; then
-              echo "Pushed on attempt $attempt."
+
+          cp "$tmp/podcast-wiki.json" "$FILE"
+
+          # Ignore the per-show "updated" stamps when deciding whether
+          # anything changed, or every run would commit and redeploy.
+          strip() { node -e 'const d=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));for(const k in d)delete d[k].updated;process.stdout.write(JSON.stringify(d))' "$1"; }
+          if git cat-file -e "HEAD:$FILE" 2>/dev/null; then
+            git show "HEAD:$FILE" > "$tmp/old.json"
+            if [ "$(strip "$tmp/old.json")" = "$(strip "$FILE")" ]; then
+              echo "Data branch already has this episode index."
+              echo "changed=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            echo "Push rejected — rebasing onto origin/main (attempt $attempt)."
-            if ! git pull --rebase origin main; then
+          fi
+
+          git add "$FILE"
+          git commit -m "Update podcast wiki index [skip ci]"
+
+          # Only the podcast jobs write this branch, and each has its own
+          # concurrency group, so a rejected push is the other job landing
+          # first. Rebase onto it and try again.
+          for attempt in 1 2 3; do
+            if git push origin "$DATA_BRANCH"; then
+              echo "Pushed on attempt $attempt."
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Push rejected — rebasing onto origin/$DATA_BRANCH (attempt $attempt)."
+            if ! git pull --rebase --autostash origin "$DATA_BRANCH"; then
               git rebase --abort || true
-              echo "Rebase failed; leaving main alone." >&2
+              echo "Rebase failed; leaving $DATA_BRANCH alone." >&2
               exit 1
             fi
           done
           echo "Could not push after 3 attempts." >&2
           exit 1
+      # Runs from main only: a test run on another branch publishes data
+      # but never ships a theme.
+      - name: Deploy the theme with the new index
+        if: steps.publish.outputs.changed == 'true' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-theme.yml --repo "$GITHUB_REPOSITORY" --ref main
