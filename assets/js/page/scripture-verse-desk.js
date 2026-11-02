@@ -903,7 +903,7 @@
       }
       box.innerHTML = html;
       if (!box.__vdbTg) { box.__vdbTg = true; G.mount(box); } else G.layout(box);
-      if (!box.querySelector(".vdb-method")) box.insertAdjacentHTML("beforeend", method(`<p>Each author appears once, at his birth (or when he is first recorded), on his tradition's shelf. The names over the bars are the landmark commentators on ${esc(chRef)}. Point at the strip or use its arrow keys to see each quarter-century's authors.</p>`));
+      if (!box.querySelector(".vdb-method")) box.insertAdjacentHTML("beforeend", method(`<p>Each author appears once on his tradition's shelf. He is placed at his birth year or his first recorded date. The names over the bars are the landmark commentators on ${esc(chRef)}. Point at the strip or use its arrow keys to see each quarter-century's authors.</p>`));
       drawKinds();
     }
     function kindCounts() {
