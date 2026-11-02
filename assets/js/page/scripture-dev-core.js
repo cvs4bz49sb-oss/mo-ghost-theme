@@ -539,7 +539,7 @@
   const atChapter = (href, e, ctx) => {
     if (!href || !ctx || !ctx.c || e.anchored !== "chapter" || (ctx.book && ctx.book.lib === "psalms") || /[?&]at=/.test(href)) return href;
     const i = href.indexOf("#");
-    return (i < 0 ? href : href.slice(0, i)) + (href.includes("?") ? "&" : "?") + "at=ch%3A" + ctx.c + (i < 0 ? "" : href.slice(i));
+    return `${(i < 0 ? href : href.slice(0, i)) + (href.includes("?") ? "&" : "?")}at=ch%3A${ctx.c}${i < 0 ? "" : href.slice(i)}`;
   };
   const standingOf = (e, rk) => {
     const r = rk && rk.works && rk.works[e.w];

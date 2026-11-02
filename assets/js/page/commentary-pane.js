@@ -59,7 +59,7 @@
           const r = (q && S().parseRef && S().parseRef(q)) || (S().legacyRef && S().legacyRef(location));
           return r && r.book ? { book: r.book.lib, ch: String(r.c), v: r.v || 0, name: r.book.name, bk: r.book } : null;
         },
-        read: (slug, p, at) => { const q = at ? `&at=${encodeURIComponent(at)}` : ''; return S().sourceHref ? S().sourceHref(`/read?w=${slug}${q}#b${p}-0`, slug, p) : `/the-faith-received/read/?w=${encodeURIComponent(slug)}${q}#b${p}-0`; },
+        read(slug, p, at) { const q = at ? `&at=${encodeURIComponent(at)}` : ''; return S().sourceHref ? S().sourceHref(`/read?w=${slug}${q}#b${p}-0`, slug, p) : `/the-faith-received/read/?w=${encodeURIComponent(slug)}${q}#b${p}-0`; },
         layout: '.sd-layout', side: '.sd-side', verses: '.bible-verse[data-v]',
         vnum: (el) => +el.dataset.v, clicked(t) { const b = t.closest('.bible-verse[data-v]'); return b ? +b.dataset.v : 0; },
         verseEl: (v) => document.querySelector(`.bible-verse[data-v="${v}"]`),
@@ -1288,7 +1288,7 @@
       len += txt.length;
     }
     const at = pgOf(slug, found ? onPage[hit] : t.p);
-    const say = found ? `Its note on ${name} ${w.ch}:${v}, ${at}, found on the page`
+    const say = found ? `Its note on ${name} ${w.ch}:${v}, ${at}`
       : t.how === 'note' ? `Its note on ${name} ${w.ch}:${t.v}, ${at}`
       : t.how === 'page' ? `Its comment on ${name} ${w.ch}:${t.v} is on ${at}`
       : t.how === 'later' ? `No separate note on ${w.ch}:${v}. Its next note is on ${w.ch}:${t.v}, ${at}`
@@ -1296,7 +1296,7 @@
       : t.how === 'cites' ? `It cites ${name} ${w.ch} on ${at}, in its commentary on another passage`
       : t.how === 'treats' ? `Treats this chapter on ${at}`
       : t.how === 'head' ? `No note on ${w.ch}:${v} was found. ${name} ${w.ch} begins on ${at}, by its heading`
-      : t.how === 'book' ? `${name} ${w.ch} is not mapped in it. ${w.book === 'psalms' ? 'The Psalms begin' : `${name} begins`} on ${at}`
+      : t.how === 'book' ? `This work has no marked start for ${name} ${w.ch}. ${w.book === 'psalms' ? 'The Psalms begin' : `${name} begins`} on ${at}`
       : t.how === 'sermon' || t.how === 'sermon-ch' ? `${sermonSay(t, v, w.ch, name)}, ${at}`
       : `${name} ${w.ch} opens on ${at}`;
     return `<p class="vr-pv-where">${esc(say)}</p><div class="vr-pv-text" lang="${lane === 'en' ? 'en' : 'la'}">${out.join('') || '<p class="vr-empty">A blank page.</p>'}</div>${acts(t.p)}`;
@@ -1421,13 +1421,13 @@
       : t.how === 'cites' ? `It cites ${bookName} ${sh.ch} on this page, in its commentary on another passage`
       : t.how === 'treats' ? 'Treats this chapter on this page'
       : t.how === 'head' ? `No note on ${ref(S.verse)} was found. This is where ${bookName} ${sh.ch} begins, by its heading`
-      : t.how === 'book' ? `${bookName} ${sh.ch} is not mapped in it. This is where ${sh.book === 'psalms' ? 'the Psalms begin' : `${bookName} begins`}`
+      : t.how === 'book' ? `This work has no marked start for ${bookName} ${sh.ch}. This is where ${sh.book === 'psalms' ? 'the Psalms begin' : `${bookName} begins`}`
       : t.how === 'sermon' || t.how === 'sermon-ch' ? sermonSay(t, S.verse, sh.ch, bookName) : 'Reading on';
     // where the text stands, said as a sentence: "Its note on Matthew 1:2, col. 65 · Open in the reader" (10-21); a note found on the
     // page under the chapter's heading is said to be that, at its own page (10-22)
     const setWhere = (p, found, at) => {
       const pg = `<span class="cp-pg">${esc(pgOf(sh.slug, p))}</span>`;
-      whereEl.innerHTML = `<span>${found ? `Its note on ${esc(ref(S.verse))}, ${pg}, found on the page` : `${esc(say)}, ${pg}`}</span> <span class="cp-go"><span aria-hidden="true">· </span><a href="${esc(readHref(sh.slug, p, at))}">Open in the reader</a></span>`;
+      whereEl.innerHTML = `<span>${found ? `Its note on ${esc(ref(S.verse))}, ${pg}` : `${esc(say)}, ${pg}`}</span> <span class="cp-go"><span aria-hidden="true">· </span><a href="${esc(readHref(sh.slug, p, at))}">Open in the reader</a></span>`;
     };
     setWhere(sh.p, false);
     const pages = sh.pages || [];
