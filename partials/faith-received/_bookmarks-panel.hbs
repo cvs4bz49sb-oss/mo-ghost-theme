@@ -64,9 +64,27 @@
      row knows the work and nothing finer. Nothing in that list is a
      passage. Keeping the text is the notebook's job.
 
-     Rendered on its own page rather than in a tab strip, wrap it in a
-     <section class="bband"> and give the page its own hero. Nothing in
-     here depends on the tab shell. --}}
+     Rendered on its own page rather than in a tab strip, give the page
+     its own hero and wrap this in
+     <section class="bband faith-research-band">
+       <div class="research-workspace"><div class="research-workspace-inner">
+
+     NOTHING HERE DEPENDS ON THE TAB SHELL, BUT THE LOOK DEPENDS ON THE
+     BAND. This used to say "wrap it in a <section class="bband">" and
+     stop, and /dashboard/faith-received/ did exactly that and came out
+     wrong. The SCRIPTS need nothing: no tab, no panel ancestor, no id.
+     The PRESENTATION is a different matter — the card grid, the
+     full-width heads, the cream control panel, and the rule that stops
+     .bookmarks-workspace breaking out full-bleed a second time inside
+     the workspace's own breakout are all scoped to .faith-research-band
+     (faith-received.css, the 2026-09-23 "THIN-LINE BOXES" block). Drop
+     that class and the panel renders its base form, which is the
+     hairline-rows-on-white that block was written to replace, inside a
+     doubled white band. Carry both classes or neither.
+
+     See custom-dashboard-faith-received.hbs for a host that is not the
+     Research page, and for the padding a band has to give back when
+     there is no tab strip above it. --}}
 <div class="bookmarks-workspace" data-fb-root>
   <div class="bookmarks-workspace-inner">
 

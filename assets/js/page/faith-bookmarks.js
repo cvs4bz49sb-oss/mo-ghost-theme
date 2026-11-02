@@ -32,8 +32,9 @@
  * catalogues are the only place a work's title, author and URL live, so
  * each corpus that has a saved work in it is loaded once (not once per
  * work) through window.MOCorpora and the wanted ids are picked out of
- * it. Same approach as assets/js/faith-saved.js, which is the dashboard
- * version of this list.
+ * it. There is no second version of this list: /dashboard/faith-received/
+ * used to carry its own (assets/js/faith-saved.js) and now renders this
+ * panel instead, so this file is the one that resolves a saved work.
  *
  * THE LINK BACK. Never constructed by hand where the catalogue has one.
  * MOCorpora's normalize() already writes `url` for every record, by the
@@ -103,6 +104,25 @@
   const memberStatus = body.getAttribute("data-member-status") || "";
   const signedIn = !!body.getAttribute("data-member-email");
   const paid = memberStatus === "paid" || memberStatus === "comped";
+  /* Who may SEE their saved works, which has to be whoever may make one.
+     This panel used to hardcode paid/comped while
+     assets/js/lib/faith-work-bookmarks.js — the file that decides
+     whether the Save button works at all — reads the beta constant from
+     assets/js/boot/tfr-tier.js (`beta ? signedIn : paid`). During the
+     beta those two disagree, and the disagreement is visible: a free
+     member saves a work from a browse row, opens the list of their
+     saved works, and is told saved works are part of membership. The
+     worker never had this bug — mo-kit deliberately serves the READ to
+     any signed-in member so someone whose card lapses can still see and
+     clear what they saved (website/workers/kit/kit.js, handleListBookmarks).
+     So the panel was the only thing refusing, and it was refusing to
+     show a member their own data.
+
+     Read rather than copied, for the reason tfr-tier.js gives: a
+     constant copied into both is a constant that drifts. boot.min.js is
+     in <head> and has already run by the time this page script does. */
+  const beta = window.MO_TFR_BETA_OPEN_TO_ALL_MEMBERS !== false;
+  const allowed = beta ? signedIn : paid;
 
   // A bookmark whose corpus is the default one and which the Latin
   // Library does not have is very probably a confession. Deliberately a
@@ -633,7 +653,7 @@
   if (!WORKER || !window.MOAuth) {
     setStatus("");
     renderError("Bookmarks are not configured on this site.");
-  } else if (!paid) {
+  } else if (!allowed) {
     setStatus("");
     if (sortEl) sortEl.hidden = true;
     renderSignedOut();

@@ -9788,47 +9788,12 @@ a.fa-tp-work-link:hover { color: var(--color-primary); text-decoration: underlin
   .fa-meta { grid-template-columns: 1fr; }
 }
 
-/* ── Saved works, on the dashboard ────────────────────────────── */
-.faith-saved-empty {
-  font-family: var(--font-body);
-  font-size: var(--tfr-body);
-  color: var(--color-muted);
-}
-/* Saved dictionary articles sit under their own heading on the
-   dashboard: entries in one reference work, not works on a shelf. */
-.faith-saved-head {
-  margin: 38px 0 14px;
-  font: 400 1.15rem/1.3 var(--font-body, Georgia, serif);
-  color: var(--color-dark);
-}
-.faith-saved-list:first-child + .faith-saved-head { margin-top: 30px; }
-.faith-saved-list { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 44px; }
-.faith-saved-list li { break-inside: avoid; border-bottom: 1px solid var(--color-card-border); }
-.faith-saved-list a { display: block; padding: 14px 0; text-decoration: none; color: inherit; }
-.faith-saved-list a:hover { text-decoration: none; }
-.faith-saved-list a:hover .faith-saved-title { color: var(--color-primary-text); }
-.faith-saved-title {
-  display: block;
-  font-family: var(--font-body);
-  font-size: 17px;
-  line-height: 1.32;
-  color: var(--color-dark);
-}
-.faith-saved-author, .faith-saved-shelf {
-  display: block;
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: var(--color-muted);
-  margin-top: 2px;
-}
-.faith-saved-shelf { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
 /* Saved reads as held, not as an action waiting to be taken. */
 .faith-reader .faith-bookmark[aria-pressed="true"] {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: #fff;
 }
-@media (max-width: 700px) { .faith-saved-list { columns: 1; } }
 
 /* ══ Reader, after the mobile review ══════════════════════════════ */
 
@@ -13304,6 +13269,35 @@ a.fr-plan-open {
   padding: 0 0 24px;
   border-top: 0;
 }
+/* /dashboard/faith-received/ wears .faith-research-band for everything
+   below (the card grid, the full-width heads, the cream control panel,
+   and the rule that stops a panel drawing a second white band inside
+   the workspace's own) — but it has no tab strip, and it stacks TWO
+   bands where the Research page shows one.
+
+   So the band gives up the last of its padding here. Each panel already
+   arrives as a white ground between two hairlines carrying 48px above
+   its heading and 44px below its list; adding the band's own on top of
+   that is the same arithmetic the rule above calls "a screenful of
+   cream", and with two bands it lands twice. The seam between them is
+   then one hairline rather than two: the first workspace's bottom
+   border is the second's top. See custom-dashboard-faith-received.hbs. */
+.dashboard .bband.faith-research-band { padding: 0; border-top: 0; }
+.dashboard .bband.faith-research-band + .bband.faith-research-band .research-workspace {
+  border-top: 0;
+}
+
+/* The one line on the page that says the two panels are stored in two
+   different places. Smaller and quieter than the sub above it: it is
+   the caveat to the sentence before, not a second headline. */
+.dashboard-hero .dashboard-faith-note {
+  margin-top: 10px;
+  max-width: 640px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.62);
+}
+
 .faith-join--after-tools { padding-top: 36px; }
 @media (max-width: 640px) { .faith-join--after-tools { padding-top: 28px; } }
 /* .faith-search-modes (the Search page's mode strip, reused here for
