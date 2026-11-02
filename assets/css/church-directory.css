@@ -1,0 +1,616 @@
+/* =============================================================
+   Church Directory prototype — all styles for
+   custom-church-directory.hbs. Linked by that template only.
+
+   SCOPED UNDER .cd, WITHOUT EXCEPTION. The prototype shares a
+   <main> with the site's own .membership-support form styles, and
+   it is a prototype: it must not be able to leave a mark on any
+   other page. Every selector in this file starts at .cd, and every
+   class the template adds starts with cd-, so nothing here can
+   collide with screen.css and nothing in screen.css had to be
+   edited to make the page work.
+
+   The page is light only, like the rest of the site. No dark mode.
+   ============================================================= */
+
+/* ── The prototype notice ─────────────────────────────────────
+   A slim band directly under the site header, on every view. It is
+   the first thing on the page and it is not dismissible: a reviewer
+   who opens a church's own view from a link must read it as plainly
+   as one who starts at the directory. */
+.cd .cd-notice {
+  margin: 0;
+  padding: 12px 28px;
+  background: var(--color-background);
+  color: var(--color-dark);
+  border-bottom: 1px solid var(--color-card-border);
+  font-size: 15px;
+  line-height: 1.45;
+  text-align: center;
+}
+.cd .cd-noscript {
+  margin: 0;
+  padding: 16px 28px;
+  background: var(--color-cream);
+  border-bottom: 1px solid var(--color-card-border);
+  color: var(--color-alert-text);
+  font-size: 15px;
+  text-align: center;
+}
+
+/* The fixed masthead covers the top of the page, and moving focus to a
+   heading scrolls it to the very top where the header would hide it.
+   scroll-margin-top is what scrollIntoView honors, so the offset lives
+   here rather than as a magic number in the script. */
+.cd [tabindex="-1"] { scroll-margin-top: 96px; }
+.cd [tabindex="-1"]:focus { outline: none; }
+.cd [tabindex="-1"]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* Focus is visible on everything, and it is the same ring the site's
+   own form fields use. */
+.cd a:focus-visible,
+.cd button:focus-visible,
+.cd input:focus-visible,
+.cd select:focus-visible,
+.cd textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* Swapping one view for another changes the page's height by thousands
+   of pixels, and the browser's scroll anchoring answers that by nudging
+   the scroll position to keep the old content still. The script has just
+   scrolled to the top on purpose, so that nudge lands the reader tens of
+   pixels down with the notice tucked under the masthead. */
+.cd { overflow-anchor: none; }
+
+/* `hidden` is a UA rule of `display: none`, and any class that sets
+   `display` beats it. .cd-filter sets `display: flex`, so the State
+   filter stayed on screen with its hidden attribute set. Everything on
+   this page that hides itself does it with `hidden`, so state it once
+   for the whole page rather than per class. */
+.cd [hidden] { display: none !important; }
+
+/* ── Directory body ──────────────────────────────────────────── */
+.cd .cd-body {
+  background: var(--color-page);
+  padding: 40px 0 72px;
+}
+
+/* ── Filter strip ─────────────────────────────────────────────
+   The contributors alphabet rail is the reference: an 11px tracked
+   uppercase label and a hairline under the whole strip. Not its
+   pills. Four filters need four names, and a pill row cannot say
+   which of four things it is filtering. Real labels, real controls,
+   and no horizontal scroller. */
+.cd .cd-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.cd .cd-filter { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1 1 150px; }
+.cd .cd-filter:first-child { flex-grow: 1.6; }
+.cd .cd-filter--clear { flex: 0 0 auto; justify-content: flex-end; }
+/* An empty wrapper still takes a gap in the row; take it out while the
+   button it holds is hidden. */
+.cd .cd-filter--clear:not(:has(.cd-clear:not([hidden]))) { display: none; }
+.cd .cd-filter-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.cd .cd-input,
+.cd .cd-select {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%;
+  min-height: 44px;
+}
+.cd .cd-input:focus,
+.cd .cd-select:focus { border-color: var(--color-primary); }
+.cd .cd-clear {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 10px 2px;
+  min-height: 44px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-alert-text);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+.cd .cd-clear:hover { color: var(--color-secondary); }
+
+/* ── The map ─────────────────────────────────────────────────
+   Inline SVG drawn by the script from assets/data/church-directory-map.json.
+   Land is the site's warm tan on a white sea, with the same hairline as
+   every card and divider on the site. The frame keeps a fixed shape and
+   the map zooms inside it, so the page does not jump when a filter
+   changes. No max-height and no inner scroller: the frame is as tall as
+   its aspect ratio makes it. */
+.cd .cd-map { margin-top: 0; margin-bottom: 20px; }
+.cd .cd-map-frame {
+  aspect-ratio: 16 / 6;
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.cd .cd-map-svg { display: block; width: 100%; height: 100%; }
+.cd .cd-map-land path {
+  fill: var(--color-background);
+  stroke: var(--color-card-border);
+  stroke-width: 0.75px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+/* The states are filled, not just outlined: they are the US's land.
+   The coarse world file leaves the US out so the two coastlines never
+   draw over each other. */
+.cd .cd-map-states path {
+  fill: var(--color-background);
+  stroke: var(--color-card-border);
+  stroke-width: 0.6px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+.cd .cd-map-pin { cursor: pointer; }
+/* The tap circles live in a layer under every dot, so a tap on a visible
+   dot always lands on that dot's own link, never a neighbor's tap area. */
+.cd .cd-map-hits a { cursor: pointer; }
+.cd .cd-map-hit { fill: transparent; stroke: none; }
+.cd .cd-map-dot {
+  fill: var(--color-secondary);
+  stroke: var(--color-white);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+  transition: fill 0.15s;
+}
+.cd .cd-map-pin:hover .cd-map-dot { fill: var(--color-dark); }
+.cd .cd-map-caption {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.cd .cd-map--detail { margin-bottom: 32px; }
+.cd .cd-map--detail .cd-map-frame { aspect-ratio: 16 / 9; }
+
+/* ── Measure ─────────────────────────────────────────────────── */
+.cd .cd-filters,
+.cd .cd-map,
+.cd .cd-count,
+.cd .cd-list {
+  max-width: 1040px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Result count ────────────────────────────────────────────── */
+.cd .cd-count {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+}
+
+/* ── Groups and cards ────────────────────────────────────────
+   Mirrors .contributors-grid and .contributor-card: an editorial
+   two-column list with no card chrome, a hairline between the
+   columns, rows divided by each card's own top rule, and the name
+   turning terracotta on hover. The name is the BODY face here, not
+   IM Fell: a church's name is a card title, and the display face is
+   kept for the page title and a church's own detail view. */
+.cd .cd-group { margin: 0 0 8px; }
+/* --color-alert-text, not the eyebrow's --color-primary-text: on the page
+   ground that is 4.09:1, and these are 12px. */
+.cd .cd-group-country {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-alert-text);
+  margin: 28px 0 0;
+}
+.cd .cd-group:first-child .cd-group-country { margin-top: 4px; }
+.cd .cd-group-state {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 20px 0 0;
+}
+.cd .cd-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 56px;
+  row-gap: 0;
+  position: relative;
+  margin-top: 12px;
+}
+.cd .cd-cards::before {
+  content: "";
+  position: absolute;
+  top: 16px;
+  bottom: 16px;
+  left: 50%;
+  width: 1px;
+  background: var(--color-card-border);
+}
+/* A state with one church in it is the common case in this data, and a
+   lone card in a two-column grid leaves the divider drawn down an empty
+   half. One card takes the whole row and the divider stands down. */
+.cd .cd-cards:not(:has(.cd-card:nth-child(2)))::before { display: none; }
+.cd .cd-cards:not(:has(.cd-card:nth-child(2))) .cd-card { grid-column: 1 / -1; }
+
+.cd .cd-card {
+  display: block;
+  padding: 24px 0;
+  border-top: 1px solid var(--color-card-border);
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+.cd .cd-card:hover { text-decoration: none; }
+.cd .cd-card:hover .cd-card-name { color: var(--color-secondary); }
+.cd .cd-card-name {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-dark);
+  margin: 0 0 6px;
+}
+.cd .cd-card-place {
+  display: block;
+  font-size: 15px;
+  color: var(--color-muted);
+  margin: 0 0 4px;
+}
+.cd .cd-card-tradition {
+  display: block;
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 10px;
+}
+.cd .cd-card-badges { display: block; margin: 0; }
+
+/* The badge says the listing is not confirmed, and it has to be read
+   as information rather than decoration. Off-black on the warm tan is
+   12.1:1; the terracotta text token on the same ground is the variant
+   used where a listing is a sample rather than merely unconfirmed.
+   Never white on --color-primary, which fails AA. */
+.cd .cd-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: var(--color-background);
+  color: var(--color-dark);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.cd .cd-empty {
+  margin: 24px 0 0;
+  padding: 24px 0;
+  border-top: 1px solid var(--color-card-border);
+  font-size: 17px;
+  color: var(--color-muted);
+}
+.cd .cd-empty a { color: var(--color-alert-text); }
+.cd .cd-empty-clear {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--color-alert-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ── Ornament and the ask ────────────────────────────────────── */
+.cd .cd-ornament {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 40px;
+  background: var(--color-page);
+}
+.cd .cd-add-band {
+  background: var(--color-background);
+  border-top: 1px solid var(--color-card-border);
+  padding: 56px 0 64px;
+  text-align: center;
+}
+.cd .cd-add-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(30px, 3.8vw, 48px);
+  line-height: 1.12;
+  color: var(--color-dark);
+  margin: 0 0 14px;
+}
+.cd .cd-add-sub {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  max-width: 620px;
+  margin: 0 auto 24px;
+}
+.cd .cd-add-action { margin: 0; }
+
+/* ── One church ──────────────────────────────────────────────── */
+.cd .cd-detail {
+  background: var(--color-page);
+  padding: 36px 0 80px;
+}
+.cd .cd-detail .container { max-width: 720px; }
+.cd .cd-back { margin: 0 0 24px; font-size: 15px; }
+/* 24px of text with 10px above and below makes the 44px tap target; the
+   negative margin gives the space back so the layout does not move. */
+.cd .cd-back a {
+  color: var(--color-alert-text);
+  display: inline-block;
+  padding: 10px 0;
+  margin: -10px 0;
+}
+.cd .cd-detail-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(30px, 4.4vw, 46px);
+  line-height: 1.14;
+  color: var(--color-dark);
+  margin: 0 0 10px;
+}
+.cd .cd-detail-place {
+  font-size: 17px;
+  color: var(--color-muted);
+  margin: 0 0 14px;
+}
+.cd .cd-detail-badges { margin: 0 0 20px; }
+.cd .cd-detail-description {
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0 0 28px;
+}
+.cd .cd-detail-facts {
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--color-card-border);
+}
+.cd .cd-detail-facts dt {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  padding: 14px 16px 14px 0;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.cd .cd-detail-facts dd {
+  overflow-wrap: anywhere;
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-dark);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.cd .cd-detail-placeholder-note {
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 36px;
+}
+.cd .cd-claim-panel {
+  background: var(--color-cream);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: 28px 28px 24px;
+}
+.cd .cd-claim-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0 0 10px;
+}
+.cd .cd-claim-sub {
+  font-size: 16px;
+  color: var(--color-muted);
+  margin: 0 0 20px;
+}
+.cd .cd-claim-panel p:last-child { margin: 0; }
+
+/* ── The form ────────────────────────────────────────────────
+   The card, the fieldsets, the legends, the fields and the two-column
+   rows are all screen.css's .membership-support form set, which is
+   why <main> carries that class. Only what the set has no rule for
+   is added here: the error summary, the per-field errors, the consent
+   row and the confirmation state. */
+.cd .cd-form-summary {
+  border: 1px solid var(--color-alert-text);
+  border-radius: var(--radius);
+  background: var(--color-white);
+  padding: 18px 20px;
+}
+.cd .cd-form-summary-heading {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-alert-text);
+  margin: 0 0 8px;
+}
+.cd .cd-form-summary-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 15px;
+}
+.cd .cd-form-summary-list a { color: var(--color-alert-text); }
+/* The summary's jumps are <button>, not <a>: an href of "#cd-field-city"
+   would set the hash, and the hash is what chooses the view, so every
+   click would navigate out of the form. They still read as links. */
+.cd .cd-form-summary-list button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-alert-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.cd .cd-form-claiming {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-dark);
+  background: var(--color-cream);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+/* An error is text, not a color. The message says what to do, and the
+   field also carries aria-invalid, so nothing here depends on seeing
+   the terracotta. */
+.cd .cd-error {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-alert-text);
+  display: none;
+}
+.cd .cd-error.is-shown { display: block; }
+.cd .form-field [aria-invalid="true"] { border-color: var(--color-alert-text); }
+
+/* Form fields: 16px so iOS does not zoom on focus, 44px tall for touch,
+   and a jump from the error summary lands with the label clear of the
+   fixed masthead. screen.css sets 15px and no min-height. */
+.cd.membership-support .form-field input,
+.cd.membership-support .form-field select,
+.cd.membership-support .form-field textarea {
+  font-size: 16px;
+  scroll-margin-top: 104px;
+}
+.cd.membership-support .form-field input,
+.cd.membership-support .form-field select { min-height: 44px; }
+
+.cd .cd-consent { display: flex; flex-direction: column; gap: 6px; }
+.cd .cd-consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-dark);
+  padding: 10px 0;
+  cursor: pointer;
+}
+.cd .cd-consent-label input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.cd .cd-submit { align-self: flex-start; }
+.cd .cd-form-note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.cd .cd-done {
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+}
+.cd .cd-done-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1.16;
+  color: var(--color-dark);
+  margin: 0 0 14px;
+}
+.cd .cd-done p { font-size: 17px; line-height: 1.6; margin: 0 0 16px; }
+.cd .cd-done p:last-child { margin: 24px 0 0; }
+
+/* ── 1024 ────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .cd .cd-filter { flex-basis: 40%; }
+  .cd .cd-filter--clear { flex-basis: 100%; }
+}
+
+/* ── 760: the two-column list folds, as .contributors-grid does ── */
+@media (max-width: 760px) {
+  .cd .cd-cards { grid-template-columns: 1fr; column-gap: 0; }
+  .cd .cd-cards::before { display: none; }
+  .cd .cd-card { padding: 18px 0; }
+  .cd .cd-detail-facts { grid-template-columns: minmax(0, 1fr); }
+  .cd .cd-detail-facts dt { padding-bottom: 0; border-bottom: 0; }
+  .cd .cd-detail-facts dd { padding-top: 4px; }
+}
+
+/* ── 640: the phone ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .cd .cd-notice { font-size: 14px; padding: 12px 18px; }
+  .cd .cd-map-frame,
+  .cd .cd-map--detail .cd-map-frame { aspect-ratio: 3 / 2; }
+  .cd .cd-body { padding: 28px 0 56px; }
+  .cd .cd-filters {
+    gap: 14px;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+  }
+  .cd .cd-filter,
+  .cd .cd-filter--clear { flex-basis: 100%; }
+  .cd .cd-clear { align-self: flex-start; }
+  .cd .cd-card-name { font-size: 19px; }
+  .cd .cd-claim-panel { padding: 22px 20px 20px; }
+  .cd .cd-claim-heading { font-size: 24px; }
+  .cd .cd-done { padding: 26px 20px; }
+  .cd .cd-done-heading { font-size: 27px; }
+  .cd .cd-submit { align-self: stretch; }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .cd * { transition: none !important; }
+}
