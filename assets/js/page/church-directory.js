@@ -38,7 +38,11 @@
   const root = document.querySelector("main.cd");
   if (!root) return;
 
-  const DATA_PATH = "/assets/data/church-directory.json";
+  /* Renamed from church-directory.json on 2026-11-03: moDataUrl keys the
+     CDN copy on the theme hash plus the hour, so a data change with no
+     boot change waits up to an hour. A new name is the only immediate
+     cache break. */
+  const DATA_PATH = "/assets/data/church-directory-listings.json";
   const MAP_PATH = "/assets/data/church-directory-map.json";
   const TITLE_SUFFIX = "Church Directory (prototype) | Mere Orthodoxy";
   const DESCRIPTION_MAX = 300;
