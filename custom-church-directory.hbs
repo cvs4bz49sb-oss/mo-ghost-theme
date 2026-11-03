@@ -11,7 +11,7 @@
 <meta property="og:description" content="A prototype church directory for Mere Orthodoxy readers. The churches in it were named by members and have not confirmed their listings." />
 <meta name="twitter:title" content="Church Directory (prototype)" />
 <meta name="twitter:description" content="A prototype church directory for Mere Orthodoxy readers. The churches in it were named by members and have not confirmed their listings." />
-<link rel="stylesheet" href="{{asset "css/church-directory.css"}}&amp;frv=church-directory-20261103b" />
+<link rel="stylesheet" href="{{asset "css/church-directory.css"}}&amp;frv=church-directory-20261103c" />
 {{/contentFor}}
 {{!-- Church Directory prototype (Ian, 2026-11-02). For internal review
      only: there is no routes.yaml entry, so the page exists only where
@@ -90,6 +90,34 @@
   <noscript>
     <p class="cd-noscript">This prototype needs JavaScript to show the directory.</p>
   </noscript>
+
+  {{!-- PASSWORD PROMPT (Ian, 2026-11-03). Ian chose a prompt over a real
+        lock: it keeps casual visitors out and nothing more. The check runs
+        in the browser against a SHA-256 hash in church-directory.js, and
+        the listings file under /assets/data/ stays public. Shown by the
+        script; the views below stay hidden until it passes. --}}
+  <div data-cd-lock hidden>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Church Directory</p>
+        <h1 class="page-hero-headline">This page needs a password.</h1>
+      </div>
+    </section>
+    <section class="cd-body">
+      <div class="container">
+        <form class="cd-lock-form" data-cd-lock-form novalidate>
+          <label class="cd-filter-label" for="cd-lock-pw">Password</label>
+          <div class="cd-lock-row">
+            <input type="password" id="cd-lock-pw" class="cd-input" data-cd-lock-pw autocomplete="off" aria-describedby="cd-lock-error" />
+            <button type="submit" class="btn btn-solid btn-primary">Open</button>
+          </div>
+          <p class="cd-lock-error" id="cd-lock-error" data-cd-lock-error role="alert" hidden>That password is not right.</p>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <div data-cd-content hidden>
 
   {{!-- ───────────────────────── Directory ───────────────────────── --}}
   <div class="cd-view" data-cd-view="directory">
@@ -347,5 +375,7 @@
     </section>
   </div>
 
-  <script src="{{asset "js/page/church-directory.js"}}&amp;frv=church-directory-20261103b"></script>
+  </div>
+
+  <script src="{{asset "js/page/church-directory.js"}}&amp;frv=church-directory-20261103c"></script>
 </main>
