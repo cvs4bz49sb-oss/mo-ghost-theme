@@ -1,32 +1,40 @@
 {{!< default}}
 {{#contentFor "moHead"}}
 <title>Church Directory (prototype) | Mere Orthodoxy</title>
-{{!-- noindex because this is an internal review prototype with invented
-      listings. It must never be found in search, and it must never be
-      mistaken for a directory a reader could rely on. Same pattern as
-      custom-welcome.hbs and custom-migrate.hbs. --}}
+{{!-- noindex because this is an internal review prototype whose
+      listings no church has confirmed. It must never be found in search,
+      and it must never be mistaken for a directory a reader could rely
+      on. Same pattern as custom-welcome.hbs and custom-migrate.hbs. --}}
 <meta name="robots" content="noindex, nofollow" />
-<meta name="description" content="A prototype church directory for Mere Orthodoxy readers. Every listing in it is a made-up sample." />
+<meta name="description" content="A prototype church directory for Mere Orthodoxy readers. The churches in it were named by members and have not confirmed their listings." />
 <meta property="og:title" content="Church Directory (prototype)" />
-<meta property="og:description" content="A prototype church directory for Mere Orthodoxy readers. Every listing in it is a made-up sample." />
+<meta property="og:description" content="A prototype church directory for Mere Orthodoxy readers. The churches in it were named by members and have not confirmed their listings." />
 <meta name="twitter:title" content="Church Directory (prototype)" />
-<meta name="twitter:description" content="A prototype church directory for Mere Orthodoxy readers. Every listing in it is a made-up sample." />
-<link rel="stylesheet" href="{{asset "css/church-directory.css"}}&amp;frv=church-directory-20261102" />
+<meta name="twitter:description" content="A prototype church directory for Mere Orthodoxy readers. The churches in it were named by members and have not confirmed their listings." />
+<link rel="stylesheet" href="{{asset "css/church-directory.css"}}&amp;frv=church-directory-20261103" />
 {{/contentFor}}
 {{!-- Church Directory prototype (Ian, 2026-11-02). For internal review
      only: there is no routes.yaml entry, so the page exists only where
      Ghost Admin assigns this template to a page, and the intent is that
      it stays a draft and is read through Preview.
 
-     WHAT IS REAL AND WHAT IS NOT. The frame, the filters, the detail
-     view and the claim form all work. Nothing behind them does: the 24
-     listings are invented (assets/data/church-directory-sample.json)
-     and the form sends nowhere. The prototype notice under the header
-     says both of those things on every view, and it is the one piece of
-     copy on the page that may not be softened.
+     WHAT IS REAL AND WHAT IS NOT (Ian, 2026-11-03: use the real list).
+     The listings (assets/data/church-directory.json) are the churches
+     members named when they confirmed a mailing address: a name as they
+     typed it and a country, nothing more. No church has confirmed its
+     listing, there are no cities, addresses or service times, and a
+     tradition shows only where the church's own name states it. The form
+     sends nowhere. The prototype notice under the header says both of
+     those things on every view, and it is the one piece of copy on the
+     page that may not be softened.
+
+     THE MAP IS WIRED BUT EMPTY. It pins a listing by its lat and lon, and
+     these listings have none: the only place stored beside a church's
+     name is the member's own address, which is not the church's. The map
+     hides itself until listings carry coordinates of their own.
 
      NO NETWORK BEYOND THIS SITE'S OWN ASSETS. Two fetches, both static
-     files under /assets/data/: the sample listings and the map outlines.
+     files under /assets/data/: the listings and the map outlines.
      No worker, no Ghost API, no form endpoint, no map tiles. A reviewer
      can read the whole page in Network and see those two requests.
 
@@ -71,7 +79,7 @@
   {{!-- Every view, directly under the site header, and deliberately not
         dismissible. A reviewer who lands on #church/<slug> from a link
         must see it as plainly as one who lands on the directory. --}}
-  <p class="cd-notice">This is a prototype. Every church listed here is a made-up sample, and nothing you enter is sent or saved.</p>
+  <p class="cd-notice">This is a prototype. These churches were named by Mere Orthodoxy members and have not confirmed their listings. Nothing you enter is sent or saved.</p>
 
   <noscript>
     <p class="cd-noscript">This prototype needs JavaScript to show the directory.</p>
@@ -84,7 +92,7 @@
       <div class="container">
         <p class="eyebrow">Church Directory</p>
         <h1 class="page-hero-headline" id="cd-directory-title" tabindex="-1">Find a church where <em>Mere&nbsp;Orthodoxy</em> readers worship.</h1>
-        <p class="page-hero-sub">Churches listed by their own pastors and staff, so readers who move or travel can find a congregation.</p>
+        <p class="page-hero-sub">Churches named by Mere Orthodoxy members, so readers who move or travel can find a congregation.</p>
       </div>
     </section>
 
@@ -162,7 +170,7 @@
 
         <h1 class="cd-detail-name" data-cd-detail-name id="cd-church-title" tabindex="-1"></h1>
         <p class="cd-detail-place" data-cd-detail-place></p>
-        <p class="cd-detail-badges"><span class="cd-badge">Unconfirmed sample</span></p>
+        <p class="cd-detail-badges"><span class="cd-badge">Unconfirmed</span></p>
         <p class="cd-detail-description" data-cd-detail-description></p>
 
         <dl class="cd-detail-facts">
@@ -171,11 +179,9 @@
           <dt>Address</dt><dd data-cd-detail-address></dd>
           <dt>Website</dt><dd data-cd-detail-website></dd>
         </dl>
-        <p class="cd-detail-placeholder-note">The address and website above are placeholders in made-up form. They point nowhere.</p>
-
         <figure class="cd-map cd-map--detail" data-cd-detail-map hidden>
           <div class="cd-map-frame" data-cd-detail-map-frame></div>
-          <figcaption class="cd-map-caption">The pin marks a made-up place. Every sample church is set at an invented point.</figcaption>
+          <figcaption class="cd-map-caption">The pin marks the church's approximate location.</figcaption>
         </figure>
 
         <div class="cd-claim-panel">
@@ -333,5 +339,5 @@
     </section>
   </div>
 
-  <script src="{{asset "js/page/church-directory.js"}}&amp;frv=church-directory-20261102"></script>
+  <script src="{{asset "js/page/church-directory.js"}}&amp;frv=church-directory-20261103"></script>
 </main>

@@ -1,7 +1,7 @@
 /* Church Directory prototype — all behavior for
  * custom-church-directory.hbs.
  *
- * TWO REQUESTS, BOTH FOR THIS SITE'S OWN STATIC ASSETS: the sample
+ * TWO REQUESTS, BOTH FOR THIS SITE'S OWN STATIC ASSETS: the
  * listings and the map outlines, both under /assets/data/. There is no
  * worker, no Ghost API, no form endpoint, no map tiles, and the claim
  * form deliberately sends nothing: see the submit handler at the bottom,
@@ -38,7 +38,7 @@
   const root = document.querySelector("main.cd");
   if (!root) return;
 
-  const DATA_PATH = "/assets/data/church-directory-sample.json";
+  const DATA_PATH = "/assets/data/church-directory.json";
   const MAP_PATH = "/assets/data/church-directory-map.json";
   const TITLE_SUFFIX = "Church Directory (prototype) | Mere Orthodoxy";
   const DESCRIPTION_MAX = 300;
@@ -280,7 +280,7 @@
 
     if (loadFailed) {
       if (countEl) countEl.textContent = "";
-      const p = el("p", "cd-empty", "The sample listings could not be loaded. Reload the page to try again.");
+      const p = el("p", "cd-empty", "The listings could not be loaded. Reload the page to try again.");
       listEl.appendChild(p);
       return;
     }
@@ -365,18 +365,13 @@
     set("[data-cd-detail-tradition]", str(church.tradition) || NOT_GIVEN);
     set("[data-cd-detail-times]", str(church.serviceTimes) || NOT_GIVEN);
     set("[data-cd-detail-address]", str(church.address) || NOT_GIVEN);
-    /* The website is text, not a link. Every one of them is a made-up
-       host that resolves nowhere, and a link that cannot be followed is
-       worse than a plain line that says what it is. */
+    /* The website is text, not a link. It is whatever someone typed, and
+       nobody has checked that it resolves, let alone that it belongs to
+       the church. */
     set("[data-cd-detail-website]", str(church.website) || NOT_GIVEN);
 
     const badge = $(".cd-detail-badges .cd-badge");
     if (badge) badge.textContent = badgeText(church);
-
-    /* The note explains placeholders, so it appears only when there is a
-       placeholder on screen to explain. */
-    const note = $(".cd-detail-placeholder-note");
-    if (note) note.hidden = !(str(church.address) || str(church.website));
 
     const claim = $("[data-cd-claim-link]");
     if (claim) claim.href = `#claim/${encodeURIComponent(str(church.slug))}`;
@@ -531,7 +526,7 @@
         opt.value = code;
         countrySelect.appendChild(opt);
       });
-      /* The list is built from the sample listings, so a church anywhere
+      /* The list is built from the listings, so a church anywhere
          else had no country to choose and could not get past a required
          field. The real directory would carry the full list. */
       countrySelect.appendChild(el("option", null, "Another country")).value = "other";
