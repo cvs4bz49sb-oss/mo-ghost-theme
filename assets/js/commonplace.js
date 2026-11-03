@@ -1,10 +1,13 @@
 /*
- * Commonplace Book — highlight-to-save for paid members.
+ * Commonplace Book — highlight-to-save for paid members, and Share image
+ * for every reader of an essay.
  *
- * Detects text selection inside article/ebook/journal content areas,
- * shows a floating "Save" tooltip, and POSTs the highlight to the
- * mo-kit worker. Paid/comped members only — the script exits early
- * if the member status isn't paid or comped.
+ * Detects text selection inside article/ebook/journal content areas and
+ * shows a floating tooltip. "Save" POSTs the highlight to the mo-kit
+ * worker and appears only for paid/comped members. "Share image" opens
+ * the quote-card dialog (quote-card.js) and appears for anyone on an
+ * essay, signed in or not (Ian, 2026-11-03). With neither, the script
+ * exits early.
  */
 (function () {
   const {body} = document;
@@ -12,8 +15,12 @@
   const EMAIL = body.getAttribute("data-member-email") || "";
   const STATUS = body.getAttribute("data-member-status") || "";
 
-  if (!WORKER || !EMAIL) return;
-  if (STATUS !== "paid" && STATUS !== "comped") return;
+  const canSave = !!WORKER && !!EMAIL && (STATUS === "paid" || STATUS === "comped");
+  // Share image (quote-card.js) is offered on essays only. The Faith
+  // Received reader makes its own quote image in its own template.
+  const canShare = body.classList.contains("post-template") &&
+    !!window.MOQuoteCard && typeof window.MOQuoteCard.openDialog === "function";
+  if (!canSave && !canShare) return;
 
   // Content zones where highlights are saveable
   const SELECTORS = [
@@ -27,20 +34,18 @@
   // Build the tooltip
   const tooltip = document.createElement("div");
   tooltip.className = "commonplace-tooltip";
-  tooltip.innerHTML =
-    '<button type="button" class="commonplace-save-btn">' +
-      '<svg width="14" height="14" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-        '<path d="M40 8 Q46 18 36 26 Q24 30 16 34 Q20 22 28 14 Q34 10 40 8 Z"/>' +
-        '<path d="M38 10 L18 32" stroke-width="1"/>' +
-        '<path d="M16 34 L12 38"/>' +
-        '<line x1="12" y1="42" x2="32" y2="42"/>' +
-      '</svg>' +
-      '<span>Save</span>' +
-    '</button>';
-  // Share image (quote-card.js) sits beside Save on essays only. The Faith
-  // Received reader makes its own quote image in its own template.
-  const canShare = body.classList.contains("post-template") &&
-    !!window.MOQuoteCard && typeof window.MOQuoteCard.openDialog === "function";
+  if (canSave) {
+    tooltip.innerHTML =
+      '<button type="button" class="commonplace-save-btn">' +
+        '<svg width="14" height="14" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<path d="M40 8 Q46 18 36 26 Q24 30 16 34 Q20 22 28 14 Q34 10 40 8 Z"/>' +
+          '<path d="M38 10 L18 32" stroke-width="1"/>' +
+          '<path d="M16 34 L12 38"/>' +
+          '<line x1="12" y1="42" x2="32" y2="42"/>' +
+        '</svg>' +
+        '<span>Save</span>' +
+      '</button>';
+  }
   if (canShare) {
     tooltip.classList.add("has-share");
     tooltip.insertAdjacentHTML("beforeend",
@@ -210,7 +215,7 @@
   }
 
   // Save handler
-  saveBtn.addEventListener("click", (e) => {
+  if (saveBtn) saveBtn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!currentText || saveBtn.disabled) return;
