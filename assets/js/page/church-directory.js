@@ -1094,6 +1094,9 @@
   /* The outlines are fetched alongside the listings and never wait on
      them, and a failure here only hides the map. The list is the page;
      the map is a picture of it. */
+  /* Everything below waits on the password prompt, so a visitor who
+     never gets past it never fetches the listings. */
+  function start() {
   const mapReady = fetch(dataUrl(MAP_PATH), { credentials: "omit" })
     .then((res) => (res.ok ? res.json() : null))
     .then((m) => (m && Array.isArray(m.countries) && Array.isArray(m.states) ? m : null))
@@ -1135,4 +1138,49 @@
       renderList();
       route(false);
     });
+  }
+
+  /* ── Password prompt ───────────────────────────────────────────
+     Not a lock (Ian chose this knowing it): the hash and the listings
+     file are both public. It keeps a casual visitor out. A pass is
+     remembered for the browser tab. */
+  const PASS_SHA256 = "a5b31120963e06c86d62de6234875ca944dc1a15a4944037fb02ca1298e273b2";
+  const UNLOCK_KEY = "cd-unlocked";
+  const lockEl = $("[data-cd-lock]");
+  const contentEl = $("[data-cd-content]");
+
+  const sha256 = (text) => crypto.subtle.digest("SHA-256", new TextEncoder().encode(text))
+    .then((buf) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join(""));
+
+  const unlock = () => {
+    if (lockEl) lockEl.hidden = true;
+    if (contentEl) contentEl.hidden = false;
+    start();
+  };
+
+  let passed = false;
+  try { passed = sessionStorage.getItem(UNLOCK_KEY) === PASS_SHA256; } catch (_) { /* storage blocked */ }
+
+  if (passed || !lockEl || !window.crypto || !crypto.subtle) {
+    unlock();
+  } else {
+    lockEl.hidden = false;
+    const lockForm = $("[data-cd-lock-form]");
+    const pw = $("[data-cd-lock-pw]");
+    const err = $("[data-cd-lock-error]");
+    lockForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      sha256(pw.value).then((hash) => {
+        if (hash !== PASS_SHA256) {
+          err.hidden = false;
+          pw.setAttribute("aria-invalid", "true");
+          pw.select();
+          return;
+        }
+        try { sessionStorage.setItem(UNLOCK_KEY, hash); } catch (_) { /* storage blocked */ }
+        unlock();
+      });
+    });
+    pw.addEventListener("input", () => { err.hidden = true; pw.removeAttribute("aria-invalid"); });
+  }
 }());

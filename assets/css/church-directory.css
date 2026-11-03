@@ -641,3 +641,10 @@
 @media (prefers-reduced-motion: reduce) {
   .cd * { transition: none !important; }
 }
+
+/* ── Password prompt ─────────────────────────────────────────── */
+.cd .cd-lock-form { display: flex; flex-direction: column; gap: 6px; max-width: 420px; }
+.cd .cd-lock-row { display: flex; gap: 12px; }
+.cd .cd-lock-row .cd-input { flex: 1 1 auto; }
+.cd .cd-lock-row .btn { flex: 0 0 auto; min-height: 44px; }
+.cd .cd-lock-error { margin: 4px 0 0; font-size: 15px; color: var(--color-alert-text); }
