@@ -185,6 +185,38 @@
   transition: fill 0.15s;
 }
 .cd .cd-map-pin:hover .cd-map-dot { fill: var(--color-dark); }
+/* A cluster is off-black with white figures (14:1), so it reads as a
+   different thing from a single terracotta pin, and its count is legible.
+   White on terracotta would be 4.4:1, short of AA at this size. */
+.cd .cd-map-cluster { cursor: pointer; }
+.cd .cd-map-cluster circle {
+  fill: var(--color-dark);
+  stroke: var(--color-white);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+.cd .cd-map-cluster:hover circle { fill: var(--color-alert-text); }
+.cd .cd-map-cluster text {
+  fill: var(--color-white);
+  font-family: var(--font-body);
+  font-weight: 700;
+  pointer-events: none;
+}
+.cd .cd-map-reset {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  min-height: 44px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-alert-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.cd .cd-map-reset:hover { color: var(--color-secondary); }
 .cd .cd-map-caption {
   margin: 8px 0 0;
   font-size: 13px;

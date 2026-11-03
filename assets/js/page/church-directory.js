@@ -572,7 +572,7 @@
     ];
   };
 
-  const makeMap = (frame, minSpan) => {
+  const makeMap = (frame, minSpan, onZoom) => {
     const svg = svgEl("svg", { class: "cd-map-svg", role: "img", preserveAspectRatio: "xMidYMid meet" });
     const land = svgEl("g", { class: "cd-map-land" });
     mapData.countries.forEach((c) => land.appendChild(svgEl("path", { d: c.d })));
@@ -587,8 +587,10 @@
     const pins = svgEl("g", { class: "cd-map-pins" });
     svg.appendChild(land);
     svg.appendChild(states);
+    const clusters = svgEl("g", { class: "cd-map-clusters" });
     svg.appendChild(hits);
     svg.appendChild(pins);
+    svg.appendChild(clusters);
     let pinEls = [];
     frame.textContent = "";
     frame.appendChild(svg);
@@ -600,43 +602,97 @@
     /* Pins stay the same size on screen at every zoom, so their radius is
        recomputed in map units whenever the view moves. Their outline does
        the same with vector-effect in the stylesheet. */
+    /* Placing the pins, at every zoom (it runs on each frame of a zoom).
+       Pins closer than a pin's width are grouped. Two or three in a group
+       are set apart on a small ring around where they really are; four or
+       more, while there is still room to zoom in, become one dark marker
+       with a count, and clicking it zooms to them. Any two placed things
+       that touch are merged and placed again, until nothing touches, so
+       one dot never hides another and every visible dot opens its own
+       church. Clusters, not rings, at wide zoom: a ring big enough for
+       forty pins circles a continent. */
     const sizePins = () => {
       const unit = vb.w / (frame.clientWidth || 1);
       const r = unit * PIN_PX;
+      const rc = unit * 13;
+      const gap = unit * 3;
       /* The pin a reader sees is 12px across; the circle that takes the
          tap is 44px on a touch screen, the site's minimum target, and
          28px under a mouse. It is transparent, so it is felt and not
          seen. */
       const coarse = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
       const hitR = unit * (coarse ? 22 : 14);
+      const canZoom = vb.w > minSpan * 1.7;
 
-      /* Two churches in one town project to nearly one point, and the
-         second pin hides the first. Pins closer than a pin's width at the
-         current zoom are gathered and set in a small ring around where
-         they really are, so every church can be seen and clicked. The
-         ring is in screen terms, so it closes up again as you zoom in and
-         the true positions pull apart. */
       const group = pinEls.map((_, i) => i);
       const find = (i) => (group[i] === i ? i : (group[i] = find(group[i])));
+      const join = (i, j) => { group[find(j)] = find(i); };
       for (let i = 0; i < pinEls.length; i++) {
         for (let j = i + 1; j < pinEls.length; j++) {
-          if (Math.hypot(pinEls[i].x - pinEls[j].x, pinEls[i].y - pinEls[j].y) < r * 2.2) group[find(j)] = find(i);
+          if (Math.hypot(pinEls[i].x - pinEls[j].x, pinEls[i].y - pinEls[j].y) < r * 2.2) join(i, j);
         }
       }
-      const members = {};
-      pinEls.forEach((_, i) => { const g = find(i); (members[g] = members[g] || []).push(i); });
-      Object.keys(members).forEach((g) => {
-        const list = members[g];
-        const cx = list.reduce((n, i) => n + pinEls[i].x, 0) / list.length;
-        const cy = list.reduce((n, i) => n + pinEls[i].y, 0) / list.length;
-        list.forEach((i, k) => {
-          let { x, y } = pinEls[i];
-          if (list.length > 1) {
-            const angle = (k / list.length) * Math.PI * 2 - Math.PI / 2;
-            x = cx + Math.cos(angle) * r * 1.25;
-            y = cy + Math.sin(angle) * r * 1.25;
+
+      const layout = () => {
+        const members = {};
+        pinEls.forEach((_, i) => { const g = find(i); (members[g] = members[g] || []).push(i); });
+        return Object.keys(members).map((g) => {
+          const list = members[g];
+          const cx = list.reduce((n, i) => n + pinEls[i].x, 0) / list.length;
+          const cy = list.reduce((n, i) => n + pinEls[i].y, 0) / list.length;
+          if (list.length >= 4 && canZoom) return { list, cluster: true, dots: [{ x: cx, y: cy, rad: rc }] };
+          if (list.length === 1) return { list, cluster: false, dots: [{ i: list[0], x: cx, y: cy, rad: r }] };
+          /* The chord between two pins on the ring is 2R·sin(π/n), held a
+             little over one pin's width. */
+          const ring = Math.max(r * 1.25, (r * 1.15) / Math.sin(Math.PI / list.length));
+          return {
+            list,
+            cluster: false,
+            dots: list.map((i, k) => {
+              const angle = (k / list.length) * Math.PI * 2 - Math.PI / 2;
+              return { i, x: cx + Math.cos(angle) * ring, y: cy + Math.sin(angle) * ring, rad: r };
+            }),
+          };
+        });
+      };
+
+      let items = layout();
+      for (let pass = 0; pass < pinEls.length; pass++) {
+        let merged = false;
+        for (let a = 0; a < items.length && !merged; a++) {
+          for (let b = a + 1; b < items.length && !merged; b++) {
+            const touch = items[a].dots.some((p) => items[b].dots.some((q) => Math.hypot(p.x - q.x, p.y - q.y) < p.rad + q.rad + gap));
+            if (touch) { join(items[a].list[0], items[b].list[0]); merged = true; }
           }
-          const { hit, dot } = pinEls[i];
+        }
+        if (!merged) break;
+        items = layout();
+      }
+
+      clusters.textContent = "";
+      items.forEach((item) => {
+        if (item.cluster) {
+          item.list.forEach((i) => { pinEls[i].hitLink.setAttribute("visibility", "hidden"); pinEls[i].link.setAttribute("visibility", "hidden"); });
+          const [{ x, y }] = item.dots;
+          const g = svgEl("g", { class: "cd-map-cluster" });
+          const title = svgEl("title");
+          title.textContent = `${item.list.length} churches here. Select to zoom in.`;
+          g.appendChild(title);
+          g.appendChild(svgEl("circle", { cx: x.toFixed(3), cy: y.toFixed(3), r: String(rc) }));
+          const label = svgEl("text", { x: x.toFixed(3), y: y.toFixed(3), "font-size": String(unit * 12), "text-anchor": "middle", "dominant-baseline": "central" });
+          label.textContent = String(item.list.length);
+          g.appendChild(label);
+          g.addEventListener("click", () => {
+            moveTo(target(item.list.map((i) => pinEls[i].c)), true);
+            if (onZoom) onZoom(true);
+          });
+          clusters.appendChild(g);
+          return;
+        }
+        item.dots.forEach(({ i, x, y }) => {
+          const { hit, dot, hitLink, link } = pinEls[i];
+          hitLink.removeAttribute("visibility");
+          link.removeAttribute("visibility");
           [hit, dot].forEach((c) => {
             c.setAttribute("cx", x.toFixed(3));
             c.setAttribute("cy", y.toFixed(3));
@@ -720,20 +776,25 @@
           a.appendChild(dot);
           pins.appendChild(a);
 
-          pinEls.push({ x: p[0], y: p[1], hit, dot });
+          pinEls.push({ c, x: p[0], y: p[1], hit, dot, hitLink, link: a });
         });
       moveTo(target(list), animate);
+      if (onZoom) onZoom(false);
     };
 
     const refit = () => { if (frame.clientWidth) moveTo(target(shown), false); };
     const label = (text) => svg.setAttribute("aria-label", text);
 
-    return { show, refit, label };
+    /* Back out of a cluster to the view the filters chose. */
+    const reset = () => { moveTo(target(shown), true); if (onZoom) onZoom(false); };
+
+    return { show, refit, label, reset };
   };
 
   const mapFigure = $("[data-cd-map]");
   const mapFrame = $("[data-cd-map-frame]");
   const mapCaption = $("[data-cd-map-caption]");
+  const mapReset = $("[data-cd-map-reset]");
   const detailFigure = $("[data-cd-detail-map]");
   const detailFrame = $("[data-cd-detail-map-frame]");
 
@@ -742,7 +803,10 @@
     const placed = churches.filter(hasPlace);
     if (!mapData || !placed.length || loadFailed) { mapFigure.hidden = true; return; }
     mapFigure.hidden = false;
-    if (!directoryMap) directoryMap = makeMap(mapFrame, 40);
+    if (!directoryMap) {
+      directoryMap = makeMap(mapFrame, 40, (zoomed) => { if (mapReset) mapReset.hidden = !zoomed; });
+      if (mapReset) mapReset.addEventListener("click", () => directoryMap.reset());
+    }
 
     const onMap = lastFound.filter(hasPlace).length;
     const off = lastFound.length - onMap;
@@ -752,7 +816,10 @@
     let caption = onMap
       ? "Select a pin to open a church. Every church on the map is also in the list below."
       : "No church on the map matches these filters.";
-    if (off > 0) caption += ` ${off} more ${off === 1 ? "has" : "have"} no place to pin.`;
+    if (off > 0) caption += ` ${off} more ${off === 1 ? "is" : "are"} not on the map yet.`;
+    /* ODbL: the pins are OpenStreetMap data, and the credit has to be
+       visible wherever they are shown. */
+    caption += " Church locations © OpenStreetMap contributors.";
     if (mapCaption) mapCaption.textContent = caption;
     directoryMap.label(onMap ? `Map of the ${onMap} ${noun} listed below.` : "Map with no churches shown.");
     directoryMap.show(lastFound, animate);

@@ -11,7 +11,7 @@
 <meta property="og:description" content="A prototype church directory for Mere Orthodoxy readers. The churches in it were named by members and have not confirmed their listings." />
 <meta name="twitter:title" content="Church Directory (prototype)" />
 <meta name="twitter:description" content="A prototype church directory for Mere Orthodoxy readers. The churches in it were named by members and have not confirmed their listings." />
-<link rel="stylesheet" href="{{asset "css/church-directory.css"}}&amp;frv=church-directory-20261103" />
+<link rel="stylesheet" href="{{asset "css/church-directory.css"}}&amp;frv=church-directory-20261103b" />
 {{/contentFor}}
 {{!-- Church Directory prototype (Ian, 2026-11-02). For internal review
      only: there is no routes.yaml entry, so the page exists only where
@@ -28,10 +28,16 @@
      those things on every view, and it is the one piece of copy on the
      page that may not be softened.
 
-     THE MAP IS WIRED BUT EMPTY. It pins a listing by its lat and lon, and
-     these listings have none: the only place stored beside a church's
-     name is the member's own address, which is not the church's. The map
-     hides itself until listings carry coordinates of their own.
+     WHERE THE PINS COME FROM (Ian, 2026-11-03: "show the map"). The only
+     place stored beside a church's name is the member's own address, which
+     is not the church's, so it is never used as a location. Instead each
+     name was looked up on OpenStreetMap once, at build time, with the
+     member's state only as a search hint. A pin was kept only where OSM
+     tags exactly one place of worship by that name in that state, and four
+     matches whose names did not agree were thrown out by hand. That pins
+     46 of the 152 and gives those 46 a city and state; the rest stay in
+     the list with no pin. OSM's licence (ODbL) requires the credit in both
+     map captions. The page itself still fetches nothing from OSM.
 
      NO NETWORK BEYOND THIS SITE'S OWN ASSETS. Two fetches, both static
      files under /assets/data/: the listings and the map outlines.
@@ -137,6 +143,8 @@
               is still in the list; it is just not on the map. --}}
         <figure class="cd-map" data-cd-map hidden>
           <div class="cd-map-frame" data-cd-map-frame></div>
+          {{!-- Shown only after a cluster has zoomed the map in. --}}
+          <button type="button" class="cd-map-reset" data-cd-map-reset hidden>Show the whole map</button>
           <figcaption class="cd-map-caption" data-cd-map-caption></figcaption>
         </figure>
 
@@ -181,7 +189,7 @@
         </dl>
         <figure class="cd-map cd-map--detail" data-cd-detail-map hidden>
           <div class="cd-map-frame" data-cd-detail-map-frame></div>
-          <figcaption class="cd-map-caption">The pin marks the church's approximate location.</figcaption>
+          <figcaption class="cd-map-caption">The pin marks where this church appears on OpenStreetMap. Church locations © OpenStreetMap contributors.</figcaption>
         </figure>
 
         <div class="cd-claim-panel">
@@ -339,5 +347,5 @@
     </section>
   </div>
 
-  <script src="{{asset "js/page/church-directory.js"}}&amp;frv=church-directory-20261103"></script>
+  <script src="{{asset "js/page/church-directory.js"}}&amp;frv=church-directory-20261103b"></script>
 </main>
