@@ -312,6 +312,26 @@
   }
   const MAX = 70;
   const TIDY = (s) => s.replace(/[\s.,;:—–-]+$/u, "");
+
+  /* NO EM DASH IN THE OUTLINE (health check 2026-11-02, on the Migne Scripturae Sacrae Cursus: a chapter row read as
+     the English, an em dash, then the Latin capitals; house style has no em dash). The outline data joins an entry's
+     English to the Latin the volume prints with a spaced em dash (U+2014), and reader-core splits the row on it the
+     same way: English in the link, the capitals beside it. So the English half alone is parsed here for the label and
+     short title (the Latin's own section label leaked into the short title before), the tooltip joins the two halves
+     as two sentences, and any other spaced em dash left in a shown title becomes a full stop before a capital or a
+     number and a colon before anything else. Display only: the data, and the dash that other code splits on, stay as
+     they are. */
+  function bilingual(t) {
+    const s = String(t || ""), i = s.indexOf(" — ");
+    if (i < 1) return null;
+    const la = s.slice(i + 3).trim(), letters = la.replace(/[^A-Za-z]/g, "");
+    return letters && letters === letters.toUpperCase() ? { en: s.slice(0, i).trim(), la } : null;
+  }
+  const undash = (s) => String(s || "")
+    .replace(/([.?!]['’”)]*)\s+—\s+/gu, "$1 ")
+    .replace(/[\s,;:]*\s—\s+(?=['‘“(]?[\p{Lu}§\d])/gu, ". ")
+    .replace(/[\s,;:]*\s—\s+/gu, ": ");
+  const withEcho = (en, la) => undash(la ? `${en} — ${la}` : en);
   function trimWords(s, max) {
     if (s.length <= max) return { text: s, cut: false };
     let cut = s.slice(0, max + 1);
@@ -456,14 +476,21 @@
       while (stack.length && stack[stack.length - 1].depth >= depth) stack.pop();
       const parent = stack.length ? stack[stack.length - 1].idx : -1;
       stack.push({ depth, idx });
+      // The engine's tooltip is the entry's whole title; once this file has written its own (frTipShown), the
+      // engine's is the one it kept (frTitleRaw), unless the engine has since written a new one.
+      const attr = node.getAttribute("title");
+      if (attr && attr !== node.dataset.frTipShown) node.dataset.frTitleRaw = attr;
       if (nn.dataset.frTitleOriginal == null || nn.textContent !== nn.dataset.frTocShown) {
         nn.dataset.frTitleOriginal = nn.textContent;
-        node.dataset.frTitleFull = node.getAttribute("title") || nn.textContent;
+        node.dataset.frTitleFull = node.dataset.frTitleRaw || nn.textContent;
         delete nn.dataset.frTocShown;
       }
-      const full = node.dataset.frTitleFull || nn.dataset.frTitleOriginal;
-      ALL_TITLES.add(fold(full));
-      out.push({ node, nn, depth, parent, full, page: node.dataset.page, path: node.dataset.sourcePath || null });
+      const whole = node.dataset.frTitleFull || nn.dataset.frTitleOriginal;
+      const bi = bilingual(whole);
+      const full = bi ? bi.en : whole;
+      ALL_TITLES.add(fold(whole));
+      if (bi) { ALL_TITLES.add(fold(bi.en)); ALL_TITLES.add(fold(bi.la)); }
+      out.push({ node, nn, depth, parent, full, la: bi ? bi.la : "", page: node.dataset.page, path: node.dataset.sourcePath || null });
     });
     return out;
   }
@@ -575,7 +602,7 @@
           }
           return `${kw} ${num}`;
         }).join(". ");
-        const rest = unshout(clean(e.parsed.rest));
+        const rest = undash(unshout(clean(e.parsed.rest)));
         e.source = /\p{L}{2}/u.test(rest) ? rest : "";
         if (!e.source) e.cand = candidate(e);
       }
@@ -586,7 +613,7 @@
       const summaries = bare.length >= 3 && shortish.length >= bare.length * 0.6;
       for (const e of bare) {
         const c = e.cand;
-        if (c && (c.strong || (summaries && c.len <= 400))) e.source = unshout(clean(c.text));
+        if (c && (c.strong || (summaries && c.len <= 400))) e.source = undash(unshout(clean(c.text)));
         else if (!c) pending++;
       }
       for (const e of group) paint(e);
@@ -625,11 +652,17 @@
         nn.textContent = nn.dataset.frTitleOriginal;
         delete nn.dataset.frTocShown;
       }
+      tip(e.node, withEcho(e.full, e.la));
       return;
     }
     if (e.nn.textContent !== e.shown) e.nn.textContent = e.shown;
     e.nn.dataset.frTocShown = e.shown;
-    if (e.node.getAttribute("title") !== e.tip) e.node.setAttribute("title", e.tip);
+    tip(e.node, withEcho(e.tip, e.la));
+  }
+  function tip(node, t) {
+    if (!t) return;
+    if (node.getAttribute("title") !== t) node.setAttribute("title", t);
+    node.dataset.frTipShown = t;
   }
 
   /* Books printed as flat siblings of their sections (Boethius: "1
