@@ -3904,3 +3904,26 @@ html.g-mobile.mh-hide:not(.fr-bar-hidden) #app.faith-port-read-page.no-facs .ph.
   margin-top: 0;
   font-size: 14px;
 }
+
+/* Quote image size (faith-port-quote-card.js). Sits between the image and
+   Download PNG, in the preview's own 13px caption type. */
+.nb-image-preview .nb-image-size {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  font: 13px var(--font-body);
+  color: var(--muted);
+}
+.nb-image-preview .nb-image-size select {
+  min-height: 36px;
+  padding: 4px 8px;
+  font: 13px var(--font-body);
+  color: var(--fg);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+@media (pointer: coarse) {
+  .nb-image-preview .nb-image-size select { font-size: 16px; min-height: 44px; }
+}

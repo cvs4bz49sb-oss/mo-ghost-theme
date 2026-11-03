@@ -37,9 +37,26 @@
       '</svg>' +
       '<span>Save</span>' +
     '</button>';
+  // Share image (quote-card.js) sits beside Save on essays only. The Faith
+  // Received reader makes its own quote image in its own template.
+  const canShare = body.classList.contains("post-template") &&
+    !!window.MOQuoteCard && typeof window.MOQuoteCard.openDialog === "function";
+  if (canShare) {
+    tooltip.classList.add("has-share");
+    tooltip.insertAdjacentHTML("beforeend",
+      '<button type="button" class="commonplace-share-btn">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<rect x="3" y="4" width="18" height="16" rx="1.5"/>' +
+          '<path d="M3 16l5-5 4 4 3-3 6 6"/>' +
+          '<circle cx="16" cy="9" r="1.5"/>' +
+        '</svg>' +
+        '<span>Share image</span>' +
+      '</button>');
+  }
   document.body.appendChild(tooltip);
 
   const saveBtn = tooltip.querySelector(".commonplace-save-btn");
+  const shareBtn = tooltip.querySelector(".commonplace-share-btn");
   let currentText = "";
   let hiding = false;
 
@@ -63,6 +80,20 @@
     return "";
   }
 
+  // The card's byline. primary_author is the house account on most essays;
+  // the writers are the author- tags in the byline (post.hbs .meta-authors).
+  function getCardAuthor() {
+    const names = [...new Set([...document.querySelectorAll(
+      '.meta-authors [data-tag-slug^="author-"] .meta-author-name')]
+      .map((n) => (n.textContent || "").trim()).filter(Boolean))];
+    if (names.length) {
+      return names.length < 3 ? names.join(" and ")
+        : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+    }
+    const a = getSourceAuthor();
+    return a === "Mere Orthodoxy" ? "" : a;
+  }
+
   function getSourceUrl() {
     const canon = document.querySelector('link[rel="canonical"]');
     return canon ? canon.href : window.location.href;
@@ -81,8 +112,8 @@
     const scrollX = window.pageXOffset || window.scrollX || 0;
     const scrollY = window.pageYOffset || window.scrollY || 0;
 
-    const tooltipWidth = 90;
-    const tooltipHeight = 38;
+    const tooltipWidth = tooltip.offsetWidth || 90;
+    const tooltipHeight = tooltip.offsetHeight || 38;
 
     let top, left;
     const isMobile = window.innerWidth <= 960;
@@ -91,7 +122,8 @@
     left = Math.max(8, Math.min(left, document.documentElement.clientWidth - tooltipWidth - 8));
 
     if (isMobile) {
-      top = rect.bottom + scrollY + 8;
+      // Clear of the iOS selection handle that hangs below the last line.
+      top = rect.bottom + scrollY + 28;
     } else {
       top = rect.top + scrollY - tooltipHeight - 8;
     }
@@ -105,6 +137,11 @@
 
   function hideTooltip() {
     tooltip.classList.remove("visible");
+    // Park it at the corner: left where it was last shown, the wider
+    // Save + Share bar can hang past the edge after a phone turns and
+    // widen the page.
+    tooltip.style.left = "0px";
+    tooltip.style.top = "0px";
     currentText = "";
     hiding = false;
   }
@@ -153,6 +190,24 @@
       setTimeout(() => { if (hiding) hideTooltip(); }, 200);
     }
   });
+
+  // Share image handler
+  if (shareBtn) {
+    shareBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!currentText) return;
+      const quote = currentText;
+      hideTooltip();
+      window.MOQuoteCard.openDialog({
+        brand: "mo",
+        quote,
+        author: getCardAuthor(),
+        cite: getSourceTitle(),
+        url: getSourceUrl(),
+      });
+    });
+  }
 
   // Save handler
   saveBtn.addEventListener("click", (e) => {
