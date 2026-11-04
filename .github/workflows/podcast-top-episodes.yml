@@ -17,7 +17,21 @@ name: Podcast Top Episodes
 on:
   schedule:
     - cron: "17 */6 * * *"   # every 6 hours, at :17
-  workflow_dispatch: {}
+    # Daily, for the 7am Central morning numbers: by 09:23 UTC (3:23am
+    # Central) yesterday is over in every US zone, and GitHub's cron delay
+    # still leaves hours before the report reads the file.
+    - cron: "23 9 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Print the figures and publish nothing"
+        type: boolean
+        default: false
+      days:
+        description: "Finished days of per-day downloads to keep (1 to 60)"
+        type: string
+        default: "14"
+
 
 permissions:
   contents: write
@@ -37,6 +51,8 @@ jobs:
       - name: Build podcast data (top + scheduled)
         env:
           BUZZSPROUT_API_TOKEN: ${{ secrets.BUZZSPROUT_API_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+          DAILY_DAYS: ${{ inputs.days || '14' }}
         run: node scripts/build-top-episodes.mjs
       # Publishes to the `podcast-data` branch, NOT main.
       #
@@ -53,6 +69,7 @@ jobs:
       # mo-podcast-feed reads both files from raw.githubusercontent.com on
       # this branch. If you point it somewhere else, change it there too.
       - name: Publish podcast data to the data branch
+        if: ${{ !inputs.dry_run }}
         env:
           DATA_BRANCH: podcast-data
         run: |

@@ -14,7 +14,13 @@
  * GitHub raw (Fastly) and serves them as `topEpisodes` / `nextScheduled`.
  * See .github/workflows/podcast-top-episodes.yml.
  *
- * Env: BUZZSPROUT_API_TOKEN (required).
+ * podcast-totals.json also carries each show's downloads per day for the
+ * last DAILY_DAYS finished days (`daily`), read from Buzzsprout's
+ * /api/:podcast_id/downloads?date= stats endpoint. The morning numbers
+ * report reads yesterday's figure from there.
+ *
+ * Env: BUZZSPROUT_API_TOKEN (required). DAILY_DAYS (optional, 1 to 60,
+ * default 14). DRY_RUN=1 prints the daily figures and writes nothing.
  */
 import { writeFile, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
@@ -42,6 +48,12 @@ const SCHED_OUT = fileURLToPath(new URL("../assets/data/scheduled-episodes.json"
 // blocks Workers' egress but not GitHub's, so the numbers have to be
 // prebuilt here and read from GitHub raw.
 const TOTALS_OUT = fileURLToPath(new URL("../assets/data/podcast-totals.json", import.meta.url));
+
+// Finished days of per-day downloads kept per show. 14 covers yesterday, the
+// day before it (for the morning report's change) and a week of slack if a
+// run is missed. Three shows x 14 dates is 42 small requests a run.
+const DAILY_DAYS = Math.min(60, Math.max(1, Number(process.env.DAILY_DAYS) || 14));
+const DRY_RUN = process.env.DRY_RUN === "1" || process.env.DRY_RUN === "true";
 
 const token = process.env.BUZZSPROUT_API_TOKEN;
 if (!token) {
@@ -205,6 +217,55 @@ async function fetchShow(slug, podcastId) {
   return { top, scheduled: nextScheduled(list, now, slug, podcastId), totals };
 }
 
+// Calendar date (YYYY-MM-DD) in America/Chicago, n days before `now`.
+// Buzzsprout's stats take a podcast-local date. Mere O's shows are on US
+// time, so every date strictly before today in Chicago has finished in the
+// podcast's own zone by the time the daily 09:23 UTC run fires.
+function chicagoDate(now, n) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Chicago", year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(new Date(now - n * 864e5));
+}
+
+async function buzzGet(path) {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(`https://www.buzzsprout.com/api/${path}`, {
+      headers: {
+        Authorization: `Token token=${token}`,
+        "User-Agent": "MereOrthodoxy-TopEpisodes/1.0 (+https://mereorthodoxy.com)",
+        Accept: "application/json",
+      },
+    });
+    if (res.ok) return res.json();
+    if ((res.status === 429 || res.status >= 500) && attempt < 3) {
+      await res.body?.cancel();
+      await new Promise((r) => setTimeout(r, 2000 * 2 ** attempt));
+      continue;
+    }
+    throw new Error(`buzzsprout ${path.replace(/\?.*/, "")} ${res.status}`);
+  }
+}
+
+// Downloads per finished day, newest first. One request per date: the
+// endpoint takes a single date and lists only episodes downloaded that day
+// as [{ episode_id, total }], so the day's figure is the sum of `total`.
+async function fetchDaily(slug, podcastId) {
+  const now = Date.now();
+  let timezone = null;
+  try { timezone = (await buzzGet(`podcasts/${podcastId}`)).timezone || null; } catch { timezone = null; }
+  const days = [];
+  for (let n = 1; n <= DAILY_DAYS; n++) {
+    const date = chicagoDate(now, n);
+    const rows = await buzzGet(`${podcastId}/downloads?date=${date}`);
+    if (!Array.isArray(rows)) throw new Error(`${slug}: downloads for ${date} is not a list`);
+    if (rows.some((r) => typeof r?.total !== "number")) {
+      throw new Error(`${slug}: downloads for ${date} has a row with no numeric total`);
+    }
+    days.push({ date, downloads: rows.reduce((t, r) => t + r.total, 0), episodes: rows.length });
+  }
+  return { timezone, days };
+}
+
 const topOut = {};
 const schedOut = {};
 const totalsOut = { generated_at: new Date().toISOString(), shows: {} };
@@ -219,6 +280,29 @@ for (const [slug, podcastId] of Object.entries(TOTALS_ONLY)) {
   const { totals } = await fetchShow(slug, podcastId);
   totalsOut.shows[slug] = totals;
   console.log(`${slug}: ${totals.plays} plays across ${totals.episodes} episodes`);
+}
+
+// Per-day downloads. A failure here leaves that show's `daily` null with the
+// reason, rather than failing the run: Most Listened and the scheduled
+// episode feed the site and the digest, and must not wait on the stats API.
+for (const [slug, podcastId] of Object.entries({ ...SHOWS, ...TOTALS_ONLY })) {
+  try {
+    const { timezone, days } = await fetchDaily(slug, podcastId);
+    totalsOut.shows[slug].daily = days;
+    totalsOut.shows[slug].daily_timezone = timezone;
+    totalsOut.shows[slug].daily_error = null;
+    console.log(`${slug} daily (${timezone || "timezone unknown"}): ` +
+      days.map((d) => `${d.date}=${d.downloads}`).join(" "));
+  } catch (e) {
+    totalsOut.shows[slug].daily = null;
+    totalsOut.shows[slug].daily_error = String(e.message || e).slice(0, 200);
+    console.error(`${slug} daily downloads failed: ${e.message || e}`);
+  }
+}
+
+if (DRY_RUN) {
+  console.log("DRY_RUN: nothing written.");
+  process.exit(0);
 }
 
 await mkdir(dirname(TOP_OUT), { recursive: true });
