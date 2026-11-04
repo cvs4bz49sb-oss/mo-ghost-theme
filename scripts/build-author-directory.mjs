@@ -49,7 +49,7 @@ const SHELVES = ["pl", "gf", "po", "ed", "md", "rc", "lu", "rf", "hl"];
 
 // The same name rules author-address.js runs in the browser.
 const K = await import(new URL("../assets/js/port/author-address.js", import.meta.url)).then(() => globalThis.MOAuthorAddress);
-const { fold, plain, words, years, slug } = K;
+const { fold, plain, words, years, slug, unnamed, bare, numerals } = K;
 
 const FOLDS = { "Athanasius": "Athanasius of Alexandria", "Bede": "Bede the Venerable" };
 const ALIASES = { ...FOLDS, ...(await j(`${B}/v1/author_aliases.json`).catch(() => ({}))) };
@@ -118,6 +118,9 @@ for (const w of works) {
   if (!room || PLACEHOLDER.test(w.name)) continue;
   for (const v of w.variants) {
     if (PLACEHOLDER.test(v)) continue;
+    // A designation ("Unknown author (Jerome of Stridon?)") is shared by many works: the room
+    // holding one of them does not answer to it, unless the room bears that very name.
+    if (unnamed(v) && fold(v) !== fold(roomById.get(room).a)) continue;
     if (!votes.has(v)) votes.set(v, new Map());
     const m = votes.get(v);
     m.set(room, (m.get(room) || 0) + 1);
@@ -140,9 +143,19 @@ for (const r of rooms) {
   if (!roomsByCore.has(c)) roomsByCore.set(c, []);
   roomsByCore.get(c).push(r);
 }
+// Ian, 2026-10-23: "for migne we name pelagius but clicking we get to
+// uncertain author." A designation matches a room under its whole name
+// only, never by its plain form ("Uncertain author (Bede?)" is not the room
+// "Uncertain author"); a match by words agrees on a regnal number ("Pelagius I",
+// the pope, is not Pelagius); a name with no word of two letters ("A. B.")
+// matches no room by its words.
 const roomByPlain = (name) => {
-  let cands = roomsByWords.get(words(plain(name))) || [];
-  if (!cands.length) cands = roomsByCore.get(core(plain(name))) || roomsByCore.get(core(name)) || [];
+  const nobody = unnamed(name), num = numerals(plain(name));
+  const fit = (rs) => rs.filter((r) => numerals(r.a) === num && (!nobody || fold(r.a) === fold(name)));
+  const w = words(nobody ? name : plain(name));
+  if (!w) return null;
+  let cands = fit(roomsByWords.get(w) || []);
+  if (!cands.length && !nobody) cands = fit(roomsByCore.get(core(plain(name))) || roomsByCore.get(core(name)) || []);
   if (!cands.length) return null;
   const ys = years(name);
   // One person can have a room on two shelves (Chrysostom: Greek and
@@ -244,17 +257,22 @@ for (const [key, p] of people) if (p.base && !people.has(p.base)) put(fold(p.bas
 // here, so a folded link (no commas, no dates left to read) still lands.
 const roomFold = new Map();
 for (const r of rooms) { roomFold.set(fold(r.s), r.id); roomFold.set(fold(r.a), r.id); }
-const lookup = (n) => names[fold(n)] || roomFold.get(fold(n)) || roomFold.get(fold(plain(n))) || (roomByPlain(n) || {}).id || "";
+// A bare designation reaches no room, and any other designation a room only under its whole name.
+const lookup = (n) => {
+  if (names[fold(n)]) return names[fold(n)];
+  if (bare(n)) return "";
+  return roomFold.get(fold(n)) || (unnamed(n) ? "" : roomFold.get(fold(plain(n)))) || (roomByPlain(n) || {}).id || "";
+};
 for (const w of works) {
   const t = lookup(w.name);
-  if (t) for (const v of w.variants) if (!PLACEHOLDER.test(v)) { put(fold(v), t); put(fold(plain(v)), t); }
+  if (t) for (const v of w.variants) if (!PLACEHOLDER.test(v) && !unnamed(v)) { put(fold(v), t); put(fold(plain(v)), t); }
 }
 const local = JSON.parse(readFileSync(new URL("../assets/data/faith-received/english-author-aliases.json", import.meta.url), "utf8")).aliases || {};
 for (const [k, v] of [...Object.entries(ALIASES), ...Object.entries(local)]) {
   const t = lookup(k) || lookup(v);
   if (t) { put(fold(k), t); put(fold(v), t); }
 }
-for (const r of rooms) if (!/-anthology$/.test(r.s)) put(fold(r.a), r.id);
+for (const r of rooms) if (!/-anthology$/.test(r.s) && !bare(r.a)) put(fold(r.a), r.id);
 
 mkdirSync(OUT, { recursive: true });
 const date = new Date().toISOString().slice(0, 10);

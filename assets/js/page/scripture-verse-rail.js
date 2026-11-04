@@ -462,7 +462,7 @@
           const g = gist(x.g && !(x.commentary && x.how === "exegesis") ? x.g : "");
           return `<li class="vr-row vr-wit"${j >= SHOW ? " hidden" : ""}><p class="vr-line"><a class="vr-a" href="${esc(cfg.read(x.w, x.p))}">${esc(properName(x.a) || x.w)}</a>${years(x) ? ` <span class="vr-y">${esc(years(x))}</span>` : ""}`
             + `<span class="vr-what"><cite>${esc(x.t || "")}</cite>, <a href="${esc(cfg.read(x.w, x.p))}">p. ${esc(x.p)}</a>${DOT}${esc(VERB[x.how] || "cites it")}</span>`
-            + `${g ? `<button type="button" class="vr-gbtn" aria-expanded="false" aria-label="What the page says">gist</button>` : ""}</p>${g ? `<p class="vr-g" hidden>${esc(g)}</p>` : ""}</li>`;
+            + `${g ? `<button type="button" class="vr-gbtn" aria-expanded="false" aria-label="What the page says">gist</button>` : ""}${pvBtn(x.w, x.p, x.t)}</p>${g ? `<p class="vr-g" hidden>${esc(g)}</p>` : ""}<div class="vr-wpvw" hidden></div></li>`;
         }).join("");
         const rest = Math.max(0, xs.length - SHOW), more = Number(e.more || 0);
         return `<li class="vr-era"><h5>${esc(label)}<small>${span ? `${esc(span)}${DOT}` : ""}${fmt(e.works)} ${e.works === 1 ? "work" : "works"}</small></h5><ul class="vr-rows">${rows}</ul>`
@@ -496,8 +496,8 @@
       const kinds = KIND_ORDER.filter((k) => g.kinds[k]).map((k) => `${KIND[k]} ${fmt(g.kinds[k])}`).join(DOT);
       const first = g.rows[0], trad = [...g.trads].map((t) => TRAD_NAME[t]).filter(Boolean)[0] || "";
       const open = cfg.open && cfg.open.has(g.a);
-      const pages = [...works.entries()].map(([w, x]) => `<li class="vr-work"><cite>${esc(x.t || w)}</cite> <span class="vr-pp">${x.rows.slice(0, 12).map((r) => `<a href="${esc(cfg.read(w, r.p))}" title="${esc(KIND[r.how] || "")}">${esc(r.p)}</a>`).join(" ")}${x.rows.length > 12 ? ` <span class="vr-k">+${x.rows.length - 12}</span>` : ""}</span>`
-        + `${x.rows.some((r) => r.g) ? `<ul class="vr-gl">${x.rows.filter((r) => r.g).slice(0, 6).map((r) => `<li><a href="${esc(cfg.read(w, r.p))}">p. ${esc(r.p)}</a> ${esc(gist(r.g))}</li>`).join("")}</ul>` : ""}</li>`).join("");
+      const pages = [...works.entries()].map(([w, x]) => `<li class="vr-work"><cite>${esc(x.t || w)}</cite> <span class="vr-pp">${x.rows.slice(0, 12).map((r) => `<a href="${esc(cfg.read(w, r.p))}" title="${esc(KIND[r.how] || "")}">${esc(r.p)}</a>`).join(" ")}${x.rows.length > 12 ? ` <span class="vr-k">+${x.rows.length - 12}</span>` : ""}</span>${pvBtn(w, x.rows[0].p, x.t || w)}`
+        + `${x.rows.some((r) => r.g) ? `<ul class="vr-gl">${x.rows.filter((r) => r.g).slice(0, 6).map((r) => `<li><a href="${esc(cfg.read(w, r.p))}">p. ${esc(r.p)}</a> ${esc(gist(r.g))}</li>`).join("")}</ul>` : ""}<div class="vr-wpvw" hidden></div></li>`).join("");
       return `<li class="vr-row vr-au${open ? " is-open" : ""}" data-author="${esc(g.a)}"><button type="button" class="vr-aubtn" aria-expanded="${!!open}"><span class="vr-a">${esc(properName(g.a))}</span>`
         + `<span class="vr-meta">${[years(first), trad].filter(Boolean).map(esc).join(DOT)}</span><span class="vr-n">${fmt(g.rows.length)} ${g.rows.length === 1 ? "page" : "pages"}${kinds ? `${DOT}${kinds}` : ""}</span></button>`
         + `<ul class="vr-works"${open ? "" : " hidden"}>${pages}</ul></li>`;
@@ -510,10 +510,31 @@
       + `${!shown.length ? '<p class="vr-empty">No citation of that kind in that tradition.</p>' : ""}</div>`;
   }
 
-  // the rail's shared behaviour inside a rendered block: gist toggles, Show more, author rows; chips and "all in Citations" are the host's
+  /* READ IN PLACE (10-28, owner: "allow preview of citations/reception so a user can read inline"): a witness in the Reception view and
+   * a work in the Citations view open their page under the row, English with the source a press away, earlier and later pages, the way
+   * the commentaries' directory does (the pane's page reader, window.FRCommentaryText; where it is absent the page link stays the way) */
+  function pvBtn(w, p, t) {
+    if (p == null || p === "") return "";
+    return `<button type="button" class="vr-gbtn vr-wpv" data-vr-wpv="${esc(w)}|${esc(p)}" aria-expanded="false" aria-label="${esc(`Preview ${t || w}, page ${p}`)}">Preview</button>`;
+  }
+  function wirePreview(b) {
+    const li = b.closest("li"), box = li && li.querySelector(":scope > .vr-wpvw"); if (!box) return;
+    const open = b.getAttribute("aria-expanded") !== "true";
+    b.setAttribute("aria-expanded", String(open)); b.textContent = open ? "Close preview" : "Preview"; box.hidden = !open;
+    if (!open) { box.innerHTML = ""; box.classList.remove("pw"); return; }
+    const [slug, p] = b.dataset.vrWpv.split("|"), T = root.FRCommentaryText;
+    box.innerHTML = '<p class="vr-pv-wait" role="status">Opening the page…</p>';
+    (T && T.fill ? T.fill(box, { slug, page: p }).catch(() => false) : Promise.resolve(false)).then((ok) => {
+      if (!ok && box.isConnected) { box.classList.remove("pw"); box.innerHTML = '<p class="vr-empty">This page cannot be shown here: the page number opens it in the reader.</p>'; }
+    });
+  }
+  // the rail's shared behaviour inside a rendered block: gist toggles, Show more, author rows, Preview in place; chips and "all in
+  // Citations" are the host's
   function wire(host, on) {
     if (host.dataset.vrWired) return; host.dataset.vrWired = "1";
     host.addEventListener("click", (e) => {
+      const wp = e.target.closest(".vr-wpv");
+      if (wp) { e.preventDefault(); wirePreview(wp); return; }
       const g = e.target.closest(".vr-gbtn");
       if (g) { const p = g.closest("li").querySelector(".vr-g"), open = g.getAttribute("aria-expanded") !== "true"; g.setAttribute("aria-expanded", String(open)); if (p) p.hidden = !open; return; }
       const more = e.target.closest(".vr-more");

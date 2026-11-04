@@ -1501,6 +1501,20 @@ function frResolveSourceHeading(position){
   const text=row=>frSourceHeadingFold(row.querySelector('.hen')?.textContent||row.querySelector('.hla')?.textContent||row.textContent);
   return rows.find(row=>text(row)===wanted)||rows.find(row=>text(row).includes(wanted)&&wanted.length>=1)||(rows.length===1?rows[0]:null)||null;
 }
+// A PAGE THAT OPENS WITH A HEADING LANDS ON THE HEADING (10-28, reader report on Polanus, Syntagma I ch. XIX "not set in a heading
+// box"): b<page>-0 is the page's first TEXT row and heading rows carry no id, so a contents click or ?p= arrival put the row under
+// the heading at the masthead line and the chapter's heading box sat just out of view. Walk back over the heading rows directly
+// above it in the same folio and land on the first of them.
+function frPageOpeningHead(row,id){
+  if(frReaderBlockReference(id)?.index!=='0')return null;
+  let first=null;
+  for(let node=row.previousElementSibling;node;node=node.previousElementSibling){
+    if(!node.classList?.contains('row'))continue;
+    if(!node.classList.contains('rhead'))break;
+    if(node.getClientRects().length)first=node;
+  }
+  return first;
+}
 function frResolveReaderAnchor(position){
   if(position.sourcePath)return frResolveSourceHeading(position);
   if(position.at&&position.page!=null&&window.__readerBuilt){const h=frHeadingIn(frFolioOf(position.page),position.at);if(h&&h.isConnected&&h.getClientRects().length)return h;}
@@ -1509,7 +1523,7 @@ function frResolveReaderAnchor(position){
   const visible=node=>{if(node?.closest?.('.frontmatter'))document.getElementById('app')?.classList.add('show-fm');return node?.isConnected&&node.getClientRects().length?node:null;};
   // A search occurrence is temporary UI; keep its canonical body ID as the saved location.
   if(position.focusId)return visible(document.getElementById(position.focusId));
-  const exact=visible(document.getElementById(position.id));if(exact)return exact;
+  const exact=visible(document.getElementById(position.id));if(exact)return frPageOpeningHead(exact,position.id)||exact;
   const block=frReaderBlockReference(position.id);
   if(!block||block.index!=='0'||!window.__readerBuilt)return null;
   return Array.from(document.querySelectorAll('#reading .pganchor')).filter(node=>String(node.dataset.page)===block.page).map(visible).find(Boolean)
@@ -1674,6 +1688,16 @@ function jump(p,ttl){
 // then the heading rows, then the rows' opening words, scored by the title's words.
 function frHeadingIn(t,ttl){
   if(!t||!ttl)return null;
+  // A CHAPTER BY ITS NUMBER (2026-10-31, owner on Hebrews 12: "i click hebrews 12, and cocejius goes to the middle"): ?at=ch:12 from
+  // the Scripture pages' chapter links lands on the heading row that prints chapter 12 ("CHAP. XII.", "CAPUT XII.", "Chapter 12", the
+  // old IIII for four), its number matched whole, so chapter XI never takes XII's link; none on the page, the page's top as before
+  {const cm=/^ch:(\d{1,3})$/.exec(String(ttl).trim());
+    if(cm){const n=+cm[1];let r="",x=n;for(const [v,s] of [[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]])while(x>=v){r+=s;x-=v;}
+      const nums=[...new Set([String(n),r,r.replace(/IV/g,"IIII").replace(/IX/g,"VIIII")])];
+      const rx=new RegExp("^\\W*(?:chap(?:ter|itre)?|cap(?:ut|itulum)?|kap(?:itel)?)\\.?\\s+(?:"+nums.join("|")+")(?![A-Za-z0-9])","i");
+      // an in-flow head (inside a row of running text, as on an English-only TEI page drawn as one row) is the place itself, not its row
+      for(const h of t.querySelectorAll(".csub")){if(!h.getClientRects().length)continue;if(rx.test((h.textContent||"").trim()))return h.classList.contains("inflow")?h:(h.closest(".row")||h);}
+      return null;}}
   const exact=window.FRReaderNavigation?.exactHeading(DATA,t,ttl)||(/^pld-/.test(DATA?.slug||'')?window.FRPldReading?.renderedHeading(t,ttl):null);
   if(exact)return exact.classList?.contains('reader-inline-target')?exact:(exact.closest(".row")||exact);
   {const _n=s=>String(s||"").toLowerCase().replace(/<[^>]+>/g,"").replace(/[^a-z0-9]+/g," ").trim();
@@ -1756,6 +1780,11 @@ function frShelfVolumeHref(se){
   return '/?shelf='+encodeURIComponent(shelf)+'&by=volume&vol='+encodeURIComponent(String(DATA.volume).trim())+'#shelfworks';
 }
 function seriesOf(v){const m=/^\s*(PL|PG|PO)(?:\s+Tome)?\s*(\d+)/i.exec(String(v||''));if(!m)return null;const k=m[1].toUpperCase();return {key:k,vol:m[2],...SERIES[k],label:SERIES[k].name+' ('+k+') '+m[2]};}
+// A PAGE'S PRINTED NUMBER (2026-10-25): a book whose paginations restart gives the k-th repeat of a number the id 100000*k+n
+// (loadEeboCanon); page_labels keeps the printed number, said here with its pagination. Other pages: "p. n" as before.
+function pageSay(n){const L=DATA&&DATA.page_labels&&DATA.page_labels[n];if(!L)return "p. "+n;
+  const k=Number(L.k)||2,o=(k%10===1&&k%100!==11)?"st":(k%10===2&&k%100!==12)?"nd":(k%10===3&&k%100!==13)?"rd":"th";
+  return "p. "+L.n+" ("+k+o+" pagination)";}
 function locOf(n){
   if(typeof INDEX_PAGES!=='undefined'&&(INDEX_PAGES?.has(n)||INDEX_PAGES?.has(String(n))))return 'Index · '+(DATA?.has_pages?'p. ':'§ ')+n;
   if(n==='editorial')return 'Editorial notes';
@@ -1778,7 +1807,7 @@ function locOf(n){
     _structSorted=_structSorted.filter(e=>!/^(volume|volumen|tomus|tome|band|opera|liber)[\s.]*[ivxlcd\d]*[\s.]*$/i.test(String(e.title||"").trim()));}
   let node=null;for(const s of _structSorted){if(s.page<=n)node=s;else break;}
   if(!node&&!isFinite(+n))node=_structSorted[0]||null;   // roman-paged front matter: never "§ NaN"
-  return (node&&spineLoc(node.title))||(isFinite(+n)?("§ "+n):"");
+  return (node&&spineLoc(node.title))||(isFinite(+n)?("§ "+(DATA&&DATA.page_labels&&DATA.page_labels[n]?DATA.page_labels[n].n:n)):"");
 }
 // ---- About: orient ANY reader — WHAT this work is (blurb) + WHO wrote it (author bio). Two small
 // Blob artifacts (v1/blurbs.json keyed by slug, v1/authors.json keyed by author) fetched once. ----
@@ -2576,7 +2605,7 @@ function build(){
         :`<span class="ic">❧</span><span class="lab"><b>Front matter</b> — ${FM_N} preliminary ${FM_N>1?"leaves":"leaf"} before the title page <span style="opacity:.7">· scan notice · library marks · blank leaves</span></span><span class="do"></span>`;
       t.onclick=()=>app.classList.toggle("show-fm");R.appendChild(t);}
     const fm=el("div","fmark"+(isFront?" frontmatter":"")+(isTitle?" titlepage":""));
-    const _fmlab=isTitle?"title page":(pg.title?esc(enHalf(pg.title)):((SECMAP&&SECMAP[pg.n])?esc(enHalf(SECMAP[pg.n]).slice(0,80)):(DATA.has_pages?`scan ${pg.n} of ${DATA.n_pages}`:`section ${pg.n}`)));
+    const _fmlab=isTitle?"title page":(pg.title?esc(enHalf(pg.title)):((SECMAP&&SECMAP[pg.n])?esc(enHalf(SECMAP[pg.n]).slice(0,80)):(DATA.has_pages?`scan ${pg.n} of ${DATA.n_pages}`:(DATA.page_labels&&DATA.page_labels[pg.n]?esc(pageSay(pg.n)):`section ${pg.n}`))));
     fm.innerHTML=`<span class="ff" role="button" tabindex="0">${esc(locOf(pg.n))}</span><span class="fr"></span><span class="fm">${_fmlab}</span>`;
     // researcher affordance: clicking the folio pill copies a full citation + deep link
     {const ff=fm.querySelector(".ff");ff.title="Click to copy the citation for this page";
@@ -2584,6 +2613,7 @@ function build(){
        url=location.origin+"/the-faith-received/read/?w="+encodeURIComponent(DATA.slug||"")+(DATA.pld_source_view?'&pldpart='+DATA.pld_source_view.id:'')+"#b"+pg.n+"-0",
        // the academic note (read-tools.js __frCite, cite-core.js) once it has loaded; the older line until then
        cite=(window.__frCite&&window.__frCite(pg.n,url,"en"))||([a,[DATA.title,seriesOf(DATA.volume)?.label||DATA.volume].filter(Boolean).join(", "),locOf(pg.n)].filter(Boolean).join(", ")+" — "+url);
+       if(DATA.page_labels&&DATA.page_labels[pg.n])cite=cite.split("p. "+pg.n).join(pageSay(pg.n));
        navigator.clipboard.writeText(cite).then(()=>{const old=ff.textContent;ff.textContent="✓ copied";
          setTimeout(()=>{ff.textContent=old;},1200);}).catch(()=>{});};}
     R.appendChild(fm);
@@ -2922,7 +2952,7 @@ function build(){
     // WHO wrote it (owner 2026-10-01 "the commentary label is just wrong"): p@resp, else the work's meta.apparatus.by[type]
     // (De Anima: Hugh Cavellus, whose own preface claims the scholia, the citations and the commentary), else the edition's editors
     const _apxT=_rnd==="apparatus"?(e.getAttribute("type")||""):"",_apxL=({summary:"Scholium",commentary:"Commentary",sources:"Sources",source:"Sources"})[_apxT]||"Editors’ note",_apxB=_rnd==="apparatus"?apxBy(e,_apxT):"";
-    const cls=(_rnd==="caps")?' class="caps"':(_rnd==="editorial")?' class="editorial"':(_rnd==="apparatus")?` class="apx apx-${esc(_apxT)}" data-apx="${_apxL}" data-by="${esc(_apxB)}" title="${_apxL} (${esc(_apxB)}, not the author’s own text)"`:"";   // WA Einleitung / editor lines (2026-09-01): set petit like the edition
+    const cls=(_rnd==="caps")?' class="caps"':(_rnd==="annot")?' class="eannot"':(_rnd==="editorial")?' class="editorial"':(_rnd==="apparatus")?` class="apx apx-${esc(_apxT)}" data-apx="${_apxL}" data-by="${esc(_apxB)}" title="${_apxL} (${esc(_apxB)}, not the author’s own text)"`:"";   // WA Einleitung / editor lines (2026-09-01): set petit like the edition
     let inner=pre+teiInline(e);
     // PILCROW BREAKS (owner 2026-08-30, Ockham/Biel/Lefèvre incunable-style prints): a ¶ inside running
     // text marks the start of a new paragraph in the print -- break there, keep the mark as a muted lead
@@ -3059,10 +3089,10 @@ function build(){
     // get a section (the scan stays visible) — every DATA.pages entry must produce a folio.
     if(DATA.has_pages===false&&!isFront&&!isTitle&&!laEls.length&&!enEls.length&&!DATA.pld_editorial?.[key]?.length)return;
     const fm=el("div","fmark"+(isFront?" frontmatter":"")+(isTitle?" titlepage":""));
-    fm.innerHTML=`<span class="ff" role="button" tabindex="0">${esc(locOf(pg.n))}</span><span class="fr"></span><span class="fm">${isTitle?"title page":"p. "+pg.n}</span>`;
+    fm.innerHTML=`<span class="ff" role="button" tabindex="0">${esc(locOf(pg.n))}</span><span class="fr"></span><span class="fm">${isTitle?"title page":esc(pageSay(pg.n))}</span>`;
     R.appendChild(fm);
     const sec=el("section","folio"+(isFront?" frontmatter":"")+(isTitle?" titlepage":""));sec.dataset.idx=pi;sec.dataset.page=pg.n;
-    if(DATA.pld_source_view?.notes){const label=el("p","pld-note-label");label.textContent=DATA.pld_source_view.hasEnglish?"Editorial notes from the source edition, with their English translation.":"Editorial notes from the source edition, shown in their original language.";sec.appendChild(label);}
+    if(DATA.pg_source==="grc"&&window.__pgFillLa&&window.__pgFillLa.has(+pg.n)){const cap=el("p","pld-note-label");cap.textContent="The library’s text has no Greek for this page. The source column shows Migne’s Latin.";sec.appendChild(cap);}if(DATA.pld_source_view?.notes){const label=el("p","pld-note-label");label.textContent=DATA.pld_source_view.hasEnglish?"Editorial notes from the source edition, with their English translation.":"Editorial notes from the source edition, shown in their original language.";sec.appendChild(label);}
     const enQ=teiKids(enEls),notesLA=[],notesEN=[];
     // SECTION-SYNC pairing (owner 2026-08-11 'all deadspace at the bottom'): heads are the
     // only hard sync points — everything between renders as TWO CONTINUOUS FACING COLUMNS,
@@ -3833,7 +3863,7 @@ function build(){
       if(!pw||!cw||!pw.classList.contains("stkwrap")||!cw.classList.contains("stkwrap")){prev=cur;continue;}
       const mk=cls=>{const s=document.createElement("span");s.className="pganchor "+cls;
         s.dataset.idx=cur.dataset.idx;s.dataset.page=cur.dataset.page;
-        s.textContent="p. "+cur.dataset.page;s.title="page "+cur.dataset.page;return s;};
+        s.textContent=pageSay(cur.dataset.page);s.title="page "+cur.dataset.page;return s;};
       const [pl,pe]=pw.children,[cl,ce]=cw.children;
       if(!pl||!pe||!cl||!ce){prev=cur;continue;}
       pl.appendChild(mk("an-la"));while(cl.firstChild)pl.appendChild(cl.firstChild);
@@ -3864,7 +3894,7 @@ function build(){
          &&!cr.classList.contains("rhead")&&!pr.classList.contains("rhead")
          &&!pr.querySelector(".sp")&&!cr.querySelector(".sp")){
         const mk=cls=>{const s=document.createElement("span");s.className="pganchor "+cls;
-          s.dataset.idx=cur.dataset.idx;s.dataset.page=cur.dataset.page;s.textContent="p. "+cur.dataset.page;return s;};
+          s.dataset.idx=cur.dataset.idx;s.dataset.page=cur.dataset.page;s.textContent=pageSay(cur.dataset.page);return s;};
         ["la","en"].forEach(ln=>{
           const a=pr.querySelector("."+ln),b=cr.querySelector("."+ln);
           if(a&&b){
@@ -7313,6 +7343,9 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
                   const aligned=_vSplit
                     ?window.FRPgParallel.alignOpening(_vNoTail(_healGrc(sf.grc)),_vSimple?lt.slice(0,_vLt):_PL.main.join(" "),_vSimple?_enAll.slice(0,_vEt):_PE.main.join(" "),{grc:_gP,la:_PL.main,en:_PE.main,byCol:_byCol})
                     :window.FRPgParallel.alignOpening(_healGrc(sf.grc),lt,_enAll,{grc:(sf.grcParas||[]).map(_healGrc),la:_laP,en:_enParas,byCol:_byCol});
+                  /* LONG UNPAIRED PLATES (report #37, owner 10-29 "fix 37"): when an opening has no pairing basis and Greek, Latin and English are each
+                     2,000+ characters, all three are cut into the same number of sentence-bounded pieces (about 1,600 characters) and paired in order */
+                  if(aligned.basis==="printed-opening"){const _wl=x=>String(x||"").replace(/[\u0002\u0003]/g,"").length,_ks=(t,k)=>{const s=_splitSents(String(t||""));if(s.length<k)return null;const tot=s.reduce((a,x)=>a+x.length,0),per=tot/k,out=[];let cur="",acc=0;for(const sn of s){cur=cur?cur+" "+sn:sn;acc+=sn.length;if(acc>=per*(out.length+1)&&out.length<k-1){out.push(cur);cur="";}}if(cur)out.push(cur);while(out.length<k)out.push("");return out;};const _R2=[];for(const r of aligned.rows){const lg=_wl(r.grc),ll=_wl(r.la),le=_wl(r.en);if(lg>=2000&&ll>=2000&&le>=2000){const k=Math.ceil(Math.max(lg,ll,le)/1600),G=_ks(r.grc,k),L=_ks(r.la,k),E=_ks(r.en,k);if(G&&L&&E){for(let i=0;i<k;i++)_R2.push({grc:G[i],la:L[i],en:E[i]});continue;}}_R2.push(r);}if(_R2.length>aligned.rows.length){aligned.rows=_R2;aligned.basis="printed-opening-wallsplit";}}
                   if(_vSplit&&aligned.basis!=="column-paragraphs"){   // the column basis pairs whole columns, the block included
                     const _fold=list=>{const o=[];let pend="";for(const t of list){const v=String(t||"").trim();if(!v)continue;if(/^\u0002[^\u0003]*\u0003$/.test(v)){pend+=v+" ";continue;}o.push((pend+v).trim());pend="";}if(pend.trim())o.push(pend.trim());return o;};
                     // WHERE THE PAGE PRINTS IT (owner 2026-10-11, "fix all of these"): a version printed mid-page -- the page's own text resumes
@@ -7419,8 +7452,8 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
             else if(gl>=40)_pvFill[n]=[g4];
             continue;}
           if(gl>=600&&gl>=0.25*ll)_pvFill[n]=[g4];
-          else if(op&&(op.laParas||[]).length)_pvFill[n]=op.laParas.slice();
-          else if(ll>=200)_pvFill[n]=_chunkText(l4,700);
+          else if(op&&(op.laParas||[]).length){_pvFill[n]=op.laParas.slice();(window.__pgFillLa=window.__pgFillLa||new Set()).add(n);}
+          else if(ll>=200){_pvFill[n]=_chunkText(l4,700);(window.__pgFillLa=window.__pgFillLa||new Set()).add(n);}
           else if(gl>=40)_pvFill[n]=[g4];}
       }
     }catch(e){window.__pvFillErr=String(e&&e.stack||e).slice(0,300);}
@@ -8095,6 +8128,17 @@ async function loadEeboCanon(ws){
     fetch(BLOB+"/eebo/"+encodeURIComponent(id)+".json.gz").then(async r=>{if(!r.ok)throw new Error("eebo "+r.status);return JSON.parse(await gunz(r));}),
     fetch(BLOB+"/eebo_modern/"+encodeURIComponent(id)+".json.gz").then(async r=>r.ok?JSON.parse(await gunz(r)):null).catch(()=>null)]);
   const M=(mod&&mod.m)||null;
+  /* NOTES THAT ARE THE BOOK (2026-10-31, owner: "poole annotations have them all in the margin which makes it impossible to read"):
+     Poole's Annotations upon the Holy Bible are set in this text as notes on the verses, the verses being the scaffold: his two
+     volumes hold 2.8 and 5.3 times more words in their notes than in their running text, every other EEBO commentary 0.31 or less.
+     As margin glosses the commentary stood in a narrow clipped column beside a bare Bible. A book whose notes outweigh its running
+     text sets each note under the paragraph it belongs to, full width, lettered a, b, c ..., the letter left where the note stood. */
+  const NOTES_BELOW=(()=>{let nt=0,all=0;const rx=/<span class="note">([\s\S]*?)<\/span>/g;
+    (function walk(ns){(ns||[]).forEach(nd=>{const h=String(nd.html||"");all+=h.replace(/<[^>]+>/g,"").length;rx.lastIndex=0;let m;
+      while((m=rx.exec(h)))nt+=m[1].replace(/<[^>]+>/g,"").length;walk(nd.kids);});})(d.toc);
+    return nt>0&&nt>all-nt;})();
+  // _belowOn: only while emitPara fills a paragraph
+  let _below=[],_belowOn=false;const _mark=k=>k<26?String.fromCharCode(97+k):String(k+1);
   const mk=()=>{const D2=document.implementation.createDocument(null,"TEI",null);
     const tx=D2.createElement("text");D2.documentElement.appendChild(tx);return [D2,tx];};
   const [laD,laB]=mk(),[enD,enB]=mk();
@@ -8102,9 +8146,23 @@ async function loadEeboCanon(ws){
   const sourceOutline=[],sourceLabelNodes=new Map();
   let _sourceRegion="body",_sourcePath="";
   const sourceBlock=e=>{e.setAttribute("data-source-region",_sourceRegion);e.setAttribute("data-source-path",_sourcePath);return e;};
-  const addPb=n=>{if(!n||seen.has(n))return;seen.add(n);pages.push(n);
-    const pb=enD.createElement("pb");pb.setAttribute("n",String(n));enB.appendChild(pb);
-    const pb2=laD.createElement("pb");pb2.setAttribute("n",String(n));laB.appendChild(pb2);};
+  // EVERY PRINTED PAGE IS A PAGE (2026-10-25, owner: books whose paginations restart ran together). A repeated page number
+  // used to be dropped and its text piled into the last page kept: Gouge on Hebrews held parts 2-4 (two thirds of the text)
+  // under three numbers; Trapp, Owen, Baxter's Paraphrase and the Westminster Annotations likewise. Now the first page printed
+  // with a number keeps the bare number as its id, so every existing link still means what it did, and the k-th repeat of a
+  // number (k from 1) is the page 100000*k+n, labelled with its printed number (page_labels, pageSay). The same number on two
+  // marks in a row (a page's two columns, a leaf marked twice) stays one page. The Scripture pane (commentary-pane.js:
+  // eeboBook, page, readerPage) counts the occurrences by this same rule and links to these ids.
+  const EEBO_REPEAT_BASE=100000,pageLabels={},_occ=new Map();let _lastPrinted=null;
+  const addPb=n=>{if(!n)return;
+    if(typeof n!=="number"){if(seen.has(n))return;seen.add(n);pages.push(n);_lastPrinted=null;
+      const pbS=enD.createElement("pb");pbS.setAttribute("n",String(n));enB.appendChild(pbS);
+      const pbS2=laD.createElement("pb");pbS2.setAttribute("n",String(n));laB.appendChild(pbS2);return;}
+    if(n===_lastPrinted)return;_lastPrinted=n;
+    const k=_occ.get(n)||0;_occ.set(n,k+1);const id=k?EEBO_REPEAT_BASE*k+n:n;
+    if(seen.has(id))return;seen.add(id);pages.push(id);if(k)pageLabels[id]={n:String(n),k:k+1};
+    const pb=enD.createElement("pb");pb.setAttribute("n",String(id));if(k)pb.setAttribute("label",String(n));enB.appendChild(pb);
+    const pb2=laD.createElement("pb");pb2.setAttribute("n",String(id));laB.appendChild(pb2);};
   // inline fidelity (owner 2026-08-18 'EEBO v1 flattens italics'): printed emphasis
   // survives as markdown markers — inl() renders them in the reading lane
   const md=h=>String(h)
@@ -8182,7 +8240,13 @@ async function loadEeboCanon(ws){
       if(close<0)break;
       if(m.index>last)txt(html.slice(last,m.index));
       const inner=html.slice(i,close);
-      if(m[1]==="note"){const t=md(inner);if(t){
+      // NOTES_BELOW: the note under its paragraph, its letter here, against the word before it
+      if(m[1]==="note"&&NOTES_BELOW&&_belowOn){const t=md(inner);if(t){
+          const lc=el.lastChild;if(lc&&lc.nodeType===3){lc.nodeValue=lc.nodeValue.replace(/\s+$/,"");if(!lc.nodeValue)el.removeChild(lc);}
+          const pv=el.lastChild;if(pv&&pv.nodeType===1&&pv.localName==="hi"&&pv.getAttribute("rend")==="sup")el.appendChild(enD.createTextNode("\u2009"));
+          const mk=_mark(_below.length),s=enD.createElement("hi");s.setAttribute("rend","sup");s.textContent=mk;el.appendChild(s);_below.push([mk,t]);
+          if(!/^[\s,.;:!?)\]]/.test(html.slice(closeEnd,closeEnd+1)))el.appendChild(enD.createTextNode(" "));}}
+      else if(m[1]==="note"){const t=md(inner);if(t){
           const lc=el.lastChild;if(lc&&lc.nodeType===3&&!/\s$/.test(lc.nodeValue))el.appendChild(enD.createTextNode(" "));   // the print glues "and<note>": keep the words apart
           const n=enD.createElement("note");n.setAttribute("place","margin");n.textContent=t;el.appendChild(n);
           if(!/^\s/.test(html.slice(closeEnd,closeEnd+1)))el.appendChild(enD.createTextNode(" "));}}
@@ -8203,7 +8267,10 @@ async function loadEeboCanon(ws){
         if(cut>=0){const after=plain.slice(cut+lab.length).replace(/^[\s.:,—-]+/,"");
           if(after.length>20){const e=sourceBlock(enD.createElement("p"));e.textContent=after;enB.appendChild(e);_lastP=e;_lastHead="";return;}}}
       _lastHead="";}
-    const e=sourceBlock(enD.createElement(asHead?"head":"p"));fillInline(e,inner);enB.appendChild(e);
+    const e=sourceBlock(enD.createElement(asHead?"head":"p"));_below=[];_belowOn=true;fillInline(e,inner);_belowOn=false;enB.appendChild(e);
+    // NOTES_BELOW: the paragraph's notes, each its own paragraph under it, in the order they stand in it
+    for(const [mk,t] of _below){const n=sourceBlock(enD.createElement("p"));n.setAttribute("rend","annot");const s=enD.createElement("hi");s.setAttribute("rend","sup");s.textContent=mk;n.appendChild(s);n.appendChild(enD.createTextNode(" "+t));enB.appendChild(n);}
+    _below=[];
     if(asHead){_lastHead=plain;_lastP=null;
       const t=plain.replace(/[*]/g,"").trim();
       if(!noStruct&&t.length>=4&&t.length<=140)struct.push({title:t.slice(0,140),page:pages.length?pages[pages.length-1]:1,depth:Math.min(_curDepth+1,5)});}
@@ -8398,8 +8465,8 @@ async function loadEeboCanon(ws){
   return {slug:ws,title:meta.title||("EEBO "+id),title_en:meta.title||"",author:meta.author||"",
     volume:String(meta.year||meta.date||""),tradition:meta.tradition||"English Divines",
     has_pages:false,has_tei:true,tei_v:0,en_only:true,nav_source_version:"eebo-path-v1",eebo_source_outline:sourceOutline,
-    n_pages:pages.length,structure:struct,base:null,spine_nav:struct.length>1,
-    pages:pages.map(n=>({n,la:"",en:""}))};
+    n_pages:pages.length,structure:struct,base:null,spine_nav:struct.length>1,page_labels:pageLabels,
+    pages:pages.map(n=>(pageLabels[n]?{n,la:"",en:"",label:pageLabels[n].n}:{n,la:"",en:""}))};
 }
 // PRETTY SLUGS (owner 2026-08-20 "make the eebo slugs match the author title"): the id
 // space stays eebo-N — 563k vectors, every mined citation and saved link are keyed to it —
@@ -8426,6 +8493,16 @@ async function loadWork(ws){
     // on the classic path below the early returns — Latin h1 on every canon work)
     try{if(!_EN_TITLES)_EN_TITLES=await jfetch(BLOB+"/v1/titles_en.json"+(window.__FR_VER?("?v="+window.__FR_VER):""),1);}catch(e){_EN_TITLES=_EN_TITLES||{};}
     D.title_en=(_EN_TITLES&&_EN_TITLES[ws])||D.title_en||"";
+    // THE CATALOGUE'S AUTHOR (10-23, Ian: "for migne we name pelagius but clicking we get to uncertain author"): the TEI header
+    // carries Migne's attribution (pld-2269: "Auctor incertus (Hieronymus Stridonensis?)"), while the library, the lexicon, the
+    // Scripture rails and the rooms name the catalogue's person (Pelagius). v1/reader-authors.json (The Faith Received,
+    // runs/acct20/pelagius_1023/reader_authors.py) names him for every PL, PG and PO work where the two differ: [name, bio key]
+    // where his life is filed otherwise.
+    if(/^(pld|pg|po)-\d+$/.test(ws)){try{
+      const ra=await ((window.__frEarly&&window.__frEarly.auCat)||jfetch(BLOB+"/v1/reader-authors.json"+(window.__FR_VER?("?v="+window.__FR_VER):""),1));
+      const o=ra&&ra.a&&ra.a[ws];
+      if(o){const [n,b]=Array.isArray(o)?o:[o,null];if(n){D.author=n;D.author_la=b||undefined;}}
+    }catch(e){}}
     return D;
   }
   const base=BLOB+"/v1/works/"+encodeURIComponent(ws);

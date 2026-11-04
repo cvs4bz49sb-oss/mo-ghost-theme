@@ -72,16 +72,19 @@
     }
     const sections = mods.filter((x) => x.id !== "hero");
     const NAMES = { voices: "Key voices", church: "How the church read it", dispute: "Points in dispute", confess: "Creeds", ladder: "Commentary ladder", heat: "Chapter heat", share: "Share" };
-    // On a phone every module after the third sits behind its own Show button, so the page is not 13,000px long.
+    // (2026-10-22) Under the shared Verse Desk (scripture-verse-desk.js: the verse, the band, the commentaries and the citations as folded
+    // groups, one open at a time) every module sits behind its own Show button, on every screen, so the page opens on the desk and its lists.
+    // Before, a phone folded the modules after the third.
+    const shared = !!$desk.querySelector("[data-sd-vdb]");
     const phone = window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
-    const wrapped = sections.map((x, i) => (phone && i >= 3 ? `<details class="vd-fold" data-vd="fold-${x.id}"><summary>Show ${NAMES[x.id] || x.id}</summary>${x.html}</details>` : x.html));
+    const wrapped = sections.map((x, i) => (shared || (phone && i >= 3) ? `<details class="vd-fold" data-vd="fold-${x.id}"><summary>Show ${NAMES[x.id] || x.id}</summary>${x.html}</details>` : x.html));
     if (sections.length) {
       const $wrap = document.createElement("div");
       $wrap.className = "vd-modules";
       $wrap.dataset.vd = "modules";
       $wrap.innerHTML = wrapped.join("");
-      const $trans = $desk.querySelector('[aria-labelledby="sd-h-trans"]');
-      if ($trans) $trans.after($wrap); else $desk.append($wrap);
+      const $trans = $desk.querySelector('[aria-labelledby="sd-h-trans"]'), $place = $desk.querySelector("[data-vd-place]");
+      if ($place) $place.append($wrap); else if ($trans) $trans.after($wrap); else $desk.append($wrap);
       // each module's name in the desk's own "On this page" line, in page order
       const $toc = $desk.querySelector(".sd-desk-toc");
       if ($toc) {

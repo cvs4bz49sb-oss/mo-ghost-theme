@@ -216,11 +216,16 @@
       if (!m) break;
       const {kw} = m;
       const abbrev = !FULL.has(kw.toLowerCase());
-      labels.push({
+      const lab = {
         kw: kw === "§" ? "§" : titleWord(SPELL[kw.toLowerCase()] || kw) + (abbrev ? "." : ""),
         fam: family(kw),
         num: numeral(m.num),
-      });
+      };
+      // (2026-10-31) an outline's bilingual echo names one division twice ("Chapter III — CAPUT III.", the Migne Scripturae Sacrae
+      // Cursus and the other English-and-Latin outlines): one label, not "Chapter III. Chapter III"
+      const prev = labels[labels.length - 1];
+      const same = prev && prev.fam === lab.fam && (prev.num.value && lab.num.value ? prev.num.value === lab.num.value : prev.num.text.toLowerCase() === lab.num.text.toLowerCase());
+      if (!same) labels.push(lab);
       s = s.slice(m.all.length).replace(/^[\s.,:;—–-]+/, "");
     }
     if (!labels.length) return null;
@@ -598,10 +603,18 @@
     if (pending || (!english && !document.querySelector("#reading .row"))) schedule(true);
   }
 
+  // (2026-10-31) no title: one that only says the label again ("Chapter XII. Chapter XII" under the page's own "CAPUT XII." heading),
+  // or one that is the numbered text itself, a verse or section opening "1." ("Chapter III. 1" in the Migne Scripturae Sacrae Cursus,
+  // whose chapters open with the Vulgate's verse 1 in italics)
+  const notTitle = (label, s) => {
+    const k = (x) => String(x || "").toLowerCase().replace(/\b(?:chap(?:ter)?|cap(?:ut|itulum)?)\b\.?/g, "chapter").replace(/[^a-z0-9]+/g, " ").trim();
+    return !!s && (k(s) === k(label) || /^\s*\d{1,3}(?:\s*[.)]|\s*$)/.test(s));
+  };
   function paint(e) {
-    const short = e.source ? shortTitle(e.source) : "";
+    let short = e.source ? shortTitle(e.source) : "";
+    if (notTitle(e.label, short)) short = "";
     e.shown = short ? `${e.label}. ${short}` : e.label;
-    e.tip = e.source ? `${e.label}. ${e.source}` : e.full;
+    e.tip = e.source && !notTitle(e.label, e.source) ? `${e.label}. ${e.source}` : e.full;
   }
   function write(e) {
     e.node.classList.toggle("fr-toc-sub", !!e.sub);

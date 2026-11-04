@@ -515,16 +515,32 @@
    * based rerank our knowledge of the tradition is sufficient"). Every work on the map carries its weight from curated knowledge of
    * the tradition (v1/scripture/rank.json): the key commentators first, else its author's tier; for the books readers open most, the
    * key commentaries on the book (`books`), and the volumes of commentaries that take in the whole book together (`series`). */
-  let rankReady = null, RANKD = null;
+  let rankReady = null, RANKD = null, SETSD = null;
+  // the year of a name (10-31): v1/enrich/author_dates.json, y the birth (else the first attested, else the death), for the lists' order
+  const AUTHY = new Map();
   function loadRank() {
     if (!rankReady) {
-      rankReady = fetch(`${LIBRARY_BASE}/v1/scripture/rank.json`, { credentials: "omit" })
-        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-        .then((d) => { RANKD = d; return d; })
+      // the whole-Bible sets (v1/scripture/sets.json, 2026-10-23) come with the standing: one row a set in the whole-Bible list
+      rankReady = Promise.all([
+        fetch(`${LIBRARY_BASE}/v1/scripture/rank.json`, { credentials: "omit" }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))),
+        fetch(`${LIBRARY_BASE}/v1/scripture/sets.json`, { credentials: "omit" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetch(`${LIBRARY_BASE}/v1/enrich/author_dates.json`, { credentials: "omit" }).then((r) => (r.ok ? r.json() : null)).catch(() => null)])
+        .then(([d, sd, ad]) => {
+          RANKD = d; if (sd) SETSD = sd;
+          for (const [n, x] of Object.entries((ad && ad.authors) || {})) { const y = Number(x.y); if (y > 0) { AUTHY.set(n, y); for (const al of x.aliases || []) if (!AUTHY.has(al)) AUTHY.set(al, y); } }
+          return d;
+        })
         .catch(() => { rankReady = null; return null; });
     }
     return rankReady;
   }
+  // (10-31, owner: "i click hebrews 12, and cocejius goes to the middle") a link to a commentary's page for the chapter lands on the
+  // chapter's printed heading inside the page (the reader's ?at=ch:<c>); not for the Psalms, whose numbering differs between prints
+  const atChapter = (href, e, ctx) => {
+    if (!href || !ctx || !ctx.c || e.anchored !== "chapter" || (ctx.book && ctx.book.lib === "psalms") || /[?&]at=/.test(href)) return href;
+    const i = href.indexOf("#");
+    return `${(i < 0 ? href : href.slice(0, i)) + (href.includes("?") ? "&" : "?")}at=ch%3A${ctx.c}${i < 0 ? "" : href.slice(i)}`;
+  };
   const standingOf = (e, rk) => {
     const r = rk && rk.works && rk.works[e.w];
     return r ? r[0] : ((rk && rk.authors && rk.authors[e.a]) || 0);
@@ -1014,7 +1030,8 @@
     const own = (e) => (e.anchored === "chapter" ? 0 : 1);
     const keyI = (e) => (keyOf.has(e.w) ? keyOf.get(e.w).i : 99);
     const inAuthor = (a, b) => own(a) - own(b) || keyI(a) - keyI(b) || byStanding(a, b);
-    const born = (e) => (keyOf.has(e.w) ? keyOf.get(e.w).born : null);
+    // (10-31, owner: "the order is messed up") every author by his birth: the curated key's year, else the dates of names
+    const born = (e) => (keyOf.has(e.w) && keyOf.get(e.w).born ? keyOf.get(e.w).born : (AUTHY.get(e.a) || null));
     const rowOrder = (a, b) => {
       const x = born(a), y = born(b);
       return (x == null) - (y == null) || (x != null && y != null ? x - y : 0) || byStanding(a, b);
@@ -1029,8 +1046,19 @@
      * cited, else the other works; his other volumes are beneath it. */
     const everything = list.concat(cited || []);
     everything.forEach((e) => { e.role = roleOf(e); });
+    /* THE WHOLE-BIBLE SETS, ONE ROW A SET (2026-10-23, the owner: "make the whole bible commentaries match and open where they need and
+     * each whole bible is grouped by tradition"; "works that are multi vol are grouped, so like grotius is a whole bible, wesley, baxters
+     * paraphrase, calov, cajetan"; "its ok to have things appear twice"). v1/scripture/sets.json names each set's volumes: those that
+     * comment on the chapter (not a citation on another book, not a work titled for this one book, which stays the book's) make one row
+     * in the whole-Bible list under the set's tradition, the volume with the chapter's page leading; the author's other works keep his
+     * own row. */
+    const setIdOf = (e) => (SETSD && SETSD.of && SETSD.of[e.w]) || "";
+    const setOf = new Map(((SETSD && SETSD.sets) || []).map((x) => [x.id, x]));
+    const inSet = (e) => !!setIdOf(e) && setOf.has(setIdOf(e)) && e.role !== "cite" && e.role !== "other" && !titleBook(e);
+    const setVols = new Map();
+    everything.forEach((e) => { if (inSet(e)) { const id = setIdOf(e); if (!setVols.has(id)) setVols.set(id, []); setVols.get(id).push(e); } });
     const byAuthor = new Map();
-    everything.forEach((e) => { const k = authorKey(e); if (!byAuthor.has(k)) byAuthor.set(k, []); byAuthor.get(k).push(e); });
+    everything.forEach((e) => { if (inSet(e)) return; const k = authorKey(e); if (!byAuthor.has(k)) byAuthor.set(k, []); byAuthor.get(k).push(e); });
     const g = { book: [], whole: [], cited: [], other: [] };
     byAuthor.forEach((es) => {
       const has = (r) => es.some((e) => e.role === r);
@@ -1043,11 +1071,20 @@
       main.allusionOnly = dest === "cited" && es.filter((e) => e.role === "cite").every(alludes);
       g[dest].push(main);
     });
-    // by tradition, in the fixed order; the first row of each names it
+    setVols.forEach((es, id) => {
+      const s = setOf.get(id), main = es.slice().sort(inAuthor)[0];
+      main.more = es.filter((e) => e !== main).sort(inAuthor);
+      main.setId = id; main.setTrad = s.trad; main.setYear = Number(s.year) || 0; main.setLabel = s.label;
+      main.sumScore = 0; main.allusionOnly = false;
+      g.whole.push(main);
+    });
+    // by tradition, in the fixed order; the first row of each names it (a set under the set's tradition, the sets in their authors' order)
+    const tradOfRow = (e) => e.setTrad || tradOf(e);
+    const inTrad = (a, b) => (a.setId ? 0 : 1) - (b.setId ? 0 : 1) || (a.setId && b.setId ? a.setYear - b.setYear : rowOrder(a, b));
     const byTradition = (xs) => {
       const out = [];
       TRADS.concat([["", "Other"]]).forEach(([k, label]) => {
-        const these = xs.filter((e) => (k ? tradOf(e) === k : !TRADS.some(([t]) => t === tradOf(e)))).sort(rowOrder);
+        const these = xs.filter((e) => (k ? tradOfRow(e) === k : !TRADS.some(([t]) => t === tradOfRow(e)))).sort(inTrad);
         these.forEach((e, i) => { e.tradHead = i === 0 ? label : ""; e.tradRank = i; e.isKey = keyOf.has(e.w); out.push(e); });
       });
       return out;
@@ -1110,7 +1147,7 @@
     const li = document.createElement("li");
     li.className = "sd-source sd-commentary";
     li.dataset.w = e.w || "";
-    const href = sourceHref(e.href, e.w);
+    const href = atChapter(sourceHref(e.href, e.w), e, ctx);
     // A range that is the whole book says nothing ("Chapters 1–16" on all of Romans); a part of it does.
     const whole = Number(e.c1) <= 1 && (!e.c2 || Number(e.c2) >= ctx.book.chapters);
     const range = e.c1 && !whole

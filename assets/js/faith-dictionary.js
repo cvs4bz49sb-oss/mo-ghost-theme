@@ -648,9 +648,13 @@
     paint();
 
     const source = el("p", "faith-dictionary-source");
-    source.appendChild(document.createTextNode("Text: fr.wikisource.org, "));
-    source.appendChild(el("cite", null, "Dictionnaire de théologie catholique"));
-    source.appendChild(document.createTextNode(" (Vacant, Mangenot, Amann; Paris, 1899 to 1950), public domain."));
+    // An entry not taken from Wikisource carries its own source note (10-29: JEAN DE SAINT-THOMAS, read from the scan of tome VIII).
+    if (data.src) source.appendChild(document.createTextNode(plain(data.src)));
+    else {
+      source.appendChild(document.createTextNode("Text: fr.wikisource.org, "));
+      source.appendChild(el("cite", null, "Dictionnaire de théologie catholique"));
+      source.appendChild(document.createTextNode(" (Vacant, Mangenot, Amann; Paris, 1899 to 1950), public domain."));
+    }
     articleBody.appendChild(source);
   }
 

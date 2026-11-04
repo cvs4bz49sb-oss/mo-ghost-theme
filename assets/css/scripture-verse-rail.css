@@ -178,3 +178,10 @@
   .vr-aubtn .vr-n { text-align: left; }
 }
 @media (prefers-reduced-motion: reduce) { .cp-list .vr-fold::before { transition: none; } }
+
+/* READ IN PLACE (10-28): a witness's or a citing work's page opened under its row */
+.vr-wpv { margin-left: 6px; }
+.vr-wpvw { margin: 8px 0 10px; }
+.vr-wpvw:not(.pw) { padding: 0; }
+.vr-work > .vr-wpvw { margin-top: 6px; }
+.vr-wpvw .pw-cited { border-left: 0; padding-left: 0; margin-left: 0; }
