@@ -1,7 +1,14 @@
 @media(min-width:941px){html:not(.fr-plain) .fr-reader-head .ctr>#rdFlow{display:inline-flex;align-items:center;min-height:40px;font:13px/1.4 'Source Serif Pro',Georgia,serif;padding:6px 9px;color:var(--fg)}}
 #aaPop :is([aria-label="Reading layout"],[aria-label="Footnote display"]) button{min-height:40px;min-width:64px;font:13px/1.4 'Source Serif Pro',Georgia,serif}#aaPop :is([aria-label="Reading layout"],[aria-label="Footnote display"]) button[aria-pressed=true]{background:var(--fg);color:var(--bg)}
-html:not(.fr-plain) .app.rflow .apptog:not(.open),html:not(.fr-plain) .app.rflow .apptog.open{position:static;inset:auto;margin:.55rem 0 .35rem;padding:6px 0;max-width:none;min-height:32px;font:13px/1.4 'Source Serif Pro',Georgia,serif;opacity:1;color:var(--muted)}
+/* A closed bank's toggle keeps out of the reading line (reader report 11-03: the notes "distract from the main reading"; it sat between
+   the two halves of a sentence at every page turn). A one-language view on a wide screen sets it in the left margin beside the page's
+   last line, where the page label sits; the side-by-side view (whose margin is too narrow) and screens under 1000px give it a short
+   right-aligned line. An open bank's toggle heads its notes. A page's content-visibility clips painting to its own box, so the margin
+   placement needs overflow-clip-margin; a browser without it keeps the right-aligned line. */
+html:not(.fr-plain) .app.rflow .apptog:not(.open),html:not(.fr-plain) .app.rflow .apptog.open{position:static;inset:auto;display:block;margin:0 0 0 auto;padding:6px 0;max-width:none;min-height:32px;font:13px/1.4 'Source Serif Pro',Georgia,serif;opacity:1;color:var(--muted);text-align:right}
+html:not(.fr-plain) .app.rflow .apptog.open{margin:.55rem auto .35rem 0;text-align:left}
 html:not(.fr-plain) .app.rflow .apptog:hover{color:var(--fg)}
+@media(min-width:1000px){@supports(overflow-clip-margin:1px){html:not(.fr-plain) .app.rflow:is(.only-en,.only-la,.en-only) .folio{overflow-clip-margin:11rem}html:not(.fr-plain) .app.rflow:is(.only-en,.only-la,.en-only) .apptog:not(.open){position:absolute;inset:auto calc(100% + 1.1rem) .25rem auto;margin:0;padding:4px 0;min-height:0;width:max-content;max-width:9rem;font-size:12px;line-height:1.35;white-space:normal}}}
 /* Explicit bank state outranks single-language display rules. An open bank is
    independent of earlier closed banks in the same Flow section. Print retains
    the reader's existing full-apparatus rules. No body rows are marked. */
@@ -20,7 +27,7 @@ html:not(.fr-plain) .app.rflow .apptog:hover{color:var(--fg)}
 #readerFootnotePreview p{margin:0 0 .6em}#readerFootnotePreview .rf-content>:last-child{margin-bottom:0}#readerFootnotePreview summary{font-size:13px;min-height:40px;padding:9px 0;cursor:pointer;color:var(--muted)}
 #readerFootnotePreview a{color:var(--fg);text-underline-offset:3px}#readerFootnotePreview footer{padding:0 10px 5px;border-top:1px solid var(--border)}#readerFootnotePreview :is(a,button,summary):focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 #readerFootnotePreview ::selection{background:var(--fg);color:var(--bg)}
-@media(max-width:700px){#readerFootnotePreview{inset:auto 0 0;width:100%;max-height:70dvh;border-radius:12px 12px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom)}#readerFootnotePreview button,#aaPop :is([aria-label="Reading layout"],[aria-label="Footnote display"]) button,html:not(.fr-plain) .app.rflow .apptog{min-height:44px}}
+@media(max-width:700px){#readerFootnotePreview{inset:auto 0 0;width:100%;max-height:70dvh;border-radius:12px 12px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom)}#readerFootnotePreview button,#aaPop :is([aria-label="Reading layout"],[aria-label="Footnote display"]) button,html:not(.fr-plain) .app.rflow .apptog.open{min-height:44px}}
 @media print{#readerFootnotePreview{display:none!important}}
 /* Pages exposes existing boundaries; it does not re-pair or rebuild the text. */
 html:not(.fr-plain) #app:not(.rflow) #reading .fmark:not(.rolled){display:flex;height:auto;min-height:32px;position:relative;inset:auto;margin:1.3rem 0 .65rem;padding:.4rem 0;border-bottom:1px solid var(--border);opacity:1;pointer-events:auto;justify-content:flex-start}

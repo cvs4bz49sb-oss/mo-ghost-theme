@@ -1062,6 +1062,16 @@ a.xref:hover,a.xref:active{color:var(--accent);text-decoration-color:var(--accen
 .app:not(.only-en):not(.only-la) .stkwrap>.stk-la>.la{color:color-mix(in oklch,var(--fg) 72%,var(--bg));border-left:2px solid color-mix(in oklch,var(--accent-soft) 55%,transparent);padding-left:1.05rem}
 .app.only-en .stkwrap{grid-template-columns:1fr}
 .app.only-en .stkwrap>.stk-la{display:none}
+/* ... and the English lane the same way (reader report 11-03, Justin's Dialogue with Trypho in English only: the stacked pages, cols.
+   499 and 505, set wider and a size step smaller than the paired pages around them, so the paragraph width changed page to page) */
+.app.only-en #reading .stkwrap>.stk-en>.en{max-width:68ch;margin:0 auto;font-size:calc(1.04em * var(--ensz,1));line-height:var(--reading-lh)}
+html:not(.fr-plain) .app.only-en #reading .stkwrap>.stk-en>.en{font-feature-settings:"kern" 1,"liga" 1,"onum" 1,"pnum" 1,"locl" 0;font-variant-numeric:oldstyle-nums proportional-nums}
+html.g-mobile .app.only-en #reading .stkwrap>.stk-en>.en{max-width:none}
+.app.only-en #reading .stkwrap>.stk-en>.en p{line-height:1.74;text-wrap:pretty;margin:.3rem 0 .65rem;text-indent:0}
+html:not(.g-mobile) .app.only-en #reading .stkwrap>.stk-en>.en:not(:first-child)>p:first-child{text-indent:1.3em}
+.app.only-en #reading .stkwrap>.stk-en>.en:first-child>p:first-child{margin-top:0}
+html.g-mobile .app.only-en #reading .stkwrap>.stk-en>.en p{line-height:var(--reading-lh);text-align:left;hyphens:auto;-webkit-hyphens:auto}
+@media(min-width:700px){html.fr-justify .app.only-en #reading .stkwrap>.stk-en>.en p{text-align:justify;hyphens:auto;-webkit-hyphens:auto}}
 .app.only-la .stkwrap{grid-template-columns:1fr}
 .app.only-la .stkwrap>.stk-en{display:none}
 @media(max-width:880px){.stkwrap{grid-template-columns:1fr}.stkwrap>.stk-la>.la{margin-bottom:.5rem}}
@@ -2417,3 +2427,15 @@ html:not(.fr-plain) .fr-reader-head #thTop{display:inline-flex;align-items:cente
 #citepop .cp-page{border-top:1px solid var(--border);padding-top:8px}
 #citepop .cp-wait{color:var(--muted);margin:0}
 @media (max-width:640px){ #citepop{left:8px!important;right:8px;width:auto;top:auto!important;bottom:calc(70px + env(safe-area-inset-bottom))}}
+
+/* Aa > Spacing reaches the paragraphs and the gap between them (reader report 11-03: "i like the ability to make the text more dense
+   ... i wish the paragraphs could be spaced more"). The line-height rule below is the one faith-port-reader-skin.css has carried
+   since 09-18 (The Faith Received reader lacked it until now). Compact now keeps a clear gap between paragraphs under
+   its tighter lines and relaxed opens it a little; normal is unchanged. Index pages, verse, notes, a sentence that runs over a page
+   turn, and the English-only books (EEBO, the hymnals: a page there is one block of short lines) keep their own spacing. */
+html[data-lh="compact"]{--para-gap:.9em}
+html[data-lh="relaxed"]{--para-gap:1.1em}
+html[data-lh] .app #reading :is(.row:not(.rapp)>.en,.row:not(.rapp)>.la,.stk>.en,.stk>.la,.zipcol>.en,.zipcol>.la) :is(p,li,blockquote){line-height:var(--reading-lh)}
+html[data-lh] .app:not(.en-only) #reading .folio:not(.ixfolio) :is(.row:not(.rapp,.rhead,.rtoc,.rverse,.rcolm)>.en,.row:not(.rapp,.rhead,.rtoc,.rverse,.rcolm)>.la,.stk>.en,.stk>.la) p:not(:last-child):not(.ixtrue p){margin-bottom:var(--para-gap)}
+html[data-lh] .app.rflow:not(.en-only) #reading .folio:not(.ixfolio) .row:not(.rapp,.rhead,.rtoc,.rverse,.rcolm,.tail){margin-bottom:var(--para-gap)}
+html[data-lh] .app.rflow:not(.en-only) #reading .folio:not(.ixfolio) .stk>:is(.en,.la):not(.tail){margin-bottom:var(--para-gap)}
