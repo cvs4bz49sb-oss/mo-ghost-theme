@@ -455,8 +455,9 @@ function appBank(laN,enN){
   // "17 notes" oversells editorial content when most rows are collation apparatus.
   const _nv=laN.concat(enN.filter(n=>!new Set(laN.map(x=>x.id)).has(n.id))).filter(n=>/^v\d+n\d+$/.test(n.id)).length;
   const _nr=nN-_nv;
-  const lbl=_nv>0?`${_nr?_nr+(_nr===1?" note":" notes")+" · ":""}${_nv} textual variant${_nv===1?"":"s"} on this folio`
-                 :nN+(nN===1?" note":" notes")+" on this folio";
+  // "Show 8 notes", not "... on this folio" (reader report 11-03): the toggle now sits in the page's margin, which says whose notes they are
+  const lbl=_nv>0?`${_nr?_nr+(_nr===1?" note":" notes")+" · ":""}${_nv} textual variant${_nv===1?"":"s"}`
+                 :nN+(nN===1?" note":" notes");
   tog.dataset.noteLabel=lbl;tog.textContent=(tog.classList.contains("open")?"Hide ":"Show ")+lbl;tog.setAttribute("aria-expanded",String(tog.classList.contains("open")));
   tog.onclick=()=>{const on=tog.classList.toggle("open");
     tog.textContent=(on?"Hide ":"Show ")+lbl;tog.setAttribute("aria-expanded",String(on));window.FRFootnotes?.refreshDisplay();};
