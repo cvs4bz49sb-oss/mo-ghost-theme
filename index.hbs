@@ -121,7 +121,7 @@
                         selection (featured) rather than analytics.
                     --}}
                     <ol class="read-list">
-                        {{#get "posts" filter="featured:true+tag:-hash-event+tag:-hash-podcast-transcript" limit="5" include="authors,tags"}}
+                        {{#get "posts" filter="featured:true+tag:-hash-event+tag:-hash-podcast-transcript" limit="6" include="authors,tags"}}
                             {{#foreach posts}}
                                 <li>
                                     <a href="{{url}}">
