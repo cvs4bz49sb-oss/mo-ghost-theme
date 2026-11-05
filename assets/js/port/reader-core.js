@@ -2963,10 +2963,17 @@ function build(){
     if(inner.indexOf('<i class="tmk"')>=0){
       const _tp=inner.split(/<i class="tmk" data-who="([^"]*)"><\/i>/);
       const _lead=!_tp[0].replace(/<span class="in(?:head|arg)">[\s\S]*?<\/span>/g,"").replace(/<[^>]+>/g,"").trim();
-      let _h=_lead?_tp[0].replace(/\s+$/,""):_tp[0];
-      for(let i=1;i<_tp.length;i+=2){const w=_tp[i],t=(_tp[i+1]||"").replace(/^\s+/,"");
+      let _h=_tp[0];
+      for(let i=1;i<_tp.length;i+=2){const w=_tp[i],t=_tp[i+1]||"";
         _h+=`<span class="turn${w?"":" narr"}${i===1&&_lead?" t0":""}">${w?`<b class="spk">${w}</b> `:""}${t}</span>`;}
       return `<p${cls}${sourceAttrs}>${_h}</p>`;}
+    // PRINTED SPEAKERS (owner 11-04): in a listed dialogue each printed label opens a turn the same way, the label itself in small
+    // capitals (all-small-caps: the print sets it in capitals already); other works never reach this
+    if(!_rnd){const _sre=frSpeakerFor(),_sc=_sre&&frSpeakerCuts(inner,_sre);
+      if(_sc){let _h=inner.slice(0,_sc[0].at);const _lead=!_h.replace(/<span class="in(?:head|arg)">[\s\S]*?<\/span>/g,"").replace(/<[^>]+>/g,"").trim();
+        _sc.forEach((x,i)=>{const nx=i+1<_sc.length?_sc[i+1].at:inner.length;
+          _h+=`<span class="turn${i===0&&_lead?" t0":""}">${inner.slice(x.at,x.lab)}<b class="spk spk-pr">${inner.slice(x.lab,x.end)}</b>${inner.slice(x.end,nx)}</span>`;});
+        return `<p${cls}${sourceAttrs}>${_h}</p>`;}}
     // PILCROW BREAKS (owner 2026-08-30, Ockham/Biel/Lefèvre incunable-style prints): a ¶ inside running
     // text marks the start of a new paragraph in the print -- break there, keep the mark as a muted lead
     if(!_rnd&&/\S\s*[¶⸿⁋]\s+\S/.test(inner)){                      // ¶ U+00B6, capitulum ⸿ U+2E3F, reversed pilcrow ⁋ U+204B (Ockham 1495: 6,952 of them)
@@ -6115,6 +6122,85 @@ function frTurnElements(d){
 // a speaker-turn sentinel takes no room: every cutter that measures text measures it as it reads, so a mark never moves where a
 // long paragraph is cut or how a page's lanes are shared out (without marks this is the plain length)
 function _tlen(s){s=String(s);return s.indexOf("\u000E")<0?s.length:s.replace(/\u000E[^\u000E\u000F]*\u000F/g,"").length;}
+// PRINTED SPEAKERS (owner 11-04, option 2: the dialogues whose print already names each speaker): in a listed work, a printed label
+// that opens a paragraph, or follows a sentence end or a dash inside one ('ERAN.', '\u2014M.', 'A. --There'), opens a turn there and is
+// set in small capitals, as the speaker turns are; nothing in the text changes. The tokens are each work's own, in every lane that
+// prints them (runs/acct20/reader_dialogue_1103/survey: survey, lexicon, verification).
+const FR_SPEAKERS={
+  "pg-1746":["NEST.", "CYRIL.", "CYR.", "NESTORIUS.", "\u039d\u0395\u03a3\u03a4.", "\u039a\u03a5\u03a1.", "\u039d\u0395\u03a3\u03a4\u039f\u03a1\u0399\u039f\u03a3."],
+  "pg-1875":["ERAN.", "ORTH.", "ERANISTES.", "ORTHODOX.", "ORTHODOXUS.", "\u0395\u03a1\u0391\u039d.", "\u039f\u03a1\u0398.", "\u039f\u03a1\u0398\u039f\u0394\u039f\u039e\u039f\u03a3.", "\u0395\u03a1\u0391\u039d\u0399\u03a3\u03a4\u0397\u03a3."],
+  "pg-1902":["AXITH.", "THEOPH.", "AXITHEUS.", "THEOPHRASTUS.", "EGYPT.", "AEGYPT.", "AXITII.", "EGYPTUS.", "EGYPTIAN.", "\u0391\u039e\u0399\u0398.", "\u0398\u0395\u039f\u03a6.", "\u0391\u0399\u0393\u03a5\u03a0\u03a4.", "\u0391\u03a3\u0399\u0398.", "\u0391\u0399\u0393\u03a5\u03a0\u03a4\u039f\u03a3.", "\u0391\u039e\u0399\u0398\u0395\u039f\u03a3.", "\u0398\u0395\u03a5\u03a6.", "\u0398\u0395\u039f\u03a6\u03a1.", "THEOP.", "THEOPHR."],
+  "pg-2681":["Cleric.", "Bishop.", "Pontiff.", "Cleric:", "Bishop:", "Pontiff:", "\u039a\u03bb\u03b7\u03c1\u03b9\u03ba\u03cc\u03c2.", "Pontifex.", "Clericus."],
+  "pg-2920":["N.", "C.", "NESTORIAN.", "CATHOLIC.", "NESTORIANUS.", "CATHOLICUS."],
+  "pg-3523":["SARAC.", "CHRIST.", "SARACEN.", "THEODORE.", "CHRISTIAN.", "THEOD.", "\u03a3\u0391\u03a1\u0391\u039a.", "\u03a7\u03a1\u0399\u03a3\u03a4.", "\u0398\u0395\u039f\u0394.", "\u03a7\u03a1\u0399\u03a3\u03a4\u0399\u0391\u039d\u039f\u03a3.", "\u03a3\u0391\u03a1\u0391\u039a\u0397\u039d\u039f\u03a3.", "\u0398\u0395\u039f\u0394\u03a9\u03a1\u039f\u03a3.", "CHRISTIANUS.", "SARACENUS.", "THEODORUS."],
+  "pg-3610":["SARACEN.", "CHRISTIAN.", "ADVERSARY.", "SARAC.", "CHRIST.", "ADVERSARIUS.", "CHR."],
+  "pg-612":["M.", "G.", "\u039c.", "\u0393."],
+  "pg-1734":["A.", "B.", "\u0391.", "\u0392."],
+  "pg-202":["A.", "M.", "E.", "D.", "ADAMANTIUS.", "MEG.", "EUTR.", "\u0391.", "\u039c.", "\u0395.", "\u0394.", "\u039c\u0391."],
+  "pg-3280":["Orth.", "Anom.", "\u039f\u03a1\u0398.", "\u0391\u039d\u039f\u039c.", "\u1f48\u03c1\u03b8.", "\u1f08\u03bd\u03bf\u03bc."],
+  "pg-3281":["Orth.", "Maced.", "MACEDONIAN.", "MACEDONIANUS.", "\u039c\u03b1\u03ba\u03b5\u03b4.", "\u1f48\u03c1\u03b8."],
+  "pg-3634":["Orth.", "Maced.", "Apoll.", "ORTHODOX.", "APOLLINARIST.", "Orthodox.", "ORTHODOXUS.", "APPOLLINARISTES.", "\u1f48\u03c1\u03b8.", "\u039c\u03b1\u03ba\u03b5\u03b4.", "\u1f08\u03c0\u03bf\u03bb\u03bb."],
+  "pld-141":["AGIUS.", "RESPONSE.", "RESPONSIO."],
+  "pld-2079":["A.", "M.", "ANSELM.", "MARY.", "ANSELMUS.", "MARIA."],
+  "pld-2265":["CHRIST.", "JUD.", "JEW.", "CHRISTIAN.", "JUDAEUS.", "CHRISTIANUS."],
+  "pld-3059":["Disc.", "Mag.", "Mast.", "Disciple.", "Master.", "Discipulus.", "Magister."],
+  "pld-3207":["G.", "B."],
+  "pld-433":["ANS.", "BOS."],
+  "pld-443":["MASTER.", "DISC.", "MAG.", "DISCIPLE.", "MAST.", "DISCIPULUS.", "MAGISTER."],
+  "pld-444":["MASTER.", "DISC.", "MAG.", "DISCIPLE.", "MAST.", "DISCIPULUS.", "MAGISTER."],
+  "pld-445":["MASTER.", "DISC.", "MAG.", "DISCIPLE.", "MAST.", "DISCIPULUS.", "MAGISTER."],
+  "pld-446":["MASTER.", "DISC.", "MAG.", "DISCIPLE.", "MAST.", "DISCIPULUS.", "MAGISTER."],
+  "pld-5274":["GREGORY.", "PETER.", "PETR.", "GREG.", "GREGOR.", "PET.", "GREGORIUS.", "PETRUS."],
+  "pld-5973":["MAN.", "SOUL.", "HOMO.", "ANIMA."],
+  "pld-60":["Reason.", "Soul.", "Ratio.", "Anima."],
+  "pld-7180":["D.", "M."],
+  "pld-7241":["H.", "O.", "Heinr.", "Othl."],
+  "pld-7455":["PHILOS.", "CHRISTIAN.", "JEW.", "PHILOSOPHER.", "JUDGE.", "JUDAEUS.", "PHILOSOPHUS.", "JUDEX."],
+  "pld-7472":["PETER.", "MOSES.", "MOYSES.", "PETRUS."],
+  "pld-7489":["KING.", "ABBOT.", "REX.", "ABBAS."],
+  "pld-8078":["MONK.", "CLERIC.", "CLERK.", "MONACHUS.", "CLERICUS."],
+  "pld-8098":["CHRIST.", "JEW.", "JUD.", "CHRISTIAN.", "CHRISTIANUS.", "JUDAEUS."],
+  "pld-5616":["A.", "C."],
+  "pld-5615":["L.", "O."],
+  "pld-2855":["R.", "A."],
+  "pld-2780":["Aug.", "Ad."],
+  "pld-2779":["E.", "A."],
+  "pld-2784":["M.", "D."],
+  "pld-2721":["MAX.", "AUG."],
+  "pld-1066":["Deceitful Tongue:", "Love of God:", "Amor Dei:", "Lingua dolosa:"],
+  "po-285":["M.", "A.", "B."],
+  "po-286":["M.", "A.", "B."],
+  "baxter-full-easie-satisfaction-which-is-true":["R.", "P.", "D."],
+  "walker-the-svmme-of-a-dispvtation-betweene-mr-vvalk":["Mr. Walker.", "Mr. Smith.", "M. Smith.", "M. Walker.", "Mr. VValker.", "Mr. Smith, alias Norrice.", "Another Priest.", "Priest."]};
+function frSpeakerRe(toks){
+  const E=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/ /g,"\\s+");
+  return new RegExp("("+[...toks].sort((a,b)=>b.length-a.length).map(E).join("|")+")(?=\\s)","g");}
+function frSpeakerCuts(html,re){
+  const out=[],CL="[\\u00bb\\u201d\"'\\u2019)\\]]",one=/^[^\s.:]{1}[.:]$/;
+  const LEAD=/^(\s*(?:<span class="in(?:head|arg)">[\s\S]*?<\/span>\s*)*)((?:\d{1,4}\s+)?(?:\[\s*|[\u2014\u2013]\s*|--\s*)?)$/;
+  const END=new RegExp("(?:[.!?;:\\u037e\\u00b7](?:<\\/[a-z]+>)*"+CL+"*\\s+|"+CL+"+\\s+)$");
+  const DASH=/(?:\u2014|\u2013|--)\s*$/;
+  const FOL=/^\s+(?:(?:--|\u2014|\u2013|-)\s*)?(?:\d{1,4}\s+)?(?:<[^>]+>)*([^\s<])/;
+  re.lastIndex=0;let m;
+  while((m=re.exec(html))){
+    const a=m.index,tok=m[1],b=a+tok.length,before=html.slice(0,a),tail=before.slice(-80);
+    // a label is a word of its own, followed by a space and some text
+    if(/[\w\u0370-\u03ff\u1f00-\u1fff]$/.test(tail))continue;
+    const f=FOL.exec(html.slice(b,b+120));if(!f)continue;
+    // the paragraph opens with it (after its printed head, an edition number, a bracket or a dash)
+    const lead=(before.length<=12||/^\s*<span class="in(?:head|arg)">/.test(before))?LEAD.exec(before):null;
+    if(lead){out.push({at:lead[1].length,lab:a,end:b});continue;}
+    // inside a paragraph a one-letter label needs a capital, a quote or a bracket after it
+    if(one.test(tok)&&!/[A-Z\u00c0-\u00de\u0386-\u03ab\u1f08-\u1f6f\u1fb8-\u1ffc\u201c"'\u2018\u00ab(\[]/.test(f[1]))continue;
+    // a dash brings the turn in (the dash opens the turn), or a sentence ends before it
+    const d=DASH.exec(tail);
+    if(d){out.push({at:a-d[0].length,lab:a,end:b});continue;}
+    if(END.test(tail))out.push({at:a,lab:a,end:b});
+  }
+  return out.length?out:null;}
+let __frSpk=null;
+function frSpeakerFor(){const ws=(typeof DATA!=="undefined"&&DATA&&DATA.slug)||new URLSearchParams(location.search).get("w")||"";
+  if(__frSpk&&__frSpk.ws===ws)return __frSpk.re;const t=FR_SPEAKERS[ws];__frSpk={ws,re:t?frSpeakerRe(t):null};return __frSpk.re;}
 function _splitSents(t){
   // sentence enders incl. the Greek ano teleia (·) and erotimatiko (;) — and Greek prose
   // may continue lowercase after an ender, so no capital requirement follows · or ;
