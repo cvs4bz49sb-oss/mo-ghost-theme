@@ -28,6 +28,7 @@
 import { writeFile, mkdir, readFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { fillMissingTopics } from "./podcast-wiki-topics.mjs";
 
 const OUT = fileURLToPath(new URL("../assets/data/podcast-wiki.json", import.meta.url));
 
@@ -44,15 +45,15 @@ const SHOWS = {
 // category = adding one line here.
 const TITLE_RULES = {
   "christians-reading-classics": [
-    ["American Literature", /east of eden|cooper|lewis and clark|gatsby|american sermons|scarlet letter|tom sawyer|moby dick|atlas shrugged|uncle tom|henry adams|douglass|america ?250|democracy in america|little house|flannery|sinclair|it can'?t happen/i],
+    ["American Literature", /east of eden|cooper|lewis and clark|gatsby|american sermons|scarlet letter|tom sawyer|moby dick|atlas shrugged|uncle tom|henry adams|douglass|america ?250|democracy in america|little house|flannery|sinclair|it can'?t happen|jack london|declaration of independence/i],
     ["British Literature", /till we have faces|mansfield park|wuthering|brave new world|hollow men|great divorce|gaudy night|return of the king|alice|winnie|everlasting man|that hideous strength/i],
-    ["Russian Literature", /heart of a dog|bulgakov/i],
-    ["Ancient & Patristic", /augustine|confessions|cassiodorus|nicomachean|nicene|ancient pagans/i],
+    ["Russian Literature", /heart of a dog|bulgakov|dostoevsk|the idiot|tolstoy|solzhenitsyn/i],
+    ["Ancient & Patristic", /augustine|confessions|cassiodorus|nicomachean|nicene|ancient pagans|odyssey|iliad|homer|virgil|aeneid|epics/i],
     ["Medieval & Renaissance", /petrarch|aquinas/i],
     ["Poetry", /petrarch|hollow men|eliot/i],
     ["Children's Literature", /tom sawyer|little house|alice|winnie|pooh/i],
     ["Theology & Faith", /augustine|aquinas|nicene|sermons|great divorce|everlasting man|scandal of the christian/i],
-    ["Political Thought", /atlas shrugged|tocqueville|democracy in america|it can'?t happen|nicomachean|bread and wine/i],
+    ["Political Thought", /atlas shrugged|tocqueville|democracy in america|it can'?t happen|nicomachean|bread and wine|declaration of independence/i],
     ["Dystopia", /brave new world|it can'?t happen|heart of a dog|that hideous strength/i],
     ["Slavery & Abolition", /uncle tom|douglass/i],
     ["C.S. Lewis", /till we have faces|great divorce|that hideous strength/i],
@@ -143,6 +144,9 @@ async function fetchShow(slug, cfg) {
         guests = Array.isArray(m.guests) && m.guests.length ? m.guests : parseGuests(ep.title || "");
       } else {
         topics = topicsByTitle(slug, ep.title || "");
+        // A book the rules don't name yet: try the same rules on the
+        // description, which usually names the book and author too.
+        if (!topics.length) topics = topicsByTitle(slug, stripHtml(ep.description || ep.summary || ""));
         guests = parseGuests(ep.title || "");
       }
       return {
@@ -166,6 +170,14 @@ async function fetchShow(slug, cfg) {
       };
     });
 
+  if (cfg.topicMode === "transcript") {
+    const filled = fillMissingTopics(episodes);
+    console.log(
+      `${slug}: topics for episodes missing from the transcript map: ` +
+        `${filled.replay} from the original episode, ${filled.keywords} from keywords, ${filled.none} with none`
+    );
+  }
+
   return { updated: new Date(now).toISOString(), episodes };
 }
 
@@ -175,6 +187,11 @@ for (const [slug, cfg] of Object.entries(SHOWS)) {
   const nTopics = new Set(out[slug].episodes.flatMap((e) => e.topics)).size;
   const nGuests = new Set(out[slug].episodes.flatMap((e) => e.guests)).size;
   console.log(`${slug}: ${out[slug].episodes.length} episodes, ${nTopics} topics, ${nGuests} guests`);
+  const untagged = out[slug].episodes.filter((e) => !e.topics.length);
+  if (untagged.length) {
+    console.log(`${slug}: ${untagged.length} episode(s) with no topic:`);
+    for (const e of untagged) console.log(`  ${e.pubDate.slice(0, 10)}  ${e.title}`);
+  }
 }
 
 await mkdir(dirname(OUT), { recursive: true });
