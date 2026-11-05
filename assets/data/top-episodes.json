@@ -7,7 +7,7 @@
       "pubDate": "2026-10-07T06:00:00.000-04:00",
       "episode": 38,
       "season": 3,
-      "plays": 4172,
+      "plays": 4179,
       "embedUrl": "https://www.buzzsprout.com/2612792/19918976?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/resisting-therapy-culture-with-matthew-loftus/"
@@ -19,7 +19,7 @@
       "pubDate": "2026-08-26T04:00:00.000-04:00",
       "episode": 32,
       "season": 3,
-      "plays": 4093,
+      "plays": 4094,
       "embedUrl": "https://www.buzzsprout.com/2612792/19702000?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/postliberal-theology-explained/"
@@ -31,7 +31,7 @@
       "pubDate": "2026-08-19T05:00:00.000-04:00",
       "episode": 31,
       "season": 3,
-      "plays": 4076,
+      "plays": 4077,
       "embedUrl": "https://www.buzzsprout.com/2612792/19665503?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/what-is-a-man/"
@@ -43,7 +43,7 @@
       "pubDate": "2026-09-02T06:00:00.000-04:00",
       "episode": 33,
       "season": 3,
-      "plays": 4068,
+      "plays": 4070,
       "embedUrl": "https://www.buzzsprout.com/2612792/19741269?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/in-defense-of-evangelicalism-with-bonnie-kristian/"
@@ -55,7 +55,7 @@
       "pubDate": "2026-07-08T07:00:00.000-04:00",
       "episode": 25,
       "season": 3,
-      "plays": 4036,
+      "plays": 4037,
       "embedUrl": "https://www.buzzsprout.com/2612792/19458498?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/divided-we-stand-on-denominations/"
@@ -81,7 +81,7 @@
       "pubDate": "2026-06-18T07:00:00.000-04:00",
       "episode": 21,
       "season": 2,
-      "plays": 1257,
+      "plays": 1258,
       "embedUrl": "https://www.buzzsprout.com/2612793/19361771?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/east-of-eden-with-philip-bunn-matthew-h-young/"
@@ -93,22 +93,10 @@
       "pubDate": "2026-05-28T07:00:00.000-04:00",
       "episode": 18,
       "season": 2,
-      "plays": 1155,
+      "plays": 1158,
       "embedUrl": "https://www.buzzsprout.com/2612793/19250148?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/augustine-s-confessions-with-joey-sherrard/"
-    },
-    {
-      "id": 19519735,
-      "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-      "slug": "the-idiot-by-fyodor-dostoevsky-with-maria-baer",
-      "pubDate": "2026-07-23T05:00:00.000-04:00",
-      "episode": 26,
-      "season": 2,
-      "plays": 1089,
-      "embedUrl": "https://www.buzzsprout.com/2612793/19519735?client_source=small_player&iframe=true",
-      "hasTranscript": true,
-      "transcriptUrl": "/transcript/christians-reading-classics/the-idiot-by-fyodor-dostoevsky-with-maria-baer/"
     },
     {
       "id": 19741650,
@@ -117,10 +105,22 @@
       "pubDate": "2026-09-03T07:00:00.000-04:00",
       "episode": 32,
       "season": 2,
-      "plays": 1088,
+      "plays": 1090,
       "embedUrl": "https://www.buzzsprout.com/2612793/19741650?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/mere-christianity-by-c-s-lewis-with-daniel-k-williams/"
+    },
+    {
+      "id": 19519735,
+      "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
+      "slug": "the-idiot-by-fyodor-dostoevsky-with-maria-baer",
+      "pubDate": "2026-07-23T05:00:00.000-04:00",
+      "episode": 26,
+      "season": 2,
+      "plays": 1090,
+      "embedUrl": "https://www.buzzsprout.com/2612793/19519735?client_source=small_player&iframe=true",
+      "hasTranscript": true,
+      "transcriptUrl": "/transcript/christians-reading-classics/the-idiot-by-fyodor-dostoevsky-with-maria-baer/"
     }
   ]
 }
