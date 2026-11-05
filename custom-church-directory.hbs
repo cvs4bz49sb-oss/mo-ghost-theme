@@ -1,0 +1,381 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Church Directory (prototype) | Mere Orthodoxy</title>
+{{!-- noindex because this is an internal review prototype whose
+      listings no church has confirmed. It must never be found in search,
+      and it must never be mistaken for a directory a reader could rely
+      on. Same pattern as custom-welcome.hbs and custom-migrate.hbs. --}}
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="A prototype church directory for Mere Orthodoxy readers. The churches in it were named by members and have not confirmed their listings." />
+<meta property="og:title" content="Church Directory (prototype)" />
+<meta property="og:description" content="A prototype church directory for Mere Orthodoxy readers. The churches in it were named by members and have not confirmed their listings." />
+<meta name="twitter:title" content="Church Directory (prototype)" />
+<meta name="twitter:description" content="A prototype church directory for Mere Orthodoxy readers. The churches in it were named by members and have not confirmed their listings." />
+<link rel="stylesheet" href="{{asset "css/church-directory.css"}}&amp;frv=church-directory-20261103c" />
+{{/contentFor}}
+{{!-- Church Directory prototype (Ian, 2026-11-02). For internal review
+     only: there is no routes.yaml entry, so the page exists only where
+     Ghost Admin assigns this template to a page, and the intent is that
+     it stays a draft and is read through Preview.
+
+     WHAT IS REAL AND WHAT IS NOT (Ian, 2026-11-03: use the real list).
+     The listings (assets/data/church-directory-listings.json) are the churches
+     members named when they confirmed a mailing address: a name as they
+     typed it and a country, nothing more. No church has confirmed its
+     listing, there are no cities, addresses or service times, and a
+     tradition shows only where the church's own name states it. The form
+     sends nowhere. The prototype notice under the header says both of
+     those things on every view, and it is the one piece of copy on the
+     page that may not be softened.
+
+     WHERE THE PINS COME FROM (Ian, 2026-11-03: "show the map"). The only
+     place stored beside a church's name is the member's own address, which
+     is not the church's, so it is never used as a location. Instead each
+     name was looked up on OpenStreetMap once, at build time, with the
+     member's state only as a search hint. A pin was kept only where OSM
+     tags exactly one place of worship by that name in that state, and four
+     matches whose names did not agree were thrown out by hand. That pins
+     46 of the 152 and gives those 46 a city and state; the rest stay in
+     the list with no pin. OSM's licence (ODbL) requires the credit in both
+     map captions. The page itself still fetches nothing from OSM.
+
+     NO NETWORK BEYOND THIS SITE'S OWN ASSETS. Two fetches, both static
+     files under /assets/data/: the listings and the map outlines.
+     No worker, no Ghost API, no form endpoint, no map tiles. A reviewer
+     can read the whole page in Network and see those two requests.
+
+     THE MAP IS DRAWN HERE, NOT EMBEDDED (Ian, 2026-11-02: "make an
+     actual map"). A tile map means a third-party host in connect-src and
+     img-src and a request per tile, which is both a network call this
+     prototype must not make and a CSP change it must not need. So the
+     outlines are a static file (assets/data/church-directory-map.json,
+     public-domain Natural Earth countries and US Census states, built
+     once and simplified) and church-directory.js draws them as inline
+     SVG, with a pin per church at the latitude and longitude in the
+     listing. The map follows the filters and zooms to what they leave.
+     It is a picture of the list, not a second way through it: the pins
+     are not in the tab order, and the list below has every church on
+     the map with the same link.
+
+     THREE VIEWS IN ONE TEMPLATE, SWITCHED BY THE HASH. A Ghost draft
+     preview has no routes under it, so a church cannot have its own
+     path. The hash is what is left: "" is the directory, #church/<slug>
+     is one church, #add and #claim/<slug> are the form. All three are
+     in the markup here and two are `hidden`; church-directory.js shows
+     one at a time. `hidden` takes a view out of the accessibility tree
+     as well as off the screen, so the page always has exactly one h1
+     that anyone can reach.
+
+     THE FORM IS WRITTEN OUT HERE RATHER THAN BUILT IN JS. It is the
+     site's own stacked form, and the classes that style it
+     (.stacked-form, .form-group, .form-legend, .form-field, .form-row)
+     are all scoped under .membership-support in screen.css, which is
+     why <main> carries that class. Written as markup, the form reads as
+     the same form as /groups/ and /gift/; built in JS, it would be a
+     pile of createElement calls nobody could compare against them.
+     Only DATA is built in JS, and only with textContent.
+
+     .cd ON <main> IS THE PAGE'S OWN NAMESPACE. Every class this page
+     adds is prefixed cd-, and every rule in church-directory.css is
+     scoped under .cd, so nothing here can reach the rest of the site
+     and nothing in screen.css has to be touched to style it. --}}
+
+<main class="membership-support cd">
+
+  {{!-- Every view, directly under the site header, and deliberately not
+        dismissible. A reviewer who lands on #church/<slug> from a link
+        must see it as plainly as one who lands on the directory. --}}
+  <p class="cd-notice">This is a prototype. These churches were named by Mere Orthodoxy members and have not confirmed their listings. Nothing you enter is sent or saved.</p>
+
+  <noscript>
+    <p class="cd-noscript">This prototype needs JavaScript to show the directory.</p>
+  </noscript>
+
+  {{!-- PASSWORD PROMPT (Ian, 2026-11-03). Ian chose a prompt over a real
+        lock: it keeps casual visitors out and nothing more. The check runs
+        in the browser against a SHA-256 hash in church-directory.js, and
+        the listings file under /assets/data/ stays public. Shown by the
+        script; the views below stay hidden until it passes. --}}
+  <div data-cd-lock hidden>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Church Directory</p>
+        <h1 class="page-hero-headline">This page needs a password.</h1>
+      </div>
+    </section>
+    <section class="cd-body">
+      <div class="container">
+        <form class="cd-lock-form" data-cd-lock-form novalidate>
+          <label class="cd-filter-label" for="cd-lock-pw">Password</label>
+          <div class="cd-lock-row">
+            <input type="password" id="cd-lock-pw" class="cd-input" data-cd-lock-pw autocomplete="off" aria-describedby="cd-lock-error" />
+            <button type="submit" class="btn btn-solid btn-primary">Open</button>
+          </div>
+          <p class="cd-lock-error" id="cd-lock-error" data-cd-lock-error role="alert" hidden>That password is not right.</p>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <div data-cd-content hidden>
+
+  {{!-- ───────────────────────── Directory ───────────────────────── --}}
+  <div class="cd-view" data-cd-view="directory">
+
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Church Directory</p>
+        <h1 class="page-hero-headline" id="cd-directory-title" tabindex="-1">Find a church where <em>Mere&nbsp;Orthodoxy</em> readers worship.</h1>
+        <p class="page-hero-sub">Churches named by Mere Orthodoxy members, so readers who move or travel can find a congregation.</p>
+      </div>
+    </section>
+
+    <section class="cd-body">
+      <div class="container">
+
+        {{!-- Real labels and real controls. The contributors alphabet
+              rail is the look being mirrored (the 11px tracked label and
+              the hairline under the strip), not the pills: a pill row
+              cannot say which of four things it is filtering, and four
+              filters need four names. --}}
+        <div class="cd-filters">
+          <div class="cd-filter">
+            <label class="cd-filter-label" for="cd-q">Search</label>
+            <input type="search" id="cd-q" class="cd-input" data-cd-q autocomplete="off" placeholder="Church name or city" />
+          </div>
+          <div class="cd-filter">
+            <label class="cd-filter-label" for="cd-country">Country</label>
+            <select id="cd-country" class="cd-select" data-cd-country></select>
+          </div>
+          <div class="cd-filter" data-cd-state-filter hidden>
+            <label class="cd-filter-label" for="cd-state">State or province</label>
+            <select id="cd-state" class="cd-select" data-cd-state></select>
+          </div>
+          <div class="cd-filter">
+            <label class="cd-filter-label" for="cd-city">City</label>
+            <select id="cd-city" class="cd-select" data-cd-city></select>
+          </div>
+          <div class="cd-filter">
+            <label class="cd-filter-label" for="cd-tradition">Tradition</label>
+            <select id="cd-tradition" class="cd-select" data-cd-tradition></select>
+          </div>
+          <div class="cd-filter cd-filter--clear">
+            <button type="button" class="cd-clear" data-cd-clear hidden>Clear filters</button>
+          </div>
+        </div>
+
+        <p class="cd-count" data-cd-count role="status" aria-live="polite"></p>
+
+        {{!-- Hidden until the outlines have loaded and at least one
+              listing has a place to pin. A listing with no coordinates
+              is still in the list; it is just not on the map. --}}
+        <figure class="cd-map" data-cd-map hidden>
+          <div class="cd-map-frame" data-cd-map-frame></div>
+          {{!-- Shown only after a cluster has zoomed the map in. --}}
+          <button type="button" class="cd-map-reset" data-cd-map-reset hidden>Show the whole map</button>
+          <figcaption class="cd-map-caption" data-cd-map-caption></figcaption>
+        </figure>
+
+        <div class="cd-list" data-cd-list></div>
+
+      </div>
+    </section>
+
+    {{!-- The site divides a page from the band that follows it with the
+          round site mark. One mark, between the listings and the ask. --}}
+    <div class="cd-ornament">{{> "flourish-mark"}}</div>
+
+    <section class="cd-add-band">
+      <div class="container">
+        <h2 class="cd-add-heading">Add your church</h2>
+        <p class="cd-add-sub">Pastors and church staff can list their congregation. We confirm every listing with the church before it appears.</p>
+        <p class="cd-add-action"><a class="btn btn-solid btn-lg" href="#add" data-cd-link>Add your church</a></p>
+      </div>
+    </section>
+
+  </div>
+
+  {{!-- ──────────────────────── One church ──────────────────────── --}}
+  <div class="cd-view" data-cd-view="church" hidden>
+    <section class="cd-detail">
+      <div class="container">
+
+        {{!-- href is rewritten by the script to carry the filters the
+              reader had set, so Back does not drop them. --}}
+        <p class="cd-back"><a href="#" data-cd-back>Back to the directory</a></p>
+
+        <h1 class="cd-detail-name" data-cd-detail-name id="cd-church-title" tabindex="-1"></h1>
+        <p class="cd-detail-place" data-cd-detail-place></p>
+        <p class="cd-detail-badges"><span class="cd-badge">Unconfirmed</span></p>
+        <p class="cd-detail-description" data-cd-detail-description></p>
+
+        <dl class="cd-detail-facts">
+          <dt>Tradition</dt><dd data-cd-detail-tradition></dd>
+          <dt>Service times</dt><dd data-cd-detail-times></dd>
+          <dt>Address</dt><dd data-cd-detail-address></dd>
+          <dt>Website</dt><dd data-cd-detail-website></dd>
+        </dl>
+        <figure class="cd-map cd-map--detail" data-cd-detail-map hidden>
+          <div class="cd-map-frame" data-cd-detail-map-frame></div>
+          <figcaption class="cd-map-caption">The pin marks where this church appears on OpenStreetMap. Church locations © OpenStreetMap contributors.</figcaption>
+        </figure>
+
+        <div class="cd-claim-panel">
+          <h2 class="cd-claim-heading">Is this your church?</h2>
+          <p class="cd-claim-sub">Pastors and church staff can correct a listing or claim it.</p>
+          <p><a class="btn btn-solid" href="#add" data-cd-claim-link>Claim this listing</a></p>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  {{!-- ───────────────────── Add or claim form ───────────────────── --}}
+  <div class="cd-view" data-cd-view="form" hidden>
+
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Church Directory</p>
+        <h1 class="page-hero-headline" id="cd-form-title" tabindex="-1" data-cd-form-title>Add your church</h1>
+        <p class="page-hero-sub" data-cd-form-sub>Tell us about the congregation. We confirm every listing with the church before it appears.</p>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="container">
+
+        {{!-- novalidate: the browser's own bubbles cannot be placed under
+              a field or tied to it with aria-describedby, and they stop
+              at the first bad field rather than listing them. The script
+              validates and writes the messages itself. --}}
+        <form class="stacked-form cd-form" data-cd-form novalidate>
+
+          <div class="cd-form-summary" data-cd-summary hidden>
+            <h2 class="cd-form-summary-heading" data-cd-summary-heading tabindex="-1">Check these fields</h2>
+            <ul class="cd-form-summary-list" data-cd-summary-list></ul>
+          </div>
+
+          <p class="cd-form-claiming" data-cd-claiming hidden></p>
+
+          {{!-- Each field is a <div> holding a <label for>, not a wrapping
+                <label>. A wrapping label makes everything inside it part of
+                the control's name, so a screen reader announced "Church name,
+                Enter the name of the church" and then read the error again
+                from aria-describedby. Errors and hints sit beside the label
+                and are tied to the control by id. The screen.css form set is
+                styled by class, so the change is invisible. --}}
+          <fieldset class="form-group">
+            <legend class="form-legend">Your church</legend>
+
+            <div class="form-field">
+              <label class="form-label" for="cd-f-church_name">Church name</label>
+              <input type="text" id="cd-f-church_name" name="church_name" data-cd-field="church_name" aria-required="true" aria-describedby="cd-err-church_name" />
+              <span class="cd-error" id="cd-err-church_name" data-cd-error="church_name"></span>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="cd-f-address">Street address (optional)</label>
+              <input type="text" id="cd-f-address" name="address" data-cd-field="address" autocomplete="off" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label" for="cd-f-city">City</label>
+                <input type="text" id="cd-f-city" name="city" data-cd-field="city" aria-required="true" aria-describedby="cd-err-city" />
+                <span class="cd-error" id="cd-err-city" data-cd-error="city"></span>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cd-f-state">State or province (optional)</label>
+                <input type="text" id="cd-f-state" name="state" data-cd-field="state" aria-describedby="cd-hint-state" />
+                <span class="form-hint" id="cd-hint-state">Leave this empty if your country has none.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label" for="cd-f-country">Country</label>
+                <select id="cd-f-country" name="country" data-cd-field="country" data-cd-country-select aria-required="true" aria-describedby="cd-err-country"></select>
+                <span class="cd-error" id="cd-err-country" data-cd-error="country"></span>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cd-f-tradition">Tradition (optional)</label>
+                <select id="cd-f-tradition" name="tradition" data-cd-field="tradition" data-cd-tradition-select></select>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="cd-f-website">Website (optional)</label>
+              <input type="url" id="cd-f-website" name="website" data-cd-field="website" placeholder="https://" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="cd-f-service_times">Service times (optional)</label>
+              <input type="text" id="cd-f-service_times" name="service_times" data-cd-field="service_times" placeholder="Sunday 10:30 a.m." />
+            </div>
+
+            {{!-- No aria-live on the count. Live, it read "297 characters
+                  left" after every letter. As a description it is read
+                  when the reader lands on the field and asks for it. --}}
+            <div class="form-field">
+              <label class="form-label" for="cd-f-description">Short description (optional)</label>
+              <textarea id="cd-f-description" name="description" data-cd-field="description" maxlength="300" rows="4" aria-describedby="cd-count-description"></textarea>
+              <span class="form-hint" id="cd-count-description" data-cd-char>300 characters left</span>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <legend class="form-legend">You</legend>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label" for="cd-f-your_name">Your name</label>
+                <input type="text" id="cd-f-your_name" name="your_name" data-cd-field="your_name" autocomplete="name" aria-required="true" aria-describedby="cd-err-your_name" />
+                <span class="cd-error" id="cd-err-your_name" data-cd-error="your_name"></span>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cd-f-email">Email</label>
+                <input type="email" id="cd-f-email" name="email" data-cd-field="email" autocomplete="email" aria-required="true" aria-describedby="cd-err-email" />
+                <span class="cd-error" id="cd-err-email" data-cd-error="email"></span>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="cd-f-role">Your role</label>
+              <select id="cd-f-role" name="role" data-cd-field="role">
+                <option value="Pastor">Pastor</option>
+                <option value="Church staff">Church staff</option>
+                <option value="Elder or deacon">Elder or deacon</option>
+                <option value="Member">Member</option>
+              </select>
+            </div>
+
+            <div class="cd-consent">
+              <label class="cd-consent-label">
+                <input type="checkbox" name="authorized" data-cd-field="authorized" aria-required="true" aria-describedby="cd-err-authorized" />
+                <span>I'm authorized to list this church, and the church agrees to appear in the directory.</span>
+              </label>
+              <span class="cd-error" id="cd-err-authorized" data-cd-error="authorized"></span>
+            </div>
+          </fieldset>
+
+          <button type="submit" class="btn btn-solid btn-lg cd-submit">Send for confirmation</button>
+          <p class="cd-form-note">Prototype: this form does not send or save anything.</p>
+        </form>
+
+        {{!-- Replaces the form on submit. Written here rather than built
+              in JS so its copy is reviewable in the template. --}}
+        <div class="cd-done" data-cd-done hidden>
+          <h2 class="cd-done-heading" data-cd-done-heading tabindex="-1">Thanks. Check your email.</h2>
+          <p>In the real directory, we'd send you a link to confirm the listing. Nothing appears until the church confirms it.</p>
+          <p class="cd-form-note">Prototype: this form did not send or save anything.</p>
+          <p><a class="btn btn-outline" href="#" data-cd-back>Back to the directory</a></p>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  </div>
+
+  <script src="{{asset "js/page/church-directory.js"}}&amp;frv=church-directory-20261103c"></script>
+</main>

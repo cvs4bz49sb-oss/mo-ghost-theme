@@ -554,15 +554,15 @@
     const name = refName(M), ref = (x) => `${name} ${M.ch}:${x}`, none = `no note on verse ${v} recorded`;
     if (t.how === "sermon") return `${clip(t.x.t, 120)}, ${at}`;
     if (t.how === "sermon-ch") return `${clip(t.x.t, 110)}, on ${t.x.vul ? `${t.x.ref}, the Vulgate's count` : t.x.ref || `${name} ${M.ch}`}, ${at} (no sermon on verse ${v} recorded)`;
-    if (loc.found) return `Its note on ${ref(v)}, ${at}, found on the page`;
+    if (loc.found) return `Its note on ${ref(v)}, ${at}`;
     if (t.how === "note") return `Its note on ${ref(t.v)}, ${at}`;
     if (t.how === "nearest") return `Opens at its note on ${ref(t.v)}, ${at} (${none})`;
     if (t.how === "later") return `Opens at its first note in ${name} ${M.ch}, on ${M.ch}:${t.v}, ${at} (${none})`;
     if (t.how === "chapter") return `Opens at ${name} ${M.ch}, ${at} (${none})`;
     if (t.how === "cites") return `Cites ${name} ${M.ch} on ${at}, in its commentary on another passage (${none})`;
     if (t.how === "treats") return `Treats this chapter on ${at} (${none})`;
-    if (t.how === "head") return `Opens at ${name} ${M.ch}, ${at}, found by its heading (${none})`;
-    if (t.how === "book") return `Opens at the start of ${M.book === "psalms" ? "the Psalms" : name}, ${at}: chapter ${M.ch} is not mapped`;
+    if (t.how === "head") return `Opens at ${name} ${M.ch}, ${at} (${none})`;
+    if (t.how === "book") return `Opens at the start of ${M.book === "psalms" ? "the Psalms" : name}, ${at}. This work has no marked start for chapter ${M.ch}`;
     return `${at[0].toUpperCase()}${at.slice(1)}`;
   }
   const critSay = (M, t, v, at) => {
@@ -903,7 +903,7 @@
       }
       box.innerHTML = html;
       if (!box.__vdbTg) { box.__vdbTg = true; G.mount(box); } else G.layout(box);
-      if (!box.querySelector(".vdb-method")) box.insertAdjacentHTML("beforeend", method(`<p>Each author once, at his birth (else when first recorded), on his tradition's shelf; named over the bars, the landmark commentators on ${esc(chRef)}. Point at the strip, or use its arrow keys, for a quarter-century's authors.</p>`));
+      if (!box.querySelector(".vdb-method")) box.insertAdjacentHTML("beforeend", method(`<p>Each author appears once on his tradition's shelf. He is placed at his birth year or his first recorded date. The names over the bars are the landmark commentators on ${esc(chRef)}. Point at the strip or use its arrow keys to see each quarter-century's authors.</p>`));
       drawKinds();
     }
     function kindCounts() {
@@ -960,7 +960,7 @@
     const citeRow = (g) => {
       const ps = g.pages.map((x) => x.p).filter((p, i, a) => a.indexOf(p) === i);
       const first = g.pages[0], kinds = KIND_ORDER.filter((k) => g.kinds[k]).map((k) => KIND[k]);
-      const pgs = ps.length === 1 ? pageLink(g.w, ps[0], g.t) : `<span class="vdb-pgs">${esc(/^(pld|pg)-/.test(g.w) ? "cols." : "pp.")} ${ps.slice(0, 4).map((p) => `<a class="vdb-pg" href="${esc(cfg.read(g.w, p))}">${esc(p)}</a>`).join(", ")}${ps.length > 4 ? ` <span class="vdb-more-n">+${ps.length - 4}</span>` : ""}</span>`;
+      const pgs = ps.length === 1 ? pageLink(g.w, ps[0], g.t) : `<span class="vdb-pgs">${esc(/^(pld|pg)-/.test(g.w) ? "cols." : "pp.")} ${ps.slice(0, 4).map((p) => `<a class="vdb-pg" href="${esc(cfg.read(g.w, p))}" aria-label="${esc(`${g.t}, ${pgOf(g.w, p)}`)}">${esc(p)}</a>`).join(", ")}${ps.length > 4 ? ` <span class="vdb-more-n">+${ps.length - 4}</span>` : ""}</span>`;
       return row({ id: g.id, key: keyOf(g.id), who: properName(g.a) || g.t, when: whenOf(g.a, g.year), what: g.t, has: `${kinds.join(", ")}${first && first.g ? `${DOT}${first.g}` : ""}`,
         page: pgs, pv: pv(g.w, first && first.p, `${g.t}, ${first ? pgOf(g.w, first.p) : ""}`), cls: "vdb-cite" });
     };
@@ -1260,7 +1260,7 @@
           + `<h4 class="vdb-cmph">${esc(properName(g.a))}${whenOf(g.a, g.year) ? `<small>${esc(whenOf(g.a, g.year))}</small>` : ""}</h4><p class="vdb-cmpw"><cite>${esc(g.t)}</cite></p>`
           + `<ul class="vdb-cps">${g.pages.slice(0, 8).map((x) => `<li><a class="vdb-pg" href="${esc(cfg.read(g.w, x.p))}">${esc(pgOf(g.w, x.p))}</a><span class="vdb-k">${esc(KIND[x.how] || "cites")}</span>${x.g ? `<span class="vdb-gist">${esc(x.g)}</span>` : ""}${pv(g.w, x.p, `${g.t}, ${pgOf(g.w, x.p)}`)}</li>`).join("")}</ul></section>`;
       };
-      area.innerHTML = CM.works.length ? `<p class="vdb-wait">Three works that cite ${esc(ref(v))}, side by side: of the first standing until you choose others. Read each page in its place; no agreement or disagreement is inferred.</p><div class="vdb-cmpgrid">${st.cmp.map(column).join("")}</div>`
+      area.innerHTML = CM.works.length ? `<p class="vdb-wait">Three works that cite ${esc(ref(v))}, side by side. The three of highest standing show until you choose others. Read each page in its context. Nothing here says whether they agree.</p><div class="vdb-cmpgrid">${st.cmp.map(column).join("")}</div>`
         : '<p class="vdb-wait">No citation of the verse to compare in these sources.</p>';
     }
 

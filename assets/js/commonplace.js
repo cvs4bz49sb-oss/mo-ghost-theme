@@ -1,10 +1,13 @@
 /*
- * Commonplace Book — highlight-to-save for paid members.
+ * Commonplace Book — highlight-to-save for paid members, and Share image
+ * for every reader of an essay.
  *
- * Detects text selection inside article/ebook/journal content areas,
- * shows a floating "Save" tooltip, and POSTs the highlight to the
- * mo-kit worker. Paid/comped members only — the script exits early
- * if the member status isn't paid or comped.
+ * Detects text selection inside article/ebook/journal content areas and
+ * shows a floating tooltip. "Save" POSTs the highlight to the mo-kit
+ * worker and appears only for paid/comped members. "Share image" opens
+ * the quote-card dialog (quote-card.js) and appears for anyone on an
+ * essay, signed in or not (Ian, 2026-11-03). With neither, the script
+ * exits early.
  */
 (function () {
   const {body} = document;
@@ -12,8 +15,12 @@
   const EMAIL = body.getAttribute("data-member-email") || "";
   const STATUS = body.getAttribute("data-member-status") || "";
 
-  if (!WORKER || !EMAIL) return;
-  if (STATUS !== "paid" && STATUS !== "comped") return;
+  const canSave = !!WORKER && !!EMAIL && (STATUS === "paid" || STATUS === "comped");
+  // Share image (quote-card.js) is offered on essays only. The Faith
+  // Received reader makes its own quote image in its own template.
+  const canShare = body.classList.contains("post-template") &&
+    !!window.MOQuoteCard && typeof window.MOQuoteCard.openDialog === "function";
+  if (!canSave && !canShare) return;
 
   // Content zones where highlights are saveable
   const SELECTORS = [
@@ -27,19 +34,34 @@
   // Build the tooltip
   const tooltip = document.createElement("div");
   tooltip.className = "commonplace-tooltip";
-  tooltip.innerHTML =
-    '<button type="button" class="commonplace-save-btn">' +
-      '<svg width="14" height="14" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-        '<path d="M40 8 Q46 18 36 26 Q24 30 16 34 Q20 22 28 14 Q34 10 40 8 Z"/>' +
-        '<path d="M38 10 L18 32" stroke-width="1"/>' +
-        '<path d="M16 34 L12 38"/>' +
-        '<line x1="12" y1="42" x2="32" y2="42"/>' +
-      '</svg>' +
-      '<span>Save</span>' +
-    '</button>';
+  if (canSave) {
+    tooltip.innerHTML =
+      '<button type="button" class="commonplace-save-btn">' +
+        '<svg width="14" height="14" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<path d="M40 8 Q46 18 36 26 Q24 30 16 34 Q20 22 28 14 Q34 10 40 8 Z"/>' +
+          '<path d="M38 10 L18 32" stroke-width="1"/>' +
+          '<path d="M16 34 L12 38"/>' +
+          '<line x1="12" y1="42" x2="32" y2="42"/>' +
+        '</svg>' +
+        '<span>Save</span>' +
+      '</button>';
+  }
+  if (canShare) {
+    tooltip.classList.add("has-share");
+    tooltip.insertAdjacentHTML("beforeend",
+      '<button type="button" class="commonplace-share-btn">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<rect x="3" y="4" width="18" height="16" rx="1.5"/>' +
+          '<path d="M3 16l5-5 4 4 3-3 6 6"/>' +
+          '<circle cx="16" cy="9" r="1.5"/>' +
+        '</svg>' +
+        '<span>Share image</span>' +
+      '</button>');
+  }
   document.body.appendChild(tooltip);
 
   const saveBtn = tooltip.querySelector(".commonplace-save-btn");
+  const shareBtn = tooltip.querySelector(".commonplace-share-btn");
   let currentText = "";
   let hiding = false;
 
@@ -63,6 +85,20 @@
     return "";
   }
 
+  // The card's byline. primary_author is the house account on most essays;
+  // the writers are the author- tags in the byline (post.hbs .meta-authors).
+  function getCardAuthor() {
+    const names = [...new Set([...document.querySelectorAll(
+      '.meta-authors [data-tag-slug^="author-"] .meta-author-name')]
+      .map((n) => (n.textContent || "").trim()).filter(Boolean))];
+    if (names.length) {
+      return names.length < 3 ? names.join(" and ")
+        : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+    }
+    const a = getSourceAuthor();
+    return a === "Mere Orthodoxy" ? "" : a;
+  }
+
   function getSourceUrl() {
     const canon = document.querySelector('link[rel="canonical"]');
     return canon ? canon.href : window.location.href;
@@ -81,8 +117,8 @@
     const scrollX = window.pageXOffset || window.scrollX || 0;
     const scrollY = window.pageYOffset || window.scrollY || 0;
 
-    const tooltipWidth = 90;
-    const tooltipHeight = 38;
+    const tooltipWidth = tooltip.offsetWidth || 90;
+    const tooltipHeight = tooltip.offsetHeight || 38;
 
     let top, left;
     const isMobile = window.innerWidth <= 960;
@@ -91,7 +127,8 @@
     left = Math.max(8, Math.min(left, document.documentElement.clientWidth - tooltipWidth - 8));
 
     if (isMobile) {
-      top = rect.bottom + scrollY + 8;
+      // Clear of the iOS selection handle that hangs below the last line.
+      top = rect.bottom + scrollY + 28;
     } else {
       top = rect.top + scrollY - tooltipHeight - 8;
     }
@@ -105,6 +142,11 @@
 
   function hideTooltip() {
     tooltip.classList.remove("visible");
+    // Park it at the corner: left where it was last shown, the wider
+    // Save + Share bar can hang past the edge after a phone turns and
+    // widen the page.
+    tooltip.style.left = "0px";
+    tooltip.style.top = "0px";
     currentText = "";
     hiding = false;
   }
@@ -154,8 +196,26 @@
     }
   });
 
+  // Share image handler
+  if (shareBtn) {
+    shareBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!currentText) return;
+      const quote = currentText;
+      hideTooltip();
+      window.MOQuoteCard.openDialog({
+        brand: "mo",
+        quote,
+        author: getCardAuthor(),
+        cite: getSourceTitle(),
+        url: getSourceUrl(),
+      });
+    });
+  }
+
   // Save handler
-  saveBtn.addEventListener("click", (e) => {
+  if (saveBtn) saveBtn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!currentText || saveBtn.disabled) return;

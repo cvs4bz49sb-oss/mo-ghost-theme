@@ -61,7 +61,7 @@
   // eebo-N: the work's tree of HTML, as paragraphs under the page mark they follow
   function eeboPageMap(data) {
     const pages = new Map();
-    let cur = '0';
+    const cur = '0';
     const out = [];
     const walk = (nodes) => { for (const nd of nodes || []) { if (nd.html) out.push(nd.html); walk(nd.kids); } };
     walk(data && data.toc);
@@ -229,8 +229,8 @@
         // its tradition: the shelf, or for the Reformed, Lutheran and Roman Catholic the map's tradition (10-20)
         c.sh = c.sh || (e.sh === 'x' ? (X_SHELF[e.tr] || 'x') : e.sh);
         c.k = c.k || e.k; c.cov = Math.max(c.cov || 0, Object.keys(e.an || {}).length || ((Number(e.c2) || 0) - (Number(e.c1) || 0) + 1));
-        c.an = Object.assign(c.an || {}, e.an || {});   // every chapter's anchor: the pane's eeboCursor walks them in order
-        if (e.spm != null) c.spm = e.spm;   // where the entry's first chapter opens, as a count of the book's printed page marks
+        c.an = Object.assign(c.an || {}, e.an || {}); // every chapter's anchor: the pane's eeboCursor walks them in order
+        if (e.spm != null) c.spm = e.spm; // where the entry's first chapter opens, as a count of the book's printed page marks
         // (10-31) the reader's page id for a chapter whose anchor is a repeated printed number (map `ar`, 100000*k+n)
         if (e.ar) c.ar = Object.assign(c.ar || {}, e.ar);
         if (e.an && e.an[ch] != null) { c.open = e.an[ch]; if (e.an[String(+ch + 1)] != null) c.close = e.an[String(+ch + 1)]; }

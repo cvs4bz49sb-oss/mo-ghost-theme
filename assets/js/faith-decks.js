@@ -1032,7 +1032,7 @@ function selFoldHTML(P,host){
       +`${g.rest.length?`<details class="sel-r"><summary>${g.rest.length} not placed${nf?`, ${nf===g.rest.length?(nf===1?'':'all '):`${nf} `}belonging under ${nf===1?`another ${noun()}`:`other ${nouns()}`}`:''}</summary><ol class="argued tg">${g.rest.map(m=>moveHTML(m,host).replace(/<\/li>$/,`${to(m)}</li>`)).join('')}</ol></details>`:''}</li>`;
   };
   return `<details class="pmore sel-fold"><summary><h3>Disputations of the Selectae on this ${noun()} <small>${ds.length}</small></h3></summary>`
-    +`<p class="sel-note">A thesis that argues a ${esc(cfg.one)} above stands with it, first among the places where it is argued. Those that argue none are folded here under their disputation.</p>`
+    +`<p class="sel-note">A thesis that argues a ${esc(cfg.one)} above is listed under it, ahead of the other places that argue it. Theses that argue none are folded here under their disputation.</p>`
     +`<ol class="sel-ds">${ds.map(row).join('')}</ol></details>`;
 }
 // the verdicts pressed in the filter strip, kept from place to place; a find box narrows the list by the problems' words
@@ -1638,9 +1638,9 @@ async function qlFill(fig,b,box){
   if(!m){note(`The ${lang} of p. ${esc(p)} could not be loaded.`);return;}
   if(m.en_only){NOLA.add(w);note('This work is in English only.');return;}
   const la=String((pp&&pp.la)||''),en=String((pp&&pp.en)||'');
-  if(!la.trim()){note(`The ${lang} of p. ${esc(p)} is not in the library's page files; Preview shows the page.`);return;}
+  if(!la.trim()){note(`The ${lang} of p. ${esc(p)} is not in the library's page files. Preview shows the page.`);return;}
   const hit=en.trim()?qalign(en,la,q):null;
-  if(!hit){note(`This passage could not be placed in the ${lang} of p. ${esc(p)}; Preview shows the page in both languages.`);return;}
+  if(!hit){note(`This passage could not be placed in the ${lang} of p. ${esc(p)}. Preview shows the page in both languages.`);return;}
   box.setAttribute('lang',m.src_lang||'la');
   box.innerHTML=`<p class="ql-h">The ${lang} at this place on p. ${esc(p)}, the matching span marked</p><p class="ql-t">${hit}</p>`;
 }

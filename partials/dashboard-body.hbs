@@ -78,13 +78,17 @@
             <p class="dash-card-meta">Everything you've read, most recent first.</p>
             <span class="dash-card-foot"><span class="dash-card-count" data-card-count="history"></span><span class="dash-card-open">Open &rarr;</span></span>
           </a>
-          {{!-- Works saved from the library. Kept in the same mo-kit
-               bookmark store as articles, under "tfr:" ids, and resolved
-               against the catalogues by faith-saved.js. --}}
+          {{!-- Works saved from the library, and the passages kept from
+               it. The works are in the same mo-kit bookmark store as
+               articles under "tfr:" ids, which is why the count below
+               is the one CFG entry in dashboard.js that filters by
+               prefix; the passages are the notebook, in this browser.
+               The page itself renders the Research page's own Bookmarks
+               and Notebook panels. --}}
           <a class="dash-card" href="/dashboard/faith-received/">
             <span class="dash-card-kind">Saved</span>
             <h2 class="dash-card-title"><em>The Faith Received</em></h2>
-            <p class="dash-card-meta">Works you've saved from the library.</p>
+            <p class="dash-card-meta">Works you've saved and passages you've kept.</p>
             <span class="dash-card-foot"><span class="dash-card-count" data-card-count="faith-received"></span><span class="dash-card-open">Open &rarr;</span></span>
           </a>
 
@@ -176,7 +180,7 @@
           <p class="eyebrow">Online Community</p>
           <p class="dashboard-rail-tier"><em>Society of St. Anne's</em></p>
           <p class="dashboard-rail-meta">Chat with fellow Mere Orthodoxy readers and contributors on the Society of St. Anne's Discord Server.</p>
-          <a href="https://discord.gg/U6WN8pzvtv" class="dashboard-rail-link" target="_blank" rel="noopener">Join the Conversation &rarr;</a>
+          <a href="https://discord.gg/ANU4jmAyjB" class="dashboard-rail-link" target="_blank" rel="noopener">Join the Conversation &rarr;</a>
         </div>
 
         <div class="dashboard-rail-sep" aria-hidden="true"></div>

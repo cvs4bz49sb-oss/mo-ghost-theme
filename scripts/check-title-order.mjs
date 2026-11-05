@@ -120,7 +120,6 @@ if (failures.length) {
 // Every surface that sorts a shelf must go through the comparator.
 const CALLERS = [
   "assets/js/faith-author.js",
-  "assets/js/faith-saved.js",
   "assets/js/faith-room.js",
   "assets/js/faith-shelves.js",
   "assets/js/faith-transparency.js",

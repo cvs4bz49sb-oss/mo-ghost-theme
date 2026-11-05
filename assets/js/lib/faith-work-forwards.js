@@ -49,8 +49,8 @@
  *
  * WHO READS IT.
  *   page/faith-work-forward.js    the reader and the old per-work pages
- *   faith-saved.js                /dashboard/faith-received/ saved works
- *   page/faith-bookmarks.js       the Bookmarks panel
+ *   page/faith-bookmarks.js       the Bookmarks panel, on the Research
+ *                                 page and on /dashboard/faith-received/
  *   lib/faith-work-bookmarks.js   "is this work saved?" in the reader
  */
 (function () {

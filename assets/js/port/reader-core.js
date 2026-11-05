@@ -3105,7 +3105,7 @@ function build(){
     fm.innerHTML=`<span class="ff" role="button" tabindex="0">${esc(locOf(pg.n))}</span><span class="fr"></span><span class="fm">${isTitle?"title page":esc(pageSay(pg.n))}</span>`;
     R.appendChild(fm);
     const sec=el("section","folio"+(isFront?" frontmatter":"")+(isTitle?" titlepage":""));sec.dataset.idx=pi;sec.dataset.page=pg.n;
-    if(DATA.pg_source==="grc"&&window.__pgFillLa&&window.__pgFillLa.has(+pg.n)){const cap=el("p","pld-note-label");cap.textContent="No Greek for this page in our text: the source column shows Migne’s Latin.";sec.appendChild(cap);}if(DATA.pld_source_view?.notes){const label=el("p","pld-note-label");label.textContent=DATA.pld_source_view.hasEnglish?"Editorial notes from the source edition, with their English translation.":"Editorial notes from the source edition, shown in their original language.";sec.appendChild(label);}
+    if(DATA.pg_source==="grc"&&window.__pgFillLa&&window.__pgFillLa.has(+pg.n)){const cap=el("p","pld-note-label");cap.textContent="The library’s text has no Greek for this page. The source column shows Migne’s Latin.";sec.appendChild(cap);}if(DATA.pld_source_view?.notes){const label=el("p","pld-note-label");label.textContent=DATA.pld_source_view.hasEnglish?"Editorial notes from the source edition, with their English translation.":"Editorial notes from the source edition, shown in their original language.";sec.appendChild(label);}
     const enQ=teiKids(enEls),notesLA=[],notesEN=[];
     // SECTION-SYNC pairing (owner 2026-08-11 'all deadspace at the bottom'): heads are the
     // only hard sync points — everything between renders as TWO CONTINUOUS FACING COLUMNS,

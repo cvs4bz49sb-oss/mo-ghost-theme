@@ -2,19 +2,102 @@
 {{#contentFor "moHead"}}
 <title>The Faith Received | Mere Orthodoxy</title>
 <meta name="robots" content="noindex, nofollow" />
-<meta name="description" content="Works you have saved from The Faith Received library." />
+<meta name="description" content="The works you have saved from The Faith Received and the passages you have kept." />
 <meta property="og:title" content="The Faith Received" />
+<meta property="og:description" content="The works you have saved from The Faith Received and the passages you have kept." />
 <meta name="twitter:title" content="The Faith Received" />
+<meta name="twitter:description" content="The works you have saved from The Faith Received and the passages you have kept." />
+{{!-- The library base the panels resolve catalogue requests against. In
+      the head rather than at the foot, where it used to sit: the
+      partials now bring their own scripts and those render inside
+      <main>, so a meta tag after them is a meta tag below its readers.
+      It happens to work either way, because the only panel script that
+      reads it (lib/faith-dictionary-refs.js) reads it lazily inside
+      base() and falls back to this same URL. Depending on that is how
+      the fallback quietly becomes the thing actually serving. --}}
+<meta name="tfr-library-base" content="https://mo-tfr-library.mo-podcast-feed.workers.dev" />
 {{/contentFor}}
-{{!-- /dashboard/faith-received/ — works saved from the library.
+{{!-- /dashboard/faith-received/ — what the reader has kept from the
+     library: the WORKS they saved, and the PASSAGES they kept.
 
-     Kept in the same mo-kit bookmark store as article bookmarks, under
-     "tfr:<corpus>:<slug>" ids, and resolved against the catalogues by
-     faith-saved.js. The enriched /bookmarks list cannot serve this
-     page: it resolves ids against Ghost and drops what Ghost does not
-     know, which is every work in the library.
+     THIS PAGE USED TO BE ITS OWN IMPLEMENTATION, AND THAT WAS THE BUG.
+     It rendered a bare <ol> out of assets/js/faith-saved.js over eleven
+     lines of CSS (`columns: 2` and a hairline), which is what Ian saw
+     and called a mess. Worse than the look: it showed bookmarks ONLY.
+     Every passage the reader had kept — the whole notebook, which is
+     the thing they actually did work to make — was not on the page at
+     all, on a page whose own heading said "saved from the library".
 
-     Gating mirrors custom-dashboard-bookmarks.hbs. --}}
+     So this template no longer renders a list. The Research page's
+     Bookmarks and Notebook workspaces are the finished, reviewed
+     presentation of exactly these two stores, and both partials are
+     written to be dropped into a shell owned by someone else: they
+     bring their own <script> tags, they bind once and return on a
+     second run, and a host that also loads one of their scripts is
+     harmless. See the headers of _bookmarks-panel.hbs and
+     _notebook-panel.hbs.
+
+     THE BAND CARRIES .faith-research-band, AND THAT IS NOT A STRAY
+     CLASS. Those partials' headers say to wrap them in a plain
+     `<section class="bband">` because "nothing in here depends on the
+     tab shell". Their SCRIPTS do not. Their PRESENTATION does: roughly
+     twenty selector lists in assets/css/faith-received.css (from
+     ~:19826, "RESEARCH HUB: THIN-LINE BOXES, THE WHOLE WIDTH", Ian,
+     2026-09-23) are scoped to .faith-research-band, and they are what
+     turn hairline rows into the card grid, release the 720px column to
+     the full workspace, put the controls in a cream panel, and — this
+     one matters — cancel the panel's own full-bleed breakout so it does
+     not draw a white band inside the workspace's white band. Without
+     the class this page renders the base form, which is "everything was
+     hairline rows on white, with nothing boxed": bullet three of the
+     list of defects that block was written to fix. The class is how the
+     two surfaces are the same surface.
+
+     WHAT THE DASHBOARD HAS TO GIVE BACK. .bband.faith-research-band is
+     tuned for the Research page, where a tab strip sits above the
+     workspace and one panel shows at a time, so it zeroes its own top
+     padding and border. Here two bands sit one under the other with no
+     strip, and each panel already brings a white ground between two
+     hairlines plus 48/44 of inner padding. So the band contributes
+     nothing at all and the doubled hairline at the seam collapses —
+     see .dashboard .bband.faith-research-band in faith-received.css.
+     Stacking the band's padding on top of the panel's own is the
+     "screenful of cream" that rule's own comment is about.
+
+     TWO BANDS, NOT TABS. The Research page gives these panels a tab
+     strip because it has seven workspaces and room for one at a time.
+     Here there are two and they answer different questions ("where am I
+     in Augustine" is not "what have I gathered about grace"), so both
+     are on the page and the reader scrolls. A tab strip over two panels
+     hides half the page to save nothing.
+
+     THE STORAGE LINE IN THE HERO IS LOAD-BEARING. Each panel says where
+     its own things live, but only once it has something to say it
+     about: the bookmarks note is hidden until a row has a place to
+     resume to, and the notebook's until there is a passage. So on one
+     page the two notes rarely appear together, and a reader with
+     passages and no saved works would read "kept in this browser only"
+     as a fact about the whole page. It is not, and believing it is how
+     someone loses work. Said once, in the hero, unconditionally.
+
+     WHY THE GATE IS @member AND NOT paid/comped. The sibling dashboard
+     pages (custom-dashboard-bookmarks.hbs and the rest) gate on paid or
+     comped. This one must not: saving a work from the library follows
+     the TFR beta tier, which is any signed-in member
+     (assets/js/lib/faith-work-bookmarks.js, `beta ? signedIn : paid`).
+     Gating this page harder than the Save button that fills it would
+     let a free member save a work during the beta and then be told the
+     page listing it is a member feature. If the beta ever closes, that
+     file's constant is what changes and this gate follows it.
+
+     The Bookmarks panel used to do exactly that — hardcode paid/comped
+     while the Save button honoured the beta — so building this page on
+     it meant fixing it: assets/js/page/faith-bookmarks.js now reads the
+     same constant, which also corrects the Research page's Bookmarks
+     tab. mo-kit never had the bug; it deliberately serves the read to
+     any signed-in member so someone whose card lapses can still see and
+     clear what they saved. The Notebook has never been tier-gated; it
+     is localStorage and there is no tier to check. --}}
 
 <main class="dashboard">
 
@@ -22,7 +105,8 @@
     <section class="hero dashboard-hero">
       <div class="container">
         <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
-        <h1 class="hero-headline">Sign in to view your <span class="highlight"><em>saved works</em></span>.</h1>
+        <h1 class="hero-headline">Sign in to see what you have <span class="highlight"><em>kept</em></span>.</h1>
+        <p class="hero-sub">The works you have saved from the library and the passages you have kept.</p>
         <p class="dashboard-actions">
           <a href="#/portal/signin" class="btn btn-solid btn-primary" data-portal="signin">Sign in</a>
           <a href="/membership/" class="btn btn-ghost">Become a Member</a>
@@ -34,32 +118,38 @@
       <div class="container">
         <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
         <h1 class="hero-headline">The <span class="highlight"><em>Faith Received</em></span></h1>
-        <p class="dashboard-sub">Works you have saved from the library.</p>
+        <p class="hero-sub">The works you have saved and the passages you have kept.</p>
+        <p class="hero-sub dashboard-faith-note">Saved works are kept with your membership and follow you between devices. Kept passages, and the places inside a work, are stored in this browser only.</p>
         <p class="dashboard-actions">
           <a href="/dashboard/" class="btn btn-ghost">Back to dashboard</a>
-          <a href="/the-faith-received/curated/" class="btn btn-primary">Browse the library</a>
+          <a href="/the-faith-received/curated/" class="btn btn-solid btn-primary">Browse the library</a>
         </p>
       </div>
     </section>
 
-    <section class="dashboard-section">
-      <div class="container" data-faith-saved>
-        <p class="faith-saved-empty">Loading&hellip;</p>
+    {{!-- No aria-label on either band: each panel opens with its own
+          <h2> ("Bookmarks", "Notebook"), and a region named "Saved
+          works" wrapped around a heading that says "Bookmarks" is two
+          names for one thing in a screen reader. --}}
+    <section class="bband faith-research-band">
+      <div class="research-workspace">
+        <div class="research-workspace-inner">
+          {{> "faith-received/_bookmarks-panel"}}
+        </div>
+      </div>
+    </section>
+
+    {{!-- Kept passages, and the collections they are gathered into.
+          Collections are a filter inside this panel, not a third band:
+          a collection has only ever held entry ids into this same
+          notebook. The reasoning is in _notebook-panel.hbs. --}}
+    <section class="bband faith-research-band">
+      <div class="research-workspace">
+        <div class="research-workspace-inner">
+          {{> "faith-received/_notebook-panel"}}
+        </div>
       </div>
     </section>
   {{/unless}}
 
 </main>
-
-<meta name="tfr-library-base" content="https://mo-tfr-library.mo-podcast-feed.workers.dev" />
-<script src="{{asset "js/faith-denominations.js"}}"></script>
-<script src="{{asset "js/faith-corpora.js"}}"></script>
-{{!-- Saved dictionary articles, and the place in one. Both before
-      faith-saved.js, which reads them: page scripts run before
-      site.min.js, so nothing bundled can be assumed here. --}}
-<script src="{{asset "js/lib/faith-position-store.js"}}"></script>
-<script src="{{asset "js/lib/faith-dictionary-refs.js"}}"></script>
-{{!-- Retired works resolve to the copy that replaced them. --}}
-<script src="{{asset "js/lib/faith-public-slugs.js"}}"></script>
-<script src="{{asset "js/lib/faith-work-forwards.js"}}"></script>
-<script src="{{asset "js/faith-saved.js"}}"></script>

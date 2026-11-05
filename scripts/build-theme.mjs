@@ -107,6 +107,9 @@ const BUNDLES = [
       // header-behaviors.js is loaded standalone in default.hbs right
       // after the header + mobile-nav, before {{{body}}}, to prevent
       // the body-padding-top jump that causes hero shift on load.
+      // Quote-card renderer. Before commonplace.js, which offers Share
+      // image with it; the TFR reader's quote image uses it too.
+      "assets/js/quote-card.js",
       "assets/js/commonplace.js",
       "assets/js/liturgical-calendar.js",
       "assets/js/slide-in.js",

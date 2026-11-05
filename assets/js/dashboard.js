@@ -304,16 +304,45 @@
       bookmarks: { path: "/bookmarks", key: "bookmarks", noun: "saved" },
       commonplace: { path: "/commonplace", key: "entries", noun: "entries" },
       history: { path: "/history?limit=500", key: "history", noun: "essays" },
+      // The Faith Received card counts works saved from the library, and
+      // it has to ask a different question from the Bookmarks card above
+      // it. Both live in the same mo-kit store, but the enriched
+      // /bookmarks list resolves ids against Ghost and drops what Ghost
+      // does not know, which is every work in the library — so a TFR
+      // save is invisible to the row above and an essay bookmark must
+      // not be counted here. ids_only=1 hands back the raw ids and the
+      // "tfr:" prefix is what tells them apart. See
+      // assets/js/lib/faith-work-bookmarks.js for the id's shape.
+      //
+      // This count had never once appeared. The only code that filled
+      // it lived in assets/js/faith-saved.js, which ran on
+      // /dashboard/faith-received/ and never on /dashboard/, where the
+      // card is. That file is gone and this is its replacement.
+      "faith-received": {
+        // "works", not "saved": the card promises works AND passages,
+        // and this counts only the works. The passages are the
+        // notebook, which is localStorage and cannot be counted from
+        // here at all. A bare "3 saved" under that card reads as a
+        // total of both, which it is not.
+        path: "/bookmarks?ids_only=1", key: "postIds", noun: "works",
+        only: (id) => /^tfr:/.test(id),
+      },
     };
     cards.forEach((el) => {
       const c = CFG[el.getAttribute("data-card-count")];
       if (!c) return;
+      // A count is a claim, so only a read that SUCCEEDED may paint one.
+      // `r.ok ? r.json() : null` used to let a 401 or a 5xx fall through
+      // to the same line as a real answer and write "0 saved" over a
+      // shelf that is not empty. Throwing on a bad status sends it to
+      // .catch() with the network failures, where the count stays blank.
+      // faith-bookmarks.js states the same rule for the panel itself.
       moKitGet(c.path)
-        .then((r) => (r.ok ? r.json() : null))
+        .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
         .then((data) => {
           const list = (data && data[c.key]) || [];
-          const n = Array.isArray(list) ? list.length : 0;
-          el.textContent = `${n} ${c.noun}`;
+          const kept = Array.isArray(list) ? (c.only ? list.filter(c.only) : list) : [];
+          el.textContent = `${kept.length} ${c.noun}`;
         })
         .catch(() => { /* leave the count blank */ });
     });
