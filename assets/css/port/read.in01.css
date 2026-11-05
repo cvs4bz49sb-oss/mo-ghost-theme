@@ -486,6 +486,7 @@ html.mh-mini .ph .ploc{font-size:.7rem;opacity:1}
 #reading .turn{display:block;margin-top:var(--para-gap,.65rem);text-indent:0}
 #reading .turn.t0{margin-top:0}
 #reading .spk{font-variant:small-caps;font-weight:600;letter-spacing:.06em;color:var(--muted);margin-right:.25em}
+#reading .spk.spk-pr{font-variant:normal;font-variant-caps:all-small-caps;letter-spacing:.05em}
 .inarg{display:block;text-align:center;text-indent:0;font-style:italic;font-size:.92em;opacity:.85;margin:0 1.5em .85em;text-wrap:pretty}   /* a chapter head's argument (Migne's summary), its own line under the head (10-06) */
 .milat{display:block;margin-top:.5em;padding-top:.4em;border-top:1px solid color-mix(in oklab,var(--border) 45%,transparent);font-size:.86em;line-height:1.55;color:var(--muted);font-family:var(--font-body)}
 /* PG works read their Greek in Cardo — designed for polytonic; loaded lazily at canon time */
