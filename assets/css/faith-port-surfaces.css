@@ -1407,6 +1407,27 @@ main.research-room:has(.rx-profile) .rx-filters label:has(> #room-work-order) { 
 }
 .faith-port-search-page #results .sr .sr-cite:empty { display: none; }
 .faith-port-search-page #results .sr .sr-cite .sr-sec { letter-spacing: 0.08em; }
+/* The author's name, linked to the author's page (reader request #27).
+   On a work row (sorted by relevance) it sits above the work's own link,
+   styled as the eyebrow it replaces; in a group heading it is the name. */
+.faith-port-search-page #results .sr-by {
+  font: 600 11px/1.5 var(--font-ui, Georgia, serif);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sr-accent);
+  padding: 12px 0 0;
+  overflow-wrap: anywhere;
+}
+.faith-port-search-page #results .sr-by + .sr { padding-top: 4px; }
+.faith-port-search-page #results .sr-author {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.faith-port-search-page #results .sr-author:hover,
+.faith-port-search-page #results .sr-author:focus-visible { text-decoration-thickness: 2px; }
+.faith-port-search-page #results .result-author-count { font-weight: 400; color: var(--muted, #6f6a64); }
 .faith-port-search-page #results .sr > div:not(.sr-cite):not(.sr-ex) {
   font: 600 16px/1.4 var(--font-body, Georgia, serif);
 }
