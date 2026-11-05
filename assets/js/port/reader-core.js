@@ -38,7 +38,8 @@ function inl(s,scripture=true){s=esc(s);
   .replace(/\u0002([^\u0002\u0003\u0007]{1,200}?)\u0007([^\u0002\u0003]{1,2400}?)\u0003/g,'<span class="inhead">$1</span><span class="inarg">$2</span>').replace(/\u0002([^\u0002\u0003]{1,160}?)\u0003/g,'<span class="inhead">$1</span>')
   .replace(/^([^\u0004\u0005]*)\u0005/,"<i>$1</i>").replace(/\u0004/g,"<i>").replace(/\u0005/g,"</i>")
   .replace(/\u0006([^\u0006]*)$/,'<span class="milat">$1</span>')
-  .replace(/[\u0002-\u0006]/g,"").replace(/\u0007/g," ");
+  .replace(/\u000E([^\u000E\u000F]*)\u000F/g,(m,w)=>`<i class="tmk" data-who="${w.replace(/"/g,"&quot;")}"></i>`)
+  .replace(/[\u0002-\u0006\u000E\u000F]/g,"").replace(/\u0007/g," ");
   return scripture?linkScriptureHTML(s):s;}
 // scripture book shapes: EN full names + the common Latin abbreviations of this corpus
 const XREF_CAP={"Matthew":28,"Mark":16,"Luke":24,"John":21,"Acts":28,"Romans":16,"Corinthians":16,
@@ -2833,6 +2834,7 @@ function build(){
                :`<sup class="fnref"><a href="${esc(t)}">${esc(c.getAttribute("n")||(t.match(/\d+/)||["*"])[0])}</a></sup>`;})(c.getAttribute("target")||"#")   // WA 2026-09-01: printed cue travels on ref@n (ids are page-keyed)
         :c.localName==="hi"&&/gapfill/.test(c.getAttribute("rend")||"")?`<span class="${esc(c.getAttribute("rend"))}" title="${/inferred/.test(c.getAttribute("rend"))?"restored from the surviving letters":"restored from the scan"}">${esc(c.textContent)}</span>`
         :c.localName==="hi"?(r=>r.includes("bold")?`<b>${esc(c.textContent)}</b>`:r.includes("sup")?`<sup>${esc(c.textContent)}</sup>`:r.includes("caps")||r==="sc"?`<span style="font-variant:small-caps">${esc(c.textContent)}</span>`:`<i>${esc(c.textContent)}</i>`)(String(c.getAttribute("rend")||"italic").toLowerCase())   // 2026-08-23: was always <b>; @rend now honoured, italic default (the TEI convention for a bare <hi>)
+        :c.localName==="milestone"&&c.getAttribute("unit")==="turn"?`<i class="tmk" data-who="${esc(c.getAttribute("type")==="narration"?"":String(c.getAttribute("who")||"").replace(/^#/,"")).replace(/"/g,"&quot;")}"></i>`
         :c.localName==="fw"?""                                   // furniture (running-head/title echo) inside a paragraph: not text to read (Akademie, 2026-08-29)
         :c.localName==="note"?`<span class="mnote${(c.getAttribute("type")||"")==="headnote"?" headnote":""}">${esc(c.textContent.trim())}</span>`
         :c.localName==="list"&&c.getAttribute("type")==="eebo-list"?teiCell(c)
@@ -2955,6 +2957,16 @@ function build(){
     const _apxT=_rnd==="apparatus"?(e.getAttribute("type")||""):"",_apxL=({summary:"Scholium",commentary:"Commentary",sources:"Sources",source:"Sources"})[_apxT]||"Editors’ note",_apxB=_rnd==="apparatus"?apxBy(e,_apxT):"";
     const cls=(_rnd==="caps")?' class="caps"':(_rnd==="annot")?' class="eannot"':(_rnd==="editorial")?' class="editorial"':(_rnd==="apparatus")?` class="apx apx-${esc(_apxT)}" data-apx="${_apxL}" data-by="${esc(_apxB)}" title="${_apxL} (${esc(_apxB)}, not the author’s own text)"`:"";   // WA Einleitung / editor lines (2026-09-01): set petit like the edition
     let inner=pre+teiInline(e);
+    // SPEAKER TURNS (owner 11-04): each turn token opens a block inside this paragraph, the speaker's name first in small capitals
+    // (a narration line has none); a turn that opens the paragraph, or follows its printed head, takes no extra space above. One
+    // <p> with blocks inside, as the pilcrow breaks below: separate <p>s broke the row pairing when only one lane carries marks.
+    if(inner.indexOf('<i class="tmk"')>=0){
+      const _tp=inner.split(/<i class="tmk" data-who="([^"]*)"><\/i>/);
+      const _lead=!_tp[0].replace(/<span class="in(?:head|arg)">[\s\S]*?<\/span>/g,"").replace(/<[^>]+>/g,"").trim();
+      let _h=_lead?_tp[0].replace(/\s+$/,""):_tp[0];
+      for(let i=1;i<_tp.length;i+=2){const w=_tp[i],t=(_tp[i+1]||"").replace(/^\s+/,"");
+        _h+=`<span class="turn${w?"":" narr"}${i===1&&_lead?" t0":""}">${w?`<b class="spk">${w}</b> `:""}${t}</span>`;}
+      return `<p${cls}${sourceAttrs}>${_h}</p>`;}
     // PILCROW BREAKS (owner 2026-08-30, Ockham/Biel/Lefèvre incunable-style prints): a ¶ inside running
     // text marks the start of a new paragraph in the print -- break there, keep the mark as a muted lead
     if(!_rnd&&/\S\s*[¶⸿⁋]\s+\S/.test(inner)){                      // ¶ U+00B6, capitulum ⸿ U+2E3F, reversed pilcrow ⁋ U+204B (Ockham 1495: 6,952 of them)
@@ -6081,26 +6093,48 @@ async function loadPldCanon(ws){
 // READABLE COLUMNS (owner 2026-08-17 'reader interface sucks — upgrade it'): a Migne
 // column arrives as ONE wall of text per lane. Split each lane into sentence-bounded
 // chunks (~600 chars) and pair them proportionally — the eye gets paragraphs again.
+// SPEAKER TURNS (owner 11-04, Justin's Dialogue with Trypho; a reader: "since this is a dialogue genre, the formatting should
+// reflect that"): an English lane marks where a speaker's turn begins with an empty <milestone unit="turn" who="Trypho"/> (a line
+// of narration: type="narration", no who). The lanes are read as text, so each mark becomes the sentinel \u000E<who>\u000F before
+// any text is read; the sentence splitter looks through it, inl() makes it a token and teiCell() opens the turn there, the
+// speaker's name in small capitals. No word of the text changes.
+function frTurnSentinels(doc){
+  doc.querySelectorAll('div[type="translation"] milestone[unit="turn"]').forEach(m=>{
+    const who=m.getAttribute("type")==="narration"?"":String(m.getAttribute("who")||"").replace(/^#/,"").replace(/[\u000E\u000F<>&"]/g,"").trim();
+    m.parentNode.replaceChild(doc.createTextNode("\u000E"+who+"\u000F"),m);});}
+// ...and once a reader's lane documents are built, each sentinel becomes the turn element again, so the documents' text (this-work
+// search, notebook export, the outline) carries no sentinel; teiInline() draws the element as the token teiCell() breaks at
+function frTurnElements(d){
+  if(!d||!d.documentElement)return;
+  const w=d.createTreeWalker(d.documentElement,4),hits=[];
+  for(let t=w.nextNode();t;t=w.nextNode())if(/[\u000E\u000F]/.test(t.nodeValue))hits.push(t);
+  hits.forEach(t=>{const parts=t.nodeValue.split(/\u000E([^\u000E\u000F]*)\u000F/),f=d.createDocumentFragment();
+    parts.forEach((x,i)=>{if(i%2===0){x=x.replace(/[\u000E\u000F]/g,"");if(x)f.appendChild(d.createTextNode(x));return;}
+      const m=d.createElement("milestone");m.setAttribute("unit","turn");if(x)m.setAttribute("who",x);else m.setAttribute("type","narration");f.appendChild(m);});
+    t.parentNode.replaceChild(f,t);});}
+// a speaker-turn sentinel takes no room: every cutter that measures text measures it as it reads, so a mark never moves where a
+// long paragraph is cut or how a page's lanes are shared out (without marks this is the plain length)
+function _tlen(s){s=String(s);return s.indexOf("\u000E")<0?s.length:s.replace(/\u000E[^\u000E\u000F]*\u000F/g,"").length;}
 function _splitSents(t){
   // sentence enders incl. the Greek ano teleia (·) and erotimatiko (;) — and Greek prose
   // may continue lowercase after an ender, so no capital requirement follows · or ;
-  const parts=String(t).split(/(?<=[.!?\u00b7;:\u037e\u00bb"\u201d])\s+(?=[\u00abA-Za-z\u0370-\u03ff\u1f00-\u1fff\u2018\u201c0-9])/g).filter(x=>x.trim());
+  const parts=String(t).split(/(?<=[.!?\u00b7;:\u037e\u00bb"\u201d])\s+(?=(?:\u000e[^\u000e\u000f]*\u000f)?[\u00abA-Za-z\u0370-\u03ff\u1f00-\u1fff\u2018\u201c0-9])/g).filter(x=>x.trim());
   return parts;}
 function _chunkText(t,target){
   const sents=_splitSents(t);
   let out=[];let cur="";
   for(const sn of (sents.length?sents:[t])){
-    if(cur&&(cur.length+sn.length)>target){out.push(cur.trim());cur=sn;}
+    if(cur&&(_tlen(cur)+_tlen(sn))>target){out.push(cur.trim());cur=sn;}
     else cur=cur?cur+" "+sn:sn;}
   if(cur.trim())out.push(cur.trim());
   // BULLETPROOF: whatever the punctuation, no chunk may remain a wall — hard-split
   // oversized survivors at word boundaries near the target.
   const final=[];
   for(const c of out){
-    if(c.length<=target*2.5){final.push(c);continue;}
+    if(_tlen(c)<=target*2.5){final.push(c);continue;}
     const words=c.split(/\s+/);let w="";
     for(const wd of words){
-      if(w&&(w.length+wd.length)>target){final.push(w);w=wd;}
+      if(w&&(_tlen(w)+_tlen(wd))>target){final.push(w);w=wd;}
       else w=w?w+" "+wd:wd;}
     if(w)final.push(w);}
   return final.length?final:[t];}
@@ -6114,13 +6148,13 @@ function _alignPair(laArr,enArr){
   // formatting the transcription the best way' — re-chunking real paragraphs was not);
   // only genuine walls split, and the machine translation is shaped to those units.
   let L=laArr.flatMap(x=>x.length>1500?_chunkText(x,900):[x.trim()]).filter(Boolean);
-  let E=enArr.flatMap(x=>x.length>1600?_chunkText(x,950):[x.trim()]).filter(Boolean);
+  let E=enArr.flatMap(x=>_tlen(x)>1600?_chunkText(x,950):[x.trim()]).filter(Boolean);
   const k=Math.max(L.length,E.length);
   const stretch=(arr,n)=>{ // re-chunk to n pieces proportionally by sentences
     if(arr.length===n)return arr;
     const sents=_splitSents(arr.join(" "));if(sents.length<n)return arr.length<n?arr.concat(Array(n-arr.length).fill("")):arr.slice(0,n-1).concat([arr.slice(n-1).join(" ")]);
-    const tot=sents.reduce((a,x)=>a+x.length,0);const per=tot/n;const out=[];let cur="",acc=0;
-    for(const sn of sents){cur=cur?cur+" "+sn:sn;acc+=sn.length;
+    const tot=sents.reduce((a,x)=>a+_tlen(x),0);const per=tot/n;const out=[];let cur="",acc=0;
+    for(const sn of sents){cur=cur?cur+" "+sn:sn;acc+=_tlen(sn);
       if(acc>=per*(out.length+1)&&out.length<n-1){out.push(cur.trim());cur="";}}
     if(cur.trim())out.push(cur.trim());
     while(out.length<n)out.push("");
@@ -6217,6 +6251,7 @@ async function loadPgCanon(ws){
   _healDeep(vtx);_healDeep(pggap);
   const doc=new DOMParser().parseFromString(xml,"application/xml");
   if(doc.querySelector("parsererror"))throw new Error("canon parse");
+  frTurnSentinels(doc);
   // Preserve old links when a verified plate is moved to its owning work.
   {const oldPage=frReaderBlockReference(location.hash)?.page||new URLSearchParams(location.search).get('p');
     const _rel=[...doc.querySelectorAll('ref[type="relocated-opening"]')];
@@ -6355,10 +6390,10 @@ async function loadPgCanon(ws){
   // append columns): group long prose into ~800-char paragraphs at sentence ends --
   // the same law the Greek lane already applies
   const _pushEn=(s2,bucket)=>{
-    if(s2.length<=1600){bucket.push(s2);return;}
+    if(_tlen(s2)<=1600){bucket.push(s2);return;}
     let cur="";
     s2.split(/(?<=[.!?\u201d"]) +/).forEach(sn=>{
-      if(cur&&cur.length+sn.length>800){bucket.push(cur);cur=sn;}
+      if(cur&&_tlen(cur)+_tlen(sn)>800){bucket.push(cur);cur=sn;}
       else cur=cur?cur+" "+sn:sn;});
     if(cur)bucket.push(cur);};
   const _carveEn=(t,bucket)=>{
@@ -6647,7 +6682,7 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
     // zone. Only a page with no text of its own at flush time is filled; the choke-point carve below paragraphs the Greek.
     if(_pvFill&&pages.length&&!_colLa.some(t=>String(t||"").replace(/[^A-Za-z\u0370-\u03ff\u1f00-\u1fff]/g,"").length>=20)){
       const _fp=_pvFill[pages[pages.length-1]];
-      if(_fp&&_fp.length&&_colEn.join(" ").length>=120){_colLa.length=0;_fp.forEach(t=>_colLa.push(t));_colLa._zoned=true;_colLa._prune=false;}}
+      if(_fp&&_fp.length&&_colEn.join(" ").replace(/\u000E[^\u000E\u000F]*\u000F/g,"").length>=120){_colLa.length=0;_fp.forEach(t=>_colLa.push(t));_colLa._zoned=true;_colLa._prune=false;}}
     // CHOKE-POINT CARVE (owner 2026-09-03 PG audit): a dozen builders feed _colLa (canon
     // walk, zones, vtx, pggap, pageview, grcla) and several push whole columns raw — the
     // walls and fused running-titles land here regardless of path. Carve once, for the
@@ -6707,7 +6742,7 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
     const _pairOrFlow=(laArr,enArr)=>{
       const pr=_alignPair(laArr,enArr),_t=x=>String(x||"").replace(/\u00A0/g," ").trim();
       const both=pr.filter(([l,e])=>_t(l)&&_t(e));
-      const bad=both.filter(([l,e])=>{const a=_t(l).length,b=_t(e).length;return Math.max(a,b)>=240&&Math.max(a,b)>4*Math.min(a,b);}).length;
+      const bad=both.filter(([l,e])=>{const a=_tlen(_t(l)),b=_tlen(_t(e));return Math.max(a,b)>=240&&Math.max(a,b)>4*Math.min(a,b);}).length;
       if(both.length<3||bad<Math.max(2,both.length/4))return pr;
       const L=laArr.map(_t).filter(Boolean).flatMap(x=>x.length>900?_chunkText(x,700):[x]),E=enArr.map(_t).filter(Boolean),out=[];
       for(let i=0;i<Math.max(L.length,E.length);i++){const p=[L[i]||"",E[i]||""];p.flow=true;out.push(p);}
@@ -6730,11 +6765,11 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
         // keep the EN heads anyway and hand each EN segment a proportional sentence-slice
         // of the Latin — the head can never fuse back into a paragraph
         const sents=_splitSents(src2.join(" ").trim());
-        const totE=sE.reduce((a2,seg)=>a2+seg.join(" ").length,0)||1;
+        const totE=sE.reduce((a2,seg)=>a2+seg.join(" ").replace(/\u000E[^\u000E\u000F]*\u000F/g,"").length,0)||1;
         _pairs=[];let si=0;
         for(let i=0;i<sE.length;i++){
           const isLast=i===sE.length-1;
-          const share=Math.round(sents.length*(sE[i].join(" ").length/totE));
+          const share=Math.round(sents.length*(sE[i].join(" ").replace(/\u000E[^\u000E\u000F]*\u000F/g,"").length/totE));
           const take=isLast?sents.slice(si):sents.slice(si,si+Math.max(share,0));
           si+=take.length;
           if(i>0)_pairs.push(["\u00A0",hE[i]]);
@@ -6818,7 +6853,7 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
   // (the same law the vtx lane already applies).
   const _parasG=t=>{const out=[];let cur="";
     String(t).split(/(?<=[.;\u0387!?])\s+/).forEach(sn=>{
-      if(cur&&cur.length+sn.length>700){out.push(cur);cur=sn;}
+      if(cur&&_tlen(cur)+_tlen(sn)>700){out.push(cur);cur=sn;}
       else cur=cur?cur+" "+sn:sn;});
     if(cur)out.push(cur);return out;};
   const _GRCAPS=/((?:[\u0391-\u03A9\u1F08-\u1FFC\u0386-\u038F][\u0391-\u03A9\u1F08-\u1FFC\u0386-\u038F'\u2019.,\u0374\u00b4\u02b9\u0384\u1fbd()\d\u2014\u2013-]*\s+){2,14}[\u0391-\u03A9\u1F08-\u1FFC\u0386-\u038F][\u0391-\u03A9\u1F08-\u1FFC'\u2019.\u0374\u00b4\u02b9\u0384\u1fbd()\d]*\s*[.:]?)(?![\u0370-\u03ff\u1f00-\u1fff])/;
@@ -6985,7 +7020,7 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
     // reads as prose paragraphs, not a wall or arbitrary chunk cuts.
     const _paras=t=>{const out=[];let cur="";
       t.split(/(?<=[.;·!?])\s+/).forEach(sn=>{
-        if(cur&&cur.length+sn.length>700){out.push(cur);cur=sn;}
+        if(cur&&_tlen(cur)+_tlen(sn)>700){out.push(cur);cur=sn;}
         else cur=cur?cur+" "+sn:sn;});
       if(cur)out.push(cur);return out;};
     // THE TRANSCRIPTION, FULLY, AS IS (owner 2026-09-23): a page whose body carries Greek of its own (>= 200 letters, both columns of
@@ -7092,7 +7127,7 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
     // transcription, the Latin column first in the Latin view. The fill applies in flushCol, to a page with no text of its own.
     try{
       const _shown=new Set(pages),_frontW=n=>typeof _pgFrontLabels==="object"&&_pgFrontLabels&&_pgFrontLabels[n];
-      const _needW=[...new Set(Object.keys(enByCol).map(Number).filter(Boolean).map(n=>n%2?n:n-1))].filter(p=>!_shown.has(p)&&!_shown.has(p+1)&&[...(enByCol[p]||[]),...(enByCol[p+1]||[])].join(" ").length>=120&&!_frontW(p));
+      const _needW=[...new Set(Object.keys(enByCol).map(Number).filter(Boolean).map(n=>n%2?n:n-1))].filter(p=>!_shown.has(p)&&!_shown.has(p+1)&&[...(enByCol[p]||[]),...(enByCol[p+1]||[])].join(" ").replace(/\u000E[^\u000E\u000F]*\u000F/g,"").length>=120&&!_frontW(p));
       if(_needW.length){
         const pvW5=[...doc.querySelectorAll("witness")].find(w=>w.getAttribute("xml:id")==="pageview");
         const pvUrl5=pvW5?((pvW5.textContent.match(/https?:\/\/\S+/)||[])[0]||null):null;
@@ -7166,10 +7201,10 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
           if(cols3.length){
             const _mx3=Math.max(...cols3),lo3=Math.min(...cols3)-1,hi3=_mx3%2?_mx3+1:_mx3;
             // ORPHAN OPENINGS (see the Greek-view fill): English openings past the reading lanes' window are this work's pages too
-            const _orph3=new Set(Object.keys(enByCol).map(Number).filter(n=>n&&(enByCol[n]||[]).join(" ").length>=120).map(n=>n%2?n:n-1).filter(p=>p<lo3||p>hi3));
+            const _orph3=new Set(Object.keys(enByCol).map(Number).filter(n=>n&&(enByCol[n]||[]).join(" ").replace(/\u000E[^\u000E\u000F]*\u000F/g,"").length>=120).map(n=>n%2?n:n-1).filter(p=>p<lo3||p>hi3));
             const _paras3=t=>{const out=[];let cur="";
               t.split(/(?<=[.;!?])\s+/).forEach(sn=>{
-                if(cur&&cur.length+sn.length>700){out.push(cur);cur=sn;}
+                if(cur&&_tlen(cur)+_tlen(sn)>700){out.push(cur);cur=sn;}
                 else cur=cur?cur+" "+sn:sn;});
               if(cur)out.push(cur);return out;};
             const surfs3=[...pv3.querySelectorAll("surface")].map(sf=>({n:+sf.getAttribute("n"),
@@ -7346,7 +7381,7 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
                     :window.FRPgParallel.alignOpening(_healGrc(sf.grc),lt,_enAll,{grc:(sf.grcParas||[]).map(_healGrc),la:_laP,en:_enParas,byCol:_byCol});
                   /* LONG UNPAIRED PLATES (report #37, owner 10-29 "fix 37"): when an opening has no pairing basis and Greek, Latin and English are each
                      2,000+ characters, all three are cut into the same number of sentence-bounded pieces (about 1,600 characters) and paired in order */
-                  if(aligned.basis==="printed-opening"){const _wl=x=>String(x||"").replace(/[\u0002\u0003]/g,"").length,_ks=(t,k)=>{const s=_splitSents(String(t||""));if(s.length<k)return null;const tot=s.reduce((a,x)=>a+x.length,0),per=tot/k,out=[];let cur="",acc=0;for(const sn of s){cur=cur?cur+" "+sn:sn;acc+=sn.length;if(acc>=per*(out.length+1)&&out.length<k-1){out.push(cur);cur="";}}if(cur)out.push(cur);while(out.length<k)out.push("");return out;};const _R2=[];for(const r of aligned.rows){const lg=_wl(r.grc),ll=_wl(r.la),le=_wl(r.en);if(lg>=2000&&ll>=2000&&le>=2000){const k=Math.ceil(Math.max(lg,ll,le)/1600),G=_ks(r.grc,k),L=_ks(r.la,k),E=_ks(r.en,k);if(G&&L&&E){for(let i=0;i<k;i++)_R2.push({grc:G[i],la:L[i],en:E[i]});continue;}}_R2.push(r);}if(_R2.length>aligned.rows.length){aligned.rows=_R2;aligned.basis="printed-opening-wallsplit";}}
+                  if(aligned.basis==="printed-opening"){const _wl=x=>_tlen(String(x||"").replace(/[\u0002\u0003]/g,"")),_ks=(t,k)=>{const s=_splitSents(String(t||""));if(s.length<k)return null;const tot=s.reduce((a,x)=>a+_tlen(x),0),per=tot/k,out=[];let cur="",acc=0;for(const sn of s){cur=cur?cur+" "+sn:sn;acc+=_tlen(sn);if(acc>=per*(out.length+1)&&out.length<k-1){out.push(cur);cur="";}}if(cur)out.push(cur);while(out.length<k)out.push("");return out;};const _R2=[];for(const r of aligned.rows){const lg=_wl(r.grc),ll=_wl(r.la),le=_wl(r.en);if(lg>=2000&&ll>=2000&&le>=2000){const k=Math.ceil(Math.max(lg,ll,le)/1600),G=_ks(r.grc,k),L=_ks(r.la,k),E=_ks(r.en,k);if(G&&L&&E){for(let i=0;i<k;i++)_R2.push({grc:G[i],la:L[i],en:E[i]});continue;}}_R2.push(r);}if(_R2.length>aligned.rows.length){aligned.rows=_R2;aligned.basis="printed-opening-wallsplit";}}
                   if(_vSplit&&aligned.basis!=="column-paragraphs"){   // the column basis pairs whole columns, the block included
                     const _fold=list=>{const o=[];let pend="";for(const t of list){const v=String(t||"").trim();if(!v)continue;if(/^\u0002[^\u0003]*\u0003$/.test(v)){pend+=v+" ";continue;}o.push((pend+v).trim());pend="";}if(pend.trim())o.push(pend.trim());return o;};
                     // WHERE THE PAGE PRINTS IT (owner 2026-10-11, "fix all of these"): a version printed mid-page -- the page's own text resumes
@@ -7420,10 +7455,10 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
         if(ch.localName==="pb"){const nn=+ch.getAttribute("n");if(nn){_pc=nn;if(!(nn in _ptx)){_ptx[nn]=0;_plist.push(nn);}}}
         else if((ch.localName==="p"||ch.localName==="head")&&_pc)_ptx[_pc]+=(ch.textContent.match(/[A-Za-z\u0370-\u03ff\u1f00-\u1fff]/g)||[]).length;}})(body);
       const _front=n=>typeof _pgFrontLabels==="object"&&_pgFrontLabels&&_pgFrontLabels[n];
-      const _need=_plist.filter(n=>_ptx[n]<40&&[...(enByCol[n]||[]),...(enByCol[n+1]||[])].join(" ").length>=120&&!_front(n));
+      const _need=_plist.filter(n=>_ptx[n]<40&&[...(enByCol[n]||[]),...(enByCol[n+1]||[])].join(" ").replace(/\u000E[^\u000E\u000F]*\u000F/g,"").length>=120&&!_front(n));
       // ORPHAN OPENINGS (owner 2026-09-22 "exceeds patrologia-graeca site"; pg-2175 cols 695–1461 read as English beside an empty lane):
       // an opening whose English exists but whose reading lanes carry no page marker is appended after the walk; its plate fills it too.
-      _need.push(...[...new Set(Object.keys(enByCol).map(Number).filter(Boolean).map(n=>n%2?n:n-1))].filter(p=>!(p in _ptx)&&!((p+1) in _ptx)&&[...(enByCol[p]||[]),...(enByCol[p+1]||[])].join(" ").length>=120&&!_front(p)));
+      _need.push(...[...new Set(Object.keys(enByCol).map(Number).filter(Boolean).map(n=>n%2?n:n-1))].filter(p=>!(p in _ptx)&&!((p+1) in _ptx)&&[...(enByCol[p]||[]),...(enByCol[p+1]||[])].join(" ").replace(/\u000E[^\u000E\u000F]*\u000F/g,"").length>=120&&!_front(p)));
       if(_need.length){
         _pvFill={};const _zw=[];
         for(const n of _need){const op=_canonOpenings[String(n)];
@@ -7784,6 +7819,7 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
         l.href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&display=swap";
         document.head.appendChild(l);}}
   }catch(e){}
+  frTurnElements(laD);frTurnElements(enD);
   window.__pldCanonDocs={la:laD,en:enD};
   const _aula=author;author=await _auEn(author);
   // TWO PLATES PER OPENING (owner 2026-09-25, PG 51): Migne prints some openings twice, a Greek page and a Latin page with the same
