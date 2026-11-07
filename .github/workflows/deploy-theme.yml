@@ -5,6 +5,12 @@ on:
     branches: [main]
   workflow_dispatch: {}
 
+# A merge to main and a Podcast Wiki refresh can both start a deploy. Run
+# them one after the other so the later one always lands last.
+concurrency:
+  group: deploy-ghost-theme
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy theme to Ghost
@@ -14,6 +20,50 @@ jobs:
         # Pinned by commit SHA, not tag — moving tags are a supply-chain
         # risk per Codex audit 2026-05-11. v4 = 34e114876b0b...
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Use the podcast wiki index from the data branch
+        # Podcast Wiki publishes assets/data/podcast-wiki.json to the
+        # podcast-data branch (main is ruleset-protected). Ship that copy
+        # when it parses, has both shows and is newer than main's; otherwise
+        # keep main's copy so a bad data commit can't break the show pages.
+        run: |
+          set -uo pipefail
+          FILE=assets/data/podcast-wiki.json
+          if ! git fetch --depth=1 origin podcast-data; then
+            echo "No podcast-data branch; keeping main's $FILE."
+            exit 0
+          fi
+          if ! git show "FETCH_HEAD:$FILE" > "$RUNNER_TEMP/wiki.json" 2>/dev/null; then
+            echo "podcast-data has no $FILE; keeping main's copy."
+            exit 0
+          fi
+          node - "$RUNNER_TEMP/wiki.json" "$FILE" <<'JSEOF'
+          const fs = require("fs");
+          const [candidate, current] = process.argv.slice(2);
+          const SHOWS = ["christians-reading-classics", "mere-fidelity"];
+          const newest = (d) => Math.max(...SHOWS.map((s) => Date.parse(d[s].updated) || 0));
+          let next;
+          try {
+            next = JSON.parse(fs.readFileSync(candidate, "utf8"));
+            for (const s of SHOWS) {
+              if (!Array.isArray(next[s]?.episodes) || next[s].episodes.length === 0) {
+                throw new Error(`${s} has no episodes`);
+              }
+            }
+          } catch (e) {
+            console.log(`Data-branch index rejected (${e.message}); keeping main's copy.`);
+            process.exit(0);
+          }
+          let mainStamp = 0;
+          try { mainStamp = newest(JSON.parse(fs.readFileSync(current, "utf8"))); } catch {}
+          if (newest(next) <= mainStamp) {
+            console.log("main's index is as new as the data branch's; keeping it.");
+            process.exit(0);
+          }
+          fs.copyFileSync(candidate, current);
+          const counts = SHOWS.map((s) => `${s} ${next[s].episodes.length}`).join(", ");
+          console.log(`Using the data-branch index (${counts}).`);
+          JSEOF
 
       - name: Deploy theme
         # Pinned by commit SHA, not tag — moving tags are a supply-chain
