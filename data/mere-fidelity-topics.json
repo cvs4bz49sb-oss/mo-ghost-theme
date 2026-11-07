@@ -3231,5 +3231,39 @@
       "Worship & Liturgy"
     ],
     "guests": []
+  },
+  "19885189": {
+    "topics": [
+      "Spiritual Formation & Prayer",
+      "Resurrection & Eschatology",
+      "Virtue, Character & Christian Ethics"
+    ],
+    "guests": [
+      "Andrew Wilson"
+    ]
+  },
+  "19811097": {
+    "topics": [
+      "Literature & Moral Imagination",
+      "Economics, Work & Mammon"
+    ],
+    "guests": []
+  },
+  "19741269": {
+    "topics": [
+      "Ecclesiology & Sacraments",
+      "Politics & Public Life",
+      "Secularism & Expressive Individualism"
+    ],
+    "guests": [
+      "Bonnie Kristian"
+    ]
+  },
+  "19425853": {
+    "topics": [
+      "Theological Retrieval & Method",
+      "Ecclesiology & Sacraments"
+    ],
+    "guests": []
   }
 }

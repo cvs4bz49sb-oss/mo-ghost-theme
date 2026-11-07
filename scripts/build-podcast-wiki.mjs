@@ -45,18 +45,19 @@ const SHOWS = {
 // category = adding one line here.
 const TITLE_RULES = {
   "christians-reading-classics": [
-    ["American Literature", /east of eden|cooper|lewis and clark|gatsby|american sermons|scarlet letter|tom sawyer|moby dick|atlas shrugged|uncle tom|henry adams|douglass|america ?250|democracy in america|little house|flannery|sinclair|it can'?t happen|jack london|declaration of independence/i],
-    ["British Literature", /till we have faces|mansfield park|wuthering|brave new world|hollow men|great divorce|gaudy night|return of the king|alice|winnie|everlasting man|that hideous strength/i],
+    ["American Literature", /east of eden|cooper|lewis and clark|gatsby|american sermons|scarlet letter|tom sawyer|atlas shrugged|uncle tom|henry adams|douglass|america ?250|democracy in america|little house|flannery|sinclair|it can'?t happen|jack london|declaration of independence|edgar allan poe|moby[- ]dick|billy budd|melville|stegner|crossing to safety|leibowitz|notes on the state of virginia|jefferson|howard thurman/i],
+    ["British Literature", /till we have faces|mansfield park|wuthering|brave new world|hollow men|great divorce|gaudy night|return of the king|alice|winnie|everlasting man|that hideous strength|brideshead|evelyn waugh|mere christianity/i],
     ["Russian Literature", /heart of a dog|bulgakov|dostoevsk|the idiot|tolstoy|solzhenitsyn/i],
-    ["Ancient & Patristic", /augustine|confessions|cassiodorus|nicomachean|nicene|ancient pagans|odyssey|iliad|homer|virgil|aeneid|epics/i],
+    ["Ancient & Patristic", /augustine|confessions|cassiodorus|nicomachean|nicene|ancient pagans|odyssey|iliad|homer|virgil|aeneid|epics|aristotle|marcus aurelius/i],
     ["Medieval & Renaissance", /petrarch|aquinas/i],
-    ["Poetry", /petrarch|hollow men|eliot/i],
+    ["European Literature", /all quiet on the western front|remarque/i],
+    ["Poetry", /petrarch|hollow men|eliot|edgar allan poe/i],
     ["Children's Literature", /tom sawyer|little house|alice|winnie|pooh/i],
-    ["Theology & Faith", /augustine|aquinas|nicene|sermons|great divorce|everlasting man|scandal of the christian/i],
-    ["Political Thought", /atlas shrugged|tocqueville|democracy in america|it can'?t happen|nicomachean|bread and wine|declaration of independence/i],
-    ["Dystopia", /brave new world|it can'?t happen|heart of a dog|that hideous strength/i],
+    ["Theology & Faith", /augustine|aquinas|nicene|sermons|great divorce|everlasting man|scandal of the christian|mere christianity|brideshead|howard thurman|canticle for leibowitz/i],
+    ["Political Thought", /atlas shrugged|tocqueville|democracy in america|it can'?t happen|nicomachean|bread and wine|declaration of independence|aristotle|notes on the state of virginia/i],
+    ["Dystopia", /brave new world|it can'?t happen|heart of a dog|that hideous strength|leibowitz/i],
     ["Slavery & Abolition", /uncle tom|douglass/i],
-    ["C.S. Lewis", /till we have faces|great divorce|that hideous strength/i],
+    ["C.S. Lewis", /till we have faces|great divorce|that hideous strength|mere christianity/i],
     ["Myth & Imagination", /till we have faces|return of the king|tolkien|scandal of the christian/i],
   ],
 };
