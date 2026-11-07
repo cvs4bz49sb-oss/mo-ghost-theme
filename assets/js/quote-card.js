@@ -114,6 +114,14 @@
     for (const ch of text) { x.fillText(ch, at, baseline); at += x.measureText(ch).width + tracking; }
   }
 
+  // The width drawTracked gives a line: its letters plus the tracking
+  // between them.
+  function trackedWidth(x, text, tracking) {
+    let w = 0;
+    for (const ch of text) w += x.measureText(ch).width + tracking;
+    return Math.max(0, w - tracking);
+  }
+
   // The card supplies the outer double quotes, so marks inside the passage
   // become single ones. A passage already wrapped in a matched pair loses
   // that pair; one that only opens with a quotation keeps it (“He that
@@ -173,9 +181,27 @@
     const attrib = [];
     const author = String(opts.author || "").trim();
     if (author) {
-      const as = Math.round(s * L.authorSize);
-      const ab = block(x, `600 ${as}px ${brand.authorFont}`, author.toUpperCase(), colW, as, 1);
-      ab.tracking = as * L.authorTracking; ab.caps = true;
+      // block() fits a line untracked, and the tracking widens it, so a
+      // byline of two or three writers ran into the right margin. Set it
+      // down to three quarters size to fit every name; past that, trim at a
+      // word.
+      const full = Math.round(s * L.authorSize), text = author.toUpperCase();
+      let as = full, ab;
+      for (;;) {
+        ab = block(x, `600 ${as}px ${brand.authorFont}`, text, colW, as, 1);
+        ab.tracking = as * L.authorTracking;
+        if (ab.lines[0] === text && trackedWidth(x, text, ab.tracking) <= colW) break;
+        if (as <= Math.round(full * 0.75)) break;
+        as -= 1;
+      }
+      ab.caps = true;
+      let line = ab.lines[0] || "";
+      if (trackedWidth(x, line, ab.tracking) > colW) {
+        let t = line.replace(/…$/, "");
+        while (t && trackedWidth(x, `${t}…`, ab.tracking) > colW) t = t.replace(/\s*\S+$/, "");
+        line = `${t.replace(/[,;:.\s]+$/, "")}…`;
+      }
+      ab.lines[0] = line;
       attrib.push(ab);
     }
     const cite = String(opts.cite || "").replace(/\s+/g, " ").trim();

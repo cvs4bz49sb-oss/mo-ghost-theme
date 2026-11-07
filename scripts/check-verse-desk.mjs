@@ -3,7 +3,7 @@
  *
  * The desk shows only what the data supports, and the owner found wrong claims on the live site, so this runs the page's own module
  * builders (assets/js/page/verse-desk-model.js, pure functions) on John 1:1, John 3:16, Romans 3:23, Genesis 1:1, Genesis 1:26,
- * Psalm 22:1, Isaiah 53:5, Matthew 28:19, 1 Corinthians 15:3, Ephesians 2:8, Hebrews 1:3 and one obscure verse (3 John 13), and asserts:
+ * Psalm 22:1, Isaiah 53:5, Matthew 28:19, 1 Corinthians 15:3, Ephesians 2:8, Hebrews 1:3 and one obscure verse (Nehemiah 7:50), and asserts:
  *   - no module renders with empty data (and none is a shell: no empty list, no "undefined", no "planned" or "data needed");
  *   - a module is present exactly when its source data is non-empty (counted here from the raw files, not from the model);
  *   - the lede and the four tiles carry exactly the source counts, and the lede says nothing a count did not;
@@ -73,7 +73,9 @@ const VERSES = [
   ["John", "john", "john", 1, 1], ["John", "john", "john", 3, 16], ["Romans", "romans", "romans", 3, 23], ["Genesis", "genesis", "genesis", 1, 1],
   ["Genesis", "genesis", "genesis", 1, 26], ["Psalm", "psalms", "psalms", 22, 1], ["Isaiah", "isaiah", "isaiah", 53, 5], ["Matthew", "matthew", "matthew", 28, 19],
   ["1 Corinthians", "1-corinthians", "i-corinthians", 15, 3], ["Ephesians", "ephesians", "ephesians", 2, 8], ["Hebrews", "hebrews", "hebrews", 1, 3],
-  ["3 John", "3-john", "iii-john", 1, 13],
+  // The obscure verse was 3 John 13 until 2026-11 brought it a reading and a dispute (unwritten tradition), so it is a full
+  // desk now. Nehemiah 7:50 is a name in a list of temple servants.
+  ["Nehemiah", "nehemiah", "nehemiah", 7, 50],
 ];
 
 // the same shapes scripture-dev-core.js builds (sourceHref, deskHref), for the links the modules make
@@ -249,9 +251,9 @@ for (const [name, slug, lib, c, v] of VERSES) {
     ok(m.ruler.tall === 17 && m.ruler.tallN === 552, "John 1:1 tallest century is the 17th with 552");
     ok(m.disputes.length === 5 && m.readings.items.length === 9, "John 1:1 has 9 readings and 5 questions");
   }
-  if (slug === "3-john") {
-    ok(!html.church && !html.dispute && !html.confess, "3 John 13 shows no readings, disputes or creeds");
-    ok(m.tier === "thin", "3 John 13 is the compact desk");
+  if (slug === "nehemiah") {
+    ok(!html.church && !html.dispute && !html.confess, "Nehemiah 7:50 shows no readings, disputes or creeds");
+    ok(m.tier === "thin", "Nehemiah 7:50 is the compact desk");
   }
 }
 ok(voicesSeen > 0, "no voices on any verse");
