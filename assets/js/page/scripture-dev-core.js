@@ -1044,7 +1044,10 @@
      * second Luther row under the cited list, 26 volumes in two places). Every volume by an author, whatever its list would have been,
      * goes into one row, in the first list the author earns: the book's if he has a commentary on it, else the whole Bible's, else the
      * cited, else the other works; his other volumes are beneath it. */
-    const everything = list.concat(cited || []);
+    // One entry per volume. The feed can send the same volume twice (Genesis 1 had Luther's WA 24 twice on 2026-11-03), and a
+    // repeat lands beneath its author's row as a second identical line. The first copy wins.
+    const seenW = new Set();
+    const everything = list.concat(cited || []).filter((e) => !e || !e.w || (seenW.has(e.w) ? false : (seenW.add(e.w), true)));
     everything.forEach((e) => { e.role = roleOf(e); });
     /* THE WHOLE-BIBLE SETS, ONE ROW A SET (2026-10-23, the owner: "make the whole bible commentaries match and open where they need and
      * each whole bible is grouped by tradition"; "works that are multi vol are grouped, so like grotius is a whole bible, wesley, baxters

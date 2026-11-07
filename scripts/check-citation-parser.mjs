@@ -40,7 +40,10 @@ const src = await readFile(path.join(ROOT, SOURCE), "utf-8");
 // early unless `window.MOCorpora` is present. Give it just enough of a
 // browser to reach its own export rather than keeping a second copy of
 // the parser in sync here.
-const win = { MOCorpora: {} };
+// faith-resolve.js asks MOCorpora.url() for each corpus's refindex at
+// load time (since 8550f3fb, 2026-10-01), so the stub needs that one
+// method. The parser under test never fetches, so the path is enough.
+const win = { MOCorpora: { url: (_id, p) => p } };
 const doc = {
   querySelector: () => null,
   addEventListener: () => {},
