@@ -1,13 +1,263 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-08-07T08:35:52.627Z",
+    "updated": "2026-11-07T21:47:12.987Z",
     "episodes": [
+      {
+        "id": 20076850,
+        "title": "Dostoevsky's Crime & Punishment, with Perry Glanzer",
+        "slug": "dostoevsky-s-crime-punishment-with-perry-glanzer",
+        "pubDate": "2026-11-05T06:00:00.000-05:00",
+        "episode": 41,
+        "season": 2,
+        "duration": 3169,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/20076850-dostoevsky-s-crime-punishment-with-perry-glanzer.mp3",
+        "description": "A man decides he can do one terrible thing for the greater good. The fallout isn’t just legal trouble, it’s the slow collapse of his own soul. Author and educator Perry Glanzer helps us take Dostoevsky’s Crime &amp; Punishment seriously as Christians, not for ideals it champions, but for naming the spiritual cost of dehumanizing people and trying to outthink conscience.",
+        "embedUrl": "https://www.buzzsprout.com/2612793/20076850?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/dostoevsky-s-crime-punishment-with-perry-glanzer/",
+        "guests": [
+          "Perry Glanzer"
+        ],
+        "topics": [
+          "Russian Literature"
+        ]
+      },
+      {
+        "id": 20038398,
+        "title": "Edgar Allan Poe: America's Spookiest Classic with Fr. Ryan Duns and Steven Knepper",
+        "slug": "edgar-allan-poe-america-s-spookiest-classic-with-fr-ryan-duns-and-steven-knepper",
+        "pubDate": "2026-10-29T06:00:00.000-04:00",
+        "episode": 40,
+        "season": 2,
+        "duration": 4028,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/20038398-edgar-allan-poe-america-s-spookiest-classic-with-fr-ryan-duns-and-steven-knepper.mp3",
+        "description": "Poe doesn’t just write about ravens, floorboards, and crumbling mansions. He writes about what happens when the mind starts feeding on itself and you can’t tell whether the horror is out there, in here, or both. Steve Knepper and Father Ryan Dunn join to discuss three essential Edgar Allan Poe classics: “The Raven,” “The Telltale Heart,” and “The Fall of the House of Usher,” and we ask what it loo",
+        "embedUrl": "https://www.buzzsprout.com/2612793/20038398?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/edgar-allan-poe-america-s-spookiest-classic-with-fr-ryan-duns-and-steven-knepper/",
+        "guests": [
+          "Fr. Ryan Duns",
+          "Steven Knepper"
+        ],
+        "topics": []
+      },
+      {
+        "id": 20001259,
+        "title": "Moby-Dick, with Kyle Harper",
+        "slug": "moby-dick-with-kyle-harper",
+        "pubDate": "2026-10-22T06:00:00.000-04:00",
+        "episode": 39,
+        "season": 2,
+        "duration": 3583,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/20001259-moby-dick-with-kyle-harper.mp3",
+        "description": "Moby-Dick is a whale hunt on the surface, but underneath it’s a confrontation with a world that won’t fully make sense. Kyle Harper, a historian of whales and the wider animal world, joins us to argue for Herman Melville’s masterpiece as the great American novel and to pin down what we really mean when we call something a “classic.” Kyle explains why timeless books survive changing tastes: they ke",
+        "embedUrl": "https://www.buzzsprout.com/2612793/20001259?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/moby-dick-with-kyle-harper/",
+        "guests": [
+          "Kyle Harper"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19965102,
+        "title": "All Quiet on the Western Front, with Jason Barnhart",
+        "slug": "all-quiet-on-the-western-front-with-jason-barnhart",
+        "pubDate": "2026-10-15T06:00:00.000-04:00",
+        "episode": 38,
+        "season": 2,
+        "duration": 3398,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19965102-all-quiet-on-the-western-front-with-jason-barnhart.mp3",
+        "description": "A single sentence can hold an entire war: “All quiet on the Western Front.” That understatement is exactly why Erich Maria Remarque’s novel still haunts readers almost a century later, and why we wanted to slow down and read it carefully rather than treat it like a history lesson. Today we are joined by Jason Barnhart, a peace theologian and professor of historical theology, to talk through the tr",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19965102?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/all-quiet-on-the-western-front-with-jason-barnhart/",
+        "guests": [
+          "Jason Barnhart"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19925709,
+        "title": "Billy Budd, with Christine Norvell",
+        "slug": "billy-budd-with-christine-norvell",
+        "pubDate": "2026-10-08T06:00:00.000-04:00",
+        "episode": 37,
+        "season": 2,
+        "duration": 3214,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19925709-billy-budd-with-christine-norvell.mp3",
+        "description": "A beautiful story can still be brutal, and Billy Budd proves it. Christine Norvell, author of The Sycamore Fig Tree , joins to discuss Melville’s unforgettable portrait of a sailor who seems almost made for admiration—which makes his tragedy that much more thought-provoking.",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19925709?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/billy-budd-with-christine-norvell/",
+        "guests": [
+          "Christine Norvell"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19887927,
+        "title": "Aristotle, with Philip Freeman",
+        "slug": "aristotle-with-philip-freeman",
+        "pubDate": "2026-10-01T06:00:00.000-04:00",
+        "episode": 36,
+        "season": 2,
+        "duration": 2802,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19887927-aristotle-with-philip-freeman.mp3",
+        "description": "Aristotle is everywhere in Western civilization, but most of us meet him as a difficult assignment instead of a real human being with a complicated story. We sit down with classicist and biographer Philip Freeman, author of Aristotle: The First Teacher, to follow Aristotle from an out-of-the-way town in northern Greece to the intellectual pressure cooker of Plato’s Academy and then into his own am",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19887927?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/aristotle-with-philip-freeman/",
+        "guests": [
+          "Philip Freeman"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19852877,
+        "title": "Howard Thurman For Our Time with Myles Werntz",
+        "slug": "howard-thurman-for-our-time-with-myles-werntz",
+        "pubDate": "2026-09-24T06:00:00.000-04:00",
+        "episode": 35,
+        "season": 2,
+        "duration": 2932,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19852877-howard-thurman-for-our-time-with-myles-werntz.mp3",
+        "description": "We’re joined by Miles Werntz, associate professor of theology at Abilene Christian University and editor of Nothing Can Separate Us: Healing for Souls and Nations , a reader of Thurman’s writings. Together we trace Thurman’s story from the segregated South to Morehouse and Howard University, through his journey to India to meet Mahatma Gandhi, and into his bold experiment of founding one of Americ",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19852877?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/howard-thurman-for-our-time-with-myles-werntz/",
+        "guests": [
+          "Myles Werntz"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19811179,
+        "title": "Brideshead Revisited by Evelyn Waugh, with Daniel McInerny",
+        "slug": "brideshead-revisited-by-evelyn-waugh-with-daniel-mcinerny",
+        "pubDate": "2026-09-17T06:00:00.000-04:00",
+        "episode": 34,
+        "season": 2,
+        "duration": 3509,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19811179-brideshead-revisited-by-evelyn-waugh-with-daniel-mcinerny.mp3",
+        "description": "The complicated struggle of faith is no new phenomenon. Philosopher and novelist Daniel McInerny joins today to revisit Evelyn Waugh’s Brideshead Revisited and ask why this Catholic classic still feels like it is describing our own age, our own friendships, and our own hunger for beauty. Along the way, we tackle a surprisingly practical question for readers and writers alike: what is a classic, re",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19811179?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/brideshead-revisited-by-evelyn-waugh-with-daniel-mcinerny/",
+        "guests": [
+          "Daniel McInerny"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19782753,
+        "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
+        "slug": "meditations-by-marcus-aurelius-with-eric-hutchinson",
+        "pubDate": "2026-09-10T06:00:00.000-04:00",
+        "episode": 33,
+        "season": 2,
+        "duration": 3453,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19782753-meditations-by-marcus-aurelius-with-eric-hutchinson.mp3",
+        "description": "Marcus Aurelius, the Roman Emperor known for his philosophical insights, penned his thoughts in a private notebook that became one of the most enduring classics of Western literature. In this episode, Nadya Williams speaks with Eric Hutchinson, Associate Professor of Classics at Hillsdale College, to delve into the essence of Aurelius's Meditations and the Stoic principles that shaped his life.",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19782753?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/meditations-by-marcus-aurelius-with-eric-hutchinson/",
+        "guests": [
+          "Eric Hutchinson"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19741650,
+        "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
+        "slug": "mere-christianity-by-c-s-lewis-with-daniel-k-williams",
+        "pubDate": "2026-09-03T07:00:00.000-04:00",
+        "episode": 32,
+        "season": 2,
+        "duration": 3416,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19741650-mere-christianity-by-c-s-lewis-with-daniel-k-williams.mp3",
+        "description": "In this episode, we explore the enduring power of C.S. Lewis's 'Mere Christianity' and its place in the broader history of Christian apologetics. Daniel K. Williams, a historian and expert in apologetics, shares insights into what makes a work of apologetics a classic, how Lewis's work has influenced generations, and the evolving landscape of Christian defense strategies.",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19741650?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/mere-christianity-by-c-s-lewis-with-daniel-k-williams/",
+        "guests": [
+          "Daniel K. Williams"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19705461,
+        "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
+        "slug": "crossing-to-safety-by-wallace-stegner-with-matt-stewart",
+        "pubDate": "2026-08-27T05:00:00.000-04:00",
+        "episode": 31,
+        "season": 2,
+        "duration": 3196,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19705461-crossing-to-safety-by-wallace-stegner-with-matt-stewart.mp3",
+        "description": "Wallace Stegner scholar Matt Stewart talks with Nadya Williams about why quiet novels can hit harder than flashy ones and how Crossing to Safety turns friendship, academia, and marriage into real drama. We also ask what makes a classic, how books survive by luck as much as merit, and why long obedience in relationships might be the rarest plot of all.",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19705461?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/crossing-to-safety-by-wallace-stegner-with-matt-stewart/",
+        "guests": [
+          "Matt Stewart"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19670785,
+        "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
+        "slug": "a-canticle-for-leibowitz-by-walter-miller-with-brad-birzer",
+        "pubDate": "2026-08-20T05:00:00.000-04:00",
+        "episode": 30,
+        "season": 2,
+        "duration": 3625,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19670785-a-canticle-for-leibowitz-by-walter-miller-with-brad-birzer.mp3",
+        "description": "A monastery in the desert preserves the shattered remnants of civilisation after nuclear fire, and the relics include something chilling: the technical knowledge that could destroy the world all over again. That is the dark engine driving Walter M. Miller Jr.’s A Canticle for Leibowitz, and it is why this 1959 post-apocalyptic science fiction classic still refuses to go stale.",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19670785?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/a-canticle-for-leibowitz-by-walter-miller-with-brad-birzer/",
+        "guests": [
+          "Brad Birzer"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19636167,
+        "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
+        "slug": "notes-on-the-state-of-virginia-by-thomas-jefferson-with-cara-rogers-stevens",
+        "pubDate": "2026-08-13T05:00:00.000-04:00",
+        "episode": 29,
+        "season": 2,
+        "duration": 2829,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19636167-notes-on-the-state-of-virginia-by-thomas-jefferson-with-cara-rogers-stevens.mp3",
+        "description": "Jefferson’s Notes on the State of Virginia is one of those rare books that can feel like a museum archive, a political manifesto, and a personal notebook all at once, and it still shapes how Americans argue about freedom. We sit down with historian Cara Rogers Stevens (Ashland University), author of the award-winning Thomas Jefferson and the Fight Against Slavery, to ask a basic but uncomfortable ",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19636167?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/notes-on-the-state-of-virginia-by-thomas-jefferson-with-cara-rogers-stevens/",
+        "guests": [
+          "Cara Rogers Stevens"
+        ],
+        "topics": []
+      },
       {
         "id": 19603658,
         "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
         "slug": "nolan-s-odyssey-and-epics-with-jonathan-geltner-eric-hutchinson-and-rob-wyllie",
         "pubDate": "2026-08-06T06:00:00.000-04:00",
-        "episode": 27,
+        "episode": 28,
         "season": 2,
         "duration": 4553,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -21,14 +271,16 @@
           "Eric Hutchinson",
           "and Rob Wyllie"
         ],
-        "topics": []
+        "topics": [
+          "Ancient & Patristic"
+        ]
       },
       {
         "id": 19563706,
         "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
         "slug": "augustine-enchiridion-and-morals-of-the-catholic-church-with-joseph-lanier-and-travis-montgomery",
         "pubDate": "2026-07-29T05:00:00.000-04:00",
-        "episode": 26,
+        "episode": 27,
         "season": 2,
         "duration": 3465,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -51,7 +303,7 @@
         "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
         "slug": "the-idiot-by-fyodor-dostoevsky-with-maria-baer",
         "pubDate": "2026-07-23T05:00:00.000-04:00",
-        "episode": 25,
+        "episode": 26,
         "season": 2,
         "duration": 3617,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -63,14 +315,16 @@
         "guests": [
           "Maria Baer"
         ],
-        "topics": []
+        "topics": [
+          "Russian Literature"
+        ]
       },
       {
         "id": 19499940,
         "title": "Jack London: An American Classic with Elizabeth Stice",
         "slug": "jack-london-an-american-classic-with-elizabeth-stice",
         "pubDate": "2026-07-16T06:00:00.000-04:00",
-        "episode": 24,
+        "episode": 25,
         "season": 2,
         "duration": 2174,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -82,14 +336,16 @@
         "guests": [
           "Elizabeth Stice"
         ],
-        "topics": []
+        "topics": [
+          "American Literature"
+        ]
       },
       {
         "id": 19465890,
         "title": "The Declaration of Independence and the Classics with Brad Birzer",
         "slug": "the-declaration-of-independence-and-the-classics-with-brad-birzer",
         "pubDate": "2026-07-09T07:00:00.000-04:00",
-        "episode": 23,
+        "episode": 24,
         "season": 2,
         "duration": 3682,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -101,14 +357,17 @@
         "guests": [
           "Brad Birzer"
         ],
-        "topics": []
+        "topics": [
+          "American Literature",
+          "Political Thought"
+        ]
       },
       {
         "id": 19420408,
         "title": "The Declaration of Independence with Matthew Spalding and Jake Meador",
         "slug": "the-declaration-of-independence-with-matthew-spalding-and-jake-meador",
         "pubDate": "2026-07-02T07:00:00.000-04:00",
-        "episode": 22,
+        "episode": 23,
         "season": 2,
         "duration": 3946,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -121,14 +380,17 @@
           "Matthew Spalding",
           "Jake Meador"
         ],
-        "topics": []
+        "topics": [
+          "American Literature",
+          "Political Thought"
+        ]
       },
       {
         "id": 19397594,
         "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
         "slug": "till-we-have-faces-by-c-s-lewis-with-oliver-traldi",
         "pubDate": "2026-06-25T06:00:00.000-04:00",
-        "episode": 21,
+        "episode": 22,
         "season": 2,
         "duration": 3980,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -151,7 +413,7 @@
         "title": "East of Eden with Philip Bunn & Matthew H. Young",
         "slug": "east-of-eden-with-philip-bunn-matthew-h-young",
         "pubDate": "2026-06-18T07:00:00.000-04:00",
-        "episode": 20,
+        "episode": 21,
         "season": 2,
         "duration": 3323,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -173,7 +435,7 @@
         "title": "James Fenimore Cooper with Dr. Wayne Franklin",
         "slug": "james-fenimore-cooper-with-dr-wayne-franklin",
         "pubDate": "2026-06-11T06:00:00.000-04:00",
-        "episode": 19,
+        "episode": 20,
         "season": 2,
         "duration": 3846,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -194,7 +456,7 @@
         "title": "The Journals of Lewis and Clark with Craig Fehrman",
         "slug": "the-journals-of-lewis-and-clark-with-craig-fehrman",
         "pubDate": "2026-06-04T07:00:00.000-04:00",
-        "episode": 18,
+        "episode": 19,
         "season": 2,
         "duration": 3322,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -215,7 +477,7 @@
         "title": "Augustine's Confessions with Joey Sherrard",
         "slug": "augustine-s-confessions-with-joey-sherrard",
         "pubDate": "2026-05-28T07:00:00.000-04:00",
-        "episode": 17,
+        "episode": 18,
         "season": 2,
         "duration": 2751,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -237,7 +499,7 @@
         "title": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw",
         "slug": "cassiodorus-and-classical-education-with-joseph-griffith-and-joshua-kinlaw",
         "pubDate": "2026-05-21T06:00:00.000-04:00",
-        "episode": 16,
+        "episode": 17,
         "season": 2,
         "duration": 3403,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -259,7 +521,7 @@
         "title": "Petrarch's Canzoniere with A. M. Juster",
         "slug": "petrarch-s-canzoniere-with-a-m-juster",
         "pubDate": "2026-05-14T07:00:00.000-04:00",
-        "episode": 15,
+        "episode": 16,
         "season": 2,
         "duration": 3393,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -281,7 +543,7 @@
         "title": "The Great Gatsby with Katy Carl",
         "slug": "the-great-gatsby-with-katy-carl",
         "pubDate": "2026-05-07T10:20:00.000-04:00",
-        "episode": 14,
+        "episode": 15,
         "season": 2,
         "duration": 3006,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -302,7 +564,7 @@
         "title": "Great American Sermons with John Wilsey and Daniel K. Williams [FULL EPISODE]",
         "slug": "great-american-sermons-with-john-wilsey-and-daniel-k-williams-full-episode",
         "pubDate": "2026-05-01T11:03:00.000-04:00",
-        "episode": 13,
+        "episode": 14,
         "season": 2,
         "duration": 4120,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -325,7 +587,7 @@
         "title": "Thomas Aquinas For Protestants with Miles Smith",
         "slug": "thomas-aquinas-for-protestants-with-miles-smith",
         "pubDate": "2026-04-23T16:54:00.000-04:00",
-        "episode": 12,
+        "episode": 13,
         "season": 2,
         "duration": 2078,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -347,7 +609,7 @@
         "title": "The Scarlet Letter by Nathaniel Hawthorne with Jeff Bilbro | American 250",
         "slug": "the-scarlet-letter-by-nathaniel-hawthorne-with-jeff-bilbro-american-250",
         "pubDate": "2026-04-16T07:00:00.000-04:00",
-        "episode": 11,
+        "episode": 12,
         "season": 2,
         "duration": 3032,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -368,7 +630,7 @@
         "title": "The Adventures of Tom Sawyer by Mark Twain with Ivana Greco and Dixie Dillon Lane",
         "slug": "the-adventures-of-tom-sawyer-by-mark-twain-with-ivana-greco-and-dixie-dillon-lane",
         "pubDate": "2026-04-09T13:37:00.000-04:00",
-        "episode": 10,
+        "episode": 11,
         "season": 2,
         "duration": 3436,
         "artwork": "https://storage.buzzsprout.com/bnvzrm3er3jlgzsz56vrpck9qzua",
@@ -391,7 +653,7 @@
         "title": "Moby Dick by Herman Melville with Christina Bieber Lake",
         "slug": "moby-dick-by-herman-melville-with-christina-bieber-lake",
         "pubDate": "2026-04-02T07:00:00.000-04:00",
-        "episode": 9,
+        "episode": 10,
         "season": 2,
         "duration": 3445,
         "artwork": "https://storage.buzzsprout.com/r4nenb0vaaavxf0yid0iewv5fx5i",
@@ -412,7 +674,7 @@
         "title": "Atlas Shrugged by Ayn Rand with David Kee",
         "slug": "atlas-shrugged-by-ayn-rand-with-david-kee",
         "pubDate": "2026-03-26T07:00:00.000-04:00",
-        "episode": 8,
+        "episode": 9,
         "season": 2,
         "duration": 3554,
         "artwork": "https://storage.buzzsprout.com/cpe49qy0458jojwjr40vsuqgwyl7",
@@ -434,7 +696,7 @@
         "title": "Mansfield Park by Jane Austen with Beatrice Scudeler",
         "slug": "mansfield-park-by-jane-austen-with-beatrice-scudeler",
         "pubDate": "2026-03-18T15:53:00.000-04:00",
-        "episode": 7,
+        "episode": 8,
         "season": 2,
         "duration": 3115,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -455,7 +717,7 @@
         "title": "The Nichomachean Ethics by Aristotle with Sabrina Little | America 250",
         "slug": "the-nichomachean-ethics-by-aristotle-with-sabrina-little-america-250",
         "pubDate": "2026-03-12T07:00:00.000-04:00",
-        "episode": 6,
+        "episode": 7,
         "season": 2,
         "duration": 2304,
         "artwork": "https://storage.buzzsprout.com/vatuqg2fcc0uc6kmqx6c0j0zxuzx",
@@ -476,7 +738,7 @@
         "title": "Wuthering Heights with Evie Solheim",
         "slug": "wuthering-heights-with-evie-solheim",
         "pubDate": "2026-03-05T07:00:00.000-05:00",
-        "episode": 5,
+        "episode": 6,
         "season": 2,
         "duration": 3114,
         "artwork": "https://storage.buzzsprout.com/jetd9svqhn7m2oa0ezhgre47rvyu",
@@ -497,7 +759,7 @@
         "title": "Uncle Toms Cabin by Harriet Beecher Stowe with Obbie Tyler Todd | America 250",
         "slug": "uncle-toms-cabin-by-harriet-beecher-stowe-with-obbie-tyler-todd-america-250",
         "pubDate": "2026-02-26T07:00:00.000-05:00",
-        "episode": 4,
+        "episode": 5,
         "season": 2,
         "duration": 3608,
         "artwork": "https://storage.buzzsprout.com/hnes4jn841khkeyicvuftcgax5ow",
@@ -519,7 +781,7 @@
         "title": "Brave New World by Aldous Huxley with Katelyn Walls Shelton | America 250",
         "slug": "brave-new-world-by-aldous-huxley-with-katelyn-walls-shelton-america-250",
         "pubDate": "2026-02-19T07:00:00.000-05:00",
-        "episode": 3,
+        "episode": 4,
         "season": 2,
         "duration": 3093,
         "artwork": "https://storage.buzzsprout.com/0zw1ygmwphjwv5in3dphuu5k6kwd",
@@ -623,7 +885,7 @@
         "title": "The Scandal of the Christian Imagination",
         "slug": "the-scandal-of-the-christian-imagination",
         "pubDate": "2025-10-30T07:00:00.000-04:00",
-        "episode": 17,
+        "episode": 16,
         "season": 1,
         "duration": 624,
         "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
@@ -643,7 +905,7 @@
         "title": "T.S. Eliot - The Hollow Men with Eric Hutchinson",
         "slug": "t-s-eliot-the-hollow-men-with-eric-hutchinson",
         "pubDate": "2025-10-23T06:50:00.000-04:00",
-        "episode": 16,
+        "episode": 15,
         "season": 1,
         "duration": 4046,
         "artwork": "https://storage.buzzsprout.com/kokgk5fjcq9kpdm1b0j1rszknpnl",
@@ -709,7 +971,7 @@
         "title": "Flannery O'Connor - A Good Man Is Hard To Find with Jon Parrish Peede",
         "slug": "flannery-o-connor-a-good-man-is-hard-to-find-with-jon-parrish-peede",
         "pubDate": "2025-10-02T07:00:00.000-04:00",
-        "episode": 13,
+        "episode": 12,
         "season": 1,
         "duration": 3176,
         "artwork": "https://storage.buzzsprout.com/43ner5dyljondewhwlhdpt51dqr6",
@@ -730,7 +992,7 @@
         "title": "Sinclair Lewis - It Couldn't Happen Here with Daniel K. Williams",
         "slug": "sinclair-lewis-it-couldn-t-happen-here-with-daniel-k-williams",
         "pubDate": "2025-09-25T07:00:00.000-04:00",
-        "episode": 12,
+        "episode": 11,
         "season": 1,
         "duration": 3299,
         "artwork": "https://storage.buzzsprout.com/kua9x1pnmxiwmfc0dhl7zm9fdfac",
@@ -751,7 +1013,7 @@
         "title": "The Heart of a Dog - Mikhail Bulgakov with Vika Pechersky",
         "slug": "the-heart-of-a-dog-mikhail-bulgakov-with-vika-pechersky",
         "pubDate": "2025-09-18T07:00:00.000-04:00",
-        "episode": 11,
+        "episode": 10,
         "season": 1,
         "duration": 2782,
         "artwork": "https://storage.buzzsprout.com/a63shy4w5324foxw84ejdunldgz1",
@@ -797,7 +1059,7 @@
         "title": "Alexis de Tocqueville - Democracy in America with John Wilsey",
         "slug": "alexis-de-tocqueville-democracy-in-america-with-john-wilsey",
         "pubDate": "2025-09-04T07:00:00.000-04:00",
-        "episode": 7,
+        "episode": 8,
         "season": 1,
         "duration": 4384,
         "artwork": "https://storage.buzzsprout.com/cvgcd797mignjvaso6ytk506tdha",
@@ -990,14 +1252,278 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-08-07T08:35:56.953Z",
+    "updated": "2026-11-07T21:47:17.266Z",
     "episodes": [
+      {
+        "id": 20070839,
+        "title": "Replay: Christian Politics with Oliver O’Donovan",
+        "slug": "replay-christian-politics-with-oliver-o-donovan",
+        "pubDate": "2026-11-04T05:00:00.000-05:00",
+        "episode": 42,
+        "season": 3,
+        "duration": 2985,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/20070839-replay-christian-politics-with-oliver-o-donovan.mp3",
+        "description": "Professor Oliver O’Donovan joins Matt and Derek once more. This time they discuss the relationship of Christian belief and practice to the contemporary political realities of our world. Do we need a new constitution? What’s to be done about the current wars? How can we properly utilize passion and reason in elections?",
+        "embedUrl": "https://www.buzzsprout.com/2612792/20070839?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/replay-christian-politics-with-oliver-o-donovan/",
+        "guests": [
+          "Oliver O’Donovan"
+        ],
+        "topics": [
+          "Politics & Public Life",
+          "Secularism & Expressive Individualism",
+          "Augustine",
+          "Scripture & Hermeneutics"
+        ]
+      },
+      {
+        "id": 20031234,
+        "title": "The Old Testament's Fingerprints on Acts",
+        "slug": "the-old-testament-s-fingerprints-on-acts",
+        "pubDate": "2026-10-28T06:00:00.000-04:00",
+        "episode": 41,
+        "season": 3,
+        "duration": 3389,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/20031234-the-old-testament-s-fingerprints-on-acts.mp3",
+        "description": "Derek and Alistair discuss the ways in which the Old Testament is used in the book of Acts: by the author in structuring the narrative, and also by the apostles to shape the identity and mission of the early church. Christ is the center of it all.&nbsp;",
+        "embedUrl": "https://www.buzzsprout.com/2612792/20031234?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/the-old-testament-s-fingerprints-on-acts/",
+        "guests": [],
+        "topics": [
+          "Scripture & Hermeneutics",
+          "Secularism & Expressive Individualism"
+        ]
+      },
+      {
+        "id": 19992954,
+        "title": "Replay: Martin Luther and the Rule of Faith, with Dr. Todd Hains",
+        "slug": "replay-martin-luther-and-the-rule-of-faith-with-dr-todd-hains",
+        "pubDate": "2026-10-21T05:00:00.000-04:00",
+        "episode": 40,
+        "season": 3,
+        "duration": 3295,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19992954-replay-martin-luther-and-the-rule-of-faith-with-dr-todd-hains.mp3",
+        "description": "For generations of evangelicals lacking good catechesis, Martin Luther is often seen as a primitive, unsophisticated, or backwards reformer. Into this negative environment, Dr. Todd Hains is bringing forth the richness of Luther’s thought and Lutheranism’s tradition. There is so much more than just justification by faith. Alastair and Matt discuss with Dr. Hains his latest book, and they get at th",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19992954?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/replay-martin-luther-and-the-rule-of-faith-with-dr-todd-hains/",
+        "guests": [
+          "Dr. Todd Hains"
+        ],
+        "topics": [
+          "Scripture & Hermeneutics",
+          "Theological Retrieval & Method",
+          "Worship & Liturgy",
+          "Spiritual Formation & Prayer",
+          "Ecclesiology & Sacraments"
+        ]
+      },
+      {
+        "id": 19959169,
+        "title": "How to Handle Difficult Bible Passages",
+        "slug": "how-to-handle-difficult-bible-passages",
+        "pubDate": "2026-10-14T06:00:00.000-04:00",
+        "episode": 39,
+        "season": 3,
+        "duration": 3165,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19959169-how-to-handle-difficult-bible-passages.mp3",
+        "description": "Have you ever encountered a passage of the Bible that confused you?&nbsp; Sometimes we get hung up on a book's origin, wrestle with its meaning, question its relevance, or simply dislike what it teaches. In this episode, Alastair and Derek discuss approaching complex passages faithfully without undermining the challenge.&nbsp;",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19959169?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/how-to-handle-difficult-bible-passages/",
+        "guests": [],
+        "topics": [
+          "Scripture & Hermeneutics"
+        ]
+      },
+      {
+        "id": 19918976,
+        "title": "Resisting Therapy Culture, with Matthew Loftus",
+        "slug": "resisting-therapy-culture-with-matthew-loftus",
+        "pubDate": "2026-10-07T06:00:00.000-04:00",
+        "episode": 38,
+        "season": 3,
+        "duration": 3876,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19918976-resisting-therapy-culture-with-matthew-loftus.mp3",
+        "description": "Therapy culture (not therapy itself) has gotten way out of hand. Too many of life's normal vicissitudes are treated as mental illnesses. How do we avoid the extremes of medicalizing morality or moralizing medicine? How's a pastor to navigate this issue? Matthew Loftus, M.D., joins Derek, James, and Brad to discuss this sticky, hot-topic issue.",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19918976?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/resisting-therapy-culture-with-matthew-loftus/",
+        "guests": [
+          "Matthew Loftus"
+        ],
+        "topics": [
+          "Virtue, Character & Christian Ethics",
+          "Bioethics, Abortion & the Body"
+        ]
+      },
+      {
+        "id": 19885189,
+        "title": "Finding Happiness That Lasts",
+        "slug": "finding-happiness-that-lasts",
+        "pubDate": "2026-09-30T06:00:00.000-04:00",
+        "episode": 37,
+        "season": 3,
+        "duration": 4246,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19885189-finding-happiness-that-lasts.mp3",
+        "description": "Andrew Wilson returns to the podcast! He joins Brad and Alastair to discuss the idea of Christian happiness, not only in the world to come, but in this world also. His latest book is entitled Happiness: What It Is, Where to Find It, and How to Make It Last Forever.",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19885189?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/finding-happiness-that-lasts/",
+        "guests": [],
+        "topics": []
+      },
+      {
+        "id": 19848301,
+        "title": "Why Is The Gospel of John So Unique?",
+        "slug": "why-is-the-gospel-of-john-so-unique",
+        "pubDate": "2026-09-23T05:00:00.000-04:00",
+        "episode": 36,
+        "season": 3,
+        "duration": 3258,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19848301-why-is-the-gospel-of-john-so-unique.mp3",
+        "description": "Derek and Alastair unpack just what makes the Gospel of John so unique and different from the other gospels. They identify major structures, hidden themes, and huge overlap with the very beginning and the very ending of the Bible.&nbsp;",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19848301?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/why-is-the-gospel-of-john-so-unique/",
+        "guests": [],
+        "topics": [
+          "Scripture & Hermeneutics"
+        ]
+      },
+      {
+        "id": 19811097,
+        "title": "Remembering Wendell Berry",
+        "slug": "remembering-wendell-berry",
+        "pubDate": "2026-09-16T06:00:00.000-04:00",
+        "episode": 35,
+        "season": 3,
+        "duration": 4461,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19811097-remembering-wendell-berry.mp3",
+        "description": "Brad East and a panel of special guests gather to remember the life, work, and unique legacy of Wendell Berry, who recently passed away at the age of 92.&nbsp;",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19811097?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/remembering-wendell-berry/",
+        "guests": [],
+        "topics": []
+      },
+      {
+        "id": 19776761,
+        "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
+        "slug": "the-four-senses-of-scripture-with-dr-patrick-schreiner",
+        "pubDate": "2026-09-09T06:00:00.000-04:00",
+        "episode": 34,
+        "season": 3,
+        "duration": 3514,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19776761-the-four-senses-of-scripture-with-dr-patrick-schreiner.mp3",
+        "description": "Dr. Patrick Schreiner joins Derek and Alastair to discuss the four ways that the church fathers read Scripture and how we read it today.",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19776761?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/the-four-senses-of-scripture-with-dr-patrick-schreiner/",
+        "guests": [
+          "Dr. Patrick Schreiner"
+        ],
+        "topics": [
+          "Scripture & Hermeneutics",
+          "Ecclesiology & Sacraments",
+          "Theological Retrieval & Method"
+        ]
+      },
+      {
+        "id": 19741269,
+        "title": "In Defense of Evangelicalism with Bonnie Kristian",
+        "slug": "in-defense-of-evangelicalism-with-bonnie-kristian",
+        "pubDate": "2026-09-02T06:00:00.000-04:00",
+        "episode": 33,
+        "season": 3,
+        "duration": 4434,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19741269-in-defense-of-evangelicalism-with-bonnie-kristian.mp3",
+        "description": "Bonnie Kristian, deputy editor at Christianity Today, joins Derek, Brad, and Alastair to talk about why evangelicals are so uniquely hated in contemporary society, whether it is deserved, and what we should do about it.&nbsp;",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19741269?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/in-defense-of-evangelicalism-with-bonnie-kristian/",
+        "guests": [
+          "Bonnie Kristian"
+        ],
+        "topics": []
+      },
+      {
+        "id": 19702000,
+        "title": "Postliberal Theology, Explained",
+        "slug": "postliberal-theology-explained",
+        "pubDate": "2026-08-26T04:00:00.000-04:00",
+        "episode": 32,
+        "season": 3,
+        "duration": 4624,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19702000-postliberal-theology-explained.mp3",
+        "description": "Derek, James, Brad, and Alastair discuss the major and minor figures of the very influential Yale School in post-liberal theology. These are the voices that called for the church to speak in its native language and not to accommodate to the culture. Is their influence over, or does their voice yet speak?",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19702000?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/postliberal-theology-explained/",
+        "guests": [],
+        "topics": [
+          "Ecclesiology & Sacraments"
+        ]
+      },
+      {
+        "id": 19665503,
+        "title": "What Is A Man?",
+        "slug": "what-is-a-man",
+        "pubDate": "2026-08-19T05:00:00.000-04:00",
+        "episode": 31,
+        "season": 3,
+        "duration": 3462,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19665503-what-is-a-man.mp3",
+        "description": "Is there any hope of recovering real masculinity? Not the toxic type you hear about or the shallow performative type of manhood you see online. Real, Biblical, virtuous manhood. The Mere Fidelity cast and crew flip the script, so to speak, in this episode.&nbsp;",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19665503?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/what-is-a-man/",
+        "guests": [],
+        "topics": [
+          "Biblical Theology & Typology",
+          "Technology & Digital Life",
+          "Sexuality, Gender & Anthropology"
+        ]
+      },
+      {
+        "id": 19633480,
+        "title": "Examining Nolan’s Odyssey",
+        "slug": "examining-nolan-s-odyssey",
+        "pubDate": "2026-08-12T04:00:00.000-04:00",
+        "episode": 30,
+        "season": 3,
+        "duration": 3114,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19633480-examining-nolan-s-odyssey.mp3",
+        "description": "In what may be a Mere Fidelity first, the guys discuss a current popular movie--The Odyssey by Christopher Nolan. It's said that art holds up a mirror to culture. What do Derek, Brad, and Alastair see when they look into this post-Christian, pre-pagan, ambiguous adaptation?",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19633480?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/examining-nolan-s-odyssey/",
+        "guests": [],
+        "topics": [
+          "Secularism & Expressive Individualism"
+        ]
+      },
       {
         "id": 19565507,
         "title": "Replay: The Struggle of Prayer",
         "slug": "replay-the-struggle-of-prayer",
         "pubDate": "2026-08-05T05:00:00.000-04:00",
-        "episode": 26,
+        "episode": 29,
         "season": 3,
         "duration": 2669,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1007,14 +1533,19 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/replay-the-struggle-of-prayer/",
         "guests": [],
-        "topics": []
+        "topics": [
+          "Spiritual Formation & Prayer",
+          "Doctrine of God & Classical Theism",
+          "Scripture & Hermeneutics",
+          "Worship & Liturgy"
+        ]
       },
       {
         "id": 19567716,
         "title": "Replay: Conservatism, with Dr. Yoram Hazony",
         "slug": "replay-conservatism-with-dr-yoram-hazony",
         "pubDate": "2026-07-29T05:00:00.000-04:00",
-        "episode": 26,
+        "episode": 28,
         "season": 3,
         "duration": 3836,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1026,14 +1557,19 @@
         "guests": [
           "Dr. Yoram Hazony"
         ],
-        "topics": []
+        "topics": [
+          "Politics & Public Life",
+          "Marriage & Family",
+          "Secularism & Expressive Individualism",
+          "Scripture & Hermeneutics"
+        ]
       },
       {
         "id": 19526394,
         "title": "Measuring Wealth",
         "slug": "measuring-wealth",
         "pubDate": "2026-07-22T05:00:00.000-04:00",
-        "episode": 25,
+        "episode": 27,
         "season": 3,
         "duration": 3200,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1043,14 +1579,16 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/measuring-wealth/",
         "guests": [],
-        "topics": []
+        "topics": [
+          "Economics, Work & Mammon"
+        ]
       },
       {
         "id": 19493398,
         "title": "Replay: The Fractured Republic with Yuval Levin",
         "slug": "replay-the-fractured-republic-with-yuval-levin",
         "pubDate": "2026-07-15T06:00:00.000-04:00",
-        "episode": 24,
+        "episode": 26,
         "season": 3,
         "duration": 3322,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1062,31 +1600,38 @@
         "guests": [
           "Yuval Levin"
         ],
-        "topics": []
+        "topics": [
+          "Politics & Public Life",
+          "Secularism & Expressive Individualism",
+          "Economics, Work & Mammon",
+          "Ecclesiology & Sacraments"
+        ]
       },
       {
         "id": 19458498,
         "title": "Divided We Stand: On Denominations",
         "slug": "divided-we-stand-on-denominations",
         "pubDate": "2026-07-08T07:00:00.000-04:00",
-        "episode": 23,
+        "episode": 25,
         "season": 3,
         "duration": 3791,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19458498-divided-we-stand-on-denominations.mp3",
-        "description": "How often do you think about denominations? Is this the way Jesus meant for the church to be? Are we actually united without realizing it? Derek, Brad, and Alistair examine the pros and cons of denominations, poke at Rome a little, and pursue authentic catholicity. &nbsp; — Mere Fidelity is a podcast from Mere Orthodoxy and is listener-supported. If you would like to support this work, become a Me",
+        "description": "How often do you think about denominations? Is this the way Jesus meant for the church to be? Are we actually united without realizing it? Derek, Brad, and Alastair examine the pros and cons of denominations, poke at Rome a little, and pursue authentic catholicity. &nbsp; — Mere Fidelity is a podcast from Mere Orthodoxy and is listener-supported. If you would like to support this work, become a Me",
         "embedUrl": "https://www.buzzsprout.com/2612792/19458498?client_source=small_player&iframe=true",
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/divided-we-stand-on-denominations/",
         "guests": [],
-        "topics": []
+        "topics": [
+          "Ecclesiology & Sacraments"
+        ]
       },
       {
         "id": 19425853,
         "title": "How to Read Outside Your Tradition",
         "slug": "how-to-read-outside-your-tradition",
         "pubDate": "2026-07-01T06:00:00.000-04:00",
-        "episode": 22,
+        "episode": 24,
         "season": 3,
         "duration": 2753,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1103,7 +1648,7 @@
         "title": "How Theology Nerds Are Made",
         "slug": "how-theology-nerds-are-made",
         "pubDate": "2026-06-24T06:00:00.000-04:00",
-        "episode": 21,
+        "episode": 23,
         "season": 3,
         "duration": 3791,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1125,7 +1670,7 @@
         "title": "Magnifica Humanitas with Brad Littlejohn",
         "slug": "magnifica-humanitas-with-brad-littlejohn",
         "pubDate": "2026-06-17T06:00:00.000-04:00",
-        "episode": 20,
+        "episode": 22,
         "season": 3,
         "duration": 3671,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1151,7 +1696,7 @@
         "title": "Online And Outside the Institutions",
         "slug": "online-and-outside-the-institutions",
         "pubDate": "2026-06-10T06:00:00.000-04:00",
-        "episode": 19,
+        "episode": 21,
         "season": 3,
         "duration": 2913,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1173,7 +1718,7 @@
         "title": "Replay: How 1776 Remade The World with Andrew Wilson (Fixed Audio)",
         "slug": "replay-how-1776-remade-the-world-with-andrew-wilson-fixed-audio",
         "pubDate": "2026-06-03T17:00:00.000-04:00",
-        "episode": 18,
+        "episode": 20,
         "season": 3,
         "duration": 3331,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1197,7 +1742,7 @@
         "title": "Idolatry And The Shape Of Worship",
         "slug": "idolatry-and-the-shape-of-worship",
         "pubDate": "2026-05-27T06:00:00.000-04:00",
-        "episode": 18,
+        "episode": 19,
         "season": 3,
         "duration": 3555,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1295,7 +1840,7 @@
         "slug": "on-paul-and-the-law",
         "pubDate": "2026-04-30T15:21:00.000-04:00",
         "episode": 15,
-        "season": 1,
+        "season": 3,
         "duration": 4410,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19198402-on-paul-and-the-law.mp3",
@@ -1317,7 +1862,7 @@
         "slug": "how-to-approach-god",
         "pubDate": "2026-04-22T10:18:00.000-04:00",
         "episode": 14,
-        "season": 1,
+        "season": 3,
         "duration": 3317,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19061458-how-to-approach-god.mp3",
@@ -1383,7 +1928,7 @@
         "title": "Replay: The Age of AI with Jason Thacker",
         "slug": "replay-the-age-of-ai-with-jason-thacker",
         "pubDate": "2026-04-01T07:00:00.000-04:00",
-        "episode": 10,
+        "episode": 11,
         "season": 3,
         "duration": 3593,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1531,7 +2076,7 @@
         "duration": 3032,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19198410-replay-put-social-media-in-its-place-with-andy-crouch.mp3",
-        "description": "In this Replay episode, Matthew Lee Anderson, Derek Rishmawy, and Alistair Roberts are joined by Andy Crouch — Partner for Theology and Culture at Praxis — to examine what the data on social media and video games reveals about the diverging formation of young men and women. The conversation turns on a pointed question: what happens when the skills adolescence develops are simulations rather than r",
+        "description": "In this Replay episode, Matthew Lee Anderson, Derek Rishmawy, and Alastair Roberts are joined by Andy Crouch — Partner for Theology and Culture at Praxis — to examine what the data on social media and video games reveals about the diverging formation of young men and women. The conversation turns on a pointed question: what happens when the skills adolescence develops are simulations rather than r",
         "embedUrl": "https://www.buzzsprout.com/2612792/19198410?client_source=small_player&iframe=true",
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/replay-put-social-media-in-its-place-with-andy-crouch/",
@@ -1645,7 +2190,7 @@
         "title": "The World Is The Wrong Shape For Women with Leah Sargeant",
         "slug": "the-world-is-the-wrong-shape-for-women-with-leah-sargeant",
         "pubDate": "2025-12-03T07:00:00.000-05:00",
-        "episode": 22,
+        "episode": 26,
         "season": 2,
         "duration": 4395,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1670,8 +2215,8 @@
         "title": "Post-Liberalism: RETVRN, Retrieval, or Revolution?",
         "slug": "post-liberalism-retvrn-retrieval-or-revolution",
         "pubDate": "2025-11-26T07:00:00.000-05:00",
-        "episode": 20,
-        "season": 1,
+        "episode": 25,
+        "season": 2,
         "duration": 3366,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19198416-post-liberalism-retvrn-retrieval-or-revolution.mp3",
@@ -1694,8 +2239,8 @@
         "title": "What Is A Sermon, Anyway?",
         "slug": "what-is-a-sermon-anyway",
         "pubDate": "2025-11-19T07:00:00.000-05:00",
-        "episode": 19,
-        "season": 1,
+        "episode": 24,
+        "season": 2,
         "duration": 3695,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19198417-what-is-a-sermon-anyway.mp3",
@@ -1717,7 +2262,7 @@
         "title": "How Do We Change Our Minds?",
         "slug": "how-do-we-change-our-minds",
         "pubDate": "2025-11-12T07:00:00.000-05:00",
-        "episode": 18,
+        "episode": 23,
         "season": 2,
         "duration": 3092,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1739,7 +2284,7 @@
         "title": "Jesus and The Law of Moses with Paul T. Sloan",
         "slug": "jesus-and-the-law-of-moses-with-paul-t-sloan",
         "pubDate": "2025-11-05T07:00:00.000-05:00",
-        "episode": 19,
+        "episode": 22,
         "season": 2,
         "duration": 4181,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1763,7 +2308,7 @@
         "title": "Replay: Reading Advice",
         "slug": "replay-reading-advice",
         "pubDate": "2025-10-29T07:00:00.000-04:00",
-        "episode": 17,
+        "episode": 21,
         "season": 2,
         "duration": 2978,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1785,8 +2330,8 @@
         "title": "Welcome, Reality Respecters",
         "slug": "welcome-reality-respecters",
         "pubDate": "2025-10-22T07:00:00.000-04:00",
-        "episode": 18,
-        "season": 1,
+        "episode": 20,
+        "season": 2,
         "duration": 3518,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19198421-welcome-reality-respecters.mp3",
@@ -1807,7 +2352,7 @@
         "title": "The Bible: A Technology",
         "slug": "the-bible-a-technology",
         "pubDate": "2025-10-15T07:00:00.000-04:00",
-        "episode": 17,
+        "episode": 19,
         "season": 2,
         "duration": 3049,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1829,7 +2374,7 @@
         "title": "Do You Need Penal Substitution?",
         "slug": "do-you-need-penal-substitution",
         "pubDate": "2025-10-08T07:00:00.000-04:00",
-        "episode": 17,
+        "episode": 18,
         "season": 2,
         "duration": 4409,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1851,7 +2396,7 @@
         "title": "Replay: Thinking For Yourself",
         "slug": "replay-thinking-for-yourself",
         "pubDate": "2025-10-01T07:00:00.000-04:00",
-        "episode": 16,
+        "episode": 17,
         "season": 2,
         "duration": 2520,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
@@ -1896,7 +2441,7 @@
         "slug": "the-tabernacle-the-temple-and-the-church",
         "pubDate": "2025-09-17T07:00:00.000-04:00",
         "episode": 15,
-        "season": 1,
+        "season": 2,
         "duration": 3041,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19198426-the-tabernacle-the-temple-and-the-church.mp3",
@@ -1966,7 +2511,7 @@
         "slug": "two-cheers-for-modernity",
         "pubDate": "2025-08-27T07:00:00.000-04:00",
         "episode": 12,
-        "season": 1,
+        "season": 2,
         "duration": 3591,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19198429-two-cheers-for-modernity.mp3",
@@ -1991,7 +2536,7 @@
         "slug": "are-we-disenchanted-should-we-be-enchanted",
         "pubDate": "2025-08-20T07:00:00.000-04:00",
         "episode": 11,
-        "season": 1,
+        "season": 2,
         "duration": 4041,
         "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19198430-are-we-disenchanted-should-we-be-enchanted.mp3",
@@ -5323,7 +5868,9 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/do-you-have-a-theological-question/",
         "guests": [],
-        "topics": []
+        "topics": [
+          "Ecclesiology & Sacraments"
+        ]
       },
       {
         "id": 19198573,
@@ -7779,7 +8326,7 @@
         "duration": 2419,
         "artwork": "https://storage.buzzsprout.com/p1b68cx660qihi2j7wt22x1uka1k",
         "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19198677-echoes-of-exodus.mp3",
-        "description": "Derek hosts a special episode of Mere Fidelity to talk about the new book from Alistair and Andrew. You can check out their new book here, if you're so inclined: https://www.crossway.org/books/echoes-of-exodus-tpb/",
+        "description": "Derek hosts a special episode of Mere Fidelity to talk about the new book from Alastair and Andrew. You can check out their new book here, if you're so inclined: https://www.crossway.org/books/echoes-of-exodus-tpb/",
         "embedUrl": "https://www.buzzsprout.com/2612792/19198677?client_source=small_player&iframe=true",
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/echoes-of-exodus/",
