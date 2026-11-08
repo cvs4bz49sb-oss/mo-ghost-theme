@@ -931,10 +931,14 @@
       if (!vs.length && c.open == null && c.bookAt != null) return `Chapter ${cfg.ch} not mapped`;
       return !vs.length ? `On chapter ${cfg.ch}` : vs.length <= 3 ? `${vs.length === 1 ? "Note" : "Notes"} on ${cfg.ch}:${vs.join(", ")}` : `Notes on ${vs.length} verses of the chapter`;
     };
+    /* ONE CLICK TO READ (owner 2026-11-07: "i keep having to preview to find a commentary and then open it too many clicks, on mobile its
+     * a mess too"): a commentary's row (o.href, the host's cfg.beside) is a link to the Scripture reader with the work beside the text at
+     * the verse; its Preview opens in place what the row opened before (the passage on the verse and the ways on), with its page under it.
+     * On a wide screen the row is still read in the pane at the side. Other rows open in place as before. */
     const row = (o) => `<div class="vdb-r${o.cls ? ` ${o.cls}` : ""}" data-vdb-row="${esc(o.id)}"><div class="vdb-rl">`
-      + `<button type="button" class="vdb-rb" data-vdb-r="${esc(o.id)}" aria-expanded="false" aria-controls="${id}-o-${esc(o.key)}">`
+      + `${o.href ? `<a class="vdb-rb" href="${esc(o.href)}" data-vdb-r="${esc(o.id)}">` : `<button type="button" class="vdb-rb" data-vdb-r="${esc(o.id)}" aria-expanded="false" aria-controls="${id}-o-${esc(o.key)}">`}`
       + `<span class="vdb-who">${esc(o.who)}${o.when ? `<small>${esc(o.when)}</small>` : ""}</span>`
-      + `<span class="vdb-what"><cite${o.tl ? ` title="${esc(o.tl)}"` : ""}>${esc(o.what)}</cite>${o.has ? `<small>${esc(o.has)}</small>` : ""}</span></button>`
+      + `<span class="vdb-what"><cite${o.tl ? ` title="${esc(o.tl)}"` : ""}>${esc(o.what)}</cite>${o.has ? `<small>${esc(o.has)}</small>` : ""}</span>${o.href ? "</a>" : "</button>"}`
       + `<span class="vdb-ra">${o.page || ""}${o.pv || ""}<button type="button" class="vdb-lane" data-vdb-lane aria-pressed="false" hidden>Latin</button></span></div>`
       + `<div class="vdb-ro" id="${id}-o-${esc(o.key)}" hidden></div><div class="vdb-pvw" hidden></div></div>`;
     const keyOf = (s) => String(s).replace(/[^A-Za-z0-9_-]+/g, "_");
@@ -947,7 +951,8 @@
       const c = w.main, t = targetOf(M, c, v), p = t ? t.p : null;
       const vol = w.vols.length > 1 ? "" : c.vol && /\d/.test(c.vol) ? ` (${String(c.vol).replace(/^Weimar Edition: Writings, Volume\s*/i, "WA ")})` : "";
       return row({ id: c.slug, key: keyOf(c.slug), who: properName(c.a) || c.t, when: whenOf(c.a, w.year), what: keyTitle(c, `${c.t}${vol}`), tl: c.tl,
-        has: `${hasLine(w)}${w.vols.length > 1 ? `${DOT}${w.vols.length} volumes` : ""}${w.whole ? `${DOT}whole Bible` : ""}`, page: pageLink(c.slug, p, c.t), pv: pv(c.slug, p, `${c.t}, ${p != null ? pgOf(c.slug, p) : ""}`) });
+        has: `${hasLine(w)}${w.vols.length > 1 ? `${DOT}${w.vols.length} volumes` : ""}${w.whole ? `${DOT}whole Bible` : ""}`, page: pageLink(c.slug, p, c.t), pv: pv(c.slug, p, `${c.t}, ${p != null ? pgOf(c.slug, p) : ""}`),
+        href: cfg.beside ? cfg.beside(c.slug, v) : "" });
     };
     const sermonRow = (s) => {
       const c = s.c || s.w.main, { x } = s, who = properName(x.a || c.a) || c.t;
@@ -1091,6 +1096,17 @@
       box.__P = P;
       if (lb && P.en && P.src) { lb.hidden = false; lb.textContent = P.srcName || "Latin"; lb.setAttribute("aria-pressed", String(lane === "src")); lb.setAttribute("aria-label", `Show the ${P.srcName || "Latin"} of this passage`); }
     }
+    // a commentary's row is a link to read it beside the text: there its Preview opens the passage in place, with the work's page under it
+    const isLink = (rowEl) => !!rowEl.querySelector(":scope > .vdb-rl > a.vdb-rb");
+    function rowPage(rowEl, open) {
+      const box = rowEl.querySelector(":scope > .vdb-pvw"), b = rowEl.querySelector(":scope > .vdb-rl [data-vdb-pv]");
+      if (!box || !b) return;
+      box.hidden = !open;
+      if (!open) { box.innerHTML = ""; box.classList.remove("pw"); return; }
+      const [slug, p] = b.dataset.vdbPv.split("|");
+      box.innerHTML = '<p class="vdb-wait" role="status">Loading the page…</p>';
+      previewInto(M, box, slug, p, "").catch(() => false).then((ok) => { if (!ok && box.isConnected) box.innerHTML = `<p class="vdb-wait">This page cannot be shown here. <a href="${esc(cfg.read(slug, p))}">Open ${esc(pgOf(slug, p))} in the reader</a></p>`; });
+    }
     function openRow(rowEl, open, quiet) {
       const b = rowEl.querySelector(".vdb-rb"), box = rowEl.querySelector(".vdb-ro"), rid = rowEl.dataset.vdbRow;
       if (open) {
@@ -1098,7 +1114,11 @@
         const grp = rowEl.closest(".vdb-gp");
         if (grp) grp.querySelectorAll(":scope > .vdb-r.is-open").forEach((x) => { if (x !== rowEl) openRow(x, false, true); });
       }
-      b.setAttribute("aria-expanded", String(open)); box.hidden = !open; rowEl.classList.toggle("is-open", open);
+      // the row's own toggle: its title, or, where the title is a link, its Preview (which also opens and shuts the page under it)
+      const tg = isLink(rowEl) ? rowEl.querySelector(":scope > .vdb-rl [data-vdb-pv]") : b;
+      if (tg) { tg.setAttribute("aria-expanded", String(open)); if (tg !== b) tg.textContent = open ? "Close preview" : "Preview"; }
+      if (tg && tg !== b && !open) rowPage(rowEl, false);
+      box.hidden = !open; rowEl.classList.toggle("is-open", open);
       const lb = rowEl.querySelector("[data-vdb-lane]"); if (lb && !open) lb.hidden = true;
       if (open) { rowPassage(rowEl, rid); if (box.__P && lb && box.__P.en && box.__P.src) lb.hidden = false; }
       if (!quiet) { st.r = open ? rid : ""; report(); }
@@ -1275,7 +1295,8 @@
       if (e.key === "ArrowUp") return go(items[i - 1]);
       if (e.key === "Home") return go(items[0]);
       if (e.key === "End") return go(items[items.length - 1]);
-      const open = t.getAttribute("aria-expanded") === "true";
+      // a row whose title is a link is open when its passage is shown
+      const open = t.matches("a.vdb-rb") ? t.closest(".vdb-r").classList.contains("is-open") : t.getAttribute("aria-expanded") === "true";
       if (e.key === "ArrowRight") {
         e.preventDefault();
         if (t.matches(".vdb-gb")) { if (!open) setGroup(t.dataset.vdbG, true); else go(items[i + 1]); }
@@ -1298,12 +1319,19 @@
       const gb = t.closest(".vdb-gb");
       if (gb) { setGroup(gb.dataset.vdbG, gb.getAttribute("aria-expanded") !== "true"); return; }
       const rb = t.closest(".vdb-rb");
-      if (rb) { if (sideMode()) sideShow(rb.closest(".vdb-r").dataset.vdbRow); else openRow(rb.closest(".vdb-r"), rb.getAttribute("aria-expanded") !== "true"); return; }
+      if (rb) {
+        // a commentary's row is a link (owner 2026-11-07, above): read at the side on a wide screen, else followed (a new tab where asked)
+        if (rb.tagName === "A") { if (sideMode() && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) { e.preventDefault(); sideShow(rb.closest(".vdb-r").dataset.vdbRow); } return; }
+        if (sideMode()) sideShow(rb.closest(".vdb-r").dataset.vdbRow); else openRow(rb.closest(".vdb-r"), rb.getAttribute("aria-expanded") !== "true");
+        return;
+      }
       const p = t.closest("[data-vdb-pv]");
       if (p) {
         e.preventDefault();
-        const r = sideMode() && p.closest(".vdb-groups .vdb-r");
-        if (r) sideShow(r.dataset.vdbRow, { page: p.dataset.vdbPv.split("|")[1] }); else togglePreview(p);
+        const r = p.closest(".vdb-groups .vdb-r");
+        if (r && sideMode()) sideShow(r.dataset.vdbRow, { page: p.dataset.vdbPv.split("|")[1] });
+        else if (r && isLink(r) && p.closest(".vdb-rl")) { const open = p.getAttribute("aria-expanded") !== "true"; openRow(r, open); if (open) rowPage(r, true); }
+        else togglePreview(p);
         return;
       }
       const lb = t.closest("[data-vdb-lane]");

@@ -11,7 +11,9 @@
      - the copy is a run of numbered lines whose numbers climb by one (1., 2., 3. …), or one paragraph with several verse marks in it;
      - the library files a page that merely prints the verse as `quotation`, and one that discusses it as `explicit` or `exegesis`.
    Where the library has indexed a note for the verse itself (`exegesis`, "Its note on this verse") that page is trusted and nothing
-   here second-guesses it; everything below is for the commentaries that have no such row. */
+   here second-guesses it, save one case: a page that carries the verse only in the text printed ahead of the notes, with no note
+   on it, gives way to the page where the note follows (2026-11-08, Calvin; noteAfterText); everything else below is for the
+   commentaries that have no such row. */
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
@@ -73,37 +75,115 @@
     return all ? app / all : 0;
   };
 
-  // The indexes of paragraphs that are the Bible's own words reprinted: a run of numbered lines counting up (five or more, or three
-  // and four of them short, as verses are and a commentator's notes seldom are), or a paragraph carrying several verse marks that
-  // count up inside it ("… 29. And God said: Behold … 30. and to all beasts … 31. And God saw …").
-  function lemmaIndexes(paras) {
-    const out = new Set();
+  // A NOTE THAT QUOTES ITS VERSE (2026-11-08, QA on John 1:1). A commentary that annotates verse by verse opens each note with the
+  // verse's number and its first words, closed by a bracket: "32. I saw the Spirit … descending like a dove] Either in the form of
+  // …" (Poole's Synopsis), "9. Erat lux vera] Or, That light …" (the Critici Sacri). Such notes count up one by one as the reprinted
+  // text does: Poole's twelve notes on John 1:32-43 on p. 595 were taken for the chapter's text, the section was started there,
+  // and his note on 1:1 at p. 584, which the map and the library both give, was passed over ("No note on John 1:1 was found").
+  // The bracket with the comment after it marks a note, so such a paragraph is never counted as the text. A bracket that closes
+  // one opened before it ("the law [109] is manifested", a footnote's number; "[vers. 1.]") is not this one, nor one that only
+  // closes the verse (Hammond prints his text "42. So also is the resurrection of the dead … raised in incorruption.]").
+  function quotesVerse(s) {
+    const t = String(s || '');
+    let open = 0;
+    for (let i = 0; i < Math.min(t.length, 300); i += 1) {
+      if (t[i] === '[') open += 1;
+      else if (t[i] === ']') { if (!open) return t.length - i > 20; open -= 1; }
+    }
+    return false;
+  }
+  // the highest verse mark a paragraph carries after its own number, counting on from it ("1. Have mercy upon me … 2. Multiply to
+  // wash me …" carries verses 1 and 2)
+  function innerTop(s, n) {
+    let top = n;
+    for (const m of String(s).matchAll(/\s(\d{1,3})\.\s+\S/g)) if (+m[1] === top + 1) top += 1;
+    return top;
+  }
+
+  // The indexes of paragraphs that are the Bible's own words reprinted, in two parts:
+  //   text   a run of numbered lines counting up (five or more, or three and four of them short, as verses are and a commentator's
+  //          notes seldom are), or a paragraph carrying several verse marks that count up inside it ("… 29. And God said: Behold
+  //          … 30. and to all beasts … 31. And God saw …"): the chapter's text, as Lapide prints it ahead of his notes;
+  //   ahead  a section's verses printed ahead of the notes on them, each verse twice (see below).
+  // THE TEXT PRINTED AHEAD OF ITS NOTES, EVERY VERSE TWICE (2026-11-08, QA: Calvin, the default commentary on Hebrews and Romans,
+  // marked only the reprinted verse as the note at Hebrews 12:1, 12:5, 12:14 and Romans 3:23). The Calvin Translation Society
+  // prints each section's verses before Calvin's notes on them, every verse in the translation and then in Calvin's Latin ("1.
+  // Wherefore seeing we also …", "1. Proinde nos quoque …", "2. Looking unto Jesus …", "2. Intuentes …"), or several verses to a
+  // paragraph ("1. Have mercy upon me … 2. Multiply to wash me …"); then the notes start the count again ("1. Wherefore, seeing we
+  // also, etc. This conclusion is …"). The numbers go 1, 1, 2, 2, so no run counting up by one was found, the English verse was
+  // taken for the note, the note was ended at "2. Looking unto Jesus", and Calvin's comment was left behind "Keep reading". A run
+  // of verse numbers ("1. ") each printed once or twice in a row, with at least one printed twice or one paragraph carrying the
+  // next verse inside it, is that text when the paragraph straight after it starts again at the run's first number and is at
+  // least twice as long as any line of the run: the first note. A commentator's own notes, one to a verse, do not start again; a
+  // paraphrase printed after each verse (Baxter: "5. And ye have forgotten …", "5. Have ye forgotten the Lord's gentle words …")
+  // goes on to the next verse; an outline's heads ("2. The parties resembled", "2. His brethren", "2. The extent of that
+  // evidence", Gouge) start again, but with a line no longer than they are; a homily's text ("49. Respondit Nathanael … 50. …")
+  // is followed by the homily's own first section ("1. Multa nobis cura …"), not by verse 49. All are left alone.
+  // Some of the Society's volumes set the notes' numbers with no stop ("13 But I would not have you ignorant.", "6 Inasmuch as he
+  // was in the form of God."), a shape read nowhere else (an editor's line number is set so); after such a text, and up to the
+  // next one, a paragraph so numbered, within the text's verses and in their order, is a note (`notes`: index to verse).
+  function lemmaParts(paras) {
+    const text = new Set(), ahead = new Set(), notes = new Map(), runs = [];
     const app = apparatusIndexes(paras);
-    const nums = paras.map((s, i) => (app.has(i) ? null : strongNum(s) == null ? bareNum(s) : null));
+    const nums = paras.map((s, i) => (app.has(i) || quotesVerse(s) ? null : strongNum(s) == null ? bareNum(s) : null));
     for (let i = 0; i < paras.length; i += 1) {
       if (nums[i] == null) continue;
       let j = i;
       while (j + 1 < paras.length && nums[j + 1] === nums[j] + 1) j += 1;
       const run = paras.slice(i, j + 1);
-      if (run.length >= 5 || (run.length >= 3 && run.every((s) => s.length < 220))) { for (let k = i; k <= j; k += 1) out.add(k); }
+      if (run.length >= 5 || (run.length >= 3 && run.every((s) => s.length < 220))) { for (let k = i; k <= j; k += 1) text.add(k); }
       i = j;
     }
     paras.forEach((s, i) => {
       if (app.has(i) || strongNum(s) != null) return; // a note under a "Vers. N." heading may list 1. 2. 3. inside it; it is still the note
       const marks = (s.match(/\s(\d{1,3})\.\s+\S/g) || []).map((m) => parseInt(m, 10));
-      if (marks.some((n, k) => marks[k + 1] === n + 1)) out.add(i);
+      if (marks.some((n, k) => marks[k + 1] === n + 1)) text.add(i);
     });
-    return out;
+    // a verse's number as the text prints it, "12. " ("1:12 " is Aquinas's chapter and verse, read as 1 above); a note's number as
+    // that, or with no stop ("13 But")
+    const vn = paras.map((s, i) => { const m = nums[i] != null && /^(\d{1,3})\.\s+\S/.exec(s); return m ? +m[1] : null; });
+    const wn = paras.map((s, i) => { if (vn[i] != null || app.has(i) || quotesVerse(s)) return vn[i]; const m = /^(\d{1,3})\s+["\u201c\u2018']?[A-Z]/.exec(s); return m ? +m[1] : null; });
+    for (let i = 0; i < paras.length; i += 1) {
+      if (vn[i] == null) continue;
+      let j = i, top = innerTop(paras[i], vn[i]), shape = top > vn[i], long = paras[i].length;
+      while (j + 1 < paras.length && vn[j + 1] != null) {
+        const n = vn[j + 1];
+        // the same verse again (in the original), once, after a paragraph that carried that verse alone
+        if (n === vn[j] && (j === i || vn[j - 1] !== n) && top === n) shape = true;
+        else if (n !== top + 1) break;
+        j += 1;
+        top = Math.max(top, innerTop(paras[j], n));
+        if (top > n) shape = true;
+        long = Math.max(long, paras[j].length);
+      }
+      const k1 = j + 1;
+      if (shape && k1 < paras.length && wn[k1] === vn[i] && paras[k1].length >= 2 * long) {
+        for (let k = i; k <= j; k += 1) ahead.add(k);
+        runs.push([j + 1, vn[i], top]);
+        i = j;
+      }
+    }
+    for (const [from, a, b] of runs) {
+      let last = a;
+      for (let m = from; m < paras.length && !ahead.has(m); m += 1) {
+        const x = wn[m]; if (x == null) continue;
+        if (x < last || x > b) break;
+        notes.set(m, x); last = x;
+      }
+    }
+    return { text, ahead, notes, all: new Set([...text, ...ahead]) };
   }
+  const lemmaIndexes = (paras) => lemmaParts(paras).all;
 
   // The paragraph where the commentator's own note on verse `printed` begins, or -1. Never the reprinted text. A number in
   // parentheses is a footnote mark ("(1) Quaest. hebr. in Genes.") unless `loose` is set, which is for a page the library itself
   // indexed as holding the note (some commentaries print a psalm's verse as "(22)").
   function findNote(paras, printed, loose) {
-    const lemma = lemmaIndexes(paras), app = apparatusIndexes(paras);
+    const { all: lemma, notes } = lemmaParts(paras), app = apparatusIndexes(paras);
     const sx = strongRx(printed), bx = bareRx(printed);
     let i = paras.findIndex((s, k) => !app.has(k) && sx.test(s)); // the heading word marks a note even where the note lists 1. 2. 3. inside it
     if (i < 0) i = paras.findIndex((s, k) => !lemma.has(k) && !app.has(k) && bx.test(s) && (loose || !/^\(/.test(s)));
+    if (i < 0) for (const [k, x] of notes) if (x === printed) { i = k; break; } // "14 For if we believe." after the text
     return i;
   }
 
@@ -115,9 +195,10 @@
     return Math.min(paras.length, Math.max(j, start + 1));
   }
 
-  // Where that note ends: the next heading, or the next verse's note, or `cap` paragraphs on.
+  // Where that note ends: the next heading, or the next verse's note, or the next section's verses printed ahead of their notes
+  // (Calvin's note on Hebrews 12:3 ends where verses 4 to 8 are printed), or `cap` paragraphs on.
   function noteEnd(paras, start, printed, cap) {
-    const lemma = lemmaIndexes(paras), app = apparatusIndexes(paras), max = cap || 14;
+    const { all: lemma, ahead, notes } = lemmaParts(paras), app = apparatusIndexes(paras), max = cap || 14;
     let seen = 0; // the editors' notes neither end the note nor count toward the cap
     for (let j = start + 1; j < paras.length && seen < max; j += 1) {
       if (app.has(j)) continue;
@@ -125,8 +206,9 @@
       if (isHead(paras[j])) return j;
       const sn = strongNum(paras[j]);
       if (sn != null && sn !== printed) return j;
+      if (notes.has(j) && notes.get(j) > printed) return j; // "7 Emptied himself." ends the note on verse 6
       const bn = sn == null ? bareNum(paras[j]) : null;
-      if (bn != null && bn > printed && !lemma.has(j)) return j;
+      if (bn != null && bn > printed && (!lemma.has(j) || ahead.has(j))) return j;
     }
     return capAt(paras, start, max, app);
   }
@@ -172,11 +254,27 @@
       .sort((x, y) => (x.claim === y.claim ? x.p - y.p : x.claim === 'yes' ? -1 : 1));
   }
 
+  // A LECTURE HEADED BY THE VERSES IT TAKES (2026-11-08, QA on Romans 3:23). Aquinas's lectures open "L. 3 (3:21–26) Christ the
+  // redemption for all …", a lecture to a page, with no heading inside them for a verse; none of his notes on Romans 3 is indexed, so
+  // the pane opened Romans 3:23 at the chapter's first page, Lecture 1 on 3:1-8. A paragraph that opens with a lecture's (homily's,
+  // sermon's, tractate's) number and a range in parentheses gives the verses of chapter `ch` it takes, {a, b}, or null: "(3:21–26)"
+  // is 21 to 26 of chapter 3, "(2:28–3:8)" is 1 to 8 of chapter 3 and 28 on of chapter 2.
+  const RANGE = /^(?:#{1,6}\s+)?(?:L|Lect(?:ure|io)?|Lesson|Hom(?:ily|ilia)?|Sermo(?:n)?|Tract(?:ate|atus)?)\.?\s*(?:[IVXLC]+|\d{1,3})\.?\s*\(\s*(\d{1,3})\s*:\s*(\d{1,3})(?:\s*[-\u2013\u2014]\s*(?:(\d{1,3})\s*:\s*)?(\d{1,3}))?\s*\)/i;
+  function rangeOf(s, ch) {
+    const m = RANGE.exec(String(s || '')); if (!m) return null;
+    const c = +ch, c1 = +m[1], a = +m[2], c2 = m[3] ? +m[3] : c1, b = m[4] ? +m[4] : a;
+    if (c1 === c && c2 === c) return b >= a ? { a, b } : null;
+    if (c1 === c && c2 > c) return { a, b: Infinity };
+    if (c1 < c && c2 === c) return { a: 1, b };
+    return null;
+  }
+
   // The search itself. `getParas(slug, n)` gives a page's paragraphs as [english[], latin[]]. A work `c` is
   // {slug, notes: {verse: page}, rows: {verse: [row]}, pv: {verse: printed number}, open: the map's page for the chapter,
   // close: the map's page for the NEXT chapter}; `w` is {name, ch}. resolve() gives {p, how, v, indexed}, where how is, in order of
   // preference:
-  //   note     the library indexed the work's own note on the verse, or its page text carries one;
+  //   note     the library indexed the work's own note on the verse, or its page text carries one, or a lecture headed by a range
+  //            of verses holding it begins there;
   //   page     the library files a page as discussing the verse, lying between the notes on the verses either side of it;
   //   later    the work's next note after the verse (within four verses);
   //   nearest  its closest note before (within twelve); then a later one within twelve;
@@ -203,17 +301,20 @@
           const [en, la] = await getParas(c.slug, n);
           const ps = en.length ? en : la;
           pages.push([n, ps]);
-          const run = lemmaIndexes(ps).size;
+          // the chapter's text in one piece; a section's verses printed ahead of its notes (Calvin's, every few verses) say nothing of
+          // where the chapter begins, and would start it at the longest of them
+          const run = lemmaParts(ps).text.size;
           if (run > best) { best = run; lo = n; }
         }
       }
-      const heads = {}, caps = [];
+      const heads = {}, caps = [], ranges = [];
       let last = 0, pos = 0;
       for (const [n, ps] of pages) {
         if (n < lo) continue;
         const lemma = lemmaIndexes(ps), app = apparatusIndexes(ps);
         for (let i = 0; i < ps.length; i += 1, pos += 1) {
           if (app.has(i)) continue; // "13 zu Inanis et vacua" is the editors' line number, not verse 13
+          const r = rangeOf(ps[i], w.ch); if (r) ranges.push({ p: n, pos, ...r });
           const num = strongNum(ps[i]) != null ? strongNum(ps[i]) : (lemma.has(i) ? null : capsNum(ps[i]));
           if (num != null && num > last && num - last <= 12) { heads[num] = { p: n, i, pos }; last = num; } else if (num == null && !lemma.has(i)) {
             const m = /^[\u00ab"\u201c\u2018']?([A-Z][A-Z\u2019' -]{6,}[A-Z])\s*(?:[.,;:\u2014\u2013]|$)/.exec(ps[i]);
@@ -221,8 +322,26 @@
           }
         }
       }
-      return { lo, hi, heads, caps };
+      return { lo, hi, heads, caps, ranges };
     });
+    // THE NOTE AFTER ITS TEXT (2026-11-08, QA). The library indexes Calvin's note on a verse at the page where the verse is printed
+    // ahead of his notes (Galatians 2:16 at p. 29, with the text of 2:11-16; Isaiah 53:5 at p. 61, with 53:1-12), and his note on
+    // it comes after those on the verses before it (p. 34; p. 64). Where the indexed page and the next carry the verse only in such
+    // a text, with no note on it, the place is the first of the section's following pages, ten at most, that carries one.
+    const noteAfterText = async (c, p0, printed, hi) => {
+      const [[e1, l1], [e2, l2]] = [await getParas(c.slug, p0), await getParas(c.slug, p0 + 1)];
+      let held = false;
+      for (const all of [[...e1, ...e2], [...l1, ...l2]]) {
+        if (!all.length) continue;
+        if (findNote(all, printed, true) >= 0) return null;
+        if ([...lemmaParts(all).ahead].some((k) => +(/^(\d{1,3})\./.exec(all[k]) || [])[1] === printed)) held = true;
+      }
+      for (let n = p0 + 2; held && n < Math.min(hi, p0 + 12); n += 1) {
+        const [en, la] = await getParas(c.slug, n);
+        if (findNote(en, printed) >= 0 || findNote(la, printed) >= 0) return n;
+      }
+      return null;
+    };
     const located = (c, v, w) => {
       return once(`loc|${c.slug}|${w.name}|${w.ch}|${v}`, async () => {
         const printed = printedOf(c, v), sec = await section(c, w);
@@ -241,8 +360,11 @@
           if (fit.length) return { p: fit[0].p, v };
         }
         // the library's own indexed note, if it lies in this commentary's section of the chapter (an index row can point into
-        // another work printed in the same volume)
-        if (c.notes[v] != null && +c.notes[v] >= sec.lo && +c.notes[v] < sec.hi) return { p: +c.notes[v], v, indexed: true };
+        // another work printed in the same volume), or the note itself where that page carries the verse only as the text
+        if (c.notes[v] != null && +c.notes[v] >= sec.lo && +c.notes[v] < sec.hi) {
+          const after = await noteAfterText(c, +c.notes[v], printed, sec.hi);
+          return { p: after != null ? after : +c.notes[v], v, indexed: true };
+        }
         for (const cand of candidatePages((c.rows || {})[v], c.slug, w.name, w.ch, v).filter((x) => x.p >= sec.lo && x.p < sec.hi).slice(0, 8)) {
           for (const p of [cand.p - 2, cand.p - 1, cand.p]) {
             if (p < Math.max(1, sec.lo)) continue;
@@ -251,6 +373,9 @@
             if (findNote(en, printed) >= 0 || findNote(la, printed) >= 0) return { p, v };
           }
         }
+        // the lecture whose heading names a range of the chapter's verses holding this one (the narrowest)
+        const r = sec.ranges.filter((x) => x.a <= printed && printed <= x.b).sort((x, y) => (x.b - x.a) - (y.b - y.a) || x.pos - y.pos)[0];
+        if (r) return { p: r.p, v };
         return null;
       });
     };
@@ -287,5 +412,5 @@
     return { located, resolve, section };
   }
 
-  return { strongRx, bareRx, strongNum, bareNum, capsNum, isApparatus, apparatusIndexes, apparatusShare, lemmaIndexes, findNote, noteEnd, gistClaims, candidatePages, createResolver };
+  return { strongRx, bareRx, strongNum, bareNum, capsNum, isApparatus, apparatusIndexes, apparatusShare, quotesVerse, lemmaParts, lemmaIndexes, findNote, noteEnd, gistClaims, candidatePages, rangeOf, createResolver };
 }));

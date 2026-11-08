@@ -202,6 +202,90 @@ for (const real of ['13 And God said, Let there be light: and there was light.',
   ok(got && got.p === 41, 'a page that is all apparatus is passed over for the page with the note');
 }
 
+// ── 2026-11-08, QA of the Scripture desk on MereO ───────────────────────────────────────────────────────────────────────────
+// Calvin (the Calvin Translation Society) prints a section's verses ahead of his notes, each in English and then in his Latin, and
+// the notes start the count again: the English verse used to be marked as his note at Hebrews 12:1, 12:5, 12:14 and Romans 3:23.
+const MORE = ' He shows to what end the examples were brought forward, that every one of us might be encouraged to follow them, and that we might not grow weary in the course which God has set before us, since so many have run it before us and have finished it. For as the sight of a great company makes a soldier bolder, so the remembrance of the fathers who went before should take away from us every excuse for sloth; and he calls them a cloud, because they surround us on every side, and their number is such that it may well hide from us whatever might turn us aside from the race.';
+const CALVIN = paras(`Hebrews Chapter 12:1-3
+1. Wherefore seeing we also are compassed about with so great a cloud of witnesses, let us lay aside every weight, and the sin which doth so easily beset us, and let us run with patience the race that is set before us,
+1. Proinde nos quoque tantam habentes circumpositam nubem testium, deposito omni onere et peccato quod nos circumstat, per patientiam curramus ad certamen nobis propositum;
+2. Looking unto Jesus the author and finisher of our faith; who for the joy that was set before him endured the cross, despising the shame.
+2. Intuentes in fidei ducem et perfectorem Iesum; qui proposito sibi gaudio sustinuit crucem, ignominia contempta.
+3. For consider him that endured such contradiction of sinners against himself, lest ye be wearied and faint in your minds.
+3. Reputate itaque quis talem adversus se peccatorum contradictionem sustinuerit, ne fatigemini animis vestris deficientes.
+1. Wherefore, seeing we also, etc. This conclusion is, as it were, the epilogue of the former chapter.${MORE}
+2. Looking unto Jesus, etc. Here is the highest example of all, set before us.${MORE}
+3. For consider him, etc. He enforces the example by comparing the two.${MORE}
+4. Ye have not yet resisted unto blood, striving against sin.
+4. Nondum usque ad sanguinem restitistis adversus peccatum certantes.
+5. And ye have forgotten the exhortation which speaketh unto you as unto children.
+5. Et oblitae estis consolationis quae vobis tanquam filiis loquitur.
+4. Ye have not yet, etc. He goes farther, and reminds them that they had not yet been brought to the last contest.${MORE}`);
+ok([1, 2, 3, 4, 5, 6, 10, 11, 12, 13].every((k) => A.lemmaParts(CALVIN).ahead.has(k)), "Calvin's verses printed twice ahead of his notes are the text");
+ok(A.findNote(CALVIN, 1) === 7, 'his note on verse 1 is his comment, not the English verse');
+ok(A.noteEnd(CALVIN, 7, 1, 14) === 8, 'and it ends at his note on verse 2');
+ok(A.findNote(CALVIN, 3) === 9 && A.noteEnd(CALVIN, 9, 3, 14) === 10, 'the note on verse 3 ends where the next section prints verses 4 and 5');
+ok(A.findNote(CALVIN, 4) === 14, 'the note on verse 4 follows that section');
+// some of the Society's volumes number the notes with no stop ("12 Wherefore as, etc.")
+const CALVIN_RO5 = paras(`12. Wherefore, as by one man sin entered into the world, and death by sin; and so death passed upon all men, for that all have sinned:
+12. Quamobrem sicut per unum hominem peccatum in mundum introiit, et per peccatum mors; atque ita in omnes homines mors pervasit:
+13. For until the law sin was in the world: but sin is not imputed when there is no law.
+13. Nam usque ad Legem peccatum erat in mundo; peccatum autem non imputatur, quum non est Lex.
+12 Wherefore as, etc. He now begins to enlarge on the same doctrine, by comparing what is opposite to it.${MORE}
+13 For until the law, etc. This parenthesis meets an objection which might have been made.${MORE}`);
+ok(A.findNote(CALVIN_RO5, 12) === 4 && A.noteEnd(CALVIN_RO5, 4, 12, 14) === 5, 'a note numbered with no stop is found after the text, and ends at the next one');
+// what is not that shape: a verse with its paraphrase (Baxter), an outline's repeated heads (Gouge)
+const BAXTER = paras(`5. And ye have forgotten the exhortation which speaketh unto you as unto children, My son, despise not thou the chastening of the Lord.
+5. Have ye forgotten the Lord's gentle words to you as to his children, that you should not make light of his correction?
+6. For whom the Lord loveth he chasteneth, and scourgeth every son whom he receiveth.
+6. For it is in love that the Lord corrects his own, and every son whom he owns he chastens.`);
+const GOUGE = paras(`2. The parties resembled.
+2. His brethren.
+2. The extent of that evidence.
+3. The manner of setting it out.`);
+ok(A.lemmaParts(BAXTER).ahead.size === 0 && A.lemmaParts(GOUGE).ahead.size === 0, "a verse with its paraphrase, or an outline's heads, is not the text printed ahead of notes");
+// Poole's Synopsis and the Critici Sacri quote the verse and close it with a bracket: a run of such notes is notes, not the text
+// (Poole's notes on John 1:32-43 at p. 595 started his section there, and his note on 1:1 at p. 584 was passed over)
+const P595 = paras(`32. And John bare record, saying, I saw the Spirit descending from heaven like a dove] Either in the form of a dove, or with a motion like that of a dove.
+33. And I knew him not] That is, not by face, or not so as to be sure that he was the Messiah until the sign was given.
+34. And I saw, and bare record] That this is the Son of God, the Messiah promised to the fathers.
+35. Again the next day after John stood] With two of his disciples, waiting for Christ's passing by.
+36. And looking upon Jesus as he walked] Fixing his eyes upon him, he saith, Behold the Lamb of God.`);
+ok(A.lemmaParts(P595).text.size === 0 && A.findNote(P595, 33) === 1, "a run of notes that quote their verses is not the chapter's text");
+ok(!A.quotesVerse('42. So also is the resurrection of the dead. It is sown in corruption; it is raised in incorruption.]')
+  && !A.quotesVerse('21. But now the righteousness of God without the law [109] is manifested, being witnessed by the law and the prophets;'),
+  "a bracket that only ends the verse (Hammond), or closes a footnote's number, is not a note's");
+// a lecture headed by the verses it takes (Aquinas: "L. 3 (3:21–26)")
+ok(JSON.stringify(A.rangeOf('L. 3 (3:21–26) Christ the redemption for all', 3)) === '{"a":21,"b":26}', 'a lecture heading gives its verses');
+ok(JSON.stringify(A.rangeOf('Lecture 5 (2:28–3:8) The Jews', 3)) === '{"a":1,"b":8}' && A.rangeOf('Lecture 5 (2:28–3:8) The Jews', 2).a === 28, 'a range across two chapters gives each its part');
+ok(JSON.stringify(A.rangeOf('Homily 10 (5:12)', 5)) === '{"a":12,"b":12}' && A.rangeOf('L. 3 (3:21–26)', 4) === null && A.rangeOf('21. (3:21) But now', 3) === null, 'one verse; another chapter; a verse is no lecture');
+{
+  const lec = { 16: paras('L. 1 (3:1–8) What advantage then hath the Jew? The Apostle answers the objection.'), 17: paras('L. 2 (3:9–20) What then? are we better than they?'),
+    18: paras('L. 3 (3:21–26) Christ the redemption for all who believe.'), 19: paras('L. 4 (3:27–31) Where is boasting then?') };
+  const r = A.createResolver(async (_s, n) => [lec[n] || [], []]);
+  const got = await r.resolve({ slug: 'aquinas-romans', notes: {}, open: 16, close: 20, pv: {}, rows: {} }, 23, { name: 'Romans', ch: '3' });
+  ok(got && got.how === 'note' && got.p === 18, `Aquinas on Romans 3:23 opens at the lecture on 3:21-26, p. 18, not the chapter's first page (got ${JSON.stringify(got)})`);
+}
+// an index row at the page that prints the verse ahead of the notes gives way to the note itself (Calvin, Galatians 2:16: p. 29 to p. 34)
+{
+  const gal = {
+    29: ['11. But when Peter was come to Antioch, I withstood him to the face, because he was to be blamed.', '11. Quum autem venisset Petrus Antiochiam, in faciem ei restiti, quia reprehensibilis erat.',
+      '12. For before that certain came from James, he did eat with the Gentiles.', '12. Nam antequam venirent quidam a Iacobo, cum Gentibus edebat.',
+      '13. And the other Jews dissembled likewise with him.', '13. Et simulabant cum eo reliqui Iudaei.',
+      '14. But when I saw that they walked not uprightly, I said unto Peter before them all.', '14. Sed quum viderem quod non recte incederent, dixi Petro coram omnibus.',
+      '15. We who are Jews by nature, and not sinners of the Gentiles,', '15. Nos natura Iudaei, et non ex Gentibus peccatores,',
+      '16. Knowing that a man is not justified by the works of the law, but by the faith of Jesus Christ.', '16. Scientes quod non iustificatur homo ex operibus Legis, sed per fidem Iesu Christi.',
+      `11. But when Peter, etc. This passage is the strongest of all against the primacy which the Romanists claim.${MORE}`],
+    30: [`12. For before that certain came, etc. He shows what was blamed in Peter.${MORE}`],
+    34: [`16. But by the faith of Jesus Christ, etc. He states the doctrine he had preached.${MORE}`],
+  };
+  const r = A.createResolver(async (_s, n) => [gal[n] || [], []]);
+  const cg = { slug: 'calvin-galatians', notes: { 16: 29, 12: 30 }, open: 28, close: 40, pv: {}, rows: {} }, G = { name: 'Galatians', ch: '2' };
+  const g16 = await r.resolve(cg, 16, G), g12 = await r.resolve(cg, 12, G);
+  ok(g16 && g16.p === 34 && g16.indexed, `Calvin on Galatians 2:16 opens at his note, p. 34, not the indexed page that prints the verse (got ${JSON.stringify(g16)})`);
+  ok(g12 && g12.p === 30, `an indexed page that carries the note is kept (got ${JSON.stringify(g12)})`);
+}
+
 // ── the rail's markup and stylesheet ────────────────────────────────────────────────────────────────────────────────────────
 const js = readFileSync(path.join(root, 'assets/js/page/commentary-pane.js'), 'utf8');
 const css = readFileSync(path.join(root, 'assets/css/commentary-pane.css'), 'utf8');

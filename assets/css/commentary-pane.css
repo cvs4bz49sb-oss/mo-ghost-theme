@@ -416,7 +416,9 @@ html.cp-site-mo .cp-grip { display: none; }
   html.cp-site-mo .cp-pane {
     --cp-pad-l: max(16px, var(--cp-clear-left, 0px));
     display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: start; column-gap: 12px;
-    grid-template-areas: "grip grip" "tabs tabs" "top top" "cur cur" "list list" "where lang" "body body" "keys keys" "rec rec" "foot foot" "creeds creeds";
+    /* (owner 2026-11-07: "on mobile its a mess too") the key commentaries straight under the one being read, not below its whole note
+       (they were 200 to 3,800px down the sheet); the list Change opens comes under them, as on a wide screen */
+    grid-template-areas: "grip grip" "tabs tabs" "top top" "cur cur" "keys keys" "list list" "where lang" "body body" "rec rec" "foot foot" "creeds creeds";
     /* every row its content's height: a row that scrolls sideways (the views, the key row) has no height of its own to give */
     grid-template-rows: repeat(11, max-content);
     height: 55vh; height: 55dvh; max-height: calc(100dvh - var(--sd-top, 0px) - 8px);
@@ -478,8 +480,9 @@ html.cp-site-mo .cp-grip { display: none; }
   html.cp-site-mo .cp-pane > .cp-foot { grid-area: foot; }
 
   /* the key commentaries (10-31, owner: "in the scrolling of whole bible and chapter i cant see poole synopsis, and the sacred critics"):
-     their rows wrap on the sheet as on a wide screen, none scrolls sideways */
-  html.cp-site-mo .cp-pane .cp-keys { grid-area: keys; display: flex; flex-direction: column; gap: 6px; margin: 14px 0 2px; padding: 4px 0 6px; }
+     their rows wrap on the sheet as on a wide screen, none scrolls sideways; (2026-11-08) under the line of the one being read */
+  html.cp-site-mo .cp-pane .cp-keys { grid-area: keys; display: flex; flex-direction: column; gap: 6px; margin: 10px 0 4px; padding: 0 0 8px; border-bottom: 1px solid var(--cp-rule); }
+  html.cp-site-mo .cp-pane .cp-keys:empty { display: none; }
   html.cp-site-mo .cp-pane .cp-keys-row { flex-wrap: wrap; }
   html.cp-site-mo .cp-pane .cp-keys-sub { width: auto; min-width: 6.5em; padding: 6px 0 0; font-size: 12px; }
   html.cp-site-mo .cp-pane .cp-keys-lab { flex: none; font-size: 12.5px; }
@@ -500,3 +503,28 @@ html.cp-site-mo .cp-grip { display: none; }
 @media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
   html.cp-site-mo .cp-pane { transition: height 0.22s cubic-bezier(0.22, 1, 0.36, 1); }
 }
+/* (owner 2026-11-07: "on mobile its a mess too") at a phone's width the four views and the Verse Desk fit the row whole: the Verse Desk
+   was cut at the screen's edge (437px of row in 374) */
+@media (max-width: 480px) {
+  html.cp-site-mo .cp-pane > .cp-tabs { gap: 10px; padding-right: 10px; }
+  html.cp-site-mo .cp-pane > .cp-tabs button, html.cp-site-mo .cp-pane > .cp-tabs .cp-desk, html.cp-site-mo .cp-pane > .cp-tabs .cp-desk.btn { font-size: 14px; }
+}
+/* (2026-11-08) the work's name ahead of where its note stands, on the phone's sheet only: the sheet opens at the note, with the name and
+   the keys just above it (a wide screen shows the name above the keys) */
+.cp-where-who { display: none; }
+@media (max-width: 899px) { html.cp-site-mo .cp-pane .cp-where-who { display: inline; color: var(--cp-ink); } }
+@media (max-width: 380px) {
+  html.cp-site-mo .cp-pane > .cp-tabs { gap: 8px; }
+  html.cp-site-mo .cp-pane > .cp-tabs button, html.cp-site-mo .cp-pane > .cp-tabs .cp-desk, html.cp-site-mo .cp-pane > .cp-tabs .cp-desk.btn { font-size: 13.5px; }
+}
+
+/* ── The reader's own lists of commentaries (scripture-dev-core.js commentaryItem: the Citations panel, the bar's Commentaries) ──
+   (owner 2026-11-07: "i keep having to preview to find a commentary and then open it too many clicks") a work's title is the way to
+   read it beside the text, set as a link in the page's accent; Preview stays the second way, and in its foot "Read beside the text" comes
+   first. The rows' own rules are scripture-dev.css's (.sd-source-title gives the size and the italic). */
+.sd-source button.sd-title-read { display: block; width: 100%; margin: 0; padding: 0; border: 0; border-radius: 0; background: none; font-family: inherit; font-weight: inherit; letter-spacing: inherit; text-transform: none; color: var(--sd-accent, var(--cp-accent)); text-align: left; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); cursor: pointer; }
+.sd-source button.sd-title-read:hover, .sd-source button.sd-title-read:focus-visible { text-decoration-color: currentColor; }
+.sd-source button.sd-title-read:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.sd-preview-foot .sd-read-beside { font: inherit; font-weight: 600; color: var(--sd-accent, var(--cp-accent)); background: none; border: 0; padding: 0; cursor: pointer; }
+.sd-preview-foot .sd-read-beside:hover, .sd-preview-foot .sd-read-beside:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 640px) { .sd-preview-foot .sd-read-beside { display: inline-flex; align-items: center; min-height: 44px; } }

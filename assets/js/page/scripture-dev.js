@@ -324,7 +324,7 @@
       const row = (e) => {
         const href = S.sourceHref(e.href, e.w);
         const meta = [e.a, S.centuryLabel(e.cen)].filter(Boolean).map(esc).join(" \u00b7 ");
-        return `<li><a class="sd-ov-comm-row" href="${esc(href || "#")}"><span class="sd-ov-comm-t">${esc(e.t || e.w)}</span><span class="sd-ov-comm-m">${meta}</span></a></li>`;
+        return `<li><a class="sd-ov-comm-row" href="${esc(href || "#")}" data-w="${esc(e.w || "")}"><span class="sd-ov-comm-t">${esc(e.t || e.w)}</span><span class="sd-ov-comm-m">${meta}</span></a></li>`;
       };
       const list = (label, items, n) => (items.length
         ? `<p class="sd-ov-comm-sub">${esc(label)}</p><ol class="sd-ov-comm-list">${items.slice(0, n).map(row).join("")}</ol>` : "");
@@ -337,6 +337,10 @@
   }
 
   $ov.addEventListener("click", (e) => {
+    // (owner 2026-11-07: "i keep having to preview to find a commentary and then open it too many clicks") a commentary named here is
+    // read beside the text when the commentary pane holds it (S.readBeside); else, or opened in a new tab, its link goes to the reader
+    const row = e.target.closest(".sd-ov-comm-row[data-w]");
+    if (row && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && S.readBeside && S.readBeside(row.dataset.w, 0)) { e.preventDefault(); return; }
     if (e.target.closest("[data-sd-ov-comm-all]")) {
       if ($commToggle.getAttribute("aria-expanded") !== "true") $commToggle.click();
       $commPanel.scrollIntoView({ block: "start", behavior: "smooth" });

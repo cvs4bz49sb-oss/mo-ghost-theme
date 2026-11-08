@@ -1143,6 +1143,14 @@
     $ol.after($more);
   }
   const INITIAL_ROWS = { cited: 10 };
+  /* ONE CLICK TO READ (owner 2026-11-07: "i keep having to preview to find a commentary and then open it too many clicks, on mobile its
+   * a mess too"). The Scripture page's commentary pane (commentary-pane.js) answers cp:open {slug, verse}: a work in its list for the
+   * chapter is read there, beside the text, at the verse, and the event comes back cancelled; {check: true} asks without reading. With
+   * the pane off, or for a work it does not list (one that only cites the verse), the event comes back as sent and the row reads the
+   * work its own way. */
+  const besideEvent = (slug, verse, check) => new CustomEvent("cp:open", { cancelable: true, detail: { slug, verse: Number(verse) || 0, check: !!check } });
+  const canReadBeside = (slug) => !!slug && !document.dispatchEvent(besideEvent(slug, 0, true));
+  const readBeside = (slug, verse) => !!slug && !document.dispatchEvent(besideEvent(slug, verse, false));
   function commentaryItem(e, ctx) {
     const li = document.createElement("li");
     li.className = "sd-source sd-commentary";
@@ -1165,12 +1173,17 @@
     const meta = [authorName(e), centuryLabel(e.cen), trad, range].filter(Boolean).map(esc).join(" \u00b7 ") +
       (on ? `<span class="sd-comm-on"> \u00b7 ${esc(on)}</span>` : "");
     const pid = `sdp-${Math.random().toString(36).slice(2, 9)}`;
+    // The title reads the work (owner 2026-11-07, above): beside the text where the pane holds it, else in the reader under the row. On
+    // the Scripture reader only (its root, [data-sd-reader]), whose page carries the button's look (commentary-pane.css); elsewhere the
+    // title stays as it was.
+    const titleText = esc(e.st ? `${e.st} (in ${e.t || e.w})` : (e.t || e.w));
+    const asButton = !!href && !!document.querySelector("[data-sd-reader]");
     li.innerHTML =
       `<div class="sd-source-head">` +
         `<div class="sd-source-id">` +
           // A section inside a larger volume (v1/devotion.json `st`, corpus owner 2026-09-26) is named by the section,
           // with the volume's title beside it; shown when the verse worker passes `st` through.
-          `<span class="sd-source-title">${esc(e.st ? `${e.st} (in ${e.t || e.w})` : (e.t || e.w))}</span>` +
+          `${asButton ? `<button type="button" class="sd-source-title sd-title-read">${titleText}</button>` : `<span class="sd-source-title">${titleText}</span>`}` +
           // a hit's page, in the library's own one-line summary of it
           `<span class="sd-source-meta">${meta}</span>${e.hit && e.hit.g ? `<span class="sd-comm-gist">${esc(e.hit.g)}</span>` : ""}` +
         `</div>${ 
@@ -1226,13 +1239,32 @@
       : /#b/.test(href) ? "the page this list links to" : "its first page";
     const read = (link) => `<a class="sd-read-link" href="${esc(link)}">Read in context</a>`;
     const here = `<button type="button" class="sd-keep-reading" aria-expanded="false">Keep reading here</button>`;
+    // the first way on from a preview, where the pane holds the work (owner 2026-11-07, above)
+    const beside = () => (canReadBeside(e.w) ? `<button type="button" class="sd-read-beside">Read beside the text</button>` : "");
+    // the title asked for the reader under the row (readHere, below): it opens as soon as the preview has found the place
+    let wantReader = false;
     // The reader at once, for a commentary with no indexed comment on the verse.
     const openReader = (note, link) => {
-      $pv.innerHTML = `<p class="sd-muted">${esc(note)}</p><p class="sd-preview-foot">${here}${read(link)}</p>`;
+      $pv.innerHTML = `<p class="sd-muted">${esc(note)}</p><p class="sd-preview-foot">${beside()}${here}${read(link)}</p>`;
       readerFrame($pv, link, e.t || e.w);
+      wantReader = false;
       $pv.querySelector(".sd-keep-reading").click();
     };
     let shown = null;
+    /* THE TITLE, ONE CLICK (owner 2026-11-07, above): the pane reads the work beside the text at the verse; where it cannot, the reader
+     * opens under the row at once, at the place Preview finds (its comment on the verse, else the page this list links to), as Preview
+     * and then "Keep reading here" did in two clicks */
+    const readHere = () => {
+      wantReader = true;
+      if ($pv.hidden) $btn.click();
+      const keep = $pv.querySelector(".sd-keep-reading");
+      if (!keep) return;
+      wantReader = false;
+      if (keep.getAttribute("aria-expanded") !== "true") keep.click(); else keep.scrollIntoView({ block: "nearest" });
+    };
+    const $title = li.querySelector(":scope > .sd-source-head .sd-title-read");
+    if ($title) $title.addEventListener("click", () => { if (!readBeside(e.w, ctx.v)) readHere(); });
+    $pv.addEventListener("click", (ev) => { if (ev.target.closest(".sd-read-beside")) readBeside(e.w, ctx.v); });
     // ITS OWN NOTE FIRST (2026-10-11, the owner: "make sure we will be able to direct people to [Lapide] from Scripture"). The worker
     // keeps the chapter file's order, and a commentary's first row on a verse can be a citation of it in a preface (Lapide on Rom 5:12
     // opened vol. 18 p. 59). Its note on the verse (`exegesis`, "Expounds") comes first; then a row inside the chapter's own pages
@@ -1260,6 +1292,7 @@
       const card = li.classList.contains("sd-comm-sub") ? li.parentElement.closest(".sd-commentary") : null;
       if (card) card.classList.toggle("is-previewing", open || !!card.querySelector(".sd-comm-sub.is-previewing"));
       const v = Number(ctx.v) || 0;
+      if (!open) wantReader = false;
       if (!open || shown === v) return;
       shown = v;
       if (!v) { openReader(`The commentary opens below at ${where}.`, href); return; }
@@ -1287,8 +1320,10 @@
             const text = `${p.clipped_start ? "\u2026 " : ""}${p.text}${p.clipped_end ? " \u2026" : ""}`;
             $pv.innerHTML =
               `<blockquote class="sd-quote"${p.lang ? ` lang="${esc(p.lang)}"` : ""}>${esc(text)}</blockquote>` +
-              `<p class="sd-preview-foot">${kindOf(r) ? `<span>${esc(kindOf(r))}</span>` : ""}${p.locator ? `<span>${esc(p.locator)}</span>` : ""}${here}${read(link)}</p>`;
+              `<p class="sd-preview-foot">${kindOf(r) ? `<span>${esc(kindOf(r))}</span>` : ""}${p.locator ? `<span>${esc(p.locator)}</span>` : ""}${beside()}${here}${read(link)}</p>`;
             readerFrame($pv, link, e.t || e.w);
+            // the title asked to read: the reader opens under the quotation at once
+            if (wantReader) { wantReader = false; $pv.querySelector(".sd-keep-reading").click(); }
             return;
           }
           openReader(p && p.reason === "licensed"
@@ -1296,7 +1331,7 @@
             : `Its comment on ${ref} could not be extracted as a quotation, so it opens below at that page.`, link);
         })
         .catch(() => {
-          shown = null;
+          shown = null; wantReader = false;
           $pv.innerHTML = `<p class="sd-muted">The commentary did not load. Select Hide, then Preview, to try again.</p>`;
         });
     });
@@ -1346,7 +1381,8 @@
         $status.textContent = items.length
           ? (activeCount(f)
             ? `${plural(d.matched, "commentary", "commentaries")} of ${fmt(d.total)} match.`
-            : `${plural(d.total, "commentary", "commentaries")} on ${refLabel(ctx.book, ctx.c)}. Open a list, then Preview to read one here.`)
+            // (owner 2026-11-07: "i keep having to preview to find a commentary and then open it too many clicks") a title reads its work
+            : `${plural(d.total, "commentary", "commentaries")} on ${refLabel(ctx.book, ctx.c)}. Open a list and select a title to read it.`)
           : (d.total ? "No commentaries match these filters." : "No commentaries are catalogued for this book yet.");
         const g = commentaryGroups(items, ctx.book, d.cited), names = commentaryTitles(ctx.book, ctx.c, g);
         $folds.innerHTML = "";
@@ -1426,7 +1462,7 @@
     translationInfo, recalledTranslation, rememberTranslation,
     fetchChapterHtml, markVerses, verseTextFrom, fetchVerseText,
     fetchApocryphaChapter, apocryphaChapterNode, chapterNode, fetchApocryphaVerse,
-    fetchVerse, fetchCommentaries, fetchPassage, fetchKindTotals, loadRank, standingOf,
+    fetchVerse, fetchCommentaries, fetchPassage, fetchKindTotals, loadRank, standingOf, canReadBeside, readBeside,
     emptyFilters, activeCount, filterBar, sourceItem, centuryLabel,
     loadVolumes, volumeLabel, sortWorks,
     HOW, kindOf, kindsLabel, workRows,

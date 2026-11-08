@@ -232,11 +232,16 @@
       if (w.keyAt < Infinity && w.kind !== "cited") w.kind = "keys";
       w.onV = w.vols.some((c) => notedOn(c, v) || (c.ser || []).some((x) => onVerse(x, v)));
     }
+    /* (owner 2026-11-07 QA on Hebrews 12: Owen's fold led with his third volume, a page on Christ's intercession that cites 12:1, ahead of
+     * his Exposition of the chapter) an author's works: the one with its note on the verse, then one whose own pages hold the chapter (the
+     * map's page for it, or notes in it, or the host's map taking the chapter in: cfg.covers), then one found treating it on a page of
+     * another chapter, then the rest; within each, the curated order and standing as before */
+    const holds = (c) => (notedOn(c, v) ? 0 : (c.open != null || Object.keys(c.notes || {}).length) && (!c.treats || (cfg.covers && cfg.covers(c) === true)) ? 1 : c.treats ? 2 : 3);
     const authors = (list) => {
       const am = new Map();
       for (const w of list) { const k = authorKey(w.main.a) || w.main.slug; if (!am.has(k)) am.set(k, { key: k, name: properName(w.main.a) || w.main.t, works: [] }); am.get(k).works.push(w); }
       for (const au of am.values()) {
-        au.works.sort((p, q) => (notedOn(q.main, v) ? 1 : 0) - (notedOn(p.main, v) ? 1 : 0) || p.keyAt - q.keyAt || (q.main.score || 0) - (p.main.score || 0) || String(p.main.t).localeCompare(String(q.main.t)));
+        au.works.sort((p, q) => holds(p.main) - holds(q.main) || p.keyAt - q.keyAt || (q.main.score || 0) - (p.main.score || 0) || String(p.main.t).localeCompare(String(q.main.t)));
         // an author is said once to be of the tradition most of his works are filed under, a named one before "Other"
         const n = new Map();
         for (const w of au.works) { const t = cfg.tradOf(w.main) || "x"; n.set(t, (n.get(t) || 0) + (t === "x" ? 0.5 : 1)); }
@@ -286,8 +291,13 @@
         bits.push(on ? `${on === n && n === 1 ? `${one[0].toUpperCase()}${one.slice(1)}` : `${on} of ${n} ${many}`} on ${cfg.ch}:${v}` : `${n} ${n === 1 ? one : many} on ${ref}`);
       }
       else if (notedOn(c, v)) bits.push(`Note on ${cfg.ch}:${v}`);
-      // (10-22) a work the map files under the book with no page for the chapter, whose page here is the chapter's own
-      else if (c.treats && !Object.keys(c.notes || {}).length) bits.push(`Treats this chapter${c.hit && c.hit.v && c.hit.v.length ? ` (${cfg.ch}:${c.hit.v.slice(0, 4).join(", ")})` : ""}`);
+      // (10-22) a work the map files under the book with no page for the chapter, whose page here is the chapter's own; (2026-11-08) one
+      // whose own chapters the host's map puts elsewhere cites the chapter there (Owen's third volume on Hebrews 12)
+      else if (c.treats && !Object.keys(c.notes || {}).length) {
+        const vs = c.hit && c.hit.v && c.hit.v.length ? c.hit.v : [];
+        bits.push(cfg.covers && cfg.covers(c) === false ? (vs.length ? `Cites ${cfg.ch}:${vs.slice(0, 4).join(", ")}${vs.length > 4 ? " and more" : ""}` : `Cites chapter ${cfg.ch}`)
+          : `Treats this chapter${vs.length ? ` (${cfg.ch}:${vs.slice(0, 4).join(", ")})` : ""}`);
+      }
       else {
         // its notes elsewhere in the chapter: the verses themselves when they are few ("Notes on 1:18, 20"), else how many
         const vs = Object.keys(c.notes || {}).map(Number).filter((x) => x > 0).sort((p, q) => p - q), n = vs.length;
@@ -312,15 +322,20 @@
       const c = w.main, p = pageFor(c, v, cfg), id = `vr-pv-${++dirSeq}`;
       const cur = w.vols.some((x) => x.slug === cfg.cur);
       const vol = w.vols.length > 1 ? "" : volName(c);
-      const find = foldText(`${au.name} ${c.a || ""} ${w.vols.map((x) => `${x.t || ""} ${x.tl || ""} ${volName(x)} ${(x.ser || []).map((y) => `${y.t} ${y.tl || ""}`).join(" ")}`).join(" ")}`);
+      // (owner 2026-11-07 QA: "Glossa" and "Critici Sacri" found nothing) the names the host gives a work beside its own (cfg.alias: the
+      // pane's key names and set titles) are found too
+      const find = foldText(`${au.name} ${c.a || ""} ${w.vols.map((x) => `${x.t || ""} ${x.tl || ""} ${volName(x)} ${cfg.alias ? cfg.alias(x) || "" : ""} ${(x.ser || []).map((y) => `${y.t} ${y.tl || ""}`).join(" ")}`).join(" ")}`);
       const vols = w.vols.length > 1 ? `<p class="vr-e-vols"><span>${w.vols.length} volumes</span>${w.vols.map((x) => {
         const q = pageFor(x, v, cfg), label = volName(x) || (q != null ? pg(x.slug, q) : x.t);
         return `<button type="button" class="vr-e-vol" data-vr-read="${esc(x.slug)}"${x.slug === cfg.cur ? ' aria-current="true"' : ""} aria-label="${esc(`Read ${label} beside the text`)}">${esc(label)}</button>`;
       }).join("")}</p>` : "";
       const trad = solo && TRAD_NAME[au.trad] && au.trad !== "x" ? `<span class="vr-k">${esc(TRAD_NAME[au.trad])}</span>` : "";
+      // (owner 2026-11-07: "i keep having to preview to find a commentary and then open it too many clicks") the row is the way to read
+      // the work beside the text, and says so: its title set as a link and "Read" at its end; Preview is the second way
       return `<li class="vr-e${solo ? " vr-e-solo" : ""}${cur ? " is-cur" : ""}" data-find="${esc(find)}">`
         + `<div class="vr-e-row"><button type="button" class="vr-e-read" data-vr-read="${esc(c.slug)}"${cur ? ' aria-current="true"' : ""}>`
-        + `${solo ? `<span class="vr-a">${esc(au.name)}</span>` : ""}<span class="vr-e-t"${orig(c)}>${esc(c.t)}${vol ? `${DOT}${esc(vol)}` : ""}</span><span class="vr-e-m">${esc(meta(w))}${trad ? DOT : ""}${trad}</span></button>`
+        + `${solo ? `<span class="vr-a">${esc(au.name)}</span>` : ""}<span class="vr-e-t"${orig(c)}>${esc(c.t)}${vol ? `${DOT}${esc(vol)}` : ""}</span><span class="vr-e-m">${esc(meta(w))}${trad ? DOT : ""}${trad}</span>`
+        + `<span class="vr-e-go" aria-hidden="true">Read</span></button>`
         + `${p != null ? `<a class="vr-e-pg" href="${esc(cfg.read(c.slug, p))}" aria-label="${esc(`${c.t}, ${pg(c.slug, p)}, in the reader`)}">${esc(pg(c.slug, p))}</a>` : "<span></span>"}`
         + `<button type="button" class="vr-e-pv" data-vr-preview="${esc(c.slug)}" data-vr-title="${esc(c.t)}" aria-expanded="false" aria-controls="${id}" aria-label="${esc(`Preview ${c.t}`)}">Preview</button></div>`
         + `${vols}${sermons(c)}<div class="vr-e-box" id="${id}" hidden></div></li>`;
@@ -360,9 +375,12 @@
   }
 
   // the find box over the directory: a match opens the groups that hold it (without forgetting which the reader opened)
+  // (2026-11-08) word by word, each anywhere in the row's names, a possessive and the punctuation aside: "Poole's Synopsis" finds the
+  // set labelled "Poole, Synopsis", "Glossa Ordinaria" the Ordinary Gloss
+  const findWords = (raw) => foldText(String(raw || "").trim()).replace(/['’]s\b/g, "").split(/[^a-z0-9]+/).filter(Boolean);
   function filterDirectory(host, raw) {
-    const q = foldText(String(raw || "").trim());
-    host.querySelectorAll(".vr-e").forEach((li) => { li.hidden = !!q && !(li.dataset.find || "").includes(q); });
+    const ws = findWords(raw), q = ws.join(" ");
+    host.querySelectorAll(".vr-e").forEach((li) => { const f = li.dataset.find || ""; li.hidden = !!q && !ws.every((x) => f.includes(x)); });
     const folds = [...host.querySelectorAll(".vr-au-g, .vr-tg")];
     // the innermost folds first (an author inside a period inside a group), then those holding them
     const depth = (el) => { let d = 0; for (let x = el.parentElement; x && x !== host; x = x.parentElement) if (x.classList.contains("vr-fold-list")) d += 1; return d; };

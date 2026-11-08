@@ -55,18 +55,25 @@
 .vr-e { border-top: 1px solid var(--cp-ground); }
 .vr-fold-list > li:first-child { border-top: 0; }
 .vr-e-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 4px 12px; }
-.vr-e-read { display: flex; flex-direction: column; gap: 1px; min-width: 0; min-height: 44px; justify-content: center; padding: 7px 0; background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
-.vr-e-t { font-size: 0.9rem; font-style: italic; line-height: 1.35; color: var(--cp-ink); overflow-wrap: anywhere; }
+/* (owner 2026-11-07: "i keep having to preview to find a commentary and then open it too many clicks") the row reads the work beside the
+   text and looks it: the title underlined as a link, and "Read" at the row's end in the outline the list's buttons wear; Preview, the
+   second way, is a quiet word */
+.vr-e-read { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1px 12px; min-width: 0; min-height: 44px; padding: 7px 0; background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.vr-e-read > :not(.vr-e-go) { grid-column: 1; min-width: 0; }
+.vr-e-t { font-size: 0.9rem; font-style: italic; line-height: 1.35; color: var(--cp-ink); overflow-wrap: anywhere; text-decoration: underline; text-decoration-color: var(--cp-rule); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .vr-e-solo .vr-e-t { font-size: 0.86rem; color: var(--cp-muted); }
 .vr-e-m { font-size: 0.8rem; color: var(--cp-muted); font-variant-numeric: tabular-nums; }
-.vr-e-read:hover .vr-e-t, .vr-e-read:hover .vr-a, .vr-e-read:focus-visible .vr-e-t { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.vr-e-go { grid-column: 2; grid-row: 1 / span 3; display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border: 1px solid var(--cp-ink); border-radius: 4px; font-size: 0.8rem; font-style: normal; line-height: 1; color: var(--cp-ink); white-space: nowrap; transition: background-color 0.15s ease-out, color 0.15s ease-out; }
+.vr-e-read:hover .vr-e-t, .vr-e-read:hover .vr-a, .vr-e-read:focus-visible .vr-e-t { text-decoration: underline; text-decoration-color: currentColor; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.vr-e-read:hover .vr-e-go, .vr-e-read:focus-visible .vr-e-go { background: var(--cp-ink); color: var(--cp-paper); }
 .vr-e-read:focus-visible { outline: 2px solid var(--cp-ink); outline-offset: 2px; }
 .vr-e.is-cur > .vr-e-row .vr-e-m::after { content: " · reading"; color: var(--cp-ink); }
+.vr-e.is-cur > .vr-e-row .vr-e-go { display: none; }
 .vr-e-pg { font-size: 0.8rem; color: var(--cp-muted); font-variant-numeric: tabular-nums; white-space: nowrap; text-decoration: underline; text-decoration-color: var(--cp-rule); text-underline-offset: 3px; }
 .vr-e-pg:hover, .vr-e-pg:focus-visible { color: var(--cp-ink); text-decoration-color: currentColor; }
-.vr-e-pv { min-height: 32px; padding: 0 10px; border: 1px solid var(--cp-rule); border-radius: 4px; background: none; font: inherit; font-size: 0.8rem; color: var(--cp-ink); white-space: nowrap; cursor: pointer; transition: background-color 0.15s ease-out, border-color 0.15s ease-out; }
-.vr-e-pv:hover { border-color: var(--cp-ink); }
-.vr-e-pv[aria-expanded="true"] { background: var(--cp-ink); border-color: var(--cp-ink); color: var(--cp-paper); }
+.vr-e-pv { min-height: 32px; padding: 0 4px; border: 1px solid transparent; border-radius: 4px; background: none; font: inherit; font-size: 0.8rem; color: var(--cp-muted); white-space: nowrap; text-decoration: underline; text-decoration-color: var(--cp-rule); text-underline-offset: 3px; cursor: pointer; transition: background-color 0.15s ease-out, border-color 0.15s ease-out; }
+.vr-e-pv:hover { color: var(--cp-ink); text-decoration-color: currentColor; }
+.vr-e-pv[aria-expanded="true"] { padding: 0 10px; background: var(--cp-ink); border-color: var(--cp-ink); color: var(--cp-paper); text-decoration: none; }
 .vr-e-pv:focus-visible { outline: 2px solid var(--cp-ink); outline-offset: 2px; }
 .vr-e-vols { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; margin: -2px 0 8px; font-size: 0.8rem; color: var(--cp-muted); }
 .vr-e-vols > span { margin-right: 2px; }
@@ -93,14 +100,15 @@
 @media (max-width: 480px) {
   /* a narrow pane: the page and Preview go under the work's title, so the title keeps the width */
   .vr-e-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "r r" "g p"; padding-bottom: 6px; }
-  .vr-e-read { grid-area: r; min-height: 0; padding-bottom: 2px; }
+  /* the row, a phone's way in, keeps a finger's height (2026-11-08) */
+  .vr-e-read { grid-area: r; min-height: 44px; padding-bottom: 2px; }
   .vr-e-pg { grid-area: g; justify-self: start; }
   .vr-e-row > span:empty { display: none; }
   .vr-e-pv { grid-area: p; }
   .vr-tg > .vr-fold-list { padding-left: 14px; }
   .vr-au-g > .vr-fold-list { padding-left: 14px; }
 }
-@media (prefers-reduced-motion: reduce) { .vr-fold-btn::before, .vr-e-pv { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .vr-fold-btn::before, .vr-e-pv, .vr-e-go { transition: none; } }
 
 /* ── reception ── */
 .vr-rec-head h3 { margin: 0 0 2px; font-family: var(--cp-display, var(--font-display, var(--display, 'EB Garamond', Georgia, serif))); font-weight: 500; font-size: 1.5rem; line-height: 1.15; }

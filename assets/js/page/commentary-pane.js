@@ -518,7 +518,7 @@
       if (more) { S.restOpen = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded', String(S.restOpen)); const r = pane.querySelector('.cp-keys-rest'); if (r) r.hidden = !S.restOpen; return; }
       const b = e.target.closest('[data-slug]'); if (!b) return;
       const { slug } = b.dataset, kept = document.activeElement === b;
-      closeList(); choose(slug, true);
+      closeList(); pickWork(slug);
       const nb = kept && [...pane.querySelectorAll('.cp-key')].find((x) => x.dataset.slug === slug); if (nb) nb.focus();
     };
     // (10-31) the pointer resting on the pane holds the commentary where it is while the page scrolls under it
@@ -810,13 +810,20 @@
     for (const { s, c } of setsOn(S.list, S.verse || 1)) if (s.key && c && c.wb !== 2 && (c.open != null || Object.keys(c.notes).length || c.collected)) { if (!c.born) c.born = s.key; out.push(c); }
     return out;
   }
+  // whether the map's chapters for a work on the book take in this chapter (null where the map gives it none, or one without a start)
+  const mapCovers = (x) => {
+    const ch = Number((where() || {}).ch), r = (S.mapRange || {})[x.slug] || [];
+    return !r.length || r.some(([a]) => !(a > 0)) ? null : r.some(([a, b]) => ch >= a && ch <= b);
+  };
+  // a work found treating this chapter on one page whose own chapters on the book lie elsewhere on the map: Owen's third volume (Hebrews
+  // 6-10) on Hebrews 12, whose page there (p. 247) is on Christ's intercession and cites 12:1, 2, 5 and 15 (owner 2026-11-07 QA)
+  const treatsElsewhere = (x) => !!x.treats && mapCovers(x) === false;
   function curated(book) {
     const out = [];
     // (10-31, owner: "where is the whole owens hebrews comm, open up to where he deals wirth heb 12") a volume that only treats this
     // chapter on a page, its own chapters on the book lying elsewhere on the map (Owen's third volume, Hebrews 6-10, on Hebrews 12), is
     // no key here; it stays in the list of every commentary
-    const ch = Number((where() || {}).ch);
-    const elsewhere = (x) => { const r = (S.mapRange || {})[x.slug] || []; return !!x.treats && r.length > 0 && r.every(([a, b]) => a > 0 && (ch < a || ch > b)); };
+    const elsewhere = treatsElsewhere;
     for (const [, slugs, born] of (RANK.books[book] || [])) {
       const have = slugs.map((s) => S.list.find((c) => c.slug === s)).filter(Boolean).filter((x) => !elsewhere(x));
       // (10-28 key audit) a volume of its own (a page or notes on the chapter) before a page that only cites it (wb 2): Luther on Psalm 51
@@ -921,7 +928,12 @@
   };
   const dirCfg = (w) => ({ cur: S.cur && S.cur.slug, verse: dirVerse(), ch: w.ch, bookName: refName(w), tradOf, when: whenDir, rankOf, volShort,
     read: dirRead, pg: pgOf, open: S.dirOpen, place: (c, v) => chapterFirst(c, placeNow(c, v), v), volOf: (slug) => S.vols.get(slug) || '',
-    keyOrder: (RANK.books[w.book] || []).flatMap(([, slugs]) => slugs || []) });
+    keyOrder: (RANK.books[w.book] || []).flatMap(([, slugs]) => slugs || []),
+    // (owner 2026-11-07, as above) the find box knows the names the keys carry ("Glossa", "Critici Sacri", "Poole, Synopsis") and the
+    // sets' own titles ("The Ordinary Gloss (Glossa Ordinaria)")
+    alias(c) { const s = SETS.list.find((x) => x.id === setIdOf(c.slug)); return [short(c.a), s && s.label, s && s.title].filter(Boolean).join(' '); },
+    // whether the map's chapters for the work on the book take in this one (null: the map has none for it)
+    covers: mapCovers });
   // a key button is pressed while its work is read, in whichever of its volumes
   const isCur = (c) => !!(S.cur && (S.cur.slug === c.slug || setOf(S.cur) === setOf(c) || (setIdOf(c.slug) && setIdOf(S.cur.slug) === setIdOf(c.slug))));
   function markKeys() {
@@ -1003,15 +1015,27 @@
     VR.wireDirectory(list, {
       fold(id, open) { if (open) S.dirOpen.add(id); else S.dirOpen.delete(id); },
       preview,
-      read(slug) { setDir(false); choose(slug, true); },
+      read(slug) { setDir(false); pickWork(slug); },
     });
+  }
+  /* THE KEY COMMENTARIES OPEN (owner 2026-11-07, as above): the first time the list is opened on a chapter its key commentaries are open,
+   * and an author of several key or whole-Bible works has them shown (Owen's two volumes, Poole's Synopsis and Annotations), so the work
+   * wanted is one click away once its group is open; what the reader shuts stays shut */
+  function seedDir(w) {
+    if (S.dirSeeded) return;
+    S.dirSeeded = true;
+    const VR = window.FRVerseRail, m = VR && VR.directoryModel ? VR.directoryModel(S.list, dirCfg(w)) : null;
+    for (const g of (m ? m.groups : []).filter((x) => x.key === 'keys' || x.key === 'whole')) {
+      if (g.key === 'keys') S.dirOpen.add('g:keys');
+      for (const au of g.authors) if (au.works.length > 1) S.dirOpen.add(`a:${au.key}`);
+    }
   }
   function setDir(open) {
     if (!pane) return;
     const list = pane.querySelector('.cp-list'), pick = pane.querySelector('.cp-pick');
     list.hidden = !open;
     pick.setAttribute('aria-expanded', String(!!open)); pick.textContent = open ? 'Hide list' : 'Change';
-    if (open) renderDir();
+    if (open) { seedDir(where() || {}); renderDir(); requestAnimationFrame(listInView); }
   }
 
   function nameCur() {
@@ -1022,14 +1046,71 @@
     pane.querySelector('.cp-what').title = S.cur && S.cur.tl ? `As printed: ${S.cur.tl}` : '';
   }
   // Only the reader's own choice is remembered (fr_cp_pick): the old key held whatever opened first, Lapide for nearly everyone.
+  // (2026-11-08) a work asked for by name that the chapter's list does not hold is never read as its first one: nothing changes, and
+  // the caller is told (false), so a row elsewhere on the page keeps its own way to read it
   function choose(slug, mine) {
-    S.cur = S.list.find((c) => c.slug === slug) || S.list[0] || null;
+    const c = slug ? S.list.find((x) => x.slug === slug) : S.list[0];
+    if (slug && !c) return false;
+    S.cur = c || null;
     if (S.cur && mine) store.set('fr_cp_pick', S.cur.a);
     nameCur();
     fillList();
     S.shown = null;
-    if (!S.cur) { paint(); return; }
+    if (!S.cur) { paint(); return true; }
     show(S.verse || 1, true);
+    return true;
+  }
+  /* ONE CLICK TO READ (owner 2026-11-07: "i keep having to preview to find a commentary and then open it too many clicks, on mobile its a
+   * mess too"). A work the reader picks (a key, a row of the list, a row elsewhere on the page) is read and its note brought into view
+   * once it is drawn (S.bring, the token of the show() the pick started; bring() below). The note is never brought in for the pane's own
+   * moves (the opening commentary, the reading line followed). */
+  const pickWork = (slug) => { if (!choose(slug, true)) return false; S.bring = S.token; return true; };
+  // the fixed header and the rail stuck under it, over the top of the page
+  const coverTop = () => {
+    let b = 0;
+    for (const el of document.querySelectorAll('.site-header, .tfr-rail')) {
+      const r = el.getBoundingClientRect();
+      if (r.height && r.top <= b + 1 && r.bottom > b && /fixed|sticky/.test(getComputedStyle(el).position)) b = r.bottom;
+    }
+    return b;
+  };
+  // where a scroll should leave a thing's top: under the whole chrome (header-behaviors.js keeps the header and the rail's height as the
+  // page's scroll-padding), since the header comes back when the page moves up; else under what covers the top now
+  const chrome = () => { const s = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop); return s > 0 ? s : coverTop(); };
+  const motion = () => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
+  // the phone's sheet scrolls itself: el's top to just under its pinned grip and views
+  function sheetTo(el, slack) {
+    const p = pane.getBoundingClientRect(), tabs = pane.querySelector(':scope > .cp-tabs');
+    const under = tabs ? Math.max(0, tabs.getBoundingClientRect().bottom - p.top) : 0;
+    const y = Math.max(0, pane.scrollTop + el.getBoundingClientRect().top - p.top - under - 6);
+    if (Math.abs(y - pane.scrollTop) > (slack || 8)) pane.scrollTo({ top: y, behavior: motion() });
+  }
+  const onSheet = () => SITE.name === 'mo' && !wide.matches;
+  /* THE NOTE IN SIGHT (owner 2026-11-07, as above): on a wide screen the page moves only when the note starts off the screen: its line of
+   * where it is comes to the top, or, where the screen holds both, the verse comes to the top with the note's first lines under it (the
+   * text and its note side by side); a scroll the pane makes is not the reader's, and the text moves with it, so the rail is held to its
+   * verse (S.pin, as a verse clicked holds it; the reader's own scrolling hands it back). On the phone the sheet scrolls to the note. */
+  function bring() {
+    if (!pane || S.tab !== 'c') return;
+    const at = pane.querySelector('.cp-where'), note = pane.querySelector('#cp-hit') || pane.querySelector('.cp-body');
+    if (!at || !note || !at.getClientRects().length) return;
+    if (onSheet()) { sheetTo(at); return; }
+    const r = note.getBoundingClientRect();
+    if (r.top >= coverTop() && r.top <= innerHeight - 120) return;
+    const top = chrome() + 12, atTop = scrollY + at.getBoundingClientRect().top - top, ve = SITE.verseEl(S.verse);
+    const verseTop = ve && ve.getClientRects().length ? scrollY + ve.getBoundingClientRect().top - top : -Infinity;
+    const y = atTop > scrollY && verseTop < atTop && verseTop >= scrollY + r.top - (innerHeight - 240) ? verseTop : atTop;
+    S.pin = true;
+    scrollTo({ top: Math.max(0, y), behavior: motion() });
+  }
+  // the list opened by Change, in sight when it opens below the fold (owner 2026-11-07, as above): on the phone's sheet under its views
+  function listInView() {
+    const list = pane && pane.querySelector('.cp-list'); if (!list || list.hidden) return;
+    if (onSheet()) { const p = pane.getBoundingClientRect(); if (list.getBoundingClientRect().top > p.top + p.height * 0.55) sheetTo(list); return; }
+    const r = list.getBoundingClientRect();
+    if (r.top <= innerHeight * 0.6) return;
+    S.pin = true;
+    scrollTo({ top: Math.max(0, scrollY + r.top - Math.max(chrome() + 12, innerHeight * 0.3)), behavior: motion() });
   }
 
   // ── where a commentary opens on a verse ───────────────────────────────────────────────────────────────────────────────────
@@ -1104,8 +1185,9 @@
     // took its "Vers. 1." for a note on this chapter's verse.
     if (c.wb === 2) return c.notes[v] != null ? { p: c.notes[v], how: 'note', v, indexed: true } : c.open != null ? { p: c.open, how: 'cites' } : null;
     // (10-22) a work on this book with no page for the chapter, at the page that treats it: its note on the verse where the library
-    // indexes one, else that page, said to be that (never the resolver: the page is not where the chapter begins)
-    if (c.treats) return c.notes[v] != null ? { p: c.notes[v], how: 'note', v, indexed: true } : c.open != null ? { p: c.open, how: 'treats' } : null;
+    // indexes one, else that page, said to be that (never the resolver: the page is not where the chapter begins); (2026-11-08) one
+    // whose own chapters lie elsewhere on the map is said to cite the chapter there, as the list says it
+    if (c.treats) return c.notes[v] != null ? { p: c.notes[v], how: 'note', v, indexed: true } : c.open != null ? { p: c.open, how: treatsElsewhere(c) ? 'cites' : 'treats' } : null;
     // a set whose map knows only where the book begins, with no note in the chapter: never the resolver either (it would read the
     // book's first chapters for this one's verse heads)
     if (c.open == null && c.bookAt != null && !Object.keys(c.notes).length) return bookPlace(c);
@@ -1356,7 +1438,15 @@
     }
     t = chapterFirst(cur, t, S.verse);
     clearTimeout(S.openT);
-    if (!t) { bodyEl.classList.remove('cp-loading'); S.shown = null; paint(); return; }
+    // a work the reader picked: its note in sight once drawn (pickWork); (2026-11-08) on the phone's sheet, where the keys stand above
+    // the note, a new verse's or work's note is where the sheet opens, the keys and the name a short way above it (not while its list is open)
+    const drawn = () => {
+      paint();
+      const k = `${S.listKey}|${cur.slug}|${S.verse}`, picked = !!S.bring && S.bring === tok;
+      if (picked) S.bring = 0;
+      if (picked || (onSheet() && S.landed !== k && !listOpen())) { S.landed = k; requestAnimationFrame(bring); }
+    };
+    if (!t) { bodyEl.classList.remove('cp-loading'); S.shown = null; drawn(); return; }
     // the same place keeps the pages already read (they were dropped here, and the view said "This page could not be loaded")
     const prev = S.shown;
     const same = !!prev && prev.slug === cur.slug && +prev.p === +t.p && prev.t.how === t.how && prev.t.v === t.v && !!prev.pages;
@@ -1392,7 +1482,7 @@
     } catch (err) { console.error('Scripture pane: the commentary page did not load', err); if (tok === S.token) { S.shown.pages = []; } }
     // the page has come: no late "Opening ..." over the text just drawn
     clearTimeout(S.openT);
-    paint();
+    drawn();
   }
 
   function step(d) {
@@ -1405,6 +1495,13 @@
     });
   }
 
+  // (2026-11-08) the name the work's key carries, ahead of where its note stands: seen on the phone's sheet only, which opens at the note
+  // with the keys and the name above it ("Calvin · Its note on Hebrews 12:1, p. 183")
+  const whoSay = () => {
+    const c = S.cur; if (!c) return '';
+    const s = (SETS.list || []).find((x) => x.id === setIdOf(c.slug)), name = (s && s.label) || short(c.a);
+    return name ? `<span class="cp-where-who">${esc(name)} · </span>` : '';
+  };
   function paint() {
     const sh = S.shown, body = pane.querySelector('.cp-body'), whereEl = pane.querySelector('.cp-where');
     body.classList.remove('cp-loading');
@@ -1427,7 +1524,7 @@
     // page under the chapter's heading is said to be that, at its own page (10-22)
     const setWhere = (p, found, at) => {
       const pg = `<span class="cp-pg">${esc(pgOf(sh.slug, p))}</span>`;
-      whereEl.innerHTML = `<span>${found ? `Its note on ${esc(ref(S.verse))}, ${pg}` : `${esc(say)}, ${pg}`}</span> <span class="cp-go"><span aria-hidden="true">· </span><a href="${esc(readHref(sh.slug, p, at))}">Open in the reader</a></span>`;
+      whereEl.innerHTML = `${whoSay()}<span>${found ? `Its note on ${esc(ref(S.verse))}, ${pg}` : `${esc(say)}, ${pg}`}</span> <span class="cp-go"><span aria-hidden="true">· </span><a href="${esc(readHref(sh.slug, p, at))}">Open in the reader</a></span>`;
     };
     setWhere(sh.p, false);
     const pages = sh.pages || [];
@@ -1505,7 +1602,7 @@
   // a collection (the Critici Sacri): every critic's note on the verse, in the order the volume prints them
   function paintCollected(sh, t, bookName, body, whereEl) {
     const n = t.items.length, crit = new Set(t.items.map((x) => x[0])).size;
-    whereEl.innerHTML = `<span>${t.nearest ? `No critic on ${sh.ch}:${S.verse}. ` : ''}${crit} ${crit === 1 ? 'critic' : 'critics'} on ${esc(bookName)} ${sh.ch}:${t.v}, ${esc(pgOf(sh.slug, t.items[0][1]))}</span>`
+    whereEl.innerHTML = `${whoSay()}<span>${t.nearest ? `No critic on ${sh.ch}:${S.verse}. ` : ''}${crit} ${crit === 1 ? 'critic' : 'critics'} on ${esc(bookName)} ${sh.ch}:${t.v}, ${esc(pgOf(sh.slug, t.items[0][1]))}</span>`
       + ` <span class="cp-go"><span aria-hidden="true">· </span><a href="${esc(readHref(sh.slug, t.items[0][1]))}">Open in the reader</a></span>`;
     const anyEn = Object.values(sh.byPage || {}).some((p) => p && p.en), lane = S.lang === 'la' || !anyEn ? 'la' : 'en';
     pane.querySelector('.cp-lang').hidden = !anyEn;
@@ -1576,6 +1673,22 @@
   // back to the reading line
   document.addEventListener('change', (e) => { if (e.target.matches && e.target.matches('[data-sd-translation]')) desk(); });
   window.addEventListener('sd:verse', (e) => { if (!pane) return; if (!(e.detail && e.detail.v)) S.pin = false; head(); });
+  /* A ROW ELSEWHERE ON THE PAGE READS ITS WORK HERE (owner 2026-11-07: "i keep having to preview to find a commentary and then open it
+   * too many clicks"): the Citations panel's commentaries and the bar's Commentaries list ask by an event, cp:open {slug, verse}, sent
+   * cancelable. A work in the chapter's list is read on the Commentary view at that verse, as an address's cp= is, and the event is
+   * cancelled so the row knows; one that is not (a work that only cites the verse) is left to the row's own way to read it. {check: true}
+   * asks without reading (the preview's "Read beside the text" is offered only where it works). */
+  document.addEventListener('cp:open', (e) => {
+    // (a list still the last chapter's, while a new one loads, is not asked)
+    const w = where() || {}, d = e.detail || {}, c = pane && d.slug && S.listKey === `${w.book}/${w.ch}` && S.list.find((x) => x.slug === d.slug);
+    if (!c) return;
+    e.preventDefault();
+    if (d.check) return;
+    S.pin = true;
+    if (Number(d.verse) > 0) S.verse = Number(d.verse);
+    setTab('c'); setDir(false);
+    pickWork(c.slug);
+  });
 
   let lastKey = '';
   // cp=<slug> in the address (the page's query on Mere Orthodoxy, the hash's on The Faith Received)
@@ -1598,8 +1711,8 @@
       return;
     }
     lastKey = key;
-    // a new chapter: the rail follows the reading line again, its list shut
-    S.rec = null; S.pin = false; S.dirOpen = new Set();
+    // a new chapter: the rail follows the reading line again, its list shut (its key commentaries open the first time it opens: seedDir)
+    S.rec = null; S.pin = false; S.dirOpen = new Set(); S.dirSeeded = false;
     setDir(false);
     const [list, rec, hits, pr] = await Promise.all([commentaries(w.book, w.ch), recOf(w.book, w.ch), hitsOf(w.book, w.ch), preachOf(w.book)]);
     // the hits join the list as works the pane can open at their page (wb 2: a list of their own, never a key). (10-22) A work the map
@@ -1624,7 +1737,7 @@
     S.preach = pr; S.hymns = (pc.h || []).map(preachRow);
     layout.querySelectorAll('.cp-tabs [data-tab="h"]').forEach((b) => { b.hidden = !S.hymns.length; });
     if (S.tab === 'h' && !S.hymns.length) setTab('c', true);
-    S.list = list; S.rec = rec;
+    S.list = list; S.rec = rec; S.listKey = key;
     readYears(rec);
     heat();
     // the century of each commentary, from the same list the Citations view reads, so the two name a work alike
@@ -1647,10 +1760,11 @@
     head();
     if (SITE.name === 'mo') creeds();
     // (10-22) the commentary the address asks for (cp=<slug>: the Verse Desk's "Read beside the text"), on the Commentary view, the verse in sight
+    // (2026-11-08) and its note brought into view once drawn, as a pick on this page is (the Desk's rows are links to it)
     const asked = askedWork(), pick = asked && S.list.find((x) => x.slug === asked);
     if (pick) {
       setTab('c', true); S.pin = true;
-      choose(pick.slug, true);
+      pickWork(pick.slug);
       const el = w.v && SITE.verseEl(w.v); if (el) el.scrollIntoView({ block: SITE.name === 'mo' && !wide.matches ? 'start' : 'center', behavior: 'auto' });
     } else {
       choose(c ? c.slug : null);
