@@ -27,6 +27,10 @@ html body.cp-on main.scripture-page:has(.cp-pane) { max-width: min(1400px, 100%)
 body.cp-on .scripture-verse-summary { display: none; }
 body.cp-on.cp-src .scripture-verse-summary { display: block; }
 body.cp-on.cp-src .cp-pane { display: none; }
+/* (2026-11-08, The Faith Received; its own copy of this sheet had it from 10-25) there the Citations view is the site's verse panel in the
+   rail's place: it wears the rail's frame (paper, one rule all round, the same padding), so the views sit in one card and their row does
+   not move between them (it moved 19px up and 4px across without it) */
+html.cp-site-tfr body.cp-on.cp-src .scripture-verse-summary { background: var(--cp-paper); border: 1px solid var(--cp-rule); padding: 18px 20px 24px; }
 
 /* ── The rail, set like the Citations view (10-19, owner: "design wise, it should be like the citation") ──
    Small label over a large heading, thin-ruled rows, italic work titles over a muted author and century line, the body face
@@ -513,6 +517,9 @@ html.cp-site-mo .cp-grip { display: none; }
    the keys just above it (a wide screen shows the name above the keys) */
 .cp-where-who { display: none; }
 @media (max-width: 899px) { html.cp-site-mo .cp-pane .cp-where-who { display: inline; color: var(--cp-ink); } }
+/* (2026-11-08) The Faith Received's sheet now opens at the note the same way (its own copy of the pane kept the name above a box of text
+   that scrolled): the name stands before where the note is there too ("Calvin · Its note on Hebrews 12:1, p. 183") */
+@media (max-width: 899px) { html.cp-site-tfr .cp-pane .cp-where-who { display: inline; color: var(--cp-ink); } }
 @media (max-width: 380px) {
   html.cp-site-mo .cp-pane > .cp-tabs { gap: 8px; }
   html.cp-site-mo .cp-pane > .cp-tabs button, html.cp-site-mo .cp-pane > .cp-tabs .cp-desk, html.cp-site-mo .cp-pane > .cp-tabs .cp-desk.btn { font-size: 13.5px; }

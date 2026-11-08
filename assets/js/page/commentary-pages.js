@@ -18,6 +18,9 @@
 
   const CANON = /^(pld|pg|po)-(\d+)$/;
   const EEBO = /^eebo-(\d+)$/;
+  // the source text's own name, for a page shown in English or the source (2026-11-08, The Faith Received's page reader): Greek for
+  // Chrysostom in Migne, French for a Migne work set in French; from the file's xml:lang, else the work's meta.json src_lang
+  const SRC_NAME = { la: 'Latin', lat: 'Latin', grc: 'Greek', el: 'Greek', gr: 'Greek', fr: 'French', de: 'German', nl: 'Dutch', syr: 'Syriac' };
   const stride = (slug) => (CANON.test(slug) ? 2 : 1);
   const paragraphs = (t) => String(t || '').replace(/\[\^[^\]]*\]/g, '').split(/\n+/).map((s) => s.trim()).filter(Boolean);
 
@@ -111,8 +114,8 @@
        * (Tractate I's heading and its §1) was dropped, and the map's page for chapter 1 is the volume's number. The text before the first
        * column mark is its column: the one before it ("35:1380": col. 1379), or the same column when the mark is a later quarter of it
        * ("53:0569C": col. 569). */
-      const before = [];
-      const put = (col, t, lang) => { const m = lang === 'en' ? en : src; if (!m.has(col)) m.set(col, []); m.get(col).push(t); };
+      const before = [], langs = {};
+      const put = (col, t, lang) => { const m = lang === 'en' ? en : src; if (lang !== 'en') langs[lang] = (langs[lang] || 0) + 1; if (!m.has(col)) m.set(col, []); m.get(col).push(t); };
       scanTei(xml, (tag, attrs) => {
         if (tag === 'milestone' && attr(attrs, 'unit') !== 'column') return;
         const raw = attr(attrs, 'n');
@@ -129,7 +132,9 @@
         if (cur == null) { before.push([t, lang]); return; }
         put(cur, t, lang);
       });
-      return { en, la: src, cols };
+      // the language most of the source paragraphs carry, by its name; the family's own where none is marked
+      const top = Object.entries(langs).sort((a, b) => b[1] - a[1])[0];
+      return { en, la: src, cols, src: SRC_NAME[top && top[0]] || (fam === 'pg' ? 'Greek' : 'Latin') };
     });
 
     // a born-digital edition (Calvin's commentaries …) is held as TEI only: its pages are the <pb n> breaks
@@ -161,8 +166,11 @@
     // the place a commentary was opened at in a book with repeating page numbers: {slug: occurrence index}, set by the pane
     const eeboCur = {};
 
-    // {meta, p: {n, en, la} | null, last}
-    async function page(slug, n) {
+    // {meta, p: {n, en, la} | null, last, src: the source text's name}
+    // (2026-11-08) after: in a book whose page numbers repeat, the occurrence to read at or after instead of the chapter's place
+    // (eeboCur); a page read at a reader page id says its occurrence (oi), so the pages after it are read in the same printing. The
+    // Faith Received's page reader (commentary-pane.js, FRCommentaryText) opens such ids from its Preview buttons.
+    async function page(slug, n, after) {
       if (CANON.test(slug)) {
         const d = await canonCols(slug);
         // some places on the map are a volume's number, not a column (pld-2742 opens at "34", its columns run from 173): the first
@@ -171,7 +179,7 @@
         if (!d.cols.includes(at)) { const nx = d.cols.filter((x) => x > at).sort((a, b) => a - b)[0]; if (nx != null) at = nx; }
         const two = (m) => [at, at + 1].flatMap((c) => m.get(c) || []).join('\n');
         const p = { n: at, en: two(d.en), la: two(d.la) };
-        return { meta: { canon: true }, p: p.en || p.la ? p : null, last: d.cols[d.cols.length - 1] || n };
+        return { meta: { canon: true }, p: p.en || p.la ? p : null, last: d.cols[d.cols.length - 1] || n, src: d.src };
       }
       if (EEBO.test(slug)) {
         const d = await eebo(slug);
@@ -181,25 +189,26 @@
         // reads that printing
         if (d.repeats && Number(n) >= 100000) {
           const pn = Number(n) % 100000, kk = Math.floor(Number(n) / 100000), oi = (d.all.get(String(pn)) || [])[kk];
-          if (oi != null) { const ls = d.occ[oi].lines; return { meta: d.meta, p: ls && ls.length ? { n: pn, en: ls.join('\n'), la: '' } : null, last: d.last, occ: kk + 1 }; }
+          if (oi != null) { const ls = d.occ[oi].lines; return { meta: d.meta, p: ls && ls.length ? { n: pn, en: ls.join('\n'), la: '' } : null, last: d.last, occ: kk + 1, oi, src: '' }; }
         }
-        const at = eeboCur[slug];
+        const at = after != null ? after : eeboCur[slug];
         let lines = d.pages.get(String(n)), k = 0;
         if (d.repeats && at != null) { const is = d.all.get(String(n)) || []; const i = is.find((x) => x >= at); if (i != null) { lines = d.occ[i].lines; k = is.indexOf(i); } }
-        return { meta: d.meta, p: lines && lines.length ? { n, en: lines.join('\n'), la: '' } : null, last: d.last, occ: k + 1 };
+        return { meta: d.meta, p: lines && lines.length ? { n, en: lines.join('\n'), la: '' } : null, last: d.last, occ: k + 1, src: '' };
       }
       const meta = await env.json(`${base}/v1/works/${slug}/meta.json`);
       // the last page the work HAS: the shards run past n_pages where front matter is appended after the text (the WA volumes; 10-25)
       const last = Math.max(meta.n_pages || 0, (meta.shards && meta.shards.length && meta.shards[meta.shards.length - 1].to) || 0) || undefined;
+      const src = SRC_NAME[meta.src_lang] || 'Latin';
       if (!(meta.shards || []).length && meta.has_tei) {
         const lanes = await teiPages(slug, meta);
         const p = { n, en: (lanes.en.get(String(n)) || []).join('\n'), la: (lanes.la.get(String(n)) || []).join('\n') };
-        return { meta, p: p.en || p.la ? p : null, last };
+        return { meta, p: p.en || p.la ? p : null, last, src };
       }
       const shard = (meta.shards || []).find((s) => s.from <= n && n <= s.to);
       const d = shard ? await env.json(`${base}/v1/works/${slug}/${shard.file}`) : await env.json(`${base}/v1/works/${slug}/work.json`);
       const p = (d.pages || []).find((x) => +x.n === +n);
-      return { meta, p, last };
+      return { meta, p, last, src };
     }
 
     const X_SHELF = { Reformed: 'rf', 'Continental Reformed': 'rf', 'Roman Catholic': 'rc', Lutheran: 'lu', Medieval: 'md', 'English Divines': 'ed',
@@ -260,5 +269,5 @@
     return { page, listWorks, canonCols, teiPages, eebo, eeboCur };
   }
 
-  return { CANON, EEBO, stride, paragraphs, scanTei, eeboPageMap, createPages, decode };
+  return { CANON, EEBO, SRC_NAME, stride, paragraphs, scanTei, eeboPageMap, createPages, decode };
 }));
