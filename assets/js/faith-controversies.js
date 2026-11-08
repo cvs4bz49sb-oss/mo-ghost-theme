@@ -20,6 +20,38 @@ const searchHref=n=>`${SEARCH}?q=${encodeURIComponent(n)}&m=full`;
 const KIND={contradiction:'They contradict',distinction:'A distinction, not a denial',emphasis:'A difference of emphasis',agreement:'They agree'};
 const fmt=n=>Number(n||0).toLocaleString('en-US');
 const fold=s=>String(s||'').normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+/* ── Scripture references ── A VERSE A CONTROVERSY NAMES OPENS THE SCRIPTURE DESK (2026-11-08, owner: "integrate the commentaries and
+   controversies (thomists vs scotist) pages in the mereO site"; the plan: "a verse cited in a controversy opens the Scripture desk").
+   Linked only where the text gives the book, the chapter and the verse in the colon form, the book's name capitalised (or its number
+   first) and the chapter in the book's range: "Romans 5:12", "1 Cor. 11:24-26" (opens 11:24), "Ecclesiasticus 11:2" (Sirach); "mark
+   3:4", "Hebr. 7. 9" and "2 John 15:2" stay text. Of the 8,448 controversies, 756 name a verse so (1,016 verses). Never the Psalms: a
+   controversy sets Bellarmine beside the Reformers, and the Vulgate numbers the psalms (the Miserere is its 50) and their verses (the
+   title is verse 1) otherwise than the English Bible the desk reads, so "Psalm 50:7" could open the wrong psalm. The books and their
+   chapters are scripture-dev-core.js's (CANON, APOCRYPHA); scripts/check-controversy-verses.mjs lifts this block and holds it to them. */
+const VERSE_BOOKS=[["genesis",50,"Genesis|Gen"],["exodus",40,"Exodus|Exod"],["leviticus",27,"Leviticus|Lev"],["numbers",36,"Numbers|Num"],["deuteronomy",34,"Deuteronomy|Deut|Dt"],
+  ["joshua",24,"Joshua|Josh"],["judges",21,"Judges|Judg"],["ruth",4,"Ruth"],["1-samuel",31,"1 Samuel|1 Sam|I Samuel|I Sam"],["2-samuel",24,"2 Samuel|2 Sam|II Samuel|II Sam"],
+  ["1-kings",22,"1 Kings|1 Kgs|I Kings"],["2-kings",25,"2 Kings|2 Kgs|II Kings"],["1-chronicles",29,"1 Chronicles|1 Chron|1 Chr|I Chronicles"],["2-chronicles",36,"2 Chronicles|2 Chron|2 Chr|II Chronicles"],
+  ["ezra",10,"Ezra"],["nehemiah",13,"Nehemiah|Neh"],["esther",10,"Esther|Esth"],["job",42,"Job"],["psalms",150,"Psalms|Psalm|Psal|Psa|Ps"],["proverbs",31,"Proverbs|Prov"],
+  ["ecclesiastes",12,"Ecclesiastes|Eccles|Eccl"],["song-of-solomon",8,"Song of Songs|Song of Solomon|Canticles|Cant"],["isaiah",66,"Isaiah|Isa"],["jeremiah",52,"Jeremiah|Jer"],
+  ["lamentations",5,"Lamentations|Lam"],["ezekiel",48,"Ezekiel|Ezek"],["daniel",12,"Daniel|Dan"],["hosea",14,"Hosea|Hos"],["joel",3,"Joel"],["amos",9,"Amos"],["obadiah",1,"Obadiah|Obad"],
+  ["jonah",4,"Jonah"],["micah",7,"Micah|Mic"],["nahum",3,"Nahum|Nah"],["habakkuk",3,"Habakkuk|Hab"],["zephaniah",3,"Zephaniah|Zeph"],["haggai",2,"Haggai|Hag"],["zechariah",14,"Zechariah|Zech"],
+  ["malachi",4,"Malachi|Mal"],["matthew",28,"Matthew|Matt|Mt"],["mark",16,"Mark|Mk"],["luke",24,"Luke|Lk"],["john",21,"John|Jn"],["acts",28,"Acts"],["romans",16,"Romans|Rom"],
+  ["1-corinthians",16,"1 Corinthians|1 Cor|I Corinthians|I Cor"],["2-corinthians",13,"2 Corinthians|2 Cor|II Corinthians|II Cor"],["galatians",6,"Galatians|Gal"],["ephesians",6,"Ephesians|Eph"],
+  ["philippians",4,"Philippians|Phil"],["colossians",4,"Colossians|Col"],["1-thessalonians",5,"1 Thessalonians|1 Thess|I Thessalonians|I Thess"],["2-thessalonians",3,"2 Thessalonians|2 Thess|II Thessalonians|II Thess"],
+  ["1-timothy",6,"1 Timothy|1 Tim|I Timothy|I Tim"],["2-timothy",4,"2 Timothy|2 Tim|II Timothy|II Tim"],["titus",3,"Titus|Tit"],["philemon",1,"Philemon|Philem"],["hebrews",13,"Hebrews|Hebr|Heb"],
+  ["james",5,"James|Jas"],["1-peter",5,"1 Peter|1 Pet|I Peter|I Pet"],["2-peter",3,"2 Peter|2 Pet|II Peter|II Pet"],["1-john",5,"1 John|1 Jn|I John"],["2-john",1,"2 John|II John"],["3-john",1,"3 John|III John"],
+  ["jude",1,"Jude"],["revelation",22,"Revelation|Rev|Apocalypse|Apoc"],["tobit",14,"Tobit|Tob"],["judith",16,"Judith"],["wisdom",19,"Wisdom of Solomon|Wisdom|Wis"],
+  ["sirach",51,"Sirach|Ecclesiasticus|Ecclus|Sir"],["baruch",6,"Baruch|Bar"],["1-maccabees",16,"1 Maccabees|1 Macc|I Maccabees"],["2-maccabees",15,"2 Maccabees|2 Macc|II Maccabees"]];
+const VERSE_FORM=new Map();for(const [slug,n,forms] of VERSE_BOOKS)for(const f of forms.split('|'))VERSE_FORM.set(f.toLowerCase(),[slug,n]);
+const VERSE_RX=new RegExp(`(^|[^\\p{L}\\p{N}])(${[...VERSE_FORM.keys()].sort((a,b)=>b.length-a.length).map(f=>f.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/ /g,'\\s+')).join('|')})\\.?\\s+(\\d{1,3})\\s*:\\s*(\\d{1,3})(?:\\s*[-\\u2013]\\s*\\d{1,3})?(?![\\d:])`,'giu');
+/* every reference in a text: {start, end, slug, c, v}; a verse past the longest chapter (Psalm 119's 176) is no verse */
+function verseRefs(text){const out=[],t=String(text||'');let m;VERSE_RX.lastIndex=0;
+  while((m=VERSE_RX.exec(t))){const [slug,n]=VERSE_FORM.get(m[2].replace(/\s+/g,' ').toLowerCase())||[],c=Number(m[3]),v=Number(m[4]);
+    if(!slug||slug==='psalms'||!/^(?:\p{Lu}|[1-3])/u.test(m[2])||c<1||c>n||v<1||v>176)continue;
+    out.push({start:m.index+m[1].length,end:m.index+m[0].length,slug,c,v});}
+  return out;}
+const verseHref=r=>`/the-faith-received/scripture/?ref=${r.slug}.${r.c}.${r.v}`;
+/* ── end Scripture references ── */
 /* THE DEBATES (2026-10-22, owner: "lutherans fought with reformed too, and reformed and lutherans fought socinians"): a controversy's
    debate is the adversary it names, so a work can argue in several (Turretin against Rome, the Lutherans, the Remonstrants, the
    Socinians). index.json names the debates and their order (`debates`: id → title) and each work's count in each (`debates` on its
@@ -1751,6 +1783,20 @@ addEventListener('keydown',e=>{
   if(VIEW!=='pair'||!D)return;
   const S=shownCs(D),i=S.findIndex(c=>c.id===CUR),c=i<0?null:S[i+step];if(c)show(c.id,true);
 });
+/* THE VERSES LINKED AS THE PAGE DRAWS (2026-11-08, the Scripture references above): every text of the reading (a card's question, sides,
+   arguments, own words and judgment; a brief; the reception beside it), after each drawing, never inside a link, a button or a field,
+   the rail of questions, the board of debates, or a page's Preview (the printed page, not the controversy's text). A verse opens the
+   Scripture desk in a new tab, so the debate keeps its place. */
+const VERSE_SKIP='a,button,summary,input,select,textarea,label,script,style,.rail,.nav,#pairs,.pvw';
+function linkVerses(el){
+  if(!el)return;
+  const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,{acceptNode:n=>(/\d\s*:\s*\d/.test(n.nodeValue)&&n.parentElement&&!n.parentElement.closest(VERSE_SKIP)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT)}),ns=[];
+  while(w.nextNode())ns.push(w.currentNode);
+  for(const n of ns){const t=n.nodeValue,rs=verseRefs(t);if(!rs.length)continue;const f=document.createDocumentFragment();let at=0;
+    for(const r of rs){f.append(t.slice(at,r.start));const a=document.createElement('a');a.className='vref';a.href=verseHref(r);a.target='_blank';a.rel='noopener';a.textContent=t.slice(r.start,r.end);f.append(a);at=r.end;}
+    f.append(t.slice(at));n.replaceWith(f);}
+}
+{const main=$('main.tfr-tool');let q=0;if(main)new MutationObserver(()=>{if(!q)q=requestAnimationFrame(()=>{q=0;linkVerses(main);});}).observe(main,{childList:true,subtree:true});}
 const datesReady=()=>{const T=window.FRTraditionGraphics;return T&&T.dates?Promise.race([T.dates.ready,new Promise(r=>setTimeout(r,1500))]):null;};
 Promise.all([J(`${BASE}/v1/enrich/controversies/index.json`),ROOMS_P,netFile(),datesReady()]).then(([ix,,net])=>{
   if(net)NET=net;
