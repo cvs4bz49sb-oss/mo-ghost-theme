@@ -152,8 +152,12 @@ ok((await h(1)).p === 197 && (await h(1)).how === 'note', 'a "Vers. 1." heading 
 ok((await h(9)).p === 200 && (await h(9)).how === 'note', 'a numbered capitals heading is indexed (9. LET THE WATERS)');
 ok((await h(20)).p === 201 && (await h(20)).how === 'note', 'a "Verse 20." heading beats a library index row that points into the essay (p. 145)');
 ok((await h(4)).p === 198 && (await h(4)).how === 'note', 'an unnumbered capitals heading is matched to the verse by its words');
+// (2026-11-08, the survey) with no next chapter on the map, the section is the forty pages from the map's page and does not move: a
+// reprinted text 116 pages on no longer starts it (the Westminster Annotations opened Revelation for verses of the Gospels so)
 const last = await A.createResolver(async (_s, n) => [book[n] || [], []]).resolve({ slug: 'l', notes: {}, rows: {}, open: 80, pv: {} }, 1, W);
-ok(last.how === 'note' && last.p === 197, 'with no next chapter on the map, the section is bounded and still found');
+ok(last.how === 'chapter' && last.p === 80, `with no next chapter on the map, the section is bounded: nothing 116 pages on is taken (got ${JSON.stringify(last)})`);
+const near = await A.createResolver(async (_s, n) => [({ 100: LEM, 101: book[197] })[n] || [], []]).resolve({ slug: 'l2', notes: {}, rows: {}, open: 80, pv: {} }, 1, W);
+ok(near.how === 'note' && near.p === 101, `and a note within it is still found (got ${JSON.stringify(near)})`);
 
 // ── the editors' apparatus (2026-10-19) ──────────────────────────────────────────────────────────────────────────────────
 // Weimar Edition, Writings vol. 24 (luther-wa-schriften-24), pp. 25 to 28: Luther's 1527 Genesis lectures, with the editors' variant
@@ -244,6 +248,13 @@ const GOUGE = paras(`2. The parties resembled.
 2. The extent of that evidence.
 3. The manner of setting it out.`);
 ok(A.lemmaParts(BAXTER).ahead.size === 0 && A.lemmaParts(GOUGE).ahead.size === 0, "a verse with its paraphrase, or an outline's heads, is not the text printed ahead of notes");
+// a verse and its paraphrase may share next to no word, and are still one tongue: Baxter's Revelation 1:8 was taken for a verse and its
+// Latin, and the reader lost the mark on it
+const BAXTER_RV1 = paras(`8. I am Alpha and Omega, the beginning and the ending, saith the Lord, which is, and which was, and which is to come, the Almighty.
+8. I am everlasting, before all Worlds and without end, and he who hath Power over all.
+9. I John, who also am your brother and companion in tribulation, and in the Kingdom and patience of Jesus Christ, was in the isle that is called Patmos.
+9. I John, who was your brother and companion, undergo the like sufferings as you do, in the same belief and subjection to Christ.`);
+ok(A.lemmaParts(BAXTER_RV1).ahead.size === 0 && A.findNote(BAXTER_RV1, 8) === 0, "Baxter's \"8. I am Alpha and Omega …\" and \"8. I am everlasting …\" are no verse and its translation");
 // Poole's Synopsis and the Critici Sacri quote the verse and close it with a bracket: a run of such notes is notes, not the text
 // (Poole's notes on John 1:32-43 at p. 595 started his section there, and his note on 1:1 at p. 584 was passed over)
 const P595 = paras(`32. And John bare record, saying, I saw the Spirit descending from heaven like a dove] Either in the form of a dove, or with a motion like that of a dove.
@@ -313,6 +324,267 @@ ok(!A.cvMarks('as Paul says, Gal. 2, 16 Knowing that a man', 2).length && !A.cvM
   const g16 = await r.resolve(cg, 16, G), g12 = await r.resolve(cg, 12, G);
   ok(g16 && g16.p === 34 && g16.indexed, `Calvin on Galatians 2:16 opens at his note, p. 34, not the indexed page that prints the verse (got ${JSON.stringify(g16)})`);
   ok(g12 && g12.p === 30, `an indexed page that carries the note is kept (got ${JSON.stringify(g12)})`);
+}
+
+// ── 2026-11-08, the survey (owner: "do more testing and then fix"; 2,674 landings over 80 verses) ─────────────────────────────
+// THE VERSE A HEADING NAMES: in brackets after a section's or a column's number, as a list or a range, or with its chapter in Roman
+// numerals. None of these was read: Jerome, the default commentary on the Prophets, opened with nothing marked.
+const VH = (s) => { const h = A.verseHead(s); return h ? `${h.chap != null ? `${h.chap}:` : ''}${h.list.join(',')}` : 'none'; };
+ok(VH('(Vers. 14.) Therefore the Lord himself shall give you a sign.') === '14' && VH('305 (Chap. I.--Ver. 1.) In the beginning God created heaven and earth.') === '1:1'
+  && VH('2. [vers. 2, 3.] O Lord, why are they multiplied that afflict me?') === '2,3' && VH('28. (Vers. 13, 14). As regards the persuasion of a credible testimony') === '13,14',
+  'Jerome\'s "(Vers. 14.)" and "305 (Chap. I.--Ver. 1.)", Augustine\'s "2. [vers. 2, 3.]" and Bonaventure\'s "28. (Vers. 13, 14)." name their verses, never the number before them');
+ok(VH('Chap. IX.-- (Vers. 8 seqq.) The Lord sent a word into Jacob') === '9:8' && VH('(Vers. 3, 4 et seq.) And the Lord said to Isaiah') === '3,4' && VH('(Ver. 23-25.) Now it was not written') === '23,24,25',
+  'a chapter ahead of the bracket; "seqq." names the first verse only; a range names each');
+ok(VH('VERS. 2-3.-- « And I will make of thee a great nation »') === '2,3' && VH('Verses 13, 14. And he said, Hear now, O house of David') === '13,14'
+  && VH('VERSES 6, 7. "For I desire mercy and not sacrifice') === '6,7' && VH('Verses 1–3. I will love thee') === '1,2,3' && VH('PART II. VERS. 2.-- « He hath brought me up »') === '2',
+  'a list or a range (the Gloss, Benson, Theodoret), and Lombard\'s "PART II. VERS. 2.--"');
+ok(VH('LII. [Ib. XXI, 13.] It is to be noted that Ishmael') === '21:13' && VH('[Gen. XV, 6.] Abraham believed God') === '15:6' && VH('TO GENESIS CHAP. I. v. I. of things, comprehending the author of the world') === '1:1',
+  "Augustine's Questions and Calov name the chapter in Roman numerals (Calov's verse too)");
+ok(VH('CHAP. XVII.') === 'none' && VH('V. 3, 1 Cor. 2:9 shows it') === '3' && VH('(1) Patritius, in the work titled') === 'none' && VH('[T. X, C. XXIV, Cap. XVII.] And the Lord spoke') === 'none',
+  "a chapter's heading, a citation after the verse, a footnote's mark and a volume's place name no verse");
+// Augustine on Psalm 2 (cols. 69-70): "7. [vers. 8.]" was marked as his note on 2:7, by its section's number
+const AUG_PS2 = paras(`5. [vers. 6.] But I am appointed king by him over Sion his holy mountain, preaching his commandment: these things are manifest.
+6. [vers. 7.] The Lord hath said to me: Thou art my son, this day have I begotten thee. Although that day spoken of in prophecy can also be understood.
+7. [vers. 8.] Ask of me, and I will give thee the Gentiles for thy inheritance. This now temporally according to the man assumed.
+8. [vers. 9, 10.] Thou shalt rule them with a rod of iron: in inflexible justice.`);
+ok(A.findNote(AUG_PS2, 7) === 1 && A.noteEnd(AUG_PS2, 1, 7, 14) === 2, 'Augustine on Psalm 2:7 is his "6. [vers. 7.]", and it ends at "7. [vers. 8.]"');
+ok(A.findNote(AUG_PS2.slice(2), 7) === -1 && A.findNote(AUG_PS2, 10) === 3, '"7. [vers. 8.]" alone is not his note on verse 7; "[vers. 9, 10.]" is his note on verse 10');
+// Jerome's Hebrew Questions name the chapter: "(Chap. XIV.--Ver. 3.)" is no note on Genesis 12:3 (the survey took it for one)
+const JER_GEN = paras(`(Chap. XI.--Ver. 28.) And Haran died before his father in the land of his nativity, in the region of the Chaldeans.
+(Chap. XIV.--Ver. 3.) And the king of Bela, which is Zoar. All these were joined together in the vale of Siddim.
+(Ver. 5.) And they smote the giants in Astaroth Karnaim.`);
+ok(A.findNote(JER_GEN, 3, false, 12) === -1 && A.findNote(JER_GEN, 3, false, 14) === 1 && A.findNote(JER_GEN, 5, false, 12) === -1,
+  "a heading of another chapter, and those under it, are that chapter's");
+ok(A.findNote(paras('LII. [Ib. XXI, 13.] It is to be noted that Ishmael is called the seed of Abraham.\nLIII. [Ib. XXI, 14.] Hagar is sent away.'), 13, false, 21) === 0
+  && A.findNote(paras('LII. [Ib. XXI, 13.] It is to be noted that Ishmael is called the seed of Abraham.'), 52, false, 21) === -1, "Augustine's Questions: \"LII. [Ib. XXI, 13.]\" is on Genesis 21:13; LII is the question's number");
+// the narrowest heading of a verse is its note (the Gloss prints a section's verses, then glosses them one by one)
+const NARROW = paras(`VERS. 1-8.-- « What then shall we say that Abraham our father found according to the flesh? »
+VERS. 3.-- « For what saith the Scripture? Abraham believed God, and it was counted unto him for righteousness. » (AUG.) Faith alone.`);
+ok(A.findNote(NARROW, 3) === 1 && A.findNote(NARROW, 5) === 0, 'a heading of verse 3 before one of verses 1 to 8; a range holds each verse it names');
+// Aquinas's "31:35 Thus says the Lord" is Jeremiah 31:35, and it was marked as his note on 31:31
+ok(!A.bareRx(31).test('31:35 Thus says the Lord, who gives the sun as the light of the day') && A.findNote(paras('31:35 Thus says the Lord, who gives the sun as the light of the day, the order of the moon.'), 31) === -1,
+  'a chapter and its verse ("31:35") is not a bare verse 31');
+// Piscator numbers his notes with no stop and closes the verse's words with a bracket
+const PISC = paras(`6 But I have anointed my king] That is, I have constituted Christ as king, which is signified by anointing.
+7 I will declare the decree] Namely, the decree of Jehovah God the Father. For here Christ is introduced speaking.
+8 Ask of me] Namely, by prayer: for Christ as man obtains by prayer the kingdom from the Father.`);
+ok(A.findNote(PISC, 7) === 1 && A.noteEnd(PISC, 1, 7, 14) === 2, 'Piscator\'s "7 I will declare the decree] Namely …" is his note on Psalm 2:7, ending at his note on verse 8');
+ok(A.findNote(paras('10 Because thou hast made the Lord thy refuge, no evil shall befall thee.\n11 For he shall give his angels charge over thee.'), 10) === -1
+  && A.findNote(paras('5 Iustitiam] Iu cf P[romissionem] 5 /6 quia bis mundi in kleinerm Duktus eingeschoben\n6 credenti] glaubt B\n17 jha B'), 5) === -1,
+  "with no bracket a number with no stop is left alone (Denys); nor is a bracket on a page of the editors' apparatus a note (Weimar)");
+// Hammond prints the verse and then his paraphrase of it: the paraphrase is his comment
+const HAMMOND = paras(`Paraphrase. 9. This is full matter of joy to my heart, and of boasting to my tongue, and of all kind of assurance to every part of me.
+10. For thou wilt not leave my soul in hell; neither wilt thou suffer thine holy one to see corruption.
+Paraphrase. 10. For thy promises to me are firm, and oblige thee not to forsake me so, as that I shall be either killed by Saul, or opprest by any enemy.`);
+ok(A.findNote(HAMMOND, 10) === 2, 'Hammond on Psalm 16:10 opens at his Paraphrase, not at the verse he prints');
+ok(A.findNote(paras('Lecture 7\n26. And as they were eating, Jesus took bread, and blessed it, and brake it, and gave it to the disciples.\nJerome When the typical Passover was concluded, and He had partaken of the Lamb with His Apostles, He comes to the true paschal sacrament.'), 26) === 1
+  && A.findNote(BAXTER, 5) === 0, "a verse followed by prose is left as it is (the Catena), and so is Baxter's verse with his paraphrase");
+// Calvin (the Society): the verses in English and Latin are the text with no note in sight; a section's verses under their reference
+const CAL_IS40 = paras(`Isaiah 40:1-31
+1. Comfort ye, comfort ye my people, saith your God.
+1. Consolamini, consolamini populum meum, dicit Deus vester.
+2. Speak ye comfortably to Jerusalem, and cry unto her, that her warfare is accomplished, that her iniquity is pardoned.
+2. Loquimini secundum cor Ierusalem, et clamate ad eam, quod impleta sit militia ejus, quod remissa sit iniquitas ejus.`);
+ok(A.findNote(CAL_IS40, 2) === -1 && [1, 2, 3, 4].every((k) => A.lemmaParts(CAL_IS40).ahead.has(k)), "Calvin on Isaiah 40:8: the text in both tongues over pp. 108-110 is the text, with the first note pages on");
+const CAL_JN1 = paras(`John 1:14
+14. And the Speech was made flesh, and dwelt among us, (and we beheld his glory, the glory as of the only-begotten of the Father,) full of grace and truth.
+14. And the Speech was made flesh. The Evangelist shows what was that coming of Christ which he had mentioned; namely, that having been clothed with our flesh, he showed himself openly to the world.`);
+ok(A.findNote(CAL_JN1, 14) === 2, 'a section of one verse: the verse under its reference, then the note that restates it (John 1:14)');
+const CAL_DN7 = paras(`Daniel 7:13
+13. I saw in the night-visions, and, behold, one like the Son of man came with the clouds of heaven, and came to the Ancient of days.
+13. Videbam in visionibus noctis: et ecce in nubibus coeli tanquam Filius hominis veniebat, et usque ad Antiquum dierum pervenit.
+After Daniel has narrated how he saw God on the throne of judgment, openly exercising his power and laying open the books, he now adds a second vision.`);
+ok(A.findNote(CAL_DN7, 13) === 3, "a section's text with no numbered note after it: the comment that follows is the note on its first verse (Daniel 7:13)");
+ok(A.findNote(paras(`Micah 5:1-2
+1. Now gather thyself in troops, O daughter of troops: he hath laid siege against us: they shall smite the judge of Israel.
+1. Nunc colligas te filia congregationis; obsidionem posuit contra nos; virga percutient in maxillam judicem Israel.
+2. But thou, Bethlehem Ephratah, though thou be little among the thousands of Judah, yet out of thee shall he come forth.
+2. Et tu Beth-lehem Ephrata, parva ad essendum inter millia Jehudah; ex te mihi egredietur qui sit dominator in Israel.
+To encourage the faithful to patience, the Prophet again reminds them that hard and severe time was nigh; for he had before spoken of the restoration.`), 2) === -1,
+  'but not on its second verse (Micah 5:2): that comment opens on 5:1');
+{
+  // the next chapter's page is read up to the next chapter's heading (Grotius on Numbers 21:9, at p. 139 where chapter 22 begins)
+  const g = { 138: paras('CHAPTER XXI.\n1. WHEN THE KING ARAD HEARD] Arad is the name of a city of the Canaanites.\n5. LIGHT BREAD] Manna, so called by those who loathed it.'),
+    139: paras('9. BRONZE SERPENT] Bronze naturally harms those who are reptilian. But when God wishes to heal, he heals by contraries.\nCHAPTER XXII.\n1. AND THE CHILDREN OF ISRAEL SET FORWARD] From the mountains of Abarim.') };
+  const r = A.createResolver(async (_s, n) => [g[n] || [], []]), cg = { slug: 'grotius', notes: {}, open: 138, close: 139, pv: {}, rows: {} }, W21 = { name: 'Numbers', ch: '21' };
+  const s21 = await r.section(cg, W21), g9 = await r.resolve(cg, 9, W21);
+  ok(s21.hi === 139 && s21.heads[1].p === 138 && g9.how === 'note' && g9.p === 139, `Grotius on Numbers 21:9 is on the next chapter's page, p. 139, and chapter 22's "1." is not chapter 21's (got ${JSON.stringify(g9)})`);
+  // with the next chapter on the same page, the section is that page, and does not move to a reprinted text twenty pages on (the
+  // Westminster Annotations on Hebrews 1, p. 456, opened Revelation, p. 476)
+  const wa = { 456: paras('CHAP. I.\nV. 3. the brightnesse] The beaming forth of the light of his Fathers glory.\nCHAP. II.\nV. 1. the more earnest heed] Seeing Christ is so excellent.'),
+    476: LEM };
+  const rw = A.createResolver(async (_s, n) => [wa[n] || [], []]), H1 = { name: 'Hebrews', ch: '1' }, cw = { slug: 'wa', notes: {}, open: 456, close: 456, pv: {}, rows: {} };
+  const sw = await rw.section(cw, H1), w3 = await rw.resolve(cw, 3, H1);
+  ok(sw.lo === 456 && sw.hi === 456 && !sw.heads[1] && w3.p === 456 && w3.how === 'note', `the Westminster Annotations on Hebrews 1:3 open at p. 456, not at Revelation; Hebrews 2:1 is not 1:1 (got ${JSON.stringify(w3)})`);
+  // the section starts at the chapter's own heading: Augustine's Psalm 1 ends above "ENARRATION ON PSALM II." (col. 69), and its "6. [vers.
+  // 6.]" took the index's first numbers, so that his Psalm 2 headings were refused as going back
+  const aug = { 69: paras('5. [vers. 5.] Therefore the ungodly shall not rise again in judgment.\n6. [vers. 6.] For the Lord knoweth the way of the just.\nENARRATION ON PSALM II.\n1. [vers. 1, 2.] Why have the Gentiles raged, and the people devised vain things?\n6. [vers. 7.] The Lord hath said to me: Thou art my son.') };
+  const ra = A.createResolver(async (_s, n) => [aug[n] || [], []]), ca = { slug: 'aug-ps', notes: {}, open: 69, close: 72, pv: {}, rows: {} }, P2 = { name: 'Psalms', ch: '2' };
+  const a7 = await ra.resolve(ca, 7, P2), a6 = await ra.resolve(ca, 6, P2);
+  ok(a7.how === 'note' && a7.p === 69 && !(await ra.located(ca, 5, P2)) && a6.how !== 'note', `Augustine on Psalm 2:7 is found, and his Psalm 1's "[vers. 5.]" and "[vers. 6.]" are no notes on Psalm 2 (got ${JSON.stringify([a7, a6])})`);
+}
+{
+  // Calvin prints Genesis 3 in both tongues over pp. 58-59; his first note is on p. 60, his note on 3:15 on p. 72. A page the library files
+  // as on the verse, which prints it in that text, gives way to the note, the text read whole across its pages
+  const two = (n, en, la) => `${n}. ${en}\n${n}. ${la}`;
+  const cal = { 58: paras(`CHAPTER 3.\nGenesis 3:1-24\n${two(1, 'Now the serpent was more subtil than any beast of the field which the LORD God had made.', 'Porro serpens erat callidior omni bestia agri, quam fecerat Jehova Deus.')}\n${two(14, 'And the LORD God said unto the serpent, Because thou hast done this, thou art cursed above all cattle.', 'Et dixit Jehova ad serpentem, Quia fecisti hoc, maledictus eris prae omni animali.')}`),
+    59: paras(`${two(15, 'And I will put enmity between thee and the woman, and between thy seed and her seed.', 'Et inimicitias ponam inter te et inter mulierem, et inter semen tuum et inter semen ejus.')}\n${two(16, 'Unto the woman he said, I will greatly multiply thy sorrow and thy conception.', 'Ad mulierem dixit, Multiplicando multiplicabo dolorem tuum, et conceptum tuum.')}`),
+    60: paras(`1. Now the serpent was more subtil. In this chapter, Moses explains, that man, after he had been deceived by Satan, revolted from his Maker.${MORE}`),
+    72: paras(`15. I will put enmity. I interpret this simply to mean that there should always be the hostile strife between the human race and serpents.${MORE}`) };
+  const r = A.createResolver(async (_s, n) => [cal[n] || [], []]);
+  const c3 = { slug: 'calvin-genesis', notes: {}, open: 58, close: 84, pv: {}, rows: { 15: [{ w: 'calvin-genesis', how: 'explicit', p: 59, g: "Calvin's comment on Genesis 3:15" }] } };
+  const got = await r.resolve(c3, 15, { name: 'Genesis', ch: '3' });
+  ok(got && got.how === 'note' && got.p === 72, `Calvin on Genesis 3:15 opens at his note, p. 72, not at the verse in his text, p. 59 (got ${JSON.stringify(got)})`);
+}
+// Calvin's Harmony of the Law heads a passage with its reference and his note with it again (Exodus 20:3, the default commentary)
+const HARM = paras(`Exodus 20:3
+3. Thou shalt have no other gods before me.
+3. Non erunt tibi dii alieni coram facie mea.
+Deuteronomy 5:7
+7. Thou shalt have none other gods before me.
+7. Non erunt tibi dii alieni coram facie mea.
+Exodus 20:3 Thou shalt have no other gods before me. In this commandment God enjoins that He alone should be worshipped.
+Deuteronomy 6:4, 13, 16
+4. Hear, O Israel; The Lord our God is one Lord.
+4. Audi, Israel, Jehova Deus noster Deus unus est.`);
+ok(A.findNote(HARM, 3, true, 20) === 6 && A.noteEnd(HARM, 6, 3, 14, 20) === 8, "Calvin's Harmony: \"Exodus 20:3 Thou shalt have …\" is his note on Exodus 20:3, not the verse he prints, and it ends at the next passage's text");
+ok(A.findNote(HARM, 3, true, 13) === -1, 'and it is no note on chapter 13');
+// a chapter's heading closes the search for a narrower heading: Lombard's Philemon "VERS. 1-6.--" follows his Titus 3 "VERS. 1-15.--" on
+// one page, under "CHAPTER ONE.", a number in words
+ok(A.findNote(paras('CHAPTER III.\nVERS. 1-15.-- "Admonish them to be subject to princes and powers, to obey at a word."\nAdmonish. As if he were to say.\nARGUMENT.\nCHAPTER ONE.\nVERS. 1-6.-- "Paul, a prisoner of Christ Jesus, and Timothy, a brother, to Philemon."'), 5, false, 3) === 1,
+  "Lombard on Titus 3:5 is his \"VERS. 1-15.--\", not Philemon's \"VERS. 1-6.--\"");
+// Piscator's notes on Hosea 5 follow his analysis of chapters 5 to 7 ("ANALYSIS CHAP. V. VI. &"): they are no notes on Hosea 6
+ok(A.verseHead('ANALYSIS CHAP. V. VI. &') == null && A.findNote(paras('ANALYSIS CHAP. V. VI. &\n5 And the pride of Israel] Heb. the excellency.\n6 That with flocks &c.] Heb. With their flocks and with their herds they shall go to seek the Lord.'), 6, false, 6) === -1,
+  '"CHAP. V. VI." names chapters, and the bracketed notes under a heading of another chapter are not this chapter\'s');
+{
+  // the next chapter's page is read only above a heading of it: Calov's "Vers. 1. DOMINUS REGIT ME" (Psalm 23) on the map's page for
+  // Psalm 23 is not his note on Psalm 22:1; the start does not move past the library's notes on the chapter (Bellarmine's Psalm 23)
+  const cv = { 1017: paras('PSALM XXII.\nVers. 4. Our fathers hoped in thee) Namely the fathers of the Old Testament.'), 1025: paras('Vers. 1. DOMINUS REGIT ME) The Chaldee thinks it to be an ode composed in the name of the people.') };
+  const r = A.createResolver(async (_s, n) => [cv[n] || [], []]), W22 = { name: 'Psalms', ch: '22' };
+  const s22 = await r.section({ slug: 'calov', notes: {}, open: 1017, close: 1025, pv: {}, rows: {} }, W22);
+  ok(s22.heads[4] && !s22.heads[1], `the next psalm's "Vers. 1." on its own map page is not indexed (got ${JSON.stringify(Object.keys(s22.heads))})`);
+  const bel = { 136: paras('PSALM XXII.\nThe Lord ruleth me, and I shall want nothing.'), 137: paras('3. He hath converted my soul. He hath led me on the paths of justice, for his own name\'s sake.'),
+    140: paras(Array.from({ length: 8 }, (_, i) => `${i + 1}. The earth is the Lord's, verse ${i + 1}.`).join('\n')) };
+  const rb = A.createResolver(async (_s, n) => [bel[n] || [], []]);
+  const sb = await rb.section({ slug: 'bel', notes: { 2: 138, 3: 137, 4: 137, 5: 137 }, open: 136, close: 142, pv: {}, rows: {} }, { name: 'Psalms', ch: '23' });
+  ok(sb.lo === 136, `the section does not start at p. 140, past the library's notes at pp. 137-138 (got ${sb.lo})`);
+  // with no next chapter on the map, a long exposition is read as far as most of the library's rows on it go: Taylor's Titus 3 runs from
+  // p. 539 to p. 745, his note on 3:5 at p. 635; one stray row far off does not carry the read
+  const tay = { 539: paras('CHAP. III. PVt them in remembrance that they be subiect to the principalities and powers.'), 558: paras('vers. 2. That they speake evil of no man.'),
+    635: paras('Vers. 5. Not of the workes of righteousness,] The third and principal instruction in this principal efficient cause.') };
+  const rt = A.createResolver(async (_s, n) => [tay[n] || [], []]), T3 = { name: 'Titus', ch: '3' };
+  const rowsAt = (ps) => ({ 2: ps.map((p) => ({ w: 'taylor', how: 'explicit', p, g: '' })) });
+  const t5 = await rt.resolve({ slug: 'taylor', notes: {}, open: 539, pv: {}, rows: rowsAt([558, 582, 600, 615, 622, 635, 640, 657, 665, 679]) }, 5, T3);
+  const t5b = await A.createResolver(async (_s, n) => [tay[n] || [], []]).resolve({ slug: 'taylor2', notes: {}, open: 539, pv: {}, rows: rowsAt([541, 545, 550, 558, 560, 562, 565, 568, 570, 900]) }, 5, T3);
+  ok(t5.how === 'note' && t5.p === 635 && !(t5b.how === 'note' && t5b.p === 635), `Taylor's note on Titus 3:5, 96 pages in, is found where the library's rows run so far, and not on one stray row (got ${JSON.stringify([t5, t5b])})`);
+  // the Westminster Annotations print John 1, 2 and 3 on p. 399: the section starts at "CHAP. III.", and "CHAP. I." above it is no end
+  const wj = { 399: paras('CHAP. I.\nVers. 1. IN the beginning] 1 John 1. 1. From eternity.\nCHAP. II.\nV. 1. a marriage] A wedding feast.\nV. 4. Woman] No disrespect.\nCHAP. III.\nVers. 1. PHarisees] See the note on Joh. 1. 24.\nV. 5. of water] Of baptisme the Sacrament of regeneration.\nCHAP. IIII.\nV. 5. Sychar] Called Sichem.') };
+  const rj = A.createResolver(async (_s, n) => [wj[n] || [], []]), cj = { slug: 'wa-john', notes: {}, open: 399, close: 400, pv: {}, rows: {} }, J3 = { name: 'John', ch: '3' };
+  const sj = await rj.section(cj, J3), j5 = await rj.resolve(cj, 5, J3);
+  ok(sj.lo === 399 && sj.hi === 399 && sj.heads[1] && sj.heads[5] && j5.how === 'note' && j5.p === 399, `the Westminster Annotations on John 3:5: John 3's own notes are indexed, between "CHAP. III." and "CHAP. IIII." (got ${JSON.stringify([Object.keys(sj.heads), j5])})`);
+  // a chapter's heading in capitals may run on into its argument; the note under it is that chapter's, not this one's (Poole's
+  // Annotations, indexed at p. 445 for Psalm 32:1, where Psalm 33 begins)
+  ok(A.chapterHead('PSAL. XXXIII. The ARGUMENT. This Psalm contains a Celebration of God, in respect of his Excellency, and of his works of Creation and Providence, both in general and in particular, toward his Church and People.', true) === 33
+    && A.findNote(paras('11. Be glad in the LORD] For he is the fountain of your joy.\nPSAL. XXXIII. The ARGUMENT. This Psalm contains a Celebration of God, in respect of his Excellency, and of his works of Creation and Providence, both in general and in particular.\n1. REjoyce in the LORD Let his Excellency discovered in his works, be the Matter of your joy.'), 1, true, 32) === -1,
+    "Psalm 33's \"1. REjoyce in the LORD\" is no note on Psalm 32:1");
+}
+{
+  // a psalm's title counted as its first verses: Augustine's "[vers. 7.]" on Psalm 51 (his 50) is the English 51:5, and was about to be
+  // marked as his note on 51:3 ("[vers. 5.]"); it opens at "[vers. 7.]", with nothing marked
+  const aug = { 586: paras('ENARRATION ON PSALM L.\n2. [vers. 1, 2.] For its title is inscribed, A Psalm to David himself, when Nathan the prophet came to him.\n6. [vers. 3.] Hear these things, therefore, and say with him: Have mercy on me, O God.\n8. [vers. 5.] For I acknowledge my iniquity, and my sin is always before me.'),
+    590: paras('10. [vers. 7.] To thee only have I sinned, and have done evil before thee: that thou mayest be justified in thy words. For behold I was conceived in iniquities.') };
+  const r = A.createResolver(async (_s, n) => [aug[n] || [], []]);
+  const got = await r.resolve({ slug: 'aug-ps', notes: {}, open: 586, close: 607, pv: {}, rows: {} }, 5, { name: 'Psalms', ch: '51' });
+  ok(got.how === 'range' && got.p === 590 && got.a === 5 && got.b === 5, `Augustine on Psalm 51:5 opens at his "[vers. 7.]" with nothing marked (got ${JSON.stringify(got)})`);
+}
+// Hammond paraphrases verses 4 to 6 of Hebrews 6 together, under the three he prints: "Paraphrase 4, 5, 6." is his comment on 6:4
+const HEB6 = paras(`4. For it is impossible for those who were once inlightned, and have tasted of the heavenly gift, and were made partakers of the holy Ghost,
+5. And have tasted the good word of God, and the powers of the world to come,
+6. If they shall fall away, to renew them again unto repentance, seeing they crucify to themselves the Son of God afresh.
+Paraphrase 4, 5, 6. For as for those that have been received into the Church by Baptism, and so by oath obliged themselves to continue in the true faith.`);
+ok(VH('Paraphrase 4, 5, 6. For as for those that have been received into the Church') === '4,5,6' && A.findNote(HEB6, 4) === 3 && A.findNote(HEB6, 6) === 3,
+  'Hammond on Hebrews 6:4 is his "Paraphrase 4, 5, 6.", not the verse he prints');
+{
+  // the start of the chapter is not held at the library's first rows when they are keyed to another chapter: Clarke's rows on 2 Timothy
+  // 3:7 and 3:10-17 stand at pp. 135-136, among his notes on chapter 1, and his "Verse 16. The Lord give mercy]" (1:16) was marked as
+  // his note on 3:16 ("All scripture is given by inspiration of God", p. 145)
+  const cl = { 135: paras('Verse 9. Who hath saved us] From sin.\nVerse 10. But is now made manifest] This purpose of God.\nVerse 11. Whereunto I am appointed a preacher] A herald.\nVerse 12. I am not ashamed] Though I suffer.'),
+    136: paras('Verse 13. Hold fast the form of sound words] The sketch.\nVerse 14. That good thing] The everlasting gospel.\nVerse 15. All they which are in Asia] The Asiatic converts.\nVerse 16. The Lord give mercy] Onesiphorus had acknowledged him, and continued to do so.\nVerse 17. When he was in Rome] Onesiphorus was an Asiatic.'),
+    141: paras(`Verse 26. And that they may recover themselves] The construction of this verse is difficult.
+CHAPTER III.
+1. This know also, that in the last days perilous times shall come.
+2. For men shall be lovers of their own selves, covetous, boasters, proud, blasphemers.
+3. Without natural affection, trucebreakers, false accusers, incontinent, fierce.
+4. Traitors, heady, highminded, lovers of pleasures more than lovers of God.
+5. Having a form of godliness, but denying the power thereof: from such turn away.
+6. For of this sort are they which creep into houses, and lead captive silly women.`),
+    142: paras('NOTES ON CHAP. III.\nVerse 1. In the last days] This often means the days of the Messiah.\nVerse 2. For men shall be] The description in this and the following verses.'),
+    145: paras('Verse 14. But continue thou] No man, however well instructed.\nVerse 15. From a child thou hast known the holy scriptures] The early religious education of Timothy.\nVerse 16. All scripture is given by inspiration of God] This sentence is not well translated.\nVerse 17. That the man of God may be perfect] Complete.') };
+  const r = A.createResolver(async (_s, n) => [cl[n] || [], []]);
+  const notes = { 1: 142, 2: 142, 5: 143, 7: 135, 8: 144, 9: 144, 10: 135, 11: 135, 12: 135, 13: 144, 14: 145, 15: 145, 16: 136, 17: 136 };
+  const got = await r.resolve({ slug: 'clarke', notes, open: 135, close: 146, pv: {}, rows: {} }, 16, { name: '2 Timothy', ch: '3' });
+  ok(got.how === 'note' && got.p === 145, `Clarke on 2 Timothy 3:16 is at p. 145, not at his note on 1:16 (got ${JSON.stringify(got)})`);
+  // a stray heading ahead of the count is no heading of the chapter's: Migne's footnote "v. 18." between his notes on 1 John 4:3 and 4:4
+  // took the place of verses 4 to 17, and the reader was sent to 4:3 for 4:8
+  const mg = { 467: paras('CHAPTER IV.'), 468: paras('VERSE 1. — BELOVED, BELIEVE NOT EVERY SPIRIT, but test the spirits.\nVERSE 2. — HEREBY KNOW YE THE SPIRIT OF GOD.\nVERSE 3. — AND EVERY SPIRIT THAT DISSOLVES JESUS.'),
+    469: paras('v. 18. In similar language John the Baptist is called Elijah, Matthew 11:14, because he was going before Christ in the spirit and power of Elijah, Luke 1:17.\nVERSE 4. — YOU ARE OF GOD, BELOVED CHILDREN, and you have conquered.\nVERSE 5. — THEY ARE OF THE WORLD, those antichrists.\nVERSE 6. — WE ARE OF GOD.'),
+    470: paras('VERSE 7. — BELOVED, LET US LOVE ONE ANOTHER.\nVERSE 8. — WHOEVER DOES NOT LOVE with fraternal charity his neighbor DOES NOT KNOW GOD.') };
+  const rm = A.createResolver(async (_s, n) => [mg[n] || [], []]), J4 = { name: '1 John', ch: '4' };
+  const m8 = await rm.resolve({ slug: 'migne', notes: {}, open: 467, close: 475, pv: {}, rows: {} }, 8, J4);
+  ok(m8.how === 'note' && m8.p === 470, `Migne on 1 John 4:8 is his "VERSE 8.", past the footnote's "v. 18." (got ${JSON.stringify(m8)})`);
+  // a note that lists "1. … 2." inside it is no line of the text: Poole's Synopsis on 1 John 4:8, indexed at p. 820, stays there
+  const po = { 820: paras(`7. *Let us love one another*] As above 3:23, I draw it to all, on account of the argument which he will now bring concerning the Love of God.
+8. *He that loveth not* (either, 1. a brother: or, 2. God, and neighbor on account of God,) *knoweth not God*] That is, Does not show that he so knows God.
+¶ *For God is love*] Not only causally, but also essentially; as he is also wisdom, and power, goodness.
+9. *The love of God toward*, etc. For, εἰς ἡμᾶς, by a frequent locution.`) };
+  const rp = A.createResolver(async (_s, n) => [po[n] || [], []]);
+  const p8 = await rp.resolve({ slug: 'poole', notes: { 7: 820, 8: 820, 9: 820 }, open: 819, close: 822, pv: {}, rows: {} }, 8, J4);
+  ok(p8.how === 'note' && p8.p === 820 && p8.indexed, `Poole's Synopsis on 1 John 4:8 keeps the library's page (got ${JSON.stringify(p8)})`);
+  // a tractate's numbered sections are no verses: Augustine's "3." in his Tractate CV on John 17:1-5 was marked as his note on 17:3
+  const tr = { 1903: paras(`TRACTATE CV. From that which the Lord says, That thy Son may glorify thee; up to that, With the glory which I had, before the world was, with thee. Chap. XVII, V. 1-5.
+1. The Lord could, if he would, have prayed in silence; but he willed so to show himself one who prays to the Father.
+3. Some accept the Son glorified by the Father, in this that he spared him not, but delivered him for us all.`) };
+  const rt = A.createResolver(async (_s, n) => [tr[n] || [], []]);
+  const t3 = await rt.resolve({ slug: 'aug-jn', notes: {}, open: 1903, close: 1929, pv: {}, rows: { 3: [{ w: 'aug-jn', how: 'explicit', p: 1903, g: "Augustine's comment on John 17:3" }] } }, 3, { name: 'John', ch: '17' });
+  ok(t3.how === 'range' && t3.p === 1903 && t3.a === 1 && t3.b === 5, `Augustine on John 17:3 opens at Tractate CV on 17:1-5, with nothing marked (got ${JSON.stringify(t3)})`);
+  // the map gives Aquinas's Romans 10 on his Romans 9's first page: his lectures that name their verses are read on (9:6-13 at p. 51)
+  const aq = { 50: paras('L. 1 (9:1–5) The Apostle shows his sorrow for the Jews.\n696. After showing the necessity and power of grace, the Apostle now inquires into its origin.'),
+    51: paras('L. 2 (9:6–13) The word of God has not failed.\n752. After stating the dignity of the Jews, the Apostle shows that the promise does not fail.') };
+  const ra = A.createResolver(async (_s, n) => [aq[n] || [], []]);
+  const a13 = await ra.resolve({ slug: 'aq-rom', notes: {}, open: 50, close: 50, pv: {}, rows: {} }, 13, { name: 'Romans', ch: '9' });
+  ok(a13.how === 'range' && a13.p === 51 && a13.a === 6 && a13.b === 13, `Aquinas on Romans 9:13 opens at his lecture on 9:6-13, p. 51 (got ${JSON.stringify(a13)})`);
+  // a row on the next chapter's page, where its heading cannot be read, is taken only for the chapter's last verses: Coke's rows put Psalm
+  // 18:1 at p. 53 ("PSA.L., XIX."), past his notes on 18:2-8; the note there is his on 19:1
+  const ck = { 45: paras('PSAL. XVIII.\nVer. 2. The Lord is my rock] A rock of defence.'), 46: paras('Ver. 7. In my distress] When I was in danger of death.\nVer. 8. Then the earth shook] The figure of a great tempest.'),
+    53: paras("### PSA.L., XIX.\nVer. 1. The heaven's declare] Tell, or preach, according to the force of the Hebrew.") };
+  const rc = A.createResolver(async (_s, n) => [ck[n] || [], []]), P18 = { name: 'Psalms', ch: '18' };
+  const k1 = await rc.resolve({ slug: 'coke', notes: { 1: 53, 9: 53 }, open: 45, close: 53, pv: {}, rows: {} }, 1, P18);
+  const k9 = await rc.resolve({ slug: 'coke', notes: { 1: 53, 9: 53 }, open: 45, close: 53, pv: {}, rows: {} }, 9, P18);
+  ok(k1.p !== 53 && k9.how === 'note' && k9.p === 53, `Coke on Psalm 18:1 is not his note on 19:1, p. 53; a row there for a verse after his last heading is kept (got ${JSON.stringify([k1, k9])})`);
+  // the notes under another chapter's references are that chapter's: Calvin's Harmony of the Law prints Deuteronomy 9:1-6 within the
+  // pages the map gives Deuteronomy 6, and his "4. Speak not thou in thine heart" is no note on 6:4; a run of references is read as one
+  // (the Harmony of the Gospels: "Matthew 16:13-19", "Mark 8:27-29", "Luke 9:18-20", then the notes on all three)
+  const hl = { 198: paras('Deuteronomy 6:6-9\n6. And these words, which I command thee this day, shall be in thine heart.\n6. Et erunt verba haec quae ego praecipio tibi hodie in corde tuo.\n6. And these words. He commands the law to be engraven on their hearts, that it may not be a dead letter.'),
+    206: paras('Deuteronomy 9:1-6\n1. Hear, O Israel: Thou art to pass over Jordan this day, to go in to possess nations greater and mightier than thyself.\n1. Audi Israel, Tu transis hodie Jordanem, ut ingrediaris ad possidendum gentes magnas et robustas.\n4. Speak not thou in thine heart, after that the Lord thy God hath cast them out from before thee.\n4. Ne dicas in corde tuo, quum expulerit Jehova Deus tuus illos a facie tua.'),
+    207: paras('4. Speak not thou in thine heart. He now more plainly warns the people not to exalt themselves in proud and foolish boasting.') };
+  const rh = A.createResolver(async (_s, n) => [hl[n] || [], []]);
+  const d4 = await rh.resolve({ slug: 'cal-law', notes: {}, open: 198, close: 193, pv: {}, rows: { 4: [{ w: 'cal-law', how: 'explicit', p: 207, g: "Calvin's comment on Deuteronomy 6:4" }] } }, 4, { name: 'Deuteronomy', ch: '6' });
+  const hg = { 161: paras(`Matthew 16:13-19; Mark 8:27-29; Luke 9:18-20
+Matthew 16:13-19
+Mark 8:27-29
+Luke 9:18-20
+13. And when Jesus came to the coasts of Cesarea Philippi, he asked his disciples, saying, Who do men say that I the Son of man am?
+16. Thou art the Christ. The confession is short, but it embraces all that is contained in our salvation, for the name Christ includes the kingly and priestly office.`) };
+  const rg = A.createResolver(async (_s, n) => [hg[n] || [], []]);
+  const g16 = await rg.resolve({ slug: 'cal-harm', notes: {}, open: 161, close: 170, pv: {}, rows: { 16: [{ w: 'cal-harm', how: 'explicit', p: 161, g: "Calvin's comment on Matthew 16:16" }] } }, 16, { name: 'Matthew', ch: '16' });
+  ok(!(d4.how === 'note' && d4.p === 207) && g16.how === 'note' && g16.p === 161, `Calvin's note on Deuteronomy 9:4 is no note on 6:4, and the Harmony's notes after its three references are found (got ${JSON.stringify([d4, g16])})`);
+  // the map gives Jerome's Zechariah 13 on the column of his Zechariah 12 (col. 1508): the library's rows on chapter 12, rising with its
+  // verses to col. 1515, are taken, and his "(Vers. 10.)" is found at col. 1514
+  const jz = { 1508: paras('(Vers. 1.) The burden of the word of the Lord upon Israel. Thus saith the Lord, which stretcheth forth the heavens.'),
+    1514: paras('(Vers. 10.) And they shall look upon me whom they have pierced: and they shall mourn for him, as one mourneth for his only son.') };
+  const rz = A.createResolver(async (_s, n) => [jz[n] || [], []]);
+  const z10 = await rz.resolve({ slug: 'jer-zech', notes: { 8: 1512, 9: 1513, 10: 1514, 11: 1515 }, open: 1508, close: 1508, pv: {}, rows: {} }, 10, { name: 'Zechariah', ch: '12' });
+  ok(z10.how === 'note' && z10.p === 1514 && z10.indexed, `Jerome on Zechariah 12:10 is at col. 1514, as the library's rows run (got ${JSON.stringify(z10)})`);
 }
 
 // ── the rail's markup and stylesheet ────────────────────────────────────────────────────────────────────────────────────────

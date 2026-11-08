@@ -1398,7 +1398,7 @@
     }
     const at = pgOf(slug, found ? onPage[hit] : t.p);
     const say = found ? `Its note on ${name} ${w.ch}:${v}, ${at}`
-      : t.how === 'note' ? `Its note on ${name} ${w.ch}:${t.v}, ${at}`
+      : t.how === 'note' ? (hit >= 0 ? `Its note on ${name} ${w.ch}:${t.v}, ${at}` : `Its comment on ${name} ${w.ch}:${t.v} is on ${at}`)
       : t.how === 'page' ? `Its comment on ${name} ${w.ch}:${t.v} is on ${at}`
       : t.how === 'later' ? `No separate note on ${w.ch}:${v}. Its next note is on ${w.ch}:${t.v}, ${at}`
       : t.how === 'nearest' ? `No separate note on ${w.ch}:${v}. Its closest earlier note is on ${w.ch}:${t.v}, ${at}`
@@ -1491,7 +1491,9 @@
       if (!bodyEl.textContent.trim()) bodyEl.innerHTML = `<p class="cp-empty">${window.FRCommentaryPages.EEBO.test(cur.slug) ? 'Opening the book (a large file, loaded once)…' : 'Opening the page…'}</p>`;
     };
     if (!bodyEl.textContent.trim()) opening(); else S.openT = setTimeout(opening, 350);
-    // an EEBO book with repeating page numbers: the chapter's place first, so the pages read are the right part's
+    // an EEBO book with repeating page numbers: the chapter's place first, so the pages read are the right part's. (2026-11-08: setting it
+    // before the note is looked for gained 11 of 293 EEBO landings in the survey but lost Trapp on Exodus 20, whose chain of chapter places
+    // is wrong; the page cache and the search's memory do not know the place either. Left as it was until the chains are checked.)
     await eeboCursor(cur, w.ch);
     if (tok !== S.token) return;
     try {
@@ -1536,7 +1538,7 @@
     if (!sh) { body.innerHTML = S.cur ? '<p class="cp-empty">This commentary has nothing on the verse to show.</p>' : '<p class="cp-empty">No commentary on this chapter yet.</p>'; whereEl.textContent = ''; return; }
     const bookName = refName(where() || { book: sh.book }), wr = { ...(where() || {}), book: sh.book, ch: sh.ch };
     const {t} = sh, ref = (n) => `${bookName} ${sh.ch}:${n}`;
-    const say = t.how === 'note' ? `Its note on ${ref(t.v)}`
+    let say = t.how === 'note' ? `Its note on ${ref(t.v)}`
       // (2026-11-08) a lecture, homily or tractate on a run of verses holding this one; a place between its notes on the verses either side
       : t.how === 'range' ? `Its comment on ${bookName} ${sh.ch}:${t.a}${t.b === Infinity || t.b == null ? 'ff.' : t.b > t.a ? `\u2013${t.b}` : ''}`
       : t.how === 'between' ? `Its comment on ${ref(S.verse)} is on this page, between its notes on ${sh.ch}:${t.a} and ${sh.ch}:${t.b}`
@@ -1596,6 +1598,9 @@
       // a sermon starts at its own heading, what came before it on the page folded away
       const k = headingAt(all, t.x); if (k > 0) top = k;
     }
+    // (2026-11-08, survey: 820 of 2,674 landings said "Its note on" with nothing marked) a page the library files as holding the note,
+    // read without finding where the note begins, is said to hold the comment, no more
+    if (h < 0 && t.how === 'note') { say = `Its comment on ${ref(t.v)} is on this page`; setWhere(sh.p, false); }
     const from = h > 0 ? h : top;
     // the editors' textual notes of a scholarly edition (variant readings, line numbers) are set apart, and do not count toward what is shown
     const app = A ? A.apparatusIndexes(all) : new Set();
@@ -1736,6 +1741,24 @@
   let askedCp = cpOf(location.href) || cpOf(opened);
   window.addEventListener('hashchange', () => { const x = cpOf(location.href); if (x) askedCp = x; });
   const askedWork = () => { const x = askedCp; askedCp = ''; return x; };
+  // whether a summary names chapters of the Bible and none of them is this one: "Joshua 19–21", "Genesis 37:6ff." for Genesis 15 (true);
+  // "Genesis 16 (with the vision of Gen 15)" (false); a summary that names no chapter says nothing (false)
+  const BOOK_WORD = /^(?:Genesis|Gen|Exodus|Exod|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Joshua|Josh|Judges|Judg|Ruth|Samuel|Sam|Kings|Kgs|Chronicles|Chron|Ezra|Nehemiah|Neh|Esther|Esth|Job|Psalms?|Ps|Proverbs|Prov|Ecclesiastes|Eccl|Song|Isaiah|Isa|Jeremiah|Jer|Lamentations|Lam|Ezekiel|Ezek|Daniel|Dan|Hosea|Hos|Joel|Amos|Obadiah|Jonah|Micah|Mic|Nahum|Habakkuk|Hab|Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|Matthew|Matt|Mark|Luke|John|Acts|Romans|Rom|Corinthians|Cor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Colossians|Col|Thessalonians|Thess|Timothy|Tim|Titus|Philemon|Hebrews|Heb|James|Jas|Peter|Pet|Jude|Revelation|Rev)$/;
+  function namesOnlyOthers(g, w) {
+    const norm = (x) => String(x || '').toLowerCase().replace(/s$/, ''), name = norm(refName(w)), ch = Number(w.ch);
+    // this chapter's verse named in a list ("on Gen 14:18-20 and 15:6")
+    if (new RegExp(`(?:^|[^\\d:.])${ch}\\s*:\\s*\\d`).test(String(g || ''))) return false;
+    let any = false;
+    for (const m of String(g || '').matchAll(/\b((?:[1-3]\s)?)([A-Z][a-z]{1,13})\.?\s+(\d{1,3})(\s*[:.]\s*\d{1,3}(?:ff)?)?(?:\s*[-\u2013]\s*(\d{1,3}))?/g)) {
+      if (!BOOK_WORD.test(m[2])) continue;
+      any = true;
+      // a range after a verse ("15:1–6") is of verses; after a chapter ("Joshua 19–21") of chapters
+      const word = norm(`${m[1]}${m[2]}`), same = name === word || name.startsWith(word) || (m[1] && name.endsWith(norm(m[2])) && name.startsWith(m[1].trim()));
+      const last = m[4] ? Number(m[3]) : Number(m[5] || m[3]);
+      if (same && Number(m[3]) <= ch && ch <= last) return false;
+    }
+    return any;
+  }
   async function init() {
     const w = where(); if (!w) return;
     const fresh = !document.querySelector('.cp-pane');
@@ -1759,7 +1782,10 @@
     const have = new Set(list.map((c) => c.slug));
     for (const x of hits) {
       if (have.has(x.w)) continue;
-      const treats = !!(x.own && x.treats);
+      // (2026-11-08, survey) a page flagged as treating the chapter whose summary names other chapters, or another book, and never this
+      // one, only cites it there: Augustine's Questions on the Heptateuch at col. 785 ("A patristic exegesis of Joshua 19–21 …") was the
+      // first commentary on Genesis 15:6, said to "treat this chapter"
+      const treats = !!(x.own && x.treats) && !namesOnlyOthers(x.g, w);
       list.push({ slug: x.w, a: x.a || '', t: x.t || x.w, notes: {}, open: x.p, rows: {}, hit: { v: x.v || [], n: x.n, g: x.g, how: x.how || '' }, sh: x.sh,
         wb: treats ? ((RANK.works[x.w] || [])[1] === 1 ? 1 : 0) : 2, treats, score: 0 });
       S.cen[x.w] = x.cen || 0;
