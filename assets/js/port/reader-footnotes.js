@@ -42,7 +42,7 @@
     const demand=doc.getElementById('readerNotesDemand'),all=doc.getElementById('readerNotesAll');if(demand)demand.onclick=()=>setNoteMode(false);if(all)all.onclick=()=>setNoteMode(true);syncBanks();paintNoteMode();labelNotes();
     const refAt=node=>node?.closest?.('sup.fnref,a.fn');
     function resolve(ref){const a=ref.matches('a')?ref:ref.querySelector('a'),id=ref.dataset.fn||noteID(a?.getAttribute('href')),scope=ref.closest('.folio');if(!id)return null;
-      const row=Array.from(scope?.querySelectorAll('.rapp')||[]).find(r=>r.dataset.fnid===id);
+      const row=(root.frOwnBank?root.frOwnBank(scope).notes:Array.from(scope?.querySelectorAll('.rapp')||[])).find(r=>r.dataset.fnid===id);   // a page's own notes, wherever Flow carried them (the reader's frOwnBank)
       const original=doc.getElementById('app')?.classList.contains('only-la'),first=row?.querySelector(original?'.la':'.en'),other=row?.querySelector(original?'.en':'.la');
       const lane=first?.textContent.trim()?first:other?.textContent.trim()?other:null;
       if(lane)return {id,row,lane,other:other&&other!==lane&&other.textContent.trim()?other:null};

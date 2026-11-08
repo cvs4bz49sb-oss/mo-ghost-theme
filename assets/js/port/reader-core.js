@@ -433,6 +433,69 @@ function splitApp(t){
   return {main:body,notes:keep};
 }
 function _cdFold(s){return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9§]/g,"");}
+// NOTES OFF THE SENTENCE (owner 2026-11-07, a reader of Basil's Letters: "the footnotes bar pops up every handful of paragraphs and
+// obscures a line of text"). A PG page stays its own unit (THE PAGE IS THE UNIT, readingEditionPass), so where the print turns the
+// page mid-sentence the page's "Show N notes" stood between the two halves (a 48px band on a phone against a 5px line gap). In Flow
+// the bank of a page whose last row is a .tail now follows the end of that paragraph: right after the next page's .cont row, or
+// further on when that row runs over the next turn too, banks in page order. It travels whole inside a .appcarry (data-home = its
+// folio's idx; a comment keeps its place at home), its toggle names the page it belongs to, and Pages view sends it home. Every
+// lookup of a page's own notes goes through frOwnBank().
+function frOwnBank(sec){
+  if(!sec)return {tog:null,notes:[]};
+  const w=document.querySelector('#reading .appcarry[data-home="'+sec.dataset.idx+'"]'),host=w||sec;
+  const mine=n=>(n.closest(".appcarry")||sec)===host;
+  return {tog:[...host.querySelectorAll(".apptog")].find(mine)||null,notes:[...host.querySelectorAll(".rapp")].filter(mine)};
+}
+window.frOwnBank=frOwnBank;
+function placeSeamNotes(homeOnly){try{
+  const R=document.getElementById("reading"),app=document.getElementById("app");if(!R||!app)return;
+  const carried=new Map();R.querySelectorAll(".appcarry").forEach(w=>carried.set(w.dataset.home,w));
+  const relabel=(tog,where)=>{if(!tog)return;
+    if(tog.dataset.noteBase==null)tog.dataset.noteBase=tog.dataset.noteLabel||tog.textContent.replace(/^(?:Show|Hide) /,"");
+    tog.dataset.noteLabel=tog.dataset.noteBase+(where?" to "+where.replace(/ /g,"\u00a0").replace(/([–-])/g,"$1\u2060"):"");   // a place like cols. 245–246 never breaks across the margin label
+    tog.textContent=(tog.classList.contains("open")?"Hide ":"Show ")+tog.dataset.noteLabel;};
+  const home=w=>{const s=w.__slot;
+    if(s&&s.isConnected){relabel(w.querySelector(":scope > .apptog"),"");while(w.firstChild)s.parentNode.insertBefore(w.firstChild,s);s.remove();}
+    w.remove();};   // no slot left: its page was drawn again with a fresh bank, so this copy is stale
+  if(homeOnly||!app.classList.contains("rflow")){carried.forEach(w=>home(w));return;}
+  const plan=new Map(),secBy=new Map();let pend=[],prev=null;
+  const isBody=x=>(x.classList.contains("row")&&!x.classList.contains("rapp"))||x.classList.contains("stkwrap");
+  for(const s of R.querySelectorAll(":scope > section.folio")){
+    const i=+s.dataset.idx,k=String(i);secBy.set(k,s);
+    if(prev===null||i!==prev+1)pend=[];   // the windowed reader mounts folios out of order: only the true next page continues
+    prev=i;
+    const kids=[...s.children],rows=kids.filter(isBody),first=rows[0],last=rows[rows.length-1];
+    if(pend.length){
+      if(first&&first===kids.find(x=>!x.classList.contains("ixchip"))&&first.classList.contains("cont")){
+        if(!(first===last&&first.classList.contains("tail"))){pend.forEach(h=>plan.set(h,first));pend=[];}   // else the paragraph runs on through this page
+      }else pend=[];
+    }
+    if(last&&last.classList.contains("tail")&&(carried.has(k)||kids.some(x=>x.classList.contains("apptog"))))pend.push(k);
+  }
+  carried.forEach((w,k)=>{if(!plan.has(k)||!(w.__slot&&w.__slot.isConnected)){home(w);carried.delete(k);}});
+  const byRow=new Map();plan.forEach((row,k)=>{if(!byRow.has(row))byRow.set(row,[]);byRow.get(row).push(k);});
+  byRow.forEach((keys,row)=>{
+    keys.sort((a,b)=>a-b);
+    let n=row.nextElementSibling,same=true;
+    for(const k of keys){if(!(n&&n.classList.contains("appcarry")&&n.dataset.home===k)){same=false;break;}n=n.nextElementSibling;}
+    if(same)return;
+    let at=row;
+    for(const k of keys){
+      let w=carried.get(k);
+      if(!w){
+        const s=secBy.get(k),tog=s&&[...s.children].find(x=>x.classList.contains("apptog"));if(!tog)continue;
+        const items=[tog];for(let x=tog.nextElementSibling;x&&!x.classList.contains("apptog")&&(x.classList.contains("rapp")||x.classList.contains("appdiv"));x=x.nextElementSibling)items.push(x);
+        w=document.createElement("div");w.className="appcarry";w.dataset.home=k;
+        const slot=document.createComment("this page's notes are carried to the end of its paragraph");tog.before(slot);w.__slot=slot;
+        items.forEach(x=>w.appendChild(x));
+        relabel(tog,typeof locOf==="function"?locOf(s.dataset.page):"p. "+s.dataset.page);
+      }
+      at.after(w);at=w;
+    }
+  });
+}catch(e){console.warn("[seam notes]",e);}}
+let _seamNotesT=0;
+function schedSeamNotes(){clearTimeout(_seamNotesT);_seamNotesT=setTimeout(()=>placeSeamNotes(),30);}
 function appBank(laN,enN){
   // junk guard (owner 2026-08-18 WA screenshots: a '¹ / |' fragment rendered as a note row):
   // a note whose text carries fewer than 3 letters/digits is an OCR shard, not apparatus
@@ -461,7 +524,7 @@ function appBank(laN,enN){
                  :nN+(nN===1?" note":" notes");
   tog.dataset.noteLabel=lbl;tog.textContent=(tog.classList.contains("open")?"Hide ":"Show ")+lbl;tog.setAttribute("aria-expanded",String(tog.classList.contains("open")));
   tog.onclick=()=>{const on=tog.classList.toggle("open");
-    tog.textContent=(on?"Hide ":"Show ")+lbl;tog.setAttribute("aria-expanded",String(on));window.FRFootnotes?.refreshDisplay();};
+    tog.textContent=(on?"Hide ":"Show ")+(tog.dataset.noteLabel||lbl);tog.setAttribute("aria-expanded",String(on));window.FRFootnotes?.refreshDisplay();};
   frag.appendChild(tog);window.FRFootnotes?.refreshDisplay();
   // REHAUL P4 (2026-08-17): "band" mode — unanchored apparatus (Trent: ~14k notes vs 800 refs,
   // ratio ~0.06, well under the 0.3 threshold computed in loadTEI) has no callout to hang a
@@ -782,7 +845,7 @@ const fnSheet=(()=>{let sh=null,sc=null;
     sc.onclick=close;};
   const close=()=>{if(sh){sh.classList.remove("on");sc.classList.remove("on");}};
   const open=(f,sec)=>{ensure();
-    const r=[...sec.querySelectorAll(".rapp")].find(x=>x.dataset.fnid===f.dataset.fn);
+    const r=frOwnBank(sec).notes.find(x=>x.dataset.fnid===f.dataset.fn);
     if(!r)return false;
     const en=r.querySelector(".en"),la=r.querySelector(".la");
     sh.querySelector(".fns-id").textContent="Note "+(f.dataset.fn||"");
@@ -794,7 +857,7 @@ const fnSheet=(()=>{let sh=null,sc=null;
     const go=sh.querySelector(".fns-go");go.style.display="";
     go.textContent="Show in page ↓";
     go.onclick=()=>{close();
-      const tg=sec.querySelector(".apptog");if(tg&&!tg.classList.contains("open"))tg.click();
+      const tg=frOwnBank(sec).tog;if(tg&&!tg.classList.contains("open"))tg.click();
       r.classList.remove("cl");(window.__frPlaceReaderAnchor?window.__frPlaceReaderAnchor(r):r.scrollIntoView({block:"center"}));r.classList.add("flash");setTimeout(()=>r.classList.remove("flash"),1400);};
     sh.classList.add("on");sc.classList.add("on");return true;};
   // REHAUL P3 (2026-08-17): margin-note tap-aside. Reuses the exact same sheet DOM/CSS/scrim as
@@ -819,8 +882,8 @@ document.addEventListener("click",ev=>{                                     // a
   const f=ev.target.closest(".fnref");if(!f)return;
   const sec=f.closest("section.folio");if(!sec)return;
   if(matchMedia("(hover:none),(max-width:880px)").matches&&fnSheet.open(f,sec))return;
-  const tg=sec.querySelector(".apptog");if(tg&&!tg.classList.contains("open"))tg.click();
-  const t=[...sec.querySelectorAll(".rapp")].find(r=>r.dataset.fnid===f.dataset.fn);
+  const tg=frOwnBank(sec).tog;if(tg&&!tg.classList.contains("open"))tg.click();
+  const t=frOwnBank(sec).notes.find(r=>r.dataset.fnid===f.dataset.fn);
   if(t){t.classList.remove("cl");(window.__frPlaceReaderAnchor?window.__frPlaceReaderAnchor(t):t.scrollIntoView({block:"center"}));t.classList.add("flash");setTimeout(()=>t.classList.remove("flash"),1400);}
 });
 // REHAUL P3 (2026-08-17): a tapped margin note opens the same bottom sheet a tapped footnote
@@ -3432,6 +3495,7 @@ function build(){
   // anchors); (2) surviving print furniture rows (signature marks, lone catch-syllables)
   // are tagged .furn — hidden in Flow, dimmed in page views. DOM-level; text untouched.
   const readingEditionPass=()=>{try{
+    placeSeamNotes(true);   // every notes bank on its own page while this pass reads and joins pages (NOTES OFF THE SENTENCE)
     // SMALL-CAPS DISPLAY (owner 2026-08-17, Baronius: 'look at all caps'): shouted
     // address blocks and title-page runs in the ENGLISH lane set as true small caps —
     // the display transform printers use. Text content untouched (display-only spans);
@@ -3554,7 +3618,7 @@ function build(){
         // ENGLISH-FIRST HOVER (owner 2026-08-18 'german lane had footnote hoverable but en
         // did not'): when the note band positionally paired an English translation for this
         // note, the hover shows it (with the source note beneath) instead of German alone
-        try{const band=a.closest("section.folio")?.querySelector(`.row.rapp[data-fnid="${CSS.escape(id)}"] .en`);
+        try{const band=frOwnBank(a.closest("section.folio")).notes.find(r=>r.dataset.fnid===id)?.querySelector(".en");
           const enT=band&&band.textContent.replace(/\s*↑\s*$/,"").trim();
           if(enT&&enT.length>8)txt=enT+(txt?"\n\n— "+txt:"");}catch(e){}
         if(!txt)return false;
@@ -3982,6 +4046,7 @@ function build(){
     R.querySelectorAll(".row > .la, .row > .en").forEach(cell=>{
       cell.classList.toggle("hasmn",!!cell.querySelector(":scope > .mnp, .mnin"));
     });
+    placeSeamNotes();
   }catch(e){}};
   // phone parallel zip: interleave each stacked run's Latin/English columns into per-paragraph
   // pairs (called from applyLanes when both lanes are on at <=880px; anchors stay in sequence)
@@ -4049,6 +4114,7 @@ function build(){
       ph.remove(); phs[i]=null;
       const sec = added.find(n=>n.classList&&n.classList.contains('folio'));
       if(window.__afterHydrate)window.__afterHydrate(sec||null);
+      schedSeamNotes();   // a newly mounted page can end or finish a split paragraph (NOTES OFF THE SENTENCE)
     };
     window.__hydrateFolio = hydrate;
     const phIO = new IntersectionObserver(es=>{
@@ -4994,6 +5060,7 @@ if($("#contentsClose"))$("#contentsClose").onclick=()=>setContentsOpen(false,tru
       let anchor=null,top0=0;
       for(const el of els){const r=el.getBoundingClientRect();if(r.bottom>90){anchor=el;top0=r.top;break;}}
       app.classList.toggle("rflow",now);
+      placeSeamNotes();   // Pages: every page keeps its own notes; Flow: notes follow the end of a split paragraph
       sync();lsSet("fr_flow",now?"1":"0");
       // the reader scrolls an INNER container (.app is overflow:hidden) — window.scrollBy was a
       // no-op there, so the toggle lost the reading position (Leibniz UX 2026-07-18). Walk to the
@@ -5691,11 +5758,11 @@ const stripPM=s=>(s||"").replace(/\[\[p\.\d+\]\]/g,"").trim();
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function jget(p){const r=await fetch(p);if(!r.ok)throw new Error(p+" → "+r.status);return r.json();}
 async function jpost(p,b){const r=await fetch(p,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});if(!r.ok)throw new Error(p+" → "+r.status);return r.json();}
-function rerenderFolio(sec,pi){if(typeof TEI_ON!=="undefined"&&TEI_ON){console.warn("[rerenderFolio] TEI-rendered work — md rebuild skipped (Reader Map #1)");return;}const pg=DATA.pages[pi],ed=sec.querySelector(".rv-edit");
+function rerenderFolio(sec,pi){if(typeof TEI_ON!=="undefined"&&TEI_ON){console.warn("[rerenderFolio] TEI-rendered work — md rebuild skipped (Reader Map #1)");return;}placeSeamNotes(true);const pg=DATA.pages[pi],ed=sec.querySelector(".rv-edit");
   sec.querySelectorAll(".row").forEach(r=>r.remove());                       // .rapp rows are .row too — auto-cleaned
   const SL=splitApp(pg.la),SE=splitApp(pg.en);
   buildRows(blocks(SL.main),blocks(SE.main),false).nodes.forEach(n=>sec.insertBefore(n,ed));
-  const ab=appBank(SL.notes,SE.notes);if(ab)sec.insertBefore(ab,ed);}
+  const ab=appBank(SL.notes,SE.notes);if(ab)sec.insertBefore(ab,ed);placeSeamNotes();}
 // READER-TOOLS SPLIT (owner 2026-08-18 'first-text under a second'): initReview/initSearch/
 // initReaderTools (~100KB) live in /read-tools.js, loaded deferred — none run until after
 // build() paints. __frTools resolves when the file lands; the boot awaits it lazily.
