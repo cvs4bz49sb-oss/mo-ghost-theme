@@ -1244,7 +1244,9 @@
     }
     return cache.get(k);
   }
-  const resolver = A ? A.createResolver(parasOf, { verseText(v) { const el = SITE.verseEl(v); return el ? el.textContent : ''; } }) : null;
+  // the verse's words as the page prints them: the resolver reads them, and the anchor checks a note's quoted words against them (2026-11-08)
+  const verseText = (v) => { const el = SITE.verseEl(v); return el ? el.textContent : ''; };
+  const resolver = A ? A.createResolver(parasOf, { verseText }) : null;
   // the work's own first (collected) or indexed target, with no page to read
   const quickTarget = (v) => quickTargetOf(S.cur, v);
   // the place of a set whose map knows only where the book begins (10-22): the chapter's heading where it has been found, else the
@@ -1485,8 +1487,9 @@
     if (t.how === 'note' || t.how === 'later' || t.how === 'nearest' || t.how === 'page') {
       // only the chapter's own run of paragraphs, as the Commentary view reads it (10-22)
       const run = chapterRun(all, w), part = all.slice(run.lo, run.hi);
-      let k = A ? A.findNote(part, printed, !!t.indexed, w.ch) : -1;
-      if (k < 0) k = part.findIndex((s) => noteRx(printed).test(s));
+      let k = A ? A.findNote(part, printed, !!t.indexed, w.ch, null, [verseText(t.v), verseText(v)]) : -1;
+      // (2026-11-08) never a heading the anchor refused as quoting another verse ("VERS. 6.-- « Because of truth »", Lombard on Psalm 45:6)
+      if (k < 0 && !(A && k === A.REFUSED)) k = part.findIndex((s) => noteRx(printed).test(s));
       hit = k >= 0 ? run.lo + k : -1;
       if (hit >= 0) from = hit;
     } else if (t.how === 'chapter') {
@@ -1692,9 +1695,13 @@
     if (t.how === 'note' || t.how === 'later' || t.how === 'nearest' || t.how === 'page') {
       // (10-22) only the chapter's own run of paragraphs is read: Poole's note on Psalm 52:2 was marked as his note on 51:2
       const run = chapterRun(all, wr), part = all.slice(run.lo, run.hi);
-      if (A) { const k = A.findNote(part, printed, !!t.indexed, wr.ch); h = k >= 0 ? run.lo + k : -1; }
-      // a page the library indexed as holding the note keeps the older reading if the stricter one finds none
-      if (h < 0 && t.indexed) { const k = part.findIndex((s) => noteRx(printed).test(s)); h = k >= 0 ? run.lo + k : -1; }
+      // (2026-11-08) with the words of the verse whose note is looked for (t.v: the next or the closest note's own verse where it is that),
+      // and of the verse chosen, a heading that quotes another verse is not taken for its note
+      const k = A ? A.findNote(part, printed, !!t.indexed, wr.ch, null, [verseText(t.v), verseText(S.verse)]) : -1;
+      h = k >= 0 ? run.lo + k : -1;
+      // a page the library indexed as holding the note keeps the older reading if the stricter one finds none, but never puts back a
+      // heading the anchor refused
+      if (h < 0 && t.indexed && !(A && k === A.REFUSED)) { const j = part.findIndex((s) => noteRx(printed).test(s)); h = j >= 0 ? run.lo + j : -1; }
     } else if (t.how === 'range') {
       // the view starts at the heading that names the verses (Augustine's "TRACTATE I. … Chap. I, V. 1-5."); its sections are not verses.
       // The verse's own words where the lecture prints them under its chapter and number ("1:1 In the beginning was the Word", Aquinas)

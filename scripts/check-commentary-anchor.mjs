@@ -587,6 +587,161 @@ Luke 9:18-20
   ok(z10.how === 'note' && z10.p === 1514 && z10.indexed, `Jerome on Zechariah 12:10 is at col. 1514, as the library's rows run (got ${JSON.stringify(z10)})`);
 }
 
+// ── 2026-11-08, the words a heading quotes (round 3 of the survey left 16 wrong marks among the 374 landings whose mark changed) ──
+// A HEADING THAT QUOTES ANOTHER VERSE is no note on this one. Lombard divides the psalms as the Vulgate does: his "VERS. 6." on Psalm 45
+// quotes 45:4b, and was marked as his note on 45:6; that note is his "VERS. 8." (cols. 439-441). The verses are the page's (ESV).
+const L45 = paras(`VERS. 5.-- « With thy comeliness and thy beauty set out, proceed prosperously, and reign. »
+With thy comeliness and thy beauty. [Cassiod., Hier., Aug., Cassiod.] Distinguish here, that is, according to humanity and divinity.
+VERS. 6.-- « Because of truth and meekness and justice: and thy right hand shall conduct thee wonderfully. »
+Because of truth, [Hier., Aug., Cassiod., Alcuin., Aug.] that is, because of this, that through thee and through thine own thou teachest truth.
+VERS. 7.-- « Thy arrows are sharp: under thee shall people fall, into the hearts of the king's enemies. »
+Thy arrows are sharp, [Aug., Cassiod., Aug.] that is, thy words, which penetrate the hearts of men, and reach swiftly where he wills.
+VERS. 8.-- « Thy throne, O God, is for ever and ever: the sceptre of thy kingdom is a sceptre of uprightness. »
+Thy throne. [Aug., Cassiod.] Here he commends Christ by his judgment. For a throne pertains to judgment.`);
+const ESV45 = { 5: "5 Your arrows are sharp in the heart of the king's enemies; the peoples fall under you.", 6: '6 Your throne, O God, is forever and ever. The scepter of your kingdom is a scepter of uprightness;' };
+ok(A.lemmaOf(L45[2]) === 'Because of truth and meekness and justice: and thy right hand shall conduct thee wonderfully.' && A.lemmaOf('V. 12. that comforteth you] Vers. 3.') === 'that comforteth you'
+  && A.lemmaOf('VERSE 19. — AND, that is, afterward, when the supper had taken place') === 'AND' && A.lemmaOf('Paraphrase. 6. The kingdom of the Messias') === '' && A.lemmaOf('6. Thy throne, O God! is for ever and ever. In this verse') === '',
+  'a heading\'s quoted words: in « », after "VERS. N.--" (Migne\'s in capitals), or before a bracket; a paraphrase or an unquoted note has none');
+ok(A.findNote(L45, 6) === 2 && A.findNote(L45, 6, false, 45, null, ESV45[6]) === 6 && A.findNote(L45, 5, false, 45, null, ESV45[5]) === 4,
+  'with the verse\'s words, Lombard\'s note on Psalm 45:6 is his "VERS. 8.-- « Thy throne »", and on 45:5 his "VERS. 7.-- « Thy arrows »"; without them, as before');
+ok(A.findNote(L45.slice(0, 6), 6, false, 45, null, ESV45[6]) === A.REFUSED && A.REFUSED === -2,
+  'with no heading that quotes the verse on the pages, nothing is marked, and the anchor says it refused one');
+// the pane's chapter run took Lombard's Psalm 131 (his CXXX.) for Psalm 130, and marked its "VERS. 4." as his note on 130:4
+ok(A.findNote(paras(`PSALM CXXX.
+VERS. 3.-- « If I was not humbly minded: but exalted my soul. »
+VERS. 4.-- « As a child that is weaned is towards his mother, so reward in my soul. »
+If I was not humbly minded, [Gl. int., Aug.] as if he were saying: I did not walk in great things, but I was humble.`), 4, false, 130, null, '4 But with you there is forgiveness, that you may be feared.') === A.REFUSED,
+  "Lombard's next psalm's \"VERS. 4.-- « As a child that is weaned »\" is no note on Psalm 130:4");
+// what the guard leaves: a right note in an older English that shares few words with the page's (Psalm 3:1 in the ESV: "O LORD, how
+// many are my foes!"), Latin words, a heading of several verses (its words are its first verse's), a psalm's title
+const ESV3_1 = '1 O LORD, how many are my foes! Many are rising against me;';
+ok(A.findNote(paras('VERS. 1.-- "O Lord, why are they multiplied that afflict me? many rise up against me."'), 1, false, 3, null, ESV3_1) === 0
+  && A.findNote(paras('Vers. 1. HOw are they increased that trouble me?] This was a token of his stable faith, that for all his troubles he had his recourse to God.'), 1, false, 3, null, ESV3_1) === 0,
+  "Lombard's and the English Annotations' notes on Psalm 3:1 are kept: two words that tell are too few to judge by");
+ok(A.findNote(paras('9. Erat lux vera quae illuminat omnem hominem] Or, That light was the true light, which lighteth every man.'), 9, false, 1, null, '9 The true light, which gives light to everyone, was coming into the world.') === 0
+  && A.findNote(paras('VERS. 2-3.-- « And I will make of thee a great nation, » etc. (ISID.) Two things are promised to Abram, namely, that his seed will possess the land of Chanaan.'), 3, false, 12, null,
+    '3 I will bless those who bless you, and him who dishonors you I will curse, and in you all the families of the earth shall be blessed.') === 0
+  && A.findNote(paras('VERS. 1.-- Unto the end, a psalm of David, when he fled from the face of Absalom his son. (AUG.) Christ speaks in the person of his body.'), 1, false, 3, null, ESV3_1) === 0,
+  'Latin words (the Critici), a heading of verses 2-3 (the Gloss on Genesis 12:3) and a psalm\'s title are never refused');
+// a heading that quotes another verse is dropped only on strong evidence: five or more words that tell, none of them the verse's, nor
+// in the note's first words. A commentator who divides the verses otherwise quotes the end of the verse before and goes on to this one
+// (the Gloss on Romans 9:13; Alcuin on the Song 7:1, the Vulgate's 7:1 being the English 6:13b and 7:1); the page's text may lack the
+// words of an older one (Trapp's "Let us walk by the same rule]" on Philippians 3:16); Poole renders the Hebrew his own way
+ok(A.findNote(paras(`VER. 13.-- The elder shall serve the younger. This is literal: because the Idumeans who were of Esau were subject to the sons of Israel.
+Jacob I have loved, etc. In Jacob he finds nothing to love, except the gift of his own mercy. In Esau he hates nothing, except original sin.`), 13, false, 9, null, "13 As it is written, 'Jacob I loved, but Esau I hated.'") === 0
+  && A.findNote(paras('VERS. 1.-- What will you see in the Shulamite, but the dances of the camps? You grieve for the hardened Synagogue. How beautiful are your steps in shoes, O daughter of the prince!'), 1, false, 7, null,
+    '1 How beautiful are your feet in sandals, O noble daughter! Your rounded thighs are like jewels, the work of a master hand.') === 0
+  && A.findNote(paras('Verse 16. Let us walk by the same rule] To wit of the Word: and then you may say, Lord, if I be deceived, thou hast deceived me.'), 16, false, 3, null, '16 Only let us hold true to what we have attained.') === 0
+  && A.findNote(paras('13. And he prepared many works, \u05d5\u05bc\u05de\u05b0\u05dc\u05b8\u05d0\u05db\u05b8\u05d4 \u05e8\u05b7\u05d1\u05bc\u05b8\u05d4] And much work was to him, P. V. Ma. etc. That is, he fortified the cities.'), 13, false, 17, null,
+    '13 and he had large supplies in the cities of Judah. He had soldiers, fighting men of valor, in Jerusalem.') === 0,
+  "a short quotation, or one beside the Hebrew, that shares no word with the page's verse is kept");
+const EST_PS = paras('v. 9. As wax, which melts, they shall be taken away, fire has fallen upon them, and they have not seen the sun . Jerome translates the former part: As a melting worm let it pass away.');
+ok(A.findNote(EST_PS, 9, false, 2, null, ['9 You shall break them with a rod of iron and dash them in pieces like a potter\'s vessel.', '7 I will tell of the decree: The LORD said to me, \u201cYou are my Son; today I have begotten you.']) === A.REFUSED
+  && A.findNote(paras('VERS. 6.-- « Because of truth and meekness and justice: and thy right hand shall conduct thee wonderfully. »\nBecause of truth. Here is the throne of his kingdom for ever, and the sceptre of uprightness.'), 6, false, 45, null, ESV45[6]) === 0,
+  'Estius\'s Psalm 58 "v. 9.", taken for his next note after Psalm 2:7, is dropped; a heading whose note goes on in the verse\'s words is kept');
+// a next note's heading is weighed against the verse chosen too: Migne's "VERSE 15." on Galatians 3 quotes 3:13, and was opened as his
+// next note after 3:13; and a printer's dash may be followed by the note's own words (Lapide's "Ver. 15. — For the Son is the Word")
+const GAL3 = paras('VERSE 15. — CHRIST HAS REDEEMED US FROM THE CURSE OF THE LAW, BEING MADE A CURSE FOR US... He sets Christ against the curse, by which all were bound.');
+const ESV_GAL3 = { 13: '13 Christ redeemed us from the curse of the law by becoming a curse for us', 15: '15 To give a human example, brothers: even with a man-made covenant, no one annuls it or adds to it once it has been ratified.' };
+ok(A.findNote(GAL3, 15, false, 3, null, ESV_GAL3[15]) === A.REFUSED && A.findNote(GAL3, 15, false, 3, null, [ESV_GAL3[15], ESV_GAL3[13]]) === 0
+  && A.findNote(paras('Ver. 15. — For the Son is the Word of the Father, entirely similar and equal to the Father, and thus of the same essence as the Father.'), 15, false, 1, null,
+    '15 He is the image of the invisible God, the firstborn of all creation.') === 0,
+  'a heading that quotes the verse chosen is kept as the next note; a note\'s own words after a printer\'s dash are no quotation');
+// HAMMOND'S ANNOTATION OVER HIS PARAPHRASE: "V. 6. Thy throne] The difficulty here is …" after the paraphrases of the whole psalm; his
+// annotations' heads behind the margin's word ("⟨…⟩ Δικαιοσύνη V. 17.") or behind the head of the annotations
+ok(VH('⟨…⟩ Δικαιοσύνη V. 17. Righteousness] For the explaining of this verse') === '17' && VH('〈 in non-Latin alphabet 〉 V. 1. Inditing] That 〈 in non-Latin alphabet 〉, used only in this one place') === '1'
+  && VH('Annotations on Psalm LI. 〈 in non-Latin alphabet 〉 V. 4. Clear] The word is ordinarily used') === '4' && VH('Annotations on Psal. LII. V. 1. Goodness] The first verse is very distantly rendred') === '1'
+  && VH('〈 in non-Latin alphabet 〉 for a price. The plain meaning is, that as things that are useless') === 'none',
+  "Hammond's annotations are read behind the margin's word and the head of his annotations; a margin before anything else is not");
+const H45 = paras(`6. Thy throne, O God, is for ever and ever: the scepter of thy kingdom is a right scepter.
+Paraphrase. 6. The kingdom of the Messias is never to have an end: the Laws by which 'tis administred are admirably good and just.
+7. Thou lovest righteousness and hatest wickedness; therefore God thy God hath anointed thee with the oyl of gladness above thy fellows.
+Paraphrase. 7. He hath earnestly espoused the cause of all goodness & justice, hath wrought by his precepts and promises and grace.
+Annotations on Psalm XLV. Tit. Shoshannim] Six, in all probability signify instruments of six strings.
+V. 6. Thy throne] The difficulty here is, to whom this verse and the following are literally and primarily appliable.
+V. 8. Made thee glad] The former part of v. 8. being read, as it lies in the Hebrew, Myrrhe and Aloes and Cassia all thy cloaths.`);
+ok(A.findNote(H45, 6) === 5 && A.noteEnd(H45, 5, 6, 14) === 6 && A.findNote(H45, 7) === 3,
+  'on one page, his annotation on Psalm 45:6 is his note, not his paraphrase; with no annotation on 45:7, the paraphrase is');
+{
+  // the section: an annotation that quotes its verse, as he prints it ("5. Behold, I was born. shapen in iniquity", which the page's
+  // "brought forth" lacks) or as the page gives it, takes the verse from his paraphrase; only past the head of his annotations
+  const hm = { 151: paras(`The Fifty First PSALM. TO the chief Musitian, A Psalm of David.
+4. To thee, to thee only. Against thee only have I sinned, and done this evil in thy sight; that thou mightest be justified when thou speakest, and be clear when thou judgest.
+Paraphrase. 4. And though the dignity and office wherein thou hast placed me over thy people leave me not liable to any punishment.
+5. Behold, I was born. shapen in iniquity, and in sin did my mother conceive me.
+6. Behold, thou delightest in truth in the reins. desirest truth in the inward parts.
+Paraphrase. 5, 6. Lord, I am a most polluted creature: the corruption of my nature, the bare inclinations of my will.
+7. Purge me with hyssop, and I shall be clean: wash me, and I shall be whiter than snow.
+Paraphrase. 7. Lord, be thou pleased to absolve me, and solemnly to declare and seal to me thy reconciliation.`),
+    152: paras('Annotations on Psalm LI. 〈 in non-Latin alphabet 〉 V. 4. Clear] The word 〈 in non-Latin alphabet 〉 is ordinarily used for victory, to overcome.'),
+    153: paras('V. 5. Shapen] For the understanding of this verse, 3. things must be observed. 1. What is meant by the two verbs.') };
+  const ESV51 = { 4: '4 Against you, you only, have I sinned and done what is evil in your sight, so that you may be justified in your words and blameless in your judgment.', 5: '5 Behold, I was brought forth in iniquity, and in sin did my mother conceive me.' };
+  const r = A.createResolver(async (_s, n) => [hm[n] || [], []], { verseText: (v) => ESV51[v] || '' });
+  const c51 = { slug: 'hammond-ps', notes: { 4: 152 }, open: 151, close: 158, pv: {}, rows: {} }, P51 = { name: 'Psalms', ch: '51' };
+  const got = await Promise.all([4, 5, 6, 7].map((v) => r.resolve(c51, v, P51)));
+  ok(got[0].p === 152 && got[1].p === 153 && got[1].how === 'note' && got[2].p === 151 && got[3].p === 151,
+    `Hammond on Psalm 51:4 and 51:5 opens at his annotations (pp. 152, 153), on 51:6 and 51:7 at his paraphrase (got ${JSON.stringify(got)})`);
+  // no head of the annotations: a heading that goes back is not taken (a stray "V. 4." among the paraphrases)
+  const hs = { 151: hm[151], 152: paras('V. 4. Clear] The word is ordinarily used for victory.') };
+  const rs = A.createResolver(async (_s, n) => [hs[n] || [], []]);
+  const s4 = await rs.resolve({ slug: 'hammond-ps2', notes: {}, open: 151, close: 158, pv: {}, rows: {} }, 4, P51);
+  ok(s4.p === 151, `with no "Annotations on", a heading that goes back is not taken over the paraphrase (got ${JSON.stringify(s4)})`);
+  // Psalm 15's annotations at the top of Psalm 16's first page count apart from Psalm 16's; his "V. 10. Hell]" quotes the verse as he
+  // prints it ("leave my soul in hell"), not as the page does ("to Sheol")
+  const h16 = { 44: paras(`Annotations on Psal. XV. V. 4. To his own hurt] 〈 in non-Latin alphabet 〉 doth certainly signifie to do evil.
+The Sixteenth PSALM. Michtam of David.
+9. Therefore my heart is glad, and my glory rejoiceth: my flesh also shall rest in hope.
+Paraphrase. 9. This is full matter of joy to my heart, and of boasting to my tongue.
+10. For thou wilt not leave my soul in hell; neither wilt thou suffer thine holy one to see corruption.
+Paraphrase. 10. For thy promises to me are firm, and oblige thee not to forsake me so.`),
+    45: paras('Annotations on Psal. XVI. 〈 in non-Latin alphabet 〉 Tit. Michtam] From 〈 in non-Latin alphabet 〉 signifying gold.'),
+    48: paras('〈 in non-Latin alphabet 〉 V. 10. Hell] That 〈 in non-Latin alphabet 〉 signifies the condition or state of the dead.') };
+  const r16 = A.createResolver(async (_s, n) => [h16[n] || [], []], { verseText: (v) => ({ 10: '10 For you will not abandon my soul to Sheol, or let your holy one see corruption.' }[v] || '') });
+  const g10 = await r16.resolve({ slug: 'hammond-ps3', notes: {}, open: 44, close: 49, pv: {}, rows: {} }, 10, { name: 'Psalms', ch: '16' });
+  // his verse in capitals took the verse from his paraphrase in the index ("1. NOW Faith is …"); his note letter and the margin's word
+  const h11 = { 820: paras(`CHAP. XI.
+1. NOW Faith is the confident expectation, substance of things hoped for, the evidence of things not seen.]
+Paraphrase 1. And that you may know to what your being Christians, and your professing the faith of Christ, obliges you.`),
+    823: paras(`Annotations on Chap. XI.
+⟨…⟩ a. Ὑπόστασις V. 1. Substance] The use of this word ὑπόστασις, both here and in the other places of the New Testament.`) };
+  const r11 = A.createResolver(async (_s, n) => [h11[n] || [], []]);
+  const g1 = await r11.resolve({ slug: 'hammond-nt', notes: {}, open: 820, close: 826, pv: {}, rows: {} }, 1, { name: 'Hebrews', ch: '11' });
+  ok(g10.p === 48 && g1.p === 823 && VH('⟨…⟩ f. Πέτρος V. 18. Rock] The name of Πέτρος') === '18' && VH('σωτηρίας V. 3. Upholding] The Hebrew signifies') === '3',
+    `Hammond on Psalm 16:10 and Hebrews 11:1 opens at his annotations, pp. 48 and 823 (got ${JSON.stringify([g10, g1])})`);
+  // his marks scope his headings: Psalm 15's annotation heads Psalm 16's first page, Psalm 17's paraphrase follows Psalm 16's last
+  // annotation, and a chapter's heading ends the marks before it ("CHAP. XVI." after "Annotations on S. MARK Chap. XV.")
+  const P44 = paras(`Annotations on Psal. XV. V. 4. To his own hurt] 〈 in non-Latin alphabet 〉 doth certainly signifie to do evil.
+The Sixteenth PSALM. Michtam of David.
+4. Their sorrows shall be multiplied that hasten after another god.
+Paraphrase. 4. Those that forsake the true God, and betake themselves to idols, shall find nothing but misery.`);
+  const P48 = paras(`〈 in non-Latin alphabet 〉 V. 10. Hell] That 〈 in non-Latin alphabet 〉 signifies the condition or state of the dead.
+The Seventeenth PSALM. A Prayer of David.
+10. They are inclosed in their own fat: with their mouth they speak proudly.
+Paraphrase. 10. Their greatness and prosperity makes them insolent.`);
+  const MK = paras(`Annotations on S. MARK Chap. XV.
+⟨…⟩ V. 6. A prisoner] The custom of releasing a prisoner at the feast.
+CHAP. XVI.
+5. And entring into the sepulchre, they saw a young man sitting on the right side.
+Paraphrase 5. an Angel in the appearance of a young man.`);
+  ok(A.findNote(P44, 4, false, 16) === 3 && A.findNote(P48, 10, false, 16) === 0 && A.findNote(P48, 10, false, 17) === 3 && A.findNote(MK, 5, false, 16) === 4,
+    "Hammond's \"Annotations on Psal. XV.\" and \"The Seventeenth PSALM.\" keep those psalms' headings out of Psalm 16; Mark's \"CHAP. XVI.\" ends chapter 15's annotations");
+  // where Matthew 28, the book's last chapter, runs on into Mark, Mark 10's annotation "V. 19. Defraud not]" is not taken for 28:19
+  const mt = { 164: paras(`1. In the end of the Sabbath, as it began to dawn toward the first day of the week, came Mary Magdalene.
+Paraphrase 1. After the Sabbath was ended, as the first day of the week began to dawn, came the women to the sepulchre.
+10. Then said Jesus unto them, Be not afraid: go tell my brethren that they go into Galilee.
+Paraphrase 10. Then said Jesus to them, Fear not, but go and tell my disciples.
+19. Go ye therefore, and teach all nations, baptizing them in the Name of the Father.
+Paraphrase 19. Teach all the Nations the Christian doctrine, and persuade them to embrace it.
+20. Teaching them to observe all things whatsoever I have commanded you.
+Paraphrase 20. And instruct them to live accordingly, and to continue in it.`),
+    166: paras('Annotations on Chap. XXVIII.\n⟨…⟩ Ἔθνη V. 19. All nations] What is meant sometimes by the word ἔθνη nations hath been said.'),
+    190: paras('19. Thou knowest the commandments, Do not commit adultery, Do not kill, Do not steal, Defraud not.\nParaphrase 19. Thou knowest the commandments of the second table.'),
+    191: paras('Annotations on S. MARK Chap. X.\n⟨…⟩ Ἀποστερήσῃς V. 19. Defraud not] That our Savior reckons up here the six last precepts of the Decalogue.') };
+  const rm = A.createResolver(async (_s, n) => [mt[n] || [], []]);
+  const m19 = await rm.resolve({ slug: 'hammond-nt2', notes: {}, open: 164, pv: {}, rows: {} }, 19, { name: 'Matthew', ch: '28' });
+  ok(m19.p === 166, `Hammond on Matthew 28:19 opens at his annotation, p. 166, not at Mark 10's, p. 191 (got ${JSON.stringify(m19)})`);
+}
+
 // ── the rail's markup and stylesheet ────────────────────────────────────────────────────────────────────────────────────────
 const js = readFileSync(path.join(root, 'assets/js/page/commentary-pane.js'), 'utf8');
 const css = readFileSync(path.join(root, 'assets/css/commentary-pane.css'), 'utf8');
@@ -607,6 +762,11 @@ ok(!/overflow:\s*auto/.test(css.slice(css.indexOf('.cp-pane {'), css.indexOf('/*
 ok(!/--cp-display|var\(--display|font-family:[^;]*(IM Fell|EB Garamond)/.test(css.slice(css.indexOf('.cp-pane {'))), 'no display face on the rail');
 ok(/Editors\\u2019 textual notes \(variants of the early printings\)/.test(js) && /<details class="cp-app">/.test(js) && /\.cp-app\b/.test(css), 'the pane sets the editors\' apparatus under a closed disclosure');
 ok(hbs.indexOf('commentary-anchor.js') > 0 && hbs.indexOf('commentary-anchor.js') < hbs.indexOf('commentary-pane.js'), 'the template loads the anchor before the pane');
+// (2026-11-08) the pane gives the anchor the words of the verse whose note it marks and of the verse chosen, and its older reading never
+// puts back a heading the anchor refused as quoting another verse
+ok(/A\.findNote\(part, printed, !!t\.indexed, wr\.ch, null, \[verseText\(t\.v\), verseText\(S\.verse\)\]\)/.test(js) && /h < 0 && t\.indexed && !\(A && k === A\.REFUSED\)/.test(js)
+  && /A\.findNote\(part, printed, !!t\.indexed, w\.ch, null, \[verseText\(t\.v\), verseText\(v\)\]\)/.test(js) && /k < 0 && !\(A && k === A\.REFUSED\)/.test(js),
+  "the pane passes the verses' words to findNote, in the Commentary view and the preview, and keeps a refused heading refused");
 // one Close for all three tabs (2026-10-19, owner): the pane's asks the reader's script, which owns the verse; the list's toggle is not "Close"
 const sdjs = readFileSync(path.join(root, 'assets/js/page/scripture-dev.js'), 'utf8');
 ok(/class="sd-close cp-close"[^>]*>Close</.test(js) && /new Event\('sd:close-verse'\)/.test(js), 'the pane has a Close that asks the reader to close the verse');
