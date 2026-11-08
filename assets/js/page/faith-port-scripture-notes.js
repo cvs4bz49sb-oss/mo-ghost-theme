@@ -46,7 +46,24 @@
     const unverified = !n[1] && !n[2] && HETERODOX.test(`${rd.label || ""} ${rd.reading || ""}`);
     return { unverified, holds: unverified ? [] : (rd.holds || []), exemplars: unverified ? [] : (rd.exemplars || []) };
   }
-  const api = { disputeModel, readingModel, HETERODOX };
+  /* The controversies that name a verse (2026-11-08; the file is described at chapterControversies below). A line is drawn only for an
+   * entry with a question and an address the Controversies page reads (#<id>, or #<work>/<id>: lower-case words and numbers joined by
+   * hyphens), once a controversy, in the file's order. Its label is the work it is argued in, then the debate's short name where that
+   * adds to it ("Robert Bellarmine · Rome and the Reformation"; "The English divines" alone, as their debate is named after them). */
+  const CV_ADDR = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/;
+  const cvFold = (s) => String(s || "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  function controversyModel(es) {
+    const seen = new Set();
+    return (Array.isArray(es) ? es : []).filter((e) => e && typeof e.q === "string" && e.q.trim() && CV_ADDR.test(String(e.frag || e.id || ""))
+      && !seen.has(String(e.id || e.frag)) && seen.add(String(e.id || e.frag))).map((e) => {
+      const work = String(e.source || "").trim(), full = String(e.debate_label || "").trim();
+      // the debate's name before its colon ("The covenant: federal theology and its controversies" is "The covenant")
+      const deb = full.split(/:\s/)[0].trim();
+      const same = !deb || (work && cvFold(deb).includes(cvFold(work)));
+      return { frag: String(e.frag || e.id), q: e.q.trim(), label: [work, same ? "" : deb].filter(Boolean).join(" · "), debate: full };
+    });
+  }
+  const api = { disputeModel, readingModel, controversyModel, HETERODOX };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   if (root) root.FRScriptureTrust = api;
 })(typeof window !== "undefined" ? window : null);
@@ -110,6 +127,24 @@
       const peak = d.centuries.reduce((a, b) => (b[1] > a[1] ? b : a))[0];
       return { share: (c) => (m.get(c) || 0) / total, peak };
     }).catch(() => null));
+  /* CONTROVERSIES THAT NAME THIS VERSE (2026-11-08, the owner: "integrate the commentaries and controversies (thomists vs scotist)
+   * pages in the mereO site"; the plan: links both ways between the Scripture page and the Controversies page, whose verses already
+   * open this page). v1/enrich/controversies/scripture/<lib>/<c>.json has, per verse, the controversies whose own text names it: the
+   * question, a side's report, position or arguments, the judgment, read with the Controversies page's linker (never the quoted
+   * passages, never a verse inside a list of three or more proofs), and only where the work's own pages cite the verse too (the
+   * library's Scripture uses), as the machine-written texts can misnumber one: "Ecclesiastes 11:2" for the 11:3 Chamier's page
+   * cites. Each entry: id, q (the question), source (the work it is argued in, as the Controversies page names it), debate_label and
+   * frag (the address that opens it there: #english-divines-764-1763). A chapter with none has no file: nothing is drawn, and the 404
+   * is not an error. Fetched once a chapter, as the readings are. */
+  const cvCache = new Map();
+  const chapterControversies = (book, c) => {
+    const k = `${book.lib}/${c}`;
+    if (!cvCache.has(k)) {
+      cvCache.set(k, fetch(`${BASE}/v1/enrich/controversies/scripture/${encodeURIComponent(book.lib)}/${c}.json`, { credentials: "omit" })
+        .then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    }
+    return cvCache.get(k);
+  };
   // The redesigned Verse Desk (verse-desk.js) reads the same files through these, so each is fetched once per visit.
   window.FRScriptureData = { chapterReception, chapterReadings, loadBaseline, loadRank };
   // the centuries where the verse is cited half again above the library's usual share, the strongest first (at most three)
@@ -345,6 +380,11 @@
   const disputesBody = (ds) => `<p class="sd-muted fr-dp-note">The library records which pages discuss each position, not which authors hold it, so no names are listed here.</p><ol class="fr-dp">${T.disputeModel(ds).map((d) => `<li><h4>${esc(d.question)}</h4><ul class="fr-dp-sides">${d.sides.map((sd) =>
     `<li><p class="fr-dp-pos">${esc(sd.position)}</p>${sd.pages ? `<p class="fr-sn-pages fr-dp-count">${fmt(sd.pages)} ${sd.pages === 1 ? "page discusses" : "pages discuss"} this position${sd.authors > 1 ? ` (${fmt(sd.authors)} authors)` : ""}</p>` : ""}</li>`).join("")}</ul></li>`).join("")}</ol>`;
   const rdNote = (of) => `Sorted by machine from the ${fmt(of)} pages of the library read on this verse; every name opens its page.`;
+  // Each controversy opens the Controversies page at it, in this tab, as the page's other links do.
+  const CONTROVERSIES = "/the-faith-received/controversies/";
+  const controversiesBody = (cs) => `<ul class="fr-sn-list fr-cv">${cs.map((x) => `<li><a class="fr-cv-q" href="${esc(`${CONTROVERSIES}#${x.frag}`)}">${esc(x.q)}</a>${x.label
+    ? `<span class="fr-cv-l"${x.debate && x.debate !== x.label ? ` title="${esc(x.debate)}"` : ""}>${esc(x.label)}</span>` : ""}</li>`).join("")}</ul>`;
+  const CV_NOTE = "The controversies are those whose question, sides or judgment cite this verse, where the work's own pages cite it too.";
 
   // ── The verse ──
   function verseParts(x, rv, ref, base) {
@@ -455,7 +495,8 @@
       const $comm = $panel && $panel.querySelector("[data-sd-panel-commentaries]");
       const needMarks = $ref && $comm && $comm.querySelector(".sd-commentary[data-w]") && !$comm.dataset.frSnMarked;
       if (!needOv && !needVerse && !needMarks) return;
-      const [d, rec, base, rdf, rk] = await Promise.all([bookFile(r.book), chapterReception(r.book, r.c), loadBaseline(), chapterReadings(r.book, r.c), loadRank()]);
+      const [d, rec, base, rdf, rk, cvf] = await Promise.all([bookFile(r.book), chapterReception(r.book, r.c), loadBaseline(), chapterReadings(r.book, r.c), loadRank(),
+        chapterControversies(r.book, r.c)]);
       RK = rk || RK;
       const ch = d && d.chapters && d.chapters[String(r.c)];
       if (needOv && $ov.isConnected) {
@@ -484,10 +525,17 @@
           // Ian, 09-23). The fold rows say what each holds; the Verse Desk shows them whole.
           // ONE METHODOLOGY NOTE for the three folds, after them (2026-10-21, the owner: "too many methodology eyebrow"): the history's
           // fold carried one inside its strip and one after it, the readings and the disputes one each
+          // THE CONTROVERSIES THAT NAME THE VERSE (2026-11-08, the plan: links both ways between the Scripture page and the
+          // Controversies page) in a fold of their own after the Points in dispute, not inside it: that fold's note ("no names are
+          // listed here": the pages, never who holds a position) is not true of a controversy, whose work and debate are named
+          // ("Robert Bellarmine · Rome and the Reformation"), and a verse the readings do not cover has no Points in dispute fold
+          // while its controversies are still drawn. None, no fold.
+          const cvs = T.controversyModel(v && cvf && cvf.verses ? cvf.verses[String(v)] : null);
           const folds = `${parts.history ? fold("fr_history", "Reception history", parts.nWorks, parts.history, false, parts.nWorks === 1 ? "work" : "works") : ""}` +
             `${parts.readings ? fold("fr_readings", "Readings", parts.nReadings, parts.readings) : ""}` +
-            `${parts.disputes ? fold("fr_disputes", "Points in dispute", parts.nDisputes, parts.disputes) : ""}`;
-          const lead = folds ? `${folds}${method(`<p>${[parts.history ? REC_NOTE : "", parts.readings || parts.disputes ? parts.readingsNote : ""].filter(Boolean).join(" ")}</p>`)}` : "";
+            `${parts.disputes ? fold("fr_disputes", "Points in dispute", parts.nDisputes, parts.disputes) : ""}` +
+            `${cvs.length ? fold("fr_contro", "Controversies that name this verse", cvs.length, controversiesBody(cvs)) : ""}`;
+          const lead = folds ? `${folds}${method(`<p>${[parts.history ? REC_NOTE : "", parts.readings || parts.disputes ? parts.readingsNote : "", cvs.length ? CV_NOTE : ""].filter(Boolean).join(" ")}</p>`)}` : "";
           const $count = $panel.querySelector("[data-sd-count]");
           if (lead) {
             const html = `<div class="fr-sn-verse" data-fr-sn="verse">${lead}</div>`;

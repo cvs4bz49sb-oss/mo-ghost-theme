@@ -1803,7 +1803,9 @@ Promise.all([J(`${BASE}/v1/enrich/controversies/index.json`),ROOMS_P,netFile(),d
   LIVE=((ix&&ix.pairs)||[]).filter(p=>p.n>0);
   if(!LIVE.length){viewIs('pair');$('#books').innerHTML='';$('#c').innerHTML='<p class="muted">The controversies could not be loaded. Reload the page to try again.</p>';return;}
   IX=ix;DS=debates();
-  {const h=want(),p=pairFor(h);LAND=/^debate\/[^/]+\/(?!works$)./.test(h)||(matchMedia('(max-width:760px)').matches&&!!(p&&h!==p.pair));}
+  /* a link to one controversy lands on it at every width (2026-11-08, owner: "integrate the commentaries and controversies ... pages"): the
+     Scripture page's "Controversies that name this verse" opens #<id>, and on a desktop the card stood below the fold, under the hero */
+  {const h=want(),p=pairFor(h);LAND=/^debate\/[^/]+\/(?!works$)./.test(h)||!!(p&&h!==p.pair);}
   route();
 });
 })();

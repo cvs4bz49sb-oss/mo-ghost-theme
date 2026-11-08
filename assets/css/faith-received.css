@@ -20924,8 +20924,3 @@ html.faith-ask-shared [data-tfr-gate] { display: none; }
    controversies, and the atlas's loci once they stack under the map. */
 .tn-work .tn-scroll { max-height: none !important; overflow: visible !important; }
 @media (max-width: 760px) { .tfr-tool .loci { max-height: none !important; overflow: visible !important; } }
-/* UNTIL THE ROUTES ARE UP (remove with the routes.yaml upload). The atlas,
-   topics, Compare and the decks already link to /maps/ and /controversies/,
-   which 404 until Ian has seen them and uploads routes.yaml. Meanwhile
-   those links read as plain text. */
-a[href^="/the-faith-received/maps/"], a[href^="/the-faith-received/controversies/"] { pointer-events: none !important; color: inherit !important; text-decoration: none !important; cursor: text; }

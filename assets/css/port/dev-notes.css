@@ -182,6 +182,20 @@
 .fr-dp-note { margin: 0 0 12px; font-size: 13.5px; line-height: 1.5; }
 .fr-dp-count { margin: 4px 0 0; }
 .fr-rd-unv { margin: 4px 0 0; font-size: 13px; line-height: 1.5; }
+/* Controversies that name the verse (2026-11-08; faith-port-scripture-notes.js): each question opens the Controversies page at it,
+   the work it is argued in under it, in the muted label the folds around it use. */
+.fr-cv { gap: 0; }
+.fr-cv > li { padding: 8px 0; border-top: 1px solid var(--color-rule); }
+.fr-cv > li:first-child { border-top: 0; padding-top: 2px; }
+.fr-cv-q { display: block; color: var(--color-dark); font-size: 15px; line-height: 1.45; text-wrap: pretty; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.fr-cv-q:hover { color: var(--sd-accent, var(--color-dark)); }
+.fr-cv-q:focus-visible { outline: 2px solid var(--sd-accent, currentColor); outline-offset: 2px; border-radius: 2px; }
+.fr-cv-l { display: block; margin: 3px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--color-muted); }
+/* a phone's tap target: a question of one line is still 44px tall */
+@media (max-width: 640px) { .fr-cv-q { display: flex; align-items: center; min-height: 44px; } }
+/* (2026-11-08) a question links to its controversy as the fold's other links do */
+.fr-cv a.fr-cv-q { cursor: pointer; color: var(--color-dark); text-decoration-line: underline; text-decoration-thickness: 1px; }
+.fr-cv a.fr-cv-q:hover { color: var(--sd-accent, var(--color-dark)); }
 
 /* "The doctrine through the centuries" (2026-10-19): sits under the century showpiece, so it gets a heavier heading, cards for
    the periods, and a rule that runs down the timeline. */
