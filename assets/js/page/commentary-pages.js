@@ -106,17 +106,28 @@
       const xml = await env.text(env.mo ? `${base}/v1/tei/${fam}/${id}.xml` : `${base}/tei/${fam}/${id}.xml`);
       const en = new Map(), src = new Map(), cols = [];
       let cur = null;
+      /* THE FIRST COLUMN UNMARKED (2026-11-08, found testing Augustine on John 1:1). Some files open with the volume's own mark
+       * (<milestone n="35"/>) where the first column's would be, and the next mark is the second column ("35:1380"): the work's opening
+       * (Tractate I's heading and its §1) was dropped, and the map's page for chapter 1 is the volume's number. The text before the first
+       * column mark is its column: the one before it ("35:1380": col. 1379), or the same column when the mark is a later quarter of it
+       * ("53:0569C": col. 569). */
+      const before = [];
+      const put = (col, t, lang) => { const m = lang === 'en' ? en : src; if (!m.has(col)) m.set(col, []); m.get(col).push(t); };
       scanTei(xml, (tag, attrs) => {
         if (tag === 'milestone' && attr(attrs, 'unit') !== 'column') return;
         const raw = attr(attrs, 'n');
         if (fam === 'pld' && tag === 'milestone' && !raw.includes(':')) return; // the volume's own mark, not a column
         const c = parseInt(raw.split(':').pop(), 10); // "26:0021B": column 21, its second quarter
-        if (c) { cur = c; if (!cols.includes(c)) cols.push(c); }
+        if (!c) return;
+        if (cur == null && before.length) {
+          const open = /[BCD]$/i.test(raw) ? c : c - 1;
+          if (!cols.includes(open)) cols.push(open);
+          for (const [t, lang] of before) put(open, t, lang);
+        }
+        cur = c; if (!cols.includes(c)) cols.push(c);
       }, (t, lang) => {
-        if (cur == null) return;
-        const m = lang === 'en' ? en : src;
-        if (!m.has(cur)) m.set(cur, []);
-        m.get(cur).push(t);
+        if (cur == null) { before.push([t, lang]); return; }
+        put(cur, t, lang);
       });
       return { en, la: src, cols };
     });

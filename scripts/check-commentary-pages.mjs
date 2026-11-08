@@ -53,6 +53,21 @@ const R = A.createResolver(async (slug, n) => { const d = await pg.page(slug, n)
 const rr = await R.resolve({ slug: 'eebo-53832', notes: {}, rows: {}, open: 11, close: 13, pv: {} }, 3, { name: 'Genesis', ch: '1' });
 ok(rr && rr.p >= 11, `EEBO work: the resolver anchors on it (got ${JSON.stringify(rr)})`);
 
+// (2026-11-08) a Migne file that opens with the volume's own mark where the first column's would be ("35", then "35:1380", Augustine's
+// Tractates on John): the text before the first column mark is its column, 1379, and the map's "35" opens there
+const PLD = `<?xml version="1.0"?><TEI xmlns="http://www.tei-c.org/ns/1.0"><text xml:lang="la"><body><div>
+<milestone unit="column" n="35"/><p xml:lang="la">In Joannis evangelium tractatus CXXIV</p>
+<head>TRACTATUS I. In illud Joannis, In principio erat Verbum. Cap. I, V\\. 1-5.</head><p xml:lang="en">TRACTATE I. On that of John, In the beginning was the Word. Chap. I, V. 1-5.</p>
+<p xml:lang="la">1. Intuens quod modo audivimus.</p><p xml:lang="en">1. Seeing what we have just heard.</p>
+<milestone unit="column" n="35:1380"/><p xml:lang="en">2. For this John, most beloved brothers.</p>
+<milestone unit="column" n="35:1381"/><p xml:lang="en">3. For there are other mountains.</p>
+<milestone unit="column" n="35"/><p xml:lang="en">124. The end of the work.</p></div></body></text></TEI>`;
+const pgM = P.createPages({ base: 'http://x', mo: true, async json() { throw new Error('no json'); }, async text(u) { if (/\/v1\/tei\/pld\/2824\.xml$/.test(u)) return PLD; throw new Error(`404 ${u}`); } });
+const m35 = await pgM.page('pld-2824', 35), m1379 = await pgM.page('pld-2824', 1379);
+ok(m1379.p && m1379.p.n === 1379 && /TRACTATE I\./.test(m1379.p.en) && /1\. Seeing/.test(m1379.p.en), "Migne: the text before the first column mark is the column before it (Tractate I's heading and its §1, col. 1379)");
+ok(m35.p && m35.p.n === 1379, "Migne: the volume's number on the map opens that first column");
+ok(/124\. The end/.test((await pgM.page('pld-2824', 1381)).p.en), 'Migne: a volume mark after the first column is no column, and its text stays with the column before');
+
 // ── live ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 const live = process.argv.includes('--live') || process.env.COMMENTARY_LIVE === '1';
 if (live) {

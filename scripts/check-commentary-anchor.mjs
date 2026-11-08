@@ -264,7 +264,36 @@ ok(JSON.stringify(A.rangeOf('Homily 10 (5:12)', 5)) === '{"a":12,"b":12}' && A.r
     18: paras('L. 3 (3:21–26) Christ the redemption for all who believe.'), 19: paras('L. 4 (3:27–31) Where is boasting then?') };
   const r = A.createResolver(async (_s, n) => [lec[n] || [], []]);
   const got = await r.resolve({ slug: 'aquinas-romans', notes: {}, open: 16, close: 20, pv: {}, rows: {} }, 23, { name: 'Romans', ch: '3' });
-  ok(got && got.how === 'note' && got.p === 18, `Aquinas on Romans 3:23 opens at the lecture on 3:21-26, p. 18, not the chapter's first page (got ${JSON.stringify(got)})`);
+  ok(got && got.how === 'range' && got.p === 18 && got.a === 21 && got.b === 26, `Aquinas on Romans 3:23 opens at the lecture on 3:21-26, p. 18, said to be that, not the chapter's first page (got ${JSON.stringify(got)})`);
+}
+// Migne's heads give a tractate's chapter and verses after its subject (Augustine on John: Tractate I, col. 35)
+ok(JSON.stringify(A.rangeOf('TRACTATE I. On that of John, In the beginning was the Word, etc., up to that, And the darkness did not comprehend it. Chap. I, V. 1-5.', 1)) === '{"a":1,"b":5}'
+  && JSON.stringify(A.rangeOf('TRACTATUS I. In illud Joannis, In principio erat Verbum, etc. Cap. I, V\\. 1-5.', 1)) === '{"a":1,"b":5}', "a tractate's heading names its chapter and verses, Latin or English");
+ok(A.rangeOf('Chap. I, V. 1-5 is cited here', 1) === null && A.rangeOf('TRACTATE II. … Chap. I, V. 6-14.', 2) === null, 'only a heading that opens with its division names them, and only for its own chapter');
+{
+  const aug = { 35: paras('In Joannis evangelium tractatus CXXIV\nTRACTATE I. On that of John, In the beginning was the Word … Chap. I, V. 1-5.\n1. Seeing what we have just heard from the reading of the Apostle.\n2. Who then shall speak?\n3. Brethren, how shall we speak?\n4. Lift up your hearts.\n5. For the Word of God is not seen.\n6. Let none of you think.') };
+  const r = A.createResolver(async (_s, n) => [aug[n] || [], []]);
+  const got = await r.resolve({ slug: 'augustine-tractates', notes: {}, open: 35, close: 60, pv: {}, rows: {} }, 1, { name: 'John', ch: '1' });
+  ok(got && got.how === 'range' && got.p === 35 && got.a === 1 && got.b === 5, `Augustine on John 1:1 opens at Tractate I, on 1:1-5, not "No note found" (got ${JSON.stringify(got)})`);
+  ok(A.findNote(aug[35], 1) === -1, "the tractate's own sections, 1. 2. 3., are never taken for verses");
+  // the library indexed Tractate I's §13 (col. 1385, on 1:3) as "his note on John 1:13"; Tractate II, on 1:6-14, begins at col. 1388
+  const tr = { 1379: aug[35], 1385: paras('13. Truly, brethren, what follows, All things were made by him.'), 1388: paras('TRACTATE II. From that which is written, There was a man sent from God … Chap. I, V. 6-14.\n1. It is good, brethren.') };
+  const r2 = A.createResolver(async (_s, n) => [tr[n] || [], []]);
+  const g13 = await r2.resolve({ slug: 'augustine-tractates', notes: { 13: 1385 }, open: 1379, close: 1400, pv: {}, rows: {} }, 13, { name: 'John', ch: '1' });
+  ok(g13 && g13.how === 'range' && g13.p === 1388, `an indexed "note" outside the tractate that holds the verse gives way to that tractate (got ${JSON.stringify(g13)})`);
+}
+// the Weimar edition prints a verse's chapter and number in the run of the text (Luther on Galatians 2:16, WA 40 I p. 217)
+ok(JSON.stringify(A.cvMarks('… non solum ceremonias cavillatur. 2, 16Scientes autem, quod non iustificatur homo ex operibus legis.', 2)) === '[{"v":16,"at":34}]'
+  && A.cvMarks('… and he does not cavil at ceremonies only. 2, 16 Knowing that a man is not justified by the works of the law.', 2)[0].v === 16, 'a verse marked "2, 16" after a sentence, Latin or English');
+ok(!A.cvMarks('as Paul says, Gal. 2, 16 Knowing that a man', 2).length && !A.cvMarks('… and ceremonies only. 2, 16 Knowing', 3).length && !A.cvMarks('… vgl. 2, 16 Scientes', 2).length,
+  "a citation (Gal. 2, 16), another chapter's verse or an editor's abbreviation is no marker");
+{
+  const wa = { 150: paras('Caput II.\n2, 1 Then after fourteen years I went up again to Jerusalem. He relates his journey.'),
+    217: paras('He is an Apostle, a minister of the word. Paul therefore speaks roundly against all things which are opposed to faith, and he does not cavil at ceremonies only. 2, 16 Knowing that a man is not justified by the works of the law. These words are to be taken most widely.\nFor the work of the law is all that is done by the law.\nTherefore he says, not by the works of the law. 2, 17 But if, while we seek to be justified by Christ, we ourselves also are found sinners.') };
+  const r = A.createResolver(async (_s, n) => [wa[n] || [], []]);
+  const got = await r.resolve({ slug: 'luther-wa-40-1', notes: {}, open: 150, close: 300, pv: {}, rows: {} }, 16, { name: 'Galatians', ch: '2' });
+  ok(got && got.how === 'note' && got.p === 217, `Luther on Galatians 2:16 opens at p. 217, where "2, 16" stands, not the chapter's first page (got ${JSON.stringify(got)})`);
+  ok(A.findNote(wa[217], 16, false, 2) === 0 && A.noteEnd(wa[217], 0, 16, 14, 2) === 3, 'the note is the paragraph with "2, 16", and it runs to the one that marks 2:17, which is kept');
 }
 // an index row at the page that prints the verse ahead of the notes gives way to the note itself (Calvin, Galatians 2:16: p. 29 to p. 34)
 {

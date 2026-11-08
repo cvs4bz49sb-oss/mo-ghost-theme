@@ -175,15 +175,35 @@
   }
   const lemmaIndexes = (paras) => lemmaParts(paras).all;
 
+  // A VERSE MARKED BY ITS CHAPTER AND NUMBER IN THE RUN OF THE TEXT (2026-11-08, owner "fix this": Luther's Galatians, WA 40 I, said
+  // "No note on Galatians 2:16 was found"). The Weimar edition prints the verse's place before its first words, inside the paragraph:
+  // "… non solum ceremonias cavillatur. 2, 16 Scientes autem, quod non iustificatur homo ex operibus legis." (English: "… ceremonies
+  // only. 2, 16 Knowing that a man is not justified …"). A marker is the chapter's number, a comma and the verse's, at a paragraph's
+  // start or after a sentence's last word (a word in small letters and its stop, so "Gal. 2, 16" in a citation, or "cf. 2, 16", is
+  // not one), before the verse's first word in capitals (a bare "2, 16" in the margin is a cross-reference: Rörer's notes list "2, 16", "2, 14", "2, 12"). cvMarks(s, ch) gives the markers of chapter `ch` in a paragraph:
+  // [{v, at}], `at` where the marker stands.
+  const CV_START = /^\s*(\d{1,3})\s*,\s*(\d{1,3})(?!\d)\s?(?=[A-Z\u00c0-\u00de\u2018\u201c'"])/;
+  const CV_IN = /(^|[^A-Za-z\u00c0-\u024f])([a-z\u00df-\u024f]{3,})[.!?;:]['"\u2019\u201d\u00bb)\]]?\s{1,2}(\d{1,3})\s*,\s*(\d{1,3})(?!\d)\s?(?=[A-Z\u00c0-\u00de\u2018\u201c'"])/g;
+  const CV_ABBR = new Set(['vgl', 'ibid', 'cap', 'vers', 'col', 'pag', 'fol', 'lib', 'sect', 'art', 'dist', 'etc', 'seq', 'sqq', 'supra', 'infra', 'ver', 'loc']);
+  function cvMarks(s, ch) {
+    const t = String(s || ''), c = Number(ch), out = [];
+    if (!(c > 0)) return out;
+    const m0 = CV_START.exec(t); if (m0 && +m0[1] === c) out.push({ v: +m0[2], at: 0 });
+    for (const m of t.matchAll(CV_IN)) if (+m[3] === c && !CV_ABBR.has(m[2])) out.push({ v: +m[4], at: m.index + m[1].length + m[2].length + 1 });
+    return out;
+  }
+
   // The paragraph where the commentator's own note on verse `printed` begins, or -1. Never the reprinted text. A number in
   // parentheses is a footnote mark ("(1) Quaest. hebr. in Genes.") unless `loose` is set, which is for a page the library itself
-  // indexed as holding the note (some commentaries print a psalm's verse as "(22)").
-  function findNote(paras, printed, loose) {
+  // indexed as holding the note (some commentaries print a psalm's verse as "(22)"). With the chapter `ch`, a verse marked by its
+  // chapter and number in the run of the text ("2, 16 Scientes autem") is found too.
+  function findNote(paras, printed, loose, ch) {
     const { all: lemma, notes } = lemmaParts(paras), app = apparatusIndexes(paras);
     const sx = strongRx(printed), bx = bareRx(printed);
     let i = paras.findIndex((s, k) => !app.has(k) && sx.test(s)); // the heading word marks a note even where the note lists 1. 2. 3. inside it
     if (i < 0) i = paras.findIndex((s, k) => !lemma.has(k) && !app.has(k) && bx.test(s) && (loose || !/^\(/.test(s)));
     if (i < 0) for (const [k, x] of notes) if (x === printed) { i = k; break; } // "14 For if we believe." after the text
+    if (i < 0 && ch != null) i = paras.findIndex((s, k) => !app.has(k) && cvMarks(s, ch).some((x) => x.v === +printed));
     return i;
   }
 
@@ -197,12 +217,15 @@
 
   // Where that note ends: the next heading, or the next verse's note, or the next section's verses printed ahead of their notes
   // (Calvin's note on Hebrews 12:3 ends where verses 4 to 8 are printed), or `cap` paragraphs on.
-  function noteEnd(paras, start, printed, cap) {
+  function noteEnd(paras, start, printed, cap, ch) {
     const { all: lemma, ahead, notes } = lemmaParts(paras), app = apparatusIndexes(paras), max = cap || 14;
     let seen = 0; // the editors' notes neither end the note nor count toward the cap
     for (let j = start + 1; j < paras.length && seen < max; j += 1) {
       if (app.has(j)) continue;
       seen += 1;
+      // the next verse marked in the run of the text: a paragraph that opens with it is the next note; one that has it further on
+      // still ends this note, and is kept
+      if (ch != null) { const nx = cvMarks(paras[j], ch).find((x) => x.v > +printed); if (nx) return nx.at > 0 ? j + 1 : j; }
       if (isHead(paras[j])) return j;
       const sn = strongNum(paras[j]);
       if (sn != null && sn !== printed) return j;
@@ -260,8 +283,28 @@
   // sermon's, tractate's) number and a range in parentheses gives the verses of chapter `ch` it takes, {a, b}, or null: "(3:21–26)"
   // is 21 to 26 of chapter 3, "(2:28–3:8)" is 1 to 8 of chapter 3 and 28 on of chapter 2.
   const RANGE = /^(?:#{1,6}\s+)?(?:L|Lect(?:ure|io)?|Lesson|Hom(?:ily|ilia)?|Sermo(?:n)?|Tract(?:ate|atus)?)\.?\s*(?:[IVXLC]+|\d{1,3})\.?\s*\(\s*(\d{1,3})\s*:\s*(\d{1,3})(?:\s*[-\u2013\u2014]\s*(?:(\d{1,3})\s*:\s*)?(\d{1,3}))?\s*\)/i;
+  // (2026-11-08, owner "fix this": Augustine's Tractates on John said "No note on John 1:1 was found" at col. 35, the head of Tractate
+  // I) Migne's heads give the chapter and verses after the tractate's subject: "TRACTATUS I. In illud Joannis, In principio erat Verbum
+  // … usque ad id, Et tenebrae eam non comprehenderunt. Cap. I, V. 1-5." ("Chap. I, V. 1-5."). A heading that opens with the
+  // division's word and number and names, in its first lines, the chapter and its verses, gives them too.
+  const DIV_HEAD = /^(?:#{1,6}\s+)?\W*(?:L|Lect(?:ure|io)?|Lesson|Hom(?:ily|ilia)?|Sermo(?:n)?|Tract(?:ate|atus)?|Enarratio|Concio)\.?\s*(?:[IVXLCDM]+|\d{1,3})\b/i;
+  const CAP_V = /\b(?:Cap(?:ut|itulum)?|Chap(?:ter)?)\.?\s*([IVXLC]+|\d{1,3})\s*[,.;]?\s*(?:V|Vv|Vers(?:e|us)?|Ver)\\?\.?\s*(\d{1,3})(?:\s*(?:[-\u2013\u2014]|ad|to)\s*(\d{1,3}))?/gi;
+  const romanNum = (r) => {
+    const V = { I: 1, V: 5, X: 10, L: 50, C: 100 }, u = String(r).toUpperCase();
+    let n = 0;
+    for (let i = 0; i < u.length; i += 1) { const x = V[u[i]], y = V[u[i + 1]] || 0; if (!x) return NaN; n += x < y ? -x : x; }
+    return n;
+  };
   function rangeOf(s, ch) {
-    const m = RANGE.exec(String(s || '')); if (!m) return null;
+    const t = String(s || ''), m = RANGE.exec(t);
+    if (!m) {
+      if (!DIV_HEAD.test(t)) return null;
+      for (const x of t.slice(0, 600).matchAll(CAP_V)) {
+        const c1 = /^\d+$/.test(x[1]) ? +x[1] : romanNum(x[1]), a = +x[2], b = x[3] ? +x[3] : a;
+        if (c1 === +ch && b >= a) return { a, b };
+      }
+      return null;
+    }
     const c = +ch, c1 = +m[1], a = +m[2], c2 = m[3] ? +m[3] : c1, b = m[4] ? +m[4] : a;
     if (c1 === c && c2 === c) return b >= a ? { a, b } : null;
     if (c1 === c && c2 > c) return { a, b: Infinity };
@@ -273,8 +316,8 @@
   // {slug, notes: {verse: page}, rows: {verse: [row]}, pv: {verse: printed number}, open: the map's page for the chapter,
   // close: the map's page for the NEXT chapter}; `w` is {name, ch}. resolve() gives {p, how, v, indexed}, where how is, in order of
   // preference:
-  //   note     the library indexed the work's own note on the verse, or its page text carries one, or a lecture headed by a range
-  //            of verses holding it begins there;
+  //   note     the library indexed the work's own note on the verse, or its page text carries one;
+  //   range    a lecture, homily or tractate headed by a range of the chapter's verses holding it begins there ({a, b});
   //   page     the library files a page as discussing the verse, lying between the notes on the verses either side of it;
   //   later    the work's next note after the verse (within four verses);
   //   nearest  its closest note before (within twelve); then a later one within twelve;
@@ -307,14 +350,16 @@
           if (run > best) { best = run; lo = n; }
         }
       }
-      const heads = {}, caps = [], ranges = [];
+      const heads = {}, caps = [], ranges = [], marks = [];
       let last = 0, pos = 0;
       for (const [n, ps] of pages) {
-        if (n < lo) continue;
+        // a heading that names its verses says so wherever it stands in the section (Augustine's Tractate I, col. 35)
+        if (n < lo) { for (const s of ps) { const r = rangeOf(s, w.ch); if (r) ranges.push({ p: n, pos: -1, ...r }); } continue; }
         const lemma = lemmaIndexes(ps), app = apparatusIndexes(ps);
         for (let i = 0; i < ps.length; i += 1, pos += 1) {
           if (app.has(i)) continue; // "13 zu Inanis et vacua" is the editors' line number, not verse 13
           const r = rangeOf(ps[i], w.ch); if (r) ranges.push({ p: n, pos, ...r });
+          for (const x of cvMarks(ps[i], w.ch)) if (!marks.some((y) => y.v === x.v)) marks.push({ p: n, i, pos, v: x.v });
           const num = strongNum(ps[i]) != null ? strongNum(ps[i]) : (lemma.has(i) ? null : capsNum(ps[i]));
           if (num != null && num > last && num - last <= 12) { heads[num] = { p: n, i, pos }; last = num; } else if (num == null && !lemma.has(i)) {
             const m = /^[\u00ab"\u201c\u2018']?([A-Z][A-Z\u2019' -]{6,}[A-Z])\s*(?:[.,;:\u2014\u2013]|$)/.exec(ps[i]);
@@ -322,30 +367,42 @@
           }
         }
       }
-      return { lo, hi, heads, caps, ranges };
+      return { lo, hi, heads, caps, ranges, marks };
     });
     // THE NOTE AFTER ITS TEXT (2026-11-08, QA). The library indexes Calvin's note on a verse at the page where the verse is printed
     // ahead of his notes (Galatians 2:16 at p. 29, with the text of 2:11-16; Isaiah 53:5 at p. 61, with 53:1-12), and his note on
     // it comes after those on the verses before it (p. 34; p. 64). Where the indexed page and the next carry the verse only in such
     // a text, with no note on it, the place is the first of the section's following pages, ten at most, that carries one.
-    const noteAfterText = async (c, p0, printed, hi) => {
+    const noteAfterText = async (c, p0, printed, hi, ch) => {
       const [[e1, l1], [e2, l2]] = [await getParas(c.slug, p0), await getParas(c.slug, p0 + 1)];
       let held = false;
       for (const all of [[...e1, ...e2], [...l1, ...l2]]) {
         if (!all.length) continue;
-        if (findNote(all, printed, true) >= 0) return null;
+        if (findNote(all, printed, true, ch) >= 0) return null;
         if ([...lemmaParts(all).ahead].some((k) => +(/^(\d{1,3})\./.exec(all[k]) || [])[1] === printed)) held = true;
       }
       for (let n = p0 + 2; held && n < Math.min(hi, p0 + 12); n += 1) {
         const [en, la] = await getParas(c.slug, n);
-        if (findNote(en, printed) >= 0 || findNote(la, printed) >= 0) return n;
+        if (findNote(en, printed, false, ch) >= 0 || findNote(la, printed, false, ch) >= 0) return n;
       }
       return null;
+    };
+    /* A NOTE OUTSIDE THE TRACTATE ON ITS VERSE (2026-11-08, found testing Augustine on John 1). The library indexed the numbered sections
+     * of Augustine's Tractate I (on John 1:1-5) as notes on verses: its §13, at col. 1385 on 1:3, became "his note on John 1:13", though
+     * Tractate II, on 1:6-14, begins at col. 1388. Where a heading in the section names a run of verses holding this one, a page that lies
+     * outside that run (before its heading, or past the next one) is not the note on it. */
+    const inRun = (sec, printed, p) => {
+      const r = sec.ranges.filter((x) => x.a <= printed && printed <= x.b).sort((x, y) => (x.b - x.a) - (y.b - y.a) || x.p - y.p)[0];
+      if (!r) return true;
+      const next = sec.ranges.filter((x) => x.p > r.p).sort((x, y) => x.p - y.p)[0];
+      return p >= r.p && (!next || p <= next.p);
     };
     const located = (c, v, w) => {
       return once(`loc|${c.slug}|${w.name}|${w.ch}|${v}`, async () => {
         const printed = printedOf(c, v), sec = await section(c, w);
         if (sec.heads[printed]) return { p: sec.heads[printed].p, v };
+        // the verse's place printed in the run of the text ("2, 16 Knowing that …", the Weimar edition)
+        const mk = sec.marks.find((x) => x.v === +printed); if (mk) return { p: mk.p, v };
         // a note headed only by the verse's words in capitals ("AND GOD SAW THE LIGHT THAT IT WAS GOOD."): between the notes on the
         // verses either side, the heading whose words are all in the verse
         let text; try { text = String(verseText(v) || '').toLowerCase(); } catch (_) { text = ''; }
@@ -361,27 +418,27 @@
         }
         // the library's own indexed note, if it lies in this commentary's section of the chapter (an index row can point into
         // another work printed in the same volume), or the note itself where that page carries the verse only as the text
-        if (c.notes[v] != null && +c.notes[v] >= sec.lo && +c.notes[v] < sec.hi) {
-          const after = await noteAfterText(c, +c.notes[v], printed, sec.hi);
+        if (c.notes[v] != null && +c.notes[v] >= sec.lo && +c.notes[v] < sec.hi && inRun(sec, +printed, +c.notes[v])) {
+          const after = await noteAfterText(c, +c.notes[v], printed, sec.hi, w.ch);
           return { p: after != null ? after : +c.notes[v], v, indexed: true };
         }
-        for (const cand of candidatePages((c.rows || {})[v], c.slug, w.name, w.ch, v).filter((x) => x.p >= sec.lo && x.p < sec.hi).slice(0, 8)) {
+        for (const cand of candidatePages((c.rows || {})[v], c.slug, w.name, w.ch, v).filter((x) => x.p >= sec.lo && x.p < sec.hi && inRun(sec, +printed, x.p)).slice(0, 8)) {
           for (const p of [cand.p - 2, cand.p - 1, cand.p]) {
             if (p < Math.max(1, sec.lo)) continue;
             const [en, la] = await getParas(c.slug, p);
             if (apparatusShare(en.length ? en : la) >= 0.8) continue; // a page of the editors' notes alone is no note on the verse
-            if (findNote(en, printed) >= 0 || findNote(la, printed) >= 0) return { p, v };
+            if (findNote(en, printed, false, w.ch) >= 0 || findNote(la, printed, false, w.ch) >= 0) return { p, v };
           }
         }
         // the lecture whose heading names a range of the chapter's verses holding this one (the narrowest)
         const r = sec.ranges.filter((x) => x.a <= printed && printed <= x.b).sort((x, y) => (x.b - x.a) - (y.b - y.a) || x.pos - y.pos)[0];
-        if (r) return { p: r.p, v };
+        if (r) return { p: r.p, v, range: { a: r.a, b: r.b } };
         return null;
       });
     };
     async function resolve(c, v, w) {
       const here = await located(c, v, w);
-      if (here) return { p: here.p, how: 'note', v, indexed: !!here.indexed };
+      if (here) return here.range ? { p: here.p, how: 'range', v, a: here.range.a, b: here.range.b } : { p: here.p, how: 'note', v, indexed: !!here.indexed };
       const sec = await section(c, w);
       const claims = [];
       for (const x of candidatePages((c.rows || {})[v], c.slug, w.name, w.ch, v)) {
@@ -412,5 +469,5 @@
     return { located, resolve, section };
   }
 
-  return { strongRx, bareRx, strongNum, bareNum, capsNum, isApparatus, apparatusIndexes, apparatusShare, quotesVerse, lemmaParts, lemmaIndexes, findNote, noteEnd, gistClaims, candidatePages, rangeOf, createResolver };
+  return { strongRx, bareRx, strongNum, bareNum, capsNum, isApparatus, apparatusIndexes, apparatusShare, quotesVerse, lemmaParts, lemmaIndexes, cvMarks, findNote, noteEnd, gistClaims, candidatePages, rangeOf, createResolver };
 }));

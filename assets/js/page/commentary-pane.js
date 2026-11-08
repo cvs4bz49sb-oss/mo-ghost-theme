@@ -1195,10 +1195,25 @@
     if (!resolver && c.notes[v] != null) return { p: c.notes[v], how: 'note', v, indexed: true };
     return null;
   }
+  /* BETWEEN TWO NOTES ON ONE PAGE (owner 2026-11-08, "fix this": Chrysostom on Romans 3:23 opened at col. 437, the start of Homily 7,
+   * with his notes on 3:22 and 3:24 both at col. 443). Where a work has no note of its own on the verse, and its notes (its own, or the
+   * reception history's) on the nearest verse before and the nearest after, each within two verses, lie on one page or on facing pages,
+   * its comment on the verse is there: {p, how: 'between', a, b}. One neighbour alone is no evidence (Chrysostom on Matthew 5:3 is not
+   * at his note on 5:13, 10-22). */
+  function between(c, v) {
+    const at = (x) => { const p = c.notes[x] != null ? c.notes[x] : c.recNotes && c.recNotes[x]; return p != null && Number(p) > 0 ? Number(p) : null; };
+    let a = null, b = null;
+    for (let d = 1; d <= 2 && a == null; d += 1) if (v - d >= 1 && at(v - d) != null) a = v - d;
+    for (let d = 1; d <= 2 && b == null; d += 1) if (at(v + d) != null) b = v + d;
+    if (a == null || b == null) return null;
+    const pa = at(a), pb = at(b);
+    return pb >= pa && pb - pa <= (stride(c.slug) || 1) ? { p: pa, how: 'between', v, a, b } : null;
+  }
   async function resolve(c, v, w) {
     let t = resolver ? await resolver.resolve(c, v, { name: w.name, ch: w.ch }) : (c.open != null ? { p: c.open, how: 'chapter' } : null);
     // the reception history's own note on this verse, where the resolver found no note of its own (10-22)
-    if ((!t || t.how !== 'note') && c.recNotes && c.recNotes[v] != null) t = { p: Number(c.recNotes[v]), how: 'note', v, indexed: true };
+    if ((!t || (t.how !== 'note' && t.how !== 'range')) && c.recNotes && c.recNotes[v] != null) t = { p: Number(c.recNotes[v]), how: 'note', v, indexed: true };
+    if (!t || (t.how !== 'note' && t.how !== 'range')) { const bt = between(c, v); if (bt) t = bt; }
     if (t || c.bookAt == null) return t;
     await headPage(c, w.book, w.ch);
     return bookPlace(c);
@@ -1274,6 +1289,18 @@
    * Where no line of the pages is the chapter's heading, the first place where the run prints it, in capitals after a sentence's end
    * ("CHAP. XII.", "CAPUT XII.", "PSAL. LI."), is cut out as the heading; a reference in the prose ("from chap. 11.") is left alone. */
   const INLINE_WORD = (book) => (book === 'psalms' ? 'PSAL(?:M(?:US|I)?)?' : '(?:CHAP(?:TER)?|CAP(?:UT|ITULUM)?|KAP(?:ITEL)?)');
+  // (2026-11-08) the verse's place printed in the run of a paragraph ("… ceremonies only. 2, 16 Knowing that a man …", the Weimar
+  // edition): the paragraph is cut there, so the note starts at its own words and what ends the note before stays with it
+  function cutAtMark(all, at, ch, v) {
+    const marks = (s) => (A && A.cvMarks ? A.cvMarks(s, ch) : []);
+    for (let i = 0; i < all.length; i += 1) {
+      const m = marks(all[i]).find((x) => x.v === Number(v) && x.at > 0); if (!m) continue;
+      const a = all[i].slice(0, m.at).trim(), b = all[i].slice(m.at).trim();
+      if (!a || !b) return;
+      all.splice(i, 1, a, b); at.splice(i, 1, at[i], at[i]);
+      return;
+    }
+  }
   function cutInlineHead(all, at, ch, book) {
     const hx = headRx(ch, book);
     if (all.some((s) => hx.test(s))) return;
@@ -1348,7 +1375,7 @@
     if (t.how === 'note' || t.how === 'later' || t.how === 'nearest' || t.how === 'page') {
       // only the chapter's own run of paragraphs, as the Commentary view reads it (10-22)
       const run = chapterRun(all, w), part = all.slice(run.lo, run.hi);
-      let k = A ? A.findNote(part, printed, !!t.indexed) : -1;
+      let k = A ? A.findNote(part, printed, !!t.indexed, w.ch) : -1;
       if (k < 0) k = part.findIndex((s) => noteRx(printed).test(s));
       hit = k >= 0 ? run.lo + k : -1;
       if (hit >= 0) from = hit;
@@ -1362,7 +1389,7 @@
     } else if (t.how === 'sermon' || t.how === 'sermon-ch') {
       const k = headingAt(all, t.x); if (k >= 0) from = k;
     }
-    const to = hit >= 0 && A ? A.noteEnd(all, hit, found ? v : printed, 6) : all.length;
+    const to = hit >= 0 && A ? A.noteEnd(all, hit, found ? v : printed, 6, w.ch) : all.length;
     const out = []; let len = 0;
     for (let i = from; i < Math.max(to, from + 1) && i < all.length && len < 900; i += 1) {
       const s = all[i], head = /^#{1,6}\s+/.test(s), txt = head ? s.replace(/^#{1,6}\s+/, '') : s;
@@ -1510,6 +1537,9 @@
     const bookName = refName(where() || { book: sh.book }), wr = { ...(where() || {}), book: sh.book, ch: sh.ch };
     const {t} = sh, ref = (n) => `${bookName} ${sh.ch}:${n}`;
     const say = t.how === 'note' ? `Its note on ${ref(t.v)}`
+      // (2026-11-08) a lecture, homily or tractate on a run of verses holding this one; a place between its notes on the verses either side
+      : t.how === 'range' ? `Its comment on ${bookName} ${sh.ch}:${t.a}${t.b === Infinity || t.b == null ? 'ff.' : t.b > t.a ? `\u2013${t.b}` : ''}`
+      : t.how === 'between' ? `Its comment on ${ref(S.verse)} is on this page, between its notes on ${sh.ch}:${t.a} and ${sh.ch}:${t.b}`
       : t.how === 'page' ? `Its comment on ${ref(t.v)} is on this page`
       : t.how === 'later' ? `No separate note on ${sh.ch}:${S.verse}. Its next note is on ${ref(t.v)}`
       : t.how === 'nearest' ? `No separate note on ${sh.ch}:${S.verse}. Its closest earlier note is on ${ref(t.v)}`
@@ -1536,15 +1566,23 @@
     // the pages as one run of paragraphs, so a note that crosses the page break is one note
     const all = [], pageOf = [];
     pages.forEach((p, i) => { paragraphs(p[lane] || p.la || p.en).forEach((s) => { all.push(s); pageOf.push(i); }); });
-    if (!['collected', 'browse', 'cites', 'treats', 'sermon', 'sermon-ch'].includes(t.how)) cutInlineHead(all, pageOf, wr.ch, wr.book);
+    if (!['collected', 'browse', 'cites', 'treats', 'sermon', 'sermon-ch'].includes(t.how)) { cutInlineHead(all, pageOf, wr.ch, wr.book); cutAtMark(all, pageOf, wr.ch, printed); }
     const headAt = (k) => setWhere(pages[pageOf[k]].n, false, all[k].replace(/^#{1,6}\s+/, ''));
     let h = -1, top = 0, found = false;
     if (t.how === 'note' || t.how === 'later' || t.how === 'nearest' || t.how === 'page') {
       // (10-22) only the chapter's own run of paragraphs is read: Poole's note on Psalm 52:2 was marked as his note on 51:2
       const run = chapterRun(all, wr), part = all.slice(run.lo, run.hi);
-      if (A) { const k = A.findNote(part, printed, !!t.indexed); h = k >= 0 ? run.lo + k : -1; }
+      if (A) { const k = A.findNote(part, printed, !!t.indexed, wr.ch); h = k >= 0 ? run.lo + k : -1; }
       // a page the library indexed as holding the note keeps the older reading if the stricter one finds none
       if (h < 0 && t.indexed) { const k = part.findIndex((s) => noteRx(printed).test(s)); h = k >= 0 ? run.lo + k : -1; }
+    } else if (t.how === 'range') {
+      // the view starts at the heading that names the verses (Augustine's "TRACTATE I. … Chap. I, V. 1-5."); its sections are not verses.
+      // The verse's own words where the lecture prints them under its chapter and number ("1:1 In the beginning was the Word", Aquinas)
+      // are its note, marked
+      const k = A ? all.findIndex((s) => { const r = A.rangeOf(s, wr.ch); return !!r && r.a <= printed && printed <= r.b; }) : -1;
+      const lx = new RegExp(`^(?:#{1,6}\\s+)?${Number(wr.ch)}\\s*[:,]\\s*${printed}(?!\\d)`);
+      const j = all.findIndex((s, i) => i > k && lx.test(s));
+      if (j >= 0) { h = j; found = true; setWhere(pages[pageOf[j]].n, true); } else if (k > 0) { top = k; headAt(k); }
     } else if (t.how === 'head' || t.how === 'book') {
       // under the chapter's heading, the verse's own note by its heading word ("Vers. 1."), else the heading itself (10-22)
       const u = underHead(all, wr, (S.cur && S.cur.pv && S.cur.pv[S.verse]) || S.verse);
@@ -1562,7 +1600,7 @@
     // the editors' textual notes of a scholarly edition (variant readings, line numbers) are set apart, and do not count toward what is shown
     const app = A ? A.apparatusIndexes(all) : new Set();
     const shown = (n, a = 0) => { let seen = 0, j = a; for (; j < all.length && seen < n; j += 1) if (!app.has(j)) seen += 1; while (j < all.length && app.has(j)) j += 1; return j; };
-    const to = h >= 0 ? (A ? A.noteEnd(all, h, found ? S.verse : printed, 14) : Math.min(all.length, h + 8)) : (t.how === 'browse' ? all.length : shown(14, from));
+    const to = h >= 0 ? (A ? A.noteEnd(all, h, found ? S.verse : printed, 14, wr.ch) : Math.min(all.length, h + 8)) : (t.how === 'browse' ? all.length : shown(14, from));
     const sig = siglaOf(sh.slug);
     const withSigla = (txt) => {
       if (!sig) return { html: esc(txt), who: [] };
