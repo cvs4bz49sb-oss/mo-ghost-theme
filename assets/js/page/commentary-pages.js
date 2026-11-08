@@ -206,6 +206,11 @@
         return { meta, p: p.en || p.la ? p : null, last, src };
       }
       const shard = (meta.shards || []).find((s) => s.from <= n && n <= s.to);
+      /* NO PAGE PAST THE LAST SHARD (2026-11-08, daily-driver QA: Clarke on Exodus 20:3 took 6.5 s to open, Wesley on Psalm 51:5 4.6 s).
+       * The resolver reads forty pages on from a chapter's page; near a volume's end (Clarke's Genesis-Esther has 260 pages, Exodus 20 is
+       * at p. 258) every page past the last shard asked for work.json, which a sharded work does not have: 37 requests answered 404 one
+       * after another, none remembered (a failure is asked for again). A sharded work has no page outside its shards. */
+      if (!shard && (meta.shards || []).length) return { meta, p: null, last };
       const d = shard ? await env.json(`${base}/v1/works/${slug}/${shard.file}`) : await env.json(`${base}/v1/works/${slug}/work.json`);
       const p = (d.pages || []).find((x) => +x.n === +n);
       return { meta, p, last, src };
