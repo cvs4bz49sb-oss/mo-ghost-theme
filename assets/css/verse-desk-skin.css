@@ -28,7 +28,7 @@ html[data-sd-theme="dark"] .sd-desk .vdb-site-mo { --highlight: var(--color-crea
 /* ── the dark-mode toggle sits beside the verse's title, not on a row of its own ── */
 .sd-desk-page .sd-viewbar { position: relative; z-index: 2; height: 0; padding-top: 0; padding-bottom: 0; }
 .sd-desk-page .sd-viewbar-row { transform: translateY(34px); }
-.sd-desk .vdb-top { padding-right: 48px; }
+.sd-desk :is(.vdb-top, .sd-desk > p:first-child) { padding-right: 48px; }
 
 /* ── section heads: one size ── */
 .sd-desk .vdb .vdb-band-h h3,
