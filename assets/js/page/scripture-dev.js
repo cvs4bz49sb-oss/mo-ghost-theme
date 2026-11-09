@@ -193,8 +193,13 @@
     });
   }
 
+  /* (2026-11-08, owner: "run the reccomendations") The commentary read beside the text (commentary-pane.js writes &cp=<slug>) stays in
+   * the address while the chapter does: a verse opened or a translation changed wrote ?ref= alone and dropped it, so a link or Back lost
+   * the commentary. Another chapter starts without it; the pane names the one it opens there. */
   function writeUrl(push) {
-    const url = S.readerHref(state.book, state.c, state.v, state.t === "ESV" ? "" : state.t);
+    let url = S.readerHref(state.book, state.c, state.v, state.t === "ESV" ? "" : state.t);
+    const here = new URLSearchParams(location.search), cp = here.get("cp"), was = S.parseRef(here.get("ref") || "");
+    if (cp && was && was.book === state.book && was.c === state.c) url += `&cp=${encodeURIComponent(cp)}`;
     if (location.pathname + location.search === url) return;
     history[push ? "pushState" : "replaceState"](null, "", url);
   }
@@ -220,10 +225,17 @@
     const { book, c } = state;
     const ctx = { book, c, get v() { return state.book === book && state.c === c ? state.v : 0; } };
     comm = S.commentaryFolds($commPanel.querySelector("[data-sd-comm-host]"), ctx, (n) => {
+      // the pane beside the text owns the button (data-cp-list) and gives the count of its own list
+      if ($commToggle.dataset.cpList) return;
       $commCount.textContent = n ? `(${fmt(n)})` : "";
     });
   }
+  /* ONE LIST (2026-11-08, owner: "run the reccomendations"): with the commentary pane beside the text, the button opens the pane's own
+   * list of the chapter's commentaries (its Change list) instead of this second one; the pane answers cp:list (commentary-pane.js). With
+   * the pane off nobody answers, and the list here opens as before. */
   $commToggle.addEventListener("click", () => {
+    // answered, this list is shut (it may have been opened while the pane was put away, in the Scripture only view)
+    if (!document.dispatchEvent(new CustomEvent("cp:list", { cancelable: true }))) { $commPanel.hidden = true; return; }
     const open = $commToggle.getAttribute("aria-expanded") !== "true";
     $commToggle.setAttribute("aria-expanded", String(open));
     $commPanel.hidden = !open;
@@ -324,7 +336,7 @@
       const row = (e) => {
         const href = S.sourceHref(e.href, e.w);
         const meta = [e.a, S.centuryLabel(e.cen)].filter(Boolean).map(esc).join(" \u00b7 ");
-        return `<li><a class="sd-ov-comm-row" href="${esc(href || "#")}"><span class="sd-ov-comm-t">${esc(e.t || e.w)}</span><span class="sd-ov-comm-m">${meta}</span></a></li>`;
+        return `<li><a class="sd-ov-comm-row" href="${esc(href || "#")}" data-w="${esc(e.w || "")}"><span class="sd-ov-comm-t">${esc(e.t || e.w)}</span><span class="sd-ov-comm-m">${meta}</span></a></li>`;
       };
       const list = (label, items, n) => (items.length
         ? `<p class="sd-ov-comm-sub">${esc(label)}</p><ol class="sd-ov-comm-list">${items.slice(0, n).map(row).join("")}</ol>` : "");
@@ -337,6 +349,10 @@
   }
 
   $ov.addEventListener("click", (e) => {
+    // (owner 2026-11-07: "i keep having to preview to find a commentary and then open it too many clicks") a commentary named here is
+    // read beside the text when the commentary pane holds it (S.readBeside); else, or opened in a new tab, its link goes to the reader
+    const row = e.target.closest(".sd-ov-comm-row[data-w]");
+    if (row && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && S.readBeside && S.readBeside(row.dataset.w, 0)) { e.preventDefault(); return; }
     if (e.target.closest("[data-sd-ov-comm-all]")) {
       if ($commToggle.getAttribute("aria-expanded") !== "true") $commToggle.click();
       $commPanel.scrollIntoView({ block: "start", behavior: "smooth" });
@@ -685,6 +701,9 @@
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" || !$panel.isConnected) return;
     if (e.target.closest && e.target.closest("input, select, textarea")) return;
+    // (2026-11-08) Escape in another dialog, or while the site's feedback form is open, is that dialog's: shutting the form shut the
+    // verse too, and the focus was left on it
+    if ((e.target.closest && e.target.closest('[role="dialog"]')) || document.querySelector(".fr-survey.is-open")) return;
     closeVerse();
   });
   narrow.addEventListener("change", () => {
@@ -711,7 +730,16 @@
     const qs = new URLSearchParams(location.search);
     const r = S.parseRef(qs.get("ref"));
     const t = qs.get("t");
-    state.t = t && S.translationInfo(t) ? t : "ESV";
+    const want = t && S.translationInfo(t) ? t : "ESV";
+    /* (2026-11-08, owner: "run the reccomendations") Back within the chapter drawn (to a verse, or to the commentary beside the text
+     * picked before) opens or shuts the verse where it is: load() set the whole chapter again, the text flashing and the page jumping,
+     * for an address whose chapter and translation had not changed. The pane puts back its own commentary (commentary-pane.js). */
+    if (r && r.book === state.book && r.c === state.c && want === state.t && $text.querySelector(".bible-verse")) {
+      if (r.v && r.v !== state.v) openVerse(r.v, { scroll: true });
+      else if (!r.v && state.v) closePanel();
+      return;
+    }
+    state.t = want;
     if (r) load(r.book, r.c, r.v, false);
   });
 

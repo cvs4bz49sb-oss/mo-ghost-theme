@@ -1,0 +1,75 @@
+{{!< default}}
+{{!-- The TFR rail, first on the page and pinned under the masthead as on the reader (Ian, 2026-09-23). --}}
+{{> "faith-received/_tfr-rail"}}
+{{#contentFor "moHead"}}
+<title>Commentaries | The Faith Received | Mere Orthodoxy</title>
+<meta name="description" content="Every commentary on the Bible that The Faith Received holds, book by book and by tradition, with the commentaries on the whole Bible: open any of them beside the text of Scripture, or read it whole." />
+<link rel="stylesheet" href="{{asset "css/scripture-dev.css"}}&amp;frv=58021fdd5fbb6df8" />
+<link rel="stylesheet" href="{{asset "css/scripture-verse-rail.css"}}&amp;frv=7f863c6400ae81e3" />
+<link rel="stylesheet" href="{{asset "css/faith-commentaries.css"}}&amp;frv=3fe1fc1c9b584270" />
+{{!-- Dark or light, set on <html> before first paint, as on the Scripture desk (external: the CSP forbids inline script). --}}
+<script src="{{asset "js/page/scripture-view-boot.js"}}&amp;frv=b619c4b13b360add"></script>
+{{/contentFor}}
+{{!-- /the-faith-received/commentaries/?book=<book> (2026-11-08, owner: "integrate the commentaries and controversies (thomists vs
+     scotist) pages in the mereO site"; the plan: "a Commentaries page on Mere Orthodoxy: every Bible commentary we hold, by book and by
+     tradition, plus the whole-Bible sets. Each row opens the Scripture desk at that book with that commentary already open. It must look
+     and behave like part of the Scripture desk").
+
+     Part of the Scripture desk: its hero, its bar (the three divisions, then the book), its Dark mode switch, its account gate. The book's
+     commentaries are drawn in the Change list's grammar (scripture-verse-rail.js) by faith-commentaries.js, from the files the desk's
+     commentary pane reads (v1/devotion.json.gz, v1/scripture/rank.json, v1/scripture/sets.json, v1/enrich/author_dates.json on the
+     library worker): the key commentaries first, then the rest by tradition; beside them the whole-Bible sets by tradition. Each row
+     opens the Scripture desk at that commentary (?ref=<book>.<c>.1&cp=<slug>), and "Read" opens the reader. No book in the address:
+     Genesis. Scripts are external files: the site CSP forbids inline script. --}}
+
+<main class="bible sd sdc" data-sdc>
+
+<section class="bhero bhero--tool">
+  <div class="bhero-inner container">
+    <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/scripture/">Scripture</a> <span aria-hidden="true">&middot;</span> Commentaries</p>
+    <h1>Commentaries</h1>
+    <p class="bhero-sub">Every commentary the library holds on each book of the Bible, by tradition, and the commentaries on the whole Bible. Open one beside the text, or read it in the reader.</p>
+  </div>
+</section>
+
+  {{!-- The bar as on the Scripture desk: the divisions are tabs, the Book select is scoped to the division showing, and the button the
+       desk gives its Commentaries list is here the way back to the text. --}}
+  <nav class="bible-controls sd-bar" aria-label="Book">
+    <div class="container sd-canon">
+      <div class="faith-view-toggle sd-canon-tabs" role="tablist" aria-label="Division of the Bible">
+        <button type="button" class="faith-view-toggle-tab is-active" role="tab" id="sdc-tab-ot" data-sdc-tab="ot" aria-selected="true" aria-controls="sdc-book-panel">Old Testament</button>
+        <button type="button" class="faith-view-toggle-tab" role="tab" id="sdc-tab-nt" data-sdc-tab="nt" aria-selected="false" aria-controls="sdc-book-panel" tabindex="-1">New Testament</button>
+        <button type="button" class="faith-view-toggle-tab" role="tab" id="sdc-tab-ap" data-sdc-tab="ap" aria-selected="false" aria-controls="sdc-book-panel" tabindex="-1">Apocrypha</button>
+      </div>
+    </div>
+    <div class="container bible-controls-inner sd-bar-inner">
+      <div class="bible-control sd-book-panel" id="sdc-book-panel" role="tabpanel" aria-labelledby="sdc-tab-ot" data-sdc-book-panel>
+        <label class="bible-control-label" for="sdc-book">Book</label>
+        <select id="sdc-book" data-sdc-book></select>
+      </div>
+      <a class="sd-comm-toggle sdc-desk" href="/the-faith-received/scripture/" data-sdc-desk>Read Scripture</a>
+    </div>
+  </nav>
+
+  <div class="container sd-viewbar" data-sd-viewbar>
+    <div class="sd-viewbar-row">
+      <button type="button" class="sd-theme-btn" aria-pressed="false" aria-label="Dark mode" title="Dark mode" data-sd-theme-toggle><svg class="sd-ico" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path class="sd-ico-moon" d="M20 14.2A8 8 0 1 1 9.8 4a6.4 6.4 0 0 0 10.2 10.2z"/><g class="sd-ico-sun"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></g></svg></button>
+    </div>
+  </div>
+
+  <div class="container sdc-body" data-sdc-host>
+    <p class="sdc-status" role="status">Loading the commentaries&hellip;</p>
+  </div>
+  <p class="sdc-sr" role="status" aria-live="polite" data-sdc-say></p>
+</main>
+
+{{> "faith-received/_account-gate" source="feature-gate:tfr-commentaries"}}
+
+{{!-- mo-tfr-library, read by scripture-dev-core.js as it loads and by faith-commentaries.js. --}}
+<meta name="tfr-library-base" content="https://mo-tfr-library.mo-podcast-feed.workers.dev" />
+<script src="{{asset "js/page/scripture-verse-rail.js"}}&amp;frv=25c0bc349f9a1f34"></script>
+<script src="{{asset "js/page/scripture-dev-core.js"}}&amp;frv=05872fea8982fbb2"></script>
+<script src="{{asset "js/page/faith-commentaries-model.js"}}&amp;frv=fe1c055a291e838c"></script>
+<script src="{{asset "js/page/faith-commentaries.js"}}&amp;frv=73a163a0a4c86c73"></script>
+<script src="{{asset "js/page/faith-tfr-rail.js"}}" defer></script>
+<script defer src="{{asset "js/page/scripture-view.js"}}&amp;frv=633c328d4b412260"></script>

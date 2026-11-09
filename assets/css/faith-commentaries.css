@@ -1,0 +1,79 @@
+/* THE COMMENTARIES, BOOK BY BOOK (2026-11-08, owner: "integrate the commentaries and controversies (thomists vs scotist) pages in the
+   mereO site"; the plan: "It must look and behave like part of the Scripture desk").
+
+   This sheet adds only what the page needs on top of the Scripture desk's own: the hero, the bar of divisions and books and the Dark
+   mode switch are scripture-dev.css's (the page is main.bible.sd, as the desk and the Verse Desk are), and the rows are the Change
+   list's (scripture-verse-rail.css, the .vr- directory). Here: the rail's tokens on the desk's paper (commentary-pane.css states them for
+   the pane, which this page does not load), the two lists side by side on a wide screen, the rows' links, and the dark palette on the
+   page's own switch, html[data-sd-theme="dark"], with the desk's --sd-dk-* tokens (never the OS setting alone). */
+.sdc {
+  --cp-ink: var(--color-dark, #2d2927);
+  --cp-muted: var(--color-muted, #6b6660);
+  --cp-faint: var(--color-muted, #6b6660);
+  --cp-paper: #fbf8f3;
+  --cp-ground: #fbf8f3;
+  --cp-rule: var(--color-rule, #ddd5c8);
+  --cp-sheet: #fff;
+}
+/* the desk's dark (scripture-dev.css turns over .sd-bar and main.sd; the lists below are this page's own) */
+html[data-sd-theme="dark"] .sdc .sdc-body {
+  color: var(--sd-dk-ink);
+  --color-dark: var(--sd-dk-ink);
+  --color-muted: var(--sd-dk-muted);
+  --color-rule: var(--sd-dk-rule);
+  --color-secondary: var(--sd-dk-accent);
+  --sd-accent: var(--sd-dk-accent);
+  --cp-ink: var(--sd-dk-ink);
+  --cp-muted: var(--sd-dk-muted);
+  --cp-faint: var(--sd-dk-faint);
+  --cp-paper: var(--sd-dk-panel);
+  --cp-ground: var(--sd-dk-panel);
+  --cp-rule: var(--sd-dk-rule);
+  --cp-sheet: var(--sd-dk-card);
+}
+
+/* the book just chosen, said to a screen reader */
+.sdc .sdc-sr { position: absolute; left: -9999px; }
+
+/* ── the bar: the desk's "Commentaries" button is, here, the way back to the text ── */
+.sdc .sdc-desk { display: inline-flex; align-items: center; text-decoration: none; }
+.sdc .sdc-desk:hover, .sdc .sdc-desk:focus-visible { text-decoration: none; }
+
+/* ── the lists ── */
+.sdc .sdc-body { padding-top: 4px; padding-bottom: 72px; }
+.sdc .sdc-status { margin: 28px 0; font-size: 16px; color: var(--cp-muted); }
+/* the find box sits over both lists, not stuck to the top as in the pane, where the list scrolls inside it */
+.sdc .vr-dir-find.sdc-find { position: static; max-width: 560px; padding: 0 0 18px; background: none; border-bottom: 0; }
+.sdc .vr-dir-find.sdc-find input { background: var(--cp-sheet); }
+.sdc .sdc-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
+/* two lists side by side from a desk's width: the commentaries on the book, and the sets on the whole Bible */
+@media (min-width: 1080px) {
+  .sdc .sdc-cols { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 32px; }
+}
+.sdc .sdc-col { min-width: 0; padding: 18px 22px 10px; background: var(--cp-paper); border: 1px solid var(--cp-rule); border-radius: 3px; }
+.sdc .sdc-h { display: flex; align-items: baseline; gap: 12px; margin: 0 0 4px; font: 600 20px/1.3 var(--font-body); color: var(--cp-ink); }
+.sdc .sdc-n { margin-left: auto; font-size: 14px; font-weight: 400; color: var(--cp-muted); font-variant-numeric: tabular-nums; }
+/* the rows are links here, where the pane's are buttons: the title's link, then "Open in Scripture" in its outline as a cell of its own,
+   then "Read" at the end, in the same place on every row */
+.sdc a.vr-e-read { color: inherit; text-decoration: none; }
+.sdc .sdc-row { grid-template-columns: minmax(0, 1fr) auto auto; }
+.sdc .sdc-row > .vr-e-go { grid-column: auto; grid-row: auto; text-decoration: none; }
+.sdc .sdc-row > .vr-e-read:hover + .vr-e-go, .sdc .sdc-row > .vr-e-go:hover { background: var(--cp-ink); color: var(--cp-paper); }
+.sdc .sdc-y { margin-left: 8px; font-size: 0.8rem; color: var(--cp-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sdc a.vr-e-vol { display: inline-flex; align-items: center; text-decoration: none; }
+.sdc .vr-fold-btn .vr-k { margin-left: 2px; font-size: 0.8rem; color: var(--cp-muted); }
+
+@media (max-width: 760px) {
+  .sdc .sdc-col { padding: 14px 14px 6px; border-left: 0; border-right: 0; border-radius: 0; margin: 0 -16px; }
+  .sdc .vr-dir-find.sdc-find { max-width: none; }
+}
+/* a phone: the title keeps the width, and "Open in Scripture" and "Read" share the line under it */
+@media (max-width: 480px) {
+  .sdc .sdc-row { grid-template-columns: auto auto minmax(0, 1fr); grid-template-areas: "r r r" "go pg ."; align-items: center; padding-bottom: 8px; }
+  .sdc .sdc-row > .vr-e-read { grid-area: r; min-height: 0; padding-bottom: 4px; }
+  .sdc .sdc-row > .vr-e-go { grid-area: go; min-height: 40px; }
+  .sdc .sdc-row > .vr-e-pg { grid-area: pg; display: inline-flex; align-items: center; min-height: 40px; padding: 0 6px; }
+  /* a work the desk cannot open has only Read, where Open in Scripture would stand */
+  .sdc .sdc-noplace > .vr-e-pg { grid-area: go; padding-left: 0; }
+  .sdc .sdc-y { display: block; margin: 1px 0 0; }
+}

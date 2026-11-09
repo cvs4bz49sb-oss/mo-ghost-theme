@@ -18,6 +18,9 @@
 
   const CANON = /^(pld|pg|po)-(\d+)$/;
   const EEBO = /^eebo-(\d+)$/;
+  // the source text's own name, for a page shown in English or the source (2026-11-08, The Faith Received's page reader): Greek for
+  // Chrysostom in Migne, French for a Migne work set in French; from the file's xml:lang, else the work's meta.json src_lang
+  const SRC_NAME = { la: 'Latin', lat: 'Latin', grc: 'Greek', el: 'Greek', gr: 'Greek', fr: 'French', de: 'German', nl: 'Dutch', syr: 'Syriac' };
   const stride = (slug) => (CANON.test(slug) ? 2 : 1);
   const paragraphs = (t) => String(t || '').replace(/\[\^[^\]]*\]/g, '').split(/\n+/).map((s) => s.trim()).filter(Boolean);
 
@@ -30,9 +33,11 @@
     return m ? decode(m[1] != null ? m[1] : m[2]) : '';
   };
 
-  // A TEI file read as text, with no DOM: calls onMark(local name, attrs) for every <pb> and <milestone>, and onBlock(text, lang) for
-  // every <p> and <head> that is not inside a <note> (a note inside a paragraph is part of its text, as textContent had it).
-  function scanTei(xml, onMark, onBlock) {
+  // A TEI file read as text, with no DOM: calls onMark(local name, attrs) for every <pb> and <milestone>, and onBlock(text, lang, n) for
+  // every <p> and <head> that is not inside a <note> (a note inside a paragraph is part of its text, as textContent had it; n is the
+  // block's own n attribute, a printed column where a file gives one); onDiv(attrs, depth), where given, for every <div> as it opens
+  // (depth 1: a child of <body>).
+  function scanTei(xml, onMark, onBlock, onDiv) {
     const at = xml.search(/<body[\s>]/);
     const text = at >= 0 ? xml.slice(at) : xml;
     const rx = /<!--[\s\S]*?-->|<\?[\s\S]*?\?>|<!\[CDATA\[([\s\S]*?)\]\]>|<(\/?)([A-Za-z_][\w:.-]*)((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>|([^<]+)/g;
@@ -45,16 +50,17 @@
       if (closing) {
         const top = stack.pop();
         if (top && top.name === 'note') note -= 1;
-        if (buf && top && top === buf.el) { const t = buf.t.replace(/\s+/g, ' ').trim(); if (t) onBlock(t, buf.lang); buf = null; }
+        if (buf && top && top === buf.el) { const t = buf.t.replace(/\s+/g, ' ').trim(); if (t) onBlock(t, buf.lang, buf.n); buf = null; }
         continue;
       }
       if (name === 'pb' || name === 'milestone') onMark(name, m[4]);
       if (selfClose) continue;
+      if (name === 'div' && onDiv) onDiv(m[4], stack.length);
       const lang = attr(m[4], 'xml:lang') || (stack.length ? stack[stack.length - 1].lang : '');
       const el = { name, lang };
       stack.push(el);
       if (name === 'note') note += 1;
-      if ((name === 'p' || name === 'head') && !note && !buf) buf = { el, t: '', lang };
+      if ((name === 'p' || name === 'head') && !note && !buf) buf = { el, t: '', lang, n: attr(m[4], 'n') };
     }
   }
 
@@ -106,19 +112,56 @@
       const xml = await env.text(env.mo ? `${base}/v1/tei/${fam}/${id}.xml` : `${base}/tei/${fam}/${id}.xml`);
       const en = new Map(), src = new Map(), cols = [];
       let cur = null;
+      /* THE FIRST COLUMN UNMARKED (2026-11-08, found testing Augustine on John 1:1). Some files open with the volume's own mark
+       * (<milestone n="35"/>) where the first column's would be, and the next mark is the second column ("35:1380"): the work's opening
+       * (Tractate I's heading and its §1) was dropped, and the map's page for chapter 1 is the volume's number. The text before the first
+       * column mark is its column: the one before it ("35:1380": col. 1379), or the same column when the mark is a later quarter of it
+       * ("53:0569C": col. 569). */
+      const before = [], langs = {};
+      const put = (col, t, lang) => { const m = lang === 'en' ? en : src; if (lang !== 'en') langs[lang] = (langs[lang] || 0) + 1; if (!m.has(col)) m.set(col, []); m.get(col).push(t); };
+      let vol = null, div = 0;
       scanTei(xml, (tag, attrs) => {
         if (tag === 'milestone' && attr(attrs, 'unit') !== 'column') return;
         const raw = attr(attrs, 'n');
-        if (fam === 'pld' && tag === 'milestone' && !raw.includes(':')) return; // the volume's own mark, not a column
+        // the volume's own mark, not a column (kept for a file that has no other mark)
+        if (fam === 'pld' && tag === 'milestone' && !raw.includes(':')) { if (vol == null) vol = parseInt(raw, 10) || null; return; }
         const c = parseInt(raw.split(':').pop(), 10); // "26:0021B": column 21, its second quarter
-        if (c) { cur = c; if (!cols.includes(c)) cols.push(c); }
-      }, (t, lang) => {
-        if (cur == null) return;
-        const m = lang === 'en' ? en : src;
-        if (!m.has(cur)) m.set(cur, []);
-        m.get(cur).push(t);
-      });
-      return { en, la: src, cols };
+        if (!c) return;
+        if (cur == null && before.length) {
+          const open = /[BCD]$/i.test(raw) ? c : c - 1;
+          if (!cols.includes(open)) cols.push(open);
+          for (const [t, lang] of before) put(open, t, lang);
+        }
+        cur = c; if (!cols.includes(c)) cols.push(c);
+      }, (t, lang, n) => {
+        if (cur == null) { before.push([t, lang, n, div]); return; }
+        put(cur, t, lang);
+      }, (attrs, depth) => { if (depth === 1 && attr(attrs, 'type') === 'division') div += 1; });
+      /* A FILE WITH NO COLUMN MARK (2026-11-08, daily-driver scorecard: "This page could not be loaded" for Genesis 3 in PL 2, Ruth 1 in
+       * PL 93, Origen's Selections on Genesis and Cyril on James 2). Its text came before any mark and was never placed, so every page
+       * of it was empty. It is now read by what the file does give, in the units the map and the rows already use:
+       *   the paragraphs' own printed columns (<p n="1007">): Cyril's Fragments on James (pg-1726), cols. 1007, 1009, 1011, as the reader
+       *     draws them. The paragraphs before the first printed column are not placed: in Cyril's file they are his fragments on
+       *     1 Corinthians, which would otherwise stand as the Greek of James 2
+       *   a Patrologia Latina file whose only mark is its volume's: the whole text at that number, which is where the map places it
+       *     (pld-1196 "Genesis" at 2, the PL volume; pld-2195 Questions on Ruth at 93)
+       *   a file of the Greek text in its natural divisions and no marks at all: each division by its order, from 1 (Origen's Selections
+       *     on Genesis, pg-266: the map's Genesis 15 is division 7, whose second sentence is "Look up to heaven and count the stars", 15:5) */
+      if (cur == null && before.length) {
+        const printed = before.some((b) => parseInt(b[2], 10) > 0);
+        let at = null;
+        for (const [t, lang, n, d] of before) {
+          const k = parseInt(n, 10);
+          if (printed) at = k > 0 ? k : at;
+          else at = vol != null ? vol : d;
+          if (!at) continue;
+          if (!cols.includes(at)) cols.push(at);
+          put(at, t, lang);
+        }
+      }
+      // the language most of the source paragraphs carry, by its name; the family's own where none is marked
+      const top = Object.entries(langs).sort((a, b) => b[1] - a[1])[0];
+      return { en, la: src, cols, src: SRC_NAME[top && top[0]] || (fam === 'pg' ? 'Greek' : 'Latin') };
     });
 
     // a born-digital edition (Calvin's commentaries …) is held as TEI only: its pages are the <pb n> breaks
@@ -150,8 +193,11 @@
     // the place a commentary was opened at in a book with repeating page numbers: {slug: occurrence index}, set by the pane
     const eeboCur = {};
 
-    // {meta, p: {n, en, la} | null, last}
-    async function page(slug, n) {
+    // {meta, p: {n, en, la} | null, last, src: the source text's name}
+    // (2026-11-08) after: in a book whose page numbers repeat, the occurrence to read at or after instead of the chapter's place
+    // (eeboCur); a page read at a reader page id says its occurrence (oi), so the pages after it are read in the same printing. The
+    // Faith Received's page reader (commentary-pane.js, FRCommentaryText) opens such ids from its Preview buttons.
+    async function page(slug, n, after) {
       if (CANON.test(slug)) {
         const d = await canonCols(slug);
         // some places on the map are a volume's number, not a column (pld-2742 opens at "34", its columns run from 173): the first
@@ -160,7 +206,7 @@
         if (!d.cols.includes(at)) { const nx = d.cols.filter((x) => x > at).sort((a, b) => a - b)[0]; if (nx != null) at = nx; }
         const two = (m) => [at, at + 1].flatMap((c) => m.get(c) || []).join('\n');
         const p = { n: at, en: two(d.en), la: two(d.la) };
-        return { meta: { canon: true }, p: p.en || p.la ? p : null, last: d.cols[d.cols.length - 1] || n };
+        return { meta: { canon: true }, p: p.en || p.la ? p : null, last: d.cols[d.cols.length - 1] || n, src: d.src };
       }
       if (EEBO.test(slug)) {
         const d = await eebo(slug);
@@ -170,25 +216,31 @@
         // reads that printing
         if (d.repeats && Number(n) >= 100000) {
           const pn = Number(n) % 100000, kk = Math.floor(Number(n) / 100000), oi = (d.all.get(String(pn)) || [])[kk];
-          if (oi != null) { const ls = d.occ[oi].lines; return { meta: d.meta, p: ls && ls.length ? { n: pn, en: ls.join('\n'), la: '' } : null, last: d.last, occ: kk + 1 }; }
+          if (oi != null) { const ls = d.occ[oi].lines; return { meta: d.meta, p: ls && ls.length ? { n: pn, en: ls.join('\n'), la: '' } : null, last: d.last, occ: kk + 1, oi, src: '' }; }
         }
-        const at = eeboCur[slug];
+        const at = after != null ? after : eeboCur[slug];
         let lines = d.pages.get(String(n)), k = 0;
         if (d.repeats && at != null) { const is = d.all.get(String(n)) || []; const i = is.find((x) => x >= at); if (i != null) { lines = d.occ[i].lines; k = is.indexOf(i); } }
-        return { meta: d.meta, p: lines && lines.length ? { n, en: lines.join('\n'), la: '' } : null, last: d.last, occ: k + 1 };
+        return { meta: d.meta, p: lines && lines.length ? { n, en: lines.join('\n'), la: '' } : null, last: d.last, occ: k + 1, src: '' };
       }
       const meta = await env.json(`${base}/v1/works/${slug}/meta.json`);
       // the last page the work HAS: the shards run past n_pages where front matter is appended after the text (the WA volumes; 10-25)
       const last = Math.max(meta.n_pages || 0, (meta.shards && meta.shards.length && meta.shards[meta.shards.length - 1].to) || 0) || undefined;
+      const src = SRC_NAME[meta.src_lang] || 'Latin';
       if (!(meta.shards || []).length && meta.has_tei) {
         const lanes = await teiPages(slug, meta);
         const p = { n, en: (lanes.en.get(String(n)) || []).join('\n'), la: (lanes.la.get(String(n)) || []).join('\n') };
-        return { meta, p: p.en || p.la ? p : null, last };
+        return { meta, p: p.en || p.la ? p : null, last, src };
       }
       const shard = (meta.shards || []).find((s) => s.from <= n && n <= s.to);
+      /* NO PAGE PAST THE LAST SHARD (2026-11-08, daily-driver QA: Clarke on Exodus 20:3 took 6.5 s to open, Wesley on Psalm 51:5 4.6 s).
+       * The resolver reads forty pages on from a chapter's page; near a volume's end (Clarke's Genesis-Esther has 260 pages, Exodus 20 is
+       * at p. 258) every page past the last shard asked for work.json, which a sharded work does not have: 37 requests answered 404 one
+       * after another, none remembered (a failure is asked for again). A sharded work has no page outside its shards. */
+      if (!shard && (meta.shards || []).length) return { meta, p: null, last };
       const d = shard ? await env.json(`${base}/v1/works/${slug}/${shard.file}`) : await env.json(`${base}/v1/works/${slug}/work.json`);
       const p = (d.pages || []).find((x) => +x.n === +n);
-      return { meta, p, last };
+      return { meta, p, last, src };
     }
 
     const X_SHELF = { Reformed: 'rf', 'Continental Reformed': 'rf', 'Roman Catholic': 'rc', Lutheran: 'lu', Medieval: 'md', 'English Divines': 'ed',
@@ -249,5 +301,5 @@
     return { page, listWorks, canonCols, teiPages, eebo, eeboCur };
   }
 
-  return { CANON, EEBO, stride, paragraphs, scanTei, eeboPageMap, createPages, decode };
+  return { CANON, EEBO, SRC_NAME, stride, paragraphs, scanTei, eeboPageMap, createPages, decode };
 }));
