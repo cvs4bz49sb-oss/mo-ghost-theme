@@ -881,11 +881,11 @@
       const G = TG(), box = $("[data-vdb-strip]");
       const items = bandItems(M, VM, CM, st.k);
       const all = bandItems(M, VM, CM, "");
-      const n = all.length, notes = VM.works.filter((w) => w.kind === "comm" && w.onV).length;
+      const n = all.length;
       const years = all.map((a) => a.y).filter((y) => y > 0 && y < 2100), lo = years.length ? Math.min(...years) : 0, hi = years.length ? Math.max(...years) : 0;
       // the citations not yet loaded (a verse cited thousands of times comes in two parts) are said, and one press away
-      const part = !CM.full && CM.total > CM.loaded ? `${DOT}among the first ${fmt(CM.loaded)} of ${fmt(CM.total)} citations ` : "";
-      $("[data-vdb-sum]").innerHTML = n ? `${esc(plural(n, "author", "authors"))}${lo ? `, ${ord(Math.floor(lo / 100) + 1)} to ${ord(Math.floor(hi / 100) + 1)} century` : ""}${notes ? `${DOT}${esc(plural(notes, "commentary has", "commentaries have"))} a note on the verse` : ""}${part ? `${esc(part)}<button type="button" class="vdb-act vdb-act-in" data-vdb-loadall>Load the other ${fmt(CM.total - CM.loaded)}</button>` : ""}` : "";
+      const part = !CM.full && CM.total > CM.loaded ? `${DOT}in the first ${fmt(CM.loaded)} of ${fmt(CM.total)} citations ` : "";
+      $("[data-vdb-sum]").innerHTML = n ? `${esc(plural(n, "author", "authors"))}${lo ? `, ${ord(Math.floor(lo / 100) + 1)} to ${ord(Math.floor(hi / 100) + 1)} century` : ""}${part ? `${esc(part)}<button type="button" class="vdb-act vdb-act-in" data-vdb-loadall>Load the other ${fmt(CM.total - CM.loaded)}</button>` : ""}` : "";
       if (!G || !items.length) { box.innerHTML = items.length ? "" : `<p class="vdb-wait">${st.k ? "None of this kind on the verse in these sources." : "No author in the library treats this verse yet."}</p>`; drawKinds(); return; }
       const data = G.bin(items.map((a) => ({ y: a.y, t: a.t, name: a.name })), 25);
       const marks = [...(M.head || []), ...(M.tail || [])].filter((c) => keep({ sh: rawShelf(c), w: c.slug, a: c.a }))
@@ -990,7 +990,7 @@
       const box = $("[data-vdb-groups]");
       const names = (ws) => glimpse(ws.map((w) => short(w.main.a)));
       let html = "";
-      if (VM.landmark.length) html += groupHTML("landmark", "comm", "Landmark commentaries on this verse", fmt(VM.landmark.length), names(VM.landmark), "", "vdb-g-key");
+      if (VM.landmark.length) html += groupHTML("landmark", "comm", "Key commentaries on this verse", fmt(VM.landmark.length), names(VM.landmark), "", "vdb-g-key");
       const wholeN = (VM.whole || []).reduce((s, g) => s + g.works.length, 0);
       if (wholeN) html += groupHTML("whole", "comm", "Whole-Bible commentaries", fmt(wholeN), glimpse(VM.whole.flatMap((g) => g.works.map((w) => w.set.label))), "", "vdb-g-key vdb-g-whole");
       for (const g of VM.trads) html += groupHTML(`t:${g.k}`, "comm", g.name, fmt(g.works.length), names(g.works), "", `vdb-g-trad`);
@@ -1140,12 +1140,24 @@
       const w = VM.landmark.find((x) => x.onV) || VM.landmark[0] || (VM.whole || []).flatMap((g) => g.works).find((x) => x.onV) || (VM.trads[0] && VM.trads[0].works[0]);
       return w ? w.main.slug : (CM.works[0] && CM.works[0].id) || "";
     };
-    async function sidePage(slug, p, tok) {
+    async function sidePage(slug, p, tok, open) {
       const box = host.querySelector("[data-vdb-side] [data-vdb-spg]"); if (!box || p == null || p === "") return;
-      box.innerHTML = '<h4 class="vdb-sph">Read on</h4><div class="vdb-pvw vdb-spw"><p class="vdb-wait" role="status">Loading the page…</p></div>';
+      // MereO delta (2026-11-09): the page is a fold under a note the pane has already quoted, so the note is not printed twice; a page asked for by name opens
+      box.innerHTML = `<details class="vdb-spd"${open ? " open" : ""}><summary class="vdb-sph">Read on</summary><div class="vdb-pvw vdb-spw"><p class="vdb-wait" role="status">Loading the page…</p></div></details>`;
       const w = box.querySelector(".vdb-spw");
       const ok = await previewInto(M, w, slug, p, "").catch(() => false);
       if (tok !== sideTok || !w.isConnected) return;
+      // MereO delta (2026-11-09): the pane is the one scroller, so it brings the cited passage into view where the page window would have scrolled its own box
+      const sb = box.closest(".vdb-sb"), fold = box.querySelector(".vdb-spd");
+      const bring = (el) => { if (el && sb && fold.open) sb.scrollTop += el.getBoundingClientRect().top - sb.getBoundingClientRect().top - 8; };
+      const cited = () => { const c = w.querySelector(".pw-cited"); return (c && c.querySelector("mark")) || c; };
+      fold.addEventListener("toggle", () => bring(cited()));
+      bring(cited());
+      w.addEventListener("click", (e) => {
+        const more = e.target.closest("[data-more]"), pages = w.querySelector(".pw-pages");
+        if (!pages || !(more || e.target.closest("[data-lane]"))) return;
+        new MutationObserver((_, ob) => { ob.disconnect(); bring(!more ? cited() : more.dataset.more === "-1" ? pages.firstElementChild : pages.lastElementChild); }).observe(pages, { childList: true });
+      });
       if (!ok) w.innerHTML = `<p class="vdb-wait">This page cannot be shown here. <a href="${esc(cfg.read(slug, p))}">Open ${esc(pgOf(slug, p))} in the reader</a></p>`;
     }
     async function sideShow(rid, opts = {}) {
@@ -1155,7 +1167,7 @@
       if (st.r !== rid) { st.r = rid; if (!opts.quiet) report(); }
       host.querySelectorAll(".vdb-groups .vdb-r.is-sel").forEach((x) => { x.classList.remove("is-sel"); const b = x.querySelector(".vdb-rb"); if (b) b.removeAttribute("aria-current"); });
       host.querySelectorAll(`.vdb-groups [data-vdb-row="${CSS.escape(rid)}"]`).forEach((x) => { x.classList.add("is-sel"); const b = x.querySelector(".vdb-rb"); if (b) b.setAttribute("aria-current", "true"); });
-      const keys = VM.landmark.length > 1 ? `<nav class="vdb-sk" aria-label="${esc(`Landmark commentaries on ${ref(v)}`)}">${VM.landmark.map((w) => `<button type="button" class="vdb-skb" data-vdb-sk="${esc(w.main.slug)}" aria-pressed="${w.vols.some((c) => c.slug === rid)}" title="${esc(`${properName(w.main.a)}, ${w.main.t}`)}">${esc(short(w.main.a))}</button>`).join("")}</nav>` : "";
+      const keys = VM.landmark.length > 1 ? `<nav class="vdb-sk" aria-label="${esc(`Key commentaries on ${ref(v)}`)}">${VM.landmark.map((w) => `<button type="button" class="vdb-skb" data-vdb-sk="${esc(w.main.slug)}" aria-pressed="${w.vols.some((c) => c.slug === rid)}" title="${esc(`${properName(w.main.a)}, ${w.main.t}`)}">${esc(short(w.main.a))}</button>`).join("")}</nav>` : "";
       side.innerHTML = `${keys}<header class="vdb-sh"><p class="vdb-shw">${esc(info.who)}${info.when ? `<small>${esc(info.when)}</small>` : ""}</p>`
         + `<p class="vdb-sht"><cite>${esc(info.what)}</cite></p><p class="vdb-shp" data-vdb-shp hidden></p><div class="vdb-sha" data-vdb-sha></div></header>`
         + '<div class="vdb-sb" data-vdb-sb><div data-vdb-sq><p class="vdb-wait" role="status">Opening the page…</p></div><div data-vdb-spg></div></div>';
@@ -1171,14 +1183,14 @@
           say(`${g.pages.length === 1 ? "One page cites" : `${fmt(g.pages.length)} pages cite`} ${ref(v)}`);
           q.innerHTML = `<ul class="vdb-cps vdb-scps">${g.pages.map((x) => `<li${String(x.p) === first ? ' class="is-on"' : ""}><button type="button" class="vdb-spb" data-vdb-sp="${esc(x.p)}" aria-pressed="${String(x.p) === first}">${esc(pgOf(g.w, x.p))}</button><span class="vdb-k">${esc(KIND[x.how] || "cites")}</span>${x.g ? `<span class="vdb-gist">${esc(x.g)}</span>` : ""}</li>`).join("")}</ul>`;
           acts.innerHTML = link(cfg.read(g.w, first), "Open in the reader");
-          await sidePage(g.w, first, tok);
+          await sidePage(g.w, first, tok, true);
           return;
         }
         if (info.x) {
           say(`${info.x.ref ? (info.x.vul ? `${info.x.ref}, the Vulgate's count` : info.x.ref) : chRef}`);
           q.innerHTML = info.x.first ? `<blockquote class="vdb-q" lang="en"><p>${esc(info.x.first)}</p></blockquote>` : "";
           acts.innerHTML = link(cfg.read(info.slug, info.p), "Open in the reader");
-          await sidePage(info.slug, info.p, tok);
+          await sidePage(info.slug, info.p, tok, true);
           return;
         }
         const P = await passage(M, info.c, info.at);
@@ -1190,7 +1202,7 @@
         acts.innerHTML = `${laneBtn}${link(cfg.beside ? cfg.beside(P.slug, v) : "", "Read beside the text")}${link(cfg.read(P.slug, P.page), "Open in the reader")}`;
         q.innerHTML = P.none && !(P.en || P.src) ? `<p class="vdb-wait">${esc(P.none)}</p>` : `<div data-vdb-quote>${quoteHTML(P, lane)}</div>`;
         q.__P = P;
-        await sidePage(P.slug, opts.page != null ? opts.page : P.page, tok);
+        await sidePage(P.slug, opts.page != null ? opts.page : P.page, tok, opts.page != null);
       } catch (_) { if (tok === sideTok) q.innerHTML = '<p class="vdb-wait">The page could not be opened. Choose the row again.</p>'; }
     }
     function sideClick(e) {
@@ -1202,7 +1214,7 @@
         const info = sideInfo(st.r); if (!info || !info.g) return true;
         side.querySelectorAll(".vdb-scps li").forEach((li) => { const b = li.querySelector("[data-vdb-sp]"), on = b === pb; li.classList.toggle("is-on", on); b.setAttribute("aria-pressed", String(on)); });
         const acts = side.querySelector("[data-vdb-sha]"); if (acts) acts.innerHTML = `<a class="vdb-tool" href="${esc(cfg.read(info.g.w, pb.dataset.vdbSp))}">Open in the reader</a>`;
-        sidePage(info.g.w, pb.dataset.vdbSp, ++sideTok);
+        sidePage(info.g.w, pb.dataset.vdbSp, ++sideTok, true);
         return true;
       }
       const lb = t.closest("[data-vdb-slane]");
