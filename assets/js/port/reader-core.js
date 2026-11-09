@@ -3330,6 +3330,16 @@ function build(){
       (b?b.notes:[]).forEach(e=>notesEN.push(teiNote(e)));
     }
     let bi=0;sec.querySelectorAll(".row").forEach(rw=>{if(!rw.classList.contains("rhead"))rw.id="b"+pg.n+"-"+(bi++);});
+    // THE PRINTED COLUMN IS AN ADDRESS (2026-11-09, owner: "iterate until scripture can be used as a daily driver"; Hesychius on
+    // Leviticus, PG 93, at Leviticus 18:11): a Migne opening is drawn as one page under its first column (b1007-0) and named by the
+    // column its text is printed in ("col. 1008", the Latin), while the Scripture pane and the library's own citations address that
+    // text by the printed column (the library's link for its words: read?w=pg-3773&hl=consumamini#b1008-0). The reader turned #b1008-0
+    // into the opening (FRMigneNavigation.openingKey) and stood on its top, but nothing was drawn under that name, so the address found
+    // no element. The opening's section now answers to the other column it prints, where the reader already turns that column into
+    // this opening: the place the arrival chose before, nothing drawn, and the first row keeps b1007-0.
+    if(DATA.pg_columns&&window.FRMigneNavigation&&!sec.id){const pc=DATA.pg_columns[String(pg.n)]||{},lab=pc.lab||{};
+      const alias=[...new Set([...(lab.la||[]),...(pc.la||[]),...(lab.grc||[]),...(pc.grc||[])].map(String))].find(c=>c!==String(pg.n)&&window.FRMigneNavigation.openingKey(DATA,c)===String(pg.n));
+      if(alias)sec.id=`b${alias}-0`;}
     // SECOND VERSIONS on the column-built pages (PG): their heads arrive as inline .inhead spans, not <head> rows -- a paragraph whose head
     // names a second version opens the block; every paragraph after it on the page, in that lane, stays in it until the next head.
     // A head after the label in the SAME paragraph is the version's own (PG 7: TRANSLATION OF BILLIUS. + CHAPTER XI.) and keeps the block
@@ -3977,8 +3987,9 @@ function build(){
          &&!pr.classList.contains("furn")&&!cr.classList.contains("furn")   // Grotius Rom. p.5→6 (owner 2026-09-04): a signature-mark row ('A 3') tagged .furn swallowed the next page's opening paragraph — hidden in Flow, dimmed as "print furniture" in page view
          &&!cr.classList.contains("rhead")&&!pr.classList.contains("rhead")
          &&!pr.querySelector(".sp")&&!cr.querySelector(".sp")){
+        const made={};
         const mk=cls=>{const s=document.createElement("span");s.className="pganchor "+cls;
-          s.dataset.idx=cur.dataset.idx;s.dataset.page=cur.dataset.page;s.textContent=pageSay(cur.dataset.page);return s;};
+          s.dataset.idx=cur.dataset.idx;s.dataset.page=cur.dataset.page;s.textContent=pageSay(cur.dataset.page);made[cls]=s;return s;};
         ["la","en"].forEach(ln=>{
           const a=pr.querySelector("."+ln),b=cr.querySelector("."+ln);
           if(a&&b){
@@ -4002,6 +4013,13 @@ function build(){
             while(b.firstChild)a.appendChild(b.firstChild);
           }
         });
+        // THE PAGE KEEPS ITS ADDRESS (2026-11-09, owner: "iterate until scripture can be used as a daily driver"; the Scripture pane's
+        // "Open in the reader" for Calov's Illustrated Old Testament I, p. 717, at Joshua 11:16, and Jansen's Pentateuch, p. 562): the
+        // row merged here was the page's first, b717-0, and its id left with it, so #b717-0 named nothing once this merge had run (the
+        // arrival fell back to the page anchor and stood right, but a link check, a saved place or the next rebuild found no such
+        // block). The anchor at the turn takes the row's id, in the English lane where there is one (the lane every view but Latin-only
+        // shows), as the margin-note join (span.rowjoin) and __healSeams (.folin) already do.
+        {const an=made["an-en"]||made["an-la"];if(an&&cr.id){an.id=cr.id;cr.removeAttribute("id");}}
         cr.remove();
         if(![...cur.children].some(x=>x.classList.contains("stkwrap")||x.classList.contains("row")))
           cur.classList.add("rolled");
