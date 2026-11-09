@@ -15,9 +15,22 @@
     errorEl.textContent = message || '';
   }
 
+  // Success note, kept apart from the error line so it isn't styled as one.
+  let sentEl = null;
+  function showSent() {
+    if (!sentEl) {
+      sentEl = document.createElement('p');
+      sentEl.className = 'manage-sent';
+      sentEl.setAttribute('role', 'status');
+      errorEl.insertAdjacentElement('afterend', sentEl);
+    }
+    sentEl.textContent = "If that email has a membership, we've sent you a link to manage it. Check your inbox (and spam) in the next few minutes.";
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     showError('');
+    if (sentEl) sentEl.textContent = '';
     const email = (input.value || '').trim().toLowerCase();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       showError('Please enter a valid email address.');
@@ -31,19 +44,21 @@
         body: JSON.stringify({ email }),
       });
       const data = await res.json().catch(() => ({}));
-      // Generic response for both "not found" and "no url returned"
-      // so the endpoint isn't an existence oracle for member emails.
-      // Worker should also send a courtesy email in the not-found
-      // case so a member who mis-typed gets a real signal — see
-      // WORKER_SECURITY_TODO.md (H5).
-      if (res.status === 404 || data.error === 'customer_not_found' || !res.ok || !data.url) {
-        showError("If that email has a membership, we'll redirect you. Check your inbox if nothing happens, or email ian@mereorthodoxy.com.");
+      // The worker never returns a billing link here (2026-10-31): it
+      // emails one to the address, if that address has a membership, and
+      // answers { sent: true } either way so this form can't be used to
+      // find out who is a member.
+      if (!res.ok || !data.sent) {
+        showError(
+          res.status === 429
+            ? 'Too many requests. Please wait a few minutes and try again.'
+            : 'Something went wrong. Please try again, or email member@mereorthodoxy.com.'
+        );
         setLoading(false);
         return;
       }
-      // Validate the worker-supplied URL is on a known Stripe host
-      // before navigating, to defang a tampered worker response.
-      window.MOSafeRedirect.go(data.url);
+      showSent();
+      setLoading(false);
     } catch (err) {
       // "Something went wrong" is the right answer to an unexpected
       // worker error and the wrong answer to a request that a blocker
