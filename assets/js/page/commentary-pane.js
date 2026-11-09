@@ -66,6 +66,22 @@
         verseEl: (v) => document.querySelector(`.bible-verse[data-v="${v}"]`),
         pick: (v) => document.querySelector(`.bible-verse[data-v="${v}"]`),
         heatEl: (v) => document.querySelector(`.bible-verse[data-v="${v}"]`),
+        // (2026-11-08) the verse the page itself has chosen (its verse panel open), not the one the address names: the pane writes that too
+        selected() { const el = document.querySelector('.bible-verse.is-active[data-v]'); return el ? Number(el.dataset.v) : 0; },
+        /* (2026-11-08, owner: "run the reccomendations") the address of a verse and the commentary read beside it,
+         * ?ref=<book>.<ch>.<v>&cp=<slug>, the rest of the query kept (&t=KJV) */
+        address(w, v, slug) {
+          const u = new URL(location.href), M = S(), bk = w.bk || {};
+          u.searchParams.set('ref', M.refKey && w.bk ? M.refKey(w.bk, Number(w.ch), v) : `${bk.slug || w.book}.${w.ch}${v ? `.${v}` : ''}`);
+          if (slug) u.searchParams.set('cp', slug); else u.searchParams.delete('cp');
+          return `${u.pathname}${u.search}${u.hash}`;
+        },
+        // (2026-11-08) every commentary on the book, the Commentaries page's own list of them (custom-faith-commentaries.hbs)
+        allOn: (w) => `/the-faith-received/commentaries/?book=${encodeURIComponent(w.book)}`,
+        // the page's bar button for the chapter's commentaries ("Commentaries (107)"), which opens the pane's own list (one list)
+        listButton: '[data-sd-comm-toggle]',
+        // Back and Forward keep the page: the pane puts back its own verse and commentary (scripture-dev.js leaves a chapter it has drawn)
+        rebuildsOnBack: false,
       };
     }
     return {
@@ -73,14 +89,15 @@
       // (2026-11-08) the build's own Blob base where the page states one (build_dist.py's config block), as the site's other scripts read it
       base: String(window.__FR_BLOB_BASE__ || 'https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com').replace(/\/+$/, ''),
       where() {
-        const m = /#b\/([a-z0-9-]+)\/(\d+)(?:\?v=(\d+))?/.exec(location.hash);
+        // (2026-11-08) the verse is read from the hash's own query, wherever it stands in it: the page writes ?v=4&t=KJV, the pane adds cp=
+        const m = /#b\/([a-z0-9-]+)\/(\d+)(?:\?([^#]*))?/.exec(location.hash);
         const h = document.querySelector('.scripture-chapter-title, main h1');
         const name = ((h && h.textContent) || '').replace(/\s+\d+\s*$/, '').trim();
         // (2026-11-08) the page names a book as the library's catalogue does ("I Corinthians", "Revelation of John"), and the pane shows
         // that; the library's notes are matched by the name Mere Orthodoxy gives it ("1 Corinthians", "Revelation"), as there: by the
         // page's name a gist citing "John 1:8" would read as a note on Revelation of John 1:8, and "1 Cor. 11" as another book's chapter
         const match = name.replace(/^(I{1,3})\s+/, (x, r) => `${r.length} `).replace(/^Revelation of John$/, 'Revelation');
-        return m ? { book: m[1], ch: m[2], v: +(m[3] || 0), name, match } : null;
+        return m ? { book: m[1], ch: m[2], v: Number(new URLSearchParams(m[3] || '').get('v') || 0) || 0, name, match } : null;
       },
       read: (slug, p, at) => `/read?w=${encodeURIComponent(slug)}${at ? `&at=${encodeURIComponent(at)}` : ''}#b${p}-0`,
       layout: '.scripture-reader-layout', side: '.scripture-verse-summary', verses: '.scripture-verse-wrap[id^="v"]',
@@ -90,6 +107,22 @@
       verseEl: (v) => document.getElementById(`v${v}`),
       pick: (v) => document.querySelector(`[data-select-verse="${v}"]`),
       heatEl: (v) => document.getElementById(`v${v}`),
+      selected() { const el = document.querySelector('[data-select-verse][aria-pressed="true"]'); return el ? Number(el.dataset.selectVerse) : 0; },
+      /* (2026-11-08, owner: "run the reccomendations") #b/<book>/<ch>?v=<v>&cp=<slug>: the verse first (as the page writes it), the hash's
+       * other keys kept (t, view, group) */
+      address(w, v, slug) {
+        const [path, q = ''] = location.hash.replace(/^#/, '').split('?'), old = new URLSearchParams(q), p = new URLSearchParams();
+        if (v) p.set('v', String(v));
+        for (const [k, x] of old) if (k !== 'v' && k !== 'cp') p.append(k, x);
+        if (slug) p.set('cp', slug);
+        const qs = p.toString();
+        return `${location.pathname}${location.search}#${path}${qs ? `?${qs}` : ''}`;
+      },
+      // The Faith Received has no page of every commentary on a book: the list ends with its own rows
+      allOn: () => '',
+      listButton: '',
+      // its router draws the whole page again on Back and Forward (research_shell.html route()): the pane is built anew and reads the address
+      rebuildsOnBack: true,
     };
   })();
   const BASE = SITE.base;
@@ -437,9 +470,14 @@
   const wide = matchMedia('(min-width: 900px)');
   const firstTab = () => 'c';
   try { localStorage.removeItem('fr_cp_tab'); } catch (_) {}
+  /* (2026-11-08) pin: a verse or a commentary the reader picked holds the pane until the next pick; hold: the pane's own move of the
+   * page (a note brought into sight, an address naming a verse) holds it until the reader scrolls; placed: the verse is the reader's
+   * or the text's, not the chapter's first by default, and goes in the address; before: the address as a verse click began; back: an
+   * entry gone back to; quiet: a click of the pane's own on a verse; sheet: the phone's sheet's stop (sheetWas: before the list raised it) */
   const S = { list: [], cur: null, verse: null, follow: store.get('fr_cp_follow', '1') === '1', lang: store.get('fr_cp_lang', 'en'),
-    shown: null, token: 0, meta: {}, cen: {}, rec: null, pin: false, tab: firstTab(), dirOpen: new Set(), dirVerse: 0, years: new Map(), heads: new Map(),
-    hymns: [], preach: null, vols: new Map() };
+    shown: null, token: 0, meta: {}, cen: {}, rec: null, pin: false, hold: false, placed: false, before: '', back: false, quiet: false,
+    beforeState: null, sheet: 'half', sheetWas: '', creedsOpen: false, wantList: false, tellObs: null,
+    tab: firstTab(), dirOpen: new Set(), dirVerse: 0, years: new Map(), heads: new Map(), hymns: [], preach: null, vols: new Map() };
   const A = window.FRCommentaryAnchor;
   let pane, layout, observer;
 
@@ -481,6 +519,81 @@
     // 14px past it: the tint a note's words sit on reaches 10px into the margin (.cp-hit), and it stays clear too
     pane.style.setProperty('--cp-clear-left', right ? `${Math.ceil(right + 14)}px` : '0px');
   }
+  /* THE SHEET AT ITS STOPS (2026-11-08, owner: "run the reccomendations"). Under 900px the sheet is one height, the screen under the
+   * site's header, moved between three stops by transform (commentary-pane.css), so neither a drag nor its settle lays the page out again
+   * (it animated its height before, a layout property): a peek (the grip, the views, the line saying where the note is and the note's first
+   * lines), about half the screen, where it opens, and nearly all of it. The grip drags it, a quick flick going on to the next stop its
+   * way; a tap, Enter or Space goes half, full, peek and round again; the arrow keys raise and lower it; the keyboard's focus moved into
+   * the part below the screen raises it. With reduced motion it moves without sliding (the CSS has no transition then). */
+  const STOPS = ['peek', 'half', 'full'];
+  const NEXT_STOP = { half: 'full', full: 'peek', peek: 'half' };
+  // the grip's name says what a tap does next
+  const GRIP_SAY = { half: 'Raise the panel to the full screen', full: 'Lower the panel to a peek', peek: 'Raise the panel to half the screen' };
+  // a stop's height on the screen in pixels, as the CSS gives it: each stop has a hidden measure in the pane (.cp-stop)
+  const stopPx = (s) => { const el = pane && pane.querySelector(`:scope > .cp-stop[data-stop="${s}"]`); return el ? el.offsetHeight : 0; };
+  function sheetStop(stop) {
+    if (!pane || !STOPS.includes(stop)) return;
+    S.sheet = stop;
+    pane.dataset.sheet = stop;
+    // the full sheet stops under the site's header: Mere Orthodoxy's page states its height (--sd-top); The Faith Received's sticky
+    // header is measured
+    if (SITE.name === 'tfr' && onSheet()) { const t = `${Math.round(coverTop())}px`; if (pane.style.getPropertyValue('--cp-top') !== t) pane.style.setProperty('--cp-top', t); }
+    // the page's own controls floating over the sheet (the Ask button) keep above it (commentary-pane.css)
+    for (const s of STOPS) document.body.classList.toggle(`cp-sheet-${s}`, s === stop);
+    const g = pane.querySelector('.cp-grip'); if (g) g.setAttribute('aria-label', GRIP_SAY[stop]);
+    if (SITE.name === 'mo') setTimeout(clearEdge, 260);
+  }
+  function wireSheet(grip) {
+    let drag = null, dragged = false;
+    const shownNow = () => Math.max(0, innerHeight - pane.getBoundingClientRect().top);
+    grip.addEventListener('pointerdown', (e) => {
+      if (wide.matches || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      dragged = false;
+      drag = { y0: e.clientY, base: stopPx(S.sheet), from: shownNow(), last: e.clientY, t: performance.now(), v: 0, moved: false };
+      if (grip.setPointerCapture) grip.setPointerCapture(e.pointerId);
+    });
+    grip.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const dy = e.clientY - drag.y0;
+      if (!drag.moved && Math.abs(dy) < 6) return;
+      if (!drag.moved) { drag.moved = true; pane.classList.add('cp-dragging'); }
+      const now = performance.now();
+      drag.v = (e.clientY - drag.last) / Math.max(1, now - drag.t); drag.last = e.clientY; drag.t = now;
+      // the sheet's edge stays under the finger, between the peek and the full sheet: only its transform moves
+      const want = Math.min(stopPx('full'), Math.max(stopPx('peek'), drag.from - dy));
+      pane.style.setProperty('--cp-drag', `${Math.round(drag.base - want)}px`);
+    });
+    const end = () => {
+      const d = drag; drag = null;
+      if (!d || !d.moved) return;
+      // the click a mouse's drag ends with is not a tap; a finger's drag ends with none, and the next Enter is a tap
+      dragged = true;
+      setTimeout(() => { dragged = false; }, 0);
+      const shown = shownNow(), px = Object.fromEntries(STOPS.map((s) => [s, stopPx(s)]));
+      let to = STOPS.slice().sort((a, b) => Math.abs(px[a] - shown) - Math.abs(px[b] - shown))[0];
+      // a quick flick goes on to the next stop its way
+      if (d.v < -0.45) to = STOPS.find((s) => px[s] > shown + 8) || 'full';
+      else if (d.v > 0.45) to = STOPS.slice().reverse().find((s) => px[s] < shown - 8) || 'peek';
+      pane.classList.remove('cp-dragging');
+      pane.style.removeProperty('--cp-drag');
+      sheetStop(to);
+    };
+    grip.addEventListener('pointerup', end);
+    grip.addEventListener('pointercancel', end);
+    grip.addEventListener('click', () => { if (dragged) { dragged = false; return; } sheetStop(NEXT_STOP[S.sheet] || 'full'); });
+    grip.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      e.preventDefault();
+      const i = STOPS.indexOf(S.sheet);
+      sheetStop(STOPS[Math.max(0, Math.min(STOPS.length - 1, i + (e.key === 'ArrowUp' ? 1 : -1)))]);
+    });
+    // (the sheet's scroll-padding keeps a focused control in its part on the screen; the peek is raised to half, which has room to read)
+    pane.addEventListener('focusin', (e) => {
+      if (wide.matches || S.sheet !== 'peek' || !e.target.matches || !e.target.matches(':focus-visible')) return;
+      if (e.target.getBoundingClientRect().bottom > innerHeight - 4) sheetStop('half');
+    });
+    sheetStop('half');
+  }
   function build() {
     layout = document.querySelector(SITE.layout);
     if (!layout || layout.querySelector('.cp-pane')) return !!layout;
@@ -505,17 +618,24 @@
       <div class="cp-rec" aria-live="polite"></div>
       <div class="cp-foot">
         <label class="cp-follow"><input type="checkbox"> Follow the text</label>
+        <span class="cp-held" hidden><span class="cp-held-at"></span> <button type="button" class="cp-resume" aria-label="Resume following the text">Resume</button></span>
         <span class="cp-pages"><button type="button" data-step="-1">Previous page</button><button type="button" data-step="1">Next page</button></span>
-      </div>`;
+      </div>
+      <p class="cp-tell" hidden><button type="button" class="cp-tell-btn">Tell us what you think</button></p>
+      <i class="cp-stop" data-stop="peek" aria-hidden="true"></i><i class="cp-stop" data-stop="half" aria-hidden="true"></i><i class="cp-stop" data-stop="full" aria-hidden="true"></i>`;
+    /* COMMENTARY BEFORE CREEDS (2026-11-08, owner: "run the reccomendations"; the creeds stood above the commentary, 21 articles on John
+     * 1:1, and on a laptop the commentator's note began below the fold). The creeds, confessions and catechisms that cite the verse are one
+     * counted row under the commentary, "Creeds, confessions and catechisms (21)", that opens in place to what the section showed before:
+     * the first articles and "Show all 21" for the rest, by church. Open or shut is kept for the reader (fr_cp_creeds). */
     if (SITE.name === 'mo') {
-      pane.querySelector('.cp-top').insertAdjacentHTML('afterend', `
+      pane.querySelector('.cp-body').insertAdjacentHTML('afterend', `
       <section class="cp-creeds" aria-labelledby="cpCreedsH" hidden>
-        <div class="cp-cr-bar">
-          <h3 class="cp-cr-h" id="cpCreedsH">Creeds, confessions and catechisms</h3>
+        <h3 class="cp-cr-h" id="cpCreedsH"><button type="button" class="cp-cr-row" aria-expanded="false" aria-controls="cpCreedsIn"><span class="cp-cr-name">Creeds, confessions and catechisms</span> <span class="cp-cr-n"></span></button></h3>
+        <div class="cp-cr-in" id="cpCreedsIn" hidden>
+          <p class="cp-cr-sum cp-sr" aria-live="polite"></p>
+          <div class="cp-cr-body"></div>
           <button type="button" class="cp-cr-all" aria-expanded="false" hidden>Show all</button>
         </div>
-        <p class="cp-cr-sum cp-sr" aria-live="polite"></p>
-        <div class="cp-cr-body"></div>
       </section>`);
     }
     layout.appendChild(pane);
@@ -534,28 +654,13 @@
     if (SITE.name === 'mo') tabs.insertAdjacentHTML('beforeend', '<a class="btn cp-desk" href="/the-faith-received/scripture/desk/">Verse Desk</a>');
     pane.prepend(tabs);
     /* THE PHONE'S SHEET (2026-10-23, owner: "This is a mess do a design pass on mobile for this for MereO"). Under 900px the pane is a
-     * sheet over the text (commentary-pane.css): a grip at its top raises it to the full screen and lowers it again, by a tap or a drag;
-     * the key commentaries are one row that scrolls sideways, its edges fading where it runs on; and a control the site floats at the
-     * left edge of the screen (its text-to-speech pill) is kept clear of the sheet's words. The grip is drawn only on a phone. */
+     * sheet over the text (commentary-pane.css) with a grip at its top (wireSheet, below); the key commentaries are one row that scrolls
+     * sideways, its edges fading where it runs on; and a control the site floats at the left edge of the screen (its text-to-speech
+     * pill) is kept clear of the sheet's words. The grip is drawn only on a phone. (2026-11-08) The Faith Received's sheet, the same pane
+     * under 900px, has the grip and its stops too. */
+    pane.insertAdjacentHTML('afterbegin', '<button type="button" class="cp-grip"><span aria-hidden="true"></span></button>');
+    wireSheet(pane.querySelector('.cp-grip'));
     if (SITE.name === 'mo') {
-      pane.insertAdjacentHTML('afterbegin', '<button type="button" class="cp-grip" aria-expanded="false" aria-label="Raise the panel to the full screen"><span aria-hidden="true"></span></button>');
-      const grip = pane.querySelector('.cp-grip');
-      const raise = (up) => {
-        pane.classList.toggle('cp-full', up);
-        grip.setAttribute('aria-expanded', String(up));
-        grip.setAttribute('aria-label', up ? 'Lower the panel' : 'Raise the panel to the full screen');
-        setTimeout(clearEdge, 260);
-      };
-      let y0 = null, dragged = false;
-      grip.addEventListener('pointerdown', (e) => { y0 = e.clientY; dragged = false; if (grip.setPointerCapture) grip.setPointerCapture(e.pointerId); });
-      grip.addEventListener('pointermove', (e) => { if (y0 != null && Math.abs(e.clientY - y0) > 8) dragged = true; });
-      grip.addEventListener('pointerup', (e) => {
-        if (y0 == null) return;
-        const dy = e.clientY - y0; y0 = null;
-        if (dragged && dy < -24) raise(true); else if (dragged && dy > 24) raise(false);
-      });
-      grip.addEventListener('pointercancel', () => { y0 = null; });
-      grip.addEventListener('click', () => { if (dragged) { dragged = false; return; } raise(!pane.classList.contains('cp-full')); });
       const keysEl = pane.querySelector('.cp-keys'), tabsEl = pane.querySelector(':scope > .cp-tabs');
       keysEl.addEventListener('scroll', () => keyEdges(keysEl), { passive: true });
       // the views' row fades at its edges the same way where it runs past the screen
@@ -572,13 +677,17 @@
       if (more) { more.parentElement.querySelectorAll('li[hidden]').forEach((li) => { li.hidden = false; }); more.remove(); return; }
       const crMore = e.target.closest('.cp-creeds .cp-more');
       if (crMore) { const ul = crMore.previousElementSibling; if (ul) ul.querySelectorAll('li[hidden]').forEach((li) => { li.hidden = false; }); crMore.remove(); return; }
+      if (e.target.closest('.cp-creeds .cp-cr-row')) { S.creedsOpen = !S.creedsOpen; store.set('fr_cp_creeds', S.creedsOpen ? '1' : '0'); creedsRow(); return; }
       if (e.target.closest('.cp-creeds .cp-cr-all')) { CF.open = !CF.open; creeds(); return; }
       if (e.target.closest('.cp-creeds .cp-cr-retry')) { creeds(); return; }
+      if (e.target.closest('.cp-resume')) { resume(); return; }
+      if (e.target.closest('.cp-tell-btn')) { tell(); return; }
       const ex = e.target.closest('.cp-expand');
       if (ex) { const f = ex.parentElement.querySelector(`.cp-fold[data-cp-fold="${ex.dataset.cpExpand}"]`); if (f) f.hidden = false; ex.remove(); }
     });
     pane.querySelector('.cp-follow input').checked = S.follow;
-    pane.querySelector('.cp-follow input').onchange = (e) => { S.follow = e.target.checked; store.set('fr_cp_follow', S.follow ? '1' : '0'); if (S.follow && S.verse) show(S.verse); };
+    // (2026-11-08) Follow turned on (or off and on again) lets go of the verse a pick held and goes to the verse being read
+    pane.querySelector('.cp-follow input').onchange = (e) => { S.follow = e.target.checked; store.set('fr_cp_follow', S.follow ? '1' : '0'); if (S.follow) resume(); else paintHeld(); };
     pane.querySelectorAll('.cp-lang button').forEach((b) => { b.onclick = () => { S.lang = b.dataset.lang; store.set('fr_cp_lang', S.lang); paint(); }; });
     const pick = pane.querySelector('.cp-pick'), list = pane.querySelector('.cp-list');
     // Change opens every commentary on the chapter in place (the directory, scripture-verse-rail.js), drawn as it opens
@@ -602,7 +711,15 @@
     // Escape shuts the open list of commentaries first (after its find box is cleared); the reader's own Escape then closes the verse
     pane.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !list.hidden) { closeList(); pick.focus(); e.stopPropagation(); } });
     pane.querySelectorAll('.cp-pages button').forEach((b) => { b.onclick = () => step(+b.dataset.step); });
-    wide.addEventListener('change', () => setTab(S.tab, true));
+    // (2026-11-08) a phone turned to a wide screen leaves the sheet where it was dropped: no drag is left on it; a screen narrowed to a
+    // phone's measures the sheet's top again (sheetStop)
+    wide.addEventListener('change', () => { pane.classList.remove('cp-dragging'); pane.style.removeProperty('--cp-drag'); if (!wide.matches) sheetStop(S.sheet); setTab(S.tab, true); });
+    /* ONE LIST (2026-11-08, owner: "run the reccomendations"): the page's own bar button ("Commentaries (107)", scripture-dev.js) opens
+     * this pane's list of the chapter's commentaries, the one Change opens, and says how many it holds; the page's second list is left
+     * to a page without the pane */
+    const lb = SITE.listButton && document.querySelector(SITE.listButton);
+    if (lb) { lb.dataset.cpList = '1'; lb.dataset.cpWas = lb.getAttribute('aria-controls') || ''; lb.setAttribute('aria-controls', 'cpList'); lb.setAttribute('aria-expanded', 'false'); }
+    S.creedsOpen = store.get('fr_cp_creeds', '0') === '1';
     setTab(S.tab, true);
     return true;
   }
@@ -621,7 +738,8 @@
     document.body.classList.toggle('cp-peek', t === 's' && phone);
     if (t === 's' && phone && !quiet) {
       let panel = document.querySelector('.sd-panel');
-      if (!panel) { const b = SITE.pick(S.verse || 1); if (b) b.click(); panel = document.querySelector('.sd-panel'); }
+      // (2026-11-08) the verse opened for its citations is the one the pane is on, not a new pick: the address is only rewritten
+      if (!panel) { const b = SITE.pick(S.verse || 1); if (b) { S.quiet = true; b.click(); S.quiet = false; } panel = document.querySelector('.sd-panel'); }
       if (panel) panel.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     }
     layout.querySelectorAll('.cp-tabs [data-tab]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.tab === t)));
@@ -630,7 +748,7 @@
     if (t === 'h') paintHymns();
     if (t === 's' && SITE.name === 'tfr') {
       const side = layout.querySelector(SITE.side), b = SITE.pick(S.verse || 1);
-      if (side && side.hidden && b) b.click();
+      if (side && side.hidden && b) { S.quiet = true; b.click(); S.quiet = false; }
     }
   }
   // the label and the large heading over each view, as the Citations view sets its own: "COMMENTARY / Genesis 1:1"
@@ -639,9 +757,27 @@
     const w = where(); if (!w) return;
     const name = refName(w);
     pane.querySelector('.cp-eyebrow').textContent = S.tab === 'r' ? 'Reception history' : S.tab === 'h' ? 'Hymns' : (S.verse ? 'Commentary on this verse' : 'Commentary');
-    const cb = pane.querySelector('.cp-close'); if (cb) cb.hidden = !w.v;
+    // (2026-11-08) Close while the page has a verse chosen: the address can name the verse the text was followed to, with none chosen
+    const cb = pane.querySelector('.cp-close'); if (cb) cb.hidden = !SITE.selected();
     pane.querySelector('.cp-ref').textContent = S.verse ? `${name} ${w.ch}:${S.verse}` : `${name} ${w.ch}`;
     desk();
+    paintHeld();
+  }
+  /* FOLLOW THE TEXT, BUT PINNED AFTER A CHOICE (2026-11-08, owner: "run the reccomendations"). The pane follows the verse at the reading
+   * line; once the reader picks a verse (in the text, or the Reception's verses) or a commentary (a key, a row of the list, a row elsewhere
+   * on the page), it stays there until the next pick, however the page is scrolled: before, the first turn of the wheel handed it back, and
+   * a commentary picked to be read was gone at the next verse. Beside Follow the text the foot says so ("Pinned to 1:5.") with the way back
+   * to following (Resume); Follow turned on again, a verse shut and a new chapter let go too. */
+  function paintHeld() {
+    const el = pane && pane.querySelector('.cp-held'); if (!el) return;
+    const w = where(), on = !!(S.follow && S.pin && S.verse && w);
+    el.hidden = !on;
+    if (on) el.querySelector('.cp-held-at').textContent = `Pinned to ${w.ch}:${S.verse}.`;
+  }
+  function resume() {
+    S.pin = false; S.hold = false;
+    paintHeld();
+    if (S.follow && watch.settle) watch.settle(true);
   }
   // every copy of the Verse Desk button (the rail's and the one cloned into the Citations panel) opens the verse the rail is on
   function desk() {
@@ -657,7 +793,7 @@
     const b = SITE.pick(v), el = SITE.verseEl(v);
     S.pin = true;
     if (el) el.scrollIntoView({ block: SITE.name === 'mo' && !wide.matches ? 'start' : 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    if (b) b.click(); else show(v, true);
+    if (b) b.click(); else pickVerse(v);
   }
   // a commentary's note on the verse, from the Reception view: that commentary, at that note, in the Commentary view
   function openNote(slug, p) {
@@ -667,8 +803,35 @@
       c = { slug, a: m.a || '', t: m.t || slug, notes: {}, rows: {}, open: null }; S.list.push(c);
     }
     if (!(S.verse in c.notes)) c.notes[S.verse] = p;
-    S.pin = true;
+    S.pin = true; S.hold = false; S.placed = true;
     setTab('c'); choose(slug);
+    remember(true);
+  }
+  // a verse the reader picks (in the text, from the keyboard, or the Reception's verses): the pane goes to it and stays (2026-11-08)
+  function pickVerse(v) {
+    S.pin = true; S.hold = false; S.placed = true;
+    show(v, true);
+    remember(!S.quiet);
+  }
+  /* THE ADDRESS AND BACK (2026-11-08, owner: "run the reccomendations"). The verse and the commentary read beside it are in the address
+   * (Mere Orthodoxy ?ref=<book>.<ch>.<v>&cp=<slug>, The Faith Received #b/<book>/<ch>?v=<v>&cp=<slug>; SITE.address), so a link opens them
+   * and Back goes to the last ones. A pick of the reader's own adds a history entry (push); following the text, the commentary the pane
+   * opens by itself and a set's other volume for the verse only replace the entry. A verse picked in the text has had the address
+   * rewritten by the page's own script as the click went through (its verse, without the commentary): the address it had before
+   * (S.before, read as the click began, with its entry's state) is put back first, so Back finds it. The entry's state carries the
+   * commentary too ({cp}): The Faith Received's router draws a chapter it has in hand, rewriting the address without cp=, before the
+   * pane hears the Back, and the event's state is still the entry's. Never in the way of the reading: an error here is logged. */
+  function remember(push) {
+    const { before, beforeState } = S;
+    S.before = ''; S.beforeState = null;
+    try {
+      const w = where(); if (!w || !S.cur || !pane) return;
+      const { slug } = S.cur, next = SITE.address(w, S.placed ? S.verse : 0, slug), now = () => `${location.pathname}${location.search}${location.hash}`;
+      if (push && before && before !== now()) history.replaceState(beforeState, '', before);
+      const st = history.state && typeof history.state === 'object' ? history.state : {};
+      if (next === now()) { if (st.cp !== slug) history.replaceState({ ...st, cp: slug }, '', next); return; }
+      history[push ? 'pushState' : 'replaceState']({ ...st, cp: slug }, '', next);
+    } catch (err) { console.error('Scripture pane: the address could not be written', err); }
   }
 
   /* SERMONS AND HYMNS ON THE PASSAGE (10-22, owner: "make sure we collect everything rank it properly ... and also make sure this is in
@@ -803,14 +966,16 @@
       if ((docsIdx.chapters[w.book] || []).includes(Number(w.ch))) d = await cfChapter(w.book, w.ch);
     } catch (err) { failed = true; console.error('Scripture pane: the creeds and confessions did not load', err); }
     if (tok !== CF.token) return;
-    const body = box.querySelector('.cp-cr-body'), bar = box.querySelector('.cp-cr-bar');
+    const body = box.querySelector('.cp-cr-body'), count = box.querySelector('.cp-cr-n');
     if (failed) {
-      box.hidden = false; box.classList.remove('is-open');
-      bar.hidden = true;
+      // a failure is said under the row, open, whatever the reader last left it at
+      box.hidden = false; box.classList.remove('is-open', 'is-empty');
+      count.textContent = '';
+      box.querySelector('.cp-cr-all').hidden = true;
       body.innerHTML = '<p class="cp-cr-note">The creeds and confessions that cite this verse could not be loaded. <button type="button" class="cp-cr-retry">Try again</button></p>';
+      creedsRow(true);
       return;
     }
-    bar.hidden = false;
     const rows = d && d.v ? (d.v[String(v)] || []).slice().sort(cfOrder(docsIdx.docs, d)) : [];
     const have = new Set(rows.map((r) => `${d.a[r[0]][0]}|${d.a[r[0]][1]}|${d.a[r[0]][2]}`));
     const whole = d && d.c ? d.c.filter((r) => !have.has(`${d.a[r[0]][0]}|${d.a[r[0]][1]}|${d.a[r[0]][2]}`)).sort(cfOrder(docsIdx.docs, d)) : [];
@@ -819,7 +984,9 @@
     const main = rows.filter((r) => !docs[d.a[r[0]][0]].p), papal = rows.filter((r) => docs[d.a[r[0]][0]].p);
     const n = rows.length;
     box.hidden = false;
-    box.querySelector('.cp-cr-h').textContent = `Creeds, confessions and catechisms (${fmt(n)})`;
+    // the row's count is the articles that print the verse ("(21)"); none on the verse, its chapter's are inside ("Show 4 citing the chapter")
+    count.textContent = `(${fmt(n)})`;
+    creedsRow();
     const open = CF.open && (n > 3 || whole.length || papal.length);
     box.classList.toggle('is-open', !!open);
     box.classList.toggle('is-empty', !n && !open);
@@ -854,6 +1021,42 @@
       if (!n) html = `<p class="cp-cr-note">None names ${esc(name)} ${esc(w.ch)}:${esc(v)}.</p>${html}`;
     }
     body.innerHTML = html;
+  }
+  // the creeds' row open or shut as the reader left it (2026-11-08, above); open: a failure to load is shown whatever it was left at
+  function creedsRow(open) {
+    const box = pane && pane.querySelector('.cp-creeds'); if (!box) return;
+    const on = open === true || !!S.creedsOpen;
+    box.querySelector('.cp-cr-row').setAttribute('aria-expanded', String(on));
+    box.querySelector('.cp-cr-in').hidden = !on;
+  }
+  /* THE FEEDBACK FORM FROM THE PANE (2026-11-08, owner: "run the reccomendations"): Mere Orthodoxy's "Tell Us What You Think" tab
+   * (faith-survey.js, on every page of the site) floated over the bottom corner of the pane's words. On this page it is put away
+   * (commentary-pane.css) and the pane's foot opens the same form through the tab's own button, never a copy of it. The line shows only
+   * while the form is on the page (a reader who sent it or turned it off has none), and the focus comes back to it when the form shuts. */
+  const surveyTab = () => document.querySelector('.fr-survey [data-fr-open]');
+  function paintTell() {
+    const p = pane && pane.querySelector('.cp-tell'); if (!p) return;
+    p.hidden = SITE.name !== 'mo' || !surveyTab();
+  }
+  function tell() {
+    const t = surveyTab(); if (!t) { paintTell(); return; }
+    const root = t.closest('.fr-survey'), btn = pane.querySelector('.cp-tell-btn');
+    t.click();
+    if (!root || !window.MutationObserver) return;
+    // the form puts the focus in itself as it opens, while it is still hidden at the start of its slide, and the focus stays here: once
+    // it is in, its first control has it
+    setTimeout(() => {
+      if (!root.classList.contains('is-open') || document.activeElement !== btn) return;
+      const f = root.querySelector('.fr-survey-panel input, .fr-survey-panel textarea, .fr-survey-panel button'); if (f) f.focus();
+    }, 320);
+    if (S.tellObs) S.tellObs.disconnect();
+    S.tellObs = new MutationObserver(() => {
+      if (root.classList.contains('is-open') && root.isConnected) return;
+      S.tellObs.disconnect(); S.tellObs = null;
+      const a = document.activeElement;
+      if (btn && btn.isConnected && (!a || a === document.body || root.contains(a))) btn.focus({ preventScroll: true });
+    });
+    S.tellObs.observe(root, { attributes: true, attributeFilter: ['class'] });
   }
 
   // each verse number carries how much reception it has (a quiet mark in the text: four steps of the chapter's own range)
@@ -1115,7 +1318,10 @@
     const list = pane.querySelector('.cp-list'), VR = window.FRVerseRail, w = where() || {};
     if (!VR || !VR.directory) { list.innerHTML = '<p class="cp-empty">The list could not be drawn.</p>'; return; }
     S.dirVerse = S.verse || 1;
-    list.innerHTML = VR.directory(S.list, dirCfg(w));
+    // (2026-11-08) at its foot, the way to every commentary on the book, where the site has such a page (Mere Orthodoxy's Commentaries)
+    const all = w.book && SITE.allOn(w);
+    const foot = all ? `<p class="cp-list-foot"><a href="${esc(all)}">Every commentary on ${esc(refName(w) === 'Psalm' ? 'the Psalms' : refName(w))}</a></p>` : '';
+    list.innerHTML = VR.directory(S.list, dirCfg(w)) + foot;
     VR.wireDirectory(list, {
       fold(id, open) { if (open) S.dirOpen.add(id); else S.dirOpen.delete(id); },
       preview,
@@ -1139,7 +1345,21 @@
     const list = pane.querySelector('.cp-list'), pick = pane.querySelector('.cp-pick');
     list.hidden = !open;
     pick.setAttribute('aria-expanded', String(!!open)); pick.textContent = open ? 'Hide list' : 'Change';
+    // the page's bar button opens this list too (one list): it says whether it is open
+    const lb = SITE.listButton && document.querySelector(SITE.listButton);
+    if (lb && lb.dataset.cpList) lb.setAttribute('aria-expanded', String(!!open));
+    // (2026-11-08) on the phone's sheet the list has the full screen while it is open; shut, the sheet goes back to where it was
+    if (open && onSheet() && S.sheet !== 'full') { S.sheetWas = S.sheet; sheetStop('full'); }
+    if (!open && S.sheetWas) { const was = S.sheetWas; S.sheetWas = ''; if (onSheet()) sheetStop(was); }
     if (open) { seedDir(where() || {}); renderDir(); requestAnimationFrame(listInView); }
+  }
+  // the bar button's count is the list's: the commentaries on the chapter and the sets on the whole Bible, as the list folds them
+  // (the homilies and the works on other passages that cite it are counted in their own groups)
+  function countList() {
+    const lb = SITE.listButton && document.querySelector(SITE.listButton), n = lb && lb.dataset.cpList && lb.querySelector('[data-sd-comm-count]');
+    const VR = window.FRVerseRail; if (!n || !VR || !VR.directoryModel) return;
+    const m = VR.directoryModel(S.list, dirCfg(where() || {}));
+    n.textContent = m && m.works ? `(${fmt(m.works)})` : '';
   }
 
   function nameCur() {
@@ -1172,7 +1392,13 @@
    * mess too"). A work the reader picks (a key, a row of the list, a row elsewhere on the page) is read and its note brought into view
    * once it is drawn (S.bring, the token of the show() the pick started; bring() below). The note is never brought in for the pane's own
    * moves (the opening commentary, the reading line followed). */
-  const pickWork = (slug) => { if (!choose(slug, true)) return false; S.bring = S.token; return true; };
+  // (2026-11-08) a pick holds the pane there and adds a history entry (remember); quiet: the commentary an address asks for as the page opens
+  const pickWork = (slug, quiet) => {
+    if (!choose(slug, true)) return false;
+    S.bring = S.token;
+    if (!quiet) { S.pin = true; S.hold = false; S.placed = true; remember(true); }
+    return true;
+  };
   // the fixed header and the rail stuck under it, over the top of the page
   const coverTop = () => {
     let b = 0;
@@ -1199,7 +1425,7 @@
   /* THE NOTE IN SIGHT (owner 2026-11-07, as above): on a wide screen the page moves only when the note starts off the screen: its line of
    * where it is comes to the top, or, where the screen holds both, the verse comes to the top with the note's first lines under it (the
    * text and its note side by side); a scroll the pane makes is not the reader's, and the text moves with it, so the rail is held to its
-   * verse (S.pin, as a verse clicked holds it; the reader's own scrolling hands it back). On the phone the sheet scrolls to the note. */
+   * verse (S.hold, which the reader's own scrolling lets go; a pick's S.pin stays). On the phone the sheet scrolls to the note. */
   function bring() {
     if (!pane || S.tab !== 'c') return;
     const at = pane.querySelector('.cp-where'), note = pane.querySelector('#cp-hit') || pane.querySelector('.cp-body');
@@ -1210,16 +1436,17 @@
     const top = chrome() + 12, atTop = scrollY + at.getBoundingClientRect().top - top, ve = SITE.verseEl(S.verse);
     const verseTop = ve && ve.getClientRects().length ? scrollY + ve.getBoundingClientRect().top - top : -Infinity;
     const y = atTop > scrollY && verseTop < atTop && verseTop >= scrollY + r.top - (innerHeight - 240) ? verseTop : atTop;
-    S.pin = true;
+    S.hold = true;
     scrollTo({ top: Math.max(0, y), behavior: motion() });
   }
   // the list opened by Change, in sight when it opens below the fold (owner 2026-11-07, as above): on the phone's sheet under its views
+  // (2026-11-08) the sheet's part on the screen is measured, not its whole height: its stops move it partly below the screen
   function listInView() {
     const list = pane && pane.querySelector('.cp-list'); if (!list || list.hidden) return;
-    if (onSheet()) { const p = pane.getBoundingClientRect(); if (list.getBoundingClientRect().top > p.top + p.height * 0.55) sheetTo(list); return; }
+    if (onSheet()) { const p = pane.getBoundingClientRect(), shown = Math.min(p.bottom, innerHeight) - p.top; if (list.getBoundingClientRect().top > p.top + shown * 0.55) sheetTo(list); return; }
     const r = list.getBoundingClientRect();
     if (r.top <= innerHeight * 0.6) return;
-    S.pin = true;
+    S.hold = true;
     scrollTo({ top: Math.max(0, scrollY + r.top - Math.max(chrome() + 12, innerHeight * 0.3)), behavior: motion() });
   }
 
@@ -1631,7 +1858,7 @@
   function step(d) {
     if (!S.shown) return;
     const k = stride(S.cur.slug), p = Math.max(1, S.shown.p + d * k);
-    S.follow = false; pane.querySelector('.cp-follow input').checked = false; store.set('fr_cp_follow', '0');
+    S.follow = false; pane.querySelector('.cp-follow input').checked = false; store.set('fr_cp_follow', '0'); paintHeld();
     S.shown = { ...S.shown, p, t: { p, how: 'browse' } };
     Promise.all([page(S.cur.slug, p), page(S.cur.slug, p + k).catch(() => null)]).then(([a, b]) => {
       S.shown.pages = [a.p, b && b.p].filter(Boolean); paint();
@@ -1803,30 +2030,45 @@
   function watch() {
     if (observer) observer.disconnect();
     const seen = new Map();
-    const settle = () => {
+    // (2026-11-08) now: Resume, which moves the pane at once, the pointer on the pane or not; a move of the text's own replaces the
+    // address's verse (remember), never adding a history entry
+    const settle = (now) => {
       clearTimeout(watch.t);
-      const wait = SETTLE - (performance.now() - (S.lastMove || 0));
+      const wait = now === true ? 0 : SETTLE - (performance.now() - (S.lastMove || 0));
       if (wait > 0) { watch.t = setTimeout(settle, wait + 30); return; }
-      if (!S.follow || S.pin || S.overPane) return;
+      if (!S.follow || S.pin || S.hold || (S.overPane && now !== true)) return;
       const vis = [...seen].filter(([, on]) => on).map(([el]) => el).sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
       const v = vis.length ? SITE.vnum(vis[0]) : null;
-      if (v && v !== S.verse) show(v);
+      if (v && v !== S.verse) { S.placed = true; show(v); remember(false); }
     };
     watch.settle = settle;
     observer = new IntersectionObserver((es) => {
       for (const e of es) seen.set(e.target, e.isIntersecting);
-      if (!S.follow || S.pin) return;
+      if (!S.follow || S.pin || S.hold) return;
       clearTimeout(watch.t); watch.t = setTimeout(settle, 120);
     }, { rootMargin: '-22% 0px -68% 0px' });
     document.querySelectorAll(SITE.verses).forEach((el) => observer.observe(el));
   }
+  // a verse picked in the text: the address before the page's own script rewrites it as the click goes through (remember), kept for this
+  // click only
+  const beforePick = (e) => {
+    if (!pane || !SITE.clicked(e.target)) return;
+    S.before = `${location.pathname}${location.search}${location.hash}`; S.beforeState = history.state;
+    setTimeout(() => { S.before = ''; S.beforeState = null; }, 0);
+  };
+  document.addEventListener('click', beforePick, true);
   document.addEventListener('click', (e) => {
     const v = SITE.clicked(e.target); if (!v || !pane) return;
-    S.pin = true;
-    show(v, true);
+    pickVerse(v);
   });
-  // the reader's own scrolling (not the page's scrolling to a chosen verse) hands the rail back to the reading line
-  const unpin = (e) => { if (e.type !== 'keydown' || ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) S.pin = false; };
+  /* (2026-11-08) a verse picked from the keyboard: Mere Orthodoxy's verses are spans the page opens on Enter or Space (scripture-dev.js,
+   * which marks the key as handled) with no click, and the pane never heard of it; The Faith Received's are buttons, whose Enter is a click */
+  const keyVerse = (e) => ((e.key === 'Enter' || e.key === ' ') && e.target.closest && !e.target.closest('button, a, input, select, textarea, [contenteditable]') ? SITE.clicked(e.target) : 0);
+  document.addEventListener('keydown', (e) => { if (keyVerse(e)) beforePick(e); }, true);
+  document.addEventListener('keydown', (e) => { const v = keyVerse(e); if (v && pane && e.defaultPrevented) pickVerse(v); });
+  // the reader's own scrolling (not the page's scrolling to a chosen verse) hands the rail back to the reading line; (2026-11-08) a
+  // pick's hold stays (S.pin) until the next pick
+  const unpin = (e) => { if (e.type !== 'keydown' || ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) S.hold = false; };
   ['wheel', 'touchmove', 'keydown'].forEach((t) => addEventListener(t, (e) => { if (!pane || !pane.contains(e.target)) unpin(e); }, { passive: true }));
 
   // the reader redraws its side panel on every verse: give it the switch back to the commentary each time
@@ -1841,7 +2083,7 @@
   // the reader's script says when a verse is chosen or closed: Close shows only while one is, and a closed verse hands the rail
   // back to the reading line
   document.addEventListener('change', (e) => { if (e.target.matches && e.target.matches('[data-sd-translation]')) desk(); });
-  window.addEventListener('sd:verse', (e) => { if (!pane) return; if (!(e.detail && e.detail.v)) S.pin = false; head(); });
+  window.addEventListener('sd:verse', (e) => { if (!pane) return; if (!(e.detail && e.detail.v)) { S.pin = false; S.hold = false; } head(); });
   /* A ROW ELSEWHERE ON THE PAGE READS ITS WORK HERE (owner 2026-11-07: "i keep having to preview to find a commentary and then open it
    * too many clicks"): the Citations panel's commentaries and the bar's Commentaries list ask by an event, cp:open {slug, verse}, sent
    * cancelable. A work in the chapter's list is read on the Commentary view at that verse, as an address's cp= is, and the event is
@@ -1858,6 +2100,29 @@
     setTab('c'); setDir(false);
     pickWork(c.slug);
   });
+  /* ONE LIST (2026-11-08, owner: "run the reccomendations"): the page's bar button (scripture-dev.js) asks by an event, cp:list, sent
+   * cancelable, and the pane opens its own list on the Commentary view and brings it into sight (on a phone, the sheet at full); asked
+   * again, it shuts it. A chapter's list still loading is opened once it comes. Unanswered (the pane off, or put away by a view of the
+   * page's own: Mere Orthodoxy's "Scripture only"), the page opens its own. */
+  function openList() {
+    setTab('c');
+    setDir(true);
+    const l = pane.querySelector('.cp-list');
+    l.setAttribute('tabindex', '-1');
+    l.focus({ preventScroll: true });
+  }
+  document.addEventListener('cp:list', (e) => {
+    if (!pane) return;
+    const w = where() || {};
+    if (listOpen()) { e.preventDefault(); setDir(false); return; }
+    setTab('c', true);
+    const lb = SITE.listButton && document.querySelector(SITE.listButton);
+    if (!pane.getClientRects().length) { if (lb && lb.dataset.cpWas) lb.setAttribute('aria-controls', lb.dataset.cpWas); return; }
+    if (lb) lb.setAttribute('aria-controls', 'cpList');
+    e.preventDefault();
+    if (S.listKey !== `${w.book}/${w.ch}`) { S.wantList = true; return; }
+    openList();
+  });
 
   let lastKey = '';
   // cp=<slug> in the address (the page's query on Mere Orthodoxy, the hash's on The Faith Received)
@@ -1865,8 +2130,25 @@
   // before the page redraws its own address; used once, by the chapter it was asked on
   const cpOf = (u) => { try { const x = new URL(u, location.href); return x.searchParams.get('cp') || new URLSearchParams(x.hash.split('?')[1] || '').get('cp') || ''; } catch (_) { return ''; } };
   let askedCp = cpOf(location.href) || cpOf(opened);
-  window.addEventListener('hashchange', () => { const x = cpOf(location.href); if (x) askedCp = x; });
+  window.addEventListener('hashchange', () => { const x = cpOf(location.href); if (x) askedCp = x; }, true);
   const askedWork = () => { const x = askedCp; askedCp = ''; return x; };
+  /* BACK AND FORWARD (2026-11-08, owner: "run the reccomendations"): the entry gone back (or forward) to names its verse and commentary,
+   * read as the event comes, from the address or the entry's state (remember). Mere Orthodoxy's page keeps a chapter it
+   * has drawn (scripture-dev.js opens or shuts the verse only), and the pane then puts back its own verse and commentary, held there as a
+   * pick holds it; another chapter is drawn anew and init() opens the commentary asked for. The Faith Received's router draws the whole
+   * page again, the pane with it, and init() reads the same. */
+  function restore() {
+    const w = where();
+    if (!w || !pane || !S.list.length || S.listKey !== `${w.book}/${w.ch}`) return;
+    const slug = askedWork(), c = slug && S.list.find((x) => x.slug === slug);
+    S.back = false;
+    S.pin = !!w.v; S.hold = false; S.placed = !!w.v;
+    const v = w.v || 1;
+    if (c && (!S.cur || S.cur.slug !== c.slug)) { S.verse = v; choose(c.slug); } else if (v !== S.verse) show(v, true); else head();
+  }
+  // (the page's own listener may have rewritten the address already: the entry's state, which the event keeps, names the commentary too)
+  window.addEventListener('popstate', (e) => { askedCp = cpOf(location.href) || (e.state && typeof e.state === 'object' && e.state.cp) || ''; S.back = true; }, true);
+  window.addEventListener('popstate', () => { if (!SITE.rebuildsOnBack) restore(); });
   // whether a summary names chapters of the Bible and none of them is this one: "Joshua 19–21", "Genesis 37:6ff." for Genesis 15 (true);
   // "Genesis 16 (with the vision of Gen 15)" (false); a summary that names no chapter says nothing (false)
   const BOOK_WORD = /^(?:Genesis|Gen|Exodus|Exod|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Joshua|Josh|Judges|Judg|Ruth|Samuel|Sam|Kings|Kgs|Chronicles|Chron|Ezra|Nehemiah|Neh|Esther|Esth|Job|Psalms?|Ps|Proverbs|Prov|Ecclesiastes|Eccl|Song|Isaiah|Isa|Jeremiah|Jer|Lamentations|Lam|Ezekiel|Ezek|Daniel|Dan|Hosea|Hos|Joel|Amos|Obadiah|Jonah|Micah|Mic|Nahum|Habakkuk|Hab|Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|Matthew|Matt|Mark|Luke|John|Acts|Romans|Rom|Corinthians|Cor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Colossians|Col|Thessalonians|Thess|Timothy|Tim|Titus|Philemon|Hebrews|Heb|James|Jas|Peter|Pet|Jude|Revelation|Rev)$/;
@@ -1891,6 +2173,7 @@
     if (!build()) return;
     ensureTabs();
     readCatalogue();
+    paintTell();
     const key = `${w.book}/${w.ch}`;
     if (key === lastKey && !fresh) {
       // the same chapter drawn again (another translation): follow the new verse elements
@@ -1900,7 +2183,7 @@
     }
     lastKey = key;
     // a new chapter: the rail follows the reading line again, its list shut (its key commentaries open the first time it opens: seedDir)
-    S.rec = null; S.pin = false; S.dirOpen = new Set(); S.dirSeeded = false;
+    S.rec = null; S.pin = false; S.hold = false; S.placed = !!w.v; S.dirOpen = new Set(); S.dirSeeded = false;
     setDir(false);
     const [list, rec, hits, pr] = await Promise.all([commentaries(w.book, w.ch), recOf(w.book, w.ch), hitsOf(w.book, w.ch), preachOf(w.book)]);
     // the hits join the list as works the pane can open at their page (wb 2: a list of their own, never a key). (10-22) A work the map
@@ -1932,6 +2215,7 @@
     fullTitles();
     readYears(rec);
     heat();
+    countList();
     // the century of each commentary, from the same list the Citations view reads, so the two name a work alike
     const mo = window.MOScriptureDev;
     if (mo && mo.fetchCommentaries && w.bk) {
@@ -1954,23 +2238,30 @@
     // (10-22) the commentary the address asks for (cp=<slug>: the Verse Desk's "Read beside the text"), on the Commentary view, the verse in sight
     // (2026-11-08) and its note brought into view once drawn, as a pick on this page is (the Desk's rows are links to it)
     const asked = askedWork(), pick = asked && S.list.find((x) => x.slug === asked);
+    /* AN ADDRESS THAT NAMES A VERSE KEEPS THE PANE ON IT (10-28; a reader's report: "The Revelation 12:7 link opens discussions of
+     * Matthew 1:7", then of Revelation 12:1). The rail follows the verse at the top of the reading line, and on load that is the
+     * chapter's first verse: the follower replaced the address's verse before the page reached it. A named verse now holds the rail
+     * and is brought into view; the reader's own scrolling hands the rail back to the reading line (S.hold). (2026-11-08) An entry gone
+     * back to holds it as the pick that made it did (S.pin). */
+    const keep = (held) => { if (S.back) S.pin = !!w.v; else S.hold = held; S.back = false; };
     if (pick) {
-      setTab('c', true); S.pin = true;
-      pickWork(pick.slug);
+      setTab('c', true);
+      pickWork(pick.slug, true);
+      keep(true);
       const el = w.v && SITE.verseEl(w.v); if (el) el.scrollIntoView({ block: SITE.name === 'mo' && !wide.matches ? 'start' : 'center', behavior: 'auto' });
     } else {
       choose(c ? c.slug : null);
-      /* AN ADDRESS THAT NAMES A VERSE KEEPS THE PANE ON IT (10-28; a reader's report: "The Revelation 12:7 link opens discussions of
-       * Matthew 1:7", then of Revelation 12:1). The rail follows the verse at the top of the reading line, and on load that is the
-       * chapter's first verse: the follower replaced the address's verse before the page reached it. A named verse now pins the rail
-       * and is brought into view; the reader's own scrolling hands the rail back to the reading line, as after a click. */
+      keep(!!w.v);
       if (w.v) {
-        S.pin = true;
         const el = SITE.verseEl(w.v); if (el) el.scrollIntoView({ block: SITE.name === 'mo' && !wide.matches ? 'start' : 'center', behavior: 'auto' });
       }
     }
+    // the commentary opened goes in the address (the entry replaced, not added)
+    remember(false);
+    paintHeld();
     S.firstEl = document.querySelector(SITE.verses);
     watch();
+    if (S.wantList) { S.wantList = false; openList(); }
   }
   const kick = () => { clearTimeout(kick.t); kick.t = setTimeout(init, 250); };
   window.addEventListener('hashchange', kick); window.addEventListener('popstate', kick);
