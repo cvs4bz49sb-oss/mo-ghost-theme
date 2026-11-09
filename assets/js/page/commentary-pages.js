@@ -33,9 +33,11 @@
     return m ? decode(m[1] != null ? m[1] : m[2]) : '';
   };
 
-  // A TEI file read as text, with no DOM: calls onMark(local name, attrs) for every <pb> and <milestone>, and onBlock(text, lang) for
-  // every <p> and <head> that is not inside a <note> (a note inside a paragraph is part of its text, as textContent had it).
-  function scanTei(xml, onMark, onBlock) {
+  // A TEI file read as text, with no DOM: calls onMark(local name, attrs) for every <pb> and <milestone>, and onBlock(text, lang, n) for
+  // every <p> and <head> that is not inside a <note> (a note inside a paragraph is part of its text, as textContent had it; n is the
+  // block's own n attribute, a printed column where a file gives one); onDiv(attrs, depth), where given, for every <div> as it opens
+  // (depth 1: a child of <body>).
+  function scanTei(xml, onMark, onBlock, onDiv) {
     const at = xml.search(/<body[\s>]/);
     const text = at >= 0 ? xml.slice(at) : xml;
     const rx = /<!--[\s\S]*?-->|<\?[\s\S]*?\?>|<!\[CDATA\[([\s\S]*?)\]\]>|<(\/?)([A-Za-z_][\w:.-]*)((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>|([^<]+)/g;
@@ -48,16 +50,17 @@
       if (closing) {
         const top = stack.pop();
         if (top && top.name === 'note') note -= 1;
-        if (buf && top && top === buf.el) { const t = buf.t.replace(/\s+/g, ' ').trim(); if (t) onBlock(t, buf.lang); buf = null; }
+        if (buf && top && top === buf.el) { const t = buf.t.replace(/\s+/g, ' ').trim(); if (t) onBlock(t, buf.lang, buf.n); buf = null; }
         continue;
       }
       if (name === 'pb' || name === 'milestone') onMark(name, m[4]);
       if (selfClose) continue;
+      if (name === 'div' && onDiv) onDiv(m[4], stack.length);
       const lang = attr(m[4], 'xml:lang') || (stack.length ? stack[stack.length - 1].lang : '');
       const el = { name, lang };
       stack.push(el);
       if (name === 'note') note += 1;
-      if ((name === 'p' || name === 'head') && !note && !buf) buf = { el, t: '', lang };
+      if ((name === 'p' || name === 'head') && !note && !buf) buf = { el, t: '', lang, n: attr(m[4], 'n') };
     }
   }
 
@@ -116,10 +119,12 @@
        * ("53:0569C": col. 569). */
       const before = [], langs = {};
       const put = (col, t, lang) => { const m = lang === 'en' ? en : src; if (lang !== 'en') langs[lang] = (langs[lang] || 0) + 1; if (!m.has(col)) m.set(col, []); m.get(col).push(t); };
+      let vol = null, div = 0;
       scanTei(xml, (tag, attrs) => {
         if (tag === 'milestone' && attr(attrs, 'unit') !== 'column') return;
         const raw = attr(attrs, 'n');
-        if (fam === 'pld' && tag === 'milestone' && !raw.includes(':')) return; // the volume's own mark, not a column
+        // the volume's own mark, not a column (kept for a file that has no other mark)
+        if (fam === 'pld' && tag === 'milestone' && !raw.includes(':')) { if (vol == null) vol = parseInt(raw, 10) || null; return; }
         const c = parseInt(raw.split(':').pop(), 10); // "26:0021B": column 21, its second quarter
         if (!c) return;
         if (cur == null && before.length) {
@@ -128,10 +133,32 @@
           for (const [t, lang] of before) put(open, t, lang);
         }
         cur = c; if (!cols.includes(c)) cols.push(c);
-      }, (t, lang) => {
-        if (cur == null) { before.push([t, lang]); return; }
+      }, (t, lang, n) => {
+        if (cur == null) { before.push([t, lang, n, div]); return; }
         put(cur, t, lang);
-      });
+      }, (attrs, depth) => { if (depth === 1 && attr(attrs, 'type') === 'division') div += 1; });
+      /* A FILE WITH NO COLUMN MARK (2026-11-08, daily-driver scorecard: "This page could not be loaded" for Genesis 3 in PL 2, Ruth 1 in
+       * PL 93, Origen's Selections on Genesis and Cyril on James 2). Its text came before any mark and was never placed, so every page
+       * of it was empty. It is now read by what the file does give, in the units the map and the rows already use:
+       *   the paragraphs' own printed columns (<p n="1007">): Cyril's Fragments on James (pg-1726), cols. 1007, 1009, 1011, as the reader
+       *     draws them. The paragraphs before the first printed column are not placed: in Cyril's file they are his fragments on
+       *     1 Corinthians, which would otherwise stand as the Greek of James 2
+       *   a Patrologia Latina file whose only mark is its volume's: the whole text at that number, which is where the map places it
+       *     (pld-1196 "Genesis" at 2, the PL volume; pld-2195 Questions on Ruth at 93)
+       *   a file of the Greek text in its natural divisions and no marks at all: each division by its order, from 1 (Origen's Selections
+       *     on Genesis, pg-266: the map's Genesis 15 is division 7, whose second sentence is "Look up to heaven and count the stars", 15:5) */
+      if (cur == null && before.length) {
+        const printed = before.some((b) => parseInt(b[2], 10) > 0);
+        let at = null;
+        for (const [t, lang, n, d] of before) {
+          const k = parseInt(n, 10);
+          if (printed) at = k > 0 ? k : at;
+          else at = vol != null ? vol : d;
+          if (!at) continue;
+          if (!cols.includes(at)) cols.push(at);
+          put(at, t, lang);
+        }
+      }
       // the language most of the source paragraphs carry, by its name; the family's own where none is marked
       const top = Object.entries(langs).sort((a, b) => b[1] - a[1])[0];
       return { en, la: src, cols, src: SRC_NAME[top && top[0]] || (fam === 'pg' ? 'Greek' : 'Latin') };
