@@ -75,12 +75,19 @@
   // (the chapter's numeral ends at a stop, a comma or a space, and so does the verse's word: "CHAP. XVII." is no chapter X with a verse
   // II, and Piscator's "ANALYSIS CHAP. V. VI. &" no chapter V with a verse I)
   const H_ROMAN = /^(?:[A-Z]{2,}\s+){0,3}(?:CHAP|Chap|CAP|Cap)\.?\s*([IVXLC]+|\d{1,3})(?:\.\s*,?\s*|\s*,\s*|\s+)[Vv](?:[Ee][Rr](?:[Ss](?:[Ee]|[Uu][Ss])?)?)?(?:\.\s*|\s+)([IVXLC]+|\d{1,3})\s*[.:,]/;
+  /* A ROMAN NUMBER AFTER THE VERSE WORD (2026-11-08, owner: "iterate until scripture can be used as a daily driver for what were doing";
+   * data7: Stock on Malachi 3:12, his note at p. 239, opened at "Its next note is on Malachi 3:16"). Stock heads his notes "VERSE IIII.
+   * Though Edom say", "VERS. XII. And all Nations shall call you blessed", from I to XVIII, and only an Arabic number was read after the
+   * word. A Roman one is read too, in capitals, as a heading at the paragraph's start, after a stop and before a new sentence: "Ver. I
+   * say" is the pronoun, "Vers. I. e." no heading. */
+  const H_VROMAN = /^(?:VERS(?:E|US)?|Vers(?:e|us)?|Ver)\.?\s+([IVXLC]{1,7})\.\s+(?=["\u201c\u2018'(\[]?[A-Z])/;
   const spanOf = (a, b) => Array.from({ length: b - a + 1 }, (_, k) => a + k);
   function verseHead(s) {
     // (a part of a psalm's division ahead of its verse: Lombard's "PART II. VERS. 2.--")
     let t = unmargin(String(s || '').replace(/^#{1,6}\s+/, '').replace(/^\s+/, '')).replace(/^part\s+[IVXLC]+\.?\s*(?:[-–—]{1,2}\s*)?(?=ver|vv?\.)/i, '');
     let chap = null, m = H_ROMAN.exec(t);
     if (m) { const c = numOf(m[1]), v = numOf(m[2]); return c > 0 && v > 0 ? { a: v, b: v, list: [v], chap: c, br: false } : null; }
+    if ((m = H_VROMAN.exec(t))) { const v = romanNum(m[1]); return v > 0 && v <= 176 ? { a: v, b: v, list: [v], chap: null, br: false, roman: true } : null; }
     const lead = H_LEAD.exec(t);
     if (lead) t = t.slice(lead[0].length);
     if ((m = H_CHAP_OUT.exec(t))) { chap = numOf(m[1]); t = t.slice(m[0].length); }
@@ -235,6 +242,10 @@
     for (const part of t.split(/\s*;\s*/)) { const m = REF_ONE.exec(part); if (!m) return null; const a = +m[2], b = m[3] ? +m[3] : a; if (b < a) return null; out.push([a, b]); }
     return out;
   }
+  // (2026-11-08) a heading's references with their book and chapter: "Hebrews Chapter 12:9-11" is [{book: 'Hebrews Chapter', c: 12, a: 9, b: 11}]
+  const refsOf = (s) => (refHead(s) ? String(s).replace(/^#{1,6}\s+/, '').trim().split(/\s*;\s*/).map((x) => {
+    const m = REF_ONE.exec(x); return { book: x.slice(0, x.search(/\d{1,3}\s*:/)).trim(), c: Number(m[1]), a: Number(m[2]), b: Number(m[3] || m[2]) };
+  }) : []);
   const prose = (s) => s.length >= 80 && !/^#{1,6}\s/.test(s) && /^[«"“‘']?[A-Za-z]/.test(s) && verseHead(s) == null && refHead(s) == null;
   function lemmaParts(paras) {
     const text = new Set(), runText = new Set(), ahead = new Set(), notes = new Map(), after = new Map(), runs = [];
@@ -416,6 +427,19 @@
   }
   // how many of the words `a` the words `b` have
   const shared = (a, b) => { let n = 0; for (const x of a) for (const y of b) if (sameWord(x, y)) { n += 1; break; } return n; };
+  /* (2026-11-08, as at H_VROMAN) a Roman verse heading is the note on its verse only where the words after it are that verse's, two words
+   * that tell at least (one, where the verse has no more): Stock's "VERS. XII. And all Nations shall call you blessed" (Malachi 3:12),
+   * Cocceius's "VERSE XIII. AND MAKE STRAIGHT PATHS FOR YOUR FEET" (Hebrews 12:13). Rivet's Decalogue, which the map gives as his Exodus
+   * 3, heads "VERSE II. I am the LORD thy God"; de Dieu's "VERS. II. He came unto his own" is John 1:11; Cocceius's Hebrews, listed on
+   * Psalm 110, heads 8:3 "VERS. III. FOR EVERY HIGH PRIEST IS APPOINTED TO OFFER GIFTS", one word of Psalm 110:3 ("Thy people offer
+   * themselves willingly"): none of them is the note on Exodus 3:2, John 1:2 or Psalm 110:3. Where the verse's words are not given, the
+   * heading stands. */
+  const afterRoman = (s) => { const t = unmargin(String(s || '').replace(/^#{1,6}\s+/, '').trim()), m = H_VROMAN.exec(t); return m ? t.slice(m[0].length) : t; };
+  const romanFits = (s, text) => {
+    if (!String(text || '').trim()) return true;
+    const v = wordsTold(text);
+    return shared(wordsTold(afterRoman(s).slice(0, 300)), v) >= Math.max(1, Math.min(2, v.size));
+  };
   // a lemma in English: an English small word in it, and no Latin, German or French one ("Erat lux vera", "Ynn dem anfang")
   const EN_SURE = /\b(?:the|and|of|to|that|unto|shall|thou|thee|thy|thine|his|he|him|which|for|with|not|was|they|them|their|ye|my|you|your|we|our|us|hath|have|had|having|are|were|will|from|upon|this|these|those|who|whom|what|there|when|by|all|but|or|art|doth|been|being|she|her|its|it|be)\b/i;
   const NOT_EN = /\b(?:et|est|sunt|non|ad|cum|qui|quae|quod|ut|sed|enim|autem|ex|per|ab|eius|ejus|erat|esse|te|tu|se|sicut|super|quia|nec|neque|ego|hic|haec|hoc|ille|illa|illud|ipse|omnis|omnes|omnia|nos|vos|nobis|vobis|mihi|tibi|sibi|quoniam|ecce|eum|eam|eos|iste|ista|istud|vero|quis|quid|quem|quam|ubi|tunc|nunc|sic|ita|etiam|atque|ac|aut|vel|deus|dominus|domine|dei|domini|deo|meus|mea|meum|tuus|tua|tuum|suus|sua|suum|der|die|das|dem|den|des|und|ist|nicht|ein|eine|zu|mit|von|auf|sich|ich|du|er|wir|ynn|vnd|nit|le|la|les|un|une|il|elle|que|dans|pour|sur|avec|ce|cette|au|aux|pas|nous|vous)\b/i;
@@ -503,7 +527,8 @@
   // are that chapter's), the narrowest where several name the verse ("VERS. 8.--" before "VERS. 1-8.--"). A paragraph that carries
   // such a heading is never read by the number it opens with: "7. [vers. 8.]" is not verse 7. `skip`, the section's reprinted text as
   // the resolver read it over its pages (a text that runs over a page break is not seen whole on one page), is never the note.
-  function noteAt(paras, printed, loose, ch, skip, text) {
+  // (romanText: the words of the verse a Roman heading must share, where `text` is not given; findNote's callers in the resolver)
+  function noteAt(paras, printed, loose, ch, skip, text, romanText) {
     const { all: lemma, notes, after } = lemmaParts(paras), app = apparatusIndexes(paras);
     const v = +printed, bx = bareRx(printed), off = (k) => app.has(k) || !!(skip && skip.has(paras[k]));
     const { under, mine } = chapterScope(paras, ch);
@@ -518,6 +543,7 @@
       if (ch != null && cur != null && cur !== +ch) continue;
       // the heading word marks a note even where the note lists 1. 2. 3. inside it
       if (!h.list.includes(v) || off(k) || !mine(k)) continue;
+      if (h.roman && !romanFits(paras[k], romanText != null ? romanText : text)) continue;
       // (Hammond's annotation that quotes the verse is taken over his paraphrase of it, of any width)
       if (i >= 0 && PARA.test(paras[i]) && !PARA.test(paras[k]) && annotates(paras[k], printedLines(paras, v), text)) { i = k; width = h.list.length; continue; }
       if (i >= 0 && PARA.test(paras[k]) && !PARA.test(paras[i]) && annotates(paras[i], printedLines(paras, v), text)) continue;
@@ -542,13 +568,13 @@
   // goes on "How beautiful are your steps in shoes" (the Vulgate's and the Hebrew's 7:1 of the Song is the English 6:13b and 7:1). A
   // heading with no quoted words is never taken in another's place. Without `text`, nothing changes.
   const REFUSED = -2, DROP_MIN = 5;
-  function findNote(paras, printed, loose, ch, skip, text) {
-    const ts = textsOf(text), k0 = noteAt(paras, printed, loose, ch, skip, ts[0]);
+  function findNote(paras, printed, loose, ch, skip, text, romanText) {
+    const ts = textsOf(text), k0 = noteAt(paras, printed, loose, ch, skip, ts[0], romanText);
     if (k0 < 0 || !quotesOther(paras[k0], ts)) return k0;
     const no = new Set(skip || []);
     no.add(paras[k0]);
     for (let n = 0; n < 8; n += 1) {
-      const k = noteAt(paras, printed, loose, ch, no, ts[0]);
+      const k = noteAt(paras, printed, loose, ch, no, ts[0], romanText);
       if (k < 0 || !quotesOther(paras[k], ts)) { if (k >= 0 && ts.some((t) => { const f = quoteFit(paras[k], t); return !!f && f.hit > 0; })) return k; break; }
       no.add(paras[k]);
     }
@@ -755,6 +781,14 @@
   // and the next chapter's, and ends at the next chapter's.
   function createResolver(getParas, opts) {
     const verseText = (opts && opts.verseText) || (() => '');
+    // the verse's words as the page gives them, or ''
+    const wordsAt = (x) => { try { return String(verseText(x) || ''); } catch (_) { return ''; } };
+    // (2026-11-08) the chapter's last verse, as the page gives its verses, a gap of a verse or two passed over; 0 where none is given
+    const lastVerse = () => {
+      let n = 0;
+      try { for (let x = 1, miss = 0; x <= 200 && miss < 5; x += 1) { if (String(verseText(x) || '').trim()) { n = x; miss = 0; } else if (n) miss += 1; else if (x > 3) break; } } catch (_) { n = 0; }
+      return n;
+    };
     const printedOf = (c, v) => (c.pv && c.pv[v]) || v;
     const memo = new Map();
     const once = (k, make) => { if (!memo.has(k)) memo.set(k, make()); return memo.get(k); };
@@ -890,6 +924,16 @@
         k = j;
       }
       const skip = new Set([...text, ...foreign]);
+      // (2026-11-08) the section's own headings where they stand, for the seek in resolve(): a run of references with the verses of each
+      // chapter it takes ("Hebrews Chapter 12:9-11"; the Harmony's run of three, one heading), or a chapter's heading
+      const turns = [];
+      for (let k = 0; k < joined.length; k += 1) {
+        if (refHead(joined[k])) {
+          const t = { p: at[k][0], pos: k, refs: refsOf(joined[k]) };
+          while (k + 1 < joined.length && refHead(joined[k + 1])) { k += 1; t.refs = t.refs.concat(refsOf(joined[k])); }
+          turns.push(t);
+        } else { const m = chapterHead(joined[k], psalms); if (m) turns.push({ p: at[k][0], pos: k, chap: m }); }
+      }
       const heads = {}, caps = [], ranges = [], marks = [];
       // a heading that names its verses says so wherever it stands in the section (Augustine's Tractate I, col. 35)
       pages.forEach(([n, ps], q) => { if (q <= p0) for (const s of q < p0 ? ps : ps.slice(0, i0)) { const r = rangeOf(s, w.ch); if (r) ranges.push({ p: n, pos: -1, ...r }); } });
@@ -926,6 +970,8 @@
         const r = rangeOf(s, w.ch); if (r) ranges.push({ p: n, pos, ...r });
         for (const x of cvMarks(s, w.ch)) if (!marks.some((y) => y.v === x.v)) marks.push({ p: n, i, pos, v: x.v });
         let h = verseHead(s);
+        // (2026-11-08) a Roman verse heading counts only where its words are its verse's (romanFits)
+        if (h && h.roman && !romanFits(s, wordsAt(h.a))) h = null;
         if (h && h.chap != null) {
           // the first heading that names this chapter's first verse is where it starts: what the index took before it was another
           // chapter's; once it is named, a heading that names another chapter ends it (Trapp's "CHAP. III. Verse 1." of Hebrews, after
@@ -994,7 +1040,7 @@
       }
       // (the section's last page, and where on it the section ends: the next chapter's heading, or its top where none is read there)
       const endAt = pages.length ? { p: pages[p1][0], i: i1 } : null;
-      return { lo, hi, far, rowsFar, endAt, heads, caps, ranges, marks, text, skip, foreign, ahead, aheadAt, nostop, titleOff };
+      return { lo, hi, far, rowsFar, endAt, heads, caps, ranges, marks, text, skip, foreign, ahead, aheadAt, nostop, titleOff, turns };
     });
     // THE NOTE AFTER ITS TEXT (2026-11-08, QA). The library indexes Calvin's note on a verse at the page where the verse is printed
     // ahead of his notes (Galatians 2:16 at p. 29, with the text of 2:11-16; Isaiah 53:5 at p. 61, with 53:1-12), and his note on
@@ -1002,17 +1048,17 @@
     // a text, with no note on it, the place is the first of the section's following pages that carries one. (2026-11-08, survey) The
     // text is the section's, read whole (Calvin prints Genesis 3 on pp. 58-59), and the search runs to the section's end, forty pages
     // at most: his note on Genesis 3:15 is at p. 72. The same holds for a page the library files as discussing the verse.
-    const noteAfterText = async (c, sec, p0, printed, ch) => {
+    const noteAfterText = async (c, sec, p0, printed, ch, vt) => {
       const [[e1, l1], [e2, l2]] = [await getParas(c.slug, p0), await getParas(c.slug, p0 + 1)];
       let held = false;
       for (const all of [[...e1, ...e2], [...l1, ...l2]]) {
         if (!all.length) continue;
-        if (findNote(all, printed, true, ch, sec.skip) >= 0) return null;
+        if (findNote(all, printed, true, ch, sec.skip, undefined, vt) >= 0) return null;
         const { ahead } = lemmaParts(all);
         if (all.some((s, k) => (ahead.has(k) || sec.ahead.has(s)) && +(/^(\d{1,3})\./.exec(s) || [])[1] === +printed)) held = true;
       }
       for (let n = p0 + 2; held && n <= Math.min(sec.far, p0 + 40); n += 1) {
-        if (await noteOn(c, sec, n, printed, ch)) return n;
+        if (await noteOn(c, sec, n, printed, ch, vt)) return n;
         // another passage's text begins under its reference: the note on this verse came before it, unfound (Calvin's Harmony of the
         // Law runs from Exodus 20:3 on to Deuteronomy 13:3, whose note is no note on Exodus 20:3)
         const [en] = await getParas(c.slug, n);
@@ -1024,12 +1070,12 @@
     // under another chapter's heading, and no note on it. The text is a run of verses or the verses ahead of their notes, never a note
     // that lists "1. … 2." inside it (Poole's Synopsis on 1 John 4:8, "8. He that loveth not (either, 1. a brother: or, 2. God …) knoweth
     // not God] That is …", was dropped from his index)
-    const textOnly = async (c, sec, p, printed, ch) => {
+    const textOnly = async (c, sec, p, printed, ch, vt) => {
       const [[e1, l1], [e2, l2]] = [await getParas(c.slug, p), await getParas(c.slug, p + 1)];
       let seen = false;
       for (const all of [[...e1, ...e2], [...l1, ...l2]]) {
         if (!all.length) continue;
-        if (findNote(all, printed, true, ch, sec.skip) >= 0) return false;
+        if (findNote(all, printed, true, ch, sec.skip, undefined, vt) >= 0) return false;
         const { runText, ahead } = lemmaParts(all);
         let hc = null;
         for (let k = 0; k < all.length; k += 1) {
@@ -1043,9 +1089,9 @@
       return seen;
     };
     // whether page n carries the note on the verse: by its own reading, or as the section read whole ("7 Emptied himself.")
-    const noteOn = async (c, sec, n, printed, ch) => {
+    const noteOn = async (c, sec, n, printed, ch, vt) => {
       const [en, la] = await getParas(c.slug, n);
-      return findNote(en, printed, false, ch, sec.skip) >= 0 || findNote(la, printed, false, ch, sec.skip) >= 0 || en.some((s) => sec.nostop.get(s) === +printed && !sec.foreign.has(s));
+      return findNote(en, printed, false, ch, sec.skip, undefined, vt) >= 0 || findNote(la, printed, false, ch, sec.skip, undefined, vt) >= 0 || en.some((s) => sec.nostop.get(s) === +printed && !sec.foreign.has(s));
     };
     /* A NOTE OUTSIDE THE TRACTATE ON ITS VERSE (2026-11-08, found testing Augustine on John 1). The library indexed the numbered sections
      * of Augustine's Tractate I (on John 1:1-5) as notes on verses: its §13, at col. 1385 on 1:3, became "his note on John 1:13", though
@@ -1068,7 +1114,7 @@
     const counted = (c, sec, v) => sec.titleOff && !(c.pv && c.pv[v] != null);
     const located = (c, v, w) => {
       return once(`loc|${c.slug}|${w.name}|${w.ch}|${v}`, async () => {
-        const printed = printedOf(c, v), sec = await section(c, w);
+        const printed = printedOf(c, v), sec = await section(c, w), vt = wordsAt(v);
         if (counted(c, sec, v)) {
           const h = sec.heads[+printed + sec.titleOff];
           if (!h) return null;
@@ -1099,19 +1145,19 @@
         // past his notes on 18:7-50 at pp. 46-52; the note there was his "Ver. 1. The heaven's declare", on 19:1
         const onNext = (p) => !!sec.endAt && p === sec.endAt.p && sec.endAt.i === 0 && Object.keys(sec.heads).some((k) => +k > +printed);
         if (c.notes[v] != null && +c.notes[v] >= sec.lo && +c.notes[v] <= sec.rowsFar && inRun(sec, +printed, +c.notes[v]) && !onNext(+c.notes[v])) {
-          const after = await noteAfterText(c, sec, +c.notes[v], printed, w.ch);
+          const after = await noteAfterText(c, sec, +c.notes[v], printed, w.ch, vt);
           if (after != null) return { p: after, v, indexed: true };
           // (2026-11-08) a page that carries the verse only as a line of the text, with no note on it there or after, is no note: Albert's
           // every verse of Matthew 5 is indexed at the page of his text, and the reader was shown the verse marked as his note; nor one
           // whose line of that number stands under another chapter's heading (Poole's Annotations on Psalm 32:1, at p. 445: Psalm 33's
           // "1. REjoyce in the LORD")
-          if (!(await textOnly(c, sec, +c.notes[v], printed, w.ch))) return { p: +c.notes[v], v, indexed: true };
+          if (!(await textOnly(c, sec, +c.notes[v], printed, w.ch, vt))) return { p: +c.notes[v], v, indexed: true };
         }
         // (2026-11-08) inside a tractate, homily or lecture whose heading names a run of verses holding this one, a paragraph numbered
         // as the verse is the division's own section of that number, and only a heading that names the verse is its note: Augustine's
         // Tractate CV on John 17:1-5 opens his "3. Some accept the Son glorified by the Father …", which was marked as his note on 17:3
         const divided = sec.ranges.some((x) => x.a <= printed && printed <= x.b && x.b > x.a);
-        const noteIn = (ps) => { const k = findNote(ps, printed, false, w.ch, sec.skip); return k >= 0 && (!divided || (verseHead(ps[k]) || { list: [] }).list.includes(+printed)); };
+        const noteIn = (ps) => { const k = findNote(ps, printed, false, w.ch, sec.skip, undefined, vt); return k >= 0 && (!divided || (verseHead(ps[k]) || { list: [] }).list.includes(+printed)); };
         for (const cand of candidatePages((c.rows || {})[v], c.slug, w.name, w.ch, v).filter((x) => x.p >= sec.lo && x.p <= sec.far && inRun(sec, +printed, x.p)).slice(0, 8)) {
           for (const p of [cand.p - 2, cand.p - 1, cand.p]) {
             if (p < Math.max(1, sec.lo)) continue;
@@ -1126,21 +1172,38 @@
             if (noteIn(en) || noteIn(la)) return { p, v };
           }
           // (2026-11-08) a page that carries the verse only in the text printed ahead of the notes: the note is where it follows
-          const after = await noteAfterText(c, sec, cand.p, printed, w.ch);
+          const after = await noteAfterText(c, sec, cand.p, printed, w.ch, vt);
           if (after != null) return { p: after, v };
         }
         // (2026-11-08) with no row of the library's to go by, the verse where the section prints it ahead of the notes: the note follows
         // (Calvin on Genesis 3:15, printed on p. 59, his note at p. 72)
         if (sec.aheadAt.has(+printed)) {
           const tp = sec.aheadAt.get(+printed);
-          for (const p of [tp, tp + 1]) if (await noteOn(c, sec, p, printed, w.ch)) return { p, v };
-          const after = await noteAfterText(c, sec, tp, printed, w.ch); if (after != null) return { p: after, v };
+          for (const p of [tp, tp + 1]) if (await noteOn(c, sec, p, printed, w.ch, vt)) return { p, v };
+          const after = await noteAfterText(c, sec, tp, printed, w.ch, vt); if (after != null) return { p: after, v };
         }
         // the lecture whose heading names a range of the chapter's verses holding this one (the narrowest)
         const r = sec.ranges.filter((x) => x.a <= printed && printed <= x.b).sort((x, y) => (x.b - x.a) - (y.b - y.a) || x.pos - y.pos)[0];
         if (r) return { p: r.p, v, range: { a: r.a, b: r.b } };
         return null;
       });
+    };
+    /* THE COMMENT THAT RUNS ON OVER THE VERSE (2026-11-08, owner: "iterate until scripture can be used as a daily driver for what were
+     * doing"). Calvin on Hebrews prints 12:4-8 under "Hebrews Chapter 12:4-8" and comments "7. For what son is he, etc." (p. 186), which
+     * runs on through verse 8, which has no note of its own; his next section, "Hebrews Chapter 12:9-11", follows on p. 187. The seek took
+     * the next note, within four verses, before the earlier one: "No separate note on 12:8. Its next note is on 12:9". Where the earlier
+     * note's section heading takes both its verse and this one, and the next heading, after the earlier note's page and none between,
+     * takes the next note's verse and none up to this one, the verse is in the earlier note's section, and that note is the place. Only
+     * then: Calvin's Harmony heads the Lord's Supper "Matthew 26:26-30; Mark 14:22-26; Luke 22:17-20", and Luke 22:27, on the disciples'
+     * strife, is not in it. */
+    const bookWord = (s) => String(s || '').toLowerCase().replace(/\bchapter\b/g, ' ').replace(/[^a-z ]/g, ' ').trim().split(/\s+/).pop().replace(/s$/, '');
+    const sectionTurn = (sec, prev, next, v, w) => {
+      const ch = Number(w.ch), bk = bookWord(w.name);
+      const mine = (t) => (t.refs || []).filter((r) => r.c === ch && (!bk || !r.book || bookWord(r.book) === bk));
+      const holds = (t, x) => mine(t).some((r) => r.a <= x && x <= r.b);
+      const ts = sec.turns || [], g = ts.filter((t) => t.p <= prev.p).pop(), h = ts.find((t) => t.p > prev.p);
+      if (!g || !h || h.p > next.p || ts.indexOf(h) !== ts.indexOf(g) + 1) return false;
+      return holds(g, prev.v) && holds(g, v) && holds(h, next.v) && mine(h).every((r) => r.a > v);
     };
     async function resolve(c, v, w) {
       const here = await located(c, v, w);
@@ -1154,9 +1217,15 @@
         const [en, la] = await getParas(c.slug, x.p);
         if (apparatusShare(en.length ? en : la) < 0.8) claims.push(x); // a page that is nearly all the editors' notes is not "the comment"
       }
+      /* NO NOTE PAST THE CHAPTER'S END (2026-11-08, owner: "iterate until scripture can be used as a daily driver for what were doing";
+       * data7: with Hammond's Psalms widened to 1-150, 34 verses of Psalms 113, 123, 125, 127, 137 and 141 opened at the right page,
+       * nothing marked, saying "Its next note is on Psalm 113:10" of a nine-verse psalm: his note on the next psalm's verse; Origen on
+       * Genesis 23:18-20 named 43:22's note "23:22"). The seek names no verse past the chapter's last one, where the page gives the verses
+       * (a verse a translation leaves out is no end) */
+      const last = lastVerse();
       const seek = async (dir, max) => {
         for (let d = 1; d <= max; d += 1) {
-          const x = v + dir * d; if (x < 1) return null;
+          const x = v + dir * d; if (x < 1 || (last && x > last)) return null;
           const hit = await located(c, x, w);
           if (hit) return { p: hit.p, v: x };
         }
@@ -1168,6 +1237,8 @@
         const mid = claims.map((x) => x.p).filter((p) => p >= lo && p <= hi).sort((x, y) => x - y)[0];
         if (mid != null) return { p: mid, how: 'page', v };
       }
+      // the earlier note's section holds the verse (owned: the pane does not trade it for the chapter's opening)
+      if (next && prev && next.v - v <= 4 && sectionTurn(sec, prev, next, v, w)) return { p: prev.p, how: 'nearest', v: prev.v, owned: true };
       if (next && next.v - v <= 4) return { p: next.p, how: 'later', v: next.v };
       if (prev) return { p: prev.p, how: 'nearest', v: prev.v };
       if (next) return { p: next.p, how: 'later', v: next.v };

@@ -742,6 +742,78 @@ Paraphrase 20. And instruct them to live accordingly, and to continue in it.`),
   ok(m19.p === 166, `Hammond on Matthew 28:19 opens at his annotation, p. 166, not at Mark 10's, p. 191 (got ${JSON.stringify(m19)})`);
 }
 
+// ── 2026-11-08, the daily driver (owner: "iterate until scripture can be used as a daily driver for what were doing") ──────────────
+{
+  // Calvin on Hebrews 12 (the Calvin Translation Society): each section's verses in both tongues under its reference, then his notes on
+  // some of them. "7. For what son is he, etc." (p. 186) runs on over verse 8, which has no note; "Hebrews Chapter 12:9-11" follows on p.
+  // 187. The verse is in the earlier note's section: that note is its place, not the next one past the heading
+  const two = (n, en, la) => `${n}. ${en}\n${n}. ${la}`;
+  const heb = (next) => ({
+    183: paras(`CHAPTER 12\nHebrews Chapter 12:1-3\n${two(1, 'Wherefore seeing we also are compassed about with so great a cloud of witnesses, let us lay aside every weight.', 'Proinde nos quoque tantam habentes circumpositam nubem testium, deposito omni onere.')}\n${two(2, 'Looking unto Jesus the author and finisher of our faith; who for the joy that was set before him endured the cross.', 'Intuentes in fidei ducem et perfectorem Iesum, qui pro gaudio sibi proposito sustinuit crucem.')}\n${two(3, 'For consider him that endured such contradiction of sinners against himself, lest ye be wearied.', 'Reputate certe quis talem sustinuerit a peccatoribus adversus se contradictionem, ne fatigemini.')}\n1. Wherefore, seeing we also, etc. This conclusion is, as it were, the application of the previous chapter.${MORE}`),
+    184: paras(`Hebrews Chapter 12:4-8\n${two(4, 'Ye have not yet resisted unto blood, striving against sin.', 'Nondum ad sanguinem usque restitistis adversus peccatum certantes.')}\n${two(5, 'And ye have forgotten the exhortation which speaketh unto you as unto children.', 'Et obliti estis consolationis quae vobis tanquam filiis loquitur.')}\n${two(6, 'For whom the Lord loveth he chasteneth, and scourgeth every son whom he receiveth.', 'Nam quem diligit Dominus castigat, flagellat autem omnem filium quem recipit.')}\n${two(7, 'If ye endure chastening, God dealeth with you as with sons; for what son is he whom the father chasteneth not?', 'Si castigationem suffertis, tanquam filiis se vobis offert Deus; quis enim est filius quem non castiget pater?')}\n${two(8, 'But if ye be without chastisement, whereof all are partakers, then are ye bastards, and not sons.', 'Quod si extra castigationem estis, cujus participes facti sunt omnes, ergo spurii estis et non filii.')}\n4. Ye have not yet, etc. He goes farther, and says, that should we be called to shed our blood for the Gospel.${MORE}\n5. And ye have forgotten, etc. He means that we are not to complain when the Lord chastises us.${MORE}`),
+    185: paras(`6. For whom the Lord loveth, etc. This seems not to be a well-founded reason; for God visits the elect as well as the reprobate.${MORE}`),
+    186: paras(`7. For what son is he, etc. He reasons from the common practice of men, that it is by no means right or meet that God's children should be exempt from chastisement.${MORE}\nIt hence follows that the benefit of adoption is not valued by us as it ought to be, and that the grace of God is rejected when we shun his rod.${MORE}`),
+    187: paras(`${next}${two(9, 'Furthermore we have had fathers of our flesh which corrected us, and we gave them reverence: shall we not much rather be in subjection unto the Father of spirits, and live?', 'Quum carnis nostrae patres habuerimus castigatores et reveriti simus illos, annon multo magis subjiciemur Patri spirituum et vivemus?')}\n${two(10, 'For they verily for a few days chastened us after their own pleasure; but he for our profit.', 'Et illi quidem ad paucos dies pro suo arbitratu nos castigarunt; hic vero ad utilitatem.')}\n9. Furthermore, etc. He again argues from the less to the greater, for if we bear chastisement from our fathers in the flesh.${MORE}`),
+    188: paras(`10. For they verily, etc. Here is another comparison between God and men.${MORE}`),
+  });
+  const cal = (next) => ({ resolver: A.createResolver(async (_s, n) => [heb(next)[n] || [], []]), work: { slug: `calvin-hebrews-${next ? 'h' : 'n'}`, notes: {}, open: 183, close: 201, pv: {}, rows: {} } });
+  const W12 = { name: 'Hebrews', ch: '12' };
+  const a = cal('Hebrews Chapter 12:9-11\n'), g8 = await a.resolver.resolve(a.work, 8, W12), g9 = await a.resolver.resolve(a.work, 9, W12);
+  ok(g8 && g8.how === 'nearest' && g8.v === 7 && g8.p === 186 && g8.owned, `Calvin on Hebrews 12:8 opens at his note on 12:7, p. 186, whose section holds it, not at 12:9 past "Hebrews Chapter 12:9-11" (got ${JSON.stringify(g8)})`);
+  ok(g9 && g9.how === 'note' && g9.p === 187, `and 12:9 keeps its own note, p. 187 (got ${JSON.stringify(g9)})`);
+  // with no heading between the two notes, nothing says where verse 8 belongs: the next note within four verses, as before
+  const b = cal(''), h8 = await b.resolver.resolve(b.work, 8, W12);
+  ok(h8 && h8.how === 'later' && h8.v === 9 && !h8.owned, `with no heading before 12:9, Hebrews 12:8 still opens at the next note (got ${JSON.stringify(h8)})`);
+  // a heading that takes the verse itself puts it in the next section: the next note, as before
+  const d = cal('Hebrews Chapter 12:8-11\n'), k8 = await d.resolver.resolve(d.work, 8, W12);
+  ok(k8 && k8.how !== 'nearest', `a heading of 12:8-11 puts 12:8 in the next section (got ${JSON.stringify(k8)})`);
+}
+{
+  // no next note past the chapter's last verse: Origen on Genesis 23:18-20 offered "his note on 23:22", which is 43:22's (data7); the
+  // verse count is the page's, through verseText. Without it nothing changes
+  const org = { 49: paras(`Vers. 10. And Ephron dwelt among the children of Heth: and Ephron the Hittite answered Abraham.${MORE}`),
+    50: paras(`Vers. 18. Unto Abraham for a possession in the presence of the children of Heth.${MORE}\nVers. 19. And after this, Abraham buried Sarah his wife in the cave of the field of Machpelah.${MORE}`),
+    51: paras(`Vers. 22. And the man took a golden earring of half a shekel weight, and two bracelets for her hands.${MORE}`) };
+  const G23 = { name: 'Genesis', ch: '23' }, work = (x) => ({ slug: `origen-gen-${x}`, notes: {}, open: 49, close: 52, pv: {}, rows: {} });
+  const twenty = (x) => (x >= 1 && x <= 20 ? `Verse ${x} of Genesis twenty-three.` : '');
+  const g20 = await A.createResolver(async (_s, n) => [org[n] || [], []], { verseText: twenty }).resolve(work('a'), 20, G23);
+  ok(g20 && !(g20.how === 'later' && g20.v > 20) && g20.how === 'nearest' && g20.v === 19, `Genesis 23:20, a chapter of 20 verses, is never sent to a "next note on 23:22" (got ${JSON.stringify(g20)})`);
+  const u20 = await A.createResolver(async (_s, n) => [org[n] || [], []]).resolve(work('b'), 20, G23);
+  ok(u20 && u20.how === 'later' && u20.v === 22, `with no verse count given the seek is as before (got ${JSON.stringify(u20)})`);
+}
+{
+  // Stock heads his notes on Malachi "VERS. XII. And all Nations shall call you blessed", in Roman numbers from I to XVIII (data7: Malachi
+  // 3:12, his note at p. 239, opened at the next note on 3:16). A Roman number after the verse word is read, as a heading only
+  ok(A.verseHead('VERS. XII. And all Nations shall call you blessed: for ye shall be a pleasant land') && A.verseHead('VERS. XII. And all Nations shall call you blessed').a === 12
+    && A.verseHead('VERSE IIII. Though Edom say, We are impoverished').a === 4 && A.verseHead('VERSE I. The burden of the Word of the Lord to Israel').a === 1,
+    'a Roman verse number after VERS. or VERSE is read as the verse ("VERS. XII.", "VERSE IIII.")');
+  ok(A.verseHead('Ver. I say unto you, that he will avenge them') === null && A.verseHead('Vers. I. e. the second part of the verse') === null && A.verseHead('Verse I think it best to read thus') === null,
+    'never the pronoun or an abbreviation: "Ver. I say", "Vers. I. e.", "Verse I think"');
+  const stock = { 236: paras(`VERS. XI. And I will rebuke the devourer for your sakes, and he shall not destroy the fruit of your ground.${MORE}`),
+    239: paras(`VERS. XII. And all Nations shall call you blessed: for ye shall be a pleasant land, saith the Lord of Hosts.\nAND all Nations shall call you blessed, that is, the people round about shall see your prosperity.${MORE}`),
+    243: paras(`VERS. XIII. Your words have been stout against me, saith the Lord: yet yee say, What have we spoken so much against thee?${MORE}`) };
+  const MAL3 = { 11: 'And I will rebuke the devourer for your sakes, and he shall not destroy the fruits of your ground', 12: 'And all nations shall call you blessed: for ye shall be a delightsome land, saith the LORD of hosts.',
+    13: 'Your words have been stout against me, saith the LORD. Yet ye say, What have we spoken so much against thee?' };
+  const r = A.createResolver(async (_s, n) => [stock[n] || [], []], { verseText: (x) => MAL3[x] || (x >= 1 && x <= 18 ? `Malachi three verse ${x}` : '') });
+  const s12 = await r.resolve({ slug: 'stock-malachi', notes: {}, open: 230, close: 250, pv: {}, rows: {} }, 12, { name: 'Malachi', ch: '3' });
+  ok(s12 && s12.how === 'note' && s12.p === 239 && A.findNote(stock[239], 12, false, '3', null, [MAL3[12]]) === 0, `Stock on Malachi 3:12 opens at "VERS. XII.", p. 239, marked (got ${JSON.stringify(s12)})`);
+  // a Roman heading is the note only where its words are the verse's: Rivet's Decalogue, which the map gives as his Exodus 3, heads
+  // "VERSE II. I am the LORD thy God"; it is no note on Exodus 3:2 ("And the angel of the LORD appeared unto him in a flame of fire")
+  const rivet = { 1253: paras(`VERSE II. I am the LORD thy God, who brought thee out of the land of Egypt, out of the house of bondage.${MORE}`),
+    1272: paras(`VERSE IV. You shall not make for yourself a carved image, nor any likeness of anything that is in heaven above.${MORE}`) };
+  const EX3 = { 2: 'And the angel of the LORD appeared unto him in a flame of fire out of the midst of a bush: and he looked, and, behold, the bush burned with fire, and the bush was not consumed.',
+    4: 'And when the LORD saw that he turned aside to see, God called unto him out of the midst of the bush, and said, Moses, Moses. And he said, Here am I.' };
+  const rv = A.createResolver(async (_s, n) => [rivet[n] || [], []], { verseText: (x) => EX3[x] || (x >= 1 && x <= 22 ? `Exodus three verse ${x}` : '') });
+  const x2 = await rv.resolve({ slug: 'rivet', notes: {}, open: 1253, close: 1300, pv: {}, rows: {} }, 2, { name: 'Exodus', ch: '3' });
+  ok(!(x2 && x2.how === 'note' && x2.v === 2) && A.findNote(rivet[1253], 2, false, '3', null, [EX3[2]]) === -1,
+    `a Roman heading that quotes another verse is no note on this one: Rivet's "VERSE II. I am the LORD thy God" for Exodus 3:2 (got ${JSON.stringify(x2)})`);
+  // one word in common is too few: Cocceius's Hebrews, listed on Psalm 110, heads 8:3 "VERS. III. FOR EVERY HIGH PRIEST IS APPOINTED TO OFFER
+  // GIFTS", and the library's Psalm 110:3 reads "Thy people offer themselves willingly"
+  ok(A.findNote(paras('VERS. III. FOR EVERY HIGH PRIEST IS APPOINTED TO OFFER GIFTS AND SACRIFICES: WHEREFORE IT IS NECESSARY THAT THIS ONE ALSO HAVE SOMETHING WHICH HE MAY OFFER.'), 3, false, '110', null,
+    ['Thy people offer themselves willingly In the day of thy power, in holy array: Out of the womb of the morning Thou hast the dew of thy youth.']) === -1,
+  'a Roman heading sharing one word with the verse is no note on it (Hebrews 8:3 in Cocceius, on Psalm 110:3)');
+}
+
 // ── the rail's markup and stylesheet ────────────────────────────────────────────────────────────────────────────────────────
 const js = readFileSync(path.join(root, 'assets/js/page/commentary-pane.js'), 'utf8');
 const css = readFileSync(path.join(root, 'assets/css/commentary-pane.css'), 'utf8');
@@ -773,6 +845,28 @@ ok(/class="sd-close cp-close"[^>]*>Close</.test(js) && /new Event\('sd:close-ver
 ok(/addEventListener\("sd:close-verse", closeVerse\)/.test(sdjs) && /\.sd-close"\)\.addEventListener\("click", closeVerse\)/.test(sdjs), 'the Citations Close and the pane Close run one function');
 ok(/pick\.textContent = open \? 'Hide list' : 'Change'/.test(js), "the commentary list's toggle says Hide list, so Close means one thing");
 ok(/min-height: 44px/.test(sd.slice(sd.indexOf('.sd-close {'), sd.indexOf('.sd-close {') + 400)), 'Close has a 44px touch target');
+
+// ── 2026-11-08, the daily driver: the pane's side of it ───────────────────────────────────────────────────────────────────────────
+{
+  // a key's label is the name, never a title: the Oecumenius key on Acts 2 read "Bishop"
+  const short = new Function(`${js.slice(js.indexOf('  const SHORT = {'), js.indexOf("  // Poole's sigla"))}; return short;`)();
+  const names = { 'Œcumenius Bishop of Trikka': 'Œcumenius', 'Oecumenius, Bishop of Trikka': 'Oecumenius', 'Bishop of Trikka Oecumenius': 'Oecumenius',
+    'Archbishop of Bulgaria Theophylact': 'Theophylact', 'Theophanes, Archbishop of Nicaea': 'Theophanes', 'Saint Nicephorus, Patriarch of Constantinople': 'Nicephorus',
+    'Pope Siricius': 'Siricius', 'Abbot Pirmin': 'Pirmin', 'Pope Gregory I': 'Gregory the Great', 'William Burt Pope': 'Pope', 'Augustine of Hippo': 'Augustine',
+    'John Calvin': 'Calvin', 'Richard of Saint Victor': 'Richard of St Victor', 'Anastasius I, Bishop of Antioch': 'Anastasius I' };
+  const wrong = Object.entries(names).filter(([a, x]) => short(a) !== x).map(([a, x]) => `${a}: ${short(a)}, not ${x}`);
+  ok(!wrong.length, `a key's label drops a title and keeps the name (${wrong.join('; ') || 'all as expected'})`);
+  // the first commentary is the most important key that has the verse; the reader's own pick and an address's cp= come first
+  ok(/const ON_VERSE = new Set\(\['note', 'range', 'between', 'page'\]\);/.test(js) && /let c = mine \|\| null;\s*if \(!c && keys\.length > 1\)/.test(js)
+    && /c = await firstOnVerse\(keys, S\.verse, w,/.test(js), 'the first commentary is the first key, by rank, with its own place on the verse, after the reader\'s pick');
+  ok(/if \(S\.seeking && !S\.cur\) return;/.test(js), 'nothing is drawn while the first commentary is looked for');
+  // the earlier note whose section holds the verse is not traded for the chapter's opening
+  ok(/\|\| t\.owned\) return t;/.test(js), "chapterFirst keeps the anchor's earlier note whose section holds the verse");
+  // a Migne column is named and linked as the loader read it
+  ok(/const shownAt = CANON\.test\(sh\.slug\) && pages\[0\] && pages\[0\]\.n != null \? pages\[0\]\.n : sh\.p;\s*setWhere\(shownAt, false\);/.test(js), 'a Migne column is said and linked as the column read');
+  // the empty state names the work in its status line
+  ok(/No page of \$\{esc\(name0\)\} is known for/.test(js), 'the empty state has a status line naming the work');
+}
 
 if (failed) { console.error(`\n${failed} check(s) failed`); process.exit(1); }
 console.log('\ncommentary anchor: all checks passed');

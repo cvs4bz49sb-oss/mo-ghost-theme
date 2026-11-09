@@ -176,12 +176,24 @@
     'Theodore of Mopsuestia': 'Theodore of Mopsuestia', 'Abbot William': 'William of St Thierry' };
   // a given name several medieval writers share is kept with its place ("William of St Thierry", "Richard of St Victor", "Martin of León")
   const SHARED = /^(William|Richard|Hugh|Martin|Matthew|Peter|Robert|Henry|Nicholas|Stephen|Walter|Gilbert|Alan|Adam|Geoffrey|Odo|Bruno)\s+of\s+(.+)$/;
+  /* A TITLE IS NO NAME (2026-11-08, owner: "iterate until scripture can be used as a daily driver for what were doing"; the scorecard: the
+   * Oecumenius key on Acts 2 read "Bishop"). The library spells a bishop, a patriarch, a pope, an abbot or a saint several ways: "Œcumenius
+   * Bishop of Trikka" and "Oecumenius, Bishop of Trikka" were cut at "of" and left "Bishop", "Theophanes, Archbishop of Nicaea" left
+   * "Archbishop", "Saint Nicephorus, Patriarch of Constantinople" left "Patriarch". The title is dropped and the name kept: "Oecumenius",
+   * "Theophanes", "Nicephorus", "Siricius" (Pope Siricius), "Pirmin" (Abbot Pirmin). Only a title before the name, after a comma, or before
+   * "of" or "in" a place: William Burt Pope is "Pope". */
+  const TITLES = '(?:Arch)?bishop|Patriarch|Pope|Abbot|Abbess|Cardinal|Saint|St\\.?|Metropolitan|Blessed';
+  const TITLE_LEAD = new RegExp(`^(?:${TITLES})\\s+(?:of|in)\\s`, 'i'), TITLE_COMMA = new RegExp(`,\\s*(?:${TITLES})\\b.*$`, 'i');
+  const TITLE_PLACE = new RegExp(`\\s+(?:${TITLES})\\s+(?:of|in)\\s.*$`, 'i'), TITLE_FIRST = new RegExp(`^(?:${TITLES})\\s+(?=\\S)`, 'i');
+  const untitled = (a) => String(a || '').trim().replace(TITLE_COMMA, '').replace(TITLE_PLACE, '').replace(TITLE_FIRST, '').trim();
   const short = (a) => {
     if (SHORT[a]) return SHORT[a];
     // "The catena, collected by Thomas Aquinas" in the chapter files
     if (/catena/i.test(a) && /aquinas/i.test(a)) return 'Catena Aurea';
     // the Greek catalogue's "Archbishop of Bulgaria Theophylact", "Bishop of Trikka Oecumenius": the name comes last
-    if (/^(?:Arch)?bishop\b/i.test(a || '')) return String(a).trim().split(/\s+/).pop();
+    if (TITLE_LEAD.test(a || '')) return String(a).trim().split(/\s+/).pop();
+    // (2026-11-08, as above) a title elsewhere is dropped, and the name is read as any other
+    const un = untitled(a); if (un && un !== String(a || '').trim()) return short(un);
     // a doubtful author is the pseudo-writer ("Uncertain author (Jerome of Stridon?)" → "Pseudo-Jerome"); a birth date is no name
     const unc = /^Uncertain author\s*\((.+?)\??\)\s*$/i.exec(String(a || '').trim()); if (unc) return `Pseudo-${short(unc[1].replace(/\?$/, ''))}`;
     const a0 = String(a || '').replace(/\s*\((?:c\.\s*)?\d{3,4}\s*[–-]?\s*(?:\d{3,4})?\)?\s*$/, '').trim(); if (a0 !== String(a || '').trim() && a0) return short(a0);
@@ -382,6 +394,12 @@
     PG.eeboCur[c.slug] = cur;
     return cur;
   }
+  /* A LABEL IS NO NOTE (2026-11-08, daily-driver QA: Cajetan's Esther 7:1, chosen first once the first commentary had to have the verse,
+   * marked "VERS. 1." and showed "Verf.2.", "Verf.3." under it: the scan's margin labels gathered at the foot of p. 400, his text on
+   * 7:1 above them). A verse's label standing alone, with another label or nothing after it, is marked as no note; the page is said to
+   * hold the comment (13 of 2,012 marked landings of the cb7ff1e64 run, Cajetan's and Lapide's "Vers. 5." over "Vers. 6.") */
+  const LABEL = /^\W*(?:V|Ver|Vers|Verse|VERS|VERSE|Verf|Vs)\.?\s*[\dIVXL]{1,7}(?:\s*[-,]\s*\d{1,3})?\.?\W*$/i;
+  const labelRun = (all, k) => LABEL.test(all[k] || '') && (k + 1 >= all.length || LABEL.test(all[k + 1] || ''));
   // a verse's note opens its paragraph: "12. PROPTEREA…", "Vers. 12.", "V. 12", "Verse 12."
   const noteRx = (v) => new RegExp(`^(?:ver(?:s(?:e|us)?)?\\.?\\s*|v\\.\\s*)?\\(?${v}\\b\\s*[.:,)\\]]`, 'i');
 
@@ -1548,11 +1566,37 @@
     const pa = at(a), pb = at(b);
     return pb >= pa && pb - pa <= (stride(c.slug) || 1) ? { p: pa, how: 'between', v, a, b } : null;
   }
-  async function resolve(c, v, w) {
+  /* A WORK THE MAP DOES NOT PLACE IN THE CHAPTER (2026-11-08, daily-driver QA: two key chips, Stock on Malachi 3:1 and Lightfoot on Mark
+   * 10:45, drew "This commentary has nothing on the verse to show." with no status line; round3's harness read the empty line as still
+   * loading and waited out its two minutes). Neither has a page for the chapter: Stock's entry on the map anchors chapters 1 and 4 only,
+   * and Lightfoot's says Mark 1-2 though its anchors run to chapter 16 (Mark 10 at p. 302), so the loader skips it. The resolver then
+   * looks twelve verses either way among the chapter file's notes only: Stock's there are on 3:16 and 3:18 (the reception history's, from
+   * 3:12 at p. 239, serve only their own verse), Lightfoot's one is on 10:25, while the library's own row puts his comment on 10:35-45
+   * at p. 304. Such a work opens where the library places it in the chapter, said to be that and no more: its row on the verse itself
+   * (a page that cites it, nothing marked), else its nearest note before, else its first note after (marked as that note, as "later" and
+   * "nearest" are). A work with neither stays empty. */
+  function farPlace(c, v) {
+    const at = (x) => { const p = c.notes[x] != null ? c.notes[x] : c.recNotes && c.recNotes[x]; return p != null && Number(p) > 0 ? Number(p) : null; };
+    const own = ((c.rows || {})[v] || []).map((r) => Number(r.p)).filter((p) => p > 0).sort((a, b) => a - b)[0];
+    if (own != null) return { p: own, how: 'cites-v', v };
+    const vs = [...new Set([...Object.keys(c.notes || {}), ...Object.keys(c.recNotes || {})].map(Number))].filter((x) => x > 0 && at(x) != null);
+    const before = vs.filter((x) => x < v).sort((a, b) => b - a)[0], after = vs.filter((x) => x > v).sort((a, b) => a - b)[0];
+    if (before != null) return { p: at(before), how: 'nearest', v: before, indexed: true };
+    if (after != null) return { p: at(after), how: 'later', v: after, indexed: true };
+    return null;
+  }
+  // the place on the verse from the library's index and the work's pages near the chapter's, never a search of the whole book (headPage)
+  async function resolveNear(c, v, w) {
     let t = resolver ? await resolver.resolve(c, v, { name: w.match || w.name, ch: w.ch }) : (c.open != null ? { p: c.open, how: 'chapter' } : null);
     // the reception history's own note on this verse, where the resolver found no note of its own (10-22)
     if ((!t || (t.how !== 'note' && t.how !== 'range')) && c.recNotes && c.recNotes[v] != null) t = { p: Number(c.recNotes[v]), how: 'note', v, indexed: true };
     if (!t || (t.how !== 'note' && t.how !== 'range')) { const bt = between(c, v); if (bt) t = bt; }
+    // (2026-11-08, as at farPlace) no page for the chapter and nothing near the verse: where the library places the work in the chapter
+    if (!t && c.open == null && c.bookAt == null) t = farPlace(c, v);
+    return t;
+  }
+  async function resolve(c, v, w) {
+    const t = await resolveNear(c, v, w);
     if (t || c.bookAt == null) return t;
     await headPage(c, w.book, w.ch);
     return bookPlace(c);
@@ -1703,9 +1747,14 @@
       return `<p class="vr-pv-where">${t.nearest ? `No critic on ${esc(w.ch)}:${v}. ` : ''}${crit} ${crit === 1 ? 'critic' : 'critics'} on ${esc(name)} ${esc(w.ch)}:${esc(t.v)}, ${esc(pgOf(slug, t.p))}</p>`
         + `<div class="vr-pv-text">${notes || '<p class="vr-empty">The notes could not be found on their page.</p>'}</div>${acts(t.items[0][1])}`;
     }
-    const [a, b] = await Promise.all([page(slug, +t.p).catch(() => null), page(slug, +t.p + stride(slug)).catch(() => null)]);
+    // (2026-11-08, as at paint) a Migne column the volume does not mark: the page after it read on from the column read, which the line
+    // and the link name
+    const canon = CANON.test(slug);
+    const [a, b0] = await Promise.all([page(slug, Number(t.p)).catch(() => null), canon ? null : page(slug, Number(t.p) + stride(slug)).catch(() => null)]);
+    const b = canon ? await page(slug, Number(a && a.p ? a.p.n : t.p) + stride(slug)).catch(() => null) : b0;
     const pages = [a && a.p, b && b.p].filter(Boolean);
     if (!pages.length) return `<p class="vr-empty">This page could not be opened here.</p>${acts(t.p)}`;
+    const p0 = canon && pages[0].n != null ? pages[0].n : t.p;
     const hasEn = pages.some((p) => p.en), lane = S.lang === 'la' || !hasEn ? 'la' : 'en';
     const all = [], onPage = [];
     pages.forEach((p) => paragraphs(p[lane] || p.la || p.en).forEach((s) => { all.push(s); onPage.push(p.n); }));
@@ -1718,6 +1767,7 @@
       // (2026-11-08) never a heading the anchor refused as quoting another verse ("VERS. 6.-- « Because of truth »", Lombard on Psalm 45:6)
       if (k < 0 && !(A && k === A.REFUSED)) k = part.findIndex((s) => noteRx(printed).test(s));
       hit = k >= 0 ? run.lo + k : -1;
+      if (hit >= 0 && labelRun(all, hit)) hit = -1;
       if (hit >= 0) from = hit;
     } else if (t.how === 'chapter') {
       // where the chapter's own heading stands on the page ("CHAPTER I.", "CAP. 1"), else the page's first words
@@ -1736,19 +1786,20 @@
       out.push(`<p${head ? ' class="vr-pv-h"' : i === hit ? ' class="vr-pv-hit"' : ''}>${esc(cut(txt, Math.max(160, 900 - len)))}</p>`);
       len += txt.length;
     }
-    const at = pgOf(slug, found ? onPage[hit] : t.p);
+    const at = pgOf(slug, found ? onPage[hit] : p0);
     const say = found ? `Its note on ${name} ${w.ch}:${v}, ${at}`
       : t.how === 'note' ? (hit >= 0 ? `Its note on ${name} ${w.ch}:${t.v}, ${at}` : `Its comment on ${name} ${w.ch}:${t.v} is on ${at}`)
       : t.how === 'page' ? `Its comment on ${name} ${w.ch}:${t.v} is on ${at}`
       : t.how === 'later' ? `No separate note on ${w.ch}:${v}. Its next note is on ${w.ch}:${t.v}, ${at}`
       : t.how === 'nearest' ? `No separate note on ${w.ch}:${v}. Its closest earlier note is on ${w.ch}:${t.v}, ${at}`
       : t.how === 'cites' ? `It cites ${name} ${w.ch} on ${at}, in its commentary on another passage`
+      : t.how === 'cites-v' ? `No note on ${name} ${w.ch}:${v} was found. It cites the verse on ${at}`
       : t.how === 'treats' ? `Treats this chapter on ${at}`
       : t.how === 'head' ? `No note on ${w.ch}:${v} was found. ${name} ${w.ch} begins on ${at}, by its heading`
       : t.how === 'book' ? `This work has no marked start for ${name} ${w.ch}. ${w.book === 'psalms' ? 'The Psalms begin' : `${name} begins`} on ${at}`
       : t.how === 'sermon' || t.how === 'sermon-ch' ? `${sermonSay(t, v, w.ch, name)}, ${at}`
       : `${name} ${w.ch} opens on ${at}`;
-    return `<p class="vr-pv-where">${esc(say)}</p><div class="vr-pv-text" lang="${lane === 'en' ? 'en' : 'la'}">${out.join('') || '<p class="vr-empty">A blank page.</p>'}</div>${acts(t.p)}`;
+    return `<p class="vr-pv-where">${esc(say)}</p><div class="vr-pv-text" lang="${lane === 'en' ? 'en' : 'la'}">${out.join('') || '<p class="vr-empty">A blank page.</p>'}</div>${acts(p0)}`;
   }
 
   /* THE CHAPTER'S START BEFORE AN INNER PAGE (10-31, owner on Hebrews 12: "i click hebrews 12, and cocejius goes to the middle"):
@@ -1756,9 +1807,11 @@
    * labelling few verses; with no note of its own for the verse the pane opened the library's page for 12:1 (p. 579) or his next
    * labelled note (12:10, p. 587, for 12:2), the middle of the chapter. A place that is not the verse's own note opens where the
    * chapter does (the map's page, at its printed heading) when it lies within four pages after the chapter's opening; a next note
-   * three verses or more ahead gives way to the nearest earlier note, else to the chapter's opening. */
+   * three verses or more ahead gives way to the nearest earlier note, else to the chapter's opening.
+   * (2026-11-08) Never the earlier note whose section the anchor found holding the verse (t.owned): Calvin's comment on Hebrews 12:7 runs
+   * on over 12:8, two pages after his chapter's opening, and the reader was sent to the opening's text of 12:1-3. */
   function chapterFirst(c, t, v) {
-    if (!t || !c || c.open == null || !['page', 'later', 'nearest'].includes(t.how)) return t;
+    if (!t || !c || c.open == null || !['page', 'later', 'nearest'].includes(t.how) || t.owned) return t;
     if (t.how === 'later' && Number(t.v) - Number(v) >= 3) {
       const before = Object.keys(c.notes || {}).map(Number).filter((x) => x > 0 && x < v).sort((a, b) => b - a);
       t = before.length ? { p: c.notes[before[0]], how: 'nearest', v: before[0], indexed: true } : { p: c.open, how: 'chapter' };
@@ -1845,7 +1898,11 @@
         S.shown.pages = got.filter(Boolean).map((g) => g.p);
         S.shown.src = (got.find(Boolean) || {}).src || '';
       } else {
-        const [a, b] = await Promise.all([page(cur.slug, +t.p), page(cur.slug, +t.p + stride(cur.slug)).catch(() => null)]);
+        // (2026-11-08, as at paint) a Migne column the volume does not mark is read at the next mark, so the page after it is read on from
+        // that mark: read two columns on from the column asked for, it repeated the column read (Titus 3:6, Jerome's "(Vers. 8.)" twice)
+        const canon = CANON.test(cur.slug);
+        const [a, b0] = await Promise.all([page(cur.slug, Number(t.p)), canon ? null : page(cur.slug, Number(t.p) + stride(cur.slug)).catch(() => null)]);
+        const b = canon ? await page(cur.slug, Number(a && a.p ? a.p.n : t.p) + stride(cur.slug)).catch(() => null) : b0;
         if (tok !== S.token) return;
         S.shown.pages = [a.p, b && b.p].filter(Boolean); S.shown.last = a.last; S.shown.src = a.src || '';
       }
@@ -1879,10 +1936,20 @@
     const b = pane.querySelector('.cp-lang [data-lang="la"]'); if (b) b.textContent = src || 'Latin';
   };
   function paint() {
+    // (2026-11-08) nothing is drawn while the first commentary is looked for (firstOnVerse): a redraw of the page then (init(), the same
+    // chapter) drew "No commentary on this chapter yet." over the search, Genesis 12:3
+    if (S.seeking && !S.cur) return;
     const sh = S.shown, body = pane.querySelector('.cp-body'), whereEl = pane.querySelector('.cp-where');
     body.classList.remove('cp-loading');
     pane.querySelectorAll('.cp-lang button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === S.lang)));
-    if (!sh) { body.innerHTML = S.cur ? '<p class="cp-empty">This commentary has nothing on the verse to show.</p>' : '<p class="cp-empty">No commentary on this chapter yet.</p>'; whereEl.textContent = ''; return; }
+    // (2026-11-08, as at farPlace) the empty state has a status line of its own, naming the work, as every other landing has: "No page of
+    // Stock is known for Malachi 3:1"
+    if (!sh) {
+      body.innerHTML = S.cur ? '<p class="cp-empty">This commentary has nothing on the verse to show.</p>' : '<p class="cp-empty">No commentary on this chapter yet.</p>';
+      const w0 = where() || {}, set0 = S.cur && (SETS.list || []).find((x) => x.id === setIdOf(S.cur.slug)), name0 = S.cur ? (set0 && set0.label) || short(S.cur.a) || S.cur.t : '';
+      whereEl.innerHTML = S.cur ? `<span>No page of ${esc(name0)} is known for ${esc(refName(w0))} ${esc(w0.ch)}:${esc(S.verse || 1)}</span>` : '';
+      return;
+    }
     const bookName = refName(where() || { book: sh.book }), wr = { ...(where() || {}), book: sh.book, ch: sh.ch };
     const {t} = sh, ref = (n) => `${bookName} ${sh.ch}:${n}`;
     let say = t.how === 'note' ? `Its note on ${ref(t.v)}`
@@ -1895,6 +1962,8 @@
       : t.how === 'chapter' ? `No note on ${ref(S.verse)} was found. This is where it opens ${bookName} ${sh.ch}`
       // (10-22) a work on another book, at the page where it cites the chapter; a set whose map knows only where the book begins
       : t.how === 'cites' ? `It cites ${bookName} ${sh.ch} on this page, in its commentary on another passage`
+      // (2026-11-08, as at farPlace) a page the library finds citing the verse, in a work the map does not place in the chapter
+      : t.how === 'cites-v' ? `No note on ${ref(S.verse)} was found. It cites the verse on this page`
       : t.how === 'treats' ? 'Treats this chapter on this page'
       : t.how === 'head' ? `No note on ${ref(S.verse)} was found. This is where ${bookName} ${sh.ch} begins, by its heading`
       : t.how === 'book' ? `This work has no marked start for ${bookName} ${sh.ch}. This is where ${sh.book === 'psalms' ? 'the Psalms begin' : `${bookName} begins`}`
@@ -1905,8 +1974,14 @@
       const pg = `<span class="cp-pg">${esc(pgOf(sh.slug, p))}</span>`;
       whereEl.innerHTML = `${whoSay()}<span>${found ? `Its note on ${esc(ref(S.verse))}, ${pg}` : `${esc(say)}, ${pg}`}</span> <span class="cp-go"><span aria-hidden="true">· </span><a href="${esc(readHref(sh.slug, p, at))}">Open in the reader</a></span>`;
     };
-    setWhere(sh.p, false);
+    /* THE COLUMN READ, NOT THE ONE ASKED FOR (2026-11-08, daily-driver QA: "Open in the reader" missed on 4 of 20 Migne landings). The
+     * library names some notes by a column the volume's marks do not carry: Jerome on Titus 3:6 at col. 591, where the volume marks 590
+     * and 592; on Amos 7:14 at col. 1075, where it marks the even columns only. The loader reads such a column at the next mark (592,
+     * 1076), where the note's heading stands, and the reader's pages are those marks: the link went to #b591, which the reader does not
+     * have, and it opened at the volume's start. The status line and its link name the column read. */
     const pages = sh.pages || [];
+    const shownAt = CANON.test(sh.slug) && pages[0] && pages[0].n != null ? pages[0].n : sh.p;
+    setWhere(shownAt, false);
     if (!pages.length) { body.innerHTML = '<p class="cp-empty">This page could not be loaded.</p>'; return; }
     if (t.how === 'collected') return paintCollected(sh, t, bookName, body, whereEl);
     const hasEn = pages.some((p) => p.en), lane = S.lang === 'la' || !hasEn ? 'la' : 'en';
@@ -1916,7 +1991,7 @@
     // the pages as one run of paragraphs, so a note that crosses the page break is one note
     const all = [], pageOf = [];
     pages.forEach((p, i) => { paragraphs(p[lane] || p.la || p.en).forEach((s) => { all.push(s); pageOf.push(i); }); });
-    if (!['collected', 'browse', 'cites', 'treats', 'sermon', 'sermon-ch'].includes(t.how)) { cutInlineHead(all, pageOf, wr.ch, wr.book); cutAtMark(all, pageOf, wr.ch, printed); }
+    if (!['collected', 'browse', 'cites', 'cites-v', 'treats', 'sermon', 'sermon-ch'].includes(t.how)) { cutInlineHead(all, pageOf, wr.ch, wr.book); cutAtMark(all, pageOf, wr.ch, printed); }
     const headAt = (k) => setWhere(pages[pageOf[k]].n, false, all[k].replace(/^#{1,6}\s+/, ''));
     let h = -1, top = 0, found = false;
     if (t.how === 'note' || t.how === 'later' || t.how === 'nearest' || t.how === 'page') {
@@ -1929,6 +2004,7 @@
       // a page the library indexed as holding the note keeps the older reading if the stricter one finds none, but never puts back a
       // heading the anchor refused
       if (h < 0 && t.indexed && !(A && k === A.REFUSED)) { const j = part.findIndex((s) => noteRx(printed).test(s)); h = j >= 0 ? run.lo + j : -1; }
+      if (h >= 0 && labelRun(all, h)) h = -1;
     } else if (t.how === 'range') {
       // the view starts at the heading that names the verses (Augustine's "TRACTATE I. … Chap. I, V. 1-5."); its sections are not verses.
       // The verse's own words where the lecture prints them under its chapter and number ("1:1 In the beginning was the Word", Aquinas)
@@ -1952,7 +2028,7 @@
     }
     // (2026-11-08, survey: 820 of 2,674 landings said "Its note on" with nothing marked) a page the library files as holding the note,
     // read without finding where the note begins, is said to hold the comment, no more
-    if (h < 0 && t.how === 'note') { say = `Its comment on ${ref(t.v)} is on this page`; setWhere(sh.p, false); }
+    if (h < 0 && t.how === 'note') { say = `Its comment on ${ref(t.v)} is on this page`; setWhere(shownAt, false); }
     const from = h > 0 ? h : top;
     // the editors' textual notes of a scholarly edition (variant readings, line numbers) are set apart, and do not count toward what is shown
     const app = A ? A.apparatusIndexes(all) : new Set();
@@ -2167,6 +2243,47 @@
     }
     return any;
   }
+  /* THE FIRST COMMENTARY: THE MOST IMPORTANT THAT HAS THE VERSE (2026-11-08, owner: "iterate until scripture can be used as a daily driver
+   * for what were doing"; the daily-driver scorecard: the commentary that opened first was in the wrong place on 33 of 150 verses on Mere
+   * Orthodoxy, 17 of them a first-ranked work with no note on the verse at all, Augustine's Questions on the Heptateuch on Genesis 22:8,
+   * Theodoret's Questions on 2 Kings 3:14, Didymus on Jude 1:1, while another key on the same strip had the verse's note). The book's key
+   * commentaries in their rank order, the first whose place on the verse is its own: its note, a lecture or homily headed by a run of
+   * verses holding it, a place between its notes on the verses either side, a page the library files as discussing it, or its critics on
+   * it; with none, the first by rank, as before. Each is looked for as show() looks for it (the volume that holds the verse, the library's
+   * index, then its pages, the chapter's opening before an inner page), a few at a time in their order, and the search stops at the first.
+   * A key whose note on the verse the library indexes is looked at alone, as it nearly always has it, so the usual verse reads no more than
+   * before; what is read stays read for the pane and the keys. The reader's own pick (fr_cp_pick) and an address's cp= come first. */
+  const ON_VERSE = new Set(['note', 'range', 'between', 'page']);
+  async function onVerse(c, v, w) {
+    const vol = volumeFor(c, v);
+    let t = quickTargetOf(vol, v);
+    if (!t) { try { t = await resolveNear(vol, v, w); } catch (_) { t = null; } }
+    t = chapterFirst(vol, t, v);
+    return !!t && (ON_VERSE.has(t.how) || (t.how === 'collected' && !t.nearest));
+  }
+  async function firstOnVerse(keys, v, w, still) {
+    const xs = keys.slice(0, 9), runs = [];
+    const start = (i) => { if (i < xs.length && !runs[i]) runs[i] = onVerse(xs[i], v, w).catch(() => false); };
+    for (let i = 0; i < xs.length; i += 1) {
+      start(i);
+      if (volumeFor(xs[i], v).notes[v] == null) { start(i + 1); start(i + 2); }
+      if (await runs[i]) return still() ? xs[i] : null;
+      if (!still()) return null;
+    }
+    return null;
+  }
+  // while it is looked for, nothing that would change: the keys with none pressed, no work named, the line saying what is looked for
+  function seeking(w) {
+    // (a page of the chapter before, still on its way, is not drawn over it)
+    S.token += 1; S.shown = null; clearTimeout(S.openT);
+    const what = pane.querySelector('.cp-what');
+    pane.querySelector('.cp-who').textContent = 'Commentary'; what.textContent = ''; what.title = '';
+    fillList();
+    const bodyEl = pane.querySelector('.cp-body');
+    bodyEl.classList.add('cp-loading');
+    bodyEl.innerHTML = '<p class="cp-empty">Looking for the note…</p>';
+    pane.querySelector('.cp-where').textContent = `Looking for a commentary with a note on ${refName(w)} ${w.ch}:${S.verse}…`;
+  }
   async function init() {
     const w = where(); if (!w) return;
     const fresh = !document.querySelector('.cp-pane');
@@ -2182,6 +2299,9 @@
       return;
     }
     lastKey = key;
+    // (a search for the chapter before, still on its way, is let go: firstOnVerse)
+    const tok = (S.initTok = (S.initTok || 0) + 1);
+    S.seeking = false;
     // a new chapter: the rail follows the reading line again, its list shut (its key commentaries open the first time it opens: seedDir)
     S.rec = null; S.pin = false; S.hold = false; S.placed = !!w.v; S.dirOpen = new Set(); S.dirSeeded = false;
     setDir(false);
@@ -2224,14 +2344,15 @@
         for (const e of (d && d.items) || []) if (e.cen) { S.cen[e.w] = e.cen; if (e.a && !ofAuthor.has(e.a)) ofAuthor.set(e.a, e.cen); }
         // a person is one century in the whole list: his hits carry the century of his volumes among the commentaries
         for (const c of S.list) if (c.wb === 2 && ofAuthor.has(c.a)) S.cen[c.slug] = ofAuthor.get(c.a);
-        if (pane && S.list === list) { fillList(); nameCur(); }
+        // (2026-11-08) not while the first commentary is looked for: nothing is named until it is chosen (firstOnVerse)
+        if (pane && S.list === list) { fillList(); if (S.cur) nameCur(); }
       }).catch(() => {});
     }
-    // the reader's own last choice when this chapter has it (his key work on the book), else the book's first key commentary, else
-    // the first-ranked commentary on the book
+    // the reader's own last choice when this chapter has it (his key work on the book), else the book's first key commentary that has
+    // the verse (2026-11-08: firstOnVerse), else the first-ranked commentary on the book
     const want = store.get('fr_cp_pick', ''), keys = curated(w.book);
     // (10-22) his commentary on the book or a set on the whole Bible, never a page of his on another book that only cites the chapter
-    const c = (want && (keys.find((x) => x.a === want) || S.list.find((x) => x.a === want && x.wb !== 2))) || keys[0] || S.list[0];
+    const mine = want && (keys.find((x) => x.a === want) || S.list.find((x) => x.a === want && x.wb !== 2));
     S.verse = w.v || 1;
     head();
     if (SITE.name === 'mo') creeds();
@@ -2250,11 +2371,20 @@
       keep(true);
       const el = w.v && SITE.verseEl(w.v); if (el) el.scrollIntoView({ block: SITE.name === 'mo' && !wide.matches ? 'start' : 'center', behavior: 'auto' });
     } else {
-      choose(c ? c.slug : null);
       keep(!!w.v);
       if (w.v) {
         const el = SITE.verseEl(w.v); if (el) el.scrollIntoView({ block: SITE.name === 'mo' && !wide.matches ? 'start' : 'center', behavior: 'auto' });
       }
+      let c = mine || null;
+      if (!c && keys.length > 1) {
+        // (2026-11-08) the first key that has the verse; a newer chapter, or a pick of the reader's while it is looked for, wins
+        S.cur = null; S.seeking = true; S.firstEl = document.querySelector(SITE.verses); seeking(w);
+        c = await firstOnVerse(keys, S.verse, w, () => tok === S.initTok && !S.cur);
+        if (tok !== S.initTok) return;
+        S.seeking = false;
+      }
+      c = c || keys[0] || S.list[0];
+      if (!S.cur) choose(c ? c.slug : null);
     }
     // the commentary opened goes in the address (the entry replaced, not added)
     remember(false);
