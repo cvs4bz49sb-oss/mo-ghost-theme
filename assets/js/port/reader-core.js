@@ -7289,12 +7289,21 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
     const inj=!!(t&&!_isTurn(t)&&el&&_colLa._zoned&&!_pageText&&pages.length&&_pageRun&&_pageRun.length&&_pageRun.every(_rubric)
       &&lead.length===_pageHeads+1&&_colEn.filter(x=>typeof x==="string"&&x.charCodeAt(0)===1).length===_pageRun.length
       &&lead.every(x=>typeof x==="string"&&x.charCodeAt(0)===1)&&_colLa.some(x=>/[\u0370-\u03ff\u1f00-\u1fff]/.test(String(x))));
-    if(!inj)flushCol();
+    // THE LATIN VIEW'S TITLE FACES THE ENGLISH TITLE (reader ticket #37, pg-3834, Latin view): the witness walk meets the Latin
+    // version's printed title after the page has opened with its English waiting, the English's own title first. Flushing there set
+    // the whole English column above an empty Latin lane and the whole Latin below an empty English one, so a reader of the English
+    // met the Latin in the middle of the homily. When the Latin lane holds nothing of the page yet and the English's next entry is a
+    // head, the Latin title joins the lane unflushed; the flush pairs it with the English title (the aligner's rubric split) and the
+    // paragraphs that follow face each other.
+    const injW=!inj&&!!(t&&!_isTurn(t)&&(src==="la"||src==="ocr")&&pages.length&&_colLa.length===_pageHeads
+      &&/^[^a-z]{6,90}$/.test(t)&&t.replace(/[^A-Z]/g,"").length>=5
+      &&typeof _colEn[_pageHeads]==="string"&&_colEn[_pageHeads].charCodeAt(0)===1);
+    if(!inj&&!injW)flushCol();
     if(depth0===null)depth0=depth;
     if(!t)return;
     if(_isTurn(t)){_colLa.push(t);return;}
     struct.push({title:t.slice(0,140),page:pages.length?pages[pages.length-1]:1,depth:Math.min(Math.max(depth-depth0+1,1),5)});
-    if(inj){_colLa.splice(_pageHeads,0,t);(_colLa._heads=_colLa._heads||new Set()).add(t);_pageHeads++;return;}
+    if(inj||injW){_colLa.splice(_pageHeads,0,t);(_colLa._heads=_colLa._heads||new Set()).add(t);_pageHeads++;return;}
     const h=laD.createElement("head");h.textContent=t;laB.appendChild(h);
     const h2=enD.createElement("head");h2.textContent=t;enB.appendChild(h2);};
   const hasSecondary=!!doc.querySelector('div[type="secondary"]');
