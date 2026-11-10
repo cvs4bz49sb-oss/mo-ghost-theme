@@ -6602,6 +6602,37 @@ async function loadPgCanon(ws){
     const c=el.cloneNode(true);c.querySelectorAll('hi[rend="argument"]').forEach(x=>x.remove());
     const h=c.textContent.replace(/\s+/g," ").trim(),g=a.map(x=>x.textContent).join(" ").replace(/\s+/g," ").trim();
     return h&&g?h+"\u0007"+g:t;};
+  // MIGNE'S MARGIN "A" OR THE ARTICLE (owner 2026-11-09 "fix this", item 8 of Ian's list: Justin's Dialogue with Trypho, pg-105
+  // col. 473, read "certain man, meeting me along with others, said" -- the paragraph's own "A" was taken for the letter Migne prints
+  // beside the top of a column). The letter stands at a column's top, so a harvested column's English can open with it ("A who would
+  // attempt to separate them?", pg-2083 col. 89): of the 1,243 column tops opening "A <word>" in the PG lanes, about 85% are the letter.
+  // Further down a column an opening "A" is the article (about 2,900 paragraphs: "A certain bishop", "A few days later"), and it now
+  // stays wherever an article can stand. A column's own opening "A" stays only before certain, few, great, man, woman, short or good:
+  // as written after a finished sentence or a heading; as "a" after an unfinished one, the sentence the print carries over the turn
+  // ("in the walks of the xystus a certain man"); never where the column before leaves a phrase open ("of the", "a horrible",
+  // "Earth's", a hyphen) or a plural follows "certain" ("A certain matters" is the letter). Every other opening "A" goes, as
+  // before. The judgement is made here, per paragraph, and applied only where flushCol writes the English out, so no pairing ever
+  // sees it.
+  const _oaKey=s=>String(s||"").replace(/\s+/g," ").trim().slice(0,64);
+  const _frOpenA=new Map();
+  const _OA_SAFE=new Set(["certain","few","great","man","woman","short","good"]);
+  const _OA_OPEN=new Set("the a an this that these those his her its our their your my thy whose every each some any no same such other own of to in into on upon by for from with at as than".split(" "));
+  const _frOpenAJudge=(t,prev,prevHead)=>{
+    const m=/^A ([a-z][a-z'’-]*)(?:[\s,;:]+([a-z][a-z'’-]*))?/.exec(String(t||""));if(!m)return;
+    const p=String(prev||"").replace(/\u000E[^\u000E\u000F]*\u000F/g,"").replace(/\s+$/,""),ws=p.toLowerCase().match(/[a-z'’]+/g)||[];
+    const done=!!prevHead||!p||/[.!?…:;]["'”’)\]]*$/.test(p);
+    const lw=ws[ws.length-1]||"",poss=/['’]s$/.test(lw)&&!/^(?:it|that|there|he|she|what|who|here|let|where)['’]s$/.test(lw);
+    const open=!done&&(/[-‐]$/.test(p)||_OA_OPEN.has(lw)||poss||/^an?$/.test(ws[ws.length-2]||""));
+    const plural=m[1]==="certain"&&!!m[2]&&/s$/.test(m[2])&&!/(?:ss|us|is)$/.test(m[2]);
+    _frOpenA.set(_oaKey(t),_OA_SAFE.has(m[1])&&!open&&!plural?(done?"keep":"lower"):"drop");};
+  let _oaN=0,_oaPrev="",_oaPrevHead=true;
+  // a column's top is the first block of a new column number, or the first block after the lane's own column milestone (pg-2083 keys
+  // the block after <milestone unit="column" n="97"/> to col. 95: "A shows himself mighty in wars?" is the letter of col. 97)
+  const _oaTop=new Set();
+  {let _f=true;doc.querySelectorAll('div[type="translation"] p, div[type="translation"] head, div[type="translation"] milestone[unit="column"], div[type="translation"] pb').forEach(x=>{
+    if(x.localName==="milestone"||x.localName==="pb"){_f=true;return;}
+    if(!x.textContent.trim())return;
+    if(_f)_oaTop.add(x);_f=false;});}
   [...doc.querySelectorAll('div[type="translation"] p, div[type="translation"] head')].forEach(pp=>{
     let n=+(pp.getAttribute("n")||0);
     if(!n){const m=(pp.getAttribute("corresp")||"").match(/-c(\d+)/);if(m)n=+m[1];}
@@ -6609,6 +6640,10 @@ async function loadPgCanon(ws){
     if(!n)return;
     if(_sidecarCols.size&&_sidecarCols.has(n)&&(pp.closest?pp.closest('div[type="translation"]'):null)?.getAttribute("resp")!=="#site-sidecar")return;
     const t=pp.textContent.replace(/\s+/g," ").trim();if(!t)return;
+    // the first block of a column (a head counts: the paragraph after a column's heading is never the letter's place)
+    {const _first=n!==_oaN||_oaTop.has(pp);_oaN=n;
+     if(_first&&pp.localName==="p")_frOpenAJudge(t,_oaPrev,_oaPrevHead);
+     _oaPrev=t;_oaPrevHead=pp.localName==="head"||!!_capsHead(t);}
     if(pp.localName==="head"){(enByCol[n]=enByCol[n]||[]).push("\u0001H"+_hdArg(pp,t));return;}
     // a whole-block caps line is a printed division head — 'HOMILY I' (no period, so the
     // embedded-rubric regex never fires) arrived as body text and the outline lost the
@@ -6701,12 +6736,17 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
       Object.assign(enByCol,shifted);
     }}}
   // pgen top-up: columns the canon translation never covered take the sidecar English
+  // (the sidecar's columns judge their opening "A" as the canon's do: MIGNE'S MARGIN "A" OR THE ARTICLE, above)
+  let _pgenPrev="",_pgenPrevHead=true;
   if(pgen&&!_pgOwned.size)Object.keys(pgen).forEach(k=>{const n=+k;
     if(!n||(enByCol[n]&&enByCol[n].join("").length>120))return;
     // a '## ' line is the printed division heading (HOMILY III. On the firmament), not a
     // paragraph — mark it so the renderer sets a head and the outline can see it
-    {const _out=[];
+    {const _out=[];let _first=true;
      String(pgen[k]).split(/\n\s*\n+/).forEach(t=>{t=t.trim();if(!t)return;
+       const _isH=/^#{1,6}\s/.test(t)||!!_capsHead(t);
+       if(_first&&!_isH)_frOpenAJudge(t.replace(/\s+/g," "),_pgenPrev,_pgenPrevHead);
+       _first=false;_pgenPrev=t;_pgenPrevHead=_isH;
        if(/^#{1,6}\s/.test(t)){_out.push("\u0001H"+t.replace(/^#+\s*/,""));return;}
        const _ch=_capsHead(t);if(_ch){_out.push("\u0001H"+_ch);return;}
        _carveEn(t,_out);});
@@ -6846,6 +6886,14 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
   const _mk=t=>{if(!t)return t;
     t=t.replace(_MKRE,(m,pre,cls,ep)=>pre+(cls?"\u0002"+cls.trim()+"\u0003":"")+"\u0002"+ep+"\u0003 ");
     return t.replace(/\*([^*\n]{2,600}?)\*/g,"\u0004$1\u0005");};
+  // A BLOCK'S OPENING LETTER (MIGNE'S MARGIN "A" OR THE ARTICLE, above; owner 2026-11-09, pg-105 col. 473): B to F before a lowercase
+  // word are cue letters and go, as before. "A" goes where an article cannot stand -- before a pronoun, a preposition, a conjunction, a
+  // verb form or a relative ("A its punishment", pg-1445; "A which God the Father approved", pg-2434 col. 1413), the words
+  // pg-parallel.js's dropGutterLetters already reads so, and a few more -- and at a column's top as judged above; elsewhere it is the
+  // article and stays ("A certain bishop", "A few days later").
+  const _OA_NOT=new Set("who whom whose which what shall should would could might must all both such even having regarding himself herself itself themselves thee thou ye there here how why let indeed however already now only perhaps again always one many".split(" "));
+  const _frNoArticle=w=>{w=String(w||"").toLowerCase();return _OA_NOT.has(w)||window.FRPgParallel.dropGutterLetters(`A ${w}`)!==`A ${w}`;};
+  const _frLeadA=(e,l,w,m)=>{if(l!=="A")return "";const d=_frOpenA.get(_oaKey(e));return d==="lower"?"a ":(d==="drop"||_frNoArticle(w))?"":m;};
   const flushCol=()=>{
     // A PAGE WITH NO SOURCE TEXT (owner 2026-09-22, pg-1924 page 27, Greek view: the English of Fabricius' Notitia beside an empty
     // lane; 666 pages in 151 works on the live canon carry English and no source text). The page reads its own scan: _pvFill holds its
@@ -6990,7 +7038,9 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
       // punishment', 'therefore: B *But you shall\u2026', 'shown A For by the fire') \u2014 strip
       // the marker always, a lone A\u2013F only in cue positions (after :;, before a function
       // word, or block-initial before lowercase) so the article 'A Christian' survives
-      const e2=enD.createElement("p");e2.textContent=(e?_mk(e.replace(/\bDigitized\s+by\s+Google\b/gi," ").replace(/\s*\[alt-version omitted\]\s*/g," ").replace(/(^|[a-z][;:] )[A-F] (?=[A-Z\u201c"*])/g,"$1").replace(/([a-z][.,;:] )[A-F] (?=\u0004)/g,"$1").replace(/^[A-F] (?=[a-z])/,"").replace(/\b[A-F] (?=\u0004?(?:For|But|And|When|Then|Thus|Yet|Nor|Therefore|Moreover|Wherefore|The|This|That|These|Those|Saint|Holy)\b)/g,"").replace(/([.!?\u201d"]) [A-F]$/,"$1").replace(/([a-z])-\s+([a-z])/g,"$1$2").replace(/\s*[\u2022\ufffd]+\s*/g," ").replace(/\s+([.,;:!?\u00bb)])/g,"$1").replace(/\s{2,}/g," ").trim()):"")||"\u00A0";if(_fl)e2.setAttribute("rend","flow");enB.appendChild(e2);});
+      // (2026-11-09, owner "fix this", pg-105 col. 473 "certain man, meeting me": block-initial before lowercase, "A" goes only where
+      // no article can stand or where a column's top was judged the letter -- A BLOCK'S OPENING LETTER, above)
+      const e2=enD.createElement("p");e2.textContent=(e?_mk(e.replace(/\bDigitized\s+by\s+Google\b/gi," ").replace(/\s*\[alt-version omitted\]\s*/g," ").replace(/(^|[a-z][;:] )[A-F] (?=[A-Z\u201c"*])/g,"$1").replace(/([a-z][.,;:] )[A-F] (?=\u0004)/g,"$1").replace(/^([A-F]) (?=([a-z][a-z'\u2019-]*)|\u0004)/,(m,l,w)=>w?_frLeadA(e,l,w,m):"").replace(/\b[A-F] (?=\u0004?(?:For|But|And|When|Then|Thus|Yet|Nor|Therefore|Moreover|Wherefore|The|This|That|These|Those|Saint|Holy)\b)/g,"").replace(/([.!?\u201d"]) [A-F]$/,"$1").replace(/([a-z])-\s+([a-z])/g,"$1$2").replace(/\s*[\u2022\ufffd]+\s*/g," ").replace(/\s+([.,;:!?\u00bb)])/g,"$1").replace(/\s{2,}/g," ").trim()):"")||"\u00A0";if(_fl)e2.setAttribute("rend","flow");enB.appendChild(e2);});
     // THE PAGE'S FOOTNOTES (owner 2026-09-23 'a clean transcription ... of each volume'): the site's per-opening notes travel in the canon as
     // <note place="foot"> (resp #pg-site-vtx); they join the synthetic page here and the folio builder's note band shows them on demand.
     // ONCE PER PAGE (2026-09-30): this flush runs once per block group, so a page carrying headings appended its notes once per
