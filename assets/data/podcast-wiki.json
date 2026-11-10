@@ -1,6 +1,6 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-11-10T13:51:21.579Z",
+    "updated": "2026-11-10T22:05:47.270Z",
     "episodes": [
       {
         "id": 20076850,
@@ -302,7 +302,7 @@
         "guests": [
           "Jonathan Geltner",
           "Eric Hutchinson",
-          "and Rob Wyllie"
+          "Rob Wyllie"
         ],
         "topics": [
           "Ancient & Patristic"
@@ -478,7 +478,7 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/christians-reading-classics/james-fenimore-cooper-with-dr-wayne-franklin/",
         "guests": [
-          "Dr. Wayne Franklin"
+          "Wayne Franklin"
         ],
         "topics": [
           "American Literature"
@@ -972,7 +972,7 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/christians-reading-classics/c-s-lewis-the-great-divorce-with-dr-leslie-baynes/",
         "guests": [
-          "Dr. Leslie Baynes"
+          "Leslie Baynes"
         ],
         "topics": [
           "British Literature",
@@ -1287,7 +1287,7 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-11-10T13:51:26.249Z",
+    "updated": "2026-11-10T22:05:51.755Z",
     "episodes": [
       {
         "id": 20070839,
@@ -1304,7 +1304,7 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/replay-christian-politics-with-oliver-o-donovan/",
         "guests": [
-          "Oliver O’Donovan"
+          "Oliver O'Donovan"
         ],
         "topics": [
           "Politics & Public Life",
@@ -1330,7 +1330,7 @@
         "guests": [],
         "topics": [
           "Scripture & Hermeneutics",
-          "Secularism & Expressive Individualism"
+          "Biblical Theology & Typology"
         ]
       },
       {
@@ -1348,7 +1348,7 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/replay-martin-luther-and-the-rule-of-faith-with-dr-todd-hains/",
         "guests": [
-          "Dr. Todd Hains"
+          "Todd Hains"
         ],
         "topics": [
           "Scripture & Hermeneutics",
@@ -1396,7 +1396,7 @@
         ],
         "topics": [
           "Virtue, Character & Christian Ethics",
-          "Bioethics, Abortion & the Body"
+          "Sin, Desire & Moral Psychology"
         ]
       },
       {
@@ -1438,7 +1438,8 @@
         "transcriptUrl": "/transcript/mere-fidelity/why-is-the-gospel-of-john-so-unique/",
         "guests": [],
         "topics": [
-          "Scripture & Hermeneutics"
+          "Scripture & Hermeneutics",
+          "Biblical Theology & Typology"
         ]
       },
       {
@@ -1476,11 +1477,10 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/the-four-senses-of-scripture-with-dr-patrick-schreiner/",
         "guests": [
-          "Dr. Patrick Schreiner"
+          "Patrick Schreiner"
         ],
         "topics": [
           "Scripture & Hermeneutics",
-          "Ecclesiology & Sacraments",
           "Theological Retrieval & Method"
         ]
       },
@@ -1523,6 +1523,7 @@
         "transcriptUrl": "/transcript/mere-fidelity/postliberal-theology-explained/",
         "guests": [],
         "topics": [
+          "Theological Retrieval & Method",
           "Ecclesiology & Sacraments"
         ]
       },
@@ -1542,9 +1543,8 @@
         "transcriptUrl": "/transcript/mere-fidelity/what-is-a-man/",
         "guests": [],
         "topics": [
-          "Biblical Theology & Typology",
-          "Technology & Digital Life",
-          "Sexuality, Gender & Anthropology"
+          "Sexuality, Gender & Anthropology",
+          "Virtue, Character & Christian Ethics"
         ]
       },
       {
@@ -1563,6 +1563,7 @@
         "transcriptUrl": "/transcript/mere-fidelity/examining-nolan-s-odyssey/",
         "guests": [],
         "topics": [
+          "Literature & Moral Imagination",
           "Secularism & Expressive Individualism"
         ]
       },
@@ -1603,7 +1604,7 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/replay-conservatism-with-dr-yoram-hazony/",
         "guests": [
-          "Dr. Yoram Hazony"
+          "Yoram Hazony"
         ],
         "topics": [
           "Politics & Public Life",
