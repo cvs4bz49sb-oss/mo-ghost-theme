@@ -1439,7 +1439,7 @@ a.btn-solid:focus-visible {
   justify-content: center;
   margin-top: 36px;
   padding: 40px 40px 36px;
-  background: #fffdfa; /* The Faith Received's paper */
+  background: #fbf8f3; /* The Faith Received commentary panel */
   color: var(--color-dark);
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-lg);
@@ -1463,7 +1463,7 @@ a.btn-solid:focus-visible {
 .today-digest-copy p:last-child { font-size: 16px; color: var(--color-muted); margin: 0 0 26px; }
 .today-digest .digest-field label { color: var(--color-muted); }
 .today-digest .digest-field input {
-  background: var(--color-cream);
+  background: var(--color-white);
   border: 1px solid var(--color-rule);
   border-radius: var(--radius);
   padding: 12px 14px;
