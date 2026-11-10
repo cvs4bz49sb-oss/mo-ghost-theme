@@ -103,6 +103,37 @@
                             </a>
                         {{/foreach}}
                     {{/get}}
+
+                    {{!-- Weekly Digest signup for signed-out visitors, under the
+                         feature so it fills the left column instead of taking a
+                         full-width band of its own (Ian, 2026-11-10). Same
+                         Ghost-native inline signup as partials/digest-cta.hbs. --}}
+                    {{#unless @member}}
+                    <div class="today-digest" id="digest" data-hm-section="digest">
+                        <div class="today-digest-copy">
+                            <p class="eyebrow">The Weekly Digest</p>
+                            <h3><em>Premier thought every Thursday.</em></h3>
+                            <p>All of our recent essays and podcasts, delivered to you. Free.</p>
+                        </div>
+                        <div class="digest-form" data-inline-signup data-newsletter="weekly-digest" data-source="home">
+                            <div class="digest-field">
+                                <label for="digest-first">First Name</label>
+                                <input id="digest-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
+                            </div>
+                            <div class="digest-field">
+                                <label for="digest-last">Last Name</label>
+                                <input id="digest-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
+                            </div>
+                            <div class="digest-field">
+                                <label for="digest-email">Email</label>
+                                <input id="digest-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
+                            </div>
+                            <button type="button" class="digest-submit" data-signup-submit data-hm-goal="digest-signup">Subscribe</button>
+                            <p class="digest-fineprint">Free. Delivered Thursday mornings.</p>
+                            <p class="digest-status" data-signup-status></p>
+                        </div>
+                    </div>
+                    {{/unless}}
                 </div>
 
                 <div class="today-sidebar">
@@ -161,7 +192,8 @@
 {{!-- WEEKLY DIGEST — state-aware.
      * paid / comped             → nothing (member already in)
      * free Subscriber           → simple Membership CTA scrolling to #join
-     * signed-out visitor        → original digest signup --}}
+     * signed-out visitor        → nothing here; the digest signup sits
+                                   in the Today section under the feature --}}
 {{#match @member.status "paid"}}{{else}}
 {{#match @member.status "comped"}}{{else}}
 {{#if @member}}
@@ -195,9 +227,6 @@
             </div>
         </div>
     </section>
-{{else}}
-    {{!-- Anonymous visitor — original digest signup. --}}
-    {{> "digest-cta"}}
 {{/if}}
 {{/match}}
 {{/match}}

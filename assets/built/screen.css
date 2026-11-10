@@ -1429,6 +1429,30 @@ a.btn-solid:focus-visible {
   gap: 0;
 }
 
+/* Weekly Digest signup under the homepage feature (signed-out only). */
+.today-digest {
+  margin-top: auto;
+  padding-top: 28px;
+  border-top: 1px solid var(--color-card-border);
+}
+.today-main .feature-entry + .today-digest,
+.today-main .today-digest { margin-top: 32px; }
+.today-digest-copy .eyebrow {
+  color: var(--color-primary-text);
+  font-variant: small-caps;
+  letter-spacing: 0.28em;
+  margin: 0 0 6px;
+}
+.today-digest-copy h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0 0 6px;
+}
+.today-digest-copy p:last-child { font-size: 14px; color: var(--color-muted); margin: 0 0 18px; }
+
 .sidebar-heading {
   margin: 0 0 16px;
   padding-bottom: 14px;
