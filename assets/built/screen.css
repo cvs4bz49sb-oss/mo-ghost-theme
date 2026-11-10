@@ -27643,8 +27643,8 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .mm-more { display: inline-block; font: 600 15px var(--font-body); color: var(--color-secondary); border-bottom: 1px solid currentColor; padding-bottom: 2px; }
 .mm .mm-more:hover { color: var(--color-dark); }
 
-.mm-plate { background: var(--color-white); border: 1px solid var(--color-rule); border-radius: 3px; padding: 5px; transition: border-color 0.15s; }
-.mm-plate img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 1px; }
+.mm-plate { background: var(--color-white); border: 1px solid var(--color-rule); border-radius: 4px; padding: 5px; transition: border-color 0.15s; }
+.mm-plate img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 3px; }
 .mm a:hover .mm-plate, .mm a:focus-visible .mm-plate { border-color: var(--color-secondary); }
 .mm-plate--logo img { object-fit: contain; }
 .mm-dl-logo { aspect-ratio: 5 / 2 !important; padding: 22px 40px; }
