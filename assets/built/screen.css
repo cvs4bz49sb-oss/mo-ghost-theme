@@ -27734,3 +27734,18 @@ html.mm-is-open .site-header { z-index: 111; }
 @media (prefers-reduced-motion: reduce) {
   .mm, .mm-backdrop, .mm-trigger::after, .mm-swap { transition: none; animation: none; }
 }
+
+/* Journal panel: the homepage journal status tracker on the light panel.
+   Same markup and classes; colors and size scoped here. */
+.mm .mm-journal-status { margin-top: 44px; }
+.mm .mm-journal-next { margin: 4px 0 0; font-size: 17px; color: #4a4542; }
+.mm .journal-status { margin: 22px 0 0; max-width: 400px; }
+.mm .journal-status-step { gap: 12px; }
+.mm .journal-status-step::before,
+.mm .journal-status-step::after { top: 20px; background: var(--color-rule); }
+.mm .journal-status-step::before { right: calc(50% + 26px); }
+.mm .journal-status-step::after { left: calc(50% + 26px); }
+.mm .journal-status-mark { width: 40px; height: 40px; color: #a8a29b; }
+.mm .journal-status-mark.is-active { color: var(--color-primary); }
+.mm .journal-status-label { font-size: 15px; letter-spacing: 0; text-transform: none; font-weight: 400; color: #6f6964; }
+.mm .journal-status-mark.is-active + .journal-status-label { color: var(--color-dark); font-weight: 600; }

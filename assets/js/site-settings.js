@@ -5,7 +5,7 @@
  * so repeat navigations are instant.
  *
  * Consumers:
- *   - Homepage journal status: [data-journal-issue], [data-journal-stage]
+ *   - Journal status (homepage, header menu): [data-journal-issue], [data-journal-stage]
  *   - Post gate: [data-post-gate] gets data-gate-days / data-gate-tier
  *
  * Fires a "mo:settings" CustomEvent on document when values are ready.
@@ -20,16 +20,19 @@
   function apply(settings) {
     window.MO_SITE_SETTINGS = settings;
 
-    const issueEl = document.querySelector("[data-journal-issue]");
-    if (issueEl) issueEl.textContent = settings.journal_status_issue || "";
+    // Homepage tracker and the header menu's Journal panel.
+    const issues = document.querySelectorAll("[data-journal-issue]");
+    for (let i = 0; i < issues.length; i++) issues[i].textContent = settings.journal_status_issue || "";
 
     const stages = document.querySelectorAll("[data-journal-stage]");
     for (let i = 0; i < stages.length; i++) {
       const el = stages[i];
       if (el.getAttribute("data-journal-stage") === settings.journal_status_stage) {
         el.classList.add("is-active");
+        el.parentNode.setAttribute("aria-current", "step");
       } else {
         el.classList.remove("is-active");
+        el.parentNode.removeAttribute("aria-current");
       }
     }
 
