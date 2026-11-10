@@ -94,8 +94,11 @@ function parseGuests(title) {
   let after = title.split(/\swith\s/i).slice(1).join(" with ");
   after = after.split(/\s*[|\[]/)[0];
   return after
-    .split(/\s*(?:&|,| and )\s*/)
-    .map((s) => s.trim().replace(/\.$/, ""))
+    // ", and Rob Wyllie" is one separator, not a comma then a name
+    // starting "and". "Dr." / "Prof." are dropped so a guest is one entry
+    // in the lens however a title styles them.
+    .split(/\s*(?:,\s*and\s+|&|,| and )\s*/)
+    .map((s) => s.trim().replace(/\.$/, "").replace(/^(?:dr|prof)\.?\s+/i, ""))
     .filter((s) => s.length > 2);
 }
 
