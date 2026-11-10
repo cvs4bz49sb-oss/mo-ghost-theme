@@ -442,7 +442,10 @@
         seen[`${href}|${label}`] = true;
         return `<a href="${esc(href)}">${esc(label)}</a>`;
       };
-      const lead = Array.prototype.map.call(panel.querySelectorAll(".mm-feature > .btn:not(.btn-solid)"), linkHtml).join("");
+      // A button whose page the list already links (About) stays out.
+      const lead = Array.prototype.filter.call(panel.querySelectorAll(".mm-feature > .btn:not(.btn-solid)"), (b) => {
+        return !panel.querySelector(`.mm-links a[href="${CSS.escape(b.getAttribute("href"))}"]`);
+      }).map(linkHtml).join("");
       const rest = Array.prototype.map.call(
         panel.querySelectorAll('.mm-links a, .mm-index a:not([data-mm-set="must"]), .mm-show > a.mm-row, a.mm-feature'),
         linkHtml,
