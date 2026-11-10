@@ -27763,3 +27763,9 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .mm-lead-inline .mm-feature-title { grid-column: 2; align-self: end; margin: 0 0 6px; }
 .mm .mm-lead-inline .mm-by { grid-column: 2; align-self: start; }
 .mm .mm-lead-inline:empty { display: none; }
+
+/* Bookshelf covers link out to Bookshop.org; hover draws a dark orange
+   rule under the cover. */
+.mm .mm-book { display: block; padding-bottom: 6px; border-bottom: 2px solid transparent; transition: border-color 0.15s ease; }
+.mm .mm-book:hover,
+.mm .mm-book:focus-visible { border-bottom-color: var(--color-secondary); }

@@ -447,7 +447,7 @@
         return !panel.querySelector(`.mm-links a[href="${CSS.escape(b.getAttribute("href"))}"]`);
       }).map(linkHtml).join("");
       const rest = Array.prototype.map.call(
-        panel.querySelectorAll('.mm-links a, .mm-index a:not([data-mm-set="must"]), .mm-show > a.mm-row, a.mm-feature'),
+        panel.querySelectorAll('.mm-links a, .mm-index a:not([data-mm-set="must"]), .mm-show > a.mm-row, a.mm-feature, [data-mm-drawer]'),
         linkHtml,
       ).join("");
       const links = lead && rest ? `${lead}<span class="mm-acc-sep" aria-hidden="true"></span>${rest}` : lead + rest;
