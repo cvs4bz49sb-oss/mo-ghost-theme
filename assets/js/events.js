@@ -4,15 +4,14 @@
  *   /forum/  → detail view of the single current upcoming event.
  *              Template: custom-forum.hbs. Driven by [data-events-hero].
  *
- *   /events/ → library: lists every event, split into Upcoming and
- *              Past based on whether the post body contains a replay
- *              embed.
- *              Template: custom-events.hbs. Driven by
- *              [data-events-library-upcoming] / [data-events-library-past].
+ *   /events/ → library: every event as a card, split into Upcoming
+ *              and Past. Template: custom-events.hbs. Driven by
+ *              [data-events-library-upcoming-list] / [data-events-library-past].
  *
  * Both templates render the full post set hidden inside
  * [data-events-source]; this script parses it, classifies each post
- * (upcoming = no replay iframe, past = replay iframe present), and
+ * (past = internal tag #past-event or a replay iframe; upcoming =
+ * neither), and
  * populates whichever mount elements are on the page.
  *
  * Event display date/time comes straight from the post excerpt —
@@ -71,10 +70,16 @@
         url: el.getAttribute("data-url") || "",
         title: el.getAttribute("data-title") || "",
         excerpt: el.getAttribute("data-excerpt") || "",
+        summary: el.getAttribute("data-summary") || "",
         featureImage: el.getAttribute("data-feature-image") || "",
+        membersOnly: el.getAttribute("data-members-only") === "1",
         ts: Date.parse(el.getAttribute("data-published-at")) || 0,
         contentHtml,
-        hasReplay: /<iframe[^>]+(youtube\.com|youtu\.be|vimeo\.com)/i.test(contentHtml),
+        // Past once the post carries #past-event or shows a replay embed.
+        // The tag matters for members-only replays: signed out, the embed
+        // is not in the content at all.
+        hasReplay: el.getAttribute("data-past") === "1" ||
+          /<iframe[^>]+(youtube\.com|youtu\.be|vimeo\.com)/i.test(contentHtml),
         zoom: findZoom(contentHtml),
       };
     });
@@ -85,7 +90,7 @@
     .sort((a, b) => { return b.ts - a.ts; });
 
   if (document.querySelector("[data-events-hero]")) renderForum(upcoming);
-  if (document.querySelector("[data-events-library-upcoming]")) renderLibrary(upcoming, past);
+  if (document.querySelector("[data-events-library-upcoming-list]")) renderLibrary(upcoming, past);
 
   // ---- /forum/ detail view -----------------------------------------------
 
@@ -192,58 +197,69 @@
   // ---- /events/ library view --------------------------------------------
 
   function renderLibrary(upcomingEvents, pastEvents) {
-    const upcomingSection = document.querySelector("[data-events-library-upcoming]");
+    const upList = document.querySelector("[data-events-library-upcoming-list]");
+    const none = document.querySelector("[data-events-library-none]");
     const pastSection = document.querySelector("[data-events-library-past]");
-    const empty = document.querySelector("[data-events-empty]");
 
     if (upcomingEvents.length) {
-      const upList = document.querySelector("[data-events-library-upcoming-list]");
       for (let i = 0; i < upcomingEvents.length; i++) {
-        upList.appendChild(renderCard(upcomingEvents[i], i === 0 ? "/forum/" : upcomingEvents[i].url));
+        upList.appendChild(renderCard(upcomingEvents[i], i === 0 ? "/forum/" : upcomingEvents[i].url, false));
       }
-      upcomingSection.hidden = false;
+    } else if (none) {
+      upList.hidden = true;
+      none.hidden = false;
     }
     if (pastEvents.length) {
       const pastList = document.querySelector("[data-events-library-past-list]");
       for (let j = 0; j < pastEvents.length; j++) {
-        pastList.appendChild(renderCard(pastEvents[j], pastEvents[j].url));
+        pastList.appendChild(renderCard(pastEvents[j], pastEvents[j].url, true));
       }
       pastSection.hidden = false;
     }
-    if (!upcomingEvents.length && !pastEvents.length) {
-      if (empty) empty.hidden = false;
-    }
   }
 
-  function renderCard(e, href) {
-    const li = document.createElement("li");
-    li.className = "events-library-card";
-    const a = document.createElement("a");
+  function el(tag, cls, text) {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text) node.textContent = text;
+    return node;
+  }
+
+  function renderCard(e, href, isPast) {
+    const li = el("li", "events-card");
+    const a = el("a", "events-card-link");
     // Codex audit 2026-05-11: worker-supplied URL → MOSafeHref.set.
     window.MOSafeHref.set(a, href, "#");
-    a.className = e.featureImage
-      ? "events-library-link"
-      : "events-library-link events-library-link--no-thumb";
+
+    const media = el("span", "events-card-media");
     if (e.featureImage) {
-      const thumb = document.createElement("span");
-      thumb.className = "events-library-thumb";
-      thumb.style.backgroundImage = `url(${e.featureImage})`;
-      a.appendChild(thumb);
+      const img = el("img");
+      img.src = e.featureImage;
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      media.appendChild(img);
+    } else {
+      media.classList.add("events-card-media--empty");
     }
-    const body = document.createElement("div");
-    body.className = "events-library-body-col";
-    if (e.excerpt) {
-      const when = document.createElement("p");
-      when.className = "events-library-when";
-      when.textContent = e.excerpt;
-      body.appendChild(when);
-    }
-    const title = document.createElement("h3");
-    title.className = "events-library-card-title";
-    const em = document.createElement("em");
-    em.textContent = e.title;
-    title.appendChild(em);
+    a.appendChild(media);
+
+    const body = el("div", "events-card-body");
+    const kicker = !isPast && e.excerpt ? e.excerpt : "Online forum";
+    body.appendChild(el("p", "events-card-kicker", kicker));
+
+    const title = el("h3", "events-card-title");
+    title.appendChild(el("em", "", e.title));
     body.appendChild(title);
+
+    if (e.summary) body.appendChild(el("p", "events-card-summary", e.summary));
+
+    let cta;
+    if (!isPast) cta = "Details and registration";
+    else if (e.membersOnly) cta = "Watch the replay (members)";
+    else cta = "Watch the replay";
+    body.appendChild(el("span", "events-card-cta", cta));
+
     a.appendChild(body);
     li.appendChild(a);
     return li;

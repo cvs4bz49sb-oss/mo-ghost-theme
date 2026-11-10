@@ -1,6 +1,5 @@
 /*
- * Event replay gate — post.hbs loads this on every post page; it
- * bails immediately if the post is not tagged #event.
+ * Event replay gate. partials/event-post.hbs loads it on #event posts.
  *
  * For #event posts:
  *   - paid / comped members → no-op; replay plays normally.
@@ -23,14 +22,19 @@
   const article = document.querySelector("article[data-event-post]");
   if (!article) return;
 
-  /* ---- check member status ----------------------------------------- */
-  const status = (document.body.getAttribute("data-member-status") || "anonymous").toLowerCase();
-  if (status === "paid" || status === "comped") return;
-
-  /* ---- find and replace replay iframes ----------------------------- */
-  const content = article.querySelector(".article-content");
+  const content = article.querySelector("[data-event-content], .article-content");
   if (!content) return;
 
+  /* ---- check member status ----------------------------------------- */
+  const status = (document.body.getAttribute("data-member-status") || "anonymous").toLowerCase();
+  if (status === "paid" || status === "comped") {
+    /* The hero's "Watch the replay" button jumps to #replay. */
+    const first = content.querySelector('iframe[src*="youtube"], iframe[src*="youtu.be"], iframe[src*="vimeo"]');
+    if (first) (first.closest(".kg-embed-card, .kg-card") || first).id = "replay";
+    return;
+  }
+
+  /* ---- find and replace replay iframes ----------------------------- */
   for (const iframe of content.querySelectorAll("iframe")) {
     const src = iframe.getAttribute("src") || "";
     if (!/youtube\.com|youtu\.be|vimeo\.com/i.test(src)) continue;

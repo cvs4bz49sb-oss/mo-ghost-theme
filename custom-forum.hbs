@@ -19,13 +19,14 @@
 <main class="events-page">
 
   <div data-events-source hidden>
-    {{#get "posts" filter="tag:hash-event" order="published_at desc" limit="all"}}
+    {{#get "posts" filter="tag:hash-event" include="tags" order="published_at desc" limit="all"}}
       {{#foreach posts}}
         <article class="events-item"
                  data-slug="{{slug}}"
                  data-url="{{url}}"
                  data-title="{{title}}"
                  data-excerpt="{{custom_excerpt}}"
+                 data-past="{{#has tag="#past-event"}}1{{/has}}"
                  data-feature-image="{{#if feature_image}}{{img_url feature_image size="xl"}}{{/if}}"
                  data-published-at="{{published_at}}">
           <div class="events-item-content">{{content}}</div>

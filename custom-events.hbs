@@ -1,28 +1,38 @@
 {{!< default}}
-{{#contentFor "moHead"}}
+{{#contentFor "moHead"}}{{#is "post"}}<title>{{meta_title}}</title>{{else}}
 <title>Events | Mere Orthodoxy</title>
 <meta name="description" content="Online forums and in-person conversations from Mere Orthodoxy. Upcoming events and past replays." />
 <meta property="og:title" content="Events" />
 <meta property="og:description" content="Online forums and in-person conversations from Mere Orthodoxy. Upcoming events and past replays." />
 <meta name="twitter:title" content="Events" />
 <meta name="twitter:description" content="Online forums and in-person conversations from Mere Orthodoxy. Upcoming events and past replays." />
-{{/contentFor}}
-{{!-- /events/ — library view listing every #event post, split into
-     "Upcoming" (no replay embed yet) and "Past Events" (replay
-     embed present in the post body). The actual event detail with
-     title, body, and registration form lives at /forum/ or at each
-     event's own post URL. --}}
+{{/is}}{{/contentFor}}
+{{!-- /events/ is the library of every #event post, split into
+     Upcoming and Past Events. An event is past once its post carries
+     the internal tag #past-event or has a replay embed. The tag is the
+     reliable signal: a members-only replay is invisible to anyone
+     signed out, so the embed alone would put a finished event back
+     under Upcoming for them. The event detail and registration form live at
+     /forum/ and on each event's own post. --}}
 
+{{!-- Guard: if a post is given this template in Ghost's post settings,
+     render it as an event page, not as a second copy of this list. --}}
+{{#is "post"}}
+{{#post}}{{> "event-post"}}{{/post}}
+{{else}}
 <main class="events-page">
 
   <div data-events-source hidden>
-    {{#get "posts" filter="tag:hash-event" order="published_at desc" limit="all"}}
+    {{#get "posts" filter="tag:hash-event" include="tags" order="published_at desc" limit="all"}}
       {{#foreach posts}}
         <article class="events-item"
                  data-slug="{{slug}}"
                  data-url="{{url}}"
                  data-title="{{title}}"
                  data-excerpt="{{custom_excerpt}}"
+                 data-summary="{{excerpt words="32"}}"
+                 data-past="{{#has tag="#past-event"}}1{{/has}}"
+                 data-members-only="{{#match visibility "!=" "public"}}1{{/match}}"
                  data-feature-image="{{#if feature_image}}{{img_url feature_image size="xl"}}{{/if}}"
                  data-published-at="{{published_at}}">
           <div class="events-item-content">{{content}}</div>
@@ -40,27 +50,30 @@
   </section>
 
   <section class="events-library-body">
-    <div class="container container-narrow">
+    <div class="container">
 
-      <div class="events-library-section" data-events-library-upcoming hidden>
-        <p class="eyebrow">Upcoming</p>
-        <h2 class="events-library-title"><em>What's next.</em></h2>
-        <ol class="events-library-list" data-events-library-upcoming-list></ol>
+      <div class="events-library-section">
+        <div class="events-library-head">
+          <p class="eyebrow">Upcoming</p>
+          <h2 class="events-library-title"><em>What's next.</em></h2>
+        </div>
+        <ol class="events-grid" data-events-library-upcoming-list></ol>
+        <div class="events-none" data-events-library-none hidden>
+          <p class="events-none-title">No upcoming events right now.</p>
+          <p class="events-none-sub">We announce new forums in the Mere Orthodoxy newsletter first.</p>
+          {{#unless @member}}
+          <a href="#/portal/signup/free" class="btn btn-primary btn-sm" data-portal="signup/free">Get the newsletter</a>
+          {{/unless}}
+        </div>
       </div>
-
-      <div class="flourish"></div>
 
       <div class="events-library-section" data-events-library-past hidden>
-        <p class="eyebrow">Past Events</p>
-        <h2 class="events-library-title"><em>The archive.</em></h2>
-        <p class="events-library-sub">Paid Members can watch every replay in <a href="/dashboard/replays/">the replay library</a>.</p>
-        <ol class="events-library-list" data-events-library-past-list></ol>
-      </div>
-
-      <div class="events-library-empty" data-events-empty hidden>
-        <p class="eyebrow">Coming Soon</p>
-        <h2 class="events-library-title"><em>No events on the calendar yet.</em></h2>
-        <p>Subscribe to Mere Orthodoxy to be first to hear when the next online event goes live.</p>
+        <div class="events-library-head">
+          <p class="eyebrow">Past Events</p>
+          <h2 class="events-library-title"><em>The archive.</em></h2>
+          <p class="events-library-sub">Paid Members can watch every replay in <a href="/dashboard/replays/">the replay library</a>.</p>
+        </div>
+        <ol class="events-grid" data-events-library-past-list></ol>
       </div>
 
     </div>
@@ -69,3 +82,4 @@
 </main>
 
 <script src="{{asset "js/events.js"}}"></script>
+{{/is}}
