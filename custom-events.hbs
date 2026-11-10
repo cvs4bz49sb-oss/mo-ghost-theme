@@ -58,11 +58,31 @@
           <h2 class="events-library-title"><em>What's next.</em></h2>
         </div>
         <ol class="events-grid" data-events-library-upcoming-list></ol>
-        <div class="events-none" data-events-library-none hidden>
-          <p class="events-none-title">No upcoming events right now.</p>
-          <p class="events-none-sub">We announce new forums in the Mere Orthodoxy newsletter first.</p>
+        <div class="events-none{{#unless @member}} events-none--signup{{/unless}}" data-events-library-none hidden>
+          <div class="events-none-copy">
+            <p class="events-none-title">No upcoming events right now.</p>
+            <p class="events-none-sub">We announce new forums in the Weekly Digest first. Free, every Thursday.</p>
+          </div>
           {{#unless @member}}
-          <a href="#/portal/signup/free" class="btn btn-primary btn-sm" data-portal="signup/free">Get the newsletter</a>
+          {{!-- Same Ghost-native signup as the homepage Weekly Digest form
+               (partials/digest-cta.hbs); inline-signup.js handles it. --}}
+          <div class="digest-form" data-inline-signup data-newsletter="weekly-digest" data-source="events-page">
+            <div class="digest-field">
+              <label for="events-digest-first">First Name</label>
+              <input id="events-digest-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
+            </div>
+            <div class="digest-field">
+              <label for="events-digest-last">Last Name</label>
+              <input id="events-digest-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
+            </div>
+            <div class="digest-field">
+              <label for="events-digest-email">Email</label>
+              <input id="events-digest-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
+            </div>
+            <button type="button" class="digest-submit" data-signup-submit data-hm-goal="digest-signup">Subscribe</button>
+            <p class="digest-fineprint">Free. Delivered Thursday mornings.</p>
+            <p class="digest-status" data-signup-status></p>
+          </div>
           {{/unless}}
         </div>
       </div>
