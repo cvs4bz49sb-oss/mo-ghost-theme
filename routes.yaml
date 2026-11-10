@@ -19,6 +19,10 @@ routes:
     template: custom-all-contributors
   /about/:
     template: custom-about
+  # Full search results (2026-11-10). Rendered client-side from mo-search;
+  # noindex. The modal links here only once this route answers 200.
+  /search/:
+    template: custom-search
   /archive/:
     controller: channel
     template: custom-archive

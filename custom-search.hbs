@@ -1,0 +1,50 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Search | Mere Orthodoxy</title>
+<meta name="robots" content="noindex, follow" />
+<meta name="description" content="Search Mere Orthodoxy essays, authors, topics and podcasts." />
+<meta property="og:title" content="Search | Mere Orthodoxy" />
+<meta property="og:description" content="Search Mere Orthodoxy essays, authors, topics and podcasts." />
+<meta name="twitter:title" content="Search | Mere Orthodoxy" />
+<meta name="twitter:description" content="Search Mere Orthodoxy essays, authors, topics and podcasts." />
+{{/contentFor}}
+{{!-- /search/ (routes.yaml, 2026-11-10). Full results for the mo-search
+     worker: essays paged 20 at a time, filters for author, topic and
+     years. assets/js/search.js renders into #mo-search-page; the form
+     also works as a plain GET so the URL carries the query. noindex:
+     result pages are thin and endless. --}}
+
+<main class="search-page" id="mo-search-page">
+  <div class="container-narrow">
+    <h1 class="search-page-title">Search</h1>
+
+    <form class="search-page-form" role="search" action="/search/" method="get">
+      <div class="search-page-query">
+        <label class="visually-hidden" for="search-page-q">Search</label>
+        <input id="search-page-q" name="q" type="search" maxlength="200" autocomplete="off" enterkeyhint="search" placeholder="Search essays, authors, topics, podcasts" />
+        <button class="btn btn-solid" type="submit">Search</button>
+      </div>
+      <div class="search-page-filters">
+        <label for="search-page-author">Author
+          <input id="search-page-author" type="text" list="search-page-authors" autocomplete="off" />
+        </label>
+        <datalist id="search-page-authors"></datalist>
+        <label for="search-page-topic">Topic
+          <input id="search-page-topic" type="text" list="search-page-topics" autocomplete="off" />
+        </label>
+        <datalist id="search-page-topics"></datalist>
+        <label for="search-page-from">From
+          <select id="search-page-from" name="from"><option value="">Any year</option></select>
+        </label>
+        <label for="search-page-to">To
+          <select id="search-page-to" name="to"><option value="">Any year</option></select>
+        </label>
+      </div>
+    </form>
+
+    <p class="search-page-status" role="status"></p>
+    <noscript><p class="search-page-status">Search needs JavaScript.</p></noscript>
+    <div class="search-page-results"></div>
+    <nav class="search-page-pager" aria-label="Results pages"></nav>
+  </div>
+</main>
