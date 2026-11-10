@@ -27752,3 +27752,6 @@ html.mm-is-open .site-header { z-index: 111; }
 
 /* A second heading in the same column (Support: Join, then Give). */
 .mm .mm-col-title--next { margin-top: 32px; }
+
+/* Mail mark before the Weekly Digest eyebrow (homepage box, digest-cta). */
+.eyebrow .eyebrow-icon { display: inline-block; vertical-align: -2px; margin-right: 9px; }
