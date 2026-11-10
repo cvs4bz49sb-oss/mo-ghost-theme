@@ -1429,29 +1429,59 @@ a.btn-solid:focus-visible {
   gap: 0;
 }
 
-/* Weekly Digest signup under the homepage feature (signed-out only). */
+/* Weekly Digest card under the homepage feature (signed-out only). It
+   grows to fill the rest of the left column, so the column ends level
+   with Must Reads instead of leaving a blank space under the form. */
 .today-digest {
-  margin-top: auto;
-  padding-top: 28px;
-  border-top: 1px solid var(--color-card-border);
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 36px;
+  padding: 40px 40px 36px;
+  background: #fbf8f3; /* The Faith Received commentary panel */
+  color: var(--color-dark);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
-.today-main .feature-entry + .today-digest,
-.today-main .today-digest { margin-top: 32px; }
 .today-digest-copy .eyebrow {
   color: var(--color-primary-text);
   font-variant: small-caps;
   letter-spacing: 0.28em;
-  margin: 0 0 6px;
+  margin: 0 0 10px;
 }
 .today-digest-copy h3 {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 24px;
-  line-height: 1.2;
+  font-style: italic;
+  font-size: 32px;
+  line-height: 1.15;
   color: var(--color-dark);
-  margin: 0 0 6px;
+  margin: 0 0 10px;
 }
-.today-digest-copy p:last-child { font-size: 14px; color: var(--color-muted); margin: 0 0 18px; }
+.today-digest-copy p:last-child { font-size: 16px; color: var(--color-muted); margin: 0 0 26px; }
+.today-digest .digest-field label { color: var(--color-muted); }
+.today-digest .digest-field input {
+  background: var(--color-white);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  color: var(--color-dark);
+}
+.today-digest .digest-field input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(238, 125, 81, 0.35); }
+.today-digest .digest-submit {
+  justify-self: start;
+  margin-top: 14px;
+  padding: 13px 24px;
+  background: var(--color-secondary);
+  color: var(--color-white);
+  border-radius: var(--radius);
+  font-size: 12px;
+}
+.today-digest .digest-submit:hover { background: var(--color-dark); color: var(--color-white); }
+.today-digest .digest-form .digest-status { color: var(--color-muted); }
+.today-digest .digest-form .digest-status.is-error { color: var(--color-alert-text); }
 
 .sidebar-heading {
   margin: 0 0 16px;
@@ -4142,6 +4172,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 @media (max-width: 1024px) {
   .hero-grid { grid-template-columns: 1fr; gap: 48px; }
   .today-grid { grid-template-columns: 1fr; }
+  .today-digest { padding: 28px 22px; }
+  .today-digest-copy h3 { font-size: 26px; }
   .digest-section { padding: 48px 0; }
   .digest-cta { grid-template-columns: 1fr; gap: 24px; padding: 24px 20px; text-align: center; }
   .digest-copy p { margin: 0 auto; }
