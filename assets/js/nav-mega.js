@@ -424,24 +424,30 @@
       const panel = panels.find((p) => { return p.getAttribute("data-mm-panel") === name; });
       if (!panel) return "";
       const seen = Object.create(null);
-      const links = Array.prototype.map.call(
-        panel.querySelectorAll(".mm-links a, .mm-index a, .mm-show > a.mm-row, .mm-feature > .btn:not(.btn-solid), a.mm-feature"),
-        (a) => {
-          const href = a.getAttribute("href");
-          const titleEl = a.querySelector(".mm-row-title, .mm-col-title");
-          let label = titleEl ? titleEl.textContent : "";
-          if (!label) {
-            const text = Array.prototype.find.call(a.childNodes, (c) => { return c.nodeType === 3 && c.textContent.trim(); });
-            label = text ? text.textContent : "";
-          }
-          label = label.trim();
-          // A feature with no label of its own (About's picture) repeats a
-          // link already in the list.
-          if (!label || seen[`${href}|${label}`]) return "";
-          seen[`${href}|${label}`] = true;
-          return `<a href="${esc(href)}">${esc(label)}</a>`;
-        },
+      // Ian, 2026-11-10: the drawer leaves out Must reads (desktop keeps it),
+      // and a panel's own button ("Open the library") leads its section,
+      // ruled off from the list under it.
+      const linkHtml = (a) => {
+        const href = a.getAttribute("href");
+        const titleEl = a.querySelector(".mm-row-title, .mm-col-title");
+        let label = titleEl ? titleEl.textContent : "";
+        if (!label) {
+          const text = Array.prototype.find.call(a.childNodes, (c) => { return c.nodeType === 3 && c.textContent.trim(); });
+          label = text ? text.textContent : "";
+        }
+        label = label.trim();
+        // A feature with no label of its own (About's picture) repeats a
+        // link already in the list.
+        if (!label || seen[`${href}|${label}`]) return "";
+        seen[`${href}|${label}`] = true;
+        return `<a href="${esc(href)}">${esc(label)}</a>`;
+      };
+      const lead = Array.prototype.map.call(panel.querySelectorAll(".mm-feature > .btn:not(.btn-solid)"), linkHtml).join("");
+      const rest = Array.prototype.map.call(
+        panel.querySelectorAll('.mm-links a, .mm-index a:not([data-mm-set="must"]), .mm-show > a.mm-row, a.mm-feature'),
+        linkHtml,
       ).join("");
+      const links = lead && rest ? `${lead}<span class="mm-acc-sep" aria-hidden="true"></span>${rest}` : lead + rest;
       const id = `mm-acc-${n}`;
       return `<div class="mm-acc"><button type="button" class="mm-acc-btn" aria-expanded="false" aria-controls="${id}">${esc(t.textContent.trim())}${CARET}</button>`
         + `<div class="mm-acc-body" id="${id}" hidden>${links}</div></div>`;
