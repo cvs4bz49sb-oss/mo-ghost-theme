@@ -7,11 +7,10 @@
 <meta name="twitter:title" content="The Bookshelf" />
 <meta name="twitter:description" content="Books the editors and contributors of Mere Orthodoxy are reading and recommending." />
 {{/contentFor}}
-{{!-- /bookstore/ — curated book recommendations from Mere Orthodoxy.
-     Static HTML — no JS required. Cover images from Bookshop.org CDN.
-     Sections are collapsible via native <details>/<summary>.
-     To update: edit the HTML below directly, or ask Claude to
-     scrape fresh data from the Bookshop.org list pages. --}}
+{{!-- /books/ (The Bookshelf). Three shelves of Bookshop.org picks, each
+     linking to its full Bookshop.org list. Static HTML, no JS. Book data
+     comes from scripts/scrape-bookshop.mjs (data/bookstore.json); paste
+     refreshed books into the shelves below. --}}
 
 <main class="bookstore-page">
 
@@ -19,214 +18,265 @@
     <div class="container">
       <p class="hero-kicker"><span class="dot"></span> The Bookshelf</p>
       <h1 class="hero-headline">What we're <span class="highlight"><em>reading</em></span>.</h1>
-      <p class="hero-sub">Purchases support Mere&nbsp;Orthodoxy through <a href="https://bookshop.org/shop/mereorthodoxy" target="_blank" rel="noopener">Bookshop.org</a>.</p>
+      <p class="hero-sub">The books behind our essays, by our writers, and the ones we'd hand a friend first. Every purchase through <a href="https://bookshop.org/shop/mereorthodoxy" target="_blank" rel="noopener">Bookshop.org</a> supports Mere&nbsp;Orthodoxy and independent bookstores.</p>
+      <nav class="shelf-nav" aria-label="Shelves"><a href="#introduction">Start here</a><a href="#contributors">From our writers</a><a href="#featured">In our pages</a></nav>
     </div>
   </section>
 
-  <section class="bookstore-body">
+  <div class="bookstore-body">
     <div class="container">
 
-      {{!-- ── Introduction to Mere Orthodoxy ─────────────────────── --}}
-      <details class="bookstore-section" id="introduction" open>
-        <summary class="bookstore-section-header">
-          <h2 class="bookstore-section-title"><em>Introduction to Mere&nbsp;Orthodoxy</em></h2>
-        </summary>
-        <div class="bookstore-grid">
-
-          <a href="https://bookshop.org/p/books/mere-christianity-c-s-lewis/56290254aded4bd1" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780060652920.jpg" alt="Mere Christianity" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Mere Christianity</span>
-            <span class="bookstore-book-author">C. S. Lewis</span>
-            <span class="bookstore-book-price">$16.73</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/orthodoxy-g-k-chesterton/bda29a6f4ddc6f90" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780802456571.jpg" alt="Orthodoxy" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Orthodoxy</span>
-            <span class="bookstore-book-author">G. K. Chesterton</span>
-            <span class="bookstore-book-price">$9.29</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/democracy-and-solidarity-on-the-cultural-roots-of-america-s-political-crisis-james-davison-hunter/cbc755ebd2190655" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780300284898.jpg" alt="Democracy and Solidarity" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Democracy and Solidarity</span>
-            <span class="bookstore-book-author">James Davison Hunter</span>
-            <span class="bookstore-book-price">$22.32</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/the-year-of-our-lord-1943-christian-humanism-in-an-age-of-crisis-distinguished-professor-of-the-humanities-alan-jacobs/9c792b961fb5a516" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780190864651.jpg" alt="The Year of Our Lord 1943" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">The Year of Our Lord 1943</span>
-            <span class="bookstore-book-author">Alan Jacobs</span>
-            <span class="bookstore-book-price">$39.99</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/growing-in-christ-j-i-packer/3dd55a2e36db8709" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781433581212.jpg" alt="Growing in Christ" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Growing in Christ</span>
-            <span class="bookstore-book-author">J. I. Packer</span>
-            <span class="bookstore-book-price">$30.68</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/the-case-for-civility-and-why-our-future-depends-on-it-os-guinness/f8feeea92c108ce8" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780061740084.jpg" alt="The Case for Civility" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">The Case for Civility</span>
-            <span class="bookstore-book-author">Os Guinness</span>
-            <span class="bookstore-book-price">$7.99</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/to-change-the-world-the-irony-tragedy-and-possibility-of-christianity-in-the-late-modern-world-labrosse-levinson-distinguished-professor-in-religion-c/803c0828a8746e6b" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780199730803.jpg" alt="To Change the World" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">To Change the World</span>
-            <span class="bookstore-book-author">James Davison Hunter</span>
-            <span class="bookstore-book-price">$55.19</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/a-time-to-build-from-family-and-community-to-congress-and-the-campus-how-recommitting-to-our-institutions-can-revive-the-american-dream-yuval-levin/76f8fea0613e5fcf" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781541604414.jpg" alt="A Time to Build" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">A Time to Build</span>
-            <span class="bookstore-book-author">Yuval Levin</span>
-            <span class="bookstore-book-price">$17.66</span>
-          </a>
-
+      <section class="shelf shelf--lead" id="introduction" aria-labelledby="introduction-title">
+        <div class="shelf-head">
+          <div>
+            <p class="eyebrow">Start here</p>
+            <h2 class="shelf-title" id="introduction-title"><em>Introduction to Mere&nbsp;Orthodoxy</em></h2>
+            <p class="shelf-sub">The books we hand to someone meeting Mere Orthodoxy for the first time.</p>
+          </div>
+          <a href="https://bookshop.org/lists/introduction-to-mere-orthodoxy" class="shelf-all" target="_blank" rel="noopener">See all 12 on Bookshop.org</a>
         </div>
-        <a href="https://bookshop.org/lists/introduction-to-mere-orthodoxy" class="bookstore-view-all" target="_blank" rel="noopener">View all 12 &rarr;</a>
-      </details>
+        <ol class="shelf-row">
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/mere-christianity-c-s-lewis/56290254aded4bd1" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780060652920.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Mere Christianity</span>
+              <span class="shelf-book-author">C. S. Lewis</span>
+              <span class="shelf-book-price">$16.73</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/orthodoxy-g-k-chesterton/bda29a6f4ddc6f90" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780802456571.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Orthodoxy</span>
+              <span class="shelf-book-author">G. K. Chesterton</span>
+              <span class="shelf-book-price">$9.29</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/democracy-and-solidarity-on-the-cultural-roots-of-america-s-political-crisis-james-davison-hunter/cbc755ebd2190655" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780300284898.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Democracy and Solidarity</span>
+              <span class="shelf-book-author">James Davison Hunter</span>
+              <span class="shelf-book-price">$22.32</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/the-year-of-our-lord-1943-christian-humanism-in-an-age-of-crisis-distinguished-professor-of-the-humanities-alan-jacobs/9c792b961fb5a516" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780190864651.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">The Year of Our Lord 1943</span>
+              <span class="shelf-book-author">Alan Jacobs</span>
+              <span class="shelf-book-price">$39.99</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/growing-in-christ-j-i-packer/3dd55a2e36db8709" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781433581212.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Growing in Christ</span>
+              <span class="shelf-book-author">J. I. Packer</span>
+              <span class="shelf-book-price">$30.68</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/the-case-for-civility-and-why-our-future-depends-on-it-os-guinness/f8feeea92c108ce8" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780061740084.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">The Case for Civility</span>
+              <span class="shelf-book-author">Os Guinness</span>
+              <span class="shelf-book-price">$7.99</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/to-change-the-world-the-irony-tragedy-and-possibility-of-christianity-in-the-late-modern-world-labrosse-levinson-distinguished-professor-in-religion-c/803c0828a8746e6b" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780199730803.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">To Change the World</span>
+              <span class="shelf-book-author">James Davison Hunter</span>
+              <span class="shelf-book-price">$55.19</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/a-time-to-build-from-family-and-community-to-congress-and-the-campus-how-recommitting-to-our-institutions-can-revive-the-american-dream-yuval-levin/76f8fea0613e5fcf" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781541604414.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">A Time to Build</span>
+              <span class="shelf-book-author">Yuval Levin</span>
+              <span class="shelf-book-price">$17.66</span>
+            </a>
+          </li>
+        </ol>
+      </section>
 
-      {{!-- ── Mere Orthodoxy Contributors ────────────────────────── --}}
-      <details class="bookstore-section" id="contributors" open>
-        <summary class="bookstore-section-header">
-          <h2 class="bookstore-section-title"><em>Contributors to Mere&nbsp;Orthodoxy</em></h2>
-        </summary>
-        <div class="bookstore-grid">
-
-          <a href="https://bookshop.org/p/books/christians-reading-classics-an-introduction-to-greco-roman-classics-from-homer-to-boethius-nadya-williams/58edb25d034a27d8" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780310171072.jpg" alt="Christians Reading Classics" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Christians Reading Classics</span>
-            <span class="bookstore-book-author">Nadya Williams</span>
-            <span class="bookstore-book-price">$30.68</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/resisting-therapy-culture-the-dangers-of-pop-psychology-and-how-the-church-can-respond-matthew-loftus/7a12fc377baddd63" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781514012680.jpg" alt="Resisting Therapy Culture" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Resisting Therapy Culture</span>
-            <span class="bookstore-book-author">Matthew Loftus</span>
-            <span class="bookstore-book-price">$20.45</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/digital-liturgies-rediscovering-christian-wisdom-in-an-online-age-with-study-questions-samuel-james/2b2acf82b20b72ed" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781433599194.jpg" alt="Digital Liturgies" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Digital Liturgies</span>
-            <span class="bookstore-book-author">Samuel James</span>
-            <span class="bookstore-book-price">$15.80</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/uprooted-recovering-the-legacy-of-the-places-we-ve-left-behind-grace-olmstead/0a3f36eb3e1fa13c" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780593084021.jpg" alt="Uprooted" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Uprooted</span>
-            <span class="bookstore-book-author">Grace Olmstead</span>
-            <span class="bookstore-book-price">$25.11</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/bulwarks-of-unbelief-atheism-and-divine-absence-in-a-secular-age-joseph-minich/267529b8087c73a3" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781683596752.jpg" alt="Bulwarks of Unbelief" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Bulwarks of Unbelief</span>
-            <span class="bookstore-book-author">Joseph Minich</span>
-            <span class="bookstore-book-price">$34.40</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/the-dignity-of-dependence-a-feminist-manifesto-leah-libresco-sargeant/b323f42b0c9eb9e1" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780268210335.jpg" alt="The Dignity of Dependence" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">The Dignity of Dependence</span>
-            <span class="bookstore-book-author">Leah Libresco Sargeant</span>
-            <span class="bookstore-book-price">$26.04</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/walking-through-deconstruction-how-to-be-a-companion-in-a-crisis-of-faith-ian-harber/177b50026abf90c2" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781514008560.jpg" alt="Walking Through Deconstruction" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Walking Through Deconstruction</span>
-            <span class="bookstore-book-author">Ian Harber</span>
-            <span class="bookstore-book-price">$18.00</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/what-are-christians-for-life-together-at-the-end-of-the-world-jake-meador/81d71a9f3bb8e09a" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780830847365.jpg" alt="What Are Christians For?" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">What Are Christians For?</span>
-            <span class="bookstore-book-author">Jake Meador</span>
-            <span class="bookstore-book-price">$21.38</span>
-          </a>
-
+      <section class="shelf" id="contributors" aria-labelledby="contributors-title">
+        <div class="shelf-head">
+          <div>
+            <p class="eyebrow">From our writers</p>
+            <h2 class="shelf-title" id="contributors-title"><em>Books by Mere&nbsp;Orthodoxy contributors</em></h2>
+            <p class="shelf-sub">Written by the people who write for us.</p>
+          </div>
+          <a href="https://bookshop.org/lists/mere-orthodoxy-contributors" class="shelf-all" target="_blank" rel="noopener">See all 61 on Bookshop.org</a>
         </div>
-        <a href="https://bookshop.org/lists/mere-orthodoxy-contributors" class="bookstore-view-all" target="_blank" rel="noopener">View all 61 &rarr;</a>
-      </details>
+        <ol class="shelf-row">
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/christians-reading-classics-an-introduction-to-greco-roman-classics-from-homer-to-boethius-nadya-williams/58edb25d034a27d8" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780310171072.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Christians Reading Classics</span>
+              <span class="shelf-book-author">Nadya Williams</span>
+              <span class="shelf-book-price">$30.68</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/resisting-therapy-culture-the-dangers-of-pop-psychology-and-how-the-church-can-respond-matthew-loftus/7a12fc377baddd63" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781514012680.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Resisting Therapy Culture</span>
+              <span class="shelf-book-author">Matthew Loftus</span>
+              <span class="shelf-book-price">$20.45</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/digital-liturgies-rediscovering-christian-wisdom-in-an-online-age-with-study-questions-samuel-james/2b2acf82b20b72ed" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781433599194.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Digital Liturgies</span>
+              <span class="shelf-book-author">Samuel James</span>
+              <span class="shelf-book-price">$15.80</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/uprooted-recovering-the-legacy-of-the-places-we-ve-left-behind-grace-olmstead/0a3f36eb3e1fa13c" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780593084021.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Uprooted</span>
+              <span class="shelf-book-author">Grace Olmstead</span>
+              <span class="shelf-book-price">$25.11</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/bulwarks-of-unbelief-atheism-and-divine-absence-in-a-secular-age-joseph-minich/267529b8087c73a3" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781683596752.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Bulwarks of Unbelief</span>
+              <span class="shelf-book-author">Joseph Minich</span>
+              <span class="shelf-book-price">$34.40</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/the-dignity-of-dependence-a-feminist-manifesto-leah-libresco-sargeant/b323f42b0c9eb9e1" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780268210335.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">The Dignity of Dependence</span>
+              <span class="shelf-book-author">Leah Libresco Sargeant</span>
+              <span class="shelf-book-price">$26.04</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/walking-through-deconstruction-how-to-be-a-companion-in-a-crisis-of-faith-ian-harber/177b50026abf90c2" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781514008560.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Walking Through Deconstruction</span>
+              <span class="shelf-book-author">Ian Harber</span>
+              <span class="shelf-book-price">$18.00</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/what-are-christians-for-life-together-at-the-end-of-the-world-jake-meador/81d71a9f3bb8e09a" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780830847365.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">What Are Christians For?</span>
+              <span class="shelf-book-author">Jake Meador</span>
+              <span class="shelf-book-price">$21.38</span>
+            </a>
+          </li>
+        </ol>
+      </section>
 
-      {{!-- ── Featured on Mere&nbsp;Orthodoxy ─────────────────────────────────── --}}
-      <details class="bookstore-section" id="featured" open>
-        <summary class="bookstore-section-header">
-          <h2 class="bookstore-section-title"><em>Featured on Mere&nbsp;Orthodoxy</em></h2>
-        </summary>
-        <div class="bookstore-grid">
-
-          <a href="https://bookshop.org/p/books/how-to-use-the-book-of-common-prayer-a-guide-to-the-anglican-liturgy-drew-nathaniel-keane/2f04a01a130823c0" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781514007471.jpg" alt="How to Use the Book of Common Prayer" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">How to Use the Book of Common Prayer</span>
-            <span class="bookstore-book-author">Drew Nathaniel Keane</span>
-            <span class="bookstore-book-price">$19.99</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/against-the-machine-on-the-unmaking-of-humanity-paul-kingsnorth/1fd1b2b275afb40f" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780593850633.jpg" alt="Against the Machine" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Against the Machine</span>
-            <span class="bookstore-book-author">Paul Kingsnorth</span>
-            <span class="bookstore-book-price">$32.00</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/for-the-children-s-sake-foundations-of-education-for-home-and-school-susan-schaeffer-macaulay/6122b491566409e8" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781433580000.jpg" alt="For the Children's Sake" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">For the Children's Sake</span>
-            <span class="bookstore-book-author">Susan Schaeffer Macaulay</span>
-            <span class="bookstore-book-price">$16.73</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/hannah-coulter-a-novel-wendell-berry/173f40bc83390d48" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781593760786.jpg" alt="Hannah Coulter" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Hannah Coulter</span>
-            <span class="bookstore-book-author">Wendell Berry</span>
-            <span class="bookstore-book-price">$15.76</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/after-stoicism-last-words-of-the-last-roman-philosopher-thomas-ward/24a7a6c10e5cdc0c" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781685781330.jpg" alt="After Stoicism" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">After Stoicism</span>
-            <span class="bookstore-book-author">Thomas Ward</span>
-            <span class="bookstore-book-price">$34.95</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/ask-of-old-paths-medieval-virtues-and-vices-for-a-whole-and-holy-life-grace-hamman/fad8bfc2f8496d62" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9780310167204.jpg" alt="Ask of Old Paths" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Ask of Old Paths</span>
-            <span class="bookstore-book-author">Grace Hamman</span>
-            <span class="bookstore-book-price">$29.99</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/the-body-god-gives-a-biblical-response-to-transgender-theory-robert-s-smith/b8a67ea5b648dca7" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781683598121.jpg" alt="The Body God Gives" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">The Body God Gives</span>
-            <span class="bookstore-book-author">Robert S. Smith</span>
-            <span class="bookstore-book-price">$37.99</span>
-          </a>
-
-          <a href="https://bookshop.org/p/books/passing-the-torch-an-apology-for-classical-christian-education-louis-markos/c3f00bb0caaef6eb" class="bookstore-book" target="_blank" rel="noopener">
-            <img src="https://images-us.bookshop.org/ingram/9781514011300.jpg" alt="Passing the Torch" class="bookstore-cover" loading="lazy" width="180" height="270">
-            <span class="bookstore-book-title">Passing the Torch</span>
-            <span class="bookstore-book-author">Louis Markos</span>
-            <span class="bookstore-book-price">$30.99</span>
-          </a>
-
+      <section class="shelf" id="featured" aria-labelledby="featured-title">
+        <div class="shelf-head">
+          <div>
+            <p class="eyebrow">In our pages</p>
+            <h2 class="shelf-title" id="featured-title"><em>Featured on Mere&nbsp;Orthodoxy</em></h2>
+            <p class="shelf-sub">Books our essays and reviews have taken up.</p>
+          </div>
+          <a href="https://bookshop.org/lists/featured-on-mere-o" class="shelf-all" target="_blank" rel="noopener">See all 146 on Bookshop.org</a>
         </div>
-        <a href="https://bookshop.org/lists/featured-on-mere-o" class="bookstore-view-all" target="_blank" rel="noopener">View all 146 &rarr;</a>
-      </details>
+        <ol class="shelf-row">
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/how-to-use-the-book-of-common-prayer-a-guide-to-the-anglican-liturgy-drew-nathaniel-keane/2f04a01a130823c0" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781514007471.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">How to Use the Book of Common Prayer</span>
+              <span class="shelf-book-author">Drew Nathaniel Keane</span>
+              <span class="shelf-book-price">$19.99</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/against-the-machine-on-the-unmaking-of-humanity-paul-kingsnorth/1fd1b2b275afb40f" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780593850633.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Against the Machine</span>
+              <span class="shelf-book-author">Paul Kingsnorth</span>
+              <span class="shelf-book-price">$32.00</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/for-the-children-s-sake-foundations-of-education-for-home-and-school-susan-schaeffer-macaulay/6122b491566409e8" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781433580000.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">For the Children's Sake</span>
+              <span class="shelf-book-author">Susan Schaeffer Macaulay</span>
+              <span class="shelf-book-price">$16.73</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/hannah-coulter-a-novel-wendell-berry/173f40bc83390d48" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781593760786.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Hannah Coulter</span>
+              <span class="shelf-book-author">Wendell Berry</span>
+              <span class="shelf-book-price">$15.76</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/after-stoicism-last-words-of-the-last-roman-philosopher-thomas-ward/24a7a6c10e5cdc0c" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781685781330.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">After Stoicism</span>
+              <span class="shelf-book-author">Thomas Ward</span>
+              <span class="shelf-book-price">$34.95</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/ask-of-old-paths-medieval-virtues-and-vices-for-a-whole-and-holy-life-grace-hamman/fad8bfc2f8496d62" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9780310167204.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Ask of Old Paths</span>
+              <span class="shelf-book-author">Grace Hamman</span>
+              <span class="shelf-book-price">$29.99</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/the-body-god-gives-a-biblical-response-to-transgender-theory-robert-s-smith/b8a67ea5b648dca7" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781683598121.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">The Body God Gives</span>
+              <span class="shelf-book-author">Robert S. Smith</span>
+              <span class="shelf-book-price">$37.99</span>
+            </a>
+          </li>
+          <li class="shelf-book">
+            <a href="https://bookshop.org/p/books/passing-the-torch-an-apology-for-classical-christian-education-louis-markos/c3f00bb0caaef6eb" class="shelf-book-link" target="_blank" rel="noopener">
+              <span class="shelf-cover"><img src="https://images-us.bookshop.org/ingram/9781514011300.jpg" alt="" loading="lazy" width="180" height="270"></span>
+              <span class="shelf-book-title">Passing the Torch</span>
+              <span class="shelf-book-author">Louis Markos</span>
+              <span class="shelf-book-price">$30.99</span>
+            </a>
+          </li>
+        </ol>
+      </section>
 
+    </div>
+  </div>
+
+  <section class="shelf-more">
+    <div class="container shelf-more-grid">
+      <div class="shelf-more-card">
+        <p class="eyebrow">Bookshop.org</p>
+        <h2 class="shelf-more-title"><em>Why we sell through Bookshop.org.</em></h2>
+        <p>Bookshop.org shares its profits with independent bookstores, and a portion of every sale from our shop supports Mere&nbsp;Orthodoxy.</p>
+        <a href="https://bookshop.org/shop/mereorthodoxy" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Visit our Bookshop.org shop</a>
+      </div>
+      <div class="shelf-more-card">
+        <p class="eyebrow">From Mere Orthodoxy</p>
+        <h2 class="shelf-more-title"><em>Our own books and journal.</em></h2>
+        <p>Print issues of the Mere Orthodoxy journal and our free ebooks on formation, the church and public life.</p>
+        <div class="shelf-more-links">
+          <a href="/store/" class="btn btn-primary btn-sm">Journal back issues</a>
+          <a href="/ebooks/" class="btn btn-ghost btn-sm">Free ebooks</a>
+        </div>
+      </div>
     </div>
   </section>
 
