@@ -691,10 +691,14 @@
     const success = document.createElement("div");
     success.className = "inline-signup-success";
     success.setAttribute("role", "status");
-    const confirmation = root.hasAttribute("data-account-signup")
-      ? "Open it to confirm your email and sign in to your free account."
-      : "Open it to finish subscribing and you'll land right back on this page.";
-    success.innerHTML = `<p class="eyebrow">Check your inbox</p><h4><em>Almost there.</em></h4><p>We sent a link to <strong>${escapeHtml(email)}</strong>. ${confirmation}</p>`;
+    // A form whose link lands somewhere else (data-signup-redirect) says
+    // where in data-signup-confirmation; the header menu's Daily Liturgy
+    // form opens the reader, not the page it was filled in on.
+    const confirmation = root.getAttribute("data-signup-confirmation")
+      || (root.hasAttribute("data-account-signup")
+        ? "Open it to confirm your email and sign in to your free account."
+        : "Open it to finish subscribing and you'll land right back on this page.");
+    success.innerHTML = `<p class="eyebrow">Check your inbox</p><h4><em>Almost there.</em></h4><p>We sent a link to <strong>${escapeHtml(email)}</strong>. ${escapeHtml(confirmation)}</p>`;
     // The form may declare a larger container to swap out (e.g. the
     // whole post-gate card with its pitch copy above the form) so the
     // success state fully replaces the surrounding messaging instead

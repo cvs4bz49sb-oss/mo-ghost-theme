@@ -342,17 +342,18 @@
             <a href="{{@site.url}}" class="brand" aria-label="Mere Orthodoxy home">
                 <img src="{{asset "images/mere-o-logo.png"}}" alt="Mere Orthodoxy" class="brand-logo" width="164" height="72" />
             </a>
-            <nav class="nav" aria-label="Primary" data-nav-dropdowns>
-                {{!-- Use this.url so Handlebars resolves the nav item's
-                     `url` property instead of invoking Ghost's {{url}}
-                     helper, which was returning "/" for every item.
-                     `data-nav-dropdowns` triggers nav-dropdowns.js to
-                     regroup flat items into dropdowns using the
-                     "Parent > Child" label convention managed in
-                     Ghost Admin → Settings → Navigation. --}}
-                {{#foreach @site.navigation}}
-                    <a href="{{this.url}}" data-nav-label="{{label}}">{{label}}</a>
-                {{/foreach}}
+            {{!-- Each item opens its panel in partials/nav-mega.hbs
+                 (assets/js/nav-mega.js). The panels carry the links; the
+                 bar only names them. The drawer under 1262px is rebuilt
+                 from the same panels. --}}
+            <nav class="nav" aria-label="Primary">
+                <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="read" aria-expanded="false" aria-controls="mm">Read</button>
+                <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="listen" aria-expanded="false" aria-controls="mm">Listen</button>
+                <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="journal" aria-expanded="false" aria-controls="mm">Journal</button>
+                <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="tfr" aria-expanded="false" aria-controls="mm">The Faith Received</button>
+                <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="resources" aria-expanded="false" aria-controls="mm">Resources</button>
+                <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="support" aria-expanded="false" aria-controls="mm">Support</button>
+                <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="about" aria-expanded="false" aria-controls="mm">About</button>
             </nav>
             <div class="nav-actions">
                 {{!-- Search trigger — opens Ghost's built-in sodo-search
@@ -423,10 +424,15 @@
         </aside>
     </div>
 
+    {{> nav-mega}}
+
     {{!-- Nav dropdowns loaded here (after header + mobile-nav are in
          the DOM but before {{{body}}} paints) to prevent the flat-nav
          items from visibly popping into grouped dropdowns. --}}
     <script src="{{asset "js/nav-dropdowns.js"}}"></script>
+    {{!-- Before header-behaviors.js: that script binds close-on-tap to the
+         drawer's links as it loads, and nav-mega.js rebuilds them. --}}
+    <script src="{{asset "js/nav-mega.js"}}"></script>
 
     {{!-- Header behaviors loaded here (after header + mobile-nav are
          in the DOM but before {{{body}}} paints). The syncOffset()

@@ -5,9 +5,9 @@
  * scroll to the bottom of the page where the Membership section is.
  * Make the header Support button do the same."
  *
- * The header's Support is a dropdown built by nav-dropdowns.js (a
- * <button class="nav-dropdown-toggle"> on desktop, a
- * .mobile-nav-group-toggle in the phone drawer). On this page only, a
+ * The header's Support is a menu trigger (a <button class="nav-dropdown-toggle">
+ * on desktop, opening the header menu from nav-mega.js; an .mm-acc-btn
+ * section in the phone drawer). On this page only, a
  * click on it scrolls to the support section instead of opening the
  * menu. Everything the menu offers is in that section: membership and
  * the one-time gift.
@@ -26,7 +26,7 @@
   const isSupport = (el) => /^\s*support\b/i.test(el.textContent || "");
 
   document.addEventListener("click", (e) => {
-    const toggle = e.target.closest && e.target.closest(".nav-dropdown-toggle, .mobile-nav-group-toggle");
+    const toggle = e.target.closest && e.target.closest(".nav-dropdown-toggle, .mobile-nav-group-toggle, .mm-acc-btn");
     if (!toggle || !isSupport(toggle)) return;
     e.preventDefault();
     e.stopImmediatePropagation();

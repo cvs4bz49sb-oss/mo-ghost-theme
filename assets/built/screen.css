@@ -27422,3 +27422,199 @@ body.has-journal-address .slide-in { bottom: 58px; }
 @media (max-width: 640px) {
   .mo-version-banner { left: 12px; right: 12px; max-width: none; bottom: 34px; }
 }
+
+/* ── HEADER MENU (partials/nav-mega.hbs, assets/js/nav-mega.js) ─────────
+   Ian, 2026-11-10: a full-width menu under the bar, with pictures and
+   live content, at the level of the best magazine menus but in our own
+   look. Columns are split by vertical hairlines, pictures sit in the
+   homepage's white plate (.read-plate), and the panel opens on a
+   terracotta rule. It was deliberately moved away from small heads over
+   hairlines and a carousel with dots, which read as a copy of another
+   site's menu. Everything is prefixed mm- because .panel, .links,
+   .feature and .row are already taken elsewhere in this file.
+   Desktop only: under 1262px the bar is the drawer, and nav-mega.js
+   rebuilds the drawer from these panels (.mm-drawer below). */
+.mm-trigger[aria-expanded="true"] { color: var(--color-secondary); }
+.mm-trigger { position: relative; }
+.mm-trigger::after {
+  content: "";
+  position: absolute;
+  left: clamp(6px, 0.55vw, 11px);
+  right: clamp(6px, 0.55vw, 11px);
+  bottom: 2px;
+  height: 2px;
+  background: var(--color-secondary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.22s ease;
+}
+.mm-trigger[aria-expanded="true"]::after { transform: scaleX(1); }
+.mm-trigger:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 2px; border-radius: 3px; }
+
+.mm {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0; /* set from the bar's bottom edge on open */
+  /* Over every bar a page pins under the header: TFR's .tfr-rail (19), the
+     reader's find bar, desk and contents panes (30 to 100). The header is
+     lifted above it while the menu is open (html.mm-is-open below) so the
+     bar's items stay hoverable over the backdrop. */
+  z-index: 110;
+  max-height: calc(100vh - 90px); /* nav-mega.js sets it from the bar */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #fbf8f2;
+  border-top: 2px solid var(--color-secondary);
+  border-bottom: 1px solid var(--color-rule);
+  box-shadow: 0 24px 40px -24px rgba(45, 41, 39, 0.28);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.mm.is-open { opacity: 1; transform: none; }
+.mm[hidden], .mm-backdrop[hidden] { display: none; }
+.mm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 109;
+  background: rgba(45, 41, 39, 0.28);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.mm-backdrop.is-open { opacity: 1; }
+html.mm-is-open .site-header { z-index: 111; }
+@media (max-width: 1261px) {
+  .mm, .mm-backdrop { display: none !important; }
+}
+
+.mm-panel { display: none; padding: 34px 0 38px; }
+.mm-panel.is-active { display: block; }
+.mm-grid { display: grid; align-items: stretch; }
+/* minmax(0, …) on every track: a long title in a track would otherwise
+   widen it past its share and push the last column off the edge. */
+.mm-grid > * { min-width: 0; }
+.mm-grid > :not(:first-child) { border-left: 1px solid var(--color-rule); padding-left: 36px; margin-left: 36px; }
+.mm-grid--read { grid-template-columns: 210px minmax(0, 1.25fr) minmax(0, 1fr); }
+.mm-grid--listen { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.mm-grid--two { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+.mm-grid--three { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr); }
+.mm-grid--tfr { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 1.1fr); }
+
+/* Buttons keep their own colors: .btn-solid is white on terracotta. */
+.mm a:where(:not(.btn)) { color: var(--color-dark); text-decoration: none; }
+.mm .mm-col-title { font: 600 17px/1.3 var(--font-body); color: var(--color-dark); margin: 0 0 8px; }
+.mm-links { list-style: none; margin: 0; padding: 0; }
+.mm-links a {
+  display: inline-block;
+  font: 400 19px/1.25 var(--font-body);
+  padding: 7px 0;
+  background-image: linear-gradient(var(--color-secondary), var(--color-secondary));
+  background-repeat: no-repeat;
+  background-position: 0 calc(100% - 4px);
+  background-size: 0% 1px;
+  transition: background-size 0.22s ease, color 0.15s;
+}
+.mm-links a:hover, .mm-links a:focus-visible { color: var(--color-secondary); background-size: 100% 1px; }
+.mm-note { display: block; font-size: 14px; color: var(--color-muted); margin-top: 2px; }
+.mm-links--compact a { font-size: 17px; padding: 5px 0; }
+.mm-links--compact .mm-note { display: inline; margin: 0 0 0 6px; }
+.mm-links--compact .mm-note::before { content: "\00b7"; margin-right: 6px; }
+.mm-icon { display: inline-block; vertical-align: -1px; margin-right: 9px; }
+.mm .mm-more { display: inline-block; font: 600 15px var(--font-body); color: var(--color-secondary); border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+.mm .mm-more:hover { color: var(--color-dark); }
+
+.mm-plate { background: var(--color-white); border: 1px solid var(--color-rule); border-radius: 3px; padding: 5px; transition: border-color 0.15s; }
+.mm-plate img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 1px; }
+.mm a:hover .mm-plate, .mm a:focus-visible .mm-plate { border-color: var(--color-secondary); }
+.mm-plate--logo img { object-fit: contain; }
+.mm-dl-logo { aspect-ratio: 5 / 2 !important; padding: 22px 40px; }
+
+.mm-feature { display: block; }
+.mm .mm-feature-title { font: 600 22px/1.2 var(--font-body); color: var(--color-dark); margin: 14px 0 6px; }
+.mm a.mm-feature:hover .mm-feature-title { color: var(--color-secondary); }
+.mm .mm-feature-title:first-child { margin-top: 0; }
+.mm-by { font-size: 15px; color: var(--color-muted); }
+.mm-feature p { font-size: 16px; line-height: 1.5; color: #4a4542; margin: 0 0 14px; }
+
+.mm-rows { list-style: none; margin: 0; padding: 0; }
+.mm-rows li + li { border-top: 1px solid var(--color-rule); }
+.mm-row { display: grid; grid-template-columns: 68px 1fr; gap: 14px; align-items: center; padding: 11px 0; }
+.mm-row .mm-plate { padding: 3px; min-height: 62px; }
+.mm-row .mm-plate img { aspect-ratio: 1; }
+.mm-row-title { font: 600 17px/1.25 var(--font-body); }
+.mm a.mm-row:hover .mm-row-title { color: var(--color-secondary); }
+.mm-row-by { font-size: 14px; color: var(--color-muted); margin-top: 3px; line-height: 1.35; }
+
+.mm-index { list-style: none; margin: 0; padding: 0; }
+.mm-index a {
+  display: block;
+  font: 400 18px/1.25 var(--font-body);
+  padding: 7px 0 7px 14px;
+  border-left: 2px solid transparent;
+  transition: border-color 0.15s, color 0.15s;
+}
+.mm-index a[aria-current="true"] { border-left-color: var(--color-secondary); color: var(--color-secondary); font-weight: 600; }
+.mm-index a:hover { color: var(--color-secondary); }
+.mm-index-sep { height: 1px; background: var(--color-rule); margin: 8px 0 8px 14px; }
+.mm-set-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.mm-swap { animation: mm-fade 0.25s ease; }
+@keyframes mm-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.mm-shows { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 32px; }
+.mm-show, .mm-row > div { min-width: 0; }
+.mm-show { border-bottom: 1px solid var(--color-rule); padding-bottom: 10px; }
+.mm-show .mm-row { padding-bottom: 6px; }
+.mm-eps { list-style: none; margin: 0 0 0 82px; padding: 0; }
+.mm-eps a { display: block; padding: 4px 0; }
+.mm-eps a:hover .mm-ep-title { color: var(--color-secondary); }
+.mm-ep-title { display: block; font-size: 15px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mm-ep-meta { display: block; font-size: 13px; color: var(--color-muted); }
+
+.mm-books { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 4px 0 16px; }
+.mm-books .mm-plate { padding: 3px; }
+.mm-books .mm-plate img { aspect-ratio: 2 / 3; }
+
+.mm-signup p { font-size: 15px; line-height: 1.45; color: #4a4542; margin: 0 0 12px; }
+.mm-signup label { display: block; margin-bottom: 10px; }
+.mm-signup label span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--color-dark); }
+.mm-signup input { width: 100%; font: 400 16px var(--font-body); padding: 9px 10px; border: 1px solid var(--color-rule); border-radius: 3px; background: var(--color-white); color: var(--color-dark); }
+.mm-signup input:focus { outline: 2px solid var(--color-secondary); outline-offset: 1px; border-color: var(--color-secondary); }
+.mm-signup-names { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mm-signup .btn { width: 100%; margin-top: 4px; }
+.mm-signup .mm-signup-status { margin: 8px 0 0; }
+.mm-signup .mm-signup-status:empty { display: none; }
+.mm-signup .mm-signup-status.is-error { color: var(--color-alert-text); }
+.mm-signup .mm-signup-fine { font-size: 14px; color: var(--color-muted); margin: 10px 0 0; }
+/* The shared success state carries an eyebrow and an italic display
+   heading; in a working surface like this menu it is plain. */
+.mm .inline-signup-success .eyebrow { display: none; }
+.mm .inline-signup-success h4,
+.mm .inline-signup-success h4 em { font: 600 18px/1.3 var(--font-body); font-style: normal; margin: 0 0 6px; }
+.mm-link-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--color-secondary); text-decoration: underline; cursor: pointer; }
+
+/* The drawer, rebuilt from the panels: one collapsible section each. */
+.mm-drawer .mm-acc { border-bottom: 1px solid var(--color-rule); }
+.mm-drawer .mm-acc-btn {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: 0;
+  padding: 14px 0;
+  cursor: pointer;
+  font: 600 17px/1.3 var(--font-body);
+  color: var(--color-dark);
+  text-align: left;
+}
+.mm-drawer .mm-acc-btn svg { flex-shrink: 0; transition: transform 0.2s ease; }
+.mm-drawer .mm-acc-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+.mm-drawer .mm-acc-body { padding: 0 0 10px 16px; display: flex; flex-direction: column; }
+.mm-drawer .mm-acc-body[hidden] { display: none; }
+.mobile-nav-links.mm-drawer .mm-acc-body a { border-bottom: 0; padding: 10px 0; min-height: 44px; display: flex; align-items: center; font-size: 16px; font-weight: 400; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mm, .mm-backdrop, .mm-trigger::after, .mm-swap { transition: none; animation: none; }
+}
