@@ -3,7 +3,10 @@
 
 {{#post}}
 
-<article{{#has tag="#event"}} data-event-post{{/has}}>
+{{!-- Event posts get their own page layout (partials/event-post.hbs). --}}
+{{#has tag="#event"}}{{> "event-post"}}{{else}}
+
+<article>
     <header class="article-header" data-hm-section="header-block">
         <div class="article-header-inner">
             {{!-- Topic pill: render every public tag; CSS hides
@@ -417,9 +420,6 @@
 {{!-- Post bundle: toc, related, post-gate, article-audio,
      article-bookmark, article-pdf, article-gift, article-share --}}
 <script src="{{asset "built/post.min.js"}}"></script>
-{{!-- Event replay gate: replaces YouTube/Vimeo iframes with a membership
-     CTA for non-paid visitors on #event-tagged posts. --}}
-<script src="{{asset "js/event-gate.js"}}"></script>
 <script src="{{asset "js/page/legacy-donation-strip.js"}}"></script>
 
 {{!-- Plausible custom event — "Article Read" — fires once per
@@ -440,4 +440,5 @@
     <script src="{{asset "js/institution-push.js"}}"></script>
 {{/if}}
 
+{{/has}}
 {{/post}}

@@ -1,0 +1,96 @@
+{{!-- Event post page. post.hbs renders this for any post tagged #event,
+     and custom-events.hbs does too if a post is ever given that template
+     in Ghost's post settings (which is what sent every event link back to
+     the /events/ list until 2026-11-10). Context: the post.
+
+     Past or upcoming comes from the internal tag #past-event, the same
+     signal /events/ and /forum/ use. A replay is members-only through
+     Ghost's own post access (visibility "paid" plus the public-preview
+     divider); event-gate.js additionally swaps any replay iframe that
+     reaches a non-paying reader for a membership card. --}}
+<main class="event-page">
+<article class="event-article" data-event-post>
+
+  <header class="event-hero">
+    <div class="container">
+      <p class="event-breadcrumb"><a href="/events/">&larr; All events</a></p>
+      <div class="event-hero-grid">
+        <div class="event-hero-text">
+          <p class="hero-kicker"><span class="dot"></span> Online forum &middot; {{#has tag="#past-event"}}Replay{{else}}Upcoming{{/has}}</p>
+          <h1 class="event-title">{{title}}</h1>
+          {{#if custom_excerpt}}<p class="event-dek">{{custom_excerpt}}</p>{{/if}}
+          <div class="event-hero-ctas">
+            {{#has tag="#past-event"}}
+              {{#match @member.status "paid"}}<a class="btn btn-solid btn-primary" href="#replay">Watch the replay</a>{{else}}
+              {{#match @member.status "comped"}}<a class="btn btn-solid btn-primary" href="#replay">Watch the replay</a>{{else}}
+              <a class="btn btn-solid btn-primary" href="/membership/" data-hm-goal="member-cta">Become a Member to watch</a>
+              {{/match}}{{/match}}
+            {{else}}
+              <a class="btn btn-solid btn-primary" href="/forum/">Save your seat</a>
+            {{/has}}
+          </div>
+        </div>
+        {{#if feature_image}}
+        <figure class="event-hero-image">
+          <img src="{{img_url feature_image size="l"}}"
+               srcset="{{img_url feature_image size="m"}} 600w, {{img_url feature_image size="l"}} 1000w, {{img_url feature_image size="xl"}} 2000w"
+               sizes="(max-width: 900px) 100vw, 560px"
+               alt="{{#if feature_image_alt}}{{feature_image_alt}}{{/if}}" />
+        </figure>
+        {{/if}}
+      </div>
+    </div>
+  </header>
+
+  <div class="event-body">
+    <div class="container event-body-grid">
+      <div class="events-prose event-content" data-event-content>
+        {{content}}
+      </div>
+      <aside class="event-aside" aria-label="Event details">
+        <div class="event-aside-card">
+          <p class="event-aside-label">Format</p>
+          <p class="event-aside-value">Online forum</p>
+          <p class="event-aside-label">Status</p>
+          <p class="event-aside-value">{{#has tag="#past-event"}}Replay available to members{{else}}Upcoming{{/has}}</p>
+          {{#has tag="#past-event"}}
+          <p class="event-aside-note">Paid Members can watch every past forum in <a href="/dashboard/replays/">the replay library</a>.</p>
+          {{else}}
+          <a class="btn btn-primary btn-sm" href="/forum/">Save your seat</a>
+          {{/has}}
+        </div>
+      </aside>
+    </div>
+  </div>
+
+</article>
+
+{{#get "posts" filter="tag:hash-event+id:-{{id}}" include="tags" order="published_at desc" limit="3" as |more|}}
+{{#if more}}
+<section class="event-more">
+  <div class="container">
+    <p class="eyebrow">More forums</p>
+    <h2 class="events-library-title"><em>From the archive.</em></h2>
+    <ol class="events-grid">
+      {{#foreach more}}
+      <li class="events-card">
+        <a class="events-card-link" href="{{url}}">
+          <span class="events-card-media">{{#if feature_image}}<img src="{{img_url feature_image size="m"}}" alt="" loading="lazy" decoding="async" />{{/if}}</span>
+          <div class="events-card-body">
+            <p class="events-card-kicker">Online forum</p>
+            <h3 class="events-card-title"><em>{{title}}</em></h3>
+            {{#if custom_excerpt}}<p class="events-card-summary">{{custom_excerpt}}</p>{{else}}{{#if excerpt}}<p class="events-card-summary">{{excerpt words="28"}}</p>{{/if}}{{/if}}
+            <span class="events-card-cta">{{#has tag="#past-event"}}Watch the replay{{else}}Details and registration{{/has}}</span>
+          </div>
+        </a>
+      </li>
+      {{/foreach}}
+    </ol>
+  </div>
+</section>
+{{/if}}
+{{/get}}
+</main>
+
+<script src="{{asset "js/event-gate.js"}}"></script>
+<script src="{{asset "js/page/legacy-donation-strip.js"}}"></script>
