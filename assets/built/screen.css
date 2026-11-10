@@ -27832,3 +27832,10 @@ html.mm-is-open .site-header { z-index: 111; }
 @media (max-width: 760px) {
   .wm-dates { grid-template-columns: 1fr; max-width: 640px; }
 }
+/* Every right-hand feature in the menu sits in the same card as the
+   sign-up forms (.today-digest). The card lives inside its grid column,
+   so the column's left rule still shows. The signed-in Read lead is
+   built by nav-mega.js straight into [data-mm-lead]. */
+.mm .mm-card,
+.mm .mm-grid--read > [data-mm-lead] > .mm-feature { background: #fbf8f3; border: 1px solid var(--color-rule); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 26px 26px 24px; }
+.mm .mm-card > :last-child { margin-bottom: 0; }

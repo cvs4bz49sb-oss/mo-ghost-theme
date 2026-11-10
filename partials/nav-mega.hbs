@@ -93,10 +93,12 @@
         </div>
         <div class="mm-feature">
           {{#if @member}}
-            <a href="/daily-liturgy/read/" tabindex="-1" aria-hidden="true"><div class="mm-plate mm-plate--logo mm-dl-framed"><img src="{{asset "images/daily-liturgy-logo.png"}}" alt="The Daily Liturgy" loading="lazy" class="mm-dl-logo"></div></a>
-            <p class="mm-feature-title">The Daily Liturgy</p>
-            <p>A short service of morning prayer read aloud. Listen or read along.</p>
-            <a class="mm-more" href="/daily-liturgy/read/">Today's liturgy</a>
+            <div class="mm-card">
+              <a href="/daily-liturgy/read/" tabindex="-1" aria-hidden="true"><div class="mm-plate mm-plate--logo mm-dl-framed"><img src="{{asset "images/daily-liturgy-logo.png"}}" alt="The Daily Liturgy" loading="lazy" class="mm-dl-logo"></div></a>
+              <p class="mm-feature-title">The Daily Liturgy</p>
+              <p>A short service of morning prayer read aloud. Listen or read along.</p>
+              <a class="mm-more" href="/daily-liturgy/read/">Today's liturgy</a>
+            </div>
           {{else}}
             {{!-- The site's own sign-up (assets/js/inline-signup.js): Ghost
                  emails a sign-in link that lands on the reader, signed in.
@@ -180,11 +182,13 @@
             </ol>
           </div>
         </div>
-        <div class="mm-feature">
-          <a href="/#journal" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/journal-hero.jpg"}}" alt="" loading="lazy"></div></a>
-          <p class="mm-feature-title">Mere Orthodoxy in print</p>
-          <p>Long-form essays on theology, culture and politics. Members receive it in print.</p>
-          {{#unless @member}}<a class="btn btn-solid" href="/membership/">Become a member</a>{{/unless}}
+        <div>
+          <div class="mm-feature mm-card">
+            <a href="/#journal" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/journal-hero.jpg"}}" alt="" loading="lazy"></div></a>
+            <p class="mm-feature-title">Mere Orthodoxy in print</p>
+            <p>Long-form essays on theology, culture and politics. Members receive it in print.</p>
+            {{#unless @member}}<a class="btn btn-solid" href="/membership/">Become a member</a>{{/unless}}
+          </div>
         </div>
       </div>
     </section>
@@ -221,11 +225,13 @@
             <li><a href="/the-faith-received/read/?w=edwards-resolutions">Resolutions<span class="mm-note">Jonathan Edwards</span></a></li>
           </ul>
         </div>
-        <div class="mm-feature">
-          <a href="/the-faith-received/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/confessions-plate.jpg"}}" alt="" loading="lazy"></div></a>
-          <p class="mm-feature-title">A library of historical theology</p>
-          <p>19,318 works in Latin, Greek and English. The Fathers, the medieval doctors and the Reformers.</p>
-          <a class="btn" href="/the-faith-received/">Open the library</a>
+        <div>
+          <div class="mm-feature mm-card">
+            <a href="/the-faith-received/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/confessions-plate.jpg"}}" alt="" loading="lazy"></div></a>
+            <p class="mm-feature-title">A library of historical theology</p>
+            <p>19,318 works in Latin, Greek and English. The Fathers, the medieval doctors and the Reformers.</p>
+            <a class="btn" href="/the-faith-received/">Open the library</a>
+          </div>
         </div>
       </div>
     </section>
@@ -248,19 +254,21 @@
         {{!-- Each cover opens its Bookshop.org page; the line under the
              covers goes to /books/. data-mm-drawer puts that line in the
              phone drawer. --}}
-        <div class="mm-feature">
-          <p class="mm-col-title">The Bookshelf</p>
-          <div class="mm-books">
-            <a class="mm-book" href="https://bookshop.org/p/books/mere-christianity-c-s-lewis/56290254aded4bd1" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9780060652920.jpg" alt="Mere Christianity" loading="lazy"></div></a>
-            <a class="mm-book" href="https://bookshop.org/p/books/orthodoxy-with-annotations-and-guided-reading-by-trevin-wax-g-k-chesterton/fe9b85f76231f71d" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781535995672.jpg" alt="Orthodoxy" loading="lazy"></div></a>
-            <a class="mm-book" href="https://bookshop.org/p/books/in-search-of-the-common-good-christian-fidelity-in-a-fractured-world-jake-meador/649ab65bf5ad9b04" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9780830845545.jpg" alt="In Search of the Common Good" loading="lazy"></div></a>
-            <a class="mm-book" href="https://bookshop.org/p/books/church-matters-staying-human-together-in-a-dehumanizing-culture-jake-meador/80c05a988e2cff71" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781514019344.jpg" alt="Church Matters" loading="lazy"></div></a>
-            <a class="mm-book" href="https://bookshop.org/p/books/christians-reading-classics-an-introduction-to-greco-roman-classics-from-homer-to-boethius-nadya-williams/58edb25d034a27d8" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9780310171072.jpg" alt="Christians Reading Classics" loading="lazy"></div></a>
-            <a class="mm-book" href="https://bookshop.org/p/books/the-literate-soul-what-four-thousand-years-of-reading-books-teaches-us-about-loving-god-nadya-williams/e1cb257a73e4ccff" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781587437076.jpg" alt="The Literate Soul" loading="lazy"></div></a>
-            <a class="mm-book" href="https://bookshop.org/p/books/walking-through-deconstruction-how-to-be-a-companion-in-a-crisis-of-faith-ian-harber/177b50026abf90c2" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781514008560.jpg" alt="Walking Through Deconstruction" loading="lazy"></div></a>
-            <a class="mm-book" href="https://bookshop.org/p/books/the-fire-of-glory-a-biblical-and-dogmatic-account-of-god-s-holiness-and-divine-judgment-derek-rishmawy/15ecedd718ac5cc4" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781514017647.jpg" alt="The Fire of Glory" loading="lazy"></div></a>
+        <div>
+          <div class="mm-feature mm-card">
+            <p class="mm-col-title">The Bookshelf</p>
+            <div class="mm-books">
+              <a class="mm-book" href="https://bookshop.org/p/books/mere-christianity-c-s-lewis/56290254aded4bd1" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9780060652920.jpg" alt="Mere Christianity" loading="lazy"></div></a>
+              <a class="mm-book" href="https://bookshop.org/p/books/orthodoxy-with-annotations-and-guided-reading-by-trevin-wax-g-k-chesterton/fe9b85f76231f71d" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781535995672.jpg" alt="Orthodoxy" loading="lazy"></div></a>
+              <a class="mm-book" href="https://bookshop.org/p/books/in-search-of-the-common-good-christian-fidelity-in-a-fractured-world-jake-meador/649ab65bf5ad9b04" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9780830845545.jpg" alt="In Search of the Common Good" loading="lazy"></div></a>
+              <a class="mm-book" href="https://bookshop.org/p/books/church-matters-staying-human-together-in-a-dehumanizing-culture-jake-meador/80c05a988e2cff71" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781514019344.jpg" alt="Church Matters" loading="lazy"></div></a>
+              <a class="mm-book" href="https://bookshop.org/p/books/christians-reading-classics-an-introduction-to-greco-roman-classics-from-homer-to-boethius-nadya-williams/58edb25d034a27d8" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9780310171072.jpg" alt="Christians Reading Classics" loading="lazy"></div></a>
+              <a class="mm-book" href="https://bookshop.org/p/books/the-literate-soul-what-four-thousand-years-of-reading-books-teaches-us-about-loving-god-nadya-williams/e1cb257a73e4ccff" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781587437076.jpg" alt="The Literate Soul" loading="lazy"></div></a>
+              <a class="mm-book" href="https://bookshop.org/p/books/walking-through-deconstruction-how-to-be-a-companion-in-a-crisis-of-faith-ian-harber/177b50026abf90c2" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781514008560.jpg" alt="Walking Through Deconstruction" loading="lazy"></div></a>
+              <a class="mm-book" href="https://bookshop.org/p/books/the-fire-of-glory-a-biblical-and-dogmatic-account-of-god-s-holiness-and-divine-judgment-derek-rishmawy/15ecedd718ac5cc4" target="_blank" rel="noopener"><div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781514017647.jpg" alt="The Fire of Glory" loading="lazy"></div></a>
+            </div>
+            <a class="mm-more" href="/books/" data-mm-drawer>Browse the Bookshelf</a>
           </div>
-          <a class="mm-more" href="/books/" data-mm-drawer>Browse the Bookshelf</a>
         </div>
       </div>
     </section>
@@ -280,11 +288,13 @@
             <li><a href="https://secure.anedot.com/institute-for-christianity-and-common-life/donate">Donate</a></li>
           </ul>
         </div>
-        <div class="mm-feature">
-          <a href="/membership/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
-          <p class="mm-feature-title">Become a member</p>
-          <p>Get the print journal and support the work of Mere Orthodoxy.</p>
-          <a class="btn btn-solid" href="/membership/">See membership</a>
+        <div>
+          <div class="mm-feature mm-card">
+            <a href="/membership/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
+            <p class="mm-feature-title">Become a member</p>
+            <p>Get the print journal and support the work of Mere Orthodoxy.</p>
+            <a class="btn btn-solid" href="/membership/">See membership</a>
+          </div>
         </div>
       </div>
     </section>
@@ -303,11 +313,13 @@
             <li><a href="/writers-meetings/">Write for us</a></li>
           </ul>
         </div>
-        <div class="mm-feature">
-          <a href="/about/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/about-hero.jpg"}}" alt="" loading="lazy"></div></a>
-          <p class="mm-feature-title">Christian renewal for the common good</p>
-          <p>Essays that take theology seriously and engage the culture charitably.</p>
-          <a class="btn" href="/about/">About Mere Orthodoxy</a>
+        <div>
+          <div class="mm-feature mm-card">
+            <a href="/about/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/about-hero.jpg"}}" alt="" loading="lazy"></div></a>
+            <p class="mm-feature-title">Christian renewal for the common good</p>
+            <p>Essays that take theology seriously and engage the culture charitably.</p>
+            <a class="btn" href="/about/">About Mere Orthodoxy</a>
+          </div>
         </div>
       </div>
     </section>
