@@ -27611,7 +27611,11 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm-grid > * { min-width: 0; }
 .mm-grid > :not(:first-child) { border-left: 1px solid var(--color-rule); padding-left: 36px; margin-left: 36px; }
 .mm-grid--read { grid-template-columns: 210px minmax(0, 1.25fr) minmax(0, 1fr); }
-.mm-grid--listen { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
+/* Signed out, Read and Listen end in the same sign-up card column, so
+   the two cards are the same width. */
+.mm-grid--read:has(> :last-child > .mm-digest-card) { grid-template-columns: 210px minmax(0, 1fr) 420px; }
+.mm-grid--listen:has(> .mm-feature > .mm-digest-card) { grid-template-columns: minmax(0, 1fr) 420px; }
+.mm-grid--listen { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
 .mm-grid--two { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
 .mm-grid--three { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr); }
 .mm-grid--tfr { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 1.1fr); }
@@ -27788,8 +27792,8 @@ html.mm-is-open .site-header { z-index: 111; }
 
 /* Read panel, signed out: the homepage Weekly Digest card in the right
    column. Names share a row; email takes the next. */
-.mm .mm-digest-card { margin-top: 0; padding: 30px 28px 26px; align-self: start; }
-.mm .mm-digest-title { font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: 1.15; color: var(--color-dark); margin: 0 0 10px; }
+.mm .mm-digest-card { margin-top: 0; padding: 30px 28px 26px; align-self: start; min-height: 572px; }
+.mm .mm-digest-title { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.15; color: var(--color-dark); margin: 0 0 10px; }
 .mm .mm-digest-card .digest-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 14px; }
 .mm .mm-digest-card .mm-digest-email { grid-column: 1 / -1; }
 /* Resources: "Get RSS feed" sits at the foot of the left column. */
@@ -27813,6 +27817,3 @@ html.mm-is-open .site-header { z-index: 111; }
 .shelf-cover--text { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 14px; background: var(--color-dark); color: var(--color-white); text-align: center; }
 .shelf-cover--text span:first-child { font-family: var(--font-display); font-size: 17px; line-height: 1.2; }
 .shelf-cover--text span:last-child { font-size: 12px; opacity: 0.75; }
-/* Listen: the Daily Liturgy card gets more room and a one-line title. */
-.mm [data-mm-panel="listen"] .mm-digest-card { padding: 30px 32px 26px; }
-.mm [data-mm-panel="listen"] .mm-digest-title { font-size: 24px; white-space: nowrap; }
