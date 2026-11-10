@@ -16359,7 +16359,7 @@ body[class*="lc-"] .bhero {
   box-shadow: 0 10px 18px rgba(45, 41, 39, 0.12);
   display: none;
 }
-.shelf--lead .shelf-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 36px; }
+.shelf--lead .shelf-row { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 32px 26px; }
 .shelf-book { min-width: 0; }
 .shelf-book-link { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
 .shelf-cover {
@@ -16385,20 +16385,19 @@ body[class*="lc-"] .bhero {
   color: var(--color-dark);
   margin-top: 14px;
 }
-.shelf--lead .shelf-book-title { font-size: 20px; }
+.shelf--lead .shelf-book-title { font-size: 18px; }
 .shelf-book-link:hover .shelf-book-title { color: var(--color-primary-text); }
 .shelf-book-author { font-size: 14px; color: var(--color-muted); margin-top: 4px; }
-.shelf-book-price { font-size: 14px; color: var(--color-primary-text); font-weight: 600; margin-top: 4px; }
 
 /* Closing band: Bookshop.org and our own books. */
 .shelf-more { background: var(--color-cream); padding: 64px 0 88px; margin-top: 40px; border-top: 1px solid var(--color-rule); }
-.shelf-more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
 .shelf-more-card {
   background: var(--color-white);
   border: 1px solid var(--color-card-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
   padding: 32px;
+  max-width: 720px;
 }
 .shelf-more-card .eyebrow {
   font-size: 11px;
@@ -16410,16 +16409,15 @@ body[class*="lc-"] .bhero {
 }
 .shelf-more-title { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.2; margin: 0 0 12px; color: var(--color-dark); }
 .shelf-more-card p { color: var(--color-muted); font-size: 16px; line-height: 1.6; margin: 0 0 22px; }
-.shelf-more-links { display: flex; flex-wrap: wrap; gap: 12px; }
 
 @media (max-width: 1100px) {
   .shelf-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .shelf--lead .shelf-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 820px) {
   .shelf-head { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .shelf--lead .shelf-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
-  .shelf-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .shelf-more-grid { grid-template-columns: 1fr; }
+  .shelf-row,
+  .shelf--lead .shelf-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 20px; }
 }
 @media (max-width: 640px) {
   .shelf { padding-top: 40px; }
