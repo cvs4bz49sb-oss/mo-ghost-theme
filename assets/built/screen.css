@@ -27769,3 +27769,29 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .mm-book { display: block; padding-bottom: 6px; border-bottom: 2px solid transparent; transition: border-color 0.15s ease; }
 .mm .mm-book:hover,
 .mm .mm-book:focus-visible { border-bottom-color: var(--color-secondary); }
+
+/* /books/: five rows per shelf until "Show all" (bookshelf-more.js).
+   Rows follow the shelf grid: 8 across (lead shelf 6), then 4, 3, 2. */
+.shelf.is-clamped .shelf-book:nth-child(n+41) { display: none; }
+.shelf--lead.is-clamped .shelf-book:nth-child(n+31) { display: none; }
+.shelf-show-all { display: flex; margin: -4px auto 0; }
+.shelf-show-all[hidden] { display: none; }
+@media (max-width: 1100px) {
+  .shelf.is-clamped .shelf-book:nth-child(n+21) { display: none; }
+}
+@media (max-width: 820px) {
+  .shelf.is-clamped .shelf-book:nth-child(n+16) { display: none; }
+}
+@media (max-width: 640px) {
+  .shelf.is-clamped .shelf-book:nth-child(n+11) { display: none; }
+}
+
+/* Read panel, signed out: the homepage Weekly Digest card in the right
+   column. Names share a row; email takes the next. */
+.mm .mm-digest-card { margin-top: 0; padding: 30px 28px 26px; align-self: start; }
+.mm .mm-digest-title { font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: 1.15; color: var(--color-dark); margin: 0 0 10px; }
+.mm .mm-digest-card .digest-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 14px; }
+.mm .mm-digest-card .mm-digest-email { grid-column: 1 / -1; }
+/* Resources: "Get RSS feed" sits at the foot of the left column. */
+.mm [data-mm-panel="resources"] .mm-grid > div:first-child { display: flex; flex-direction: column; }
+.mm .mm-rss { align-self: flex-start; margin-top: auto; padding-top: 28px; font-size: 14px; }

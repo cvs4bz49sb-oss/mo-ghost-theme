@@ -48,18 +48,29 @@
           <div class="mm-lead-inline" data-mm-lead></div>
           <ul class="mm-rows" data-mm-rows></ul>
         </div>
-        <div class="mm-feature">
-          <p class="mm-feature-title">The Weekly Digest</p>
-          <div class="mm-signup" data-inline-signup data-newsletter="weekly-digest" data-source="nav-weekly-digest">
-            <p>All of our recent essays and podcasts, delivered every Thursday. Free.</p>
-            <div class="mm-signup-names">
-              <label><span>First name</span><input type="text" autocomplete="given-name" data-signup-first required></label>
-              <label><span>Last name</span><input type="text" autocomplete="family-name" data-signup-last required></label>
+        {{!-- Same card as the homepage Weekly Digest box (index.hbs
+             .today-digest), sized for the column. --}}
+        <div class="today-digest mm-digest-card">
+          <div class="today-digest-copy">
+            <p class="eyebrow"><svg class="eyebrow-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3.5 6l8.5 7 8.5-7"/></svg>The Weekly Digest</p>
+            <p class="mm-digest-title">Premier thought every Thursday.</p>
+            <p>All of our recent essays and podcasts, delivered to you. Free.</p>
+          </div>
+          <div class="digest-form" data-inline-signup data-newsletter="weekly-digest" data-source="nav-weekly-digest">
+            <div class="digest-field">
+              <label for="nav-digest-first">First Name</label>
+              <input id="nav-digest-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
             </div>
-            <label><span>Email</span><input type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-signup-email required></label>
-            <button type="button" class="btn btn-solid" data-signup-submit>Sign up free</button>
-            <p class="mm-signup-status" data-signup-status role="status" aria-live="polite"></p>
-            <p class="mm-signup-fine">Already subscribed? <button type="button" class="mm-link-btn" data-portal="signin">Sign in</button></p>
+            <div class="digest-field">
+              <label for="nav-digest-last">Last Name</label>
+              <input id="nav-digest-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
+            </div>
+            <div class="digest-field mm-digest-email">
+              <label for="nav-digest-email">Email</label>
+              <input id="nav-digest-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
+            </div>
+            <button type="button" class="digest-submit" data-signup-submit>Subscribe</button>
+            <p class="digest-status" data-signup-status></p>
           </div>
         </div>
         {{/if}}
@@ -202,13 +213,13 @@
           <ul class="mm-links">
             <li><a href="https://mereorthodoxy.substack.com"><svg class="mm-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#FF6719" d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>Mere Orthodoxy on Substack</a></li>
             <li><a href="/ebooks/">Ebooks<span class="mm-note">Essays collected into short books</span></a></li>
-            <li><a href="/rss/">RSS feed</a></li>
           </ul>
           <p class="mm-col-title mm-col-title--next">Gather</p>
           <ul class="mm-links">
             <li><a href="/events/">Online Forums<span class="mm-note">Live conversations with our writers</span></a></li>
             <li><a href="/writers-meetings/">Writers Meetings<span class="mm-note">For writers who want to pitch us</span></a></li>
           </ul>
+          <a class="mm-more mm-rss" href="/rss/" data-mm-drawer>Get RSS feed</a>
         </div>
         {{!-- Each cover opens its Bookshop.org page; the line under the
              covers goes to /books/. data-mm-drawer puts that line in the
