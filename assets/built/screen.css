@@ -27749,3 +27749,6 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .journal-status-mark.is-active { color: var(--color-primary); }
 .mm .journal-status-label { font-size: 15px; letter-spacing: 0; text-transform: none; font-weight: 400; color: #6f6964; }
 .mm .journal-status-mark.is-active + .journal-status-label { color: var(--color-dark); font-weight: 600; }
+
+/* A second heading in the same column (Support: Join, then Give). */
+.mm .mm-col-title--next { margin-top: 32px; }
