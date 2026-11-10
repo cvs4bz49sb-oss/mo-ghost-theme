@@ -27611,7 +27611,7 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm-grid > * { min-width: 0; }
 .mm-grid > :not(:first-child) { border-left: 1px solid var(--color-rule); padding-left: 36px; margin-left: 36px; }
 .mm-grid--read { grid-template-columns: 210px minmax(0, 1.25fr) minmax(0, 1fr); }
-.mm-grid--listen { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.mm-grid--listen { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
 .mm-grid--two { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
 .mm-grid--three { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr); }
 .mm-grid--tfr { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 1.1fr); }
@@ -27813,3 +27813,6 @@ html.mm-is-open .site-header { z-index: 111; }
 .shelf-cover--text { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 14px; background: var(--color-dark); color: var(--color-white); text-align: center; }
 .shelf-cover--text span:first-child { font-family: var(--font-display); font-size: 17px; line-height: 1.2; }
 .shelf-cover--text span:last-child { font-size: 12px; opacity: 0.75; }
+/* Listen: the Daily Liturgy card gets more room and a one-line title. */
+.mm [data-mm-panel="listen"] .mm-digest-card { padding: 30px 32px 26px; }
+.mm [data-mm-panel="listen"] .mm-digest-title { font-size: 24px; white-space: nowrap; }
