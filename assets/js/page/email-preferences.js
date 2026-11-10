@@ -149,7 +149,7 @@
           h.setAttribute('tabindex', '-1');
           h.focus();
         } else {
-          ['digest', 'mailbag', 'liturgy'].forEach((key) => setToggle(key, false));
+          ['digest', 'mailbag', 'liturgy', 'daily'].forEach((key) => setToggle(key, false));
           confirmBlock.hidden = true;
           startBtn.hidden = false;
           yesBtn.disabled = false;

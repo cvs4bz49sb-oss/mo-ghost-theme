@@ -5,7 +5,7 @@
 <meta name="description" content="Choose which emails you receive from Mere Orthodoxy." />
 {{/contentFor}}
 {{!-- page-email-preferences: /email-preferences/. One page to manage the
-     three opt-in emails (Weekly Digest, Mere O Mailbag, Daily Liturgy)
+     four opt-in emails (Weekly Digest, Mere O Mailbag, Daily Liturgy, Mere O Daily)
      plus a universal unsubscribe. Backend: mo-kit GET/POST /preferences
      and POST /unsubscribe-all, authed with the Ghost member JWT via
      MOAuth.fetch (same pattern as /manage/'s address editor).
@@ -80,6 +80,18 @@
                       data-pref-toggle="liturgy" disabled>
                 <span class="pref-toggle-knob" aria-hidden="true"></span>
                 <span class="sr-only">Receive the Daily Liturgy</span>
+              </button>
+            </div>
+
+            <div class="pref-row">
+              <div class="pref-row-text">
+                <h2 class="pref-row-title">Mere O Daily</h2>
+                <p class="pref-row-desc">Every morning at 6:15 Central: the day&rsquo;s new essays and episodes, the Daily Liturgy, and three works from The Faith Received.</p>
+              </div>
+              <button type="button" class="pref-toggle" role="switch" aria-checked="false"
+                      data-pref-toggle="daily" disabled>
+                <span class="pref-toggle-knob" aria-hidden="true"></span>
+                <span class="sr-only">Receive the Mere O Daily</span>
               </button>
             </div>
 
