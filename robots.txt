@@ -1,0 +1,51 @@
+User-agent: *
+Sitemap: https://mereorthodoxy.com/sitemap.xml
+Disallow: /ghost/
+Disallow: /email/
+Disallow: /members/api/comments/counts/
+Disallow: /r/
+Disallow: /webmentions/receive/
+Disallow: /.ghost/analytics/api/
+
+# The Faith Received is open to search engines and link previews only.
+# Everything else, from AI crawlers and AI answer engines to SEO tools and
+# archivers, is kept out of /the-faith-received/. A Cloudflare rule on the
+# zone ("TFR: block non-search bots") enforces the same list for bots that
+# ignore this file. Keep the two in step.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: anthropic-ai
+User-agent: CCBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Bytespider
+User-agent: Amazonbot
+User-agent: meta-externalagent
+User-agent: meta-externalfetcher
+User-agent: cohere-ai
+User-agent: Diffbot
+User-agent: YouBot
+User-agent: Timpibot
+User-agent: ImagesiftBot
+User-agent: omgili
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+User-agent: DotBot
+User-agent: DataForSeoBot
+User-agent: BLEXBot
+User-agent: archive.org_bot
+User-agent: ia_archiver
+Disallow: /the-faith-received/
+Disallow: /ghost/
+Disallow: /email/
+Disallow: /members/api/comments/counts/
+Disallow: /r/
+Disallow: /webmentions/receive/
+Disallow: /.ghost/analytics/api/
