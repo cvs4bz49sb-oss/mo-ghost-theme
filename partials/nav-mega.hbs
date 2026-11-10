@@ -50,27 +50,30 @@
         </div>
         {{!-- Same card as the homepage Weekly Digest box (index.hbs
              .today-digest), sized for the column. --}}
-        <div class="today-digest mm-digest-card">
-          <div class="today-digest-copy">
-            <p class="eyebrow"><svg class="eyebrow-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3.5 6l8.5 7 8.5-7"/></svg>The Weekly Digest</p>
-            <p class="mm-digest-title">Premier thought every Thursday.</p>
-            <p>All of our recent essays and podcasts, delivered to you. Free.</p>
-          </div>
-          <div class="digest-form" data-inline-signup data-newsletter="weekly-digest" data-source="nav-weekly-digest">
-            <div class="digest-field">
-              <label for="nav-digest-first">First Name</label>
-              <input id="nav-digest-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
+        <div>
+          <div class="today-digest mm-digest-card">
+            <div class="today-digest-copy">
+              <p class="eyebrow"><svg class="eyebrow-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3.5 6l8.5 7 8.5-7"/></svg>The Weekly Digest</p>
+              <p class="mm-digest-title">Premier thought every Thursday.</p>
+              <p>All of our recent essays and podcasts, delivered to you. Free.</p>
             </div>
-            <div class="digest-field">
-              <label for="nav-digest-last">Last Name</label>
-              <input id="nav-digest-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
+            <div class="digest-form" data-inline-signup data-newsletter="weekly-digest" data-source="nav-weekly-digest">
+              <div class="digest-field">
+                <label for="nav-digest-first">First Name</label>
+                <input id="nav-digest-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
+              </div>
+              <div class="digest-field">
+                <label for="nav-digest-last">Last Name</label>
+                <input id="nav-digest-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
+              </div>
+              <div class="digest-field mm-digest-email">
+                <label for="nav-digest-email">Email</label>
+                <input id="nav-digest-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
+              </div>
+              <button type="button" class="digest-submit" data-signup-submit>Subscribe</button>
+              <p class="digest-status" data-signup-status></p>
             </div>
-            <div class="digest-field mm-digest-email">
-              <label for="nav-digest-email">Email</label>
-              <input id="nav-digest-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
-            </div>
-            <button type="button" class="digest-submit" data-signup-submit>Subscribe</button>
-            <p class="digest-status" data-signup-status></p>
+            <p class="mm-signup-fine">Already subscribed? <button type="button" class="mm-link-btn" data-portal="signin">Sign in</button></p>
           </div>
         </div>
         {{/if}}
@@ -89,24 +92,37 @@
           </div>
         </div>
         <div class="mm-feature">
-          <a href="/daily-liturgy/read/" tabindex="-1" aria-hidden="true"><div class="mm-plate mm-plate--logo"><img src="{{asset "images/daily-liturgy-logo.png"}}" alt="The Daily Liturgy" loading="lazy" class="mm-dl-logo"></div></a>
-          <p class="mm-feature-title">The Daily Liturgy</p>
           {{#if @member}}
+            <a href="/daily-liturgy/read/" tabindex="-1" aria-hidden="true"><div class="mm-plate mm-plate--logo"><img src="{{asset "images/daily-liturgy-logo.png"}}" alt="The Daily Liturgy" loading="lazy" class="mm-dl-logo"></div></a>
+            <p class="mm-feature-title">The Daily Liturgy</p>
             <p>A short service of morning prayer read aloud. Listen or read along.</p>
             <a class="mm-more" href="/daily-liturgy/read/">Today's liturgy</a>
           {{else}}
             {{!-- The site's own sign-up (assets/js/inline-signup.js): Ghost
                  emails a sign-in link that lands on the reader, signed in.
                  Newsletter:daily-liturgy starts the morning email via mo-kit. --}}
-            <div class="mm-signup" data-inline-signup data-newsletter="daily-liturgy" data-source="nav-daily-liturgy" data-signup-redirect="/daily-liturgy/read/" data-signup-confirmation="Open it to read today's liturgy.">
-              <p>Read today's liturgy free. Sign up and we'll email you a link to it.</p>
-              <div class="mm-signup-names">
-                <label><span>First name</span><input type="text" autocomplete="given-name" data-signup-first required></label>
-                <label><span>Last name</span><input type="text" autocomplete="family-name" data-signup-last required></label>
+            <div class="today-digest mm-digest-card">
+              <div class="today-digest-copy">
+                <img class="mm-digest-logo" src="{{asset "images/daily-liturgy-logo.png"}}" alt="The Daily Liturgy" loading="lazy">
+                <p class="mm-digest-title">Morning prayer, read aloud.</p>
+                <p>Read today's liturgy free. Sign up and we'll email you a link to it.</p>
               </div>
-              <label><span>Email</span><input type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-signup-email required></label>
-              <button type="button" class="btn btn-solid" data-signup-submit>Sign up free</button>
-              <p class="mm-signup-status" data-signup-status role="status" aria-live="polite"></p>
+              <div class="digest-form" data-inline-signup data-newsletter="daily-liturgy" data-source="nav-daily-liturgy" data-signup-redirect="/daily-liturgy/read/" data-signup-confirmation="Open it to read today's liturgy.">
+                <div class="digest-field">
+                  <label for="nav-dl-first">First Name</label>
+                  <input id="nav-dl-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
+                </div>
+                <div class="digest-field">
+                  <label for="nav-dl-last">Last Name</label>
+                  <input id="nav-dl-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
+                </div>
+                <div class="digest-field mm-digest-email">
+                  <label for="nav-dl-email">Email</label>
+                  <input id="nav-dl-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
+                </div>
+                <button type="button" class="digest-submit" data-signup-submit>Sign up free</button>
+                <p class="digest-status" data-signup-status></p>
+              </div>
               <p class="mm-signup-fine">Already subscribed? <button type="button" class="mm-link-btn" data-portal="signin">Sign in</button></p>
             </div>
           {{/if}}

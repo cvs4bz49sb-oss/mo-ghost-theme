@@ -27795,3 +27795,14 @@ html.mm-is-open .site-header { z-index: 111; }
 /* Resources: "Get RSS feed" sits at the foot of the left column. */
 .mm [data-mm-panel="resources"] .mm-grid > div:first-child { display: flex; flex-direction: column; }
 .mm .mm-rss { align-self: flex-start; margin-top: auto; padding-top: 28px; font-size: 14px; }
+.mm .mm-digest-card .mm-signup-fine { font-size: 14px; color: var(--color-muted); margin: 14px 0 0; }
+.mm .mm-digest-card .eyebrow { letter-spacing: 0.2em; }
+.mm .mm-digest-logo { display: block; height: 48px; width: auto; margin: 0 0 14px; }
+
+/* /books/: a small link under a book to our review, interview or
+   episode on it; and a typeset cover where Bookshop.org has none. */
+.shelf-review { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--color-secondary); text-decoration: underline; text-underline-offset: 3px; }
+.shelf-review:hover { color: var(--color-dark); }
+.shelf-cover--text { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 14px; background: var(--color-dark); color: var(--color-white); text-align: center; }
+.shelf-cover--text span:first-child { font-family: var(--font-display); font-size: 17px; line-height: 1.2; }
+.shelf-cover--text span:last-child { font-size: 12px; opacity: 0.75; }
