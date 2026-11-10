@@ -1,6 +1,6 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-11-07T21:47:12.987Z",
+    "updated": "2026-11-10T13:51:21.579Z",
     "episodes": [
       {
         "id": 20076850,
@@ -41,7 +41,10 @@
           "Fr. Ryan Duns",
           "Steven Knepper"
         ],
-        "topics": []
+        "topics": [
+          "American Literature",
+          "Poetry"
+        ]
       },
       {
         "id": 20001259,
@@ -60,7 +63,9 @@
         "guests": [
           "Kyle Harper"
         ],
-        "topics": []
+        "topics": [
+          "American Literature"
+        ]
       },
       {
         "id": 19965102,
@@ -79,7 +84,9 @@
         "guests": [
           "Jason Barnhart"
         ],
-        "topics": []
+        "topics": [
+          "European Literature"
+        ]
       },
       {
         "id": 19925709,
@@ -98,7 +105,9 @@
         "guests": [
           "Christine Norvell"
         ],
-        "topics": []
+        "topics": [
+          "American Literature"
+        ]
       },
       {
         "id": 19887927,
@@ -117,7 +126,10 @@
         "guests": [
           "Philip Freeman"
         ],
-        "topics": []
+        "topics": [
+          "Ancient & Patristic",
+          "Political Thought"
+        ]
       },
       {
         "id": 19852877,
@@ -136,7 +148,10 @@
         "guests": [
           "Myles Werntz"
         ],
-        "topics": []
+        "topics": [
+          "American Literature",
+          "Theology & Faith"
+        ]
       },
       {
         "id": 19811179,
@@ -155,7 +170,10 @@
         "guests": [
           "Daniel McInerny"
         ],
-        "topics": []
+        "topics": [
+          "British Literature",
+          "Theology & Faith"
+        ]
       },
       {
         "id": 19782753,
@@ -174,7 +192,9 @@
         "guests": [
           "Eric Hutchinson"
         ],
-        "topics": []
+        "topics": [
+          "Ancient & Patristic"
+        ]
       },
       {
         "id": 19741650,
@@ -193,7 +213,11 @@
         "guests": [
           "Daniel K. Williams"
         ],
-        "topics": []
+        "topics": [
+          "British Literature",
+          "Theology & Faith",
+          "C.S. Lewis"
+        ]
       },
       {
         "id": 19705461,
@@ -212,7 +236,9 @@
         "guests": [
           "Matt Stewart"
         ],
-        "topics": []
+        "topics": [
+          "American Literature"
+        ]
       },
       {
         "id": 19670785,
@@ -231,7 +257,11 @@
         "guests": [
           "Brad Birzer"
         ],
-        "topics": []
+        "topics": [
+          "American Literature",
+          "Theology & Faith",
+          "Dystopia"
+        ]
       },
       {
         "id": 19636167,
@@ -250,7 +280,10 @@
         "guests": [
           "Cara Rogers Stevens"
         ],
-        "topics": []
+        "topics": [
+          "American Literature",
+          "Political Thought"
+        ]
       },
       {
         "id": 19603658,
@@ -730,7 +763,9 @@
           "Sabrina Little"
         ],
         "topics": [
-          "American Literature"
+          "American Literature",
+          "Ancient & Patristic",
+          "Political Thought"
         ]
       },
       {
@@ -1252,7 +1287,7 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-11-07T21:47:17.266Z",
+    "updated": "2026-11-10T13:51:26.249Z",
     "episodes": [
       {
         "id": 20070839,
@@ -1378,8 +1413,14 @@
         "embedUrl": "https://www.buzzsprout.com/2612792/19885189?client_source=small_player&iframe=true",
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/finding-happiness-that-lasts/",
-        "guests": [],
-        "topics": []
+        "guests": [
+          "Andrew Wilson"
+        ],
+        "topics": [
+          "Spiritual Formation & Prayer",
+          "Resurrection & Eschatology",
+          "Virtue, Character & Christian Ethics"
+        ]
       },
       {
         "id": 19848301,
@@ -1415,7 +1456,10 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/remembering-wendell-berry/",
         "guests": [],
-        "topics": []
+        "topics": [
+          "Literature & Moral Imagination",
+          "Economics, Work & Mammon"
+        ]
       },
       {
         "id": 19776761,
@@ -1457,7 +1501,11 @@
         "guests": [
           "Bonnie Kristian"
         ],
-        "topics": []
+        "topics": [
+          "Ecclesiology & Sacraments",
+          "Politics & Public Life",
+          "Secularism & Expressive Individualism"
+        ]
       },
       {
         "id": 19702000,
@@ -1641,7 +1689,10 @@
         "hasTranscript": true,
         "transcriptUrl": "/transcript/mere-fidelity/how-to-read-outside-your-tradition/",
         "guests": [],
-        "topics": []
+        "topics": [
+          "Theological Retrieval & Method",
+          "Ecclesiology & Sacraments"
+        ]
       },
       {
         "id": 19385140,
