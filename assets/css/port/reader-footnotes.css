@@ -42,3 +42,9 @@ html:not(.fr-plain) #reading .row.rapp[data-fnid] :is(.la,.en) > .fnsep + p{disp
 html:not(.fr-plain) #reading .row.rapp.fst[data-fnid] > :is(.la,.en){position:relative;padding-top:.7em}
 html:not(.fr-plain) #reading .row.rapp.fst[data-fnid] > :is(.la,.en):not(:empty)::before{position:absolute;inset:0 auto auto 0;margin:0}
 html:not(.fr-plain) #reading .row.rapp[data-fnid] .fn-ret{text-indent:0}
+/* NOTES OFF THE SENTENCE (owner 2026-11-07, Basil's Letters): in Flow a page that ends mid-sentence lends its notes to the end of the
+   paragraph (.appcarry, placed by the reader's placeSeamNotes), so the two halves of the sentence meet like ordinary lines. The carry
+   is the margin toggle's containing block, so the toggle hangs beside that paragraph's last line. */
+#reading .appcarry{position:relative}
+.app.rflow:is(.only-en,.only-la,.en-only) .row.tail{margin-bottom:0}
+.app.rflow #reading>.folio:has(>.row.tail:last-child)+.fmark{margin-top:0}

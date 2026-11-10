@@ -14,6 +14,8 @@
 <link rel="stylesheet" href="{{asset "css/port/work-hub.css"}}&amp;frv=0374a552e8452478" />
 <link rel="stylesheet" href="{{asset "css/scripture-verse-desk.css"}}&amp;frv=51255253537ca583" />
 <link rel="stylesheet" href="{{asset "css/mo-articles-module.css"}}&amp;frv=2625886e3c465b55" />
+{{!-- The desk's one visual layer over the shared and older sheets above. It loads last. --}}
+<link rel="stylesheet" href="{{asset "css/verse-desk-skin.css"}}" />
 {{!-- Dark or light, set on <html> before first paint (external: the CSP forbids inline script). --}}
 <script src="{{asset "js/page/scripture-view-boot.js"}}&amp;frv=b619c4b13b360add"></script>
 {{/contentFor}}
@@ -33,7 +35,7 @@
   <div class="bhero-inner container">
     <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/scripture/">Scripture</a> <span aria-hidden="true">&middot;</span> Verse Desk</p>
     <h1>Verse Desk</h1>
-    <p class="bhero-sub">One verse and everything the library holds on it: the verse in four translations, every citation, the commentaries, and the teachers who expounded it.</p>
+    <p class="bhero-sub">Everything the library holds on one verse.</p>
   </div>
 </section>
 
@@ -51,13 +53,13 @@
 
 <script src="{{asset "js/port/scripture-kinds.js"}}&amp;frv=45c55191e1820ff3"></script>
 <script src="{{asset "js/page/scripture-source-groups.js"}}&amp;frv=18b4ac140cb9a1ae"></script>
-<script src="{{asset "js/page/scripture-dev-core.js"}}&amp;frv=cc588e291129d5fd"></script>
+<script src="{{asset "js/page/scripture-dev-core.js"}}&amp;frv=05872fea8982fbb2"></script>
 <script src="{{asset "js/port/tradition-graphics.js"}}&amp;frv=3780efc0f7559ddf"></script>
 <script src="{{asset "js/port/page-window.js"}}&amp;frv=2023bacb69cf7ee4"></script>
-<script src="{{asset "js/page/scripture-verse-desk.js"}}&amp;frv=1cdda710a8428761"></script>
+<script src="{{asset "js/page/scripture-verse-desk.js"}}&amp;frv=2119d36f1fc7dc9a"></script>
 <script src="{{asset "js/page/scripture-dev-desk.js"}}&amp;frv=3211440bd8d17b08"></script>
 {{!-- The verse's reception history after the translations, the commentaries with their own note on it, and the verses read with it (faith-port-scripture-notes.js). --}}
-<link rel="stylesheet" href="{{asset "css/port/dev-notes.css"}}&amp;frv=fafdeff22c1c1996"><script defer src="{{asset "js/page/faith-port-scripture-notes.js"}}&amp;frv=2a4405ac496b7ec5"></script>
+<link rel="stylesheet" href="{{asset "css/port/dev-notes.css"}}&amp;frv=4ef19546854d8edc"><script defer src="{{asset "js/page/faith-port-scripture-notes.js"}}&amp;frv=2726d8c984c92e18"></script>
 {{!-- The redesigned modules: ruler and counts, key voices, how the church read it, disputes, creeds, the commentary ladder, chapter heat, share.
      They run after faith-port-scripture-notes.js (which hands them the data it already fetches) and take the place of its reception section;
      if they fail, that section is drawn instead (verse-desk.js). --}}

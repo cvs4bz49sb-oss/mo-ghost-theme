@@ -881,11 +881,11 @@
       const G = TG(), box = $("[data-vdb-strip]");
       const items = bandItems(M, VM, CM, st.k);
       const all = bandItems(M, VM, CM, "");
-      const n = all.length, notes = VM.works.filter((w) => w.kind === "comm" && w.onV).length;
+      const n = all.length;
       const years = all.map((a) => a.y).filter((y) => y > 0 && y < 2100), lo = years.length ? Math.min(...years) : 0, hi = years.length ? Math.max(...years) : 0;
       // the citations not yet loaded (a verse cited thousands of times comes in two parts) are said, and one press away
-      const part = !CM.full && CM.total > CM.loaded ? `${DOT}among the first ${fmt(CM.loaded)} of ${fmt(CM.total)} citations ` : "";
-      $("[data-vdb-sum]").innerHTML = n ? `${esc(plural(n, "author", "authors"))}${lo ? `, ${ord(Math.floor(lo / 100) + 1)} to ${ord(Math.floor(hi / 100) + 1)} century` : ""}${notes ? `${DOT}${esc(plural(notes, "commentary has", "commentaries have"))} a note on the verse` : ""}${part ? `${esc(part)}<button type="button" class="vdb-act vdb-act-in" data-vdb-loadall>Load the other ${fmt(CM.total - CM.loaded)}</button>` : ""}` : "";
+      const part = !CM.full && CM.total > CM.loaded ? `${DOT}in the first ${fmt(CM.loaded)} of ${fmt(CM.total)} citations ` : "";
+      $("[data-vdb-sum]").innerHTML = n ? `${esc(plural(n, "author", "authors"))}${lo ? `, ${ord(Math.floor(lo / 100) + 1)} to ${ord(Math.floor(hi / 100) + 1)} century` : ""}${part ? `${esc(part)}<button type="button" class="vdb-act vdb-act-in" data-vdb-loadall>Load the other ${fmt(CM.total - CM.loaded)}</button>` : ""}` : "";
       if (!G || !items.length) { box.innerHTML = items.length ? "" : `<p class="vdb-wait">${st.k ? "None of this kind on the verse in these sources." : "No author in the library treats this verse yet."}</p>`; drawKinds(); return; }
       const data = G.bin(items.map((a) => ({ y: a.y, t: a.t, name: a.name })), 25);
       const marks = [...(M.head || []), ...(M.tail || [])].filter((c) => keep({ sh: rawShelf(c), w: c.slug, a: c.a }))
@@ -931,10 +931,14 @@
       if (!vs.length && c.open == null && c.bookAt != null) return `Chapter ${cfg.ch} not mapped`;
       return !vs.length ? `On chapter ${cfg.ch}` : vs.length <= 3 ? `${vs.length === 1 ? "Note" : "Notes"} on ${cfg.ch}:${vs.join(", ")}` : `Notes on ${vs.length} verses of the chapter`;
     };
+    /* ONE CLICK TO READ (owner 2026-11-07: "i keep having to preview to find a commentary and then open it too many clicks, on mobile its
+     * a mess too"): a commentary's row (o.href, the host's cfg.beside) is a link to the Scripture reader with the work beside the text at
+     * the verse; its Preview opens in place what the row opened before (the passage on the verse and the ways on), with its page under it.
+     * On a wide screen the row is still read in the pane at the side. Other rows open in place as before. */
     const row = (o) => `<div class="vdb-r${o.cls ? ` ${o.cls}` : ""}" data-vdb-row="${esc(o.id)}"><div class="vdb-rl">`
-      + `<button type="button" class="vdb-rb" data-vdb-r="${esc(o.id)}" aria-expanded="false" aria-controls="${id}-o-${esc(o.key)}">`
+      + `${o.href ? `<a class="vdb-rb" href="${esc(o.href)}" data-vdb-r="${esc(o.id)}">` : `<button type="button" class="vdb-rb" data-vdb-r="${esc(o.id)}" aria-expanded="false" aria-controls="${id}-o-${esc(o.key)}">`}`
       + `<span class="vdb-who">${esc(o.who)}${o.when ? `<small>${esc(o.when)}</small>` : ""}</span>`
-      + `<span class="vdb-what"><cite${o.tl ? ` title="${esc(o.tl)}"` : ""}>${esc(o.what)}</cite>${o.has ? `<small>${esc(o.has)}</small>` : ""}</span></button>`
+      + `<span class="vdb-what"><cite${o.tl ? ` title="${esc(o.tl)}"` : ""}>${esc(o.what)}</cite>${o.has ? `<small>${esc(o.has)}</small>` : ""}</span>${o.href ? "</a>" : "</button>"}`
       + `<span class="vdb-ra">${o.page || ""}${o.pv || ""}<button type="button" class="vdb-lane" data-vdb-lane aria-pressed="false" hidden>Latin</button></span></div>`
       + `<div class="vdb-ro" id="${id}-o-${esc(o.key)}" hidden></div><div class="vdb-pvw" hidden></div></div>`;
     const keyOf = (s) => String(s).replace(/[^A-Za-z0-9_-]+/g, "_");
@@ -947,7 +951,8 @@
       const c = w.main, t = targetOf(M, c, v), p = t ? t.p : null;
       const vol = w.vols.length > 1 ? "" : c.vol && /\d/.test(c.vol) ? ` (${String(c.vol).replace(/^Weimar Edition: Writings, Volume\s*/i, "WA ")})` : "";
       return row({ id: c.slug, key: keyOf(c.slug), who: properName(c.a) || c.t, when: whenOf(c.a, w.year), what: keyTitle(c, `${c.t}${vol}`), tl: c.tl,
-        has: `${hasLine(w)}${w.vols.length > 1 ? `${DOT}${w.vols.length} volumes` : ""}${w.whole ? `${DOT}whole Bible` : ""}`, page: pageLink(c.slug, p, c.t), pv: pv(c.slug, p, `${c.t}, ${p != null ? pgOf(c.slug, p) : ""}`) });
+        has: `${hasLine(w)}${w.vols.length > 1 ? `${DOT}${w.vols.length} volumes` : ""}${w.whole ? `${DOT}whole Bible` : ""}`, page: pageLink(c.slug, p, c.t), pv: pv(c.slug, p, `${c.t}, ${p != null ? pgOf(c.slug, p) : ""}`),
+        href: cfg.beside ? cfg.beside(c.slug, v) : "" });
     };
     const sermonRow = (s) => {
       const c = s.c || s.w.main, { x } = s, who = properName(x.a || c.a) || c.t;
@@ -990,7 +995,7 @@
       const box = $("[data-vdb-groups]");
       const names = (ws) => glimpse(ws.map((w) => short(w.main.a)));
       let html = "";
-      if (VM.landmark.length) html += groupHTML("landmark", "comm", "Landmark commentaries on this verse", fmt(VM.landmark.length), names(VM.landmark), "", "vdb-g-key");
+      if (VM.landmark.length) html += groupHTML("landmark", "comm", "Key commentaries on this verse", fmt(VM.landmark.length), names(VM.landmark), "", "vdb-g-key");
       const wholeN = (VM.whole || []).reduce((s, g) => s + g.works.length, 0);
       if (wholeN) html += groupHTML("whole", "comm", "Whole-Bible commentaries", fmt(wholeN), glimpse(VM.whole.flatMap((g) => g.works.map((w) => w.set.label))), "", "vdb-g-key vdb-g-whole");
       for (const g of VM.trads) html += groupHTML(`t:${g.k}`, "comm", g.name, fmt(g.works.length), names(g.works), "", `vdb-g-trad`);
@@ -1091,6 +1096,17 @@
       box.__P = P;
       if (lb && P.en && P.src) { lb.hidden = false; lb.textContent = P.srcName || "Latin"; lb.setAttribute("aria-pressed", String(lane === "src")); lb.setAttribute("aria-label", `Show the ${P.srcName || "Latin"} of this passage`); }
     }
+    // a commentary's row is a link to read it beside the text: there its Preview opens the passage in place, with the work's page under it
+    const isLink = (rowEl) => !!rowEl.querySelector(":scope > .vdb-rl > a.vdb-rb");
+    function rowPage(rowEl, open) {
+      const box = rowEl.querySelector(":scope > .vdb-pvw"), b = rowEl.querySelector(":scope > .vdb-rl [data-vdb-pv]");
+      if (!box || !b) return;
+      box.hidden = !open;
+      if (!open) { box.innerHTML = ""; box.classList.remove("pw"); return; }
+      const [slug, p] = b.dataset.vdbPv.split("|");
+      box.innerHTML = '<p class="vdb-wait" role="status">Loading the page…</p>';
+      previewInto(M, box, slug, p, "").catch(() => false).then((ok) => { if (!ok && box.isConnected) box.innerHTML = `<p class="vdb-wait">This page cannot be shown here. <a href="${esc(cfg.read(slug, p))}">Open ${esc(pgOf(slug, p))} in the reader</a></p>`; });
+    }
     function openRow(rowEl, open, quiet) {
       const b = rowEl.querySelector(".vdb-rb"), box = rowEl.querySelector(".vdb-ro"), rid = rowEl.dataset.vdbRow;
       if (open) {
@@ -1098,7 +1114,11 @@
         const grp = rowEl.closest(".vdb-gp");
         if (grp) grp.querySelectorAll(":scope > .vdb-r.is-open").forEach((x) => { if (x !== rowEl) openRow(x, false, true); });
       }
-      b.setAttribute("aria-expanded", String(open)); box.hidden = !open; rowEl.classList.toggle("is-open", open);
+      // the row's own toggle: its title, or, where the title is a link, its Preview (which also opens and shuts the page under it)
+      const tg = isLink(rowEl) ? rowEl.querySelector(":scope > .vdb-rl [data-vdb-pv]") : b;
+      if (tg) { tg.setAttribute("aria-expanded", String(open)); if (tg !== b) tg.textContent = open ? "Close preview" : "Preview"; }
+      if (tg && tg !== b && !open) rowPage(rowEl, false);
+      box.hidden = !open; rowEl.classList.toggle("is-open", open);
       const lb = rowEl.querySelector("[data-vdb-lane]"); if (lb && !open) lb.hidden = true;
       if (open) { rowPassage(rowEl, rid); if (box.__P && lb && box.__P.en && box.__P.src) lb.hidden = false; }
       if (!quiet) { st.r = open ? rid : ""; report(); }
@@ -1140,12 +1160,24 @@
       const w = VM.landmark.find((x) => x.onV) || VM.landmark[0] || (VM.whole || []).flatMap((g) => g.works).find((x) => x.onV) || (VM.trads[0] && VM.trads[0].works[0]);
       return w ? w.main.slug : (CM.works[0] && CM.works[0].id) || "";
     };
-    async function sidePage(slug, p, tok) {
+    async function sidePage(slug, p, tok, open) {
       const box = host.querySelector("[data-vdb-side] [data-vdb-spg]"); if (!box || p == null || p === "") return;
-      box.innerHTML = '<h4 class="vdb-sph">Read on</h4><div class="vdb-pvw vdb-spw"><p class="vdb-wait" role="status">Loading the page…</p></div>';
+      // MereO delta (2026-11-09): the page is a fold under a note the pane has already quoted, so the note is not printed twice; a page asked for by name opens
+      box.innerHTML = `<details class="vdb-spd"${open ? " open" : ""}><summary class="vdb-sph">Read on</summary><div class="vdb-pvw vdb-spw"><p class="vdb-wait" role="status">Loading the page…</p></div></details>`;
       const w = box.querySelector(".vdb-spw");
       const ok = await previewInto(M, w, slug, p, "").catch(() => false);
       if (tok !== sideTok || !w.isConnected) return;
+      // MereO delta (2026-11-09): the pane is the one scroller, so it brings the cited passage into view where the page window would have scrolled its own box
+      const sb = box.closest(".vdb-sb"), fold = box.querySelector(".vdb-spd");
+      const bring = (el) => { if (el && sb && fold.open) sb.scrollTop += el.getBoundingClientRect().top - sb.getBoundingClientRect().top - 8; };
+      const cited = () => { const c = w.querySelector(".pw-cited"); return (c && c.querySelector("mark")) || c; };
+      fold.addEventListener("toggle", () => bring(cited()));
+      bring(cited());
+      w.addEventListener("click", (e) => {
+        const more = e.target.closest("[data-more]"), pages = w.querySelector(".pw-pages");
+        if (!pages || !(more || e.target.closest("[data-lane]"))) return;
+        new MutationObserver((_, ob) => { ob.disconnect(); bring(!more ? cited() : more.dataset.more === "-1" ? pages.firstElementChild : pages.lastElementChild); }).observe(pages, { childList: true });
+      });
       if (!ok) w.innerHTML = `<p class="vdb-wait">This page cannot be shown here. <a href="${esc(cfg.read(slug, p))}">Open ${esc(pgOf(slug, p))} in the reader</a></p>`;
     }
     async function sideShow(rid, opts = {}) {
@@ -1155,7 +1187,7 @@
       if (st.r !== rid) { st.r = rid; if (!opts.quiet) report(); }
       host.querySelectorAll(".vdb-groups .vdb-r.is-sel").forEach((x) => { x.classList.remove("is-sel"); const b = x.querySelector(".vdb-rb"); if (b) b.removeAttribute("aria-current"); });
       host.querySelectorAll(`.vdb-groups [data-vdb-row="${CSS.escape(rid)}"]`).forEach((x) => { x.classList.add("is-sel"); const b = x.querySelector(".vdb-rb"); if (b) b.setAttribute("aria-current", "true"); });
-      const keys = VM.landmark.length > 1 ? `<nav class="vdb-sk" aria-label="${esc(`Landmark commentaries on ${ref(v)}`)}">${VM.landmark.map((w) => `<button type="button" class="vdb-skb" data-vdb-sk="${esc(w.main.slug)}" aria-pressed="${w.vols.some((c) => c.slug === rid)}" title="${esc(`${properName(w.main.a)}, ${w.main.t}`)}">${esc(short(w.main.a))}</button>`).join("")}</nav>` : "";
+      const keys = VM.landmark.length > 1 ? `<nav class="vdb-sk" aria-label="${esc(`Key commentaries on ${ref(v)}`)}">${VM.landmark.map((w) => `<button type="button" class="vdb-skb" data-vdb-sk="${esc(w.main.slug)}" aria-pressed="${w.vols.some((c) => c.slug === rid)}" title="${esc(`${properName(w.main.a)}, ${w.main.t}`)}">${esc(short(w.main.a))}</button>`).join("")}</nav>` : "";
       side.innerHTML = `${keys}<header class="vdb-sh"><p class="vdb-shw">${esc(info.who)}${info.when ? `<small>${esc(info.when)}</small>` : ""}</p>`
         + `<p class="vdb-sht"><cite>${esc(info.what)}</cite></p><p class="vdb-shp" data-vdb-shp hidden></p><div class="vdb-sha" data-vdb-sha></div></header>`
         + '<div class="vdb-sb" data-vdb-sb><div data-vdb-sq><p class="vdb-wait" role="status">Opening the page…</p></div><div data-vdb-spg></div></div>';
@@ -1171,14 +1203,14 @@
           say(`${g.pages.length === 1 ? "One page cites" : `${fmt(g.pages.length)} pages cite`} ${ref(v)}`);
           q.innerHTML = `<ul class="vdb-cps vdb-scps">${g.pages.map((x) => `<li${String(x.p) === first ? ' class="is-on"' : ""}><button type="button" class="vdb-spb" data-vdb-sp="${esc(x.p)}" aria-pressed="${String(x.p) === first}">${esc(pgOf(g.w, x.p))}</button><span class="vdb-k">${esc(KIND[x.how] || "cites")}</span>${x.g ? `<span class="vdb-gist">${esc(x.g)}</span>` : ""}</li>`).join("")}</ul>`;
           acts.innerHTML = link(cfg.read(g.w, first), "Open in the reader");
-          await sidePage(g.w, first, tok);
+          await sidePage(g.w, first, tok, true);
           return;
         }
         if (info.x) {
           say(`${info.x.ref ? (info.x.vul ? `${info.x.ref}, the Vulgate's count` : info.x.ref) : chRef}`);
           q.innerHTML = info.x.first ? `<blockquote class="vdb-q" lang="en"><p>${esc(info.x.first)}</p></blockquote>` : "";
           acts.innerHTML = link(cfg.read(info.slug, info.p), "Open in the reader");
-          await sidePage(info.slug, info.p, tok);
+          await sidePage(info.slug, info.p, tok, true);
           return;
         }
         const P = await passage(M, info.c, info.at);
@@ -1190,7 +1222,7 @@
         acts.innerHTML = `${laneBtn}${link(cfg.beside ? cfg.beside(P.slug, v) : "", "Read beside the text")}${link(cfg.read(P.slug, P.page), "Open in the reader")}`;
         q.innerHTML = P.none && !(P.en || P.src) ? `<p class="vdb-wait">${esc(P.none)}</p>` : `<div data-vdb-quote>${quoteHTML(P, lane)}</div>`;
         q.__P = P;
-        await sidePage(P.slug, opts.page != null ? opts.page : P.page, tok);
+        await sidePage(P.slug, opts.page != null ? opts.page : P.page, tok, opts.page != null);
       } catch (_) { if (tok === sideTok) q.innerHTML = '<p class="vdb-wait">The page could not be opened. Choose the row again.</p>'; }
     }
     function sideClick(e) {
@@ -1202,7 +1234,7 @@
         const info = sideInfo(st.r); if (!info || !info.g) return true;
         side.querySelectorAll(".vdb-scps li").forEach((li) => { const b = li.querySelector("[data-vdb-sp]"), on = b === pb; li.classList.toggle("is-on", on); b.setAttribute("aria-pressed", String(on)); });
         const acts = side.querySelector("[data-vdb-sha]"); if (acts) acts.innerHTML = `<a class="vdb-tool" href="${esc(cfg.read(info.g.w, pb.dataset.vdbSp))}">Open in the reader</a>`;
-        sidePage(info.g.w, pb.dataset.vdbSp, ++sideTok);
+        sidePage(info.g.w, pb.dataset.vdbSp, ++sideTok, true);
         return true;
       }
       const lb = t.closest("[data-vdb-slane]");
@@ -1275,7 +1307,8 @@
       if (e.key === "ArrowUp") return go(items[i - 1]);
       if (e.key === "Home") return go(items[0]);
       if (e.key === "End") return go(items[items.length - 1]);
-      const open = t.getAttribute("aria-expanded") === "true";
+      // a row whose title is a link is open when its passage is shown
+      const open = t.matches("a.vdb-rb") ? t.closest(".vdb-r").classList.contains("is-open") : t.getAttribute("aria-expanded") === "true";
       if (e.key === "ArrowRight") {
         e.preventDefault();
         if (t.matches(".vdb-gb")) { if (!open) setGroup(t.dataset.vdbG, true); else go(items[i + 1]); }
@@ -1298,12 +1331,19 @@
       const gb = t.closest(".vdb-gb");
       if (gb) { setGroup(gb.dataset.vdbG, gb.getAttribute("aria-expanded") !== "true"); return; }
       const rb = t.closest(".vdb-rb");
-      if (rb) { if (sideMode()) sideShow(rb.closest(".vdb-r").dataset.vdbRow); else openRow(rb.closest(".vdb-r"), rb.getAttribute("aria-expanded") !== "true"); return; }
+      if (rb) {
+        // a commentary's row is a link (owner 2026-11-07, above): read at the side on a wide screen, else followed (a new tab where asked)
+        if (rb.tagName === "A") { if (sideMode() && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) { e.preventDefault(); sideShow(rb.closest(".vdb-r").dataset.vdbRow); } return; }
+        if (sideMode()) sideShow(rb.closest(".vdb-r").dataset.vdbRow); else openRow(rb.closest(".vdb-r"), rb.getAttribute("aria-expanded") !== "true");
+        return;
+      }
       const p = t.closest("[data-vdb-pv]");
       if (p) {
         e.preventDefault();
-        const r = sideMode() && p.closest(".vdb-groups .vdb-r");
-        if (r) sideShow(r.dataset.vdbRow, { page: p.dataset.vdbPv.split("|")[1] }); else togglePreview(p);
+        const r = p.closest(".vdb-groups .vdb-r");
+        if (r && sideMode()) sideShow(r.dataset.vdbRow, { page: p.dataset.vdbPv.split("|")[1] });
+        else if (r && isLink(r) && p.closest(".vdb-rl")) { const open = p.getAttribute("aria-expanded") !== "true"; openRow(r, open); if (open) rowPage(r, true); }
+        else togglePreview(p);
         return;
       }
       const lb = t.closest("[data-vdb-lane]");

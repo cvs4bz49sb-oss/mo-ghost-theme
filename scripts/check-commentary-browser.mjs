@@ -55,7 +55,8 @@ const text = (sel) => ((window.document.querySelector(sel) || {}).textContent ||
 const listed = await until(() => window.document.querySelectorAll('.cp-keys .cp-key').length > 1, 60000);
 ok(listed, 'the pane builds and lists the key commentaries on Genesis 1');
 window.document.querySelector('.bible-verse[data-v="1"]').click();
-const loaded = await until(() => /Its (note|next note|closest earlier note)|No note on|This is where it opens/.test(text('.cp-where')) && !window.document.querySelector('.cp-body').classList.contains('cp-loading') && text('.cp-body').length > 200, 90000);
+// (2026-11-08) "Its comment on Genesis 1:1 is on this page": a page the library files as holding the note, its heading not found (the survey)
+const loaded = await until(() => /Its (note|comment|next note|closest earlier note)|No note on|This is where it opens/.test(text('.cp-where')) && !window.document.querySelector('.cp-body').classList.contains('cp-loading') && text('.cp-body').length > 200, 90000);
 console.log(`      where: ${text('.cp-where')}`);
 ok(loaded && !/could not be loaded|Opening the page|Looking for/.test(text('.cp-body')), `the Commentary tab shows the commentary's words for Genesis 1:1 (got: ${text('.cp-body').slice(0, 90)})`);
 // the editors' critical apparatus of a scholarly edition is never set as the commentary: any such paragraph sits under the closed disclosure

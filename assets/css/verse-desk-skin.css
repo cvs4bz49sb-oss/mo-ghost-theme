@@ -1,0 +1,169 @@
+/* ═══════════════════════════════════════════════════════════════
+   THE VERSE DESK IN OUR SKIN (Deslop design pass, Ian 2026-11-09: "The verse desk looks all wrong. We need to clean it up big time.")
+   scripture-verse-desk.css is shared word for word with The Faith Received's own site, and verse-desk.css and scripture-dev.css carry older
+   desks. Their structure stays. This sheet is the desk's one visual layer over them, as faith-guide-skin.css is for the guides. It loads after
+   them on custom-scripture-dev-desk.hbs. "We are the skin, he is the bones."
+
+   The rules it enforces (DESLOP-AGENT.md 3c):
+   - One typeface: Source Serif. EB Garamond came in through --font-display.
+   - One button: a 3px outline, filled terracotta when pressed or hovered. Normal case at 14-15px, never tracked uppercase.
+   - One list: every fold on the page is a hairline row with a + or a minus. The seven "SHOW ..." boxes were a second grammar.
+   - No eyebrows over headings. Labels are sentence case in the working size.
+   - No cards, top bars or quotation-mark ornaments on a working surface. Hairlines only.
+   - One section head: 24px at 600.
+   Tokens only, so the desk's dark mode follows.
+   ═══════════════════════════════════════════════════════════════ */
+.sd-desk-page .sd-desk {
+  --font-display: var(--font-body);
+  --vds-rule: var(--color-rule);
+  --vds-on: #fff;
+  --vds-head: 600 1.5rem/1.2 var(--font-body);
+  --vds-row: 500 1.0625rem/1.35 var(--font-body);
+  --vds-label: 600 0.9375rem/1.3 var(--font-body);
+}
+html[data-sd-theme="dark"] .sd-desk-page .sd-desk { --vds-on: #1c1a18; }
+/* faith-port-reader-skin.css sets a light --highlight for the whole site. It lit the chart's era bands and the selected row in the desk's dark. */
+html[data-sd-theme="dark"] .sd-desk .vdb-site-mo { --highlight: var(--color-cream); }
+
+/* ── the dark-mode toggle sits beside the verse's title, not on a row of its own ── */
+.sd-desk-page .sd-viewbar { position: relative; z-index: 2; height: 0; padding-top: 0; padding-bottom: 0; }
+.sd-desk-page .sd-viewbar-row { transform: translateY(34px); }
+.sd-desk :is(.vdb-top, .sd-desk > p:first-child) { padding-right: 48px; }
+
+/* ── section heads: one size ── */
+.sd-desk .vdb .vdb-band-h h3,
+.sd-desk .sd-h2,
+.sd-desk .moa .moa-h { margin: 0 0 0.5rem; font: var(--vds-head); letter-spacing: 0; color: var(--sd-ink); }
+
+/* ── labels: sentence case in the working size, never tracked uppercase ── */
+.sd-desk :is(.sd-h3, .sd-filter-label, .vd-sublabel, .vd-lab, .vd-chname, .vd-ruler-t) {
+  font: var(--vds-label); letter-spacing: 0; text-transform: none; color: var(--sd-ink);
+}
+.sd-desk .sd-h3 { margin: 0 0 8px; padding: 0; border: 0; }
+.sd-desk .vd-chname small { font-weight: 400; color: var(--sd-muted); }
+.sd-desk .vd-sublabel.vd-gap { margin: 24px 0 8px; }
+.sd-desk .vd-eyebrow, .sd-desk .moa .moa-eyebrow { display: none; }
+
+/* ── the button ── */
+.sd-desk :is(.sd-btn, .sd-more) {
+  padding: 8px 14px; border: 1px solid var(--sd-ink); border-radius: 3px; background: transparent; color: var(--sd-ink);
+  font: 400 0.9375rem/1.2 var(--font-body); letter-spacing: 0; text-transform: none;
+}
+.sd-desk :is(.sd-btn, .sd-more):is(:hover, :focus-visible) { background: var(--sd-accent); border-color: var(--sd-accent); color: var(--vds-on); }
+.sd-desk :is(.vdb-kind, .vdb-pv, .vdb-lane, .vdb-more, .vdb-sha a, .pw-lanes button, .pw-more button) {
+  display: inline-flex; align-items: center; min-height: 34px; padding: 4px 10px; border: 1px solid var(--sd-ink); border-radius: 3px; background: transparent; box-shadow: none;
+  color: var(--sd-ink); font: 400 0.875rem/1.2 var(--font-body); letter-spacing: 0; text-decoration: none; text-transform: none; cursor: pointer;
+}
+.sd-desk :is(.vdb-kind, .vdb-pv, .vdb-lane, .vdb-more, .vdb-sha a, .pw-lanes button, .pw-more button):hover { border-color: var(--sd-accent); box-shadow: none; color: var(--sd-accent); }
+.sd-desk :is(.vdb-kind, .vdb-lane, .pw-lanes button)[aria-pressed="true"],
+.sd-desk .vdb .vdb-pv[aria-expanded="true"] { border-color: var(--sd-accent); background: var(--sd-accent); color: var(--vds-on); }
+.sd-desk .vdb-kind .vdb-n { margin-left: 0.3rem; color: inherit; font-size: 0.8125rem; opacity: 0.75; }
+.sd-desk .vdb-kind[aria-pressed="true"] .vdb-n { opacity: 0.9; }
+.sd-desk .vdb-kinds { gap: 6px; margin: 0.75rem 0 1rem; }
+.sd-desk .pw-lanes { display: inline-flex; gap: 4px; border: 0; background: none; }
+.sd-desk .pw-more { display: inline-flex; gap: 4px; }
+@media (pointer: coarse) {
+  .sd-desk :is(.vdb-kind, .vdb-pv, .vdb-lane, .vdb-more, .vdb-sha a, .pw-lanes button, .pw-more button) { min-height: 44px; }
+}
+.sd-desk :is(.vdb-vsel select, .vdb-tr select, .vdb-cmpsel select) { border-radius: 3px; background-color: var(--sd-card); color: var(--sd-ink); }
+.sd-desk .vdb-arrow { border-radius: 3px; }
+
+/* ── the verse: no ornament and no indent, so it sits on the title's margin ── */
+.sd-desk .vdb-verse { padding-left: 0; }
+.sd-desk .vdb-verse::before, .sd-desk .vdb-q::before { content: none; }
+.sd-desk :is(.vdb-tools, .vdb-drawer, .vdb-said, .vdb-go) { margin-left: 0; }
+
+/* ── the chart ── */
+.sd-desk .vdb-band { border-top-color: var(--vds-rule); }
+.sd-desk .vdb-strip .tg-lg button, .sd-desk .vdb-strip .tg-lg-u { border-radius: 3px; font-size: 0.875rem; }
+
+/* ── one list: the groups and the modules below them are the same row ── */
+.sd-desk .vdb-g.vdb-g-key { border-top-color: var(--vds-rule); }
+.sd-desk .vdb-gt, .sd-desk .vdb-g-key > .vdb-gh .vdb-gt, .sd-desk .vdb-sub .vdb-gt { font: var(--vds-row); }
+.sd-desk .vdb-glimpse { font-style: normal; }
+.sd-desk .vdb-g.is-open > .vdb-gh .vdb-glimpse,
+.sd-desk .vdb-g.is-open > .vdb-cith .vdb-glimpse { display: none; }
+.sd-desk .vd-fold { border-top: 1px solid var(--vds-rule); }
+.sd-desk .vd-fold:last-child { border-bottom: 1px solid var(--vds-rule); }
+.sd-desk .vd-fold > summary,
+.sd-desk .vd-fold[open] > summary {
+  display: flex; align-items: baseline; min-height: 3rem; margin: 0; padding: 0.6rem 0; border: 0; border-radius: 0; color: var(--sd-ink);
+  font: var(--vds-row); letter-spacing: 0; text-transform: none;
+}
+.sd-desk .vd-fold > summary::before { content: "+"; flex: none; width: 1.25rem; color: var(--sd-muted); font: 400 1.05rem/1 var(--font-body); }
+.sd-desk .vd-fold[open] > summary::before { content: "\2212"; }
+.sd-desk .vd-fold > summary:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+/* the row is the module's name when it is folded: its h2 stays for readers and the outline */
+.sd-desk .vd-fold .vd-sec { padding: 0 0 1.75rem 1.25rem; border-bottom: 0; }
+.sd-desk .vd-fold .vd-sec .vd-h2 { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sd-desk .vd-fold .vd-dek { margin-bottom: 12px; font-size: 15px; }
+.sd-desk .vd-note { margin-top: 8px; }
+
+/* ── a row: the name on one line, dates beside it, the selected row without a floating card ── */
+.sd-desk a.vdb-rb, .sd-desk a.vdb-rb:hover { text-decoration: none; }
+.sd-desk .vdb-who { font: 500 1rem/1.35 var(--font-body); text-wrap: wrap; }
+.sd-desk .vdb-what cite { margin-right: 0.6rem; font-style: normal; }
+.sd-desk .vdb-what small { display: inline-block; margin-left: 0; }
+.sd-desk .vdb-q { padding-left: 0; font-style: normal; font-size: 1rem; line-height: 1.6; }
+@media (min-width: 1180px) {
+  .sd-desk .vdb-has-side .vdb-rb { grid-template-columns: minmax(10rem, 15rem) minmax(0, 1fr); }
+  .sd-desk .vdb-has-side .vdb-r.is-sel > .vdb-rl { margin: 0 -0.6rem; padding: 0 0.6rem; border-radius: 0; }
+
+  /* ── the reading at the side: a column with a hairline, not a card ── */
+  .sd-desk .vdb-has-side .vdb-side { border: 0; border-left: 1px solid var(--vds-rule); border-radius: 0; background: none; }
+}
+/* the key commentaries are already the list beside it */
+.sd-desk .vdb-sk { display: none; }
+.sd-desk .vdb .vdb-shw { font: 600 1.25rem/1.25 var(--font-body); }
+.sd-desk .vdb-sha { gap: 6px; margin-top: 0.6rem; }
+.sd-desk .vdb-sha .vdb-lane { margin-right: 0; }
+/* "Read on" is one fold in the pane's own scroll: never a scroller inside a scroller, and never the note printed twice */
+.sd-desk .vdb-side .pw-pages { max-height: none; overflow: visible; }
+.sd-desk .vdb-spd > summary.vdb-sph { display: flex; align-items: baseline; margin: 1.25rem 0 0; padding: 0.6rem 0; border-top: 1px solid var(--vds-rule); font: var(--vds-label); cursor: pointer; list-style: none; }
+.sd-desk .vdb-spd > summary.vdb-sph::-webkit-details-marker { display: none; }
+.sd-desk .vdb-spd > summary.vdb-sph::before { content: "+"; flex: none; width: 1.25rem; color: var(--sd-muted); font-weight: 400; }
+.sd-desk .vdb-spd[open] > summary.vdb-sph::before { content: "\2212"; }
+.sd-desk .vdb-pvw { border-radius: 3px; }
+.sd-desk .vdb-spw { border: 0; background: none; }
+.sd-desk .vdb-spw .pw-bar { padding-left: 0; padding-right: 0; border: 0; background: none; }
+.sd-desk .vdb-spw .pw-page { padding-left: 0; padding-right: 0; }
+
+/* ── the modules: hairlines, no cards ── */
+.sd-desk :is(.vd-ribbon, .vd-ladder) { border: 0; column-gap: 24px; }
+.sd-desk :is(.vd-ribbon > li, .vd-rung) { padding: 10px 0 14px; border: 0; border-top: 1px solid var(--vds-rule); background: none; }
+.sd-desk .vd-ribbon > li::before { content: none; }
+.sd-desk .vd-big { margin-top: 6px; font-size: 1.25rem; }
+.sd-desk .vd-rh { margin-top: 10px; padding-top: 0; border-top: 0; font-size: 0.9375rem; }
+.sd-desk .vd-dq { margin: 0; padding: 14px 0; border: 0; border-top: 1px solid var(--vds-rule); background: none; }
+.sd-desk .vd-qh { margin-bottom: 10px; font-size: 1rem; }
+.sd-desk .vd-pos { font-size: 0.9375rem; }
+.sd-desk .vd-cnt { font-size: 0.8125rem; }
+.sd-desk .vd-vname { font-size: 1rem; }
+.sd-desk .vd-gist { font-size: 0.9375rem; }
+.sd-desk .vd-reading summary { min-height: 40px; padding: 6px 0; }
+.sd-desk .vd-rt { font-size: 0.9375rem; }
+.sd-desk .vd-rbar { height: 6px; }
+
+/* ── essays from Mere Orthodoxy: a list on a working page, not a magazine grid ── */
+.sd-desk .moa .moa-img { display: none; }
+.sd-desk .moa .moa-head { margin-bottom: 8px; }
+.sd-desk .moa--cards .moa-list { gap: 0 24px; }
+.sd-desk .moa .moa-row { padding: 10px 0; border-top: 1px solid var(--vds-rule); }
+.sd-desk .moa .moa-t { margin: 0 0 2px; font: 600 1rem/1.3 var(--font-body); }
+.sd-desk .moa .moa-why { display: none; }
+.sd-desk .moa .moa-x { font-size: 0.875rem; }
+
+/* ── similar passages and Ask ── */
+.sd-desk [data-fr-sn="verse"] > .sd-muted { display: none; }
+.sd-desk [data-fr-sn="verse"] .fr-sn-list p { font-size: 0.9375rem; }
+.sd-desk [data-sd-companions] { display: block; margin: 0; padding: 0; list-style: none; }
+.sd-desk [data-sd-companions] .sd-source { min-height: 0; margin: 0; padding: 0; border: 0; border-top: 1px solid var(--vds-rule); border-radius: 0; background: none; box-shadow: none; }
+.sd-desk [data-sd-companions] .sd-panel-commentary { display: flex; align-items: baseline; justify-content: flex-start; gap: 10px; min-height: 44px; padding: 8px 0; border: 0; background: none; box-shadow: none; }
+.sd-desk [data-sd-companions] .sd-source-title { font: 500 0.9375rem/1.3 var(--font-body); font-style: normal; }
+.sd-desk [data-sd-companions] .sd-source-meta { font-size: 0.8125rem; }
+
+@media (max-width: 720px) {
+  .sd-desk :is(.vdb-verse, .vdb-tools, .vdb-drawer, .vdb-said) { margin-left: 0; padding-left: 0; }
+  .sd-desk .vd-fold .vd-sec { padding-left: 0; }
+  .sd-desk .vdb-glimpse { margin-left: 1.25rem; }
+}

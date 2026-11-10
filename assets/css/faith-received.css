@@ -20926,6 +20926,9 @@ html.faith-ask-shared [data-tfr-gate] { display: none; }
 @media (max-width: 760px) { .tfr-tool .loci { max-height: none !important; overflow: visible !important; } }
 /* UNTIL THE ROUTES ARE UP (remove with the routes.yaml upload). The atlas,
    topics, Compare and the decks already link to /maps/ and /controversies/,
-   which 404 until Ian has seen them and uploads routes.yaml. Meanwhile
+   which stay off the site until Ian says (2026-11-09: "Do not make those live at all."). Meanwhile
    those links read as plain text. */
 a[href^="/the-faith-received/maps/"], a[href^="/the-faith-received/controversies/"] { pointer-events: none !important; color: inherit !important; text-decoration: none !important; cursor: text; }
+/* Held with them (Ian, 2026-11-09: no new features for now): the Commentaries page has no route, so the Scripture pane's link to it is hidden, not a 404. */
+a[href^="/the-faith-received/commentaries/"] { display: none !important; }
+.cp-list-foot:has(a[href^="/the-faith-received/commentaries/"]) { display: none !important; }

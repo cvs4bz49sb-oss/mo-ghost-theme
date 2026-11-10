@@ -12,6 +12,7 @@
  *
  * Run: node scripts/check-commentary-pages.mjs [--live] [--verbose]
  */
+/* global console, process, fetch, Buffer */
 import { createRequire } from 'node:module';
 import zlib from 'node:zlib';
 import path from 'node:path';
@@ -53,6 +54,46 @@ const R = A.createResolver(async (slug, n) => { const d = await pg.page(slug, n)
 const rr = await R.resolve({ slug: 'eebo-53832', notes: {}, rows: {}, open: 11, close: 13, pv: {} }, 3, { name: 'Genesis', ch: '1' });
 ok(rr && rr.p >= 11, `EEBO work: the resolver anchors on it (got ${JSON.stringify(rr)})`);
 
+// (2026-11-08) a Migne file that opens with the volume's own mark where the first column's would be ("35", then "35:1380", Augustine's
+// Tractates on John): the text before the first column mark is its column, 1379, and the map's "35" opens there
+const PLD = `<?xml version="1.0"?><TEI xmlns="http://www.tei-c.org/ns/1.0"><text xml:lang="la"><body><div>
+<milestone unit="column" n="35"/><p xml:lang="la">In Joannis evangelium tractatus CXXIV</p>
+<head>TRACTATUS I. In illud Joannis, In principio erat Verbum. Cap. I, V\\. 1-5.</head><p xml:lang="en">TRACTATE I. On that of John, In the beginning was the Word. Chap. I, V. 1-5.</p>
+<p xml:lang="la">1. Intuens quod modo audivimus.</p><p xml:lang="en">1. Seeing what we have just heard.</p>
+<milestone unit="column" n="35:1380"/><p xml:lang="en">2. For this John, most beloved brothers.</p>
+<milestone unit="column" n="35:1381"/><p xml:lang="en">3. For there are other mountains.</p>
+<milestone unit="column" n="35"/><p xml:lang="en">124. The end of the work.</p></div></body></text></TEI>`;
+const pgM = P.createPages({ base: 'http://x', mo: true, async json() { throw new Error('no json'); }, async text(u) { if (/\/v1\/tei\/pld\/2824\.xml$/.test(u)) return PLD; throw new Error(`404 ${u}`); } });
+const m35 = await pgM.page('pld-2824', 35), m1379 = await pgM.page('pld-2824', 1379);
+ok(m1379.p && m1379.p.n === 1379 && /TRACTATE I\./.test(m1379.p.en) && /1\. Seeing/.test(m1379.p.en), "Migne: the text before the first column mark is the column before it (Tractate I's heading and its §1, col. 1379)");
+ok(m35.p && m35.p.n === 1379, "Migne: the volume's number on the map opens that first column");
+ok(/124\. The end/.test((await pgM.page('pld-2824', 1381)).p.en), 'Migne: a volume mark after the first column is no column, and its text stays with the column before');
+
+// (2026-11-08) The Faith Received's page reader (commentary-pane.js, FRCommentaryText) names the source text and reads a book whose page
+// numbers repeat in the printing it was opened at: the source's name from the file's xml:lang (else the family's), or meta.json's
+// src_lang; a reader page id (100000*k+n) says its occurrence (oi), and `after` reads the next pages at or after it
+ok(m1379.src === 'Latin', `Migne: the source is named by its xml:lang (got ${m1379.src})`);
+const PG2 = `<?xml version="1.0"?><TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><div>
+<milestone unit="column" n="57:0013"/><p xml:lang="grc">Βίβλος γενέσεως.</p><p xml:lang="en">The book of the generation.</p>
+<milestone unit="column" n="57:0014"/><p xml:lang="grc">Ἀβραὰμ ἐγέννησε.</p></div></body></text></TEI>`;
+const pgG = P.createPages({ base: 'http://x', mo: false, async json() { throw new Error('no json'); }, async text(u) { if (/\/tei\/pg\/9\.xml$/.test(u)) return PG2; throw new Error(`404 ${u}`); } });
+const g13 = await pgG.page('pg-9', 13);
+ok(g13.src === 'Greek' && /Βίβλος/.test(g13.p.la) && /generation/.test(g13.p.en), `Migne Greek: the source is Greek, read from the family's own path (got ${g13.src})`);
+const REPEAT = { meta: {}, toc: [{ id: 'a', html: '<span class="pb" data-n="5"></span><p>Part one, page five.</p><span class="pb" data-n="6"></span><p>Part one, page six.</p>'
+  + '<span class="pb" data-n="5"></span><p>Part two, page five.</p><span class="pb" data-n="6"></span><p>Part two, page six.</p><p>12</p>', kids: [] }] };
+const pgR = P.createPages({ base: 'http://x', mo: true, async json(u) { if (/\/eebo\/77\.json\.gz$/.test(u)) return REPEAT; throw new Error(`404 ${u}`); }, async text() { throw new Error('no text'); } });
+const r5 = await pgR.page('eebo-77', 5), r100005 = await pgR.page('eebo-77', 100005), r6b = await pgR.page('eebo-77', 6, r100005.oi);
+ok(/Part one, page five/.test(r5.p.en) && r5.src === '', 'EEBO: a repeated number reads its first printing where no place is set, and names no source');
+ok(/Part two, page five/.test(r100005.p.en) && r100005.oi != null, `EEBO: a reader page id reads that printing and says its occurrence (oi ${r100005.oi})`);
+ok(/Part two, page six/.test(r6b.p.en) && /Part one, page six/.test((await pgR.page('eebo-77', 6)).p.en), 'EEBO: `after` reads the next page in the same printing; without it, the first printing');
+ok(/\n12$/.test(r6b.p.en) && (await pgR.page('eebo-77', 12)).p === null, 'EEBO: a line that is only a number is the page\'s text, not a page mark');
+const pgW = P.createPages({ base: 'http://x', mo: true, async json(u) {
+  if (/works\/w1\/meta\.json$/.test(u)) return { n_pages: 2, src_lang: 'grc', shards: [{ from: 1, to: 2, file: 'pages/0001.json' }] };
+  if (/works\/w1\/pages\/0001\.json$/.test(u)) return { pages: [{ n: 1, en: 'One.', la: 'Ἕν.' }] };
+  throw new Error(`404 ${u}`);
+}, async text() { throw new Error('no text'); } });
+ok((await pgW.page('w1', 1)).src === 'Greek', 'a work: the source is named by its meta.json src_lang');
+
 // ── live ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 const live = process.argv.includes('--live') || process.env.COMMENTARY_LIVE === '1';
 if (live) {
@@ -77,7 +118,7 @@ if (live) {
     const rows = [];
     for (const [book, ch, name, verse] of chapters) {
       const { works } = await live1.listWorks(book, ch);
-      const getParas = async (slug, n) => { try { const d = await live1.page(slug, n); return d.p ? [P.paragraphs(d.p.en), P.paragraphs(d.p.la)] : [[], []]; } catch (_) { return [[], []]; } };
+      const getParas = async (slug, n) => { try { const d = await live1.page(slug, n); return d.p ? [P.paragraphs(d.p.en), P.paragraphs(d.p.la)] : [[], []]; } catch { return [[], []]; } };
       const res = A.createResolver(getParas);
       let good = 0; const bad = [];
       const queue = works.slice();

@@ -423,15 +423,15 @@
     const ribbon = rb ? `<ol class="vd-ribbon">${rb.cells.map((c) => `<li><span class="vd-lab">${esc(c.label)}</span><span class="vd-sp">${esc(c.years)}</span><b class="vd-big">${fmt(c.works)}</b><span class="vd-sp">${c.works === 1 ? 'work cites it' : 'works cite it'}</span>${c.best
       ? `<h3 class="vd-rh">${esc(c.best.label)}</h3><p class="vd-sm">Most pages: ${fmt(c.best.k)} of ${fmt(c.placed)} placed</p>`
       : `<h3 class="vd-rh vd-dim">${c.why === 'tie' ? 'No single leading reading' : c.why === 'few' && c.placed ? 'Too few pages to name a leading reading' : 'No reading placed'}</h3><p class="vd-sm">${c.why === 'tie' ? `Two or more readings are level among ${fmt(c.placed)} placed pages.` : c.placed ? `Only ${plural(c.placed, 'page', 'pages')} from this period ${c.placed === 1 ? 'is' : 'are'} placed.` : 'The readings pass has no page dated to this period.'}</p>`}</li>`).join('')}</ol>` : '';
-    const list = rd ? `<p class="vd-sublabel vd-gap">${rd.items.length === 1 ? 'The reading' : `All ${fmt(rd.items.length)} readings`}, by pages sorted to it (of ${fmt(rd.of)} pages read)</p><ul class="vd-readings">${rd.items.map((it) => renderReadingItem(it, rd.of, ctx)).join('')}</ul>` : '';
-    return sec('church', 'How the church read it', rb ? 'The reading in each age' : 'The readings', '', `${ribbon}${list}<p class="vd-note">A page can report or refute a position without holding it, so no author is named.</p>`, `${rb ? '<p class="vd-dek">For each period, the reading with the most placed pages. A period needs five placed pages, and no other reading may be level. Counts of works are works citing the verse.</p>' : ''}<p class="vd-dek">Sorted by machine from the pages of the library read on this verse.</p>`);
+    const list = rd ? `<p class="vd-sublabel vd-gap">${rd.items.length === 1 ? 'The reading' : `All ${fmt(rd.items.length)} readings`}</p><ul class="vd-readings">${rd.items.map((it) => renderReadingItem(it, rd.of, ctx)).join('')}</ul>` : '';
+    return sec('church', 'How the church read it', rb ? 'The reading in each age' : 'The readings', '', `${ribbon}${list}<p class="vd-note">A page can report or refute a position without holding it, so no author is named.</p>`, `${rb ? '<p class="vd-dek">For each period, the reading with the most placed pages. A period needs five placed pages, and no other reading may be level. Counts of works are works citing the verse.</p>' : ''}<p class="vd-dek">Sorted by machine from the pages of the library read on this verse.${rd ? ` Bars count pages sorted to each reading, of ${fmt(rd.of)} pages read.` : ''}</p>`);
   }
 
   function renderDisputes(m) {
     if (!m.disputes) return '';
     const q = m.disputes.map((d) => `<li class="vd-dq"><h3 class="vd-qh">${esc(d.question)}</h3><ul class="vd-sides">${d.sides.map((s) =>
       `<li class="vd-side"><p class="vd-pos">${esc(s.position)}</p>${s.pages ? `<p class="vd-cnt">${plural(s.pages, 'page discusses', 'pages discuss')} this position${s.authors > 1 ? ` (${plural(s.authors, 'author', 'authors')})` : ''}</p>` : ''}</li>`).join('')}</ul></li>`).join('');
-    return sec('dispute', 'Points in dispute', 'Positions the library records', 'The library records which pages discuss each position. It does not record who holds one, so no names are listed.', `<ol class="vd-dqs">${q}</ol>`, '<p class="vd-dek">Questions and positions are sorted by machine from the pages of the library read on this verse.</p>');
+    return sec('dispute', 'Points in dispute', 'Positions the library records', 'These pages discuss each position. They do not show who holds it.', `<ol class="vd-dqs">${q}</ol>`, '<p class="vd-dek">The library records which pages discuss each position. It does not record who holds one, so no names are listed. Questions and positions are sorted by machine from the pages of the library read on this verse.</p>');
   }
 
   function renderConfess(m, ctx) {
@@ -460,7 +460,7 @@
     }).join('')}</ol>`;
     const top = `<p class="vd-sublabel vd-gap">Most cited in ${esc(ctx.chapter)}</p><ol class="vd-top">${h.top.map((t) =>
       `<li>${t.cur ? `<span class="vd-here"><b>${esc(t.label)}</b> <small>${plural(t.n, 'work', 'works')} · this verse</small></span>` : `<a href="${esc(ctx.desk(ctx.c, t.v))}"><b>${esc(t.label)}</b> <small>${plural(t.n, 'work', 'works')}</small></a>`}</li>`).join('')}</ol>`;
-    return sec('heat', `Where it sits in ${ctx.chapter}`, 'Chapter heat', '', `${bars}${top}`, `<p class="vd-dek">Works citing each verse of the chapter, one bar a verse. ${esc(ctx.label)} is marked.</p>`);
+    return sec('heat', `Where it sits in ${ctx.chapter}`, 'Most-cited verses in the chapter', '', `${bars}${top}`, `<p class="vd-dek">Works citing each verse of the chapter, one bar a verse. ${esc(ctx.label)} is marked.</p>`);
   }
 
   function renderShare(m, ctx) {
