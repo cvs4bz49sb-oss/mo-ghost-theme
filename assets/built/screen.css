@@ -27797,7 +27797,14 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .mm-rss { align-self: flex-start; margin-top: auto; padding-top: 28px; font-size: 14px; }
 .mm .mm-digest-card .mm-signup-fine { font-size: 14px; color: var(--color-muted); margin: 14px 0 0; }
 .mm .mm-digest-card .eyebrow { letter-spacing: 0.2em; }
-.mm .mm-digest-logo { display: block; height: 48px; width: auto; margin: 0 0 14px; }
+.mm .mm-digest-logo { display: block; height: 44px; width: auto; margin: 0 auto; }
+/* The Daily Liturgy podcast cover's ornamental frame (corners from the
+   cover art, assets/images/nav/daily-liturgy-frame.png) drawn round the
+   logo; border-image keeps the corners and stretches the edge lines. */
+.mm .mm-dl-framed { border: 26px solid transparent; border-image: url("../images/nav/daily-liturgy-frame.png") 150 / 26px stretch; background: var(--color-white); }
+.mm .mm-digest-logo-frame { padding: 8px 4px; margin: 0 0 16px; }
+.mm .mm-plate.mm-dl-framed { padding: 0; }
+.mm .mm-dl-framed .mm-dl-logo { padding: 10px 24px; }
 
 /* /books/: a small link under a book to our review, interview or
    episode on it; and a typeset cover where Bookshop.org has none. */
