@@ -132,9 +132,7 @@
           <a href="/#journal" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/journal-hero.jpg"}}" alt="" loading="lazy"></div></a>
           <p class="mm-feature-title">Mere Orthodoxy in print</p>
           <p>Long-form essays on theology, culture and politics. Members receive it in print.</p>
-          {{!-- Same rule as the homepage Journal band: paid and comped
-               members already get it, so they see the gift. --}}
-          {{#match @member.status "paid"}}<a class="btn btn-solid" href="/give/">Give a membership</a>{{else}}{{#match @member.status "comped"}}<a class="btn btn-solid" href="/give/">Give a membership</a>{{else}}<a class="btn btn-solid" href="/membership/">Get the journal</a>{{/match}}{{/match}}
+          {{#unless @member}}<a class="btn btn-solid" href="/membership/">Become a member</a>{{/unless}}
         </div>
       </div>
     </section>
