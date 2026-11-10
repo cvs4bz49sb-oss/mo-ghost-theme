@@ -742,6 +742,15 @@
     // digest too, and neither signup auto-subscribes to the other.
     const newsletter = root.getAttribute("data-newsletter");
     if (newsletter) out.push(`Newsletter:${newsletter}`);
+    // Extra newsletters the reader ticked on this form, e.g. the
+    // "Also send me the Mere O Daily" checkbox. Only names on this list
+    // become labels, so the form can't be used to set arbitrary ones.
+    const EXTRA_NEWSLETTERS = ["mere-o-daily"];
+    const extras = root.querySelectorAll("input[type=checkbox][data-signup-also]");
+    for (let i = 0; i < extras.length; i++) {
+      const name = extras[i].getAttribute("data-signup-also");
+      if (extras[i].checked && EXTRA_NEWSLETTERS.indexOf(name) !== -1) out.push(`Newsletter:${name}`);
+    }
     // Article topic(s): read the article's visible topic links if
     // present. Any tag outside TOPIC_TAGS is skipped to keep Ghost
     // labels/Kit tags bounded.

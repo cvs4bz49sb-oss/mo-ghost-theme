@@ -1753,6 +1753,18 @@ a.btn-solid:focus-visible {
 .digest-submit:hover { color: var(--color-primary); }
 .digest-submit:hover::after { transform: translateX(4px); }
 .digest-fineprint { display: none; }
+/* "Also send me the Mere O Daily" under the digest fields. */
+.digest-also {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+.digest-also input { width: 18px; height: 18px; margin: 0; accent-color: var(--color-secondary); flex-shrink: 0; }
 /* Status line under the digest form for inline errors / progress. */
 .digest-form .digest-status {
   grid-column: 1 / -1;
