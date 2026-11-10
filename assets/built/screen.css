@@ -27817,3 +27817,18 @@ html.mm-is-open .site-header { z-index: 111; }
 .shelf-cover--text { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 14px; background: var(--color-dark); color: var(--color-white); text-align: center; }
 .shelf-cover--text span:first-child { font-family: var(--font-display); font-size: 17px; line-height: 1.2; }
 .shelf-cover--text span:last-child { font-size: 12px; opacity: 0.75; }
+
+/* /writers-meetings/ date cards: three in a row on a wider measure than
+   the prose, hairline cards on the page's tan (no lift or shadow). */
+.wm-dates { list-style: none; margin: 0 auto 8px; padding: 0; max-width: 880px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.wm-date { background: var(--color-white); border: 1px solid var(--color-card-border); border-radius: var(--radius); padding: 24px 24px 22px; display: flex; flex-direction: column; gap: 6px; transition: border-color 0.15s; }
+.wm-date:hover { border-color: var(--color-secondary); }
+.wm-date-numeral { font-family: var(--font-display); font-style: italic; font-size: 34px; line-height: 1; color: var(--color-primary); margin-bottom: 10px; }
+.wm-date p { margin: 0; font-family: var(--font-body); }
+.wm-date-when { font-size: 19px; font-weight: 600; line-height: 1.3; color: var(--color-dark); }
+.wm-date-meta { font-size: 15px; color: var(--color-muted); }
+.wm-date-reading { font-size: 15px; color: var(--color-dark); padding-top: 10px; margin-top: 8px !important; border-top: 1px solid var(--color-rule); }
+.writers-meetings .wm-submit { align-self: flex-start; }
+@media (max-width: 760px) {
+  .wm-dates { grid-template-columns: 1fr; max-width: 640px; }
+}

@@ -1,31 +1,30 @@
 {{!< default}}
 {{#contentFor "moHead"}}
 <title>New Writers Meetings | Mere Orthodoxy</title>
-<meta name="description" content="Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, or who have been wanting to. Part introduction, part training, built around a single essay." />
+<meta name="description" content="One-hour conversations over Zoom for writers who have pitched Mere Orthodoxy or want to. Each meeting reads one published essay closely." />
 <meta property="og:title" content="New Writers Meetings" />
-<meta property="og:description" content="Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, or who have been wanting to. Part introduction, part training, built around a single essay." />
+<meta property="og:description" content="One-hour conversations over Zoom for writers who have pitched Mere Orthodoxy or want to. Each meeting reads one published essay closely." />
 <meta name="twitter:title" content="New Writers Meetings" />
-<meta name="twitter:description" content="Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, or who have been wanting to. Part introduction, part training, built around a single essay." />
+<meta name="twitter:description" content="One-hour conversations over Zoom for writers who have pitched Mere Orthodoxy or want to. Each meeting reads one published essay closely." />
 {{/contentFor}}
-{{!-- /writers-meetings/ — routed via routes.yaml. Public, not member-gated.
+{{!-- /writers-meetings/ is routed via routes.yaml. Public, not member-gated.
      Editorial layout matching custom-about.hbs: dark hero, dropcap lede,
-     left-aligned section intros on the same 640px measure as the prose,
-     and the Roman numeral list from custom-submissions.hbs for the three
-     dates. Page-specific CSS is scoped under .writers-meetings.
+     left-aligned section intros on the 640px prose measure. Page CSS is
+     scoped under .writers-meetings.
 
-     Each meeting's reading lives inside its numeral row rather than in a
-     section of its own, so the page does not go stale the moment the
-     September date passes. Add the October and November essays to rows
-     II and III as they are chosen.
+     Between rounds (2026-11-10): the fall round (Sept 8, Oct 6, Nov 3) is
+     over and the next dates are not set. The date cards say "to be
+     announced" and the sign-up below collects interest through the site's
+     inline signup (assets/js/inline-signup.js), which labels the Ghost
+     member source:writers-meetings (mirrored to a Kit tag). Email that tag
+     when the dates are set.
 
-     Registration posts to the mo-forms worker (/writers-meetings), which
-     emails the address in WRITERS_MEETINGS_TO and copies the row into a
-     Google Form's linked sheet. LIVE since 2026-08-10. Two config items
-     are still open in workers/forms/wrangler.toml: WRITERS_MEETINGS_TO is
-     empty (so RSVPs fall back to submissions@, not Nadya), and the form
-     has no "note" question, so a registrant's note reaches the email but
-     not the sheet. Registration is ONE meeting per submission, matching
-     the Google Form's single-select question. --}}
+     When dates are set: fill the three cards, add the dates to
+     WRITERS_MEETING_LABELS and WRITERS_MEETING_GFORM_OPTIONS in
+     workers/forms/forms.js and to the Google Form's "Meeting Attending"
+     question (byte-identical), then restore the RSVP form (git history,
+     commit before this one) with radios for the new keys. RSVPs write to
+     D1 writers_meetings_registrations, the email and the Google sheet. --}}
 
 <main class="writers-meetings">
 
@@ -33,7 +32,7 @@
     <div class="container">
       <p class="hero-kicker"><span class="dot"></span> New Writers Meetings</p>
       <h1 class="hero-headline">An invitation to <span class="highlight"><em>write with us</em></span>.</h1>
-      <p class="hero-sub">Three conversations this fall for writers who have pitched <em>Mere&nbsp;Orthodoxy</em>, and for those who have been wanting to.</p>
+      <p class="hero-sub">Conversations over Zoom for writers who have pitched <em>Mere&nbsp;Orthodoxy</em> and for writers who want to.</p>
     </div>
   </section>
 
@@ -41,207 +40,107 @@
     <div class="container container-narrow">
 
       <div class="about-prose">
-        <p class="about-lede">Most of what we publish arrives from writers we have never met. An essay comes in, an editor reads it, a note goes back, and somewhere in that exchange a working relationship begins without anyone having said hello. That is a strange way to do the work, and this fall we would like to try something else.</p>
-        <p>Beginning in September we are hosting three one-hour conversations over Zoom. Each is part introduction and part training: time to meet the editors and one another, and time to talk carefully about how an essay actually holds together. We are starting with three meetings and will see what they become.</p>
+        <p class="about-lede">Most of what we publish comes from writers we have never met. An essay arrives and an editor reads it. A note goes back. A working relationship begins without anyone saying hello. These meetings are a better way to start.</p>
+        <p>Each meeting is one hour on Zoom. You meet the editors and the other writers. Then we read one published essay together and talk about how it works.</p>
       </div>
 
-      {{!-- At-a-glance. Nothing above the fold otherwise tells a reader
-            when, how long, or what it costs, and on a site with this much
-            gated content, silence about price reads as a catch. --}}
       <dl class="writers-meetings-facts">
         <div class="writers-meetings-fact">
-          <dt>Dates</dt>
-          <dd>September 8, October 6, and November 3</dd>
+          <dt>Next dates</dt>
+          <dd>To be announced</dd>
         </div>
         <div class="writers-meetings-fact">
-          <dt>Time</dt>
-          <dd>11:00am CT / 12:00pm ET, one hour on Zoom</dd>
+          <dt>Length</dt>
+          <dd>One hour on Zoom</dd>
         </div>
         <div class="writers-meetings-fact">
           <dt>Cost</dt>
-          <dd>Free, and open to anyone</dd>
+          <dd>Free and open to anyone</dd>
         </div>
         <div class="writers-meetings-fact">
           <dt>To prepare</dt>
-          <dd>One essay, about ten minutes of reading</dd>
+          <dd>Read one essay in about ten minutes</dd>
         </div>
       </dl>
 
       <div class="section-intro">
-        <p class="eyebrow">Who It Is For</p>
         <h2 class="section-heading"><em>An open invitation.</em></h2>
       </div>
       <div class="about-prose">
-        <p>You do not need to have written for us, and you do not need to be a member. If you have pitched an essay, whether or not we ran it, this is for you. If you have been meaning to pitch and have not yet done so, this is also for you. There is no application and no roster of prior contributors to belong to. Come to all three meetings or come to one.</p>
+        <p>You do not need to have written for us. You do not need to be a member. If you have pitched an essay, this is for you. If you have meant to pitch and have not yet, this is for you too. There is no application. Come to one meeting or come to all of them.</p>
       </div>
 
       <div class="section-intro">
-        <p class="eyebrow">The Shape of a Meeting</p>
-        <h2 class="section-heading"><em>One essay, read closely.</em></h2>
+        <h2 class="section-heading"><em>One essay read closely.</em></h2>
       </div>
       <div class="about-prose">
-        <p>Each meeting is built around a single essay we have published. We will point you to it beforehand. It runs about ten minutes of reading, and we ask that you come having read it. The conversation then takes up the ordinary questions an editor asks: what is this piece arguing, where does it earn the reader's attention, what would have made it stronger. Reading one published essay closely teaches more than a page of guidelines can, and it gives us something particular to talk about rather than generalities about good writing.</p>
-        <p>If the week gets away from you and you arrive without having read it, come anyway. We would rather have you in the room.</p>
+        <p>Each meeting reads one essay we have published. We send it to you beforehand. We talk through the questions an editor asks: what the piece argues, where it earns the reader's attention and what would make it stronger. One essay read closely teaches more than a page of guidelines.</p>
+        <p>If you arrive without having read it, come anyway.</p>
       </div>
 
       <div class="flourish"></div>
 
       <div class="section-intro">
-        <p class="eyebrow">The Dates</p>
-        <h2 class="section-heading"><em>Three Tuesdays.</em></h2>
+        <h2 class="section-heading"><em>The next meetings.</em></h2>
       </div>
-      <ol class="submissions-guidelines writers-meetings-dates">
-        <li class="submissions-guideline">
-          <span class="submissions-guideline-numeral" aria-hidden="true">I</span>
-          <div>
-            <h3 class="submissions-guideline-label"><em>Tuesday, September 8</em></h3>
-            <p><time datetime="2026-09-08T11:00:00-05:00">11:00am CT / 12:00pm ET</time>. One hour, over Zoom.</p>
-            <p class="writers-meetings-reading">Reading: <a href="/forsaking-all-others/"><em>Forsaking All Others</em></a> by Kirsten Sanders, on marriage as a chosen constraint that turns out to be the condition of freedom rather than its loss.</p>
-          </div>
+    </div>
+
+    {{!-- Three cards in a row on a wider measure than the prose; they
+          stack on a phone. Fill each with its date and reading when set. --}}
+    <div class="container">
+      <ol class="wm-dates">
+        <li class="wm-date">
+          <span class="wm-date-numeral" aria-hidden="true">I</span>
+          <p class="wm-date-when">Date to be announced</p>
+          <p class="wm-date-meta">One hour on Zoom</p>
+          <p class="wm-date-reading">Reading to be announced</p>
         </li>
-        <li class="submissions-guideline">
-          <span class="submissions-guideline-numeral" aria-hidden="true">II</span>
-          <div>
-            <h3 class="submissions-guideline-label"><em>Tuesday, October 6</em></h3>
-            <p><time datetime="2026-10-06T11:00:00-05:00">11:00am CT / 12:00pm ET</time>. One hour, over Zoom.</p>
-            <p class="writers-meetings-reading">Reading: to be announced.</p>
-          </div>
+        <li class="wm-date">
+          <span class="wm-date-numeral" aria-hidden="true">II</span>
+          <p class="wm-date-when">Date to be announced</p>
+          <p class="wm-date-meta">One hour on Zoom</p>
+          <p class="wm-date-reading">Reading to be announced</p>
         </li>
-        <li class="submissions-guideline">
-          <span class="submissions-guideline-numeral" aria-hidden="true">III</span>
-          <div>
-            <h3 class="submissions-guideline-label"><em>Tuesday, November 3</em></h3>
-            <p><time datetime="2026-11-03T11:00:00-06:00">11:00am CT / 12:00pm ET</time>. One hour, over Zoom.</p>
-            <p class="writers-meetings-reading">Reading: to be announced.</p>
-          </div>
+        <li class="wm-date">
+          <span class="wm-date-numeral" aria-hidden="true">III</span>
+          <p class="wm-date-when">Date to be announced</p>
+          <p class="wm-date-meta">One hour on Zoom</p>
+          <p class="wm-date-reading">Reading to be announced</p>
         </li>
       </ol>
+    </div>
 
-      {{!-- Registration. Posts to the mo-forms worker's /writers-meetings
-            endpoint, which emails Nadya and copies the row into a Google
-            Form's linked sheet. The checkbox values are date keys and must
-            stay in sync with WRITERS_MEETING_LABELS in workers/forms/forms.js;
-            the worker drops anything outside that set. --}}
+    <div class="container container-narrow">
       <div class="section-intro" id="register">
-        <p class="eyebrow">Registration</p>
-        <h2 class="section-heading"><em>Come and sit in.</em></h2>
+        <h2 class="section-heading"><em>Hear about the next dates.</em></h2>
       </div>
       <div class="writers-meetings-form-panel">
-        <p class="writers-meetings-form-intro">Tell us who you are and which meeting you plan to join. We will send the Zoom link and the reading beforehand. There is no cost. If you hope to come to more than one, say so in the note and we will add you.</p>
-        <form class="site-form" data-site-form="writers-meetings" data-worker-url="{{@custom.forms_worker_url}}" novalidate>
+        <p class="writers-meetings-form-intro">Leave your name and email. We will send you the dates and the readings when they are set.</p>
+        <div class="site-form" data-inline-signup data-source="writers-meetings" data-signup-confirmation="Open it to confirm your email. We will send the dates when they are set.">
           <div class="site-form-row">
             <div class="site-form-field">
               <label for="wm-first">First name</label>
-              <input id="wm-first" name="firstName" type="text" autocomplete="given-name" required />
+              <input id="wm-first" type="text" autocomplete="given-name" data-signup-first required />
             </div>
             <div class="site-form-field">
               <label for="wm-last">Last name</label>
-              <input id="wm-last" name="lastName" type="text" autocomplete="family-name" required />
+              <input id="wm-last" type="text" autocomplete="family-name" data-signup-last required />
             </div>
           </div>
           <div class="site-form-field">
             <label for="wm-email">Email</label>
-            <input id="wm-email" name="email" type="email" autocomplete="email" required />
+            <input id="wm-email" type="email" autocomplete="email" inputmode="email" data-signup-email required />
           </div>
-
-          {{!-- Radios, not checkboxes: the Google Form's matching question
-                is single-select, so one meeting per registration. Someone
-                who wants more than one says so in the note below, which
-                reaches the email. --}}
-          <fieldset class="site-form-field writers-meetings-checks">
-            <legend>Which meeting will you join?</legend>
-            <label class="site-form-field-check">
-              <input type="radio" name="meetings" value="2026-09-08" required />
-              <span>Tuesday, September 8</span>
-            </label>
-            <label class="site-form-field-check">
-              <input type="radio" name="meetings" value="2026-10-06" required />
-              <span>Tuesday, October 6</span>
-            </label>
-            <label class="site-form-field-check">
-              <input type="radio" name="meetings" value="2026-11-03" required />
-              <span>Tuesday, November 3</span>
-            </label>
-          </fieldset>
-
-          <div class="site-form-field">
-            <label for="wm-note">Anything you would like us to know?</label>
-            <p class="site-form-note">Optional. What you are working on, or a question you want taken up.</p>
-            <textarea id="wm-note" name="note" rows="3" maxlength="2000"></textarea>
-          </div>
-
-          {{!-- Cloudflare Turnstile widget — see custom-contact.hbs
-               for the rationale + site-key meta-tag pattern. --}}
-          <div class="site-form-field" data-turnstile-wrap></div>
-          <button type="submit" class="site-form-submit">Register</button>
-          <p class="site-form-status" data-form-status></p>
-        </form>
+          <button type="button" class="btn btn-solid wm-submit" data-signup-submit>Keep me posted</button>
+          <p class="site-form-status" data-signup-status role="status" aria-live="polite"></p>
+        </div>
       </div>
 
-      {{!-- The coda closes on a hairline rather than a second flourish:
-            it is the only block on the page with no section-intro, so an
-            act-break ornament above it reads as a heading that fell off.
-            One flourish, at the argument-to-logistics turn, is the whole
-            page's ornament budget. --}}
       <div class="about-prose writers-meetings-footnote">
-        <p>The meetings are not a prerequisite. If you have an essay ready now, <a href="/submissions/">send us a pitch</a>.</p>
+        <p>You do not need to come to a meeting first. If you have an essay ready now, <a href="/submissions/">send us a pitch</a>.</p>
       </div>
 
     </div>
   </section>
 
 </main>
-
-{{!-- Event schema for the three meetings. location.url is the page
-     itself because registration happens here; if we ever move sign-up to
-     a Zoom registration link, swap all three location.url values to it
-     and leave the top-level url on the page. No `offers` block: the page
-     does say the meetings are free, but Google wants a validFrom and a
-     registration URL alongside it, so it is cleaner to omit than guess. --}}
-<script type="application/ld+json">
-[
-  {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    "name": "Mere Orthodoxy New Writers Meeting: September",
-    "description": "A one-hour conversation over Zoom for prospective Mere Orthodoxy contributors. Part introduction to the editors, part training, built around a close reading of one published essay.",
-    "startDate": "2026-09-08T11:00:00-05:00",
-    "endDate": "2026-09-08T12:00:00-05:00",
-    "eventStatus": "https://schema.org/EventScheduled",
-    "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
-    "location": { "@type": "VirtualLocation", "url": "{{@site.url}}/writers-meetings/" },
-    "url": "{{@site.url}}/writers-meetings/",
-    "image": "{{@site.url}}{{asset "images/mo-share-card.jpg"}}",
-    "organizer": { "@type": "Organization", "name": "Mere Orthodoxy", "url": "{{@site.url}}" }
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    "name": "Mere Orthodoxy New Writers Meeting: October",
-    "description": "A one-hour conversation over Zoom for prospective Mere Orthodoxy contributors. Part introduction to the editors, part training, built around a close reading of one published essay.",
-    "startDate": "2026-10-06T11:00:00-05:00",
-    "endDate": "2026-10-06T12:00:00-05:00",
-    "eventStatus": "https://schema.org/EventScheduled",
-    "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
-    "location": { "@type": "VirtualLocation", "url": "{{@site.url}}/writers-meetings/" },
-    "url": "{{@site.url}}/writers-meetings/",
-    "image": "{{@site.url}}{{asset "images/mo-share-card.jpg"}}",
-    "organizer": { "@type": "Organization", "name": "Mere Orthodoxy", "url": "{{@site.url}}" }
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    "name": "Mere Orthodoxy New Writers Meeting: November",
-    "description": "A one-hour conversation over Zoom for prospective Mere Orthodoxy contributors. Part introduction to the editors, part training, built around a close reading of one published essay.",
-    "startDate": "2026-11-03T11:00:00-06:00",
-    "endDate": "2026-11-03T12:00:00-06:00",
-    "eventStatus": "https://schema.org/EventScheduled",
-    "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
-    "location": { "@type": "VirtualLocation", "url": "{{@site.url}}/writers-meetings/" },
-    "url": "{{@site.url}}/writers-meetings/",
-    "image": "{{@site.url}}{{asset "images/mo-share-card.jpg"}}",
-    "organizer": { "@type": "Organization", "name": "Mere Orthodoxy", "url": "{{@site.url}}" }
-  }
-]
-</script>
-<script src="{{asset "js/site-forms.js"}}"></script>
