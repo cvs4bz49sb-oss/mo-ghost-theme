@@ -78,6 +78,7 @@
     panels.forEach((p) => {
       p.classList.toggle("is-active", p.getAttribute("data-mm-panel") === name);
     });
+    document.documentElement.classList.add("mm-is-open");
     place();
     mega.hidden = false;
     backdrop.hidden = false;
@@ -102,6 +103,7 @@
       if (current) return;
       mega.hidden = true;
       backdrop.hidden = true;
+      document.documentElement.classList.remove("mm-is-open");
     }, 200);
   }
 

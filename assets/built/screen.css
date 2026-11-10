@@ -27292,7 +27292,11 @@ body.has-journal-address .slide-in { bottom: 58px; }
   left: 0;
   right: 0;
   top: 0; /* set from the bar's bottom edge on open */
-  z-index: 19;
+  /* Over every bar a page pins under the header: TFR's .tfr-rail (19), the
+     reader's find bar, desk and contents panes (30 to 100). The header is
+     lifted above it while the menu is open (html.mm-is-open below) so the
+     bar's items stay hoverable over the backdrop. */
+  z-index: 110;
   max-height: calc(100vh - 90px); /* nav-mega.js sets it from the bar */
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -27309,12 +27313,13 @@ body.has-journal-address .slide-in { bottom: 58px; }
 .mm-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 18;
+  z-index: 109;
   background: rgba(45, 41, 39, 0.28);
   opacity: 0;
   transition: opacity 0.18s ease;
 }
 .mm-backdrop.is-open { opacity: 1; }
+html.mm-is-open .site-header { z-index: 111; }
 @media (max-width: 1261px) {
   .mm, .mm-backdrop { display: none !important; }
 }
@@ -27332,7 +27337,8 @@ body.has-journal-address .slide-in { bottom: 58px; }
 .mm-grid--three { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr); }
 .mm-grid--tfr { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 1.1fr); }
 
-.mm a { color: var(--color-dark); text-decoration: none; }
+/* Buttons keep their own colors: .btn-solid is white on terracotta. */
+.mm a:where(:not(.btn)) { color: var(--color-dark); text-decoration: none; }
 .mm .mm-col-title { font: 600 17px/1.3 var(--font-body); color: var(--color-dark); margin: 0 0 8px; }
 .mm-links { list-style: none; margin: 0; padding: 0; }
 .mm-links a {
