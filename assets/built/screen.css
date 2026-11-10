@@ -1439,13 +1439,14 @@ a.btn-solid:focus-visible {
   justify-content: center;
   margin-top: 36px;
   padding: 40px 40px 36px;
-  background: var(--color-dark);
-  color: var(--color-white);
+  background: var(--color-background);
+  color: var(--color-dark);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
 }
 .today-digest-copy .eyebrow {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-variant: small-caps;
   letter-spacing: 0.28em;
   margin: 0 0 10px;
@@ -1456,14 +1457,14 @@ a.btn-solid:focus-visible {
   font-style: italic;
   font-size: 32px;
   line-height: 1.15;
-  color: var(--color-white);
+  color: var(--color-dark);
   margin: 0 0 10px;
 }
-.today-digest-copy p:last-child { font-size: 16px; color: rgba(255, 255, 255, 0.78); margin: 0 0 26px; }
-.today-digest .digest-field label { color: rgba(255, 255, 255, 0.72); }
+.today-digest-copy p:last-child { font-size: 16px; color: var(--color-muted); margin: 0 0 26px; }
+.today-digest .digest-field label { color: var(--color-muted); }
 .today-digest .digest-field input {
   background: var(--color-white);
-  border: 1px solid transparent;
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius);
   padding: 12px 14px;
   color: var(--color-dark);
@@ -1473,19 +1474,14 @@ a.btn-solid:focus-visible {
   justify-self: start;
   margin-top: 14px;
   padding: 13px 24px;
-  background: var(--color-primary);
-  color: var(--color-dark);
+  background: var(--color-secondary);
+  color: var(--color-white);
   border-radius: var(--radius);
   font-size: 12px;
 }
-.today-digest .digest-submit:hover { background: var(--color-white); color: var(--color-dark); }
-.today-digest .digest-form .digest-status { color: rgba(255, 255, 255, 0.78); }
-.today-digest .digest-form .digest-status.is-error { color: #ffb59a; }
-.today-digest .inline-signup-success,
-.today-digest .inline-signup-success h4,
-.today-digest .inline-signup-success p,
-.today-digest .inline-signup-success strong,
-.today-digest .inline-signup-success-title { color: var(--color-white); background: transparent; }
+.today-digest .digest-submit:hover { background: var(--color-dark); color: var(--color-white); }
+.today-digest .digest-form .digest-status { color: var(--color-muted); }
+.today-digest .digest-form .digest-status.is-error { color: var(--color-alert-text); }
 
 .sidebar-heading {
   margin: 0 0 16px;
