@@ -9495,6 +9495,14 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin: 0 0 20px;
 }
 .events-none-sub:last-child { margin-bottom: 0; }
+.events-none-sub { margin-bottom: 0; }
+.events-none--signup {
+  max-width: none;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 48px;
+  align-items: center;
+}
 
 /* --- event post page (partials/event-post.hbs) ------------------------ */
 .event-hero {
@@ -9559,6 +9567,10 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .event-content img { max-width: 100%; height: auto; }
 .event-content h2,
 .event-content h3 { font-family: var(--font-display); font-weight: 400; color: var(--color-dark); }
+.event-content .gh-post-upgrade-cta { display: none; }
+.event-replay-gate { margin: 40px 0; }
+.event-replay-gate .event-replay-signin { font-size: 15px; margin: 16px 0 0; }
+.event-replay-gate .event-replay-signin a { color: var(--color-primary-text); text-decoration: underline; }
 .event-aside { position: sticky; top: 96px; }
 .event-aside-card {
   background: var(--color-white);
@@ -9595,6 +9607,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .event-hero-image { max-width: 640px; }
   .event-body-grid { grid-template-columns: 1fr; gap: 40px; }
   .event-aside { position: static; max-width: 560px; }
+  .events-none--signup { grid-template-columns: 1fr; gap: 24px; }
 }
 @media (max-width: 820px) {
   .forum-hero-grid { grid-template-columns: 1fr; gap: 32px; }

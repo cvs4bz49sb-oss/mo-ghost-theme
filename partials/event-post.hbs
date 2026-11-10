@@ -23,7 +23,7 @@
             {{#has tag="#past-event"}}
               {{#match @member.status "paid"}}<a class="btn btn-solid btn-primary" href="#replay">Watch the replay</a>{{else}}
               {{#match @member.status "comped"}}<a class="btn btn-solid btn-primary" href="#replay">Watch the replay</a>{{else}}
-              <a class="btn btn-solid btn-primary" href="/membership/" data-hm-goal="member-cta">Become a Member to watch</a>
+              <a class="btn btn-solid btn-primary" href="/membership/" data-hm-goal="member-cta">Become a Member</a>
               {{/match}}{{/match}}
             {{else}}
               <a class="btn btn-solid btn-primary" href="/forum/">Save your seat</a>
@@ -46,6 +46,20 @@
     <div class="container event-body-grid">
       <div class="events-prose event-content" data-event-content>
         {{content}}
+        {{!-- Ghost's own paywall box ("This post is for paying subscribers
+             only") is hidden on event pages in favour of this card. Shown
+             only when Ghost is withholding the replay: a paid-visibility
+             post and a reader who is not a paid or comped member. --}}
+        {{#match visibility "paid"}}{{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+        <div class="inline-support event-replay-gate">
+          <h3><em>Replay is for Members only</em></h3>
+          <p>Join Mere Orthodoxy to watch this forum and every past one.</p>
+          <div class="inline-support-ctas">
+            <a href="/membership/" class="btn btn-solid btn-primary" data-hm-goal="member-cta">Become a Member</a>
+          </div>
+          {{#unless @member}}<p class="event-replay-signin">Already a member? <a href="#/portal/signin" data-portal="signin">Sign in</a></p>{{/unless}}
+        </div>
+        {{/match}}{{/match}}{{/match}}
       </div>
       <aside class="event-aside" aria-label="Event details">
         <div class="event-aside-card">
