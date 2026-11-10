@@ -78,11 +78,12 @@
     lastSentAt = now;
     try {
       const body = JSON.stringify(payload);
-      // sendBeacon doesn't fire CORS preflight (it's a "simple"
-      // POST), and is queued past pagehide — ideal for error
-      // beacons. Falls back to fetch() with keepalive.
+      // text/plain keeps this a "simple" POST. An application/json blob
+      // sends a credentialed preflight, which mo-errors doesn't allow, so
+      // the report would be dropped silently. The worker parses the bytes
+      // whatever the type. Queued past pagehide; falls back to fetch().
       if (navigator.sendBeacon) {
-        const ok = navigator.sendBeacon(endpoint, new Blob([body], { type: "application/json" }));
+        const ok = navigator.sendBeacon(endpoint, new Blob([body], { type: "text/plain;charset=UTF-8" }));
         if (ok) return;
       }
       fetch(endpoint, {
