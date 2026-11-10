@@ -33,11 +33,36 @@
             <li><a href="/tag/book-reviews/" data-mm-set="book-reviews">Book Reviews</a></li>
           </ul>
         </nav>
+        {{#if @member}}
         <div>
           <div class="mm-set-head"><p class="mm-col-title" data-mm-set-title>Latest</p><a class="mm-more" data-mm-set-more href="/archive/">All essays</a></div>
           <ul class="mm-rows" data-mm-rows></ul>
         </div>
         <div data-mm-lead></div>
+        {{else}}
+        {{!-- Signed out: the lead essay heads the middle column and the
+             right column is the Weekly Digest sign-up (same inline signup
+             as the homepage box). --}}
+        <div>
+          <div class="mm-set-head"><p class="mm-col-title" data-mm-set-title>Latest</p><a class="mm-more" data-mm-set-more href="/archive/">All essays</a></div>
+          <div class="mm-lead-inline" data-mm-lead></div>
+          <ul class="mm-rows" data-mm-rows></ul>
+        </div>
+        <div class="mm-feature">
+          <p class="mm-feature-title">The Weekly Digest</p>
+          <div class="mm-signup" data-inline-signup data-newsletter="weekly-digest" data-source="nav-weekly-digest">
+            <p>All of our recent essays and podcasts, delivered every Thursday. Free.</p>
+            <div class="mm-signup-names">
+              <label><span>First name</span><input type="text" autocomplete="given-name" data-signup-first required></label>
+              <label><span>Last name</span><input type="text" autocomplete="family-name" data-signup-last required></label>
+            </div>
+            <label><span>Email</span><input type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-signup-email required></label>
+            <button type="button" class="btn btn-solid" data-signup-submit>Sign up free</button>
+            <p class="mm-signup-status" data-signup-status role="status" aria-live="polite"></p>
+            <p class="mm-signup-fine">Already subscribed? <button type="button" class="mm-link-btn" data-portal="signin">Sign in</button></p>
+          </div>
+        </div>
+        {{/if}}
       </div>
     </section>
 
@@ -190,12 +215,12 @@
           <div class="mm-books">
             <div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9780060652920.jpg" alt="Mere Christianity" loading="lazy"></div>
             <div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781535995672.jpg" alt="Orthodoxy" loading="lazy"></div>
-            <div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781514008560.jpg" alt="Walking Through Deconstruction" loading="lazy"></div>
+            <div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9780830845545.jpg" alt="In Search of the Common Good" loading="lazy"></div>
             <div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781514019344.jpg" alt="Church Matters" loading="lazy"></div>
             <div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781587437076.jpg" alt="The Literate Soul" loading="lazy"></div>
+            <div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781514008560.jpg" alt="Walking Through Deconstruction" loading="lazy"></div>
             <div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9798874905552.jpg" alt="Scroll Less, Live More" loading="lazy"></div>
             <div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9781514017647.jpg" alt="The Fire of Glory" loading="lazy"></div>
-            <div class="mm-plate"><img src="https://images-us.bookshop.org/ingram/9780830845545.jpg" alt="In Search of the Common Good" loading="lazy"></div>
           </div>
           <span class="mm-more">Browse the Bookshelf</span>
         </a>

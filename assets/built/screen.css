@@ -27755,3 +27755,11 @@ html.mm-is-open .site-header { z-index: 111; }
 
 /* Mail mark before the Weekly Digest eyebrow (homepage box, digest-cta). */
 .eyebrow .eyebrow-icon { display: inline-block; vertical-align: -2px; margin-right: 9px; }
+
+/* Read panel, signed out: the lead essay sits at the top of the middle
+   column as a wide row (picture left, title right) above the list. */
+.mm .mm-lead-inline .mm-feature { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; padding: 6px 0 16px; border-bottom: 1px solid var(--color-rule); }
+.mm .mm-lead-inline .mm-feature > .mm-plate { grid-row: 1 / span 2; }
+.mm .mm-lead-inline .mm-feature-title { grid-column: 2; align-self: end; margin: 0 0 6px; }
+.mm .mm-lead-inline .mm-by { grid-column: 2; align-self: start; }
+.mm .mm-lead-inline:empty { display: none; }
