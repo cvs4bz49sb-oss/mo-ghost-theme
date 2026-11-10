@@ -27613,6 +27613,7 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm-drawer .mm-acc-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
 .mm-drawer .mm-acc-body { padding: 0 0 10px 16px; display: flex; flex-direction: column; }
 .mm-drawer .mm-acc-body[hidden] { display: none; }
+.mm-drawer .mm-acc-sep { display: block; height: 1px; background: var(--color-rule); margin: 4px 0; }
 .mobile-nav-links.mm-drawer .mm-acc-body a { border-bottom: 0; padding: 10px 0; min-height: 44px; display: flex; align-items: center; font-size: 16px; font-weight: 400; }
 
 @media (prefers-reduced-motion: reduce) {
