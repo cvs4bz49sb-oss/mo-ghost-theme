@@ -365,6 +365,17 @@
     a.addEventListener("focus", () => { showSet(name); });
   });
 
+  // Resources: the right-hand card follows the link under the pointer
+  // (Bookshelf or Ebooks) and stays until the other one is hovered.
+  const resCards = mega.querySelector("[data-mm-res-cards]");
+  if (resCards) {
+    Array.prototype.forEach.call(mega.querySelectorAll("a[data-mm-res]"), (a) => {
+      const show = () => { resCards.setAttribute("data-show", a.getAttribute("data-mm-res")); };
+      a.addEventListener("mouseenter", show);
+      a.addEventListener("focus", show);
+    });
+  }
+
   // ── 3. Listen ───────────────────────────────────────────────────────
 
   const FEED_URL = document.body.getAttribute("data-podcast-feed-url") || "";
