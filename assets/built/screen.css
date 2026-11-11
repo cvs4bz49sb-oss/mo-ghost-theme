@@ -16897,7 +16897,6 @@ body[class*="lc-"] .bhero {
    later clause indented beneath the first. */
 .do-office p.do-pv { margin: 0 0 0.55em; padding-left: 1.6em; position: relative; }
 .do-pv > .do-vn { position: absolute; left: 0; top: 0.55em; margin: 0; }
-.do-pv > .do-chnum { position: absolute; left: -0.1em; top: 0; float: none; font-size: 1.5em; }
 .do-pl { display: block; }
 .do-pl2 { padding-left: 1.4em; }
 .do-gap { text-align: center; color: var(--color-muted); margin: 0.6em 0; }

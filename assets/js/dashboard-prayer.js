@@ -342,7 +342,7 @@
   // printed Bible would: Psalms and Proverbs one verse to a block, broken
   // at its clauses with the rest indented beneath (as the canticles are);
   // narrative in paragraphs of a few verses, broken at a sentence end.
-  // A chapter that starts at verse 1 opens with a large chapter numeral.
+  // A prose chapter that starts at verse 1 opens with a large numeral.
   const POETRY = /^(Psalms?|Proverbs|Song of (Songs|Solomon)|Lamentations)\b/i;
   const PARA_MIN = 4;
 
@@ -371,7 +371,9 @@
     return verses.map((v) => {
       // Break after a clause mark that is followed by more text.
       const lines = v.text.split(/(?<=[;:?!.][\u201d\u2019"']*)\s+(?=\S)/);
-      return `<p class="do-pv">${verseNum(v, chapterNo)}${lines.map((l, i) => {
+      // No chapter numeral in poetry: it would collide with the hanging
+      // verse numbers, and the heading already names the Psalm.
+      return `<p class="do-pv">${verseNum(v, null)}${lines.map((l, i) => {
         return `<span class="${i ? "do-pl do-pl2" : "do-pl"}">${scriptureText(l)}</span>`;
       }).join("")}</p>`;
     }).join("");
