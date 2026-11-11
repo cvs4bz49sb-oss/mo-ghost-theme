@@ -205,10 +205,12 @@
         </div>
         <div>
           <div class="mm-feature mm-card">
-            <a href="/#journal" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/journal-hero.jpg"}}" alt="" loading="lazy"></div></a>
+            <a href="/journal/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/journal-hero.jpg"}}" alt="" loading="lazy"></div></a>
             <p class="mm-feature-title">Mere Orthodoxy in print</p>
             <p>Long-form essays on theology, culture and politics. Members receive it in print.</p>
-            {{#unless @member}}<a class="btn btn-solid" href="/membership/">Become a member</a>{{/unless}}
+            {{!-- Goes to the Journal page, which carries the join cards (Ian,
+                 2026-11-11). data-mm-drawer puts it in the phone drawer too. --}}
+            {{#unless @member}}<a class="btn btn-solid" href="/journal/" data-mm-drawer>See the journal</a>{{/unless}}
           </div>
         </div>
       </div>
