@@ -135,6 +135,9 @@ html.mag-open, html.mag-open body { overflow: hidden; }
 /* Bio: the emblem, then the bio in spaced capitals, centered. */
 .mp-bio { break-inside: avoid; margin: 3cqw 0 0; text-align: center; }
 .mp-bio .mp-emblem { display: block; width: 5.4cqw; height: 5.4cqw; max-height: none; margin: 0 auto 2cqw; filter: saturate(0.55) brightness(0.72); }
+.mp-solo .mp-pc { columns: auto; display: flex; align-items: center; justify-content: center; }
+.mp-solo .mp-bio { max-width: 46cqw; margin: 0; }
+.mp-pc .mp-bio p + p { margin-top: 1.2em; }
 .mp-pc .mp-bio p { margin: 0; font-family: var(--mag-display); font-size: 1.55cqw; line-height: 1.5; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; hyphens: none; -webkit-hyphens: none; color: var(--mag-ink); }
 
 /* ── Cover and back ── */
@@ -154,27 +157,23 @@ html.mag-open, html.mag-open body { overflow: hidden; }
 .mp-url { margin-top: 5cqw; font-size: 1.5cqw; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mag-muted); }
 .mp-orn { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--mag-display); font-size: 4cqw; color: var(--mag-accent); }
 
-/* ── Contents ── */
-.mp-toc--more .mp-pc { padding-top: 9.6cqw; }
-.mp-toc h2 { font-family: var(--mag-display); font-weight: 400; font-size: 5.6cqw; line-height: 1; margin: 1cqw 0 3cqw; }
-.mp-toc-list { list-style: none; margin: 0; padding: 0; }
-.mp-toc-list li { border-top: 1px solid #e9dec8; }
-.mp-toc-list li:last-child { border-bottom: 1px solid #e9dec8; }
-.mp-toc-list button {
-  all: unset;
-  box-sizing: border-box;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.3cqw 2.4cqw;
-  padding: 1.3cqw 0;
-  cursor: pointer;
-}
-.mp-toc-list button:focus-visible { outline: 2px solid var(--mag-accent); }
-.mp-toc-t { grid-column: 1; font-family: var(--mag-display); font-size: 2.3cqw; line-height: 1.2; }
-.mp-toc-a { grid-column: 1; font-size: 1.4cqw; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mag-muted); }
-.mp-toc-pg { grid-column: 2; grid-row: 1 / 3; align-self: center; color: var(--mag-accent-deep); font-size: 2.1cqw; font-variant-numeric: oldstyle-nums; }
-.mp-toc-list button:hover .mp-toc-t { color: var(--mag-accent-deep); }
+/* ── Inside cover: contents, board, epigraph ── */
+.mp-ic .mp-pc { top: 6cqw; bottom: 6cqw; font-family: var(--mag-display); }
+.mp-ic-h { margin: 0 0 1.8cqw; padding: 2cqw 0; border-top: 1px solid rgba(45, 41, 39, 0.35); border-bottom: 1px solid rgba(45, 41, 39, 0.35); font-family: var(--mag-display); font-weight: 400; font-size: 4.6cqw; line-height: 1; letter-spacing: 0.26em; text-transform: uppercase; }
+.mp-ic-list { list-style: none; margin: 0; padding: 0 0 1.8cqw; border-bottom: 1px solid rgba(45, 41, 39, 0.35); }
+.mp-ic--more .mp-ic-list { padding-top: 2.2cqw; border-top: 1px solid rgba(45, 41, 39, 0.35); }
+.mp-ic-list button { all: unset; box-sizing: border-box; width: 100%; display: grid; grid-template-columns: 3.6cqw 1fr; gap: 0 1.2cqw; padding: 0.28cqw 0; cursor: pointer; font-style: italic; font-size: 1.95cqw; line-height: 1.26; }
+.mp-ic-list button:focus-visible { outline: 2px solid var(--mag-accent); }
+.mp-ic-pg { color: var(--mag-accent-deep); font-style: normal; font-variant-numeric: oldstyle-nums; }
+.mp-ic-list button:hover .mp-ic-t { color: var(--mag-accent-deep); }
+.mp-ic-board { margin-top: 2.2cqw; font-size: 1.65cqw; line-height: 1.4; }
+.mp-pc .mp-ic-board p { margin: 0; text-align: left; hyphens: none; -webkit-hyphens: none; }
+.mp-pc .mp-ic-board .mp-ic-board-h { letter-spacing: 0.1em; text-transform: uppercase; }
+.mp-pc .mp-ic-board .mp-ic-pub { margin-top: 1.6cqw; }
+.mp-ic-url { color: var(--mag-accent-deep); }
+.mp-eliot-in { position: absolute; left: 12cqw; right: 12cqw; top: 30cqw; }
+.mp-eliot-by { margin: 0 0 6cqw; padding: 2cqw 0; border-top: 1px solid rgba(45, 41, 39, 0.35); border-bottom: 1px solid rgba(45, 41, 39, 0.35); text-align: center; font-family: var(--mag-display); font-style: italic; font-size: 1.7cqw; letter-spacing: 0.14em; text-transform: uppercase; }
+.mp-eliot-q { margin: 0; font-family: var(--mag-text); font-size: 2cqw; line-height: 2.5; text-align: justify; color: #5a4a40; }
 
 /* Reader bar door. */
 .rd-btn.mag-door svg { width: 19px; height: 19px; }
@@ -188,13 +187,17 @@ html.mag-open, html.mag-open body { overflow: hidden; }
   .mp-title { font-size: 8.4cqw; }
   .mp-by { font-size: 2.6cqw !important; }
   .mp-fo { font-size: 3cqw; bottom: 4cqw; }
-  .mp-pc .mp-bio p { font-size: 2.5cqw; }
+  .mp-solo .mp-pc { columns: auto; display: flex; align-items: center; justify-content: center; }
+.mp-solo .mp-bio { max-width: 46cqw; margin: 0; }
+.mp-pc .mp-bio p + p { margin-top: 1.2em; }
+.mp-pc .mp-bio p { font-size: 2.5cqw; }
   .mp-bio .mp-emblem { width: 8cqw; height: 8cqw; }
-  .mp-toc h2 { font-size: 7.4cqw; }
-  .mp-toc-t { font-size: 3.5cqw; }
-  .mp-toc-a { font-size: 2.2cqw; }
-  .mp-toc-pg { font-size: 3.2cqw; }
-  .mp-toc-list button { padding: 1.8cqw 0; }
+  .mp-ic-h { font-size: 6.4cqw; }
+  .mp-ic-list button { grid-template-columns: 6cqw 1fr; font-size: 3.3cqw; padding: 0.7cqw 0; }
+  .mp-ic-board { font-size: 2.7cqw; }
+  .mp-eliot-in { left: 9cqw; right: 9cqw; top: 22cqw; }
+  .mp-eliot-by { font-size: 2.8cqw; }
+  .mp-eliot-q { font-size: 3.4cqw; line-height: 2; }
   .mag-stage { width: min(100%, calc((100dvh - 190px) * 0.77)); }
   .mag-hint { font-size: 12px; }
   .mag-bar { gap: 6px; flex-wrap: nowrap; font-size: 13px; }

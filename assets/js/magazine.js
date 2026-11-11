@@ -31,6 +31,20 @@
   const titleEl = document.querySelector("h1.rd-title");
   const BOOK_TITLE = titleEl ? titleEl.textContent.trim() : "";
 
+  const JOURNAL = /^Issue\s/i.test(BOOK_TITLE);
+  const BOARD =
+    '<div class="mp-ic-board">' +
+      '<p class="mp-ic-board-h">The Mere Orthodoxy Editorial Board</p>' +
+      "<p>Leadership Team</p>" +
+      "<p><i>Mark Kremer: Publisher, Jake Meador: Editor-in-chief, Ian Harber: Director of Communications</i></p>" +
+      "<p>Editorial Board</p>" +
+      "<p><i>Jake Meador (Editor-in-Chief), Nadya Williams (Books Editor), Matthew Loftus, Susannah Black Roberts, Samuel James, Kirsten Sanders, Tessa Carman, Matthew Lee Anderson (Founding Editor)</i></p>" +
+      '<p class="mp-ic-pub"><i>Mere Orthodoxy is a publication of the Institute for Christianity and Common Life based at 2040 South St, Lincoln NE, 68502. Learn more about supporting our work at <span class="mp-ic-url">mereorthodoxy.com/give</span></i></p>' +
+    "</div>";
+  const ELIOT =
+    '<div class="mp-eliot-in"><p class="mp-eliot-by">T.S. Eliot</p>' +
+    "<p class=\"mp-eliot-q\">I confess, however, that I am not myself very much concerned with the question of influence, or with those publicists who have impressed their names upon the public by catching the morning tide and rowing very fast in the direction in which the current was flowing; but rather that there should always be a few writers preoccupied in penetrating to the core of the matter, in trying to arrive at the truth and to set it forth, without too much hope, without ambition to alter the immediate course of affairs, and without being downcast or defeated when nothing appears to ensue.</p></div>";
+
   // ── Doors: a button on the title page and one in the reader bar ────
   const ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5v13"/></svg>';
   const actions = document.querySelector(".rd-title-page .rd-actions");
@@ -237,6 +251,12 @@
       c.classList.add("mag-b");
       if (c.matches("p.contributor-bio")) {
         // The bio sits under the emblem, as in print, and never splits.
+        const prev = out[out.length - 1];
+        if (prev && prev.classList.contains("mp-bio")) {
+          c.classList.remove("mag-b");
+          prev.appendChild(c);
+          return;
+        }
         const bio = document.createElement("div");
         bio.className = "mp-bio mag-b";
         if (EMBLEM) bio.innerHTML = `<img class="mp-emblem" src="${EMBLEM}" alt="">`;
@@ -285,28 +305,31 @@
       cv.querySelector(".mp-in").innerHTML = `<div class="mp-mast">Mere<br>Orthodoxy</div><div class="mp-cover-t">${esc(BOOK_TITLE)}</div>`;
     }
 
-    // Contents, filled with page numbers once the essays are set.
+    // Inside cover, after the printed journal: CONTENTS between
+    // hairlines, one line per essay (page number, then title and
+    // author in italic), the editorial board under it, and the Eliot
+    // epigraph on the facing page. Ebooks get the contents alone.
     tocIdx = pages.length;
-    const tp = page(book, "mp-toc",
-      `<div class="mp-pc"><h2>Contents</h2><ol class="mp-toc-list">${
+    const tp = page(book, "mp-ic",
+      `<div class="mp-pc"><h2 class="mp-ic-h">Contents</h2><ol class="mp-ic-list">${
         sections.map((s, n) => {
           const t = s.querySelector("h2.section-title").textContent.trim();
           const a = (s.querySelector("p.essay-author") || { textContent: "" }).textContent.replace(/^\s*By\s+/i, "").trim();
-          return `<li><button type="button" data-mag-go="${n}"><span class="mp-toc-t">${esc(t)}</span>${a ? `<span class="mp-toc-a">${esc(a)}</span>` : ""}<span class="mp-toc-pg" data-mag-pg="${n}"></span></button></li>`;
+          return `<li><button type="button" data-mag-go="${n}"><span class="mp-ic-pg" data-mag-pg="${n}"></span><span class="mp-ic-t">${esc(t)}${a ? ` <span class="mp-ic-by">by</span> ${esc(a)}` : ""}</span></button></li>`;
         }).join("")
-      }</ol></div>`);
-    furniture(tp);
-    // A long contents runs onto the facing page.
+      }</ol>${JOURNAL ? BOARD : ""}</div>`);
     let tpc = tp.querySelector(".mp-pc");
+    // The board gives way first when the contents run long.
+    if (over(tpc) && tpc.querySelector(".mp-ic-board")) tpc.querySelector(".mp-ic-board").remove();
     let guardT = 0;
     while (over(tpc) && guardT++ < 4) {
-      const list = tpc.querySelector(".mp-toc-list");
-      const np = page(book, "mp-toc mp-toc--more", '<div class="mp-pc"><ol class="mp-toc-list"></ol></div>');
-      furniture(np);
-      const nl = np.querySelector(".mp-toc-list");
+      const list = tpc.querySelector(".mp-ic-list");
+      const np = page(book, "mp-ic mp-ic--more", '<div class="mp-pc"><ol class="mp-ic-list"></ol></div>');
+      const nl = np.querySelector(".mp-ic-list");
       while (over(tpc) && list.children.length > 1) nl.insertBefore(list.lastElementChild, nl.firstChild);
       tpc = np.querySelector(".mp-pc");
     }
+    if (JOURNAL && pages.length % 2 === 0) page(book, "mp-eliot", ELIOT);
 
     sections.forEach((s, n) => {
       const title = s.querySelector("h2.section-title").textContent.trim();
@@ -328,6 +351,11 @@
         fill(ct.querySelector(".mp-pc"), queue);
         if (queue.length === before && queue[0] === head) break;
       }
+      // A bio that did not fit under the essay sits alone on its page:
+      // center it there.
+      const tail = pages[pages.length - 1].el;
+      const tailPc = tail.querySelector(".mp-pc");
+      if (tailPc.children.length === 1 && tailPc.firstElementChild.classList.contains("mp-bio")) tail.classList.add("mp-solo");
     });
 
     // The back cover closes the book on a left-hand page.
@@ -336,7 +364,7 @@
 
     book.querySelectorAll("[data-mag-pg]").forEach((el) => {
       const i = toc[+el.getAttribute("data-mag-pg")];
-      el.textContent = i === undefined ? "" : String(i + 1);
+      el.textContent = i === undefined ? "" : String(i + 1).padStart(2, "0");
     });
     book.querySelectorAll("[data-mag-go]").forEach((el) => {
       el.setAttribute("data-mag-idx", String(toc[+el.getAttribute("data-mag-go")]));
