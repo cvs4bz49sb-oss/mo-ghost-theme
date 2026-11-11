@@ -22,10 +22,26 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  {{!-- Fetched alongside the stylesheets instead of after magazine.js
+       runs, so the book is not kept waiting on them. --}}
+  <link rel="preload" as="script" href="{{asset "js/vendor/page-flip.browser.js"}}">
+  <link rel="preload" as="image" href="{{asset "images/journal-issue-005-cover.jpg"}}">
   <link rel="stylesheet" href="{{asset "css/reader-v2.css"}}">
   <link rel="stylesheet" href="{{asset "css/magazine.css"}}">
   <style>
-    html, body { height: 100%; margin: 0; }
+    html, body { height: 100%; margin: 0; background: #1f1c1a; }
+    /* While the pages are being set: show the cover where the book will
+       open (magazine-embed.js puts it on the stage) and keep the page
+       controls and the "Setting the pages" line out of sight. */
+    .mag.is-setting .mag-bar,
+    .mag.is-setting .mag-hint,
+    .mag.is-setting .mag-loading { visibility: hidden; }
+    .pv-poster { position: relative; aspect-ratio: 1080 / 701; }
+    .pv-poster img { position: absolute; top: 0; right: 0; width: 50%; height: 100%; object-fit: cover; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45); }
+    @media (max-width: 700px) {
+      .pv-poster { aspect-ratio: 540 / 701; }
+      .pv-poster img { width: 100%; }
+    }
     body > :not(.mag) { display: none !important; }
     .mag-close { display: none !important; }
     /* Framed, not full-screen: let a vertical drag on the table or the

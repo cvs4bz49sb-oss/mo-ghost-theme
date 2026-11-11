@@ -119,11 +119,13 @@
         </li>
       </ul>
       {{!-- Free preview: Issue 005 in the readers' magazine view, framed
-           from /journal/preview/ (custom-journal-preview.hbs). Lazy, so
-           the issue only loads when a visitor scrolls near it. --}}
+           from /journal/preview/ (custom-journal-preview.hbs). Loaded
+           with the page, not lazily, so the book is already open when a
+           visitor scrolls to it (Ian, 2026-11-11: "it needs to load
+           faster than this"). The document is about 125KB compressed. --}}
       <div class="journal-preview">
         <p class="journal-preview-note">Issue 005 is free to read here.</p>
-        <iframe class="journal-preview-frame" src="/journal/preview/" title="Issue 005, Fall 2024, in magazine view" loading="lazy"></iframe>
+        <iframe class="journal-preview-frame" src="/journal/preview/" title="Issue 005, Fall 2024, in magazine view"></iframe>
       </div>
       <div class="journal-ways-cta">
         {{#match @member.status "paid"}}
