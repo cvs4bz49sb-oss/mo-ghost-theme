@@ -112,6 +112,11 @@
     VIEW.letter = '';
     markCurrent('');
     const rows = (INDEX.top || []).filter((r) => tabOk(scriptOf(r[1]))).slice(0, TOPN);
+    // The most defined headwords are English, so on the Greek or Hebrew tab the landing opens that alphabet's first letter instead.
+    if (!rows.length && S.tab !== 'all') {
+      const first = letters().find((l) => scriptOfLetter(l) === S.tab);
+      if (first) { renderLetter(first); return; }
+    }
     $('#lx-all').innerHTML = `<section class="lx-sec lx-home" aria-labelledby="lx-home-h"><h2 class="lx-lh" id="lx-home-h">Most defined terms <small>by how many works define them</small></h2><div class="lx-chunks">${chunksHTML(rows)}</div><p class="lx-hint">Choose a letter to see every term under it, or search above.</p></section>`;
   }
   function drawLetter(l, rows, upto) {
