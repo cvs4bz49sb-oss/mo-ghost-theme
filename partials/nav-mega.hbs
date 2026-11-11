@@ -295,9 +295,9 @@
                pastor -> church, academic -> school (both
                institutions), home group leader or elder -> groups, student -> student. Everyone else: paid
                members get the gift card, others the membership card. Role
-               labels (role:*) are mirrored from Kit's Role: tags; the CSS
+               labels are the survey's Role: labels in Ghost; the CSS
                under "Support panel: role card" picks which card shows. --}}
-          <div class="mm-pick" data-roles=" {{#foreach @member.labels}}{{#match name "~^" "role:"}}{{name}} {{/match}}{{/foreach}}">
+          <div class="mm-pick" data-roles="|{{#foreach @member.labels}}{{#match name "~^" "Role:"}}{{name}}|{{/match}}{{/foreach}}">
             <div class="mm-feature mm-card mm-pick-church">
               <a href="/institutions/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
               <p class="mm-feature-title">Bring Mere Orthodoxy to your church</p>
