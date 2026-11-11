@@ -28641,6 +28641,24 @@ html.mm-is-open .site-header { z-index: 111; }
    built by nav-mega.js straight into [data-mm-lead]. */
 .mm .mm-card,
 .mm .mm-grid--read > [data-mm-lead] > .mm-feature { background: #fbf8f3; border: 1px solid var(--color-rule); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 26px 26px 24px; }
+
+/* Read panel: Ebooks (Ian, 2026-11-11). Hovering Ebooks in the index lays
+   the cover shelf over the two essay columns. Every child is placed in
+   row 1 so the shelf can overlap them, and the essay columns only go
+   invisible, so the panel keeps its height. */
+.mm-grid--read > * { grid-row: 1; }
+.mm-grid--read > :nth-child(1) { grid-column: 1; }
+.mm-grid--read > .mm-ebooks { grid-column: 2 / -1; }
+.mm-grid--read > :nth-child(3) { grid-column: 2; }
+.mm-grid--read > :nth-child(4) { grid-column: 3; }
+.mm-grid--read.is-ebooks > :nth-child(3),
+.mm-grid--read.is-ebooks > :nth-child(4) { visibility: hidden; }
+.mm .mm-ebooks .mm-feature { padding: 26px 30px 28px; }
+.mm .mm-ebooks .mm-set-head { margin-bottom: 6px; }
+.mm .mm-ebooks .mm-feature > p { margin: 0 0 20px; }
+.mm-books.mm-books--ebooks { max-width: 680px; gap: 24px; margin: 0; }
+.mm-books--ebooks .lib-ecover { box-shadow: 0 1px 2px rgba(45, 41, 39, 0.08), 0 6px 14px rgba(45, 41, 39, 0.14); }
+.mm-books--ebooks .lib-ecover--cream { border: 1px solid var(--color-rule); }
 .mm .mm-card > :last-child { margin-bottom: 0; }
 
 /* Support panel: the donate appeal sits where the Donate link was, a

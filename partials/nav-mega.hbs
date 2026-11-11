@@ -31,8 +31,26 @@
             <li><a href="/tag/family/" data-mm-set="family">Family</a></li>
             <li><a href="/tag/technology/" data-mm-set="technology">Technology</a></li>
             <li><a href="/tag/book-reviews/" data-mm-set="book-reviews">Book Reviews</a></li>
+            <li class="mm-index-sep" role="presentation"></li>
+            <li><a href="/ebooks/" data-mm-set="ebooks">Ebooks</a></li>
           </ul>
         </nav>
+        {{!-- Ebooks: hovering the index link shows this shelf across the
+             two right columns in place of the essays (nav-mega.js,
+             showSet). Covers are the drawn .lib-ecover from the member
+             library (partials/ebooks-list.hbs); add a book in both. --}}
+        <div class="mm-ebooks" data-mm-ebooks hidden>
+          <div class="mm-feature mm-card">
+            <div class="mm-set-head"><p class="mm-col-title">Ebooks</p><a class="mm-more" href="/ebooks/">All ebooks</a></div>
+            <p>Essays collected into short books. Free to read online or download.</p>
+            <div class="mm-books mm-books--ebooks">
+              <a class="mm-book" href="/ebook/ai-and-the-church/" aria-label="Christians and Artificial Intelligence"><span class="lib-ecover lib-ecover--sand" aria-hidden="true"><span class="lib-ecover-mast">Mere Orthodoxy</span><span class="lib-ecover-title">Christians and Artificial Intelligence</span><span class="lib-ecover-foot">14 essays</span></span></a>
+              <a class="mm-book" href="/ebook/formation/" aria-label="Christian Formation in the Modern World"><span class="lib-ecover lib-ecover--cream" aria-hidden="true"><span class="lib-ecover-mast">Mere Orthodoxy</span><span class="lib-ecover-title">Christian Formation in the Modern World</span><span class="lib-ecover-foot">11 essays</span></span></a>
+              <a class="mm-book" href="/ebook/spiritual-formation-for-the-family/" aria-label="Spiritual Formation for the Family"><span class="lib-ecover lib-ecover--terracotta" aria-hidden="true"><span class="lib-ecover-mast">Mere Orthodoxy</span><span class="lib-ecover-title">Spiritual Formation for the Family</span><span class="lib-ecover-foot">9 essays</span></span></a>
+              <a class="mm-book" href="/ebook/navigating-the-fracture/" aria-label="Navigating the Fracture"><span class="lib-ecover lib-ecover--dark" aria-hidden="true"><span class="lib-ecover-mast">Mere Orthodoxy</span><span class="lib-ecover-title">Navigating the Fracture</span><span class="lib-ecover-foot">6 essays</span></span></a>
+            </div>
+          </div>
+        </div>
         {{#if @member}}
         <div>
           <div class="mm-set-head"><p class="mm-col-title" data-mm-set-title>Latest</p><a class="mm-more" data-mm-set-more href="/archive/">All essays</a></div>
@@ -245,7 +263,6 @@
           <p class="mm-col-title">Read and download</p>
           <ul class="mm-links">
             <li><a href="https://mereorthodoxy.substack.com"><svg class="mm-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#FF6719" d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>Mere Orthodoxy on Substack</a></li>
-            <li><a href="/ebooks/">Ebooks<span class="mm-note">Essays collected into short books</span></a></li>
           </ul>
           <p class="mm-col-title mm-col-title--next">Gather</p>
           <ul class="mm-links">

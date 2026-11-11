@@ -316,6 +316,13 @@
     const link = indexLinks.find((a) => { return a.getAttribute("data-mm-set") === name; });
     if (!link) return;
     indexLinks.forEach((a) => { a.setAttribute("aria-current", a === link ? "true" : "false"); });
+    // Ebooks is a shelf, not a tag: it swaps the two essay columns for
+    // the cover row in [data-mm-ebooks].
+    const grid = index.closest(".mm-grid");
+    const shelf = grid && grid.querySelector("[data-mm-ebooks]");
+    if (grid) grid.classList.toggle("is-ebooks", name === "ebooks");
+    if (shelf) shelf.hidden = name !== "ebooks";
+    if (name === "ebooks") return;
     const all = name === "latest" || name === "must";
     if (setTitle) setTitle.textContent = link.textContent;
     if (setMore) {
