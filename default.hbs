@@ -350,21 +350,22 @@
                 <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="read" aria-expanded="false" aria-controls="mm">Read</button>
                 <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="listen" aria-expanded="false" aria-controls="mm">Listen</button>
                 <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="journal" aria-expanded="false" aria-controls="mm">Journal</button>
-                <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="tfr" aria-expanded="false" aria-controls="mm">The Faith Received</button>
+                {{!-- A link as well as a trigger (Ian, 2026-11-11): a mouse click goes to TFR, hover opens the panel; on touch the first tap opens it. --}}
+                <a href="/the-faith-received/" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="tfr" aria-expanded="false" aria-controls="mm">The Faith Received</a>
                 <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="resources" aria-expanded="false" aria-controls="mm">Resources</button>
                 <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="support" aria-expanded="false" aria-controls="mm">Support</button>
                 <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="about" aria-expanded="false" aria-controls="mm">About</button>
             </nav>
             <div class="nav-actions">
-                {{!-- Search trigger — opens Ghost's built-in sodo-search
-                     modal (auto-loaded by ghost_head). Keyboard "/" also
-                     opens it. --}}
-                <button class="nav-search" type="button" data-mo-search aria-label="Search articles">
+                {{!-- Search: a link to the full /search/ page (Ian,
+                     2026-11-11). Keyboard "/" still opens the quick
+                     modal (assets/js/search.js). --}}
+                <a class="nav-search" href="/search/" aria-label="Search">
                     <svg class="nav-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="11" cy="11" r="7"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                </button>
+                </a>
                 {{#unless @member}}
                     <button class="sign-in" data-portal="signin">Sign in</button>
                     <a href="/membership/" class="btn btn-solid btn-primary">Become a Member</a>
@@ -402,13 +403,13 @@
                 {{/foreach}}
             </nav>
             <div class="mobile-nav-actions">
-                <button class="mobile-nav-search" type="button" data-mo-search aria-label="Search articles">
+                <a class="mobile-nav-search" href="/search/">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="11" cy="11" r="7"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <span>Search articles</span>
-                </button>
+                    <span>Search</span>
+                </a>
                 {{#unless @member}}
                     <button class="mobile-nav-signin" data-portal="signin">Sign in</button>
                     <a href="/membership/" class="btn btn-solid btn-primary">Become a Member</a>

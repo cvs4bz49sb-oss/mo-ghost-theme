@@ -112,7 +112,7 @@
       },
       "search_worker_url": {
         "type": "text",
-        "description": "URL of the deployed mo-search Worker (e.g. https://mo-search.mo-podcast-feed.workers.dev). Powers semantic search via OpenAI embeddings + Cloudflare Vectorize. Empty disables search (modal still opens but shows a 'not configured' hint)."
+        "description": "URL of the deployed mo-search Worker (e.g. https://mo-search.mo-podcast-feed.workers.dev). Powers the search modal and /search/ page from a D1 full-text index. Empty disables search (the modal opens and says search is unavailable)."
       },
       "plausible_domain": {
         "type": "text",

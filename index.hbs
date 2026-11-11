@@ -14,9 +14,9 @@
                 <p class="hero-sub">Long-form essays, patient podcasts, and a quarterly print journal on theology, culture, and spiritual formation.</p>
                 <div class="hero-ctas">
                     {{#match @member.status "paid"}}
-                        <a href="/dashboard/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="dashboard">Your Dashboard</a>
+                        <a href="/dashboard/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="dashboard">Your Member Dashboard</a>
                     {{else}}{{#match @member.status "comped"}}
-                        <a href="/dashboard/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="dashboard">Your Dashboard</a>
+                        <a href="/dashboard/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="dashboard">Your Member Dashboard</a>
                     {{else}}{{#if @member}}
                         {{!-- Free Subscriber: already on the list, so a single upgrade button. --}}
                         <a href="#join" class="btn btn-solid btn-primary btn-lg" data-hm-goal="member-cta">Become a Member</a>

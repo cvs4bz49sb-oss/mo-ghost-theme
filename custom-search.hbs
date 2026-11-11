@@ -1,0 +1,67 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Search | Mere Orthodoxy</title>
+<meta name="robots" content="noindex, follow" />
+<meta name="description" content="Search and browse every Mere Orthodoxy essay, podcast episode, contributor and topic." />
+<meta property="og:title" content="Search | Mere Orthodoxy" />
+<meta property="og:description" content="Search and browse every Mere Orthodoxy essay, podcast episode, contributor and topic." />
+<meta name="twitter:title" content="Search | Mere Orthodoxy" />
+<meta name="twitter:description" content="Search and browse every Mere Orthodoxy essay, podcast episode, contributor and topic." />
+{{/contentFor}}
+{{!-- /search/ (routes.yaml, 2026-11-10; rebuilt 2026-11-11). Two states,
+     both rendered by assets/js/page/search-page.js from the mo-search
+     worker:
+       - no query and no filter: the navigator (site sections, topics,
+         podcasts, contributors, essays per year, latest essays), from
+         GET /api/search?view=nav;
+       - a query or a filter: results with a filter sidebar (type, sort,
+         author, topic, year) whose counts come from facets=1.
+     Every state lives in the URL, so a filtered page can be linked.
+     noindex: result pages are thin and endless. --}}
+
+<main class="search-page" id="mo-search-page">
+  <section class="hero sp-hero">
+    <div class="container">
+      <h1 class="sp-title">Search Mere Orthodoxy</h1>
+      <form class="sp-form" role="search" action="/search/" method="get">
+        <label class="visually-hidden" for="sp-q">Search essays, podcasts, contributors and topics</label>
+        <svg class="sp-form-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="sp-q" name="q" type="search" maxlength="200" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="Search essays, podcasts, people" />
+        <button class="btn btn-solid sp-submit" type="submit">Search</button>
+      </form>
+      <p class="sp-stats" data-sp-stats></p>
+    </div>
+  </section>
+
+  <div class="container sp-body">
+    <noscript><p class="sp-status">Search needs JavaScript. You can still browse the <a href="/archive/">archive</a> or the <a href="/contributors/">contributors</a>.</p></noscript>
+
+    {{!-- Navigator: shown when there is nothing to search for. --}}
+    <div class="sp-nav" data-sp-nav hidden></div>
+
+    {{!-- Results: sidebar of filters beside the result list. --}}
+    <div class="sp-results" data-sp-results hidden>
+      <div class="sp-sheet-backdrop" data-sp-sheet-close hidden></div>
+      <aside class="sp-sidebar" id="sp-filters" aria-label="Filters" data-sp-sidebar>
+        <div class="sp-sheet-head">
+          <h2 class="sp-sheet-title" id="sp-sheet-title">Filters</h2>
+          <button class="sp-sheet-close" type="button" data-sp-sheet-close>Close</button>
+        </div>
+        <div class="sp-facets" data-sp-facets></div>
+        <div class="sp-sheet-foot">
+          <button class="btn btn-solid sp-sheet-done" type="button" data-sp-sheet-close>Show results</button>
+        </div>
+      </aside>
+      <div class="sp-main">
+        <div class="sp-toolbar">
+          <p class="sp-status" role="status" aria-live="polite" data-sp-status></p>
+          <button class="btn sp-filter-toggle" type="button" aria-controls="sp-filters" aria-expanded="false" data-sp-filter-toggle>Filters</button>
+        </div>
+        <div class="sp-active" data-sp-active hidden></div>
+        <div class="sp-list" data-sp-list></div>
+        <nav class="sp-pager" aria-label="Results pages" data-sp-pager></nav>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="{{asset "js/page/search-page.js"}}" defer></script>

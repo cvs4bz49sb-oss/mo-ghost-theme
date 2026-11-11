@@ -13,10 +13,14 @@
      with it when the masthead scrolls away. And (Ian, 2026-09-27) the
      TFR home, above its own doors.
 
-     SIX ITEMS, TWO OF WHICH OPEN. Read and Research carry
-     more than one destination, so they are buttons that open a drawer
-     along the rail rather than links that guess which destination you
-     meant. Search and Topics go straight there, because there is only
+     Read, Research and About carry more than one destination, so they
+     are buttons that open a panel rather than links that guess which
+     destination you meant. Since 2026-11-11 (Ian: "make the navrail a
+     mini version of the same style ... instead of the slide out, it's
+     the drop downs") the panels drop below the rail in the header mega
+     menu's manner: hairline columns, a title per column, a note under
+     each link. The Research columns are the registry's groups and its
+     notes are the registry's "what" lines. Search and Topics go straight there, because there is only
      one place to go. The brand goes to the library's front door.
 
      The drawer is markup, not a fetch: every destination is known at
@@ -50,24 +54,26 @@
 
       <li class="tfr-rail-group">
         <button type="button" class="tfr-rail-link tfr-rail-toggle" data-tfr-drawer="read" aria-expanded="false" aria-controls="tfrDrawerRead">Read</button>
-        <div class="tfr-rail-drawer" id="tfrDrawerRead" data-tfr-drawer-for="read" hidden>
-          <a href="/the-faith-received/curated/">Curated</a>
-          <a href="/the-faith-received/all-works/?collection=all">Full Library</a>
-          {{!-- Every author in the library, by shelf (Ian, 2026-09-24). --}}
-          <a href="/the-faith-received/authors/">Authors</a>
-          {{!-- The library by church: an overview of each tradition with
-               its creeds and confessions and its authors (2026-09-24). A
-               way into the texts, so it sits in Read rather than taking a
-               seventh place on the rail. --}}
-          <a href="/the-faith-received/tradition/">Traditions</a>
-          {{!-- The guides to the shelves (Ian, 2026-10-12: "add Guides to
-               the Read section of the navrail"). --}}
-          <a href="/the-faith-received/guide/">Guides</a>
-          {{!-- The Dictionary is a book to read, not a workspace to
-               work in, so it sits with the other two ways into the text
-               rather than among the research tools. --}}
-          <a href="/the-faith-received/dictionary/">Dictionary</a>
-        </div>
+        <div class="tfr-rail-drawer tfr-rail-dd tfr-rail-dd--read" id="tfrDrawerRead" data-tfr-drawer-for="read" role="region" aria-label="Read" hidden>
+          <div class="container tfr-dd-grid">
+            <div class="tfr-dd-col">
+              <p class="tfr-dd-title">The library</p>
+              <ul class="tfr-dd-links">
+                <li><a href="/the-faith-received/curated/"><span class="tfr-dd-name">Curated</span><span class="tfr-dd-note">The works we would start with.</span></a></li>
+                <li><a href="/the-faith-received/all-works/?collection=all"><span class="tfr-dd-name">Full Library</span><span class="tfr-dd-note">Every work in the collection.</span></a></li>
+                <li><a href="/the-faith-received/authors/"><span class="tfr-dd-name">Authors</span><span class="tfr-dd-note">Every author, shelf by shelf.</span></a></li>
+                <li><a href="/the-faith-received/tradition/"><span class="tfr-dd-name">Traditions</span><span class="tfr-dd-note">Each church's creeds, confessions and authors.</span></a></li>
+              </ul>
+            </div>
+            <div class="tfr-dd-col">
+              <p class="tfr-dd-title">Help reading</p>
+              <ul class="tfr-dd-links">
+                <li><a href="/the-faith-received/guide/"><span class="tfr-dd-name">Guides</span><span class="tfr-dd-note">Introductions to each shelf.</span></a></li>
+                <li><a href="/the-faith-received/dictionary/"><span class="tfr-dd-name">Dictionary</span><span class="tfr-dd-note">The terms of theology, defined.</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>{{!-- /read panel --}}
       </li>
 
       {{!-- Scripture is one page now (Ian, 2026-09-22): the rebuilt reader
@@ -79,38 +85,47 @@
 
       <li class="tfr-rail-group">
         <button type="button" class="tfr-rail-link tfr-rail-toggle" data-tfr-drawer="research" aria-expanded="false" aria-controls="tfrDrawerResearch">Research</button>
-        <div class="tfr-rail-drawer tfr-rail-drawer--wide" id="tfrDrawerResearch" data-tfr-drawer-for="research" hidden>
-          {{!-- Each goes to the page that owns it. Power Search,
-               Bookmarks and Notebook have no standalone page, so they
-               deep-link to the mode on the surface that carries them:
-               both of those pages route on the hash. --}}
-          <a href="/the-faith-received/ask/" data-feature-gate="ask">Ask</a>
-          <a href="/the-faith-received/search/#power" data-feature-gate="tfr-search">Power Search</a>
-          <a href="/the-faith-received/research/#compare" data-feature-gate="tfr-compare">Compare</a>
-          {{!-- Called Connections, goes to Connections: Ian's instruction
-               was to keep the name and change the destination. --}}
-          <a href="/the-faith-received/connections/" data-feature-gate="tfr-connections">Connections</a>
-          {{!-- The commented texts place by place, and the classic disputed
-               questions with each author's answer (2026-10-20). --}}
-          <a href="/the-faith-received/commentary-decks/" data-feature-gate="tfr-decks">Commentary Decks</a>
-          <a href="/the-faith-received/disputed-questions/" data-feature-gate="tfr-disputed">Disputed Questions</a>
-          {{!-- Moved from Read (Ian, 2026-10-23: "Lexicon, Set Indexes, Page
-               Scans all need to be moved to Research"). Page Scans: the works
-               that can be read beside the printed page. Lexicon: the terms as
-               the authors define them. Set Indexes: one index for a whole edition. --}}
-          <a class="tfr-rail-cluster" href="/the-faith-received/lexicon/" data-feature-gate="tfr-lexicon">Lexicon</a>
-          <a href="/the-faith-received/set-index/" data-feature-gate="tfr-set-index">Set Indexes</a>
-          <a href="/the-faith-received/scans/" data-feature-gate="tfr-scans">Page Scans</a>
-          {{!-- Was /the-faith-received/pins/, which is the ported
-               notebook and a different store from the Bookmarks panel on
-               the Research desk. Ian, 2026-09-22: "Bookmark and Notebook
-               in the navrail need to be the same thing as those on the
-               research page." Both items now name the same two panels
-               the Research desk shows; /pins/ forwards here as well. --}}
-          <a class="tfr-rail-cluster" href="/the-faith-received/research/#bookmarks" data-feature-gate="tfr-bookmarks">Bookmarks</a>
-          <a href="/the-faith-received/research/#notebook" data-feature-gate="tfr-notebook">Notebook</a>
-          <a href="/the-faith-received/desk/" data-feature-gate="tfr-desk">Desk</a>
-        </div>
+        <div class="tfr-rail-drawer tfr-rail-dd tfr-rail-dd--research" id="tfrDrawerResearch" data-tfr-drawer-for="research" role="region" aria-label="Research" hidden>
+          <div class="container tfr-dd-grid">
+            <div class="tfr-dd-col">
+              <p class="tfr-dd-title">Search and ask</p>
+              <ul class="tfr-dd-links">
+                <li><a href="/the-faith-received/ask/" data-feature-gate="ask"><span class="tfr-dd-name">Ask</span><span class="tfr-dd-note">A question answered from the library, with the pages it drew on.</span></a></li>
+                <li><a href="/the-faith-received/search/#power" data-feature-gate="tfr-search"><span class="tfr-dd-name">Power Search</span><span class="tfr-dd-note">Search by meaning rather than by word, across every collection.</span></a></li>
+              </ul>
+            </div>
+            <div class="tfr-dd-col">
+              <p class="tfr-dd-title">Compare and connect</p>
+              <ul class="tfr-dd-links">
+                <li><a href="/the-faith-received/research/#compare" data-feature-gate="tfr-compare"><span class="tfr-dd-name">Compare</span><span class="tfr-dd-note">Two to four authors on one topic, side by side.</span></a></li>
+                <li><a href="/the-faith-received/connections/" data-feature-gate="tfr-connections"><span class="tfr-dd-name">Connections</span><span class="tfr-dd-note">The library mapped by citation: who reads whom.</span></a></li>
+              </ul>
+            </div>
+            <div class="tfr-dd-col">
+              <p class="tfr-dd-title">Read with the commentators</p>
+              <ul class="tfr-dd-links">
+                <li><a href="/the-faith-received/commentary-decks/" data-feature-gate="tfr-decks"><span class="tfr-dd-name">Commentary Decks</span><span class="tfr-dd-note">A commented text place by place, with its commentators beside it.</span></a></li>
+                <li><a href="/the-faith-received/disputed-questions/" data-feature-gate="tfr-disputed"><span class="tfr-dd-name">Disputed Questions</span><span class="tfr-dd-note">The questions the schools argued, with each author's answer.</span></a></li>
+                <li><a href="/the-faith-received/scans/" data-feature-gate="tfr-scans"><span class="tfr-dd-name">Page Scans</span><span class="tfr-dd-note">Works you can read beside the printed page they came from.</span></a></li>
+              </ul>
+            </div>
+            <div class="tfr-dd-col">
+              <p class="tfr-dd-title">Look things up</p>
+              <ul class="tfr-dd-links">
+                <li><a href="/the-faith-received/lexicon/" data-feature-gate="tfr-lexicon"><span class="tfr-dd-name">Lexicon</span><span class="tfr-dd-note">Every term in the library, as its authors define it.</span></a></li>
+                <li><a href="/the-faith-received/set-index/" data-feature-gate="tfr-set-index"><span class="tfr-dd-name">Set Indexes</span><span class="tfr-dd-note">One index for a whole set of volumes.</span></a></li>
+              </ul>
+            </div>
+            <div class="tfr-dd-col">
+              <p class="tfr-dd-title">Keep your work</p>
+              <ul class="tfr-dd-links">
+                <li><a href="/the-faith-received/research/#bookmarks" data-feature-gate="tfr-bookmarks"><span class="tfr-dd-name">Bookmarks</span><span class="tfr-dd-note">The works you have saved, and where you stopped in each.</span></a></li>
+                <li><a href="/the-faith-received/research/#notebook" data-feature-gate="tfr-notebook"><span class="tfr-dd-name">Notebook</span><span class="tfr-dd-note">Passages you have kept, with your notes and collections.</span></a></li>
+                <li><a href="/the-faith-received/desk/" data-feature-gate="tfr-desk"><span class="tfr-dd-name">Desk</span><span class="tfr-dd-note">Write with your saved sources beside you, each linked to its text.</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>{{!-- /research panel --}}
       </li>
 
       {{!-- Resources (Ian, 2026-10-20): what else serves the library. One tab today, Articles (Mere Orthodoxy
@@ -130,12 +145,18 @@
            and Research; narrow, because it holds two items. --}}
       <li class="tfr-rail-group">
         <button type="button" class="tfr-rail-link tfr-rail-toggle" data-tfr-drawer="about" aria-expanded="false" aria-controls="tfrDrawerAbout">About</button>
-        <div class="tfr-rail-drawer" id="tfrDrawerAbout" data-tfr-drawer-for="about" hidden>
-          <a href="/the-faith-received/manifesto/">About TFR</a>
-          <a href="/the-faith-received/tutorial/">Tutorial</a>
-          {{!-- How to use (Ian, 2026-10-23): three short guides, Laity, Pastors and Academics. --}}
-          <a href="/the-faith-received/how-to-use/">How to use</a>
-        </div>
+        <div class="tfr-rail-drawer tfr-rail-dd tfr-rail-dd--about" id="tfrDrawerAbout" data-tfr-drawer-for="about" role="region" aria-label="About" hidden>
+          <div class="container tfr-dd-grid">
+            <div class="tfr-dd-col">
+              <p class="tfr-dd-title">About</p>
+              <ul class="tfr-dd-links">
+                <li><a href="/the-faith-received/manifesto/"><span class="tfr-dd-name">About TFR</span><span class="tfr-dd-note">What the library is and why we built it.</span></a></li>
+                <li><a href="/the-faith-received/tutorial/"><span class="tfr-dd-name">Tutorial</span><span class="tfr-dd-note">Guided tours of the tools.</span></a></li>
+                <li><a href="/the-faith-received/how-to-use/"><span class="tfr-dd-name">How to use</span><span class="tfr-dd-note">Short guides for laity, pastors and academics.</span></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>{{!-- /about panel --}}
       </li>
     </ul>
   </div>

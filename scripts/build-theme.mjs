@@ -122,6 +122,9 @@ const BUNDLES = [
       "assets/js/dlp-band.js",
       "assets/js/title-cleanup.js",
       "assets/js/referral.js",
+      // Role CTAs, comp reason and Member since: labels Ghost will not
+      // give the theme, fetched from mo-kit /member-profile.
+      "assets/js/member-profile.js",
       "assets/js/boot/viewport-fix.js",
       "assets/js/boot/checkout-redirect.js",
     ],

@@ -1,64 +1,148 @@
-{{!-- Shared ebook list used on /dashboard/ebooks/ and inlined as a
-     dashboard module. 4-up grid, editorial row style (no cards).
+{{!-- Ebook library for /dashboard/ebooks/ (redesigned 2026-11-10).
+     One row per book: a drawn cover, the description, Read online / PDF /
+     EPUB, and the contents in a fold. Each ebook is a Ghost page at
+     /ebook/<slug>/read/ (tier-gated by Ghost); files are theme assets in
+     assets/files/ebooks/. Blueprint for Renewal stays off the shelf
+     pending editorial work (2026-04-25). Contents lists were taken from
+     each reader page's chapter headings. --}}
 
-     Architecture (post-Railway, 2026-04-25):
-       Each ebook is a Ghost custom-template Page at
-       /ebook/<slug>/read/. Ghost enforces tier visibility at render
-       time. Paid Members satisfy the main paid Member tier on every
-       ebook page, so anchors here are plain links — no token mint,
-       no Railway, no HubSpot gate.
-
-     Only deployed ebooks live here. --}}
-
-<ul class="ebooks-grid">
-
-  <li class="ebook-entry">
-    <a href="/ebook/navigating-the-fracture/read/" class="ebook-entry-link">
-      <span class="ebook-entry-eyebrow">Ebook</span>
-      <h3 class="ebook-entry-title"><em>Navigating the Fracture</em></h3>
-      <p class="ebook-entry-excerpt">Church leadership under the conditions of cultural and institutional upheaval.</p>
-      <span class="ebook-entry-cta">Open &rarr;</span>
+<div class="lib lib--ebooks">
+  <article class="lib-book" aria-labelledby="lib-book-ai-and-the-church">
+    <a class="lib-book-cover" href="/ebook/ai-and-the-church/read/" tabindex="-1" aria-hidden="true">
+      <span class="lib-ecover lib-ecover--sand">
+        <span class="lib-ecover-mast">Mere Orthodoxy</span>
+        <span class="lib-ecover-title">Christians and Artificial Intelligence</span>
+        <span class="lib-ecover-foot">14 essays</span>
+      </span>
     </a>
-  </li>
-
-  <li class="ebook-entry">
-    <a href="/ebook/spiritual-formation-for-the-family/read/" class="ebook-entry-link">
-      <span class="ebook-entry-eyebrow">Ebook</span>
-      <h3 class="ebook-entry-title"><em>Spiritual Formation for the Family</em></h3>
-      <p class="ebook-entry-excerpt">Practices and convictions for forming Christian households.</p>
-      <span class="ebook-entry-cta">Open &rarr;</span>
+    <div class="lib-book-body">
+      <h2 class="lib-book-title" id="lib-book-ai-and-the-church"><a href="/ebook/ai-and-the-church/read/">Christians and Artificial Intelligence</a></h2>
+      <p class="lib-book-meta">14 essays</p>
+      <p class="lib-book-desc">Essays on AI, formation, and faithful life in a world of intelligent machines.</p>
+      <p class="lib-actions">
+        <a class="btn btn-solid" href="/ebook/ai-and-the-church/read/">Read online</a>
+        <a class="btn" href="{{asset "files/ebooks/ai-and-the-church.pdf"}}" download>PDF</a>
+        <a class="btn" href="{{asset "files/ebooks/ai-and-the-church.epub"}}" download>EPUB</a>
+      </p>
+      <details class="lib-fold">
+        <summary>Contents</summary>
+        <ol class="lib-toc lib-toc--numbered">
+            <li>Aquinas, AI, and the Pursuit of Learning</li>
+            <li>Attentive Parenting in the AI Age</li>
+            <li>A Hollow Crown: AI and the Formation of Students</li>
+            <li>AI is Coming for Online Pastoral Education</li>
+            <li>Pandora, AI Girlfriends, and “Reborn” Babies</li>
+            <li>The Mad Farmer on Claude, AI, and the Church</li>
+            <li>“AI Safety” Without Virtue Will Never Be Safe</li>
+            <li>New Calvinism in an Age of Enchantment and AI</li>
+            <li>If You Ask A.I. for Marriage Advice, It’ll Probably Tell You to Get Divorced</li>
+            <li>Artificial Intelligence is a Technology</li>
+            <li>Wendell Berry’s Unanswered Question</li>
+            <li>Life with the Machines</li>
+            <li>To Be a Christian Is to Sanctify the Machine</li>
+            <li>Why We Need Christian Anthropology and Epistemology in the Age of LLMs</li>
+        </ol>
+      </details>
+    </div>
+  </article>
+  <article class="lib-book" aria-labelledby="lib-book-formation">
+    <a class="lib-book-cover" href="/ebook/formation/read/" tabindex="-1" aria-hidden="true">
+      <span class="lib-ecover lib-ecover--cream">
+        <span class="lib-ecover-mast">Mere Orthodoxy</span>
+        <span class="lib-ecover-title">Christian Formation in the Modern World</span>
+        <span class="lib-ecover-foot">11 essays</span>
+      </span>
     </a>
-  </li>
-
-  <li class="ebook-entry">
-    <a href="/ebook/ai-and-the-church/read/" class="ebook-entry-link">
-      <span class="ebook-entry-eyebrow">Ebook</span>
-      <h3 class="ebook-entry-title"><em>Christians and Artificial Intelligence</em></h3>
-      <p class="ebook-entry-excerpt">Fourteen essays on AI, formation, and faithful life in a world of intelligent machines.</p>
-      <span class="ebook-entry-cta">Open &rarr;</span>
+    <div class="lib-book-body">
+      <h2 class="lib-book-title" id="lib-book-formation"><a href="/ebook/formation/read/">Christian Formation in the Modern World</a></h2>
+      <p class="lib-book-meta">11 essays</p>
+      <p class="lib-book-desc">Essays on being formed in Christ across theology, pastoral care, work, and the life of the mind.</p>
+      <p class="lib-actions">
+        <a class="btn btn-solid" href="/ebook/formation/read/">Read online</a>
+        <a class="btn" href="{{asset "files/ebooks/formation.pdf"}}" download>PDF</a>
+        <a class="btn" href="{{asset "files/ebooks/formation.epub"}}" download>EPUB</a>
+      </p>
+      <details class="lib-fold">
+        <summary>Contents</summary>
+        <ol class="lib-toc lib-toc--numbered">
+            <li>Introduction</li>
+            <li>Union with Christ and the Life of Faith</li>
+            <li>How the Creed, Lord&#x27;s Prayer, and Ten Commandments Ground Spiritual Formation and Soul Care</li>
+            <li>Suffering as Spiritual Formation</li>
+            <li>On Communicating Truth, Goodness, and Beauty</li>
+            <li>The Necessity of Gratitude</li>
+            <li>The Good News About Bad Work Days</li>
+            <li>The Dark Triad and the Death of Repentance</li>
+            <li>To Go Forward, We Must Go Backward</li>
+            <li>What is Technology Good For?</li>
+            <li>Misunderstanding Porn</li>
+            <li>Why It Is Difficult to Talk About Ethics of the Body</li>
+        </ol>
+      </details>
+    </div>
+  </article>
+  <article class="lib-book" aria-labelledby="lib-book-spiritual-formation-for-the-family">
+    <a class="lib-book-cover" href="/ebook/spiritual-formation-for-the-family/read/" tabindex="-1" aria-hidden="true">
+      <span class="lib-ecover lib-ecover--terracotta">
+        <span class="lib-ecover-mast">Mere Orthodoxy</span>
+        <span class="lib-ecover-title">Spiritual Formation for the Family</span>
+        <span class="lib-ecover-foot">9 essays</span>
+      </span>
     </a>
-  </li>
-
-  <li class="ebook-entry">
-    <a href="/ebook/formation/read/" class="ebook-entry-link">
-      <span class="ebook-entry-eyebrow">Ebook</span>
-      <h3 class="ebook-entry-title"><em>Christian Formation in the Modern World</em></h3>
-      <p class="ebook-entry-excerpt">Eleven essays on being formed in Christ across theology, pastoral care, work, and the life of the mind.</p>
-      <span class="ebook-entry-cta">Open &rarr;</span>
+    <div class="lib-book-body">
+      <h2 class="lib-book-title" id="lib-book-spiritual-formation-for-the-family"><a href="/ebook/spiritual-formation-for-the-family/read/">Spiritual Formation for the Family</a></h2>
+      <p class="lib-book-meta">9 essays</p>
+      <p class="lib-book-desc">Practices and convictions for forming Christian households.</p>
+      <p class="lib-actions">
+        <a class="btn btn-solid" href="/ebook/spiritual-formation-for-the-family/read/">Read online</a>
+        <a class="btn" href="{{asset "files/ebooks/spiritual-formation-for-the-family.pdf"}}" download>PDF</a>
+        <a class="btn" href="{{asset "files/ebooks/spiritual-formation-for-the-family.epub"}}" download>EPUB</a>
+      </p>
+      <details class="lib-fold">
+        <summary>Contents</summary>
+        <ol class="lib-toc lib-toc--numbered">
+            <li>Introduction</li>
+            <li>In Praise of Being Inconvenient</li>
+            <li>Forsaking All Others</li>
+            <li>Why I Don’t Like the Term ‘Homeschool’</li>
+            <li>Teaching Children to See</li>
+            <li>Dignity Beyond Accomplishment</li>
+            <li>How Do Our Kids Stay Christian?</li>
+            <li>Redeeming Neverland: The Question of Shame &amp; the Crisis of Agency Facing Modern Men</li>
+            <li>The Need for Father-Scholars</li>
+            <li>Markets and the Strangulation of the American Family</li>
+        </ol>
+      </details>
+    </div>
+  </article>
+  <article class="lib-book" aria-labelledby="lib-book-navigating-the-fracture">
+    <a class="lib-book-cover" href="/ebook/navigating-the-fracture/read/" tabindex="-1" aria-hidden="true">
+      <span class="lib-ecover lib-ecover--dark">
+        <span class="lib-ecover-mast">Mere Orthodoxy</span>
+        <span class="lib-ecover-title">Navigating the Fracture</span>
+        <span class="lib-ecover-foot">6 essays</span>
+      </span>
     </a>
-  </li>
-
-  {{!-- Blueprint for Renewal — HIDDEN as of 2026-04-25 pending
-       editorial work. Re-add by uncommenting:
-
-    <li class="ebook-entry">
-      <a href="/ebook/blueprint-for-renewal/read/" class="ebook-entry-link">
-        <span class="ebook-entry-eyebrow">Ebook</span>
-        <h3 class="ebook-entry-title"><em>Blueprint for Renewal</em></h3>
-        <p class="ebook-entry-excerpt">A strategic outline for the work of Christian cultural renewal.</p>
-        <span class="ebook-entry-cta">Open &rarr;</span>
-      </a>
-    </li>
-  --}}
-
-</ul>
+    <div class="lib-book-body">
+      <h2 class="lib-book-title" id="lib-book-navigating-the-fracture"><a href="/ebook/navigating-the-fracture/read/">Navigating the Fracture</a></h2>
+      <p class="lib-book-meta">6 essays</p>
+      <p class="lib-book-desc">Church leadership under the conditions of cultural and institutional upheaval.</p>
+      <p class="lib-actions">
+        <a class="btn btn-solid" href="/ebook/navigating-the-fracture/read/">Read online</a>
+        <a class="btn" href="{{asset "files/ebooks/navigating-the-fracture.pdf"}}" download>PDF</a>
+        <a class="btn" href="{{asset "files/ebooks/navigating-the-fracture.epub"}}" download>EPUB</a>
+      </p>
+      <details class="lib-fold">
+        <summary>Contents</summary>
+        <ol class="lib-toc lib-toc--numbered">
+            <li>The Six Way Fracturing of Evangelicalism</li>
+            <li>Toward a Renewed Public Protestantism: The Beginnings of a Manifesto</li>
+            <li>Christ Repairs Culture</li>
+            <li>The Four Quadrants of Church Life in the Gray Zone</li>
+            <li>The Christian in a Therapeutic Age</li>
+            <li>The Church Amongst the Counter-Institutions</li>
+        </ol>
+      </details>
+    </div>
+  </article>
+</div>

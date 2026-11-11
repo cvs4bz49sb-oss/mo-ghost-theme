@@ -107,6 +107,9 @@
     }, 200);
   }
 
+  let lastPointer = "";
+  document.addEventListener("pointerdown", (e) => { lastPointer = e.pointerType; }, { capture: true, passive: true });
+
   triggers.forEach((t, i) => {
     const name = t.getAttribute("data-mm-trigger");
     t.addEventListener("mouseenter", () => {
@@ -126,6 +129,10 @@
       closeTimer = setTimeout(close, CLOSE_DELAY);
     });
     t.addEventListener("click", (e) => {
+      // A trigger that is also a link (The Faith Received) follows its
+      // href on a mouse click, or once its panel is already open; a first
+      // tap on a touch screen opens the panel instead.
+      if (t.tagName === "A" && (lastPointer === "mouse" || current === name)) { clearTimeout(openTimer); return; }
       e.preventDefault();
       clearTimeout(openTimer);
       // A click that lands just after hover opened this panel is the

@@ -14,1157 +14,47 @@
   <title>Christian Formation in the Modern World &mdash; Mere Orthodoxy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
-  <style>
-    /* ===== CSS Reset & Base ===== */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --primary: #ee7d51;
-      --secondary: #c1593c;
-      --tertiary: #a43a27;
-      --quaternary: #d89f5b;
-      --body-text: #2d2927;
-      --light-text: #9a8773;
-      --dark-bg: #c0b2a5;
-      --light-bg: #f6f3f2;
-      --page-bg: #f1e0c9;
-      --font-headline: 'IM Fell Great Primer', 'Georgia', serif;
-      --font-body: 'Source Serif 4', 'Georgia', serif;
-      --content-width: 680px;
-      --sidebar-width: 260px;
-    }
-
-    /* ===== Dark Mode ===== */
-    [data-theme="dark"] {
-      --page-bg: #2d2927;
-      --body-text: #e8ddd0;
-      --light-text: #9a8773;
-      --primary: #ee7d51;
-      --secondary: #d4826a;
-      --tertiary: #e8a08a;
-      --quaternary: #d89f5b;
-    }
-
-    /* ===== Body ===== */
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 5rem;
-    }
-
-    body {
-      font-family: var(--font-body);
-      font-size: 19px;
-      line-height: 1.75;
-      color: var(--body-text);
-      background-color: var(--page-bg);
-      transition: background-color 0.3s ease, color 0.3s ease;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* ===== Layout ===== */
-    .page-wrapper {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    /* ===== Header Bar ===== */
-    .top-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.25rem 2.5rem;
-      background-color: var(--page-bg);
-      transition: background-color 0.3s ease;
-    }
-
-    .org-name {
-      font-family: var(--font-headline);
-      font-size: 1.1rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--body-text);
-      text-decoration: none;
-      font-weight: 400;
-    }
-
-    .org-name:hover {
-      color: var(--secondary);
-    }
-
-    /* ===== Theme Toggle ===== */
-    .theme-toggle {
-      position: relative;
-      width: 52px;
-      height: 28px;
-      border-radius: 14px;
-      border: 2px solid var(--body-text);
-      background: transparent;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      padding: 0;
-    }
-
-    .theme-toggle::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 4px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background-color: var(--body-text);
-      transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-    [data-theme="dark"] .theme-toggle::after {
-      transform: translateX(22px);
-    }
-
-    /* ===== Sidebar ===== */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: var(--sidebar-width);
-      height: 100vh;
-      padding: 5.5rem 2rem 2rem 2.5rem;
-      overflow-y: auto;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.3s ease;
-    }
-
-    .sidebar.collapsed {
-      transform: translateX(-100%);
-    }
-
-    .sidebar nav {
-      flex: 1;
-    }
-
-    .sidebar-actions {
-      margin-top: auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.75rem;
-      padding-bottom: 1rem;
-    }
-
-    /* ===== About Button ===== */
-    .about-btn {
-      display: block;
-      text-align: center;
-      width: 100%;
-      padding: 0.6rem 1.4rem;
-      font-family: var(--font-body);
-      font-size: 0.9rem;
-      color: var(--body-text);
-      background: transparent;
-      border: 2px solid var(--secondary);
-      border-radius: 4px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-bottom: 0.25rem;
-    }
-
-    .about-btn:hover {
-      background-color: var(--secondary);
-      color: var(--page-bg);
-    }
-
-    [data-theme="dark"] .about-btn {
-      border-color: var(--quaternary);
-      color: var(--body-text);
-    }
-
-    [data-theme="dark"] .about-btn:hover {
-      background-color: var(--quaternary);
-      color: #2d2927;
-    }
-
-    /* ===== Icon Button Row ===== */
-    .icon-btn-row {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-    }
-
-    /* ===== Share Button & Popup ===== */
-    .share-wrapper {
-      position: relative;
-    }
-
-    .share-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      padding: 0;
-      color: var(--secondary);
-      background: transparent;
-      border: 2px solid var(--secondary);
-      border-radius: 50%;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .share-btn svg {
-      width: 15px;
-      height: 15px;
-    }
-
-    .share-btn:hover {
-      background-color: var(--secondary);
-      color: var(--page-bg);
-    }
-
-    [data-theme="dark"] .share-btn {
-      border-color: var(--quaternary);
-      color: var(--quaternary);
-    }
-
-    [data-theme="dark"] .share-btn:hover {
-      background-color: var(--quaternary);
-      color: #2d2927;
-    }
-
-    .share-popup {
-      display: none;
-      position: absolute;
-      bottom: calc(100% + 0.5rem);
-      left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
-      background-color: var(--page-bg);
-      border: 1px solid var(--dark-bg);
-      border-radius: 6px;
-      padding: 0.5rem 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      z-index: 60;
-    }
-
-    .share-popup.open {
-      display: block;
-    }
-
-    [data-theme="dark"] .share-popup {
-      border-color: var(--light-text);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-
-    .share-option {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      width: 100%;
-      padding: 0.5rem 1rem;
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      color: var(--body-text);
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.15s ease;
-    }
-
-    .share-option:hover {
-      background-color: var(--dark-bg);
-    }
-
-    [data-theme="dark"] .share-option:hover {
-      background-color: rgba(255,255,255,0.08);
-    }
-
-    .share-option svg {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-    }
-
-    .share-copied {
-      font-size: 0.8rem;
-      color: var(--secondary);
-      text-align: center;
-      padding: 0.25rem 0;
-      display: none;
-    }
-
-    .share-copied.show {
-      display: block;
-    }
-
-    .toc-title {
-      font-family: var(--font-headline);
-      font-size: 1.05rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-bottom: 1.5rem;
-      letter-spacing: 0.02em;
-    }
-
-    .toc-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .toc-list li {
-      margin-bottom: 0.35rem;
-    }
-
-    .toc-list a {
-      font-family: var(--font-body);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      color: var(--light-text);
-      text-decoration: none;
-      transition: color 0.2s ease;
-      display: block;
-      padding: 0.15rem 0;
-    }
-
-    .toc-list a:hover {
-      color: var(--body-text);
-    }
-
-    .toc-list a.active {
-      color: var(--secondary);
-      font-weight: 600;
-    }
-
-    .toc-list .toc-major {
-      font-family: var(--font-headline);
-      font-size: 0.95rem;
-      color: var(--light-text);
-      margin-top: 0.5rem;
-      transition: color 0.2s ease, font-weight 0.2s ease;
-    }
-
-    .toc-list .toc-major:hover {
-      color: var(--body-text);
-    }
-
-    .toc-list .toc-major.active {
-      color: var(--secondary);
-      font-weight: 600;
-    }
-
-    .toc-list .toc-major:first-child {
-      margin-top: 0;
-    }
-
-    .toc-list .toc-sub {
-      padding-left: 0;
-    }
-
-    /* ===== Main Content ===== */
-    .main-content {
-      margin-left: var(--sidebar-width);
-      flex: 1;
-      padding: 6rem 4rem 6rem 4rem;
-      max-width: calc(var(--content-width) + var(--sidebar-width) + 8rem);
-    }
-
-    .content-container {
-      max-width: var(--content-width);
-    }
-
-    /* ===== Hero ===== */
-    .hero {
-      margin-bottom: 3.5rem;
-      padding-bottom: 0;
-    }
-
-    .hero-title {
-      font-family: var(--font-headline);
-      font-size: clamp(2.8rem, 5.5vw, 4.2rem);
-      line-height: 1.12;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-bottom: 0.6rem;
-      letter-spacing: -0.01em;
-    }
-
-    .hero-subtitle {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-size: clamp(1.1rem, 2vw, 1.35rem);
-      color: var(--body-text);
-      margin-bottom: 1.5rem;
-      line-height: 1.4;
-    }
-
-    .hero-date {
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      color: var(--light-text);
-    }
-
-    /* ===== Sections ===== */
-    .content-section {
-      margin-bottom: 1rem;
-    }
-
-    .section-label {
-      font-family: var(--font-headline);
-      font-size: 0.95rem;
-      font-weight: 400;
-      color: var(--light-text);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 0.75rem;
-      margin-top: 3rem;
-    }
-
-    .content-section:first-child .section-label {
-      margin-top: 0;
-    }
-
-    .section-title {
-      font-family: var(--font-headline);
-      font-size: clamp(2rem, 4vw, 2.8rem);
-      font-weight: 400;
-      color: var(--body-text);
-      margin-top: 4rem;
-      margin-bottom: 1.5rem;
-      line-height: 1.2;
-      padding-top: 2rem;
-      border-top: 3px solid var(--secondary);
-    }
-
-    .essay-heading {
-      font-family: var(--font-headline);
-      font-size: 1.15rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-bottom: 1.75rem;
-      line-height: 1.5;
-    }
-
-    .essay-author {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-size: 1rem;
-      color: var(--light-text);
-      margin-bottom: 1.75rem;
-    }
-
-    .section-heading {
-      font-family: var(--font-headline);
-      font-size: 1.5rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-top: 3rem;
-      margin-bottom: 1rem;
-      line-height: 1.35;
-    }
-
-    .subsection-heading {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-size: 1.25rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-top: 2.5rem;
-      margin-bottom: 0.75rem;
-      line-height: 1.4;
-    }
-
-    /* ===== Body Text ===== */
-    p {
-      margin-bottom: 1.25rem;
-    }
-
-    strong {
-      font-weight: 600;
-    }
-
-    em {
-      font-style: italic;
-    }
-
-    /* ===== Callout (bold+italic manifesto statement) ===== */
-    .callout {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-weight: 400;
-      font-size: 1.05rem;
-      line-height: 1.7;
-      color: var(--body-text);
-      padding: 2rem 0;
-      margin: 2rem 0;
-      border-top: 3px solid var(--secondary);
-      border-bottom: 3px solid var(--secondary);
-    }
-
-    .callout strong {
-      font-weight: 400;
-    }
-
-    /* ===== Blockquote ===== */
-    blockquote {
-      margin: 1.75rem 0;
-      padding: 0.25rem 0 0.25rem 1.75rem;
-      border-left: 3px solid var(--quaternary);
-      color: var(--body-text);
-      font-size: 0.95rem;
-      line-height: 1.8;
-    }
-
-    /* ===== Ordered/Unordered Lists ===== */
-    .barna-list {
-      margin: 1.5rem 0 1.5rem 1.5rem;
-      padding: 0;
-    }
-
-    .barna-list li {
-      margin-bottom: 0.5rem;
-      padding-left: 0.25rem;
-      font-size: 0.95rem;
-      line-height: 1.65;
-    }
-
-    /* ===== Hamburger Menu ===== */
-    .menu-toggle {
-      display: block;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0.5rem;
-      z-index: 200;
-    }
-
-    .menu-toggle span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background-color: var(--body-text);
-      margin: 5px 0;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(45, 41, 39, 0.4);
-      z-index: 5;
-    }
-
-
-    /* ===== Responsive ===== */
-    @media (max-width: 960px) {
-      .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        background-color: var(--page-bg);
-        z-index: 50;
-        width: 280px;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .sidebar-overlay.open {
-        display: block;
-      }
-
-      .main-content {
-        margin-left: 0;
-        padding: 5.5rem 1.5rem 4rem 1.5rem;
-      }
-
-      .hero-title {
-        font-size: 2.4rem;
-      }
-
-      .section-title {
-        font-size: 2rem;
-      }
-
-      .top-bar {
-        padding: 1rem 1.5rem;
-      }
-    }
-
-    @media (max-width: 600px) {
-      body {
-        font-size: 17px;
-      }
-
-      .hero-title {
-        font-size: 2rem;
-      }
-
-      .section-title {
-        font-size: 1.7rem;
-      }
-
-      .section-heading {
-        font-size: 1.3rem;
-      }
-
-      .main-content {
-        padding: 5rem 1.25rem 3rem 1.25rem;
-      }
-    }
-
-    /* ===== Download Popup ===== */
-    .icon-btn-row .download-wrapper {
-      flex: 1;
-    }
-
-    .download-wrapper {
-      position: relative;
-    }
-
-    .download-popup {
-      display: none;
-      position: absolute;
-      bottom: calc(100% + 0.5rem);
-      left: 50%;
-      transform: translateX(-50%);
-      width: 180px;
-      background-color: var(--page-bg);
-      border: 1px solid var(--dark-bg);
-      border-radius: 6px;
-      padding: 0.5rem 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      z-index: 60;
-    }
-
-    .download-popup.open {
-      display: block;
-    }
-
-    [data-theme="dark"] .download-popup {
-      border-color: var(--light-text);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-
-    .download-option {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      width: 100%;
-      padding: 0.5rem 1rem;
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      color: var(--body-text);
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.15s ease;
-    }
-
-    .download-option:hover {
-      background-color: var(--dark-bg);
-    }
-
-    [data-theme="dark"] .download-option:hover {
-      background-color: rgba(255,255,255,0.08);
-    }
-
-    .download-option svg {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-    }
-
-    /* ===== Download Button ===== */
-    .download-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      padding: 0;
-      color: var(--page-bg);
-      background-color: var(--secondary);
-      border: 2px solid var(--secondary);
-      border-radius: 50%;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .download-btn svg {
-      width: 15px;
-      height: 15px;
-    }
-
-    .download-btn:hover {
-      background-color: var(--tertiary);
-      border-color: var(--tertiary);
-      color: var(--page-bg);
-    }
-
-    [data-theme="dark"] .download-btn {
-      color: #2d2927;
-      background-color: var(--quaternary);
-      border-color: var(--quaternary);
-    }
-
-    [data-theme="dark"] .download-btn:hover {
-      background-color: var(--primary);
-      border-color: var(--primary);
-    }
-
-    /* ===== Contributors ===== */
-    .contributors-section {
-      margin-top: 4rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--dark-bg);
-    }
-
-    .contributors-section .section-title {
-      margin-bottom: 2rem;
-    }
-
-    .contributor {
-      margin-bottom: 2rem;
-    }
-
-    .contributor-name {
-      font-family: var(--font-headline);
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--body-text);
-      margin-bottom: 0.25rem;
-    }
-
-    .contributor-bio {
-      font-size: 0.95rem;
-      color: var(--light-text);
-      line-height: 1.65;
-    }
-
-    .essay-author a {
-      color: inherit;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.2s ease;
-    }
-
-    .essay-author a:hover {
-      border-bottom-color: var(--light-text);
-    }
-
-    /* ===== Footer ===== */
-    .site-footer {
-      text-align: center;
-      padding: 3rem 0 2rem;
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      color: var(--light-text);
-    }
-
-    /* ===== PDF / Print Mode ===== */
-    body.print-mode .download-wrapper,
-    body.print-mode .about-btn,
-    body.print-mode .share-wrapper,
-    body.print-mode .sidebar-actions,
-    body.print-mode .top-bar,
-    body.print-mode .sidebar,
-    body.print-mode .sidebar-overlay,
-    body.print-mode .progress-bar,
-    body.print-mode .menu-toggle {
-      display: none !important;
-    }
-
-    body.print-mode {
-      background-color: #ffffff !important;
-      color: #000000 !important;
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      line-height: 1.6 !important;
-    }
-
-    body.print-mode .main-content {
-      margin-left: 0;
-      padding: 0;
-      max-width: 100%;
-    }
-
-    body.print-mode .content-container {
-      max-width: 100%;
-    }
-
-    /* Title page: centered, standalone */
-    body.print-mode .hero {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      height: 100vh;
-      page-break-after: always;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    body.print-mode .hero-title {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 28pt !important;
-      line-height: 1.2 !important;
-      color: #000000 !important;
-      margin-bottom: 0.5rem;
-    }
-
-    body.print-mode .hero-subtitle {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 14pt !important;
-      font-style: italic;
-      color: #000000 !important;
-      margin-bottom: 2rem;
-    }
-
-    body.print-mode .hero-date {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      color: #333333 !important;
-      margin-bottom: 1.5rem;
-    }
-
-    /* Add "Mere Orthodoxy" to title page via pseudo-element */
-    body.print-mode .hero::before {
-      content: "Mere Orthodoxy";
-      font-family: 'Times New Roman', 'Times', serif;
-      font-size: 14pt;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #333333;
-      margin-bottom: 3rem;
-    }
-
-    /* Chapter headings: start on new page */
-    body.print-mode .content-section {
-      page-break-before: always;
-      margin-bottom: 0;
-    }
-
-    body.print-mode .section-title {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 22pt !important;
-      color: #000000 !important;
-      border-top: 1px solid #000000;
-      border-bottom: none;
-      padding-top: 1.5rem;
-      margin-top: 0;
-      margin-bottom: 1.5rem;
-    }
-
-    body.print-mode .section-label {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #333333 !important;
-      margin-top: 0;
-    }
-
-    body.print-mode .section-heading {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 16pt !important;
-      color: #000000 !important;
-      margin-top: 2rem;
-    }
-
-    body.print-mode .subsection-heading {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 13pt !important;
-      font-style: italic;
-      color: #000000 !important;
-    }
-
-    body.print-mode .essay-heading {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 13pt !important;
-      color: #000000 !important;
-    }
-
-    body.print-mode .essay-author {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #333333 !important;
-    }
-
-    body.print-mode p {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      color: #000000 !important;
-      line-height: 1.6 !important;
-    }
-
-    body.print-mode blockquote {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #000000 !important;
-      border-left-color: #999999;
-    }
-
-    body.print-mode .barna-list li {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #000000 !important;
-    }
-
-    body.print-mode .callout {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      color: #000000 !important;
-      border-top-color: #000000;
-      border-bottom-color: #000000;
-    }
-
-    body.print-mode .contributors-section {
-      page-break-before: always;
-      border-top: none;
-    }
-
-    body.print-mode .contributor-name {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      font-weight: bold;
-      color: #000000 !important;
-    }
-
-    body.print-mode .contributor-bio {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #000000 !important;
-    }
-
-    body.print-mode .site-footer {
-      display: none;
-    }
-
-    body.print-mode .essay-author a {
-      color: inherit !important;
-      text-decoration: none !important;
-      border-bottom: none !important;
-    }
-
-    /* ===== Highlight & Share Tooltip ===== */
-    .highlight-share {
-      display: none;
-      position: absolute;
-      z-index: 300;
-      background-color: #2d2927;
-      border-radius: 6px;
-      padding: 0.35rem 0.25rem;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-      gap: 0.1rem;
-      align-items: center;
-      transform: translateX(-50%);
-    }
-
-    .highlight-share.visible {
-      display: flex;
-    }
-
-    .highlight-share * {
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    .highlight-share::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 7px solid transparent;
-      border-right: 7px solid transparent;
-      border-top: 7px solid #2d2927;
-    }
-
-    .hs-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 34px;
-      height: 34px;
-      border: none;
-      background: transparent;
-      border-radius: 4px;
-      cursor: pointer;
-      color: #e8ddd0;
-      transition: background-color 0.15s ease;
-      padding: 0;
-    }
-
-    .hs-btn:hover {
-      background-color: rgba(255,255,255,0.12);
-    }
-
-    .hs-btn svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .hs-divider {
-      width: 1px;
-      height: 20px;
-      background-color: rgba(255,255,255,0.2);
-      margin: 0 0.15rem;
-    }
-
-    .hs-copied {
-      position: absolute;
-      top: -28px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #2d2927;
-      color: #e8ddd0;
-      font-family: var(--font-body);
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      pointer-events: none;
-    }
-
-    .hs-copied.show {
-      opacity: 1;
-    }
-
-    @media (max-width: 960px) {
-      .highlight-share {
-        padding: 0.4rem 0.35rem;
-      }
-      .highlight-share::after {
-        bottom: auto;
-        top: -6px;
-        border-top: none;
-        border-bottom: 7px solid #2d2927;
-      }
-      .hs-copied {
-        top: auto;
-        bottom: -28px;
-      }
-      .hs-btn {
-        width: 40px;
-        height: 40px;
-      }
-      .hs-btn svg {
-        width: 18px;
-        height: 18px;
-      }
-    }
-
-    body.print-mode .highlight-share {
-      display: none !important;
-    }
-
-    /* ===== Scroll Progress ===== */
-    .progress-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      z-index: 200;
-      transition: width 0.1s ease-out;
-      width: 0%;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{asset "css/reader-v2.css"}}">
+  <script src="{{asset "js/reader-init.js"}}"></script>
 </head>
-<body data-reader
+<body data-reader data-reader-kind="ebook"
       data-reader-share-title="Christian Formation in the Modern World &mdash; Mere Orthodoxy"
       data-reader-share-text="Christian Formation in the Modern World &mdash; Mere Orthodoxy"
       data-reader-attr-full="\n\n&mdash; Christian Formation in the Modern World, Mere Orthodoxy"
       data-reader-attr-short="\n\n&mdash; Mere Orthodoxy">
-  <!-- Highlight & Share Tooltip -->
-  <div class="highlight-share" id="highlightShare">
-    <span class="hs-copied" id="hsCopied">Copied!</span>
-    <button class="hs-btn" id="hsCopy" title="Copy quote">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-    </button>
-    <button class="hs-btn" id="hsSMS" title="Text message">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    </button>
-    <div class="hs-divider"></div>
-    <button class="hs-btn" id="hsX" title="Share on X">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-    </button>
-    <button class="hs-btn" id="hsFB" title="Share on Facebook">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-    </button>
-    <button class="hs-btn" id="hsIG" title="Instagram Stories">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-    </button>
-  </div>
+  <a class="rd-skip" href="#rd-start">Skip to the text</a>
 
-  <!-- Reading Progress -->
-  <div class="progress-bar" id="progressBar"></div>
-
-  <!-- Top Bar -->
-  <header class="top-bar">
-    <div style="display:flex;align-items:center;gap:1rem;">
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <a href="https://mereorthodoxy.com" class="org-name">Mere Orthodoxy</a>
-    </div>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"></button>
-  </header>
-
-  <!-- Sidebar Overlay (mobile) -->
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-  <div class="page-wrapper">
-    <!-- Sidebar TOC -->
-    <aside class="sidebar" id="sidebar">
-      <nav>
-        <h2 class="toc-title">Contents</h2>
-        <ul class="toc-list">
-          <li><a href="#top" class="toc-major">Top</a></li>
-          <li><a href="#introduction" class="toc-major">Introduction</a></li>
-          <li><a href="#union-with-christ-and-the-life-of-faith" class="toc-major">1. Union with Christ and the Life of Faith</a></li>
-          <li><a href="#how-the-creed-lords-prayer-and-ten-commandments-ground-spiritual-formation-and-soul-care" class="toc-major">2. How the Creed, Lord&#x27;s Prayer, and Ten Commandments Ground Spiritual Formation and Soul Care</a></li>
-          <li><a href="#suffering-as-spiritual-formation" class="toc-major">3. Suffering as Spiritual Formation</a></li>
-          <li><a href="#on-communicating-truth-goodness-and-beauty" class="toc-major">4. On Communicating Truth, Goodness, and Beauty</a></li>
-          <li><a href="#the-necessity-of-gratitude" class="toc-major">5. The Necessity of Gratitude</a></li>
-          <li><a href="#the-good-news-about-bad-work-days" class="toc-major">6. The Good News About Bad Work Days</a></li>
-          <li><a href="#the-dark-triad-and-the-death-of-repentance" class="toc-major">7. The Dark Triad and the Death of Repentance</a></li>
-          <li><a href="#to-go-forward-we-must-go-backward" class="toc-major">8. To Go Forward, We Must Go Backward</a></li>
-          <li><a href="#what-is-technology-good-for" class="toc-major">9. What is Technology Good For?</a></li>
-          <li><a href="#misunderstanding-porn" class="toc-major">10. Misunderstanding Porn</a></li>
-          <li><a href="#why-it-is-difficult-to-talk-about-ethics-of-the-body" class="toc-major">11. Why It Is Difficult to Talk About Ethics of the Body</a></li>
-          <li><a href="#contributors" class="toc-major">Contributors</a></li>
-        </ul>
-      </nav>
-      <div class="sidebar-actions">
-        <a href="https://mereorthodoxy.com/about" class="about-btn">About<br>Mere Orthodoxy</a>
-        <div class="icon-btn-row">
-          <div class="share-wrapper">
-            <div class="share-popup" id="sharePopup">
+  <header class="rd-bar">
+    <a class="rd-back" href="/dashboard/ebooks/" aria-label="Back to the ebook library">&larr;<span class="rd-back-label"> Ebook library</span></a>
+    <p class="rd-now" id="rdNow">Christian Formation in the Modern World</p>
+    <div class="rd-tools">
+      <button type="button" class="rd-btn" id="menuToggle" aria-controls="sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg><span class="rd-btn-label">Contents</span></button>
+      <div class="rd-pop-wrap">
+        <button type="button" class="rd-btn" id="rdTypeToggle" aria-haspopup="true" aria-expanded="false" aria-controls="rdTypePop" aria-label="Text settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19 9 5l5 14"/><line x1="5.8" y1="14" x2="12.2" y2="14"/><path d="M15 19l3-8 3 8"/><line x1="16" y1="16.5" x2="20" y2="16.5"/></svg></button>
+        <div class="rd-pop" id="rdTypePop" role="dialog" aria-label="Text settings">
+          <p class="rd-pop-label">Text size</p>
+          <div class="rd-seg" role="group" aria-label="Text size">
+            <button type="button" data-rd-size="s" aria-pressed="false">Small</button>
+            <button type="button" data-rd-size="m" aria-pressed="true">Medium</button>
+            <button type="button" data-rd-size="l" aria-pressed="false">Large</button>
+            <button type="button" data-rd-size="xl" aria-pressed="false">Larger</button>
+          </div>
+          <p class="rd-pop-label">Page</p>
+          <div class="rd-seg" role="group" aria-label="Page color">
+            <button type="button" data-rd-theme="paper" aria-pressed="true">Paper</button>
+            <button type="button" data-rd-theme="sepia" aria-pressed="false">Sepia</button>
+            <button type="button" data-rd-theme="dark" aria-pressed="false">Dark</button>
+          </div>
+        </div>
+      </div>
+      <div class="rd-pop-wrap">
+        <button type="button" class="rd-btn" id="downloadToggle" aria-haspopup="true" aria-expanded="false" aria-controls="downloadPopup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg><span class="rd-btn-label">Download</span></button>
+        <div class="rd-pop" id="downloadPopup" role="dialog" aria-label="Download"><a href="{{asset "files/ebooks/formation.pdf"}}" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg> PDF</a><a href="{{asset "files/ebooks/formation.epub"}}" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg> EPUB</a></div>
+      </div>
+      <div class="rd-pop-wrap">
+        <button type="button" class="rd-btn" id="shareToggle" aria-haspopup="true" aria-expanded="false" aria-controls="sharePopup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="m8 8 4-4 4 4"/><path d="M6 12v7h12v-7"/></svg><span class="rd-btn-label">Share</span></button>
+        <div class="rd-pop" id="sharePopup" role="dialog" aria-label="Share">
               <button class="share-option" id="copyLink">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                 Copy link
@@ -1187,40 +77,84 @@
                 Instagram Stories
               </a>
             </div>
-            <button class="share-btn" id="shareToggle" title="Share">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            </button>
-          </div>
-          <div class="download-wrapper">
-            <div class="download-popup" id="downloadPopup">
-              <a class="download-option" href="{{asset "files/ebooks/formation.epub"}}" download>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 1.5h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1z"/><path d="M6 4.5h4M6 7h4M6 9.5h2"/></svg>
-                ePub (e-readers)
-              </a>
-              <a class="download-option" href="{{asset "files/ebooks/formation.pdf"}}" download>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5z"/><path d="M9.5 1.5V5H13"/></svg>
-                PDF
-              </a>
-            </div>
-            <button class="download-btn" id="downloadToggle" title="Download">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9m0 0L4.5 7.5M8 11l3.5-3.5M2 13h12"/></svg>
-            </button>
-          </div>
-        </div>
       </div>
-    </aside>
+    </div>
+    <div class="progress-bar" id="progressBar"></div>
+  </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="content-container">
-        <!-- Hero -->
-        <div id="top" class="hero">
-          <h1 class="hero-title">Christian Formation<br>in the Modern World</h1>
-          <p class="hero-subtitle">A Mere Orthodoxy Collection</p>
-        </div>
+  <div class="highlight-share" id="highlightShare">
+    <span class="hs-copied" id="hsCopied">Copied!</span>
+    <button class="hs-btn" id="hsCopy" title="Copy quote">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    </button>
+    <button class="hs-btn" id="hsSMS" title="Text message">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <div class="hs-divider"></div>
+    <button class="hs-btn" id="hsX" title="Share on X">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </button>
+    <button class="hs-btn" id="hsFB" title="Share on Facebook">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </button>
+    <button class="hs-btn" id="hsIG" title="Instagram Stories">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+    </button>
+  </div>
 
-        <!-- Article Content -->
-        <article>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <aside class="rd-toc sidebar" id="sidebar" aria-label="Contents">
+    <div class="rd-toc-head"><p>Contents</p><button type="button" class="rd-btn rd-toc-close" aria-label="Close contents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button></div>
+    <nav>
+      <ol class="toc-list">
+          <li><a href="#introduction"><span class="rd-toc-n"></span><span class="rd-toc-t">Introduction</span></a></li>
+          <li><a href="#union-with-christ-and-the-life-of-faith"><span class="rd-toc-n">1</span><span class="rd-toc-t">Union with Christ and the Life of Faith</span><span class="rd-toc-a">Joshua Heavin</span></a></li>
+          <li><a href="#how-the-creed-lords-prayer-and-ten-commandments-ground-spiritual-formation-and-soul-care"><span class="rd-toc-n">2</span><span class="rd-toc-t">How the Creed, Lord&#x27;s Prayer, and Ten Commandments Ground Spiritual Formation and Soul Care</span><span class="rd-toc-a">Hayden Nesbit</span></a></li>
+          <li><a href="#suffering-as-spiritual-formation"><span class="rd-toc-n">3</span><span class="rd-toc-t">Suffering as Spiritual Formation</span><span class="rd-toc-a">James Wood</span></a></li>
+          <li><a href="#on-communicating-truth-goodness-and-beauty"><span class="rd-toc-n">4</span><span class="rd-toc-t">On Communicating Truth, Goodness, and Beauty</span><span class="rd-toc-a">Jake Meador</span></a></li>
+          <li><a href="#the-necessity-of-gratitude"><span class="rd-toc-n">5</span><span class="rd-toc-t">The Necessity of Gratitude</span><span class="rd-toc-a">Nelson Musipa</span></a></li>
+          <li><a href="#the-good-news-about-bad-work-days"><span class="rd-toc-n">6</span><span class="rd-toc-t">The Good News About Bad Work Days</span><span class="rd-toc-a">Elizabeth Stice</span></a></li>
+          <li><a href="#the-dark-triad-and-the-death-of-repentance"><span class="rd-toc-n">7</span><span class="rd-toc-t">The Dark Triad and the Death of Repentance</span><span class="rd-toc-a">Jakob Y. Kim</span></a></li>
+          <li><a href="#to-go-forward-we-must-go-backward"><span class="rd-toc-n">8</span><span class="rd-toc-t">To Go Forward, We Must Go Backward</span><span class="rd-toc-a">Ian Harber</span></a></li>
+          <li><a href="#what-is-technology-good-for"><span class="rd-toc-n">9</span><span class="rd-toc-t">What is Technology Good For?</span><span class="rd-toc-a">Drake Osborn</span></a></li>
+          <li><a href="#misunderstanding-porn"><span class="rd-toc-n">10</span><span class="rd-toc-t">Misunderstanding Porn</span><span class="rd-toc-a">Matthew Loftus</span></a></li>
+          <li><a href="#why-it-is-difficult-to-talk-about-ethics-of-the-body"><span class="rd-toc-n">11</span><span class="rd-toc-t">Why It Is Difficult to Talk About Ethics of the Body</span><span class="rd-toc-a">Haley Baumeister</span></a></li>
+          <li><a href="#contributors"><span class="rd-toc-n"></span><span class="rd-toc-t">Contributors</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <main class="main-content rd-main">
+    <section class="rd-title-page" id="top" aria-labelledby="rd-title">
+      <div class="rd-cover"><span class="lib-ecover lib-ecover--cream" role="img" aria-label="Christian Formation in the Modern World"><span class="lib-ecover-mast">Mere Orthodoxy</span><span class="lib-ecover-title">Christian Formation in the Modern World</span><span class="lib-ecover-foot">11 essays</span></span></div>
+      <div>
+        <h1 class="rd-title" id="rd-title">Christian Formation in the Modern World</h1>
+        <p class="rd-sub">11 essays</p>
+        <p class="rd-actions">
+          <a class="rd-cta rd-cta--solid" href="#introduction">Begin reading</a>
+          <a class="rd-cta" id="rdContinue" href="#introduction" hidden>Continue<span data-rd-continue-title></span></a>
+        </p>
+        <h2 class="rd-contents-title">Contents</h2>
+        <ol class="rd-contents">
+            <li><a href="#introduction"><span class="rd-c-t">Introduction</span></a></li>
+            <li><a href="#union-with-christ-and-the-life-of-faith"><span class="rd-c-t">Union with Christ and the Life of Faith</span><span class="rd-c-a">Joshua Heavin</span></a></li>
+            <li><a href="#how-the-creed-lords-prayer-and-ten-commandments-ground-spiritual-formation-and-soul-care"><span class="rd-c-t">How the Creed, Lord&#x27;s Prayer, and Ten Commandments Ground Spiritual Formation and Soul Care</span><span class="rd-c-a">Hayden Nesbit</span></a></li>
+            <li><a href="#suffering-as-spiritual-formation"><span class="rd-c-t">Suffering as Spiritual Formation</span><span class="rd-c-a">James Wood</span></a></li>
+            <li><a href="#on-communicating-truth-goodness-and-beauty"><span class="rd-c-t">On Communicating Truth, Goodness, and Beauty</span><span class="rd-c-a">Jake Meador</span></a></li>
+            <li><a href="#the-necessity-of-gratitude"><span class="rd-c-t">The Necessity of Gratitude</span><span class="rd-c-a">Nelson Musipa</span></a></li>
+            <li><a href="#the-good-news-about-bad-work-days"><span class="rd-c-t">The Good News About Bad Work Days</span><span class="rd-c-a">Elizabeth Stice</span></a></li>
+            <li><a href="#the-dark-triad-and-the-death-of-repentance"><span class="rd-c-t">The Dark Triad and the Death of Repentance</span><span class="rd-c-a">Jakob Y. Kim</span></a></li>
+            <li><a href="#to-go-forward-we-must-go-backward"><span class="rd-c-t">To Go Forward, We Must Go Backward</span><span class="rd-c-a">Ian Harber</span></a></li>
+            <li><a href="#what-is-technology-good-for"><span class="rd-c-t">What is Technology Good For?</span><span class="rd-c-a">Drake Osborn</span></a></li>
+            <li><a href="#misunderstanding-porn"><span class="rd-c-t">Misunderstanding Porn</span><span class="rd-c-a">Matthew Loftus</span></a></li>
+            <li><a href="#why-it-is-difficult-to-talk-about-ethics-of-the-body"><span class="rd-c-t">Why It Is Difficult to Talk About Ethics of the Body</span><span class="rd-c-a">Haley Baumeister</span></a></li>
+            <li><a href="#contributors"><span class="rd-c-t">Contributors</span></a></li>
+        </ol>
+      </div>
+    </section>
+
+    <article class="rd-text" id="rd-start">
+
 
         <section id="introduction" class="content-section">
           <h2 class="section-title">Introduction</h2>
@@ -1228,6 +162,7 @@
           <p>Taken together, they offer something more than a practical guide. They are themselves an act of formation: patient, careful, rooted in tradition, and convinced that the renewal of the church and culture depends not on better strategies but on deeper formation in Christ.</p>
         </section>
   <section id="union-with-christ-and-the-life-of-faith" class="content-section">
+    <p class="rd-essay-n">1 of 11</p>
     <h2 class="section-title">Union with Christ and the Life of Faith</h2>
     <p class="essay-author">By <a href="#contributor-joshua-heavin">Joshua Heavin</a></p>
 
@@ -1259,9 +194,12 @@
     <p>Third, a strength of this book is its brevity. Those who want to probe further into this topic might regard it as a prelude to further reading elsewhere. Given that the topic is massive, I was left wondering how Sanders&rsquo; approach to union with Christ related to numerous debates in the history of Christian theology over how best to understand union with Christ, from intra-Lutheran controversies over participation involving Osiander, to numerous intra-reformed debates over the precise nuances of union with Christ, to post-Palamite approaches to theosis and an &ldquo;essence/energies&rdquo; distinction in the East, to post-Tridentine Roman Catholic approaches to union/participation.</p>
     <p>For a practical or pastoral example, I have often found that speaking about our &ldquo;union with Christ&rdquo; or &ldquo;participation in Christ&rdquo; in popular parlance is heard by not a few people as a reference to our ongoing relationship with Jesus Christ. This is certainly important. However, as Sanders is well aware, the objective accomplishment of our salvation in Christ is something the Holy Spirit subjectively applies in the concrete, particular details of our ongoing relating to Christ through the means of grace.</p>
     <p>It can be challenging when preaching or teaching at the popular level to clearly and consistently communicate that vision. Much work remains, but those who attempt to undertake it can do so by building upon the joyful trajectory sketched by Fred Sanders, riveting our attention on Jesus Christ.</p>
-  </section>
+  
+    <a class="rd-next" href="#how-the-creed-lords-prayer-and-ten-commandments-ground-spiritual-formation-and-soul-care"><span class="rd-next-label">Next essay</span><span class="rd-next-title">2. How the Creed, Lord&#x27;s Prayer, and Ten Commandments Ground Spiritual Formation and Soul Care</span></a>
+</section>
 
   <section id="how-the-creed-lords-prayer-and-ten-commandments-ground-spiritual-formation-and-soul-care" class="content-section">
+    <p class="rd-essay-n">2 of 11</p>
     <h2 class="section-title">How the Creed, Lord&#x27;s Prayer, and Ten Commandments Ground Spiritual Formation and Soul Care</h2>
     <p class="essay-author">By <a href="#contributor-hayden-nesbit">Hayden Nesbit</a></p>
 
@@ -1316,9 +254,12 @@
     <p>Now, if this approach feels like a let down&ndash;&ndash;like an underwhelming reach back to an outdated practice, that disappointment may be a symptom of our self-made era which only confirms our need for something not our own. Self-created means of self-nurture are much more innovative and exciting. However, the novelty quickly fades and we&rsquo;re left just as empty and aimless as before. Nature determines nurture, and our nature as imago dei bearing creatures of the Word cannot be meaningfully nurtured and renewed by modern, self-curated means.</p>
     <p>We see the futility of modern attempts at nurture when creatures of the word replace holistic, catechetical-shaped, word-centered nurture with the influence of wellness gurus, or the grit of self-mastery programs, or the technologies and techniques of Silicon Valley.</p>
     <p>The Creed, the Prayer, and the Commandments are not spiritual techniques to implement or courses to be pounded out and checked off of a discipleship curriculum; they are entry points into the ongoing areas we need nurturing&ndash;&ndash;Christian doctrine, Christian experience, and Christian ethics. Viewed as windows, we can come to each as a starting point, a means through which we see a vast and sacred theological, experiential, and ethical landscape&ndash;&ndash;one inhabited by Jesus himself, and in which we learn to run freely as nurtured children of our God.</p>
-  </section>
+  
+    <a class="rd-next" href="#suffering-as-spiritual-formation"><span class="rd-next-label">Next essay</span><span class="rd-next-title">3. Suffering as Spiritual Formation</span></a>
+</section>
 
   <section id="suffering-as-spiritual-formation" class="content-section">
+    <p class="rd-essay-n">3 of 11</p>
     <h2 class="section-title">Suffering as Spiritual Formation</h2>
     <p class="essay-author">By <a href="#contributor-james-wood">James Wood</a></p>
 
@@ -1388,9 +329,12 @@
     <p>This is one of the profound reversals of the gospel. God so thoroughly overturns the curse that suffering intended for harm becomes a source of healing. The very places where the servant of Christ has been wounded become the places from which ministry most powerfully flows&mdash;if we allow Christ to meet us there. Those who have been comforted by God in their affliction become, in turn, agents of comfort, offering others the same medicine by which they themselves were healed.</p>
     <p>Paul concludes this dense section with an eschatological frame that gathers everything together. Though we are wasting away outwardly through what he calls &ldquo;momentary affliction,&rdquo; we are being renewed inwardly, even now, in preparation for &ldquo;an eternal weight of glory beyond all comparison&rdquo; (4:16&ndash;17). Suffering, then, is not the end of the story. For those in Christ, it is often the place where God is doing his deepest preparatory work&mdash;shaping ministers who are fitted not only to proclaim the gospel, but to embody it.</p>
     <p>Your suffering is not the end. In the providence of God, it may well be a beginning.</p>
-  </section>
+  
+    <a class="rd-next" href="#on-communicating-truth-goodness-and-beauty"><span class="rd-next-label">Next essay</span><span class="rd-next-title">4. On Communicating Truth, Goodness, and Beauty</span></a>
+</section>
 
   <section id="on-communicating-truth-goodness-and-beauty" class="content-section">
+    <p class="rd-essay-n">4 of 11</p>
     <h2 class="section-title">On Communicating Truth, Goodness, and Beauty</h2>
     <p class="essay-author">By <a href="#contributor-jake-meador">Jake Meador</a></p>
 
@@ -1436,9 +380,12 @@
     <h3 class="section-heading">Identify points of contact.</h3>
     <p>Finally, identify the points of overlap or common concern with colleagues, neighbors, peers, etc. Recall the story of Paul in Athens. Who are the unknown gods that your peers worship in ignorance? Recall also that, as Augustine taught us, evil is nothing; it lacks substance. For that reason, a person virtually never desires evil itself. Rather, they err by confusing something that is evil for the good or they err by failing to value something appropriately.</p>
     <p>This reality creates a variety of opportunities for Christians. In the domain of politics, where many of you work, it means there are many places where you might find common cause on a given issue with a surprising partner or ally. In the domain of relationships and church life, it means that there are ample entry points for talking about Christ and the Gospel, if only we would have our eyes open to them, and it means that no stranger is so far removed from you that they must remain permanently at a distance. For those who attend to the words of Christ and devote themselves to his way of life, another life is possible. Thank you.</p>
-  </section>
+  
+    <a class="rd-next" href="#the-necessity-of-gratitude"><span class="rd-next-label">Next essay</span><span class="rd-next-title">5. The Necessity of Gratitude</span></a>
+</section>
 
   <section id="the-necessity-of-gratitude" class="content-section">
+    <p class="rd-essay-n">5 of 11</p>
     <h2 class="section-title">The Necessity of Gratitude</h2>
     <p class="essay-author">By <a href="#contributor-nelson-musipa">Nelson Musipa</a></p>
 
@@ -1458,9 +405,12 @@
     <p>One of the things that kills gratitude is a sense of entitlement and attachment to things. If I live as though God and the world owes me something it&rsquo;s hard to have a heart of gratitude. When I feel unappreciated and that am not recognized for my role and contribution, I complain and grumble instead of being grateful.</p>
     <p>&ldquo;Suppose one of you has a servant plowing or looking after the sheep. Will he say to the servant when he comes in from the field, &lsquo;Come along now and sit down to eat&rsquo;? Won&rsquo;t he rather say, &lsquo;Prepare my supper, get yourself ready and wait on me while I eat and drink; after that you may eat and drink&rsquo;? Will he thank the servant because he did what he was told to do? So you also, when you have done everything you were told to do, should say, &lsquo;We are unworthy servants; we have only done our duty.&rsquo;&rdquo; (Luke 17:7-10 NIV)</p>
     <p>Ultimately gratitude is a mark of the Christian life. It helps me to stay focused and balanced in my service to God and his people. Wherever gratitude is missing there is strife, competition, and complaining, all of which hinder progress and fruitfulness in the  Christian life.</p>
-  </section>
+  
+    <a class="rd-next" href="#the-good-news-about-bad-work-days"><span class="rd-next-label">Next essay</span><span class="rd-next-title">6. The Good News About Bad Work Days</span></a>
+</section>
 
   <section id="the-good-news-about-bad-work-days" class="content-section">
+    <p class="rd-essay-n">6 of 11</p>
     <h2 class="section-title">The Good News About Bad Work Days</h2>
     <p class="essay-author">By <a href="#contributor-elizabeth-stice">Elizabeth Stice</a></p>
 
@@ -1478,9 +428,12 @@
     <p>A challenging workplace can be a context we can use to practice and integrate many virtues. Wages stagnate, bonuses do not always arrive, co-workers have different compensation for the same jobs. How will we handle ourselves and how will we evaluate our worth when compensation might be unfair or our efforts seem underappreciated? Can we understand our work as being &ldquo;unto the Lord&rdquo; as Paul advised in Colossians? Even when the pay is good but the effort is exhausting, we must build a narrative around what is required of us&mdash;will we see it only in terms of our exhaustion or exploitation or can we transmute that into something more meaningful?</p>
     <p>One reason we are so often inclined to narrate our workday at home is because that is the only way we can be the center of the story of the workplace. We are rarely even the center of the floor we work on. Whatever work we do, it goes beyond us and is not built exclusively around our wants and desires. We can resist the lessons in this reality, or we can use it as a reminder that we are not in the center of the universe and that is a very good thing.</p>
     <p>There are many goods we can derive from work even when work does not always seem good. The ideal is work that is fulfilling, but we can be well-formed even by work that is not. Arguably, the workplace struggles we experience are some of our best opportunities for sanctification. Thinking about work and sanctification can help us toward a richer understanding of the ways that work is a blessing, even when it does not feel especially satisfying. Bringing sanctification into the conversation around work can help us move toward a more robust theology of work.</p>
-  </section>
+  
+    <a class="rd-next" href="#the-dark-triad-and-the-death-of-repentance"><span class="rd-next-label">Next essay</span><span class="rd-next-title">7. The Dark Triad and the Death of Repentance</span></a>
+</section>
 
   <section id="the-dark-triad-and-the-death-of-repentance" class="content-section">
+    <p class="rd-essay-n">7 of 11</p>
     <h2 class="section-title">The Dark Triad and the Death of Repentance</h2>
     <p class="essay-author">By <a href="#contributor-jakob-kim">Jakob Y. Kim</a></p>
 
@@ -1502,9 +455,12 @@
     <p>If we desire renewal, it will not begin with new strategies but with tears. For the Spirit moves where breath is gone, rattles the gates we sealed, and speaks into hearts we deemed unreachable. He does not knock. He enters. He does not negotiate. He resurrects.</p>
     <p>A church without repentance is near death. But where death meets the crucified Christ, resurrection waits.</p>
     <p>Jakob Y. Kim</p>
-  </section>
+  
+    <a class="rd-next" href="#to-go-forward-we-must-go-backward"><span class="rd-next-label">Next essay</span><span class="rd-next-title">8. To Go Forward, We Must Go Backward</span></a>
+</section>
 
   <section id="to-go-forward-we-must-go-backward" class="content-section">
+    <p class="rd-essay-n">8 of 11</p>
     <h2 class="section-title">To Go Forward, We Must Go Backward</h2>
     <p class="essay-author">By <a href="#contributor-ian-harber">Ian Harber</a></p>
 
@@ -1564,9 +520,12 @@
     <p>Blessed are the ears that are attuned to the soft whisper of God&rsquo;s voice.</p>
     <p>We need interior wells deeper than attention frackers can drill. We need spaces in our soul that are reserved for God and can&rsquo;t be siphoned off for corporate profit. We must listen for the soft whisper of God&rsquo;s voice in all that is true, good, and beautiful. We must allow ourselves to be captured by beauty, and ignore the buzz in our pockets.</p>
     <p>Once more, Thomas speaks to us, &ldquo;Use the things of the world, but long for the things of eternity.&rdquo; Social media may be of some use to us, I have no doubt about that. But our longings, the words of our mouths, and the meditation of our hearts must be eternal. For eternity has been placed in our hearts, and if we can lift our eyes from the screen to the hills, with full attention, patiently waiting on the Lord, we will see everything made beautiful in its time (Ecclesiastes 3:11).</p>
-  </section>
+  
+    <a class="rd-next" href="#what-is-technology-good-for"><span class="rd-next-label">Next essay</span><span class="rd-next-title">9. What is Technology Good For?</span></a>
+</section>
 
   <section id="what-is-technology-good-for" class="content-section">
+    <p class="rd-essay-n">9 of 11</p>
     <h2 class="section-title">What is Technology Good For?</h2>
     <p class="essay-author">By <a href="#contributor-drake-osborn">Drake Osborn</a></p>
 
@@ -1596,9 +555,12 @@
     <p>I believe it can be stopped in the church. The people of God must be stalwartly devoted to breaking any dependence on technological power in their spiritual formation. It should be their joy to meet the trials that come with being less efficient and more human, because, as James says: &ldquo;you know that the testing of your faith produces steadfastness.&rdquo; Our ministry to children should be slow, embodied, personal, and focused on exposing the beauty of the Lord. Our ministry to youth should be over dinner tables and backyard games. Our formation of the soul should be less content and more conversation, less solution and more shoulder to cry on.</p>
     <p>In order for Christ to be formed in the hearts of his people, we need more Christian leaders who are committed to the slow &ldquo;anguish of child birth&rdquo; (Galatians 4:19). Sometimes spiritual formation takes decades, and it is never without birth pains. Who is strong enough to wait it out? After all, our Savior did not take any short cuts. In re-forming the world towards the bent of justice and redemption, the only technology Christ utilized was the torturous cross.</p>
     <p>The options before us in the technological world do not have to be between adoption and abandonment. We can maintain our humanity&mdash;limitation, relationship, purpose&mdash;without removing ourselves from the world completely. But it takes intentional choices, and the commitment to slow, patient formation in the way of Jesus.</p>
-  </section>
+  
+    <a class="rd-next" href="#misunderstanding-porn"><span class="rd-next-label">Next essay</span><span class="rd-next-title">10. Misunderstanding Porn</span></a>
+</section>
 
   <section id="misunderstanding-porn" class="content-section">
+    <p class="rd-essay-n">10 of 11</p>
     <h2 class="section-title">Misunderstanding Porn</h2>
     <p class="essay-author">By <a href="#contributor-matthew-loftus">Matthew Loftus</a></p>
 
@@ -1622,9 +584,12 @@
     <p>Most marriages will have ebbs and flows in their sexual intensity; bearing, breastfeeding, and raising small children all sap a wife&rsquo;s energy for lovemaking (both physiologically and mentally.) Christians who do not learn sexual continence will be miserable whether they are married or not, for sexual sin will create deeper and deeper forms of hunger the more that it is indulged. Porn in particular will destroy a person&rsquo;s appreciation for all of life&rsquo;s joys and make real sex feel miserable compared to the hyperreality of virtual licentiousness. A man&rsquo;s HQ can go to infinity if he chooses to allow Satan to take him to the bottom of that pit.</p>
     <p>The good news is that God forgives us our sins and draws us near to Him. Hanging on the Cross, Jesus Christ saw us porn addicts watching vile things and still chose to remain there so that our lives could be redeemed. The Holy Spirit gives us power to overcome sin. The God-given plasticity of our brains means that we can construct elaborate prisons in our minds to help trap us in sin, but those prisons can be torn down and rebuilt as altars to worship God.</p>
     <p>The meaning of sex is ultimately eschatological. All erotic longings are ultimately longings for the source of all goodness, and lately I have been praying that God would help me understand that my sexual temptation is merely a desire for Him that has been misdirected. Understanding the depth and shape of that misdirection will help people stop making excuses for sin and start helping sinners recover.</p>
-  </section>
+  
+    <a class="rd-next" href="#why-it-is-difficult-to-talk-about-ethics-of-the-body"><span class="rd-next-label">Next essay</span><span class="rd-next-title">11. Why It Is Difficult to Talk About Ethics of the Body</span></a>
+</section>
 
   <section id="why-it-is-difficult-to-talk-about-ethics-of-the-body" class="content-section">
+    <p class="rd-essay-n">11 of 11</p>
     <h2 class="section-title">Why It Is Difficult to Talk About Ethics of the Body</h2>
     <p class="essay-author">By <a href="#contributor-haley-baumeister">Haley Baumeister</a></p>
 
@@ -1781,17 +746,10 @@
     </div>
           </section>
 
-        </article>
+        
+    </article>
+  </main>
 
-        <footer class="site-footer">
-          <p>&copy; 2026 Mere Orthodoxy</p>
-        </footer>
-      </div>
-    </main>
-  </div>
-
-  <!-- Scripts -->
-  <!-- Scripts -->
   <script src="{{asset "js/reader.js"}}"></script>
 </body>
 </html>

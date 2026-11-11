@@ -155,6 +155,10 @@
     }
   }
 
+  // Shared with the Daily Office (dashboard-prayer.js), which picks the
+  // day's opening sentence, invitatory antiphon and Collect from these.
+  window.MOLiturgical = { easter, computeSeason, computeWeekLabel };
+
   // ── Populate dashboard week indicator + Collect dropdown ────
   // The week chip is a <details> element. Summary text is the week
   // label (e.g. "First Week of Advent"); body is the BCP 1979 Collect

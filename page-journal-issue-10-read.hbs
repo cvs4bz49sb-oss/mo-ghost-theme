@@ -11,1400 +11,43 @@
   <title>Issue 010: Summer 2026 &mdash; Mere Orthodoxy Journal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
-  <style>
-    /* ===== CSS Reset & Base ===== */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --primary: #ee7d51;
-      --secondary: #c1593c;
-      --tertiary: #a43a27;
-      --quaternary: #d89f5b;
-      --body-text: #2d2927;
-      --light-text: #5c4f42;
-      --dark-bg: #c0b2a5;
-      --light-bg: #f6f3f2;
-      --page-bg: #f1e0c9;
-      --font-headline: 'IM Fell Great Primer', 'Georgia', serif;
-      --font-body: 'Source Serif 4', 'Georgia', serif;
-      --content-width: 680px;
-      --sidebar-width: 260px;
-    }
-
-    /* ===== Dark Mode ===== */
-    [data-theme="dark"] {
-      --page-bg: #2d2927;
-      --body-text: #e8ddd0;
-      --light-text: #a89684;
-      --primary: #ee7d51;
-      --secondary: #d4826a;
-      --tertiary: #e8a08a;
-      --quaternary: #d89f5b;
-    }
-
-    /* ===== Body ===== */
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 5rem;
-      overflow-x: hidden;
-      -webkit-text-size-adjust: 100%;
-    }
-
-    body {
-      font-family: var(--font-body);
-      font-size: 19px;
-      line-height: 1.75;
-      color: var(--body-text);
-      background-color: var(--page-bg);
-      transition: background-color 0.3s ease, color 0.3s ease;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      overflow-x: hidden;
-    }
-
-    /* ===== Layout ===== */
-    .page-wrapper {
-      display: flex;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ===== Header Bar ===== */
-    .top-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.25rem 2.5rem;
-      background-color: var(--page-bg);
-      transition: background-color 0.3s ease;
-    }
-
-    .org-name {
-      font-family: var(--font-headline);
-      font-size: 1.1rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--body-text);
-      text-decoration: none;
-      font-weight: 400;
-    }
-
-    .org-name:hover {
-      color: var(--secondary);
-    }
-
-    /* ===== Theme Toggle ===== */
-    .theme-toggle {
-      position: relative;
-      width: 52px;
-      height: 28px;
-      border-radius: 14px;
-      border: 2px solid var(--body-text);
-      background: transparent;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      padding: 0;
-    }
-
-    .theme-toggle::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 4px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background-color: var(--body-text);
-      transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-    [data-theme="dark"] .theme-toggle::after {
-      transform: translateX(22px);
-    }
-
-    /* ===== Sidebar ===== */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: var(--sidebar-width);
-      height: 100vh;
-      padding: 5.5rem 2rem 2rem 2.5rem;
-      overflow-y: auto;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.3s ease;
-    }
-
-    .sidebar.collapsed {
-      transform: translateX(-100%);
-    }
-
-    .sidebar nav {
-      flex: 1;
-    }
-
-    .sidebar-actions {
-      margin-top: auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.75rem;
-      padding-bottom: 1rem;
-    }
-
-    /* ===== About Button ===== */
-    .about-btn {
-      display: block;
-      text-align: center;
-      width: 100%;
-      padding: 0.6rem 1.4rem;
-      font-family: var(--font-body);
-      font-size: 0.9rem;
-      color: var(--body-text);
-      background: transparent;
-      border: 2px solid var(--secondary);
-      border-radius: 4px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-bottom: 0.25rem;
-    }
-
-    .about-btn:hover {
-      background-color: var(--secondary);
-      color: var(--page-bg);
-    }
-
-    [data-theme="dark"] .about-btn {
-      border-color: var(--quaternary);
-      color: var(--body-text);
-    }
-
-    [data-theme="dark"] .about-btn:hover {
-      background-color: var(--quaternary);
-      color: #2d2927;
-    }
-
-    /* ===== Icon Button Row ===== */
-    .icon-btn-row {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-    }
-
-    /* ===== Share Button & Popup ===== */
-    .share-wrapper {
-      position: relative;
-    }
-
-    .share-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      padding: 0;
-      color: var(--secondary);
-      background: transparent;
-      border: 2px solid var(--secondary);
-      border-radius: 50%;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .share-btn svg {
-      width: 15px;
-      height: 15px;
-    }
-
-    .share-btn:hover {
-      background-color: var(--secondary);
-      color: var(--page-bg);
-    }
-
-    [data-theme="dark"] .share-btn {
-      border-color: var(--quaternary);
-      color: var(--quaternary);
-    }
-
-    [data-theme="dark"] .share-btn:hover {
-      background-color: var(--quaternary);
-      color: #2d2927;
-    }
-
-    .share-popup {
-      display: none;
-      position: absolute;
-      bottom: calc(100% + 0.5rem);
-      left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
-      background-color: var(--page-bg);
-      border: 1px solid var(--dark-bg);
-      border-radius: 6px;
-      padding: 0.5rem 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      z-index: 60;
-    }
-
-    .share-popup.open {
-      display: block;
-    }
-
-    [data-theme="dark"] .share-popup {
-      border-color: var(--light-text);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-
-    .share-option {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      width: 100%;
-      padding: 0.5rem 1rem;
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      color: var(--body-text);
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.15s ease;
-    }
-
-    .share-option:hover {
-      background-color: var(--dark-bg);
-    }
-
-    [data-theme="dark"] .share-option:hover {
-      background-color: rgba(255,255,255,0.08);
-    }
-
-    .share-option svg {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-    }
-
-    .share-copied {
-      font-size: 0.8rem;
-      color: var(--secondary);
-      text-align: center;
-      padding: 0.25rem 0;
-      display: none;
-    }
-
-    .share-copied.show {
-      display: block;
-    }
-
-    .toc-title {
-      font-family: var(--font-headline);
-      font-size: 1.05rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-bottom: 1.5rem;
-      letter-spacing: 0.02em;
-    }
-
-    .toc-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .toc-list li {
-      margin-bottom: 0.35rem;
-    }
-
-    .toc-list a {
-      font-family: var(--font-body);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      color: var(--light-text);
-      text-decoration: none;
-      transition: color 0.2s ease;
-      display: block;
-      padding: 0.15rem 0;
-    }
-
-    .toc-list a:hover {
-      color: var(--body-text);
-    }
-
-    .toc-list a.active {
-      color: var(--secondary);
-      font-weight: 600;
-    }
-
-    .toc-list .toc-major {
-      font-family: var(--font-headline);
-      font-size: 0.95rem;
-      color: var(--light-text);
-      margin-top: 0.5rem;
-      transition: color 0.2s ease, font-weight 0.2s ease;
-    }
-
-    .toc-list .toc-major:hover {
-      color: var(--body-text);
-    }
-
-    .toc-list .toc-major.active {
-      color: var(--secondary);
-      font-weight: 600;
-    }
-
-    .toc-list .toc-major:first-child {
-      margin-top: 0;
-    }
-
-    .toc-list .toc-sub {
-      padding-left: 0;
-    }
-
-    .toc-section-label {
-      font-family: var(--font-headline);
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--light-text);
-      padding: 1rem 0 0.25rem;
-      border-top: 1px solid var(--light-text);
-      margin-top: 0.5rem;
-      list-style: none;
-    }
-
-    /* ===== Main Content ===== */
-    .main-content {
-      margin-left: var(--sidebar-width);
-      flex: 1;
-      padding: 6rem 4rem 6rem 4rem;
-      max-width: calc(var(--content-width) + var(--sidebar-width) + 8rem);
-    }
-
-    .content-container {
-      max-width: var(--content-width);
-    }
-
-    /* ===== Hero ===== */
-    .hero {
-      margin-bottom: 3.5rem;
-      padding-bottom: 0;
-    }
-
-    .hero-eyebrow {
-      font-family: var(--font-headline);
-      font-size: 0.85rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--primary);
-      margin-bottom: 0.5rem;
-    }
-
-    .hero-title {
-      font-family: var(--font-headline);
-      font-size: clamp(2.8rem, 5.5vw, 4.2rem);
-      line-height: 1.12;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-bottom: 0.6rem;
-      letter-spacing: -0.01em;
-    }
-
-    .hero-subtitle {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-size: clamp(1.1rem, 2vw, 1.35rem);
-      color: var(--body-text);
-      margin-bottom: 1.5rem;
-      line-height: 1.4;
-    }
-
-    .hero-date {
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      color: var(--light-text);
-    }
-
-    /* ===== Sections ===== */
-    .content-section {
-      margin-bottom: 1rem;
-    }
-
-    .section-label {
-      font-family: var(--font-headline);
-      font-size: 0.95rem;
-      font-weight: 400;
-      color: var(--light-text);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 0.75rem;
-      margin-top: 3rem;
-    }
-
-    .content-section:first-child .section-label {
-      margin-top: 0;
-    }
-
-    .section-title {
-      font-family: var(--font-headline);
-      font-size: clamp(2rem, 4vw, 2.8rem);
-      font-weight: 400;
-      color: var(--body-text);
-      margin-top: 4rem;
-      margin-bottom: 1.5rem;
-      line-height: 1.2;
-      padding-top: 2rem;
-      border-top: 3px solid var(--secondary);
-    }
-
-    .essay-heading {
-      font-family: var(--font-headline);
-      font-size: 1.15rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-bottom: 1.75rem;
-      line-height: 1.5;
-    }
-
-    .essay-author {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-size: 1rem;
-      color: var(--light-text);
-      margin-bottom: 1.75rem;
-    }
-
-    .section-heading {
-      font-family: var(--font-headline);
-      font-size: 1.5rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-top: 3rem;
-      margin-bottom: 1rem;
-      line-height: 1.35;
-    }
-
-    .subsection-heading {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-size: 1.25rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-top: 2.5rem;
-      margin-bottom: 0.75rem;
-      line-height: 1.4;
-    }
-
-    /* ===== Body Text ===== */
-    p {
-      margin-bottom: 1.25rem;
-    }
-
-    strong {
-      font-weight: 600;
-    }
-
-    em {
-      font-style: italic;
-    }
-
-    /* ===== Callout (bold+italic manifesto statement) ===== */
-    .callout {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-weight: 400;
-      font-size: 1.05rem;
-      line-height: 1.7;
-      color: var(--body-text);
-      padding: 2rem 0;
-      margin: 2rem 0;
-      border-top: 3px solid var(--secondary);
-      border-bottom: 3px solid var(--secondary);
-    }
-
-    .callout strong {
-      font-weight: 400;
-    }
-
-    /* ===== Blockquote ===== */
-    blockquote p:last-child {
-      margin-bottom: 0;
-    }
-
-    .essay-heading + .essay-heading {
-      margin-top: -1.25rem;
-    }
-
-    blockquote {
-      margin: 1.75rem 0;
-      padding: 0.25rem 0 0.25rem 1.75rem;
-      border-left: 3px solid var(--quaternary);
-      color: var(--body-text);
-      font-size: 0.95rem;
-      line-height: 1.8;
-    }
-
-    /* ===== Ordered/Unordered Lists ===== */
-    .barna-list {
-      margin: 1.5rem 0 1.5rem 1.5rem;
-      padding: 0;
-    }
-
-    .barna-list li {
-      margin-bottom: 0.5rem;
-      padding-left: 0.25rem;
-      font-size: 0.95rem;
-      line-height: 1.65;
-    }
-
-    /* ===== Hamburger Menu ===== */
-    .menu-toggle {
-      display: block;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0.5rem;
-      z-index: 200;
-    }
-
-    .menu-toggle span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background-color: var(--body-text);
-      margin: 5px 0;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(45, 41, 39, 0.4);
-      z-index: 5;
-    }
-
-
-    /* ===== Responsive ===== */
-    @media (max-width: 960px) {
-      body {
-        overflow-wrap: break-word;
-        word-break: break-word;
-        -webkit-hyphens: auto;
-        hyphens: auto;
-      }
-
-      html {
-        scroll-padding-top: 4.75rem;
-      }
-
-      .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        background-color: var(--page-bg);
-        z-index: 50;
-        width: 280px;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .sidebar-overlay.open {
-        display: block;
-      }
-
-      .page-wrapper {
-        width: 100%;
-        max-width: 100%;
-      }
-
-      .main-content {
-        margin-left: 0;
-        padding: 5.5rem 1.5rem 4rem 1.5rem;
-        max-width: 100%;
-        width: 100%;
-        min-width: 0;
-        overflow-x: hidden;
-      }
-
-      .content-container {
-        max-width: 100%;
-        width: 100%;
-        overflow-x: hidden;
-      }
-
-      .hero {
-        margin-bottom: 2.5rem;
-      }
-
-      .hero-title {
-        font-size: 2.4rem;
-      }
-
-      .hero-subtitle {
-        font-size: 1.1rem;
-      }
-
-      .section-title {
-        font-size: 2rem;
-        margin-top: 3rem;
-        padding-top: 1.5rem;
-      }
-
-      .section-heading {
-        margin-top: 2rem;
-      }
-
-      .subsection-heading {
-        margin-top: 1.75rem;
-      }
-
-      .section-label {
-        margin-top: 2rem;
-      }
-
-      blockquote {
-        padding-left: 1.25rem;
-        margin: 1.25rem 0;
-      }
-
-      .barna-list {
-        margin-left: 1rem;
-      }
-
-      .callout {
-        padding: 1.5rem 0;
-        margin: 1.5rem 0;
-      }
-
-      .contributors-section {
-        margin-top: 3rem;
-      }
-
-      .top-bar {
-        padding: 1rem 1.5rem;
-      }
-
-      .share-popup,
-      .download-popup {
-        left: auto;
-        right: 0;
-        transform: none;
-      }
-
-      .sidebar-actions .share-popup,
-      .sidebar-actions .download-popup {
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
-      }
-    }
-
-    @media (max-width: 600px) {
-      body {
-        font-size: 17px;
-        line-height: 1.65;
-      }
-
-      html {
-        scroll-padding-top: 4.25rem;
-      }
-
-      .hero {
-        margin-bottom: 2rem;
-      }
-
-      .hero-eyebrow {
-        font-size: 0.75rem;
-      }
-
-      .hero-title {
-        font-size: 2rem;
-      }
-
-      .hero-subtitle {
-        font-size: 1rem;
-        margin-bottom: 1rem;
-      }
-
-      .hero-date {
-        font-size: 0.85rem;
-      }
-
-      .section-title {
-        font-size: 1.7rem;
-        margin-top: 2.5rem;
-        padding-top: 1.25rem;
-        margin-bottom: 1rem;
-      }
-
-      .section-heading {
-        font-size: 1.3rem;
-        margin-top: 1.75rem;
-      }
-
-      .subsection-heading {
-        font-size: 1.1rem;
-        margin-top: 1.5rem;
-      }
-
-      .section-label {
-        font-size: 0.85rem;
-        margin-top: 2rem;
-      }
-
-      .essay-heading {
-        font-size: 1.05rem;
-      }
-
-      .essay-author {
-        font-size: 0.9rem;
-        margin-bottom: 1.25rem;
-      }
-
-      blockquote {
-        padding-left: 1rem;
-        margin: 1rem 0;
-        font-size: 0.9rem;
-      }
-
-      .barna-list {
-        margin-left: 0.75rem;
-      }
-
-      .barna-list li {
-        font-size: 0.9rem;
-      }
-
-      .callout {
-        font-size: 0.95rem;
-        padding: 1.25rem 0;
-        margin: 1.25rem 0;
-      }
-
-      .main-content {
-        padding: 5rem 1.25rem 3rem 1.25rem;
-      }
-
-      .top-bar {
-        padding: 0.75rem 1rem;
-      }
-
-      .org-name {
-        font-size: 0.95rem;
-        letter-spacing: 0.1em;
-      }
-
-      .contributors-section {
-        margin-top: 2.5rem;
-        padding-top: 1.5rem;
-      }
-
-      .contributor-name {
-        font-size: 1rem;
-      }
-
-      .contributor-bio {
-        font-size: 0.9rem;
-      }
-
-      .site-footer {
-        padding: 2rem 0 1.5rem;
-        font-size: 0.8rem;
-      }
-    }
-
-    @media (max-width: 400px) {
-      body {
-        font-size: 16px;
-      }
-
-      .hero-title {
-        font-size: 1.7rem;
-      }
-
-      .hero-subtitle {
-        font-size: 0.95rem;
-      }
-
-      .section-title {
-        font-size: 1.5rem;
-        margin-top: 2rem;
-        padding-top: 1rem;
-      }
-
-      .section-heading {
-        font-size: 1.2rem;
-      }
-
-      .subsection-heading {
-        font-size: 1.05rem;
-      }
-
-      .main-content {
-        padding: 4.5rem 1rem 2.5rem 1rem;
-      }
-
-      blockquote {
-        padding-left: 0.75rem;
-      }
-
-      .callout {
-        font-size: 0.9rem;
-        padding: 1rem 0;
-        margin: 1rem 0;
-      }
-
-      p {
-        margin-bottom: 1rem;
-      }
-    }
-
-    /* ===== Download Popup ===== */
-    .icon-btn-row .download-wrapper {
-      flex: 1;
-    }
-
-    .download-wrapper {
-      position: relative;
-    }
-
-    .download-popup {
-      display: none;
-      position: absolute;
-      bottom: calc(100% + 0.5rem);
-      left: 50%;
-      transform: translateX(-50%);
-      width: 180px;
-      background-color: var(--page-bg);
-      border: 1px solid var(--dark-bg);
-      border-radius: 6px;
-      padding: 0.5rem 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      z-index: 60;
-    }
-
-    .download-popup.open {
-      display: block;
-    }
-
-    [data-theme="dark"] .download-popup {
-      border-color: var(--light-text);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-
-    .download-option {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      width: 100%;
-      padding: 0.5rem 1rem;
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      color: var(--body-text);
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.15s ease;
-    }
-
-    .download-option:hover {
-      background-color: var(--dark-bg);
-    }
-
-    [data-theme="dark"] .download-option:hover {
-      background-color: rgba(255,255,255,0.08);
-    }
-
-    .download-option svg {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-    }
-
-    /* ===== Download Button ===== */
-    .download-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      padding: 0;
-      color: var(--page-bg);
-      background-color: var(--secondary);
-      border: 2px solid var(--secondary);
-      border-radius: 50%;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .download-btn svg {
-      width: 15px;
-      height: 15px;
-    }
-
-    .download-btn:hover {
-      background-color: var(--tertiary);
-      border-color: var(--tertiary);
-      color: var(--page-bg);
-    }
-
-    [data-theme="dark"] .download-btn {
-      color: #2d2927;
-      background-color: var(--quaternary);
-      border-color: var(--quaternary);
-    }
-
-    [data-theme="dark"] .download-btn:hover {
-      background-color: var(--primary);
-      border-color: var(--primary);
-    }
-
-    /* ===== Contributors ===== */
-    .contributors-section {
-      margin-top: 4rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--dark-bg);
-    }
-
-    .contributors-section .section-title {
-      margin-bottom: 2rem;
-    }
-
-    .contributor {
-      margin-bottom: 2rem;
-    }
-
-    .contributor-name {
-      font-family: var(--font-headline);
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--body-text);
-      margin-bottom: 0.25rem;
-    }
-
-    .contributor-bio {
-      font-size: 0.95rem;
-      color: var(--light-text);
-      line-height: 1.65;
-      font-style: italic;
-      margin-top: 2.5rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--color-card-border, rgba(154, 135, 115, 0.35));
-    }
-
-    .essay-author a {
-      color: inherit;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.2s ease;
-    }
-
-    .essay-author a:hover {
-      border-bottom-color: var(--light-text);
-    }
-
-    /* ===== Footer ===== */
-    .site-footer {
-      text-align: center;
-      padding: 3rem 0 2rem;
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      color: var(--light-text);
-    }
-
-    /* ===== PDF / Print Mode ===== */
-    body.print-mode .download-wrapper,
-    body.print-mode .about-btn,
-    body.print-mode .share-wrapper,
-    body.print-mode .sidebar-actions,
-    body.print-mode .top-bar,
-    body.print-mode .sidebar,
-    body.print-mode .sidebar-overlay,
-    body.print-mode .progress-bar,
-    body.print-mode .menu-toggle {
-      display: none !important;
-    }
-
-    body.print-mode {
-      background-color: #ffffff !important;
-      color: #000000 !important;
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      line-height: 1.6 !important;
-    }
-
-    body.print-mode .main-content {
-      margin-left: 0;
-      padding: 0;
-      max-width: 100%;
-    }
-
-    body.print-mode .content-container {
-      max-width: 100%;
-    }
-
-    /* Title page: centered, standalone */
-    body.print-mode .hero {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      height: 100vh;
-      page-break-after: always;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    body.print-mode .hero-title {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 28pt !important;
-      line-height: 1.2 !important;
-      color: #000000 !important;
-      margin-bottom: 0.5rem;
-    }
-
-    body.print-mode .hero-subtitle {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 14pt !important;
-      font-style: italic;
-      color: #000000 !important;
-      margin-bottom: 2rem;
-    }
-
-    body.print-mode .hero-date {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      color: #333333 !important;
-      margin-bottom: 1.5rem;
-    }
-
-    /* Add "Mere Orthodoxy" to title page via pseudo-element */
-    body.print-mode .hero::before {
-      content: "Mere Orthodoxy";
-      font-family: 'Times New Roman', 'Times', serif;
-      font-size: 14pt;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #333333;
-      margin-bottom: 3rem;
-    }
-
-    /* Chapter headings: start on new page */
-    body.print-mode .content-section {
-      page-break-before: always;
-      margin-bottom: 0;
-    }
-
-    body.print-mode .section-title {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 22pt !important;
-      color: #000000 !important;
-      border-top: 1px solid #000000;
-      border-bottom: none;
-      padding-top: 1.5rem;
-      margin-top: 0;
-      margin-bottom: 1.5rem;
-    }
-
-    body.print-mode .section-label {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #333333 !important;
-      margin-top: 0;
-    }
-
-    body.print-mode .section-heading {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 16pt !important;
-      color: #000000 !important;
-      margin-top: 2rem;
-    }
-
-    body.print-mode .subsection-heading {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 13pt !important;
-      font-style: italic;
-      color: #000000 !important;
-    }
-
-    body.print-mode .essay-heading {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 13pt !important;
-      color: #000000 !important;
-    }
-
-    body.print-mode .essay-author {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #333333 !important;
-    }
-
-    body.print-mode p {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      color: #000000 !important;
-      line-height: 1.6 !important;
-    }
-
-    body.print-mode blockquote {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #000000 !important;
-      border-left-color: #999999;
-    }
-
-    body.print-mode .barna-list li {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #000000 !important;
-    }
-
-    body.print-mode .callout {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      color: #000000 !important;
-      border-top-color: #000000;
-      border-bottom-color: #000000;
-    }
-
-    body.print-mode .contributors-section {
-      page-break-before: always;
-      border-top: none;
-    }
-
-    body.print-mode .contributor-name {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      font-weight: bold;
-      color: #000000 !important;
-    }
-
-    body.print-mode .contributor-bio {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #000000 !important;
-    }
-
-    body.print-mode .site-footer {
-      display: none;
-    }
-
-    body.print-mode .essay-author a {
-      color: inherit !important;
-      text-decoration: none !important;
-      border-bottom: none !important;
-    }
-
-    /* ===== Highlight & Share Tooltip ===== */
-    .highlight-share {
-      display: none;
-      position: absolute;
-      z-index: 300;
-      background-color: #2d2927;
-      border-radius: 6px;
-      padding: 0.35rem 0.25rem;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-      gap: 0.1rem;
-      align-items: center;
-      transform: translateX(-50%);
-    }
-
-    .highlight-share.visible {
-      display: flex;
-    }
-
-    .highlight-share * {
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    .highlight-share::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 7px solid transparent;
-      border-right: 7px solid transparent;
-      border-top: 7px solid #2d2927;
-    }
-
-    .hs-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 34px;
-      height: 34px;
-      border: none;
-      background: transparent;
-      border-radius: 4px;
-      cursor: pointer;
-      color: #e8ddd0;
-      transition: background-color 0.15s ease;
-      padding: 0;
-    }
-
-    .hs-btn:hover {
-      background-color: rgba(255,255,255,0.12);
-    }
-
-    .hs-btn svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .hs-divider {
-      width: 1px;
-      height: 20px;
-      background-color: rgba(255,255,255,0.2);
-      margin: 0 0.15rem;
-    }
-
-    .hs-copied {
-      position: absolute;
-      top: -28px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #2d2927;
-      color: #e8ddd0;
-      font-family: var(--font-body);
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      pointer-events: none;
-    }
-
-    .hs-copied.show {
-      opacity: 1;
-    }
-
-    @media (max-width: 960px) {
-      .highlight-share {
-        padding: 0.4rem 0.35rem;
-      }
-      .highlight-share::after {
-        bottom: auto;
-        top: -6px;
-        border-top: none;
-        border-bottom: 7px solid #2d2927;
-      }
-      .hs-copied {
-        top: auto;
-        bottom: -28px;
-      }
-      .hs-btn {
-        width: 40px;
-        height: 40px;
-      }
-      .hs-btn svg {
-        width: 18px;
-        height: 18px;
-      }
-    }
-
-    body.print-mode .highlight-share {
-      display: none !important;
-    }
-
-    /* ===== Scroll Progress ===== */
-    .progress-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      z-index: 200;
-      transition: width 0.1s ease-out;
-      width: 0%;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{asset "css/reader-v2.css"}}">
+  <script src="{{asset "js/reader-init.js"}}"></script>
 </head>
-<body data-reader
+<body data-reader data-reader-kind="journal"
       data-reader-share-title="Mere Orthodoxy Journal: Issue 10 — Summer 2026"
       data-reader-share-text="Mere Orthodoxy Journal: Issue 10 — Summer 2026"
       data-reader-attr-full="\n\n— Mere Orthodoxy Journal, Issue 10"
       data-reader-attr-short="\n\n— MO Journal 10">
-  <div class="progress-bar" id="progressBar"></div>
+  <a class="rd-skip" href="#rd-start">Skip to the text</a>
 
-  <!-- Highlight & Share tooltip -->
-  <div class="highlight-share" id="highlightShare">
-    <button class="hs-btn" id="hsCopy" title="Copy quote + link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-    <button class="hs-btn" id="hsSMS" title="Text message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
-    <button class="hs-btn" id="hsX" title="Share on X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></button>
-    <button class="hs-btn" id="hsFB" title="Share on Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></button>
-    <button class="hs-btn" id="hsIG" title="Instagram Stories"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></button>
-    <span class="hs-copied" id="hsCopied">Copied!</span>
-  </div>
-
-  <header class="top-bar">
-    <div style="display:flex;align-items:center;gap:1rem;">
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
-      <a href="https://mereorthodoxy.com" class="org-name">Mere Orthodoxy</a>
-    </div>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"></button>
-  </header>
-
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-  <div class="page-wrapper">
-    <aside class="sidebar" id="sidebar">
-      <nav>
-        <h2 class="toc-title">Contents</h2>
-        <ul class="toc-list">
-          <li><a href="#top" class="toc-major">Top</a></li>
-          <li><a href="#epigraph" class="toc-major">T. S. Eliot</a></li>
-          <li><a href="#editor-letter" class="toc-major">Letter from the Editor</a></li>
-          <li><a href="#being-a-public-school" class="toc-major">Being a Public School Kid</a></li>
-          <li><a href="#understanding-anxiety-with-soren" class="toc-major">Understanding Anxiety with Soren Kierkegaard</a></li>
-          <li><a href="#homeschooling-is-more-normal" class="toc-major">Homeschooling Is More Normal than You Think</a></li>
-          <li><a href="#what-is-union-with" class="toc-major">What is Union with Christ?</a></li>
-          <li><a href="#apocalypse-now" class="toc-major">Apocalypse Now</a></li>
-          <li><a href="#from-babel-to-belonging" class="toc-major">From Babel to Belonging</a></li>
-          <li><a href="#constructing-a-common-good" class="toc-major">Constructing a Common Good</a></li>
-          <li><a href="#we-still-need-fairy" class="toc-major">We Still Need Fairy Tales</a></li>
-          <li><a href="#to-shew-the-truth" class="toc-major">The Apologetics of Nathaniel Lardner</a></li>
-          <li><a href="#something-wicked-this-way" class="toc-major">Something Wicked This Way Comes</a></li>
-          <li><a href="#man-vs-infectious-disease" class="toc-major">Man vs. Infectious Disease</a></li>
-          <li><a href="#stewarding-land-and-language" class="toc-major">Stewarding Land and Language</a></li>
-          <li><a href="#cultivating-a-well-ordered" class="toc-major">Cultivating a Well-Ordered Anthropology in a Dehumanizing World</a></li>
-          <li><a href="#bringing-up-nietzsche" class="toc-major">Bringing Up Nietzsche</a></li>
-          <li><a href="#the-return-of-the" class="toc-major">The Return of the Common Good</a></li>
-          <li><a href="#about" class="toc-major">About Mere Orthodoxy</a></li>
-        </ul>
-      </nav>
-      <div class="sidebar-actions">
-        <a href="https://mereorthodoxy.com/about" class="about-btn">About<br>Mere Orthodoxy</a>
-        <div class="icon-btn-row">
-          <div class="share-wrapper">
-            <div class="share-popup" id="sharePopup">
+  <header class="rd-bar">
+    <a class="rd-back" href="/dashboard/journals/" aria-label="Back to the journal archive">&larr;<span class="rd-back-label"> Journal archive</span></a>
+    <p class="rd-now" id="rdNow">Issue 010, Summer 2026</p>
+    <div class="rd-tools">
+      <button type="button" class="rd-btn" id="menuToggle" aria-controls="sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg><span class="rd-btn-label">Contents</span></button>
+      <div class="rd-pop-wrap">
+        <button type="button" class="rd-btn" id="rdTypeToggle" aria-haspopup="true" aria-expanded="false" aria-controls="rdTypePop" aria-label="Text settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19 9 5l5 14"/><line x1="5.8" y1="14" x2="12.2" y2="14"/><path d="M15 19l3-8 3 8"/><line x1="16" y1="16.5" x2="20" y2="16.5"/></svg></button>
+        <div class="rd-pop" id="rdTypePop" role="dialog" aria-label="Text settings">
+          <p class="rd-pop-label">Text size</p>
+          <div class="rd-seg" role="group" aria-label="Text size">
+            <button type="button" data-rd-size="s" aria-pressed="false">Small</button>
+            <button type="button" data-rd-size="m" aria-pressed="true">Medium</button>
+            <button type="button" data-rd-size="l" aria-pressed="false">Large</button>
+            <button type="button" data-rd-size="xl" aria-pressed="false">Larger</button>
+          </div>
+          <p class="rd-pop-label">Page</p>
+          <div class="rd-seg" role="group" aria-label="Page color">
+            <button type="button" data-rd-theme="paper" aria-pressed="true">Paper</button>
+            <button type="button" data-rd-theme="sepia" aria-pressed="false">Sepia</button>
+            <button type="button" data-rd-theme="dark" aria-pressed="false">Dark</button>
+          </div>
+        </div>
+      </div>
+      <div class="rd-pop-wrap">
+        <button type="button" class="rd-btn" id="shareToggle" aria-haspopup="true" aria-expanded="false" aria-controls="sharePopup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="m8 8 4-4 4 4"/><path d="M6 12v7h12v-7"/></svg><span class="rd-btn-label">Share</span></button>
+        <div class="rd-pop" id="sharePopup" role="dialog" aria-label="Share">
               <button class="share-option" id="copyLink">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                 Copy link
@@ -1415,24 +58,83 @@
               <a class="share-option" id="shareFB" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Share on Facebook</a>
               <a class="share-option" id="shareIG" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg> Instagram Stories</a>
             </div>
-            <button class="share-btn" id="shareToggle" title="Share">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            </button>
-          </div>
-          
-        </div>
       </div>
-    </aside>
+    </div>
+    <div class="progress-bar" id="progressBar"></div>
+  </header>
 
-    <main class="main-content">
-      <div class="content-container">
-        <div id="top" class="hero">
-          <p class="hero-eyebrow">Issue 010</p>
-          <h1 class="hero-title">Mere Orthodoxy</h1>
-          <p class="hero-subtitle">Summer 2026</p>
-        </div>
+  <div class="highlight-share" id="highlightShare">
+    <button class="hs-btn" id="hsCopy" title="Copy quote + link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+    <button class="hs-btn" id="hsSMS" title="Text message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+    <button class="hs-btn" id="hsX" title="Share on X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></button>
+    <button class="hs-btn" id="hsFB" title="Share on Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></button>
+    <button class="hs-btn" id="hsIG" title="Instagram Stories"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></button>
+    <span class="hs-copied" id="hsCopied">Copied!</span>
+  </div>
 
-        <article>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <aside class="rd-toc sidebar" id="sidebar" aria-label="Contents">
+    <div class="rd-toc-head"><p>Contents</p><button type="button" class="rd-btn rd-toc-close" aria-label="Close contents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button></div>
+    <nav>
+      <ol class="toc-list">
+          <li><a href="#epigraph"><span class="rd-toc-n"></span><span class="rd-toc-t">T. S. Eliot</span></a></li>
+          <li><a href="#editor-letter"><span class="rd-toc-n">1</span><span class="rd-toc-t">Letter from the Editor</span><span class="rd-toc-a">Jake Meador</span></a></li>
+          <li><a href="#being-a-public-school"><span class="rd-toc-n">2</span><span class="rd-toc-t">Being a Public School Kid</span><span class="rd-toc-a">Brian Auten</span></a></li>
+          <li><a href="#understanding-anxiety-with-soren"><span class="rd-toc-n">3</span><span class="rd-toc-t">Understanding Anxiety with Soren Kierkegaard</span><span class="rd-toc-a">Bradley Blaylock</span></a></li>
+          <li><a href="#homeschooling-is-more-normal"><span class="rd-toc-n">4</span><span class="rd-toc-t">Homeschooling Is More Normal than You Think</span><span class="rd-toc-a">Tessa Carman</span></a></li>
+          <li><a href="#what-is-union-with"><span class="rd-toc-n">5</span><span class="rd-toc-t">What is Union with Christ?</span><span class="rd-toc-a">Joshua Heavin</span></a></li>
+          <li><a href="#apocalypse-now"><span class="rd-toc-n">6</span><span class="rd-toc-t">Apocalypse Now</span><span class="rd-toc-a">Kirsten Sanders</span></a></li>
+          <li><a href="#from-babel-to-belonging"><span class="rd-toc-n">7</span><span class="rd-toc-t">From Babel to Belonging</span><span class="rd-toc-a">Annie Crawford</span></a></li>
+          <li><a href="#constructing-a-common-good"><span class="rd-toc-n">8</span><span class="rd-toc-t">Constructing a Common Good</span><span class="rd-toc-a">Agnes R. Howard</span></a></li>
+          <li><a href="#we-still-need-fairy"><span class="rd-toc-n">9</span><span class="rd-toc-t">We Still Need Fairy Tales</span><span class="rd-toc-a">Ashley Hales</span></a></li>
+          <li><a href="#to-shew-the-truth"><span class="rd-toc-n">10</span><span class="rd-toc-t">The Apologetics of Nathaniel Lardner</span><span class="rd-toc-a">Daniel K. Williams</span></a></li>
+          <li><a href="#something-wicked-this-way"><span class="rd-toc-n">11</span><span class="rd-toc-t">Something Wicked This Way Comes</span><span class="rd-toc-a">Beatrice Scudeler</span></a></li>
+          <li><a href="#man-vs-infectious-disease"><span class="rd-toc-n">12</span><span class="rd-toc-t">Man vs. Infectious Disease</span><span class="rd-toc-a">Matthew Loftus</span></a></li>
+          <li><a href="#stewarding-land-and-language"><span class="rd-toc-n">13</span><span class="rd-toc-t">Stewarding Land and Language</span><span class="rd-toc-a">Jake Meador</span></a></li>
+          <li><a href="#cultivating-a-well-ordered"><span class="rd-toc-n">14</span><span class="rd-toc-t">Cultivating a Well-Ordered Anthropology in a Dehumanizing World</span><span class="rd-toc-a">Nadya Williams</span></a></li>
+          <li><a href="#bringing-up-nietzsche"><span class="rd-toc-n">15</span><span class="rd-toc-t">Bringing Up Nietzsche</span><span class="rd-toc-a">Vika Pechersky</span></a></li>
+          <li><a href="#the-return-of-the"><span class="rd-toc-n">16</span><span class="rd-toc-t">The Return of the Common Good</span><span class="rd-toc-a">James Wood</span></a></li>
+          <li><a href="#about"><span class="rd-toc-n"></span><span class="rd-toc-t">About Mere Orthodoxy</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <main class="main-content rd-main">
+    <section class="rd-title-page" id="top" aria-labelledby="rd-title">
+      <div class="rd-cover"><img src="{{asset "images/journal-issue-010-cover.jpg"}}" alt="Cover of Issue 010, Summer 2026" width="773" height="1000"></div>
+      <div>
+        <h1 class="rd-title" id="rd-title">Issue 010, Summer 2026</h1>
+        <p class="rd-sub">16 essays</p>
+        <p class="rd-actions">
+          <a class="rd-cta rd-cta--solid" href="#epigraph">Begin reading</a>
+          <a class="rd-cta" id="rdContinue" href="#epigraph" hidden>Continue<span data-rd-continue-title></span></a>
+        </p>
+        <h2 class="rd-contents-title">Contents</h2>
+        <ol class="rd-contents">
+            <li><a href="#epigraph"><span class="rd-c-t">T. S. Eliot</span></a></li>
+            <li><a href="#editor-letter"><span class="rd-c-t">Letter from the Editor</span><span class="rd-c-a">Jake Meador</span></a></li>
+            <li><a href="#being-a-public-school"><span class="rd-c-t">Being a Public School Kid</span><span class="rd-c-a">Brian Auten</span></a></li>
+            <li><a href="#understanding-anxiety-with-soren"><span class="rd-c-t">Understanding Anxiety with Soren Kierkegaard</span><span class="rd-c-a">Bradley Blaylock</span></a></li>
+            <li><a href="#homeschooling-is-more-normal"><span class="rd-c-t">Homeschooling Is More Normal than You Think</span><span class="rd-c-a">Tessa Carman</span></a></li>
+            <li><a href="#what-is-union-with"><span class="rd-c-t">What is Union with Christ?</span><span class="rd-c-a">Joshua Heavin</span></a></li>
+            <li><a href="#apocalypse-now"><span class="rd-c-t">Apocalypse Now</span><span class="rd-c-a">Kirsten Sanders</span></a></li>
+            <li><a href="#from-babel-to-belonging"><span class="rd-c-t">From Babel to Belonging</span><span class="rd-c-a">Annie Crawford</span></a></li>
+            <li><a href="#constructing-a-common-good"><span class="rd-c-t">Constructing a Common Good</span><span class="rd-c-a">Agnes R. Howard</span></a></li>
+            <li><a href="#we-still-need-fairy"><span class="rd-c-t">We Still Need Fairy Tales</span><span class="rd-c-a">Ashley Hales</span></a></li>
+            <li><a href="#to-shew-the-truth"><span class="rd-c-t">The Apologetics of Nathaniel Lardner</span><span class="rd-c-a">Daniel K. Williams</span></a></li>
+            <li><a href="#something-wicked-this-way"><span class="rd-c-t">Something Wicked This Way Comes</span><span class="rd-c-a">Beatrice Scudeler</span></a></li>
+            <li><a href="#man-vs-infectious-disease"><span class="rd-c-t">Man vs. Infectious Disease</span><span class="rd-c-a">Matthew Loftus</span></a></li>
+            <li><a href="#stewarding-land-and-language"><span class="rd-c-t">Stewarding Land and Language</span><span class="rd-c-a">Jake Meador</span></a></li>
+            <li><a href="#cultivating-a-well-ordered"><span class="rd-c-t">Cultivating a Well-Ordered Anthropology in a Dehumanizing World</span><span class="rd-c-a">Nadya Williams</span></a></li>
+            <li><a href="#bringing-up-nietzsche"><span class="rd-c-t">Bringing Up Nietzsche</span><span class="rd-c-a">Vika Pechersky</span></a></li>
+            <li><a href="#the-return-of-the"><span class="rd-c-t">The Return of the Common Good</span><span class="rd-c-a">James Wood</span></a></li>
+            <li><a href="#about"><span class="rd-c-t">About Mere Orthodoxy</span></a></li>
+        </ol>
+      </div>
+    </section>
+
+    <article class="rd-text" id="rd-start">
+
 
           <!-- ====== EPIGRAPH ====== -->
           <section id="epigraph" class="content-section">
@@ -1443,7 +145,8 @@
 
           <!-- ====== LETTER ====== -->
           <section id="editor-letter" class="content-section">
-            <h2 class="section-title">Letter from the Editor</h2>
+            <p class="rd-essay-n">1 of 16</p>
+    <h2 class="section-title">Letter from the Editor</h2>
             <p class="essay-author">By Jake Meador</p>
 
             <blockquote><p>letter from the editor</p></blockquote>
@@ -1458,11 +161,14 @@
             <p>Thank you for reading.</p>
             <p>Under the Mercy,</p>
             <p class="contributor-bio">Jake Meador is the editor-in-chief of Mere Orthodoxy. He lives in his hometown of Lincoln, NE with his wife and four children.</p>
-          </section>
+          
+    <a class="rd-next" href="#being-a-public-school"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Being a Public School Kid</span></a>
+</section>
 
           <!-- ====== ARTICLE 1 ====== -->
           <section id="being-a-public-school" class="content-section">
-            <h2 class="section-title">Being a Public School Kid</h2>
+            <p class="rd-essay-n">2 of 16</p>
+    <h2 class="section-title">Being a Public School Kid</h2>
             <p class="essay-author">By Brian Auten</p>
 
             <p>Since the 1960s, conservative Christians have railed against public schools as little more than “leftist indoctrination factories.” Christian critics of “government schools” (as the cool Rushdoony kids say) regularly accuse administrators and teachers of hijacking captive public school audiences, pushing left-wing, anti-American history, weaponizing libraries, and turning their students against “traditional,” conservative, or Christian values.</p>
@@ -1548,11 +254,14 @@
             <p>And it was lovely.</p>
             <p><em>Mukashi osewa ni natta koto o, ima mo taihen kansha shite orimasu</em>.</p>
             <p class="contributor-bio">Brian J. Auten is an independent scholar of Cold War strategy, politics, and religion. He is the author of <em>Carter’s Conversion: The Hardening of American Defense Policy</em> (University of Missouri Press, 2008).</p>
-          </section>
+          
+    <a class="rd-next" href="#understanding-anxiety-with-soren"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Understanding Anxiety with Soren Kierkegaard</span></a>
+</section>
 
           <!-- ====== ARTICLE 2 ====== -->
           <section id="understanding-anxiety-with-soren" class="content-section">
-            <h2 class="section-title">Understanding Anxiety with Soren Kierkegaard</h2>
+            <p class="rd-essay-n">3 of 16</p>
+    <h2 class="section-title">Understanding Anxiety with Soren Kierkegaard</h2>
             <p class="essay-author">By Bradley Blaylock</p>
 
             <p>Our culture has a thriving self-help market. Resources, mindfulness practices, and therapeutic discourse have become normalized. In this climate, anxiety has gained a sort of dual role. Anxiety can now function as both a diagnosis of genuine unwellness, and it also functions in a way that shows someone’s cultural awareness.</p>
@@ -1603,11 +312,14 @@
             <p>If anxiety can be viewed not simply as a problem to defeat but as a fundamental aspect of human existence, then I believe Kierkegaard offers insights that can deepen and enrich our understanding of moral formation.</p>
             <p>It would be good to remember that our ethical choices are not made in a vacuum, but instead against a backdrop of our fundamental freedom and the anxiety produced from it. Ultimately by bringing in Kierkegaard’s understanding of anxiety into conversations of moral formation with the conscience, we develop a richer and more nuanced understanding of moral formation. This combined perspective offers us a vision of the ethical life that is not simply following rules but is fundamentally about the project of selfbecoming in the face of possibility. As we attempt to navigate moral formation in our own day perhaps Kierkegaard's insights on anxiety can be helpful.</p>
             <p class="contributor-bio">Bradley Blaylock serves as a professor of theological studies at Highlands College in Birmingham, AL. He is a PhD candidate at Southwestern Baptist Theological Seminary studying the philosophy of religion.</p>
-          </section>
+          
+    <a class="rd-next" href="#homeschooling-is-more-normal"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Homeschooling Is More Normal than You Think</span></a>
+</section>
 
           <!-- ====== ARTICLE 3 ====== -->
           <section id="homeschooling-is-more-normal" class="content-section">
-            <h2 class="section-title">Homeschooling Is More Normal than You Think</h2>
+            <p class="rd-essay-n">4 of 16</p>
+    <h2 class="section-title">Homeschooling Is More Normal than You Think</h2>
             <p class="essay-author">By Tessa Carman</p>
 
             <p class="essay-heading">Dixie Dillon Lane. <em>Skipping School: A History of American Homeschooling and How It Went Mainstream</em>. Eerdmans, 2026. $28.99. 216 pp.</p>
@@ -1639,11 +351,14 @@
             <p>The drive toward total control over society and the rejection of proper levels of authority — including the family—affect us all. This culture transforms what a school and society could be. This is why both homeschooling families and people like a friend of mine in Chicago, a regenerative farming expert involved at her children’s public school, are batting for the same team. Both want to raise children who are curious and competent, who have ordered loves and respect for legitimate authority, but are not easily controlled shills for a totalitarian state.</p>
             <p>We live in a strange time, where fundamental relational tasks like teaching, care of children, and care for the sick and the elderly are respected only when professionalized and performed by someone in a paid position. The history of homeschooling, however, shows it to be a crucial part of the timeless civilizational project of caring for our families and loving our neighbor. And so, homeschooling matters because by its very nature—in all its non-standardized, messy, unwieldy glory—it is a movement against the professionalization, standardization, and replacement of the human being.</p>
             <p class="contributor-bio">Tessa Carman is a homeschooling mother, teacher, and writer. She is a member of the editorial board of Mere Orthodoxy.</p>
-          </section>
+          
+    <a class="rd-next" href="#what-is-union-with"><span class="rd-next-label">Next essay</span><span class="rd-next-title">What is Union with Christ?</span></a>
+</section>
 
           <!-- ====== ARTICLE 4 ====== -->
           <section id="what-is-union-with" class="content-section">
-            <h2 class="section-title">What is Union with Christ?</h2>
+            <p class="rd-essay-n">5 of 16</p>
+    <h2 class="section-title">What is Union with Christ?</h2>
             <p class="essay-author">By Joshua Heavin</p>
 
             <p>Union with Christ is at the very heart of the Christian faith, yet its meaning and implications are lost upon the vast majority of Christians today. What is union with Christ, and why does it matter in the Christian life?</p>
@@ -1688,11 +403,14 @@
             <p>Christian ministry specifically takes on new meaning when it is understood in light of our union with Christ, since it is fleshing out Christ’s otherwise hidden afflictions (Col 1:24). We not merely teach and warn in order to present people mature in Christ; it is actually Christ himself who is at work within us (Col 1:24–25). Christ is the one who makes an appeal through us, as we herald his sacred and imperishable gospel of reconciliation to the whole cosmos (2 Cor 5:19). God is the one who “in Christ” leads us in triumphal procession, and God is the one who “through us spreads the fragrance of the knowledge of him everywhere,” as the fragrance of Christ is the aroma of life to those who are being saved and of death to those who are perishing (2 Cor 2:14–17).</p>
             <p>Union with Christ is not the kind of thing one grasps and then moves on from; it is an infinite, inexhaustible well that is the key to the whole of the Christian life. It is an unshakeable anchor of hope in our suffering and an unquenchable fire that fuels worship, mission, striving after holiness, and growth in practices that forge virtue for all who can say “I have been crucified with Christ. It is no longer I who live, but Christ who lives in me. And the life I now live in the flesh I live by faith in the Son of God, who loved me and gave himself for me” (Gal 2:20).</p>
             <p class="contributor-bio">Rev. Dr. Joshua Heavin (PhD, Aberdeen) serves as curate for pastoral care at Christ Church Cathedral in Plano, Texas; he is the book reviews editor for <em>Pro Ecclesia</em>, the journal of the Center for Catholic and Evangelical Theology; and he is an adjunct professor in the School of Christian Thought at Houston Christian University and West Texas A&amp;M University.</p>
-          </section>
+          
+    <a class="rd-next" href="#apocalypse-now"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Apocalypse Now</span></a>
+</section>
 
           <!-- ====== ARTICLE 5 ====== -->
           <section id="apocalypse-now" class="content-section">
-            <h2 class="section-title">Apocalypse Now</h2>
+            <p class="rd-essay-n">6 of 16</p>
+    <h2 class="section-title">Apocalypse Now</h2>
             <p class="essay-author">By Kirsten Sanders</p>
 
             <p class="essay-heading">Martha Park. <em>World Without End: Essays on Apocalypse and After</em>. Hub City Press, 2025. $24.00. 240 pp.</p>
@@ -1736,11 +454,14 @@
             <p>Park thinks that apocalypse can tuck us deeper into the world, like the dead who are buried in the natural cemeteries she describes. It is moving and beautiful. The burial practices themselves are deeply resonant with a Christian vision of caring for the bodies of the dead. But she cannot hold onto the belief that accompanied this vision for burying the dead. She wants the expansiveness, the opening to somewhere beyond, but has lost the taste for belief itself.</p>
             <p>I wish she knew she could have all this. Belief can be an adjustment to two truths—that so much has been lost, and yet all things will be made new. The apocalypse we can receive is the reality that there is a beyond. It is like one eye opening, a small speck of light. The world is in better hands than ours. The ivory billed woodpecker, the Torreya pines, the gravesites in the trees—they will all be renewed. Her father’s wrinkled hand will be made young again. In this apocalyptic vision, you can almost see him standing just out of sight. His hand is poised just above the sanctuary bell. Worship is about to begin. All she needs to do is walk in the door.</p>
             <p class="contributor-bio">Kirsten Sanders (PhD, Emory University) is a writer and theologian. She lives with her family in Massachusetts.</p>
-          </section>
+          
+    <a class="rd-next" href="#from-babel-to-belonging"><span class="rd-next-label">Next essay</span><span class="rd-next-title">From Babel to Belonging</span></a>
+</section>
 
           <!-- ====== ARTICLE 6 ====== -->
           <section id="from-babel-to-belonging" class="content-section">
-            <h2 class="section-title">From Babel to Belonging</h2>
+            <p class="rd-essay-n">7 of 16</p>
+    <h2 class="section-title">From Babel to Belonging</h2>
             <p class="essay-author">By Annie Crawford</p>
 
             <p class="essay-heading"><em>C.S. Lewis’s Fairy-Tale Cure for the Modern Machine</em></p>
@@ -1776,11 +497,14 @@
             <p>Finally, for Lewis, and the symbolic tradition on which he stands, the essential key to remaining human is to remember our nature as male and female made together to image the glory of God. Marriage is the inescapable foundation for a proper connection to the created order. <em>That Hideous Strength</em> begins with the word matrimony, which literally means mothermaking, and the story ends with the restored and repentant Mark finally making a mother of his wife, Jane. The fruitful union of man and wife, symbolic of the marriage between heaven and earth, is the means by which the world is reborn. The abolition of marriage is the abolition of Man, but the renewal of marriage is the restoration of Man. Mother-making marriage is both the origin and the goal of human life, for it is by the marriage of heaven and earth that we are created and it is <em>for</em> the free, conscious, consummation of this marriage that we are destined. This is Lewis’s fairytale ending: not technological liberation from nature, but loving harmony with nature and nature’s God through the faithful marriage of heaven and earth. Only through obedience to the order of creation are we essentially joined to the Creator of that order.</p>
             <p>Through the perennial symbolism of the apocalyptic tradition, <em>That Hideous Strength</em> charts a path out of the modern Machine and back into human community. The vision Lewis gives us is no passive, fearful retreat but a radical reaffirmation of our fundamental humanity against the anti-humanism of the Machine. Those who steward creation according to natural law will endure when judgment falls while those who rebel against the created order pull down Deep Heaven upon their heads. Nations rise and nations fall, but the truly human—prayer, work, friendship, love—abides. More technology cannot redeem us from technology’s curse; greater control cannot rescue us from tyranny; only faithful husbandry in obedience to the created order can—by God’s grace—renew our world.</p>
             <p class="contributor-bio">Annie Crawford is a cultural apologist and classical educator with a Master of Arts in cultural apologetics from Houston Christian University. She is the director for the Certificate in C.S. Lewis Studies at the Logres Institute for Classical Liberal Studies, and her work on story, symbolism, and education has appeared at the Blyth Institute, <em>The Consortium Journal</em>, <em>Salvo</em>, <em>An Unexpected Journal</em>, <em>The Symbolic World</em>, and <em>Sehnsucht: The C. S. Lewis Journal</em>.</p>
-          </section>
+          
+    <a class="rd-next" href="#constructing-a-common-good"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Constructing a Common Good</span></a>
+</section>
 
           <!-- ====== ARTICLE 7 ====== -->
           <section id="constructing-a-common-good" class="content-section">
-            <h2 class="section-title">Constructing a Common Good</h2>
+            <p class="rd-essay-n">8 of 16</p>
+    <h2 class="section-title">Constructing a Common Good</h2>
             <p class="essay-author">By Agnes R. Howard</p>
 
             <p class="essay-heading">Allison Daminger. <em>What’s on Her Mind: The Mental Workload of Family Life</em>. Princeton University Press, 2025. $29.95. 248 pp.</p>
@@ -1809,11 +533,14 @@
             <p>Believe in it? I’ve seen it done. I know some twenty-- and thirty-somethings raising young children, managing households collaboratively in ways tempting to envy but so beautiful that even that sin is cast out. There’s the couple who shift an infant from one’s sling to the other’s front-carrier at an academic conference. There’s the couple whose children flourish after a big move of house, job, and school, stabilized by the strong good that both parents built at home. There’s the pair with a child needing hands-on medical assistance, where both parents are adept with equipment and confident of the other’s competence to meet the child’s needs. I love Daminger’s suggestions, especially the institutional ones. My confidence about families in the future is fueled not so much by political reform or the normalizing of gender-neutral chore spreadsheets, but because I have seen so many astonishing young people who understand themselves as making together the life they value together. The men in these couples seem to think that children are good, that they like their particular family, and that they are willing to do what is needed to keep it all going.</p>
             <p>I am not putting burdens on these lovely people to solve the problem Daminger names. I know their family dynamics only from a little peephole I breathed on the window, and do not know how effortful or hashed-out these arrangements are. I conclude on a note inspired by Daminger’s clever title. To ask what’s on <em>her</em> mind is to hint that something else should be on <em>his</em>. Men may be key to bringing change, although I think not strictly in the scheme of chore-distributing fairness. Men might push back against the dumb things competitiveness and consumer culture impose on the workload of being responsible for young humans in a home. American childrearing systems, built decades ago for stay-at-home mothers without asking their say, burden both parents. Fathers might advocate for their families by cheerfully refusing.</p>
             <p class="contributor-bio">Agnes R. Howard teaches in Christ College, the honors college at Valparaiso University. She is the author of <em>Showing: What Pregnancy Tells Us About Being Human</em> (Eerdmans, 2020) and <em>Disoriented: Embodied Life in Strange Times</em> (Cascade, 2026).</p>
-          </section>
+          
+    <a class="rd-next" href="#we-still-need-fairy"><span class="rd-next-label">Next essay</span><span class="rd-next-title">We Still Need Fairy Tales</span></a>
+</section>
 
           <!-- ====== ARTICLE 8 ====== -->
           <section id="we-still-need-fairy" class="content-section">
-            <h2 class="section-title">We Still Need Fairy Tales</h2>
+            <p class="rd-essay-n">9 of 16</p>
+    <h2 class="section-title">We Still Need Fairy Tales</h2>
             <p class="essay-author">By Ashley Hales</p>
 
             <p class="essay-heading">Jack Zipes. <em>Once Upon a Time There Was Truth or, Why We Need Fairy Tales</em>. Yale University Press, 2026. $28.00. 200 pp.</p>
@@ -1832,11 +559,14 @@
             <p>But in moments, myths are more than guides. They pierce through the immanent frame, to get at the heart of reality. <em>“Myth is a Sacred Story,”</em> Shaw writes, “And some of the most sacred of those stories circle around the tale of a dying and resurrected king. Who carried a great burden for his people and turned that burden into an extraordinary act of love. And some of us believe that the most sacred story crash-bang-walloped into the kind of time we can all register, <em>ours.”</em></p>
             <p>Zipes would argue that we ultimately need fairy tales so that we can assert ourselves between the gap of our reality and the world as it should or could be. Shaw (and Tolkien and Lewis) would instead point to the nature of narrative itself: The best fairy tales do not primarily tell us what to do but what must be done on our behalf. They hold out a world where justice rolls down like streams of mighty water, where the lion lays down with the lamb, where the destitute pauper becomes a king. The best fairy tales succeed to the extent that joy catches in our throats and tear ducts so that finally we <em>see</em>: Our King has come, and He will come again to make all things new.</p>
             <p class="contributor-bio">Ashley Hales holds a Ph.D. in English from the University of Edinburgh and is director of storytelling with the Denver Institute, co-founder of the Willowbrae Institute, and author of several books.</p>
-          </section>
+          
+    <a class="rd-next" href="#to-shew-the-truth"><span class="rd-next-label">Next essay</span><span class="rd-next-title">The Apologetics of Nathaniel Lardner</span></a>
+</section>
 
           <!-- ====== ARTICLE 9 ====== -->
           <section id="to-shew-the-truth" class="content-section">
-            <h2 class="section-title">“To Shew the Truth Of the Evangelical Historie”: The Apologetics of Nathaniel Lardner</h2>
+            <p class="rd-essay-n">10 of 16</p>
+    <h2 class="section-title">“To Shew the Truth Of the Evangelical Historie”: The Apologetics of Nathaniel Lardner</h2>
             <p class="essay-author">By Daniel K. Williams</p>
 
             <p><em>This excerpt from</em> The Search for a Rational Faith: Reason and Belief in the History of American Christianity <em>(2026) is published with permission from Oxford University Press</em>.</p>
@@ -1860,11 +590,14 @@
             <p>In 1757, thirty-three years after he had begun the project—and after battling several severe fevers that nearly killed him—Lardner finally finished the seventeenth volume and put down his pen. But even though he wanted to write more, the multivolume analysis that he did produce was so comprehensive that it was not repeated for more than a century.</p>
             <p>Lardner taught orthodox Christians that they did not have to be afraid of skeptical objections; exhaustive historical study, he showed, would refute the critics’ charges and uphold the historicity of the biblical text.</p>
             <p class="contributor-bio">Daniel K. Williams teaches American history at Ashland University. His other books include <em>The Politics of the Cross: A Christian Alternative to Partisanship</em>, and <em>Defenders of the Unborn: The Pro-Life Movement Before Roe v. Wade</em>.</p>
-          </section>
+          
+    <a class="rd-next" href="#something-wicked-this-way"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Something Wicked This Way Comes</span></a>
+</section>
 
           <!-- ====== ARTICLE 10 ====== -->
           <section id="something-wicked-this-way" class="content-section">
-            <h2 class="section-title">Something Wicked This Way Comes</h2>
+            <p class="rd-essay-n">11 of 16</p>
+    <h2 class="section-title">Something Wicked This Way Comes</h2>
             <p class="essay-author">By Beatrice Scudeler</p>
 
             <p class="essay-heading">Carrie Gress. <em>Something Wicked: Why Feminism Can’t Be Fused with Christianity</em>. Sophia Institute Press, 2026. $21.95. 256 pp.</p>
@@ -1906,11 +639,14 @@
             <p>Whether the intention is the genuine flourishing of a Christian society or merely the restoration of the Christian West, a movement as diverse in both political aims and philosophical underpinnings as feminism is the perfect scapegoat. I share Gress’ desire for motherhood and domestic work to be once again valued. But I can’t take <em>Something Wicked</em> seriously as a work of scholarship, because it is lacking in rigour and riddled with logical fallacies. In fact, its greatest flaw is not that it fails as an intellectual history of feminism (though it does that, too), but that it will inevitably teach its intended audience (i.e., young women) to reason badly. It teaches them to look for single-factor, simplistic causes to explain complex social phenomena spanning centuries. And it teaches them to adopt a tribal outlook in their intellectual life, dismissing any thinkers who don’t neatly fall into the group who hold the “right opinion,” rather than examining thinkers individually, their good and bad ideas alike.</p>
             <p>I will not be giving this book to my daughter once she is old enough. I <em>will</em> expose her to arguments both for and against feminism so that she may grapple with them and come to her own conclusions, but <em>Something Wicked</em> won’t be my book of choice.</p>
             <p class="contributor-bio">Beatrice Scudeler is a writer and journalist, whose work examines how literature and storytelling more broadly intersect with issues of religion, feminism, and motherhood. She is a featured author at Fairer Disputations, and she has also written for <em>The Critic</em>, <em>First Things</em>, <em>Plough</em>, and <em>Public Discourse</em> among others.</p>
-          </section>
+          
+    <a class="rd-next" href="#man-vs-infectious-disease"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Man vs. Infectious Disease</span></a>
+</section>
 
           <!-- ====== ARTICLE 11 ====== -->
           <section id="man-vs-infectious-disease" class="content-section">
-            <h2 class="section-title">Man vs. Infectious Disease</h2>
+            <p class="rd-essay-n">12 of 16</p>
+    <h2 class="section-title">Man vs. Infectious Disease</h2>
             <p class="essay-author">By Matthew Loftus</p>
 
             <p class="essay-heading">Susan Wise Bauer. <em>The Great Shadow: A History of How Sickness Shapes What We Do, Think, Believe, and Buy</em>. St. Martin’s Press, 2026. $30.00. 352 pp.</p>
@@ -1941,11 +677,14 @@
             <p>One omission from <em>The Great Shadow</em> that would illuminate this sort of love and care is the story that Rodney Stark details in his book <em>The Rise of Christianity</em>. Christians in the third century, facing a deadly plague, did not run or blame foreigners. Rather, they sacrificed themselves to care for their pagan neighbors. So began a tradition of medical care despite the risk of infection that endures to the selfless heroism of health professionals (Christian and otherwise) who rush to “hot zones” of Ebola epidemics nowadays. The capricious nature of the gods in ancient times gave way to Francis Bacon’s insistence that God gave us technology to relieve pain and suffering—an enormous part of what we think and believe now that we count history by the life and death of the Great Physician.</p>
             <p><em>The Great Shadow</em> is, of course, coming out at a time when America’s own Secretary of Health and Human Services may not actually believe in germ theory and many people are in need of an anti-miasma correction. Some have made the ideals of Hippocratic medicine into a story of karma that unnecessarily heaps blame and shame on suffering people. However, as we have seen throughout the COVID-19 pandemic and elsewhere, telling only parts of the story will continue to engender the sort of responses that are harmful to others. The history told in <em>The Great Shadow</em> is vast but incomplete, telling the truth about the ugliest aspects of human encounters with infectious disease while leaving out the ways in which our awareness of fragility became a light that chased the shadows away.</p>
             <p class="contributor-bio">Matthew Loftus grew up in a family of 15 children and completed his medical training in Baltimore, Maryland. Since 2015, he and his family have lived in East Africa, where he currently teaches and practices family medicine at a mission hospital. His work has appeared in outlets such as <em>The New York Times</em>, <em>The Atlantic</em>, <em>The New Atlantis</em>, and <em>Mere Orthodoxy</em>. His first book, <em>Resisting Therapy Culture</em>, is forthcoming from InterVarsity Press. You can learn more about his work and writing at www.matthewandmaggie.org</p>
-          </section>
+          
+    <a class="rd-next" href="#stewarding-land-and-language"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Stewarding Land and Language</span></a>
+</section>
 
           <!-- ====== ARTICLE 12 ====== -->
           <section id="stewarding-land-and-language" class="content-section">
-            <h2 class="section-title">Stewarding Land and Language</h2>
+            <p class="rd-essay-n">13 of 16</p>
+    <h2 class="section-title">Stewarding Land and Language</h2>
             <p class="essay-author">By Jake Meador</p>
 
             <p>There was a time when Wendell Berry was a passionate and even amusing critic of Christianity. This is seen perhaps most explicitly in one of his earliest published essays, "The Long-Legged House."</p>
@@ -1989,11 +728,14 @@
             <p>In other words, by the time we arrive at <em>Standing by Words</em> Berry has become aware that the deeper evil he wants to oppose is a kind of human wilfulness that, flowing out of the idea that there is nothing higher than ourselves, reduces everything it finds to consumable goods. The battle is not, necessarily, between “the peace of wild things” and the mechanical. The evils of the machine can come to reign in the wild as easily as they can in churches, farms, and universities.</p>
             <p>What is needed, rather, is some account that offers us a way to name the things that are higher than us, a way to love those things, and a way to tune our lives to them—and that work can happen as much in the fields as it does in the church. The way Berry learns to make this critique is through a return to Christianity, through considering the ways in which theological themes in Christian scripture help us to see and love what is higher than us, to know that Higher Good so well that we can tune ourselves to it wherever we go, whether that be the wild places, a classroom or, even, a church.</p>
             <p class="contributor-bio">Jake Meador is the editor-in-chief of Mere Orthodoxy. His writing has appeared in <em>The Atlantic</em>, <em>Commonweal</em>, <em>First Things</em>, <em>Books &amp; Culture</em>, <em>National Review</em>, <em>Comment</em>, and <em>Christianity Today</em>. He is a contributing editor with <em>Plough</em> and a contributing writer at <em>The Dispatch</em>. He lives in his hometown of Lincoln, NE with his wife and four children.</p>
-          </section>
+          
+    <a class="rd-next" href="#cultivating-a-well-ordered"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Cultivating a Well-Ordered Anthropology in a Dehumanizing World</span></a>
+</section>
 
           <!-- ====== ARTICLE 13 ====== -->
           <section id="cultivating-a-well-ordered" class="content-section">
-            <h2 class="section-title">Cultivating a Well-Ordered Anthropology in a Dehumanizing World</h2>
+            <p class="rd-essay-n">14 of 16</p>
+    <h2 class="section-title">Cultivating a Well-Ordered Anthropology in a Dehumanizing World</h2>
             <p class="essay-author">By Nadya Williams</p>
 
             <p class="essay-heading">Freya India. <em>Girls®: Generation Z and the Commodification of Everything</em>. Henry Holt and Co., 2026. $29.99. 384 pp.</p>
@@ -2034,11 +776,14 @@
             <p>On and on life goes, if we are blessed to live a long one. The chiastic pairing of the respective stages on either end of midlife reminds us that all of them matter, all of them a gift to us and to those around us, if only we use our time here to serve. “Bodies age, people develop,” Wilkin repeats as a mantra throughout her book. God shaped the first man out of dust, and to dust we will all return. But also, God has numbered all our days, so along with the Psalmist, Wilkin encourages us to cling to this truth: “So teach us to number our days that we may get a heart of wisdom” (Psalm 90:12).</p>
             <p>We are not gods. We’re not even emperors. And we are certainly not God. But we are his workmanship, a true masterpiece (Eph. 2:10), children of dust though we are. God created us for a relationship with him, for however long our life span on this earth will last. More importantly, we know that we will spend eternity with him. And until then, perhaps broccoli in moderation won’t hurt either.</p>
             <p class="contributor-bio">Nadya Williams is the books editor at Mere Orthodoxy. She holds a PhD in classics from Princeton University and is the author of <em>Cultural Christians in the Early Church</em>; <em>Mothers, Children, and the Body Politic: Ancient Christianity and the Recovery of Human Dignity</em>; and <em>Christians Reading Classics</em>. She and her husband Dan joyfully live and homeschool in Ashland, Ohio.</p>
-          </section>
+          
+    <a class="rd-next" href="#bringing-up-nietzsche"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Bringing Up Nietzsche</span></a>
+</section>
 
           <!-- ====== ARTICLE 14 ====== -->
           <section id="bringing-up-nietzsche" class="content-section">
-            <h2 class="section-title">Bringing Up Nietzsche</h2>
+            <p class="rd-essay-n">15 of 16</p>
+    <h2 class="section-title">Bringing Up Nietzsche</h2>
             <p class="essay-author">By Vika Pechersky</p>
 
             <p class="essay-heading">Michael McEwen. <em>The Devil Reads Nietzsche: A Public Theology for a Post-Christian Age</em>. B&amp;H Academic, 2025. $27.99. 224 pp.</p>
@@ -2062,11 +807,14 @@
             <p>No less significant, what if “out-narrating” is not enough to address the widespread skepticism and nihilism in our world today? What if what’s required is not only an alternative critical theory, but something much more demanding—love for people, bearing their burdens, compassion, and giving of ourselves in love? When dealing with skeptics, even very young ones, a robust intellectual response is critical. But at some point, our actions will speak louder than our words.</p>
             <p>McEwen’s book is a much-needed introduction to engaging the intellectual ideas of our time. We need more work like this. Christians can no longer ignore the world of secular ideas. We have entered a new era, where our culture no longer possesses strong Christian intuitions. We will have to learn to live in this culture and engage it anew, drawing from our Christian tradition answers befitting our times.</p>
             <p class="contributor-bio">Vika Pechersky lives with her family outside of Washington DC. Her writing has appeared in <em>Christianity Today</em>, <em>Church Life Journal</em>, and <em>Marginalia Review of Books</em>. You can find her writing about Dostoevsky and Russian sophiologists on her Substack, <em>Reading My Way Back to the East</em>.</p>
-          </section>
+          
+    <a class="rd-next" href="#the-return-of-the"><span class="rd-next-label">Next essay</span><span class="rd-next-title">The Return of the Common Good</span></a>
+</section>
 
           <!-- ====== ARTICLE 15 ====== -->
           <section id="the-return-of-the" class="content-section">
-            <h2 class="section-title">The Return of the Common Good</h2>
+            <p class="rd-essay-n">16 of 16</p>
+    <h2 class="section-title">The Return of the Common Good</h2>
             <p class="essay-author">By James Wood</p>
 
             <p class="essay-heading">Stefan Borg. <em>The Return of the Common Good: The Postliberal Project Left and Right</em>. Routledge, 2026. $200.00. 162 pp.</p>
@@ -2124,10 +872,9 @@
             <p>We’re publicly engaged. We’re after the meaning and significance of things, the substance. Which means that we are after matters of public concern. And our hope is that you’ll think more carefully, more deeply, and hopefully more Christianly about our world and your place in it after reading us.</p>
           </section>
 
-        </article>
-      </div>
-    </main>
-  </div>
+        
+    </article>
+  </main>
 
   <script src="{{asset "js/reader.js"}}"></script>
 </body>

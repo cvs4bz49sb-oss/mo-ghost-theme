@@ -1,4 +1,8 @@
-/* The Lexicon (/the-faith-received/lexicon/): every term on one page, and each term as an entry with the words that define it.
+/* The Lexicon (/the-faith-received/lexicon/): the terms of the library, and each term as an entry with the words that define it.
+   REBUILT FOR SPEED (Ian, 2026-11-11: "so much going on ... it's loading abysmally slow"). The page used to fetch all 74 letter files at
+   load and draw all 64,988 terms, about 130,000 elements. Now the landing shows the most defined terms (index.json's top list) and the
+   letter bar; a letter loads and draws only that letter, a page at a time; a search loads the letters in the background and draws only
+   the matches; the author-room indexes load when an entry needs them.
    The library worker's v1/lexicon files:
      index.json                 the alphabet (letters and their counts) and the most defined terms
      letters/<letter>.json      rows [id, headword, works, Latin form, Greek form] for a letter
@@ -100,36 +104,48 @@
     }
     return out;
   }
-  function buildShells() {
-    $('#lx-all').innerHTML = letters().map((l) => `<section class="lx-sec is-pending" id="letter-${esc(slug(l))}" data-l="${esc(l)}" data-s="${scriptOfLetter(l)}" style="--n:${Number(INDEX.letters[l]) | 0}"><h2 class="lx-lh"><span${scriptOfLetter(l) === 'en' ? '' : ` lang="${scriptOfLetter(l)}"`}>${esc(letterName(l))}</span> <small>${nf(INDEX.letters[l])}</small></h2><div class="lx-chunks"></div></section>`).join('');
-    window.addEventListener('scroll', () => { if (!curT) curT = requestAnimationFrame(updateCurrent); }, { passive: true });
-  }
-  let curT = 0;
-  /* the letter whose section holds the line just under the letter bar */
-  function updateCurrent() {
-    curT = 0;
-    if ($('#lx-listview').hidden || $('#lx-all').hidden) return;
-    const secs = document.querySelectorAll('#lx-all .lx-sec');
-    const bb = $('#lx-bar').getBoundingClientRect().bottom;
-    const line = (bb > 0 ? bb : 110) + 12;
-    let cur = null;
-    for (let i = 0; i < secs.length; i += 1) {
-      if (secs[i].hidden) continue;
-      const r = secs[i].getBoundingClientRect();
-      if (r.top <= line + 100 && r.bottom > line) cur = secs[i];
+  /* ── The two list views: the landing (most defined terms) and one letter ────────────────────────────────────────── */
+  const TOPN = 60;
+  const PAGE = 600;
+  const VIEW = { letter: '' };
+  function renderHome() {
+    VIEW.letter = '';
+    markCurrent('');
+    const rows = (INDEX.top || []).filter((r) => tabOk(scriptOf(r[1]))).slice(0, TOPN);
+    // The most defined headwords are English, so on the Greek or Hebrew tab the landing opens that alphabet's first letter instead.
+    if (!rows.length && S.tab !== 'all') {
+      const first = letters().find((l) => scriptOfLetter(l) === S.tab);
+      if (first) { renderLetter(first); return; }
     }
-    if (cur) markCurrent(cur.dataset.l);
+    $('#lx-all').innerHTML = `<section class="lx-sec lx-home" aria-labelledby="lx-home-h"><h2 class="lx-lh" id="lx-home-h">Most defined terms <small>by how many works define them</small></h2><div class="lx-chunks">${chunksHTML(rows)}</div><p class="lx-hint">Choose a letter to see every term under it, or search above.</p></section>`;
+  }
+  function drawLetter(l, rows, upto) {
+    const sec = document.getElementById(`letter-${slug(l)}`);
+    if (!sec) return;
+    const more = rows.length > upto ? `<p class="lx-more"><button type="button" class="lx-btn" data-lx-more="${esc(l)}">Show all ${nf(rows.length)}</button></p>` : '';
+    sec.querySelector('.lx-chunks').innerHTML = chunksHTML(rows.slice(0, upto)) + more;
+    sec.classList.remove('is-pending');
+    sec.style.removeProperty('--n');
+  }
+  async function renderLetter(l) {
+    VIEW.letter = l;
+    markCurrent(l);
+    const sc = scriptOfLetter(l);
+    $('#lx-all').innerHTML = `<section class="lx-sec is-pending" id="letter-${esc(slug(l))}" data-l="${esc(l)}" data-s="${sc}" style="--n:${Math.min(Number(INDEX.letters[l]) | 0, PAGE)}"><h2 class="lx-lh"><span${sc === 'en' ? '' : ` lang="${sc}"`}>${esc(letterName(l))}</span> <small>${nf(INDEX.letters[l])}</small></h2><div class="lx-chunks"></div></section>`;
+    const rows = await load(l);
+    if (VIEW.letter !== l) return;
+    if (!rows) { document.querySelector(`#letter-${CSS.escape(slug(l))} .lx-chunks`).innerHTML = retry('This letter did not load.'); return; }
+    drawLetter(l, rows, PAGE);
   }
   function markCurrent(l) {
     document.querySelectorAll('#lx-bar a[aria-current]').forEach((a) => a.removeAttribute('aria-current'));
     const a = document.querySelector(`#lx-bar a[data-jump="${CSS.escape(l)}"]`);
     if (a) a.setAttribute('aria-current', 'true');
+    const home = document.querySelector('#lx-bar a[data-home]');
+    if (home) { if (l) home.removeAttribute('aria-current'); else home.setAttribute('aria-current', 'true'); }
   }
   const stat = { loaded: 0, t0: performance.now(), firstPaint: 0, complete: 0 };
-  let pendingJump = '';
-  let userScrolled = false;
-  ['wheel', 'touchmove', 'keydown'].forEach((ev) => window.addEventListener(ev, () => { userScrolled = true; }, { passive: true }));
-  /* a letter: fetched once, folded for the search, drawn into its section */
+  /* a letter: fetched once and folded for the search. Drawing is the caller's (renderLetter); a search loads letters without drawing them. */
   const load = (l) => once(`load:${l}`, async () => {
     const r = await get(`/v1/lexicon/letters/${encodeURIComponent(l)}.json`);
     if (!r.data) return r.status === 404 ? [] : null;
@@ -137,42 +153,31 @@
     DATA.set(l, rows);
     FOLD.set(l, rows.map((x) => `${fold(x[1])}|${fold(x[3])}|${fold(x[4])}`));
     rows.forEach((x) => BYID.set(x[0], [x, l]));
-    await idle();
-    const sec = document.getElementById(`letter-${slug(l)}`);
-    if (sec) {
-      sec.querySelector('.lx-chunks').innerHTML = chunksHTML(rows);
-      sec.classList.remove('is-pending');
-      sec.style.removeProperty('--n');
-    }
     stat.loaded += 1;
     if (!stat.firstPaint) stat.firstPaint = performance.now() - stat.t0;
     if (stat.loaded >= letters().length) stat.complete = performance.now() - stat.t0;
-    if (pendingJump && !userScrolled) { const t = document.getElementById(`letter-${slug(pendingJump)}`); if (t) t.scrollIntoView({ block: 'start', behavior: 'instant' }); }
-    progress();
     return rows;
   });
   window.__lexStat = stat;
   const letterRows = (l) => (l && INDEX && Object.hasOwn(INDEX.letters, l) ? load(l) : Promise.resolve([]));
   let started = false;
-  function startAll(first) {
-    if (started) { if (first) load(first); return; }
+  /* Every letter, in the background, for a search: started by the first search, never at load. */
+  function startAll() {
+    if (started) return;
     started = true;
     const queue = letters();
-    if (first && queue.includes(first)) queue.unshift(first);
     const worker = async () => { while (queue.length) { const l = queue.shift(); await load(l); } };
-    Promise.all([worker(), worker(), worker(), worker()]).then(() => { if (S.q) applyFilter(); });
-  }
-  function progress() {
-    const total = letters().length;
-    const done = stat.loaded >= total;
-    if (done) $('#lx-all').setAttribute('data-complete', 'true');
+    // A search drawn "so far" is redrawn as letters arrive, a few times rather than once per letter.
+    let n = 0;
+    const tick = setInterval(() => { n += 1; if (S.q) applyFilter(); if (stat.loaded >= letters().length || n > 40) clearInterval(tick); }, 700);
+    Promise.all([worker(), worker(), worker(), worker(), worker(), worker()]).then(() => { clearInterval(tick); if (S.q) applyFilter(); });
   }
 
   /* ── Filters in place: the alphabet tabs and the search ──────────────────────────────────────────────────────────── */
   function paintBar() {
     const tab = S.tab;
     const all = letters();
-    $('#lx-bar').innerHTML = SCRIPTS.filter(([k]) => tab === 'all' || tab === k).map(([k, , rx]) => all.filter((l) => rx.test(l))
+    $('#lx-bar').innerHTML = `<span class="lx-bg-top"><a href="${PATH}" data-home>Top</a></span>` + SCRIPTS.filter(([k]) => tab === 'all' || tab === k).map(([k, , rx]) => all.filter((l) => rx.test(l))
       .map((l) => `<a href="#letter-${esc(encodeURIComponent(slug(l)))}" data-jump="${esc(l)}"${k === 'en' ? '' : ` lang="${k}"`} aria-label="${esc(letterName(l))}, ${plural(INDEX.letters[l], 'term', 'terms')}">${esc(letterName(l))}</a>`).join('')).filter(Boolean)
       .map((g) => `<span class="lx-bg">${g}</span>`).join('');
     document.querySelectorAll('#lx-tabs [data-t]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.t === tab)));
@@ -216,12 +221,13 @@
     $('#lx-all').hidden = searching; $('#lx-bar').hidden = searching; $('#lx-found').hidden = !searching;
     $('#lx-empty').hidden = true;
     paintBar();
-    document.querySelectorAll('#lx-all .lx-sec').forEach((s) => { s.hidden = !tabOk(s.dataset.s); });
     if (!searching) {
       const n = letters().filter((l) => tabOk(scriptOfLetter(l))).reduce((a, l) => a + INDEX.letters[l], 0);
       $('#lx-count').textContent = n === total ? `${nf(total)} terms` : `${nf(n)} of ${nf(total)} terms`;
+      markCurrent(VIEW.letter);
       return;
     }
+    startAll();
     const rows = await matches(S.q);
     if (seq !== SEQ.f) return;
     const complete = stat.loaded >= letters().length;
@@ -450,7 +456,10 @@
   const SHELVES = ['pl', 'gf', 'po', 'md', 'rc', 'rf', 'lu', 'ed', 'hl'];
   let ROOMS = null;
   let ALIAS = {};
-  const roomsP = Promise.all([get('/v1/author_aliases.json'), ...SHELVES.map((sh) => get(`/v1/bible/${sh}/rooms/index.json`))]).then(([al, ...xs]) => {
+  // Loaded the first time an entry needs author links, not when the list opens.
+  let roomsLoad = null;
+  const roomsP = { then: (fn) => { if (!roomsLoad) roomsLoad = loadRooms(); return roomsLoad.then(fn); } };
+  const loadRooms = () => Promise.all([get('/v1/author_aliases.json'), ...SHELVES.map((sh) => get(`/v1/bible/${sh}/rooms/index.json`))]).then(([al, ...xs]) => {
     ALIAS = al.data || {};
     const m = new Map();
     xs.forEach((x, i) => ((x.data && x.data.authors) || []).forEach((r) => { const k = nk(r.a); if (!m.has(k)) m.set(k, []); m.get(k).push({ ...r, sh: SHELVES[i] }); }));
@@ -660,15 +669,9 @@
   let viaHistory = false;
   async function jump(l) {
     if (!Object.hasOwn(INDEX.letters, l)) return;
-    pendingJump = l; userScrolled = false;
-    startAll(l);
-    await load(l);
-    const t = document.getElementById(`letter-${slug(l)}`);
-    if (t) t.scrollIntoView({ block: 'start', behavior: 'instant' });
-    updateCurrent();
-    // later letters still arriving move the page under it: hold the place until the list is whole, for at most 20 seconds
-    const hold = setInterval(() => { if (stat.loaded >= letters().length || userScrolled || pendingJump !== l) { clearInterval(hold); if (pendingJump === l) pendingJump = ''; } }, 400);
-    setTimeout(() => { clearInterval(hold); if (pendingJump === l) pendingJump = ''; }, 20000);
+    await renderLetter(l);
+    const t = $('#lx-bar');
+    if (t && t.getBoundingClientRect().top < 0) t.scrollIntoView({ block: 'start', behavior: 'instant' });
   }
   function route() {
     if (!INDEX) return;
@@ -690,21 +693,29 @@
     document.title = TITLE;
     show('list');
     if (document.activeElement !== $('#lx-q')) $('#lx-q').value = S.q;
-    startAll(h.letter && Object.hasOwn(INDEX.letters, h.letter === 'other' ? '_' : h.letter) ? (h.letter === 'other' ? '_' : h.letter) : '');
+    const lt = h.letter === 'other' ? '_' : h.letter;
     applyFilter();
-    if (h.letter) jump(h.letter === 'other' ? '_' : h.letter);
-    else if (back) window.scrollTo({ top: listScroll, behavior: 'instant' });
+    if (lt && Object.hasOwn(INDEX.letters, lt)) {
+      renderLetter(lt).then(() => { if (back) window.scrollTo({ top: listScroll, behavior: 'instant' }); });
+    } else {
+      renderHome();
+      if (back) window.scrollTo({ top: listScroll, behavior: 'instant' });
+    }
   }
 
   /* ── Wiring ──────────────────────────────────────────────────────────────────────────────────────────────────────── */
   document.addEventListener('click', (e) => {
     if (e.target.closest('[data-retry]')) { S.id = ''; if (INDEX) route(); else init(); return; }
+    const hm = e.target.closest('#lx-bar a[data-home]');
+    if (hm && !(e.metaKey || e.ctrlKey || e.shiftKey || e.button)) { e.preventDefault(); history.replaceState(null, '', urlFor()); renderHome(); return; }
+    const mo = e.target.closest('[data-lx-more]');
+    if (mo) { const l = mo.dataset.lxMore; if (DATA.has(l)) drawLetter(l, DATA.get(l), Infinity); return; }
     const jp = e.target.closest('#lx-bar a[data-jump]');
     if (jp && !(e.metaKey || e.ctrlKey || e.shiftKey || e.button)) { e.preventDefault(); history.replaceState(null, '', `${location.pathname}${location.search}#letter-${encodeURIComponent(slug(jp.dataset.jump))}`); jump(jp.dataset.jump); return; }
     const nav = e.target.closest('a[data-nav]');
     if (nav && !(e.metaKey || e.ctrlKey || e.shiftKey || e.button)) { e.preventDefault(); go(nav.getAttribute('href'), true); return; }
     const t = e.target.closest('#lx-tabs [data-t]');
-    if (t) { S.tab = t.dataset.t; history.replaceState(null, '', urlFor()); applyFilter(); }
+    if (t) { S.tab = t.dataset.t; history.replaceState(null, '', urlFor()); applyFilter(); if (!VIEW.letter && fold(S.q).length < 2) renderHome(); }
   });
   let findT = 0;
   $('#lx-q').addEventListener('input', () => {
@@ -732,7 +743,6 @@
     if (!r.data) { $('#lx-boot').hidden = false; $('#lx-boot').innerHTML = retry('The lexicon did not load.'); return; }
     INDEX = r.data;
     $('#lx-boot').hidden = true;
-    buildShells();
     paintBar();
     route();
   }
