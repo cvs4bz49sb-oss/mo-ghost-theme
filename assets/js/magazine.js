@@ -153,11 +153,15 @@
 
   // Put as much of the text block b as fits at the foot of pc. Returns
   // the rest (a continuation of b), or b itself when too little fits.
-  function splitText(pc, b) {
+  // host is where the piece goes when that is not pc itself: a list item
+  // goes into its list, but the fit is still measured on the page box.
+  // (Measuring the list instead never reads as full, so the whole item
+  // stayed on the page and its last lines ran off the foot, unseen.)
+  function splitText(pc, b, host) {
     const toks = words(b.innerHTML);
     if (toks.length < 8) return b;
     const piece = b.cloneNode(false);
-    pc.appendChild(piece);
+    (host || pc).appendChild(piece);
     let lo = 0;
     let hi = toks.length - 1;
     while (lo < hi) {
@@ -194,10 +198,12 @@
     }
     let carry = null;
     if (i < kids.length && /^(P|LI)$/.test(kids[i].tagName)) {
-      const r = splitText(shell, kids[i]);
+      const r = splitText(pc, kids[i], shell);
       if (r !== kids[i]) carry = r;
     }
-    if (!shell.children.length) { shell.remove(); return b; }
+    // Nothing fit. The child tried was lifted out of b on the way, so
+    // it goes back before b is handed on whole, or it would be lost.
+    if (!shell.children.length) { shell.remove(); b.insertBefore(kids[0], b.firstChild); return b; }
     const rest = b.cloneNode(false);
     rest.removeAttribute("id");
     if (b.tagName === "OL") rest.setAttribute("start", String((parseInt(b.getAttribute("start"), 10) || 1) + shell.children.length - (carry ? 1 : 0)));
