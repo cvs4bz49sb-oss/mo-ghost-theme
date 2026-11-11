@@ -282,7 +282,7 @@
                reason": institution > lifetime > gift > student > Substack >
                Patreon > HubSpot migration > staff. --}}
           {{#match @member.status "comped"}}
-          <div class="dashboard-comp-why" data-labels="|{{#foreach @member.labels}}{{name}}|{{/foreach}}">
+          <div class="dashboard-comp-why" data-labels="|">
             <p class="dashboard-rail-meta why-institution">Your church or institution provides your membership.</p>
             <p class="dashboard-rail-meta why-lifetime">Your lifetime membership never renews or expires.</p>
             <p class="dashboard-rail-meta why-gift">Someone gave you this membership as a gift.</p>
@@ -293,8 +293,8 @@
             <p class="dashboard-rail-meta why-staff">Our staff set up your membership.</p>
           </div>
           {{/match}}
-          {{!-- Filled by dashboard.js (hydrateMemberSince) from mo-kit
-               /member-since: the first date this member ever paid, which
+          {{!-- Filled by member-profile.js from mo-kit /member-profile,
+               like data-labels above: the first date this member ever paid, which
                for most of the base is their HubSpot billing start. --}}
           <p class="dashboard-rail-since" data-member-since hidden>Member since <span data-member-since-date></span></p>
           <p class="dashboard-rail-meta">Change your membership or your shipping address.</p>

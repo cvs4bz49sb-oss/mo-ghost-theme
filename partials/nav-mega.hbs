@@ -297,9 +297,10 @@
                institutions), home group leader or
                elder -> groups, student -> student (free members only). With
                no matching role, paid members get the gift card and everyone
-               else gets Become a member. The CSS
+               else gets Become a member. Ghost gives the theme no labels,
+               so member-profile.js fills data-roles from mo-kit. The CSS
                under "Support panel: role card" picks which card shows. --}}
-          <div class="mm-pick" data-paid="{{#if @member.paid}}1{{else}}0{{/if}}" data-roles="|{{#foreach @member.labels}}{{#match name "~^" "Role:"}}{{name}}|{{/match}}{{/foreach}}">
+          <div class="mm-pick" data-paid="{{#if @member.paid}}1{{else}}0{{/if}}" data-roles="|">
             <div class="mm-feature mm-card mm-pick-church">
               <a href="/institutions/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
               <p class="mm-feature-title">Bring Mere Orthodoxy to your church</p>

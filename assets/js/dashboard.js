@@ -103,7 +103,6 @@
   hydrateLifetimeGift();
   hydrateInstitutions();
   hydrateRenewalBanner();
-  hydrateMemberSince();
 
   // --- Migration banner ---------------------------------------------------
 
@@ -1051,26 +1050,5 @@
     const months = Math.floor(days / 30);
     if (months < 12) return `${months}mo ago`;
     return `${Math.floor(months / 12)}y ago`;
-  }
-
-  // "Member since" in the Your Membership rail. mo-kit /member-since
-  // returns the first date this member ever paid (Kit's First Became A
-  // Member, the HubSpot billing start for most of the base) as
-  // YYYY-MM-DD, or null, in which case the line stays hidden.
-  function hydrateMemberSince() {
-    const line = document.querySelector("[data-member-since]");
-    const out = document.querySelector("[data-member-since-date]");
-    if (!line || !out || !WORKER || !EMAIL || !window.MOAuth) return;
-    moKitGet("/member-since")
-      .then((r) => { return r.ok ? r.json() : null; })
-      .then((data) => {
-        const m = data && /^(\d{4})-(\d{2})-(\d{2})$/.exec(data.since || "");
-        if (!m) return;
-        // Built from parts so the date never shifts a day across time zones.
-        const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-        out.textContent = d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-        line.hidden = false;
-      })
-      .catch(() => {});
   }
 })();
