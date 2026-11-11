@@ -102,14 +102,17 @@
           {{else}}
             {{!-- The site's own sign-up (assets/js/inline-signup.js): Ghost
                  emails a sign-in link that lands on the reader, signed in.
-                 Newsletter:daily-liturgy starts the morning email via mo-kit. --}}
+                 Newsletter:daily-liturgy starts the morning email via mo-kit.
+                 Ghost drops that label for someone who is already a member,
+                 so the landing turns it on through mo-kit /preferences
+                 (claimOptin in inline-signup.js). --}}
             <div class="today-digest mm-digest-card">
               <div class="today-digest-copy">
                 <div class="mm-dl-framed mm-digest-logo-frame"><img class="mm-digest-logo" src="{{asset "images/daily-liturgy-logo.png"}}" alt="The Daily Liturgy" loading="lazy"></div>
                 <p class="mm-digest-title">Morning prayer read aloud.</p>
-                <p>Read today's liturgy free. Sign up and we'll email you a link to it.</p>
+                <p>Today's liturgy in your inbox each morning. Free.</p>
               </div>
-              <div class="digest-form" data-inline-signup data-newsletter="daily-liturgy" data-source="nav-daily-liturgy" data-signup-redirect="/daily-liturgy/read/" data-signup-confirmation="Open it to read today's liturgy.">
+              <div class="digest-form" data-inline-signup data-newsletter="daily-liturgy" data-source="nav-daily-liturgy" data-signup-redirect="/daily-liturgy/read/" data-signup-confirmation="Open it to read today's liturgy. After that, it arrives each morning.">
                 <div class="digest-field">
                   <label for="nav-dl-first">First Name</label>
                   <input id="nav-dl-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
