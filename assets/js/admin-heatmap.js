@@ -25,7 +25,7 @@
  * Why the frame is fetched signed out
  * ===================================
  * Staff are signed in, so a plain frame of "/" renders the member
- * homepage: "Your Dashboard" where a visitor sees the subscribe CTA,
+ * homepage: "Your Member Dashboard" where a visitor sees the subscribe CTA,
  * the account button where a visitor sees Sign in. Nearly every
  * recorded click comes from a signed-out visitor, so drawing those
  * clicks on the member layout puts blobs against the wrong buttons and
@@ -105,7 +105,7 @@
     "join-checkout": "Pricing card checkout",
     "join-lifetime": "Lifetime checkout",
     "digest-signup": "Digest signup",
-    dashboard: "Your Dashboard",
+    dashboard: "Your Member Dashboard",
     gift: "Gift a membership",
     journal: "Print journal CTA",
     article: "Article link",
@@ -595,7 +595,7 @@
   // ── Frame ─────────────────────────────────────────────────────────
   const FRAME_SIGNED_IN_NOTE =
     "Couldn't load a signed-out copy of this page, so the frame below is " +
-    "your own signed-in view: \"Your Dashboard\" where a visitor sees " +
+    "your own signed-in view: \"Your Member Dashboard\" where a visitor sees " +
     "\"Become a Member\", your name where they see Sign in. The clicks are " +
     "still real, but they are drawn on a layout most visitors never saw. " +
     "Reload to try again.";
