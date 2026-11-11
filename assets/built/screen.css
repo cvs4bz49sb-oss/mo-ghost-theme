@@ -28489,3 +28489,35 @@ html.mm-is-open .site-header { z-index: 111; }
    the hero's highlighted words. */
 .podcast-page--roman,
 .podcast-page--roman * { font-style: normal !important; }
+
+/* ── Member Dashboard skin (Ian, 2026-11-10: "Deslop the Member
+   Dashboard. No italics!"). The dashboard is a working surface, so
+   nothing on it is italic and the display face gives way to the
+   working face (DESLOP-AGENT Q11). Scoped to the dashboard <main>s. */
+main.dashboard,
+main.dashboard-page { --font-display: var(--font-body); }
+main.dashboard,
+main.dashboard *,
+main.dashboard-page,
+main.dashboard-page * { font-style: normal !important; }
+
+/* Dashboard: comp reason. One sentence shows, the first that matches
+   the member's labels in data-labels (|-separated). */
+.dashboard-comp-why > p { display: none; }
+.dashboard-comp-why:is([data-labels*="|institution:"], [data-labels*="|source:institutional|"]) > .why-institution { display: block; }
+.dashboard-comp-why:is([data-labels*="|tier:lifetime|"], [data-labels*="|source:lifetime|"], [data-labels*="|tier:gift-lifetime|"]):not([data-labels*="|institution:"], [data-labels*="|source:institutional|"]) > .why-lifetime { display: block; }
+.dashboard-comp-why:is([data-labels*="|source:gift|"]):not([data-labels*="|institution:"], [data-labels*="|source:institutional|"], [data-labels*="|tier:lifetime|"], [data-labels*="|source:lifetime|"], [data-labels*="|tier:gift-lifetime|"]) > .why-gift { display: block; }
+.dashboard-comp-why:is([data-labels*="|tier:student-"], [data-labels*="|source:student|"]):not([data-labels*="|institution:"], [data-labels*="|source:institutional|"], [data-labels*="|tier:lifetime|"], [data-labels*="|source:lifetime|"], [data-labels*="|tier:gift-lifetime|"], [data-labels*="|source:gift|"]) > .why-student { display: block; }
+.dashboard-comp-why:is([data-labels*="|source:substack|"], [data-labels*="|tier:substack|"]):not([data-labels*="|institution:"], [data-labels*="|source:institutional|"], [data-labels*="|tier:lifetime|"], [data-labels*="|source:lifetime|"], [data-labels*="|tier:gift-lifetime|"], [data-labels*="|source:gift|"], [data-labels*="|tier:student-"], [data-labels*="|source:student|"]) > .why-substack { display: block; }
+.dashboard-comp-why:is([data-labels*="|source:patreon|"], [data-labels*="|patreon-active|"]):not([data-labels*="|institution:"], [data-labels*="|source:institutional|"], [data-labels*="|tier:lifetime|"], [data-labels*="|source:lifetime|"], [data-labels*="|tier:gift-lifetime|"], [data-labels*="|source:gift|"], [data-labels*="|tier:student-"], [data-labels*="|source:student|"], [data-labels*="|source:substack|"], [data-labels*="|tier:substack|"]) > .why-patreon { display: block; }
+.dashboard-comp-why:is([data-labels*="|source:hubspot-migration|"]):not([data-labels*="|institution:"], [data-labels*="|source:institutional|"], [data-labels*="|tier:lifetime|"], [data-labels*="|source:lifetime|"], [data-labels*="|tier:gift-lifetime|"], [data-labels*="|source:gift|"], [data-labels*="|tier:student-"], [data-labels*="|source:student|"], [data-labels*="|source:substack|"], [data-labels*="|tier:substack|"], [data-labels*="|source:patreon|"], [data-labels*="|patreon-active|"]) > .why-hubspot { display: block; }
+.dashboard-comp-why:not([data-labels*="|institution:"], [data-labels*="|source:institutional|"], [data-labels*="|tier:lifetime|"], [data-labels*="|source:lifetime|"], [data-labels*="|tier:gift-lifetime|"], [data-labels*="|source:gift|"], [data-labels*="|tier:student-"], [data-labels*="|source:student|"], [data-labels*="|source:substack|"], [data-labels*="|tier:substack|"], [data-labels*="|source:patreon|"], [data-labels*="|patreon-active|"], [data-labels*="|source:hubspot-migration|"]) > .why-staff { display: block; }
+.dashboard-rail-since { margin: 4px 0 0; font-size: 14px; color: var(--color-muted); }
+.dashboard-rail-since[hidden] { display: none; }
+
+/* /dashboard/faith-received/: the Bookmarks / Notebook tab bar sits
+   between the hero and the panel it switches. */
+.dashboard-faith-tabs-wrap { padding-top: 40px; }
+.dashboard-faith-tabs { margin-bottom: 0; }
+.dashboard-faith-tabs[hidden],
+.faith-research-band[hidden] { display: none; }

@@ -8,7 +8,6 @@
     <h1 class="hero-headline">
       <span data-greeting>Good morning</span>, <span class="highlight"><em>{{#if @member.name}}{{@member.name}}{{else}}friend{{/if}}</em></span>.
     </h1>
-    <p class="hero-sub">Your home inside Mere Orthodoxy. Bookmarks, reading history, and membership settings — all in one place.</p>
     {{!-- Liturgical week chip. Click to reveal the Sunday Collect
          from the 1979 BCP, prayed daily through the week. --}}
     <details class="hero-liturgical-week" data-liturgical-week hidden>
@@ -252,7 +251,7 @@
 
         <div class="dashboard-rail-item" data-lifetime-gift hidden>
           <p class="eyebrow">Gift Memberships</p>
-          <p class="dashboard-rail-meta">Give a year of Mere&nbsp;Orthodoxy to someone, free. You have <strong data-lifetime-gift-remaining>2</strong> left to give.</p>
+          <p class="dashboard-rail-meta">Give a year of Mere&nbsp;Orthodoxy to a friend at no cost. You have <strong data-lifetime-gift-remaining>2</strong> left.</p>
           <p class="dashboard-rail-meta" data-lifetime-gift-address-note hidden>We ask each recipient for a mailing address, so the print journal reaches them.</p>
           <form class="dashboard-rail-gift-form" data-lifetime-gift-form>
             <label class="dashboard-rail-gift-field">
@@ -269,7 +268,7 @@
             </button>
             <p class="dashboard-rail-gift-error" data-lifetime-gift-error role="alert" hidden></p>
           </form>
-          <p class="dashboard-rail-gift-done" data-lifetime-gift-done role="status" hidden>Sent! They'll get an email to start reading.</p>
+          <p class="dashboard-rail-gift-done" data-lifetime-gift-done role="status" hidden>Sent. We emailed them a link to start reading.</p>
           <ul class="dashboard-rail-gift-list" data-lifetime-gift-list></ul>
         </div>
 
@@ -277,8 +276,28 @@
 
         <div class="dashboard-rail-item">
           <p class="eyebrow">Your Membership</p>
-          <p class="dashboard-rail-tier"><em>{{#match @member.status "paid"}}Paid Member{{/match}}{{#match @member.status "comped"}}Complimentary{{/match}}{{#match @member.status "free"}}Free Subscriber{{/match}}</em></p>
-          <p class="dashboard-rail-meta">Change your membership type and update your shipping address for the print Journal.</p>
+          <p class="dashboard-rail-tier">{{#match @member.status "paid"}}Paid member{{/match}}{{#match @member.status "comped"}}Complimentary{{/match}}{{#match @member.status "free"}}Free subscriber{{/match}}</p>
+          {{!-- Why a membership is complimentary, one sentence picked from
+               the member's labels by the CSS under "Dashboard: comp
+               reason": institution > lifetime > gift > student > Substack >
+               Patreon > HubSpot migration > staff. --}}
+          {{#match @member.status "comped"}}
+          <div class="dashboard-comp-why" data-labels="|{{#foreach @member.labels}}{{name}}|{{/foreach}}">
+            <p class="dashboard-rail-meta why-institution">Your church or institution provides your membership.</p>
+            <p class="dashboard-rail-meta why-lifetime">Your lifetime membership never renews or expires.</p>
+            <p class="dashboard-rail-meta why-gift">Someone gave you this membership as a gift.</p>
+            <p class="dashboard-rail-meta why-student">You have a student membership.</p>
+            <p class="dashboard-rail-meta why-substack">You support Mere Orthodoxy through Substack.</p>
+            <p class="dashboard-rail-meta why-patreon">You support Mere Orthodoxy through Patreon.</p>
+            <p class="dashboard-rail-meta why-hubspot">Your membership moved over from our previous system, which still handles your billing.</p>
+            <p class="dashboard-rail-meta why-staff">Our staff set up your membership.</p>
+          </div>
+          {{/match}}
+          {{!-- Filled by dashboard.js (hydrateMemberSince) from mo-kit
+               /member-since: the first date this member ever paid, which
+               for most of the base is their HubSpot billing start. --}}
+          <p class="dashboard-rail-since" data-member-since hidden>Member since <span data-member-since-date></span></p>
+          <p class="dashboard-rail-meta">Change your membership or your shipping address.</p>
           <a href="/manage/" class="dashboard-rail-link">Manage Membership &rarr;</a>
         </div>
 

@@ -131,7 +131,17 @@
           <h2> ("Bookmarks", "Notebook"), and a region named "Saved
           works" wrapped around a heading that says "Bookmarks" is two
           names for one thing in a screen reader. --}}
-    <section class="bband faith-research-band">
+    {{!-- Bookmarks and Notebook as two tabs (Ian, 2026-11-10).
+          dashboard-faith-tabs.js reveals the bar and shows one panel;
+          without it both bands read one after the other. --}}
+    <div class="container dashboard-faith-tabs-wrap">
+      <div class="faith-view-toggle dashboard-faith-tabs" role="tablist" aria-label="Your Faith Received" data-dft-tabs hidden>
+        <button type="button" class="faith-view-toggle-tab" role="tab" id="dft-tab-bookmarks" data-dft-tab="bookmarks" aria-controls="bookmarks" aria-selected="true">Bookmarks</button>
+        <button type="button" class="faith-view-toggle-tab" role="tab" id="dft-tab-notebook" data-dft-tab="notebook" aria-controls="notebook" aria-selected="false" tabindex="-1">Notebook</button>
+      </div>
+    </div>
+
+    <section class="bband faith-research-band" id="bookmarks" role="tabpanel" aria-labelledby="dft-tab-bookmarks" data-dft-panel>
       <div class="research-workspace">
         <div class="research-workspace-inner">
           {{> "faith-received/_bookmarks-panel"}}
@@ -143,7 +153,7 @@
           Collections are a filter inside this panel, not a third band:
           a collection has only ever held entry ids into this same
           notebook. The reasoning is in _notebook-panel.hbs. --}}
-    <section class="bband faith-research-band">
+    <section class="bband faith-research-band" id="notebook" role="tabpanel" aria-labelledby="dft-tab-notebook" data-dft-panel>
       <div class="research-workspace">
         <div class="research-workspace-inner">
           {{> "faith-received/_notebook-panel"}}
@@ -153,3 +163,5 @@
   {{/unless}}
 
 </main>
+
+<script src="{{asset "js/page/dashboard-faith-tabs.js"}}"></script>
