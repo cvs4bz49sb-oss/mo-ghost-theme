@@ -28503,6 +28503,9 @@ html.mm-is-open .site-header { z-index: 111; }
 /* In a card like the menu's other features (2026-11-11). */
 .mm .mm-journal-status.mm-card { margin-top: 36px; padding: 20px 22px 18px; }
 .mm .mm-journal-status.mm-card .mm-col-title { margin-top: 0; }
+/* Centered in the card: the steps are a 400px block and sat left of a wider card (2026-11-11). */
+.mm .mm-journal-status.mm-card { text-align: center; }
+.mm .mm-journal-status.mm-card .journal-status { margin-left: auto; margin-right: auto; }
 .mm .mm-journal-next { margin: 4px 0 0; font-size: 17px; color: #4a4542; }
 .mm .journal-status { margin: 22px 0 0; max-width: 400px; }
 .mm .journal-status-step { gap: 12px; }
