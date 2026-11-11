@@ -291,21 +291,53 @@
           </div>
         </div>
         <div>
-          {{#if @member.paid}}
-          <div class="mm-feature mm-card">
-            <a href="/give/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
-            <p class="mm-feature-title">Give a membership</p>
-            <p>Share Mere Orthodoxy with a friend.</p>
-            <a class="btn" href="/give/">Give a membership</a>
+          {{!-- One card by the reader's survey role, highest leverage first:
+               pastor -> church, academic -> school (both
+               institutions), home group leader or elder -> groups, student -> student. Everyone else: paid
+               members get the gift card, others the membership card. Role
+               labels (role:*) are mirrored from Kit's Role: tags; the CSS
+               under "Support panel: role card" picks which card shows. --}}
+          <div class="mm-pick" data-roles=" {{#foreach @member.labels}}{{#match name "~^" "role:"}}{{name}} {{/match}}{{/foreach}}">
+            <div class="mm-feature mm-card mm-pick-church">
+              <a href="/institutions/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
+              <p class="mm-feature-title">Bring Mere Orthodoxy to your church</p>
+              <p>Organizational memberships give seats to your staff and congregation.</p>
+              <a class="btn" href="/institutions/">See organizational memberships</a>
+            </div>
+            <div class="mm-feature mm-card mm-pick-school">
+              <a href="/institutions/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
+              <p class="mm-feature-title">Bring Mere Orthodoxy to your school</p>
+              <p>Organizational memberships give seats to your faculty and students.</p>
+              <a class="btn" href="/institutions/">See organizational memberships</a>
+            </div>
+            <div class="mm-feature mm-card mm-pick-group">
+              <a href="/groups/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
+              <p class="mm-feature-title">Read together with your group</p>
+              <p>Group memberships cover a small group, staff or elder board.</p>
+              <a class="btn" href="/groups/">See group memberships</a>
+            </div>
+            <div class="mm-feature mm-card mm-pick-student">
+              <a href="/student/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
+              <p class="mm-feature-title">Student membership</p>
+              <p>Undergraduate and graduate students get membership at a discount.</p>
+              <a class="btn" href="/student/">See student membership</a>
+            </div>
+            {{#if @member.paid}}
+            <div class="mm-feature mm-card mm-pick-default">
+              <a href="/give/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
+              <p class="mm-feature-title">Give a membership</p>
+              <p>Share Mere Orthodoxy with a friend.</p>
+              <a class="btn" href="/give/">Give a membership</a>
+            </div>
+            {{else}}
+            <div class="mm-feature mm-card mm-pick-default">
+              <a href="/membership/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
+              <p class="mm-feature-title">Become a member</p>
+              <p>Get the print journal and support the work of Mere Orthodoxy.</p>
+              <a class="btn" href="/membership/">See membership</a>
+            </div>
+            {{/if}}
           </div>
-          {{else}}
-          <div class="mm-feature mm-card">
-            <a href="/membership/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
-            <p class="mm-feature-title">Become a member</p>
-            <p>Get the print journal and support the work of Mere Orthodoxy.</p>
-            <a class="btn" href="/membership/">See membership</a>
-          </div>
-          {{/if}}
         </div>
       </div>
     </section>
