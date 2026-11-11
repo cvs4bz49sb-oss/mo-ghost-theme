@@ -135,6 +135,13 @@ html.mag-open, html.mag-open body { overflow: hidden; }
 /* Bio: the emblem, then the bio in spaced capitals, centered. */
 .mp-bio { break-inside: avoid; margin: 3cqw 0 0; text-align: center; }
 .mp-bio .mp-emblem { display: block; width: 5.4cqw; height: 5.4cqw; max-height: none; margin: 0 auto 2cqw; filter: saturate(0.55) brightness(0.72); }
+/* Editor's letter: one full-width column on every page; the signature
+   and a short bio sit at the foot of its last page. */
+.mp-ct.mp-letter .mp-pc { columns: auto; font-size: 2.2cqw; }
+.mp-letter-tail .mp-pc { display: flex; flex-direction: column; }
+.mp-letter-end { margin-top: auto; padding-top: 3cqw; break-inside: avoid; }
+.mp-pc .mp-letter-end .letter-sig { margin: 0 0 4.4cqw; font-family: var(--mag-display); font-style: italic; font-size: 2cqw; letter-spacing: 0.22em; text-transform: uppercase; text-align: left; color: var(--mag-accent-deep); }
+.mp-pc .mp-letter-end .contributor-bio { margin: 0 4cqw; font-family: var(--mag-display); font-size: 1.6cqw; line-height: 1.6; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; hyphens: none; -webkit-hyphens: none; }
 .mp-solo .mp-pc { columns: auto; display: flex; align-items: center; justify-content: center; }
 .mp-solo .mp-bio { max-width: 46cqw; margin: 0; }
 .mp-pc .mp-bio p + p { margin-top: 1.2em; }
@@ -187,7 +194,14 @@ html.mag-open, html.mag-open body { overflow: hidden; }
   .mp-title { font-size: 8.4cqw; }
   .mp-by { font-size: 2.6cqw !important; }
   .mp-fo { font-size: 3cqw; bottom: 4cqw; }
-  .mp-solo .mp-pc { columns: auto; display: flex; align-items: center; justify-content: center; }
+  /* Editor's letter: one full-width column on every page; the signature
+   and a short bio sit at the foot of its last page. */
+.mp-ct.mp-letter .mp-pc { columns: auto; font-size: 2.2cqw; }
+.mp-letter-tail .mp-pc { display: flex; flex-direction: column; }
+.mp-letter-end { margin-top: auto; padding-top: 3cqw; break-inside: avoid; }
+.mp-pc .mp-letter-end .letter-sig { margin: 0 0 4.4cqw; font-family: var(--mag-display); font-style: italic; font-size: 2cqw; letter-spacing: 0.22em; text-transform: uppercase; text-align: left; color: var(--mag-accent-deep); }
+.mp-pc .mp-letter-end .contributor-bio { margin: 0 4cqw; font-family: var(--mag-display); font-size: 1.6cqw; line-height: 1.6; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; hyphens: none; -webkit-hyphens: none; }
+.mp-solo .mp-pc { columns: auto; display: flex; align-items: center; justify-content: center; }
 .mp-solo .mp-bio { max-width: 46cqw; margin: 0; }
 .mp-pc .mp-bio p + p { margin-top: 1.2em; }
 .mp-pc .mp-bio p { font-size: 2.5cqw; }

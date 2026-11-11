@@ -23,7 +23,10 @@
   const FLIP_SRC = me && me.getAttribute("data-flip");
   const EMBLEM = me && me.getAttribute("data-emblem");
   const sections = Array.prototype.slice.call(document.querySelectorAll("article.rd-text section.content-section"))
-    .filter((s) => { return s.querySelector("h2.section-title"); });
+    .filter((s) => { return s.querySelector("h2.section-title"); })
+    // Issue 010 carries the Eliot epigraph as a section; the magazine's
+    // inside cover already prints it.
+    .filter((s) => { return s.id !== "epigraph"; });
   if (!FLIP_SRC || !sections.length) return;
 
   const TRIM_W = 540;
@@ -249,6 +252,18 @@
       c.querySelectorAll("img").forEach((img) => { img.loading = "eager"; img.removeAttribute("srcset"); img.removeAttribute("sizes"); });
       if (c.tagName === "P" && !c.textContent.trim() && !c.querySelector("img")) return;
       c.classList.add("mag-b");
+      if (c.matches("p.letter-sig, p.contributor-bio--letter")) {
+        // The letter closes with the signature and a short bio at the
+        // foot of the page, with no emblem.
+        c.classList.remove("mag-b");
+        const prev = out[out.length - 1];
+        if (prev && prev.classList.contains("mp-letter-end")) { prev.appendChild(c); return; }
+        const end = document.createElement("div");
+        end.className = "mp-letter-end mag-b";
+        end.appendChild(c);
+        out.push(end);
+        return;
+      }
       if (c.matches("p.contributor-bio")) {
         // The bio sits under the emblem, as in print, and never splits.
         const prev = out[out.length - 1];
@@ -335,7 +350,8 @@
       const title = s.querySelector("h2.section-title").textContent.trim();
       const by = s.querySelector("p.essay-author");
       const queue = blocksOf(s);
-      const op = page(book, "mp-op",
+      const letter = s.hasAttribute("data-letter");
+      const op = page(book, letter ? "mp-op mp-letter" : "mp-op",
         `<div class="mp-pc"><h2 class="mp-title">${esc(title)}</h2>${by ? `<p class="mp-by">${esc(by.textContent.replace(/^\s*By\s+/i, "").trim())}</p>` : ""}</div>`);
       furniture(op);
       pages[pages.length - 1].essay = n;
@@ -343,7 +359,7 @@
       fill(op.querySelector(".mp-pc"), queue);
       let guard = 0;
       while (queue.length && guard++ < 400) {
-        const ct = page(book, "mp-ct", '<div class="mp-pc"></div>');
+        const ct = page(book, letter ? "mp-ct mp-letter" : "mp-ct", '<div class="mp-pc"></div>');
         furniture(ct);
         pages[pages.length - 1].essay = n;
         const before = queue.length;
@@ -356,6 +372,7 @@
       const tail = pages[pages.length - 1].el;
       const tailPc = tail.querySelector(".mp-pc");
       if (tailPc.children.length === 1 && tailPc.firstElementChild.classList.contains("mp-bio")) tail.classList.add("mp-solo");
+      if (tailPc.lastElementChild && tailPc.lastElementChild.classList.contains("mp-letter-end")) tail.classList.add("mp-letter-tail");
     });
 
     // The back cover closes the book on a left-hand page.

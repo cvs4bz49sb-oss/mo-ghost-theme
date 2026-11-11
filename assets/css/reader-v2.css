@@ -422,6 +422,11 @@ html[data-theme="dark"] .rd-cta--solid { color: #1d1a18; }
 html[data-theme="dark"] .content-section > .contributor-bio::before { filter: saturate(0.7); }
 .content-section > .contributor-bio + .contributor-bio { margin-top: 1.4em !important; }
 .content-section > .contributor-bio + .contributor-bio::before { display: none; }
+/* The editor's letter, as printed: the signature in terracotta italic
+   capitals at the left, then a short bio with no emblem. */
+.letter-sig { margin: 2.6em 0 0 !important; font-family: var(--rd-title); font-style: italic; font-size: 0.85em; letter-spacing: 0.22em; text-transform: uppercase; color: var(--rd-accent); text-indent: 0; }
+.content-section > .contributor-bio--letter { max-width: 34em; margin-top: 2.2em !important; }
+.content-section > .contributor-bio--letter::before { display: none; }
 .contributor .contributor-bio { margin: 0.2em 0 0; font-size: 0.95em; color: var(--rd-muted); }
 .contributor { margin: 0 0 1.4em; font-size: 0.9em; }
 .contributor-name { font-weight: 600; }
