@@ -28500,6 +28500,9 @@ html.mm-is-open .site-header { z-index: 111; }
 /* Journal panel: the homepage journal status tracker on the light panel.
    Same markup and classes; colors and size scoped here. */
 .mm .mm-journal-status { margin-top: 44px; }
+/* In a card like the menu's other features (2026-11-11). */
+.mm .mm-journal-status.mm-card { margin-top: 36px; padding: 20px 22px 18px; }
+.mm .mm-journal-status.mm-card .mm-col-title { margin-top: 0; }
 .mm .mm-journal-next { margin: 4px 0 0; font-size: 17px; color: #4a4542; }
 .mm .journal-status { margin: 22px 0 0; max-width: 400px; }
 .mm .journal-status-step { gap: 12px; }
