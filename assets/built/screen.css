@@ -28663,3 +28663,251 @@ main.dashboard-page * { font-style: normal !important; }
 .dashboard-faith-tabs { margin-bottom: 0; }
 .dashboard-faith-tabs[hidden],
 .faith-research-band[hidden] { display: none; }
+
+/* ── Member library: /dashboard/ebooks/ and /dashboard/journals/
+   (redesigned 2026-11-10). Covers are drawn after the print designs:
+   the journal's cream cover with masthead, issue, season, line art and
+   contributors; the ebooks as solid-color volumes. Covers are title
+   pages, so they keep the display face (DESLOP Q11); everything around
+   them is the working face. */
+.lib { display: flex; flex-direction: column; }
+.lib-page { padding-top: 56px; padding-bottom: 80px; }
+.lib-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 24px; }
+
+/* Journal cover */
+.lib-jcover {
+  container-type: inline-size;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 772 / 1000;
+  padding: 11cqw 9cqw 8cqw;
+  background: #fbf8f1;
+  color: #2d2927;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(45, 41, 39, 0.08), 0 10px 24px rgba(45, 41, 39, 0.14);
+  overflow: hidden;
+}
+.lib-jcover-mast {
+  font-family: 'IM Fell Great Primer', 'Source Serif Pro', Georgia, serif;
+  font-size: 14.5cqw;
+  line-height: 0.98;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.lib-jcover-est {
+  align-self: flex-end;
+  margin-top: 1.5cqw;
+  font-family: 'IM Fell Great Primer', 'Source Serif Pro', Georgia, serif;
+  font-size: 4.4cqw;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b45f3d;
+}
+.lib-jcover-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6cqw;
+  font-family: 'IM Fell Great Primer', 'Source Serif Pro', Georgia, serif;
+  font-size: 3.6cqw;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+/* Line art: a sun setting on a horizon, in the cover's terracotta. */
+.lib-jcover-art {
+  position: relative;
+  flex: 1 1 auto;
+  margin: 4cqw 12cqw;
+  min-height: 18cqw;
+}
+.lib-jcover-art::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 52%;
+  border-top: 1px solid #c1593c;
+  opacity: 0.7;
+}
+.lib-jcover-art::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 16cqw;
+  height: 8cqw;
+  margin-left: -8cqw;
+  margin-top: -8cqw;
+  border: 1px solid #c1593c;
+  border-bottom: 0;
+  border-radius: 16cqw 16cqw 0 0;
+  opacity: 0.8;
+}
+.lib-jcover-names {
+  font-family: 'Source Serif Pro', Georgia, serif;
+  font-size: 3.7cqw;
+  line-height: 1.55;
+  text-align: center;
+  color: #4a4440;
+}
+
+/* Ebook cover */
+.lib-ecover {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 2 / 3;
+  padding: 10cqw 10cqw 9cqw;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(45, 41, 39, 0.08), 0 10px 24px rgba(45, 41, 39, 0.16);
+  overflow: hidden;
+}
+.lib-ecover-mast {
+  font-family: 'IM Fell Great Primer', 'Source Serif Pro', Georgia, serif;
+  font-size: 6cqw;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding-bottom: 5cqw;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.85;
+}
+.lib-ecover-title {
+  margin-top: auto;
+  font-family: 'IM Fell Great Primer', 'Source Serif Pro', Georgia, serif;
+  font-size: 12.5cqw;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+.lib-ecover-foot {
+  margin-top: 6cqw;
+  font-family: 'Source Serif Pro', Georgia, serif;
+  font-size: 5cqw;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+}
+.lib-ecover--dark { background: #2d2927; color: #f5efe1; }
+.lib-ecover--terracotta { background: #b45f3d; color: #fbf3ea; }
+.lib-ecover--sand { background: #d9c6a7; color: #2d2927; }
+.lib-ecover--cream { background: #fbf8f1; color: #2d2927; }
+.lib-ecover--cream .lib-ecover-mast { color: #b45f3d; }
+
+/* Latest journal issue */
+.lib-latest {
+  display: grid;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  gap: 56px;
+  align-items: start;
+}
+.lib-latest-cover { display: block; }
+.lib-latest-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(45, 41, 39, 0.08), 0 14px 32px rgba(45, 41, 39, 0.18);
+}
+.lib-latest-title,
+.lib-book-title,
+.lib-shelf-title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-dark);
+  margin: 0;
+  text-wrap: balance;
+}
+.lib-latest-title { font-size: 32px; line-height: 1.15; margin-bottom: 10px; }
+.lib-latest-desc,
+.lib-book-desc { font-family: var(--font-body); font-size: 18px; line-height: 1.55; color: var(--color-dark); margin: 0 0 22px; max-width: 60ch; }
+.lib-contents-title { font-family: var(--font-body); font-weight: 600; font-size: 16px; margin: 4px 0 10px; color: var(--color-dark); }
+.lib-toc {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2;
+  column-gap: 40px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-dark);
+}
+.lib-toc li { break-inside: avoid; padding: 6px 0; border-bottom: 1px solid var(--color-rule); }
+.lib-toc--numbered { counter-reset: toc; columns: 1; }
+.lib-toc--numbered li { counter-increment: toc; display: grid; grid-template-columns: 2em minmax(0, 1fr); }
+.lib-toc--numbered li::before { content: counter(toc); color: var(--color-muted); font-variant-numeric: tabular-nums; }
+
+/* Past issues shelf */
+.lib-shelf-title { font-size: 22px; margin: 72px 0 24px; padding-top: 32px; border-top: 1px solid var(--color-rule); }
+.lib-shelf {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 40px 28px;
+}
+.lib-item { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+.lib-item .lib-jcover { margin-bottom: 14px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.lib-item:hover .lib-jcover { transform: translateY(-4px); box-shadow: 0 2px 4px rgba(45, 41, 39, 0.08), 0 18px 34px rgba(45, 41, 39, 0.2); }
+.lib-item:focus-visible { outline: none; }
+.lib-item:focus-visible .lib-jcover { outline: 2px solid var(--color-secondary); outline-offset: 4px; }
+.lib-item-title { font-family: var(--font-body); font-weight: 600; font-size: 16px; color: var(--color-dark); }
+.lib-item-meta { font-family: var(--font-body); font-size: 14px; color: var(--color-muted); margin-bottom: 6px; }
+.lib-item-desc { font-family: var(--font-body); font-size: 14px; line-height: 1.45; color: var(--color-dark); }
+.lib-item:hover .lib-item-title { color: var(--color-secondary); }
+
+/* Ebook rows */
+.lib-book {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+  padding: 40px 0;
+}
+.lib-book:first-child { padding-top: 0; }
+.lib-book + .lib-book { border-top: 1px solid var(--color-rule); }
+.lib-book-cover { display: block; transition: transform 0.2s ease; }
+.lib-book-cover:hover { transform: translateY(-4px); }
+.lib-book-title { font-size: 28px; line-height: 1.2; }
+.lib-book-title a { color: inherit; text-decoration: none; }
+.lib-book-title a:hover { color: var(--color-secondary); }
+.lib-book-meta { font-family: var(--font-body); font-size: 14px; color: var(--color-muted); margin: 6px 0 12px; }
+.lib-fold > summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-secondary);
+}
+.lib-fold > summary::-webkit-details-marker { display: none; }
+.lib-fold > summary::before { content: "+"; display: inline-block; width: 1.1em; }
+.lib-fold[open] > summary::before { content: "\2212"; }
+.lib-fold[open] > summary { margin-bottom: 10px; }
+.lib-fold .lib-toc { max-width: 640px; }
+
+@media (max-width: 1100px) {
+  .lib-shelf { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .lib-latest { grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 32px; }
+  .lib-toc { columns: 1; }
+  .lib-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 20px; }
+  .lib-book { grid-template-columns: minmax(0, 170px) minmax(0, 1fr); gap: 32px; }
+}
+@media (max-width: 640px) {
+  .lib-page { padding-top: 32px; padding-bottom: 56px; }
+  .lib-latest { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .lib-latest-cover { width: 62%; margin: 0 auto; }
+  .lib-latest-title { font-size: 26px; }
+  .lib-latest-desc, .lib-book-desc { font-size: 17px; }
+  .lib-shelf-title { margin-top: 48px; }
+  .lib-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 16px; }
+  .lib-item-desc { display: none; }
+  /* Book rows: small cover beside the title, the rest full width. */
+  .lib-book { grid-template-columns: 104px minmax(0, 1fr); gap: 18px; padding: 28px 0; }
+  .lib-book-title { font-size: 21px; }
+  .lib-book-desc, .lib-book .lib-actions, .lib-book .lib-fold { grid-column: 1 / -1; }
+  .lib-book-body { display: contents; }
+  .lib-book-title, .lib-book-meta { grid-column: 2; }
+  .lib-book-cover { grid-row: 1 / span 2; }
+}
