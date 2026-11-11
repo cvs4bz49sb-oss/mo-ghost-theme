@@ -28665,7 +28665,7 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm-res-cards[data-show="ebooks"] > [data-mm-res-card="ebooks"] { visibility: visible; }
 /* Two by two, each cover the size of a Bookshelf cover, so the card
    is the same height as the Bookshelf card it replaces. */
-.mm-res-cards .mm-books--ebooks { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 252px; gap: 16px; margin: 14px 0 18px; }
+.mm-res-cards .mm-books.mm-books--ebooks { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 252px; gap: 16px; margin: 14px 0 18px; }
 .mm-books.mm-books--ebooks { max-width: 680px; gap: 24px; margin: 0; }
 .mm-books--ebooks .lib-ecover { box-shadow: 0 1px 2px rgba(45, 41, 39, 0.08), 0 6px 14px rgba(45, 41, 39, 0.14); }
 .mm-books--ebooks .lib-ecover--cream { border: 1px solid var(--color-rule); }
