@@ -1,6 +1,6 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-11-10T22:05:47.270Z",
+    "updated": "2026-11-11T15:33:36.184Z",
     "episodes": [
       {
         "id": 20076850,
@@ -1287,8 +1287,30 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-11-10T22:05:51.755Z",
+    "updated": "2026-11-11T15:33:41.088Z",
     "episodes": [
+      {
+        "id": 20097696,
+        "title": "Replay: C.S. Lewis for Everyone",
+        "slug": "replay-c-s-lewis-for-everyone",
+        "pubDate": "2026-11-11T07:00:00.000-05:00",
+        "episode": 43,
+        "season": 3,
+        "duration": 2923,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/20097696-replay-c-s-lewis-for-everyone.mp3",
+        "description": "Send Us A Message C.S. Lewis is an odd figure. Beloved, cited, and recruited by both progressive and conservative Christians, his works have a very broad appeal. The very fact of this broad appeal raises questions about his legacy. Alastair, Derek, and Matt examine this phenomenon and how Lewis is read both in fundamentalist America and evangelical Britain. Full show notes at www.merefidelity.com.",
+        "embedUrl": "https://www.buzzsprout.com/2612792/20097696?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/replay-c-s-lewis-for-everyone/",
+        "guests": [],
+        "topics": [
+          "Literature & Moral Imagination",
+          "Apologetics, Doubt & Unbelief",
+          "Theological Retrieval & Method",
+          "Secularism & Expressive Individualism"
+        ]
+      },
       {
         "id": 20070839,
         "title": "Replay: Christian Politics with Oliver O’Donovan",
