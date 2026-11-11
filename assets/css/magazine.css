@@ -1,0 +1,206 @@
+/*
+ * Magazine view (assets/js/magazine.js). The redesign artifact's
+ * journal: matte pages on a dark reading table, typeset once at trim
+ * size in container units so the type scales with the book. The page
+ * look is fixed; it does not follow the reader's Light/Sepia/Dark.
+ */
+
+.mag {
+  --mag-table: #1f1c1a;
+  --mag-table-hi: #3a3430;
+  --mag-ui: #e9e1d6;
+  --mag-ui-dim: #a39a8f;
+  --mag-paper: #f7f4ef;
+  --mag-ink: #2d2927;
+  --mag-muted: #6b6660;
+  --mag-rule: #d9c6a7;
+  --mag-accent: #ee7d51;
+  --mag-accent-deep: #c1593c;
+  --mag-display: "IM Fell Great Primer", "Source Serif 4", Georgia, serif;
+  --mag-body: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+  --mag-text: "EB Garamond", "Source Serif 4", Georgia, serif;
+  --mag-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .42 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .16 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --mag-mottle: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='m'><feTurbulence type='fractalNoise' baseFrequency='.008' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .24 0 0 0 .10 0'/></filter><rect width='100%' height='100%' filter='url(%23m)'/></svg>");
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(10px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: radial-gradient(ellipse at 50% 40%, var(--mag-table-hi) 0%, var(--mag-table) 70%);
+  background-color: var(--mag-table);
+  color: var(--mag-ui);
+  font-family: var(--mag-body);
+  overscroll-behavior: contain;
+  touch-action: none;
+}
+.mag[hidden] { display: none; }
+html.mag-open, html.mag-open body { overflow: hidden; }
+
+.mag-app { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.mag-stage { position: relative; width: min(100%, calc((100dvh - 150px) * 1.54)); }
+.mag.is-setting .mag-stage { visibility: hidden; }
+.mag-book { filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.5)); }
+
+.mag-close {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(233, 225, 214, 0.28);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--mag-ui);
+  cursor: pointer;
+}
+.mag-close svg { width: 20px; height: 20px; }
+.mag-close:hover { border-color: var(--mag-accent); color: #fff; }
+
+.mag-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; font-size: 14px; }
+.mag-bar button {
+  font: inherit;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(233, 225, 214, 0.28);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--mag-ui);
+  cursor: pointer;
+}
+.mag-bar button:hover { border-color: var(--mag-accent); color: #fff; }
+.mag button:focus-visible { outline: 2px solid var(--mag-accent); outline-offset: 2px; }
+.mag-where { min-width: 8em; text-align: center; color: var(--mag-ui-dim); font-variant-numeric: tabular-nums; }
+.mag-hint { margin: 0; font-size: 13px; color: var(--mag-ui-dim); text-align: center; }
+.mag-loading { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; font-size: 15px; color: var(--mag-ui-dim); pointer-events: none; }
+.mag-loading[hidden] { display: none; }
+
+/* Typesetting pass: pages at a fixed trim, off to the side. */
+.mag-measure { position: absolute; left: -99999px; top: 0; visibility: hidden; }
+.mag-measure .mp { position: relative; width: var(--mw, 540px); height: calc(var(--mw, 540px) * 701 / 540); }
+
+/* ── Page shell ── */
+.mp { background: var(--mag-paper); color: var(--mag-ink); overflow: hidden; }
+.mp-in {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  overflow: hidden;
+  font-family: var(--mag-body);
+  background-image: var(--mag-mottle);
+  box-shadow: inset 0 0 6cqw rgba(110, 88, 60, 0.07);
+}
+.mp-in::before { content: ""; position: absolute; inset: 0; z-index: 5; background-image: var(--mag-grain); opacity: 0.8; mix-blend-mode: multiply; pointer-events: none; }
+.mp-l .mp-in::after,
+.mp-r .mp-in::after { content: ""; position: absolute; top: 0; bottom: 0; width: 9%; z-index: 6; pointer-events: none; }
+.mp-l .mp-in::after { right: 0; background: linear-gradient(to left, rgba(45, 41, 39, 0.16), rgba(45, 41, 39, 0.04) 40%, transparent); }
+.mp-r .mp-in::after { left: 0; background: linear-gradient(to right, rgba(45, 41, 39, 0.16), rgba(45, 41, 39, 0.04) 40%, transparent); }
+
+.mp-pc { position: absolute; top: 10cqw; bottom: 11cqw; overflow: hidden; display: flow-root; font-family: var(--mag-text); font-size: 2.2cqw; line-height: 1.42; }
+.mp-l .mp-pc { left: 11cqw; right: 9cqw; }
+.mp-r .mp-pc { left: 9cqw; right: 11cqw; }
+/* Folio in the outer bottom corner, as printed. No running heads. */
+.mp-fo { position: absolute; bottom: 4.6cqw; font-family: var(--mag-display); font-size: 2cqw; color: var(--mag-ink); font-variant-numeric: oldstyle-nums; }
+.mp-l .mp-fo { left: 6cqw; }
+.mp-r .mp-fo { right: 6cqw; }
+
+/* ── Essay type, after the printed journal ──
+   The opening page is one full-width column with the title a third of
+   the way down; every page after it runs two columns. Paragraphs are
+   set apart by a line, not indented. */
+.mp-op .mp-pc { padding-top: 34cqw; }
+.mp-ct .mp-pc { columns: 2; column-gap: 5cqw; column-fill: auto; font-size: 1.95cqw; }
+.mp-pc p { margin: 0 0 1.25em; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.mp-pc p.mag-split { margin-bottom: 0; }
+.mp-pc em, .mp-pc i { font-style: italic; }
+.mp-pc sup { font-size: 0.7em; line-height: 0; }
+.mp-pc .mag-dc::first-letter { float: left; font-size: 3.1em; line-height: 0.8; padding: 0.05em 0.06em 0 0; color: var(--mag-ink); }
+.mp-title { font-family: var(--mag-text); font-weight: 500; font-size: 7cqw; line-height: 1.04; margin: 0 0 1.6cqw; text-wrap: balance; letter-spacing: -0.005em; }
+.mp-by { font-family: var(--mag-display); font-style: italic; font-size: 1.75cqw !important; letter-spacing: 0.2em; text-transform: uppercase; text-align: left !important; color: var(--mag-muted); margin: 0 0 4.4cqw !important; }
+.mp-pc h3, .mp-pc h4, .mp-pc .essay-heading { font-family: var(--mag-text); font-weight: 500; font-size: 1.25em; line-height: 1.2; margin: 0.4em 0 0.7em; text-align: left; break-after: avoid; }
+.mp-pc h4 { font-size: 1.1em; font-style: italic; }
+.mp-pc blockquote { margin: 0 0 1.25em 1.6em; }
+.mp-pc blockquote p:last-child { margin-bottom: 0; }
+.mp-pc ul, .mp-pc ol { margin: 0 0 1.25em; padding-left: 1.5em; }
+.mp-pc li { margin: 0 0 0.5em; }
+.mp-pc figure { margin: 0 0 1.25em; text-align: center; }
+.mp-pc img { max-width: 100%; max-height: 50cqw; height: auto; object-fit: contain; }
+.mp-pc figcaption { font-size: 0.8em; font-style: italic; color: var(--mag-muted); margin-top: 0.6em; }
+.mp-pc .callout { font-style: italic; }
+/* Bio: the emblem, then the bio in spaced capitals, centered. */
+.mp-bio { break-inside: avoid; margin: 3cqw 0 0; text-align: center; }
+.mp-bio .mp-emblem { display: block; width: 5.4cqw; height: 5.4cqw; max-height: none; margin: 0 auto 2cqw; filter: saturate(0.55) brightness(0.72); }
+.mp-pc .mp-bio p { margin: 0; font-family: var(--mag-display); font-size: 1.55cqw; line-height: 1.5; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; hyphens: none; -webkit-hyphens: none; color: var(--mag-ink); }
+
+/* ── Cover and back ── */
+.mp-cover .mp-in { background: var(--mag-ink); box-shadow: none; }
+.mp-cover .mp-in::before { opacity: 0.25; }
+.mp-cover .mp-in > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.mp-cover .mp-in > .lib-ecover,
+.mp-cover .mp-in > .lib-jcover { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
+.mp-mast { font-family: var(--mag-display); font-size: 11cqw; line-height: 0.98; letter-spacing: 0.05em; text-transform: uppercase; }
+.mp-cover-t { margin-top: auto; font-family: var(--mag-display); font-size: 6cqw; line-height: 1.1; }
+.mp-cover .mp-in > .mp-mast { position: absolute; left: 10cqw; top: 12cqw; color: #f5efe1; }
+.mp-cover .mp-in > .mp-cover-t { position: absolute; left: 10cqw; right: 10cqw; bottom: 14cqw; color: #f5efe1; }
+.mp-back .mp-in { background-color: #ece6dc; }
+.mp-backin { position: absolute; inset: 14cqw 12cqw; display: flex; flex-direction: column; justify-content: flex-end; color: var(--mag-ink); }
+.mp-backin .mp-mast { font-size: 9cqw; }
+.mp-est { margin-top: 1.2cqw; font-family: var(--mag-display); font-size: 2.4cqw; letter-spacing: 0.24em; text-transform: uppercase; color: var(--mag-accent-deep); }
+.mp-url { margin-top: 5cqw; font-size: 1.5cqw; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mag-muted); }
+.mp-orn { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--mag-display); font-size: 4cqw; color: var(--mag-accent); }
+
+/* ── Contents ── */
+.mp-toc--more .mp-pc { padding-top: 9.6cqw; }
+.mp-toc h2 { font-family: var(--mag-display); font-weight: 400; font-size: 5.6cqw; line-height: 1; margin: 1cqw 0 3cqw; }
+.mp-toc-list { list-style: none; margin: 0; padding: 0; }
+.mp-toc-list li { border-top: 1px solid #e9dec8; }
+.mp-toc-list li:last-child { border-bottom: 1px solid #e9dec8; }
+.mp-toc-list button {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.3cqw 2.4cqw;
+  padding: 1.3cqw 0;
+  cursor: pointer;
+}
+.mp-toc-list button:focus-visible { outline: 2px solid var(--mag-accent); }
+.mp-toc-t { grid-column: 1; font-family: var(--mag-display); font-size: 2.3cqw; line-height: 1.2; }
+.mp-toc-a { grid-column: 1; font-size: 1.4cqw; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mag-muted); }
+.mp-toc-pg { grid-column: 2; grid-row: 1 / 3; align-self: center; color: var(--mag-accent-deep); font-size: 2.1cqw; font-variant-numeric: oldstyle-nums; }
+.mp-toc-list button:hover .mp-toc-t { color: var(--mag-accent-deep); }
+
+/* Reader bar door. */
+.rd-btn.mag-door svg { width: 19px; height: 19px; }
+
+@media (max-width: 700px) {
+  /* A phone shows one page at a time: one column and larger type, or
+     the print setting would be too small to read. */
+  .mp-pc, .mp-ct .mp-pc { columns: auto; font-size: 3.7cqw; line-height: 1.45; top: 9cqw; bottom: 11cqw; }
+  .mp-l .mp-pc, .mp-r .mp-pc { left: 8cqw; right: 8cqw; }
+  .mp-op .mp-pc { padding-top: 22cqw; }
+  .mp-title { font-size: 8.4cqw; }
+  .mp-by { font-size: 2.6cqw !important; }
+  .mp-fo { font-size: 3cqw; bottom: 4cqw; }
+  .mp-pc .mp-bio p { font-size: 2.5cqw; }
+  .mp-bio .mp-emblem { width: 8cqw; height: 8cqw; }
+  .mp-toc h2 { font-size: 7.4cqw; }
+  .mp-toc-t { font-size: 3.5cqw; }
+  .mp-toc-a { font-size: 2.2cqw; }
+  .mp-toc-pg { font-size: 3.2cqw; }
+  .mp-toc-list button { padding: 1.8cqw 0; }
+  .mag-stage { width: min(100%, calc((100dvh - 190px) * 0.77)); }
+  .mag-hint { font-size: 12px; }
+  .mag-bar { gap: 6px; flex-wrap: nowrap; font-size: 13px; }
+  .mag-bar button { padding: 0 9px; white-space: nowrap; }
+  .mag-where { min-width: 0; padding: 0 4px; white-space: nowrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mag-bar button, .mag-close { transition: none; }
+}
