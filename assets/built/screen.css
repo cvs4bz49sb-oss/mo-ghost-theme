@@ -16890,10 +16890,9 @@ body[class*="lc-"] .bhero {
   color: var(--color-alert-text);
   margin: 0.08em 0.18em 0 0;
 }
-/* Prose: paragraphs with a first-line indent, the first flush. */
-.do-office p.do-prose { margin: 0; text-indent: 1.4em; }
-.do-office p.do-prose:first-child,
-.do-gap + p.do-prose { text-indent: 0; }
+/* Prose: paragraphs with a clear break between them (Ian: "and
+   paragraph breaks"). */
+.do-office p.do-prose { margin: 0 0 1em; }
 /* Poetry: a block per verse, the number hanging in the margin, each
    later clause indented beneath the first. */
 .do-office p.do-pv { margin: 0 0 0.55em; padding-left: 1.6em; position: relative; }
