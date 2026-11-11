@@ -29,7 +29,22 @@
   <link rel="stylesheet" href="{{asset "css/reader-v2.css"}}">
   <link rel="stylesheet" href="{{asset "css/magazine.css"}}">
   <style>
-    html, body { height: 100%; margin: 0; background: #1f1c1a; }
+    /* No table: the book sits on whatever the framing page puts behind
+       it (Ian, 2026-11-11: "a transparent background and more simple
+       buttons"). The members' full-screen magazine view keeps its dark
+       table; these rules live only on this page. */
+    html, body { height: 100%; margin: 0; background: transparent !important; }
+    .mag {
+      --mag-ui: #2d2927;
+      --mag-ui-dim: #6b6660;
+      background: transparent !important;
+    }
+    .mag-book { filter: drop-shadow(0 14px 22px rgba(45, 41, 39, 0.26)); }
+    /* Page controls as plain words, no boxes. */
+    .mag-bar { gap: 6px; }
+    .mag-bar button { border: 0; padding: 0 12px; color: var(--mag-ui); }
+    .mag-bar button:hover { color: var(--mag-accent-deep); }
+    .mag button:focus-visible { outline-color: var(--mag-accent-deep); }
     /* While the pages are being set: show the cover where the book will
        open (magazine-embed.js puts it on the stage) and keep the page
        controls and the "Setting the pages" line out of sight. */
@@ -37,7 +52,7 @@
     .mag.is-setting .mag-hint,
     .mag.is-setting .mag-loading { visibility: hidden; }
     .pv-poster { position: relative; aspect-ratio: 1080 / 701; }
-    .pv-poster img { position: absolute; top: 0; right: 0; width: 50%; height: 100%; object-fit: cover; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45); }
+    .pv-poster img { position: absolute; top: 0; right: 0; width: 50%; height: 100%; object-fit: cover; box-shadow: 0 14px 22px rgba(45, 41, 39, 0.26); }
     @media (max-width: 700px) {
       .pv-poster { aspect-ratio: 540 / 701; }
       .pv-poster img { width: 100%; }
