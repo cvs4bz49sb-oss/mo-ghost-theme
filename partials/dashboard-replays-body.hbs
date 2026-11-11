@@ -1,22 +1,24 @@
-{{!-- Body for /dashboard/replays/. Renders every past #event post
-     with its full content (which includes the YouTube embed Ian
-     pastes in after the event). --}}
+{{!-- Body for /dashboard/replays/ (redesigned 2026-11-10). A video
+     library: the newest replay in a large player with its details, every
+     other replay as a thumbnail card that plays in that player. #<slug>
+     opens a replay. dashboard-replays.js builds the player from the
+     post's YouTube or Vimeo embed (validated id, not the post HTML) and
+     takes the description from the post's first real paragraph. --}}
 
 <section class="hero dashboard-hero">
   <div class="container">
     <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
-    <h1 class="hero-headline">Event <span class="highlight"><em>Replays</em></span>.</h1>
-    <p class="hero-sub">Every past online event, newest first.</p>
+    <h1 class="hero-headline">Event <span class="highlight"><em>Replays</em></span></h1>
+    <p class="hero-sub">Keynotes, interviews and Q&amp;A from our online events.</p>
     <p class="dashboard-breadcrumb"><a href="/dashboard/">&larr; Back to dashboard</a></p>
   </div>
 </section>
 
-<section class="dashboard-body">
-  <div class="container container-narrow">
+<section class="rp-page">
+  <div class="container">
 
-    {{!-- All #event posts dumped to the page; the JS filters to
-         strictly past ones (published_at < now). The YouTube embed
-         is whatever Ian pasted into the post body after the event. --}}
+    {{!-- Every #event post, read by the script and never shown. A post
+         counts as a replay once its video embed is in the body. --}}
     <div data-replays-source hidden>
       {{#get "posts" filter="tag:hash-event" order="published_at desc" limit="all"}}
         {{#foreach posts}}
@@ -32,9 +34,14 @@
       {{/get}}
     </div>
 
-    <ol class="replays-list" data-replays-list>
-      <li class="replays-empty" data-replays-placeholder>Loading past events&hellip;</li>
-    </ol>
+    <div class="rp-feature" data-replays-feature>
+      <p class="rp-empty">Loading past events&hellip;</p>
+    </div>
+
+    <div class="rp-more" data-replays-more hidden>
+      <h2 class="rp-more-title">More replays</h2>
+      <ol class="rp-grid" data-replays-list></ol>
+    </div>
 
   </div>
 </section>
