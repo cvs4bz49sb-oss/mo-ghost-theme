@@ -16914,6 +16914,12 @@ body[class*="lc-"] .bhero {
   .do-part { scroll-margin-top: 120px; }
 }
 @media (max-width: 640px) {
+  /* The site's phone rule sets body { overflow-x: hidden }, which makes
+     the body a scroll container that never scrolls, and sticky then
+     never engages. clip trims the same overflow without that. */
+  body:has(.do-page) { overflow-x: clip; }
+  .do-order { margin: 0 -20px 24px; }
+  .do-order ol { padding: 0 20px; }
   .do-office { font-size: 18px; }
   .do-office.is-size-s { font-size: 16px; }
   .do-office.is-size-l { font-size: 20px; }
