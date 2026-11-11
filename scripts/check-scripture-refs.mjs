@@ -17,11 +17,13 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-// The parser lives inside daily-liturgy-reader.js, which is an IIFE with
-// no exports (the theme loads plain scripts, not modules). Rather than
-// keep a second copy in sync, lift the parser section out of the source
-// between its two banner comments and evaluate it here.
-const READER = "assets/js/daily-liturgy-reader.js";
+// The parser lives inside lib/dl-scripture.js (window.MODailyScripture),
+// shared by the Daily Liturgy reader and the Daily Office. It moved there
+// from daily-liturgy-reader.js on 2026-11-10 (153d608d). The file is an
+// IIFE with no exports (the theme loads plain scripts, not modules).
+// Rather than keep a second copy in sync, lift the parser section out of
+// the source between its two banner comments and evaluate it here.
+const READER = "assets/js/lib/dl-scripture.js";
 const START = "  // ── Scripture reference parser ──";
 const END = "  // ── Scripture fetching ──";
 
