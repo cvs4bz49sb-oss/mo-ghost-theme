@@ -85,47 +85,12 @@
       </div>
 
       <div class="contributors-section">
-        <div class="section-intro contributors-section-intro">
+        <div class="section-intro contributors-section-intro contributors-section-intro--link">
           <h2 class="contributors-section-title"><em>All Contributors</em></h2>
-        </div>
-        {{!-- Collapsed behind Show all (contributors.js hides the grid and
-             shows the button). Without JS the full grid stays open. --}}
-        <button type="button" class="btn contributors-show-all" data-contributors-show aria-controls="contributors-all-grid" aria-expanded="false" hidden>Show all</button>
-
-        <div class="contributors-grid" id="contributors-all-grid" data-contributors-collapsible data-contributors-grid data-mode="curated" data-heading="h3"
-             data-curated="Aldhizer,Anderson:Matthew Lee,Arndt,Brown,Carman:Tessa,Clark:Bruce,Clark:Charlie,Clark:James,East,Eberly,Edwards:B,Ehrett,Emerson,Graham,Gravely,Harber,Harp,Hawkins,Heavin,Hutchinson,James,Kamel,Krycho,LaPine,Laverty,Leithart,Littlejohn,Loftus,Lucchese,Mantravadi,Meador,Miller:M,Miller:P,Minich,Nesbit,Olmstead,Pechersky,Peter,Rishmawy,Roberts,Sacasas,Sanders,Sargeant,Shaffer,Shelton:J,Shelton:K,Shutt,Siljak,Smith,Spencer,Stice,Troutt,Wait,Wax,Wedgeworth,Werntz,Wilcoxen,Wildeman,Williams,Wood"
-             data-exclude-slugs="author-haley-byrd-wilt,author-katelyn-walls-shelton,author-hayden-nesbit,author-elizabeth-stice,author-amy-mantravadi,author-myles-werntz,author-brewer-eberly,author-daniel-k-williams,author-haley-baumeister,author-sarah-reardon,author-joshua-heavin,author-eddie-larow,author-cameron-shaffer,author-wyatt-graham,author-rachel-roth-aldhizer,author-john-ehrett,author-jeff-bilbro,author-john-shelton,author-jake-meador,author-nadya-williams,author-ian-harber">
-          {{!-- SSR fallback: render all public tags. JS replaces this
-               with the curated subset once the Content API responds. --}}
-          {{#get "tags" filter="visibility:public" order="name asc" limit="200" include="count.posts"}}
-            {{#foreach tags}}
-              {{#if count.posts}}
-                <a href="{{url}}" class="contributor-card contributor-card--candidate" data-tag-slug="{{slug}}" data-count="{{count.posts}}">
-                  <div class="contributor-card-portrait" aria-hidden="true">
-                    {{#if feature_image}}
-                      <img src="{{img_url feature_image size="s"}}" alt="{{name}}" loading="lazy" width="120" height="120" />
-                    {{else}}
-                      <span class="contributor-card-initial">{{name}}</span>
-                    {{/if}}
-                  </div>
-                  <div class="contributor-card-body">
-                    <h3 class="contributor-card-name"><em>{{name}}</em></h3>
-                    {{#if description}}
-                      <p class="contributor-card-bio">{{description}}</p>
-                    {{/if}}
-                    <p class="contributor-card-count">
-                      {{count.posts}}
-                      {{#match count.posts "=" 1}}essay{{else}}essays{{/match}}
-                    </p>
-                  </div>
-                </a>
-              {{/if}}
-            {{/foreach}}
-          {{/get}}
         </div>
       </div>
 
-      {{!-- Link to the full alphabetical directory --}}
+      {{!-- "All Contributors" opens the full alphabetical directory. --}}
       <div class="contributors-view-all" data-contributors-view-all>
         <a href="/contributors/all/" class="btn btn-pill btn-outline">
           + View All Contributors
