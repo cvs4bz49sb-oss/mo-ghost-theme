@@ -16744,11 +16744,13 @@ body[class*="lc-"] .bhero {
 .do-size .do-seg-btn[data-prayer-size="-1"] { font-size: 13px; }
 .do-size .do-seg-btn[data-prayer-size="1"] { font-size: 19px; }
 
+/* Running order at the container's left edge (in line with the logo),
+   the office centered; the empty third column balances the first. */
 .do-layout {
   display: grid;
-  grid-template-columns: 200px minmax(0, 660px);
-  justify-content: center;
-  gap: 56px;
+  grid-template-columns: 200px minmax(0, 660px) 200px;
+  justify-content: space-between;
+  gap: 40px;
   align-items: start;
 }
 .do-order {
