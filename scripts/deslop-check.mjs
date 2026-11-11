@@ -150,8 +150,9 @@ function newJson(path) {
 }
 
 /* ── Turning a line into the words a reader sees ──────────────────────── */
-function proseFromMarkup(s, state) {
-  // Comments, scripts and styles can span lines; state carries them over.
+// A line of markup with comments, scripts and styles removed, tags kept.
+// Comments, scripts and styles can span lines; state carries them over.
+function markupOutsideComments(s, state) {
   let out = ""; let i = 0;
   while (i < s.length) {
     if (state.in) { const end = s.indexOf(state.in, i); if (end < 0) return out; i = end + state.in.length; state.in = null; continue; }
@@ -160,6 +161,12 @@ function proseFromMarkup(s, state) {
     if (open) { state.in = open[1]; i += open[0].length; continue; }
     out += s[i]; i++;
   }
+  return out;
+}
+function proseFromMarkup(s, state) {
+  return proseFromBareMarkup(markupOutsideComments(s, state));
+}
+function proseFromBareMarkup(out) {
   const attrs = [...out.matchAll(/\b(?:alt|aria-label|title|placeholder|content)="([^"]{12,})"/g)].map((m) => m[1]);
   const text = out.replace(/\{\{[^}]*\}\}/g, " ").replace(/<[^>]+>/g, " ").replace(/&[a-z]+;|&#\d+;/g, " ");
   return [text, ...attrs].join(" \n ").replace(/\s+/g, " ").trim();
@@ -207,7 +214,25 @@ function checkProse(file, line, prose) {
     if (isTfr(file) && WE_TFR.test(t) && !/\b(our (lord|savio(u)?r|father|lady)|for us|to us|of us)\b/i.test(t)) add("warn", file, line, "\"we/our\" in library copy: describe things on their own terms", t);
   }
 }
+// D25 No italics (Ian, 2026-11-11: "deslop include no italics"). Emphasis
+// comes from weight, size and the terracotta highlight, never a slanted face.
+// Applies to added markup tags, inline styles and added CSS rules.
+// <i> is also the theme's empty swatch/dot element (aria-hidden or a
+// background style); only an <i> that would slant words is flagged.
+const ITALIC_TAG = /<em(\s[^>]*)?>|<i(?![^>]*\b(aria-hidden|style=))(\s[^>]*)?>/i;
+const ITALIC_STYLE = /font-style\s*:\s*(italic|oblique)/i;
+function checkItalicMarkup(file, line, markup) {
+  if (ITALIC_TAG.test(markup)) add("error", file, line, "italics: no <em> or <i> (D25). Use weight or the highlight span", markup.trim());
+  else if (ITALIC_STYLE.test(markup)) add("error", file, line, "italics: no font-style: italic (D25)", markup.trim());
+}
 function checkCss(file, added) {
+  // @font-face declares an italic face; that is not styling text italic.
+  let inFontFace = false;
+  for (const a of added) {
+    if (/@font-face/i.test(a.s)) inFontFace = true;
+    if (!inFontFace && !/^\s*(\/\*|\*)/.test(a.s) && ITALIC_STYLE.test(a.s)) add("error", file, a.n, "italics: no font-style: italic (D25). Set font-style: normal or drop the rule", a.s.trim());
+    if (inFontFace && a.s.includes("}")) inFontFace = false;
+  }
   // Group added lines into rough rule bodies to see max-height + overflow together.
   const joined = added.map((a) => a.s).join("\n");
   for (const a of added) {
@@ -254,13 +279,19 @@ try {
       const want = new Set(f.added.map((a) => a.n));
       if (full) {
         const state = { in: null };
-        full.split("\n").forEach((line, i) => { const prose = proseFromMarkup(line, state); if (want.has(i + 1)) checkProse(f.path, i + 1, prose); });
+        full.split("\n").forEach((line, i) => {
+          const markup = markupOutsideComments(line, state);
+          if (want.has(i + 1)) { checkProse(f.path, i + 1, proseFromBareMarkup(markup)); checkItalicMarkup(f.path, i + 1, markup); }
+        });
       } else {
         const state = { in: null };
-        for (const a of f.added) checkProse(f.path, a.n, proseFromMarkup(a.s, state));
+        for (const a of f.added) { const markup = markupOutsideComments(a.s, state); checkProse(f.path, a.n, proseFromBareMarkup(markup)); checkItalicMarkup(f.path, a.n, markup); }
       }
     } else {
-      for (const a of f.added) checkProse(f.path, a.n, proseFromScript(a.s));
+      for (const a of f.added) {
+        checkProse(f.path, a.n, proseFromScript(a.s));
+        if (!/^\s*(\/\/|\*|\/\*)/.test(a.s) && /(['"`])[^'"`]*/.test(a.s) && ITALIC_TAG.test(a.s)) add("error", f.path, a.n, "italics: no <em> or <i> in built markup (D25)", a.s.trim());
+      }
     }
   }
   for (const [k, n] of recordTally) { const [file, rule] = k.split("\u0000"); findings.push({ level: "warn", file, line: 0, rule: `library records: ${rule}`, text: `${n} record(s). These come from the library's author records; fix them upstream.` }); }

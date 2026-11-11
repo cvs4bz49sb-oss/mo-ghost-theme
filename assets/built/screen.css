@@ -28995,3 +28995,180 @@ main.dashboard-page * { font-style: normal !important; }
    (2026-11-11); it keeps the buttons' look. */
 a.mm-trigger { text-decoration: none; color: inherit; }
 a.mm-trigger:hover { text-decoration: none; }
+
+/* =============================================================
+   /journal/ — public landing page for the print journal
+   (custom-journal.hbs, 2026-11-11). Reuses .hero, .section-intro,
+   .lib-toc and the .lib-shelf partial; everything below is scoped
+   to .journal-landing. Note .journal-band / .journal-grid belong to
+   the homepage promo and are not used here.
+   ============================================================= */
+
+.journal-landing { overflow-x: clip; }
+
+.journal-landing-hero { padding: 72px 0 96px; }
+.journal-landing-hero .container { text-align: left; }
+.journal-landing-hero .hero-kicker { justify-content: flex-start; }
+.journal-landing-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 64px;
+  align-items: center;
+}
+/* Line height opened from the hero's 1.05 so the highlight block on a
+   wrapped line never sits over the descenders of the line above. */
+.journal-landing-headline {
+  font-size: clamp(40px, 5vw, 68px);
+  line-height: 1.16;
+  text-wrap: balance;
+  max-width: 12ch;
+}
+.journal-landing-hero .hero-sub { margin-bottom: 36px; }
+.journal-landing-hero-image { margin: 0; }
+/* Brand rounded corner on every photo plate. The corner is the soft
+   squircle from brand/headshots/"Mere Orthodoxy Photos - Rounded Corners",
+   which border-radius cannot reproduce, so it is an alpha mask cut from
+   that file (600x400, stretched; every plate is 3:2). */
+.journal-landing-hero-image img,
+.journal-current-photo img,
+.journal-photos-grid img {
+  -webkit-mask-image: url("../images/journal/photo-mask.png");
+  mask-image: url("../images/journal/photo-mask.png");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.journal-landing-hero-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.journal-current { padding: 88px 0; background: var(--color-background); }
+.journal-current-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: start;
+}
+.journal-current-photo { margin: 0; }
+.journal-current-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.journal-current-toc { columns: 1; }
+/* No italics anywhere on this page (Deslop D25, 2026-11-11). <cite> and
+   the shared hero kicker pilcrow are italic by default, so set them roman. */
+.journal-current-toc cite { font-style: normal; }
+.journal-landing .hero-kicker .dot { font-style: normal; }
+
+.journal-ways {
+  padding: 80px 0;
+  border-top: 1px solid var(--color-card-border);
+  border-bottom: 1px solid var(--color-card-border);
+}
+.journal-ways .section-intro { margin-bottom: 48px; }
+.journal-ways-grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 1040px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px 48px;
+}
+.journal-ways-label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.1;
+  color: var(--color-dark);
+  margin: 0 0 10px;
+}
+.journal-ways-body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0;
+}
+.journal-ways-body a { text-decoration: underline; text-underline-offset: 3px; }
+/* Free magazine preview (Issue 005), framed from /journal/preview/. The
+   height leaves room for a two-page spread plus the page controls. */
+.journal-preview { margin: 56px auto 0; max-width: 1040px; }
+.journal-preview-note {
+  margin: 0 0 16px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--color-muted);
+}
+.journal-preview-frame {
+  display: block;
+  width: 100%;
+  height: 760px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--color-dark);
+}
+@media (max-width: 900px) { .journal-preview-frame { height: 640px; } }
+@media (max-width: 640px) { .journal-preview { margin-top: 40px; } .journal-preview-frame { height: 600px; } }
+.journal-ways-cta { display: flex; justify-content: center; margin-top: 48px; }
+
+/* Closing join block. Reuses the /membership/ pricing cards; the dark band
+   only carries the heading and the toggle that floats on its bottom edge. */
+.journal-join-band { padding: 72px 0 88px; }
+.journal-join-band .section-intro { margin-bottom: 0; }
+/* The shared cards carry italic labels and a book title. This page sets
+   nothing in italics (Deslop D25), so they read roman here. */
+.journal-join em,
+.journal-join .card-label,
+.journal-join .other-way-numeral,
+.journal-join .other-way-title,
+.journal-join .already-member { font-style: normal; }
+
+.journal-photos { padding: 72px 0 0; }
+.journal-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.journal-photos-grid img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+.journal-archive { padding: 88px 0 96px; }
+.journal-archive .section-intro { margin-bottom: 40px; }
+.journal-archive-lede {
+  margin: -16px auto 40px;
+  max-width: 560px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--color-muted);
+}
+.journal-archive-lede a { text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .journal-landing-hero-grid { grid-template-columns: 1fr; gap: 40px; }
+  .journal-current-grid { grid-template-columns: 1fr; gap: 32px; }
+  .journal-ways-grid { grid-template-columns: 1fr; max-width: 560px; }
+}
+@media (max-width: 640px) {
+  .journal-landing-hero { padding: 48px 0 56px; }
+  .journal-landing-headline { font-size: clamp(36px, 10vw, 48px); }
+  .journal-current, .journal-archive { padding: 56px 0; }
+  .journal-ways { padding: 56px 0; }
+  .journal-ways-label { font-size: 24px; }
+  .journal-join-band { padding: 56px 0 88px; }
+  .journal-photos { padding-top: 36px; }
+  .journal-photos-grid { grid-template-columns: 1fr; gap: 14px; }
+  .journal-photos-grid img:nth-child(n+2) { display: none; }
+}
+.journal-landing-headline .highlight { white-space: nowrap; padding: 0.02em 0.16em 0.06em; }

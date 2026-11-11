@@ -1,0 +1,195 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>The Journal | Mere Orthodoxy</title>
+<meta name="description" content="The Mere Orthodoxy print journal: essays and poetry on theology, culture, and the church. Members get each new issue in the mail." />
+<meta property="og:title" content="The Mere Orthodoxy Journal" />
+<meta property="og:description" content="Essays and poetry on theology, culture, and the church. Members get each new issue in the mail." />
+<meta property="og:image" content="{{asset "images/journal/issue-011-stack.jpg"}}" />
+<meta name="twitter:title" content="The Mere Orthodoxy Journal" />
+<meta name="twitter:description" content="Essays and poetry on theology, culture, and the church. Members get each new issue in the mail." />
+<meta name="twitter:image" content="{{asset "images/journal/issue-011-stack.jpg"}}" />
+{{/contentFor}}
+{{!-- /journal/ — public landing page for the print journal. Routed in
+     routes.yaml. Anyone can view it; nothing here is gated.
+
+     Sections: hero, the new issue (photo + contents), how to get it
+     (grid, free Issue 005 preview, join button), a photo band, past issues (shared shelf
+     partial with public=true, so no PDF links), and the membership
+     pricing cards.
+
+     NEW ISSUE CHECKLIST
+     1. Swap the photo and contents in .journal-current and bump the
+        eyebrow/heading. Photos come from brand/photos/<shoot>/ (final
+        grades only, never brand/journal-mockups/, which are AI renders
+        of an issue that does not exist) and the rounded-corner sets in
+        brand/headshots/. Every plate gets the brand corner from
+        assets/images/journal/photo-mask.png (see screen.css), so export
+        square-cornered 3:2 JPEGs. Export at 1200-1600px long
+        edge into assets/images/journal/.
+     2. Once the previous issue is digitized, follow the note at the top
+        of partials/journal-shelf.hbs.
+
+     Member state: paid and comped readers already get the journal, so
+     their hero CTAs point at the archive and /give/, and the closing
+     membership band is hidden for them. --}}
+
+<main class="journal-landing">
+
+  <section class="hero journal-landing-hero">
+    <div class="container">
+      <div class="journal-landing-hero-grid">
+        <div class="journal-landing-hero-content">
+          <p class="hero-kicker"><span class="dot"></span> The Journal</p>
+          <h1 class="hero-headline journal-landing-headline">Insights you can <span class="highlight">carry.</span></h1>
+          <p class="hero-sub">Essays and poetry on theology, culture, and the church. Members get each new issue in the mail.</p>
+          <div class="hero-ctas">
+            {{#match @member.status "paid"}}
+              <a href="/dashboard/journals/" class="btn btn-solid btn-primary btn-lg">Read past issues</a>
+              <a href="/give/" class="btn btn-lg" data-hm-goal="gift">Give a Membership</a>
+            {{else}}{{#match @member.status "comped"}}
+              <a href="/dashboard/journals/" class="btn btn-solid btn-primary btn-lg">Read past issues</a>
+              <a href="/give/" class="btn btn-lg" data-hm-goal="gift">Give a Membership</a>
+            {{else}}
+              <a href="/membership/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="journal">Become a Member</a>
+              <a href="#current" class="btn btn-lg">See the new issue</a>
+            {{/match}}{{/match}}
+          </div>
+        </div>
+        <figure class="journal-landing-hero-image">
+          <img src="{{asset "images/journal/reader-coffee.jpg"}}"
+               alt="A reader at a cafe table with a coffee and an open issue of the Mere Orthodoxy journal"
+               width="1400" height="933" fetchpriority="high" />
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="journal-current" id="current" aria-labelledby="journal-current-title">
+    <div class="container">
+      <div class="section-intro">
+        <p class="eyebrow">The New Issue</p>
+        <h2 class="section-heading" id="journal-current-title">Issue 011, Fall 2026</h2>
+      </div>
+      <div class="journal-current-grid">
+        <figure class="journal-current-photo">
+          <img src="{{asset "images/journal/issue-011-cover.jpg"}}"
+               alt="The cover of Issue 011 up close. One hand lights another hand's candle."
+               width="1400" height="933" loading="lazy" />
+        </figure>
+        <div class="journal-current-body">
+          <h3 class="lib-contents-title">In this issue</h3>
+          <ul class="lib-toc journal-current-toc">
+            <li>Paul Pastor on Delight</li>
+            <li>Jaime Smith on Infertility</li>
+            <li>Charles Cotherman on Rural Ministry</li>
+            <li>Fiction from Katy Carl</li>
+            <li>Nadya Williams on Evangelicals</li>
+            <li>Kirsten Sanders on Kristin Kobes Du Mez</li>
+            <li>Joseph K. Griffith II on Parental Rights</li>
+            <li>Matthew Loftus on Therapy Culture</li>
+            <li>Poetry from Mischa Willett</li>
+            <li>Samuel James on Post-Literate Wonder</li>
+            <li>Daniel K. Williams on Apocalyptic Abolitionists</li>
+            <li>Emily Carrington on Martin Shaw</li>
+            <li>Kyle Edward Williams on Political Economy</li>
+            <li>Sarah-Jane Murray on <cite>The Odyssey</cite></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="journal-ways" aria-labelledby="journal-ways-title">
+    <div class="container">
+      <div class="section-intro">
+        <h2 class="section-heading" id="journal-ways-title">Getting the journal</h2>
+      </div>
+      <ul class="journal-ways-grid">
+        <li class="journal-ways-item">
+          <h3 class="journal-ways-label">In the mail</h3>
+          <p class="journal-ways-body">Each new issue is mailed to Members.</p>
+        </li>
+        <li class="journal-ways-item">
+          <h3 class="journal-ways-label">In the archive</h3>
+          <p class="journal-ways-body">Members can read every past issue online.</p>
+        </li>
+        <li class="journal-ways-item">
+          <h3 class="journal-ways-label">As a gift</h3>
+          <p class="journal-ways-body">A <a href="/give/">gift membership</a> includes the journal. The recipient adds a mailing address when they redeem it.</p>
+        </li>
+      </ul>
+      {{!-- Free preview: Issue 005 in the readers' magazine view, framed
+           from /journal/preview/ (custom-journal-preview.hbs). Lazy, so
+           the issue only loads when a visitor scrolls near it. --}}
+      <div class="journal-preview">
+        <p class="journal-preview-note">Issue 005 is free to read here.</p>
+        <iframe class="journal-preview-frame" src="/journal/preview/" title="Issue 005, Fall 2024, in magazine view" loading="lazy"></iframe>
+      </div>
+      <div class="journal-ways-cta">
+        {{#match @member.status "paid"}}
+          <a href="/give/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
+        {{else}}{{#match @member.status "comped"}}
+          <a href="/give/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
+        {{else}}
+          <a href="/membership/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="journal">Become a Member</a>
+        {{/match}}{{/match}}
+      </div>
+    </div>
+  </section>
+
+  <section class="journal-photos" aria-label="Photographs of the journal">
+    <div class="container">
+      <div class="journal-photos-grid">
+        <img src="{{asset "images/journal/issues-flatlay.jpg"}}" alt="Three issues of the journal on a wooden table" width="1400" height="933" loading="lazy" />
+        <img src="{{asset "images/journal/reader-cafe.jpg"}}" alt="A reader in a cafe holding an issue of the journal" width="1400" height="933" loading="lazy" />
+        <img src="{{asset "images/journal/reader-outdoors.jpg"}}" alt="A reader with the journal at an outdoor table" width="1400" height="933" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <section class="journal-archive" aria-labelledby="journal-archive-title">
+    <div class="container">
+      <div class="section-intro">
+        <p class="eyebrow">The Archive</p>
+        <h2 class="section-heading" id="journal-archive-title">Past issues</h2>
+      </div>
+      {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+      <p class="journal-archive-lede">Members have access to digital editions of every past issue online. <a href="/membership/">Become a Member</a> to gain access.</p>
+      {{/match}}{{/match}}
+      {{> "journal-shelf" public=true}}
+    </div>
+  </section>
+
+  {{!-- Closing join block: the same Annual/Monthly toggle and pricing
+       cards as /membership/ and the homepage (partials/membership-pricing.hbs
+       and its scripts), wrapped in .membership so the house card styles
+       apply. Paid and comped members already have the journal, so they
+       see none of it. --}}
+  {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+  <div class="membership journal-join" id="join" data-hm-section="join">
+    <section class="mb-hero journal-join-band">
+      <div class="container">
+        <div class="section-intro section-intro-light">
+          <p class="eyebrow eyebrow-light">Membership</p>
+          <h2 class="section-heading section-heading-light">Get the next issue.</h2>
+        </div>
+      </div>
+      <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
+        <div class="toggle">
+          <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true" data-hm-goal="plan-annual">
+            Annual
+            <span class="badge">Save 17%</span>
+          </button>
+          <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false" data-hm-goal="plan-monthly">Monthly</button>
+        </div>
+      </div>
+    </section>
+    {{> "membership-pricing"}}
+  </div>
+  <script src="{{asset "js/page/membership-toggle.js"}}"></script>
+  <script src="{{asset "js/page/membership-cards.js"}}"></script>
+  <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
+  <script src="{{asset "js/lifetime-checkout.js"}}"></script>
+  {{/match}}{{/match}}
+
+</main>

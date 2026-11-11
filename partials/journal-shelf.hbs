@@ -1,0 +1,106 @@
+{{!-- Past journal issues as a shelf of covers. Shared by
+     partials/journals-list.hbs (/dashboard/journals/, members) and
+     custom-journal.hbs (/journal/, public).
+
+     public=true (the /journal/ landing page):
+       - adds Issue 010, which the dashboard shows as its lead issue
+         instead, so it would otherwise be missing from /journal/;
+       - drops the PDF links. Downloads stay off the public sales
+         page. The PDFs are public theme assets and are not access-
+         controlled. Hiding the links is presentation, not a gate.
+
+     When a new issue is digitized and becomes the dashboard lead, move
+     the old lead into this list for everyone and delete the
+     "if public" block. --}}
+  <ol class="lib-shelf lib-shelf--journals">
+    {{#if public}}
+    <li class="lib-shelf-item">
+      <a class="lib-item" href="/journal-archive/issue-10/">
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-010-cover.jpg"}}" alt="" width="772" height="1000" loading="lazy">
+        <span class="lib-item-title">Issue 010</span>
+        <span class="lib-item-meta">Summer 2026</span>
+        <span class="lib-item-desc">On attention, dignity, and the work of seeing a person. Essays by Brian Auten, Annie Crawford, Agnes R. Howard, Joshua Heavin and more.</span>
+      </a>
+    </li>
+    {{/if}}
+    <li class="lib-shelf-item">
+      <a class="lib-item" href="/journal-archive/issue-09/">
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-009-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
+        <span class="lib-item-title">Issue 009</span>
+        <span class="lib-item-meta">Winter 2026</span>
+        <span class="lib-item-desc">On home, culture, and faithfulness. Essays by Michael Toscano, Kirsten Sanders, Elizabeth Lasch-Quinn, Daniel K. Williams and more.</span>
+      </a>
+      {{#unless public}}<a class="lib-item-pdf" href="{{asset "journals/Journal-Issue09.pdf"}}" download>PDF</a>{{/unless}}
+    </li>
+    <li class="lib-shelf-item">
+      <a class="lib-item" href="/journal-archive/issue-08/">
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-008-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
+        <span class="lib-item-title">Issue 008</span>
+        <span class="lib-item-meta">Fall 2025</span>
+        <span class="lib-item-desc">On dependence, mission, and the machine. Essays by Bonnie Kristian, Agnes R. Howard, Nadya Williams, Jeffrey Bilbro and more.</span>
+      </a>
+    </li>
+    <li class="lib-shelf-item">
+      <a class="lib-item" href="/journal-archive/issue-07/">
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-007-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
+        <span class="lib-item-title">Issue 007</span>
+        <span class="lib-item-meta">Spring 2025</span>
+        <span class="lib-item-desc">On fidelity, authority, and perseverance. Essays by Kirsten Sanders, John Ehrett, Ian Olson, Matthew LaPine and more.</span>
+      </a>
+      {{#unless public}}<a class="lib-item-pdf" href="{{asset "journals/Journal-Issue07.pdf"}}" download>PDF</a>{{/unless}}
+    </li>
+    <li class="lib-shelf-item">
+      <a class="lib-item" href="/journal-archive/issue-06/">
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-006-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
+        <span class="lib-item-title">Issue 006</span>
+        <span class="lib-item-meta">Winter 2025</span>
+        <span class="lib-item-desc">On repair, institutions, and enchantment. Essays by Ana Siljak, Brad Littlejohn, Samuel James, Nadya Williams, James R. Wood and more.</span>
+      </a>
+      {{#unless public}}<a class="lib-item-pdf" href="{{asset "journals/Journal-Issue06.pdf"}}" download>PDF</a>{{/unless}}
+    </li>
+    <li class="lib-shelf-item">
+      <a class="lib-item" href="/journal-archive/issue-05/">
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-005-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
+        <span class="lib-item-title">Issue 005</span>
+        <span class="lib-item-meta">Fall 2024</span>
+        <span class="lib-item-desc">On despair, authority, and civic life. Essays by E. J. Hutchinson, Brad Littlejohn, Peter Leithart, Ian Harber and more.</span>
+      </a>
+      {{#unless public}}<a class="lib-item-pdf" href="{{asset "journals/Journal-Issue05.pdf"}}" download>PDF</a>{{/unless}}
+    </li>
+    <li class="lib-shelf-item">
+      <a class="lib-item" href="/journal-archive/issue-04/">
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-004-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
+        <span class="lib-item-title">Issue 004</span>
+        <span class="lib-item-meta">Winter 2023</span>
+        <span class="lib-item-desc">On culture, technology, and renewal. Essays by L. M. Sacasas, Susannah Black, Brad East, Bonnie Kristian and more.</span>
+      </a>
+      {{#unless public}}<a class="lib-item-pdf" href="{{asset "journals/Journal-Issue04.pdf"}}" download>PDF</a>{{/unless}}
+    </li>
+    <li class="lib-shelf-item">
+      <a class="lib-item" href="/journal-archive/issue-03/">
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-003-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
+        <span class="lib-item-title">Issue 003</span>
+        <span class="lib-item-meta">Summer 2022</span>
+        <span class="lib-item-desc">On work, economics, and vocation. Essays by Brad Littlejohn, Leah Libresco Sargeant, Chris Krycho, Paul Kingsnorth and more.</span>
+      </a>
+      {{#unless public}}<a class="lib-item-pdf" href="{{asset "journals/Journal-Issue03.pdf"}}" download>PDF</a>{{/unless}}
+    </li>
+    <li class="lib-shelf-item">
+      <a class="lib-item" href="/journal-archive/issue-02/">
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-002-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
+        <span class="lib-item-title">Issue 002</span>
+        <span class="lib-item-meta">Winter 2022</span>
+        <span class="lib-item-desc">On place, belonging, and the liberal arts. Essays by Holly Ordway, Susannah Black Roberts, Tara Thieke, Jake Meador and more.</span>
+      </a>
+      {{#unless public}}<a class="lib-item-pdf" href="{{asset "journals/Journal-Issue02.pdf"}}" download>PDF</a>{{/unless}}
+    </li>
+    <li class="lib-shelf-item">
+      <a class="lib-item" href="/journal-archive/issue-01/">
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-001-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
+        <span class="lib-item-title">Issue 001</span>
+        <span class="lib-item-meta">Fall 2021</span>
+        <span class="lib-item-desc">The inaugural issue. Essays by Oliver O&#x27;Donovan, Kirsten Sanders, Matthew Lee Anderson, Tara Ann Thieke and more.</span>
+      </a>
+      {{#unless public}}<a class="lib-item-pdf" href="{{asset "journals/Journal-Issue01.pdf"}}" download>PDF</a>{{/unless}}
+    </li>
+  </ol>

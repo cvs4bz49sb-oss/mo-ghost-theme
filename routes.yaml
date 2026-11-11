@@ -99,6 +99,13 @@ routes:
   # /books/, which is affiliate recommendations, not our inventory.
   /store/:
     template: custom-store
+  # Public landing page for the print journal (2026-11-11). The member
+  # reading room is /dashboard/journals/; issue readers are below.
+  /journal/:
+    template: custom-journal
+  # Issue 005 in magazine view, free to all. Framed by /journal/.
+  /journal/preview/:
+    template: custom-journal-preview
   /submissions/:
     template: custom-submissions
   # New Writers Meetings - three Zoom conversations, Sep/Oct/Nov 2026.

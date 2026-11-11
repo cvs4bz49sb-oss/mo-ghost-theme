@@ -1,0 +1,52 @@
+{{!-- /journal/preview/ -- Issue 005 in magazine view, free for anyone
+     (Ian, 2026-11-11). It exists to be framed by custom-journal.hbs, in
+     the "Getting the journal" section. A standalone document like the
+     issue readers, so it does not extend default.hbs.
+
+     PUBLIC ON PURPOSE: no member gate. This puts the full text of Issue
+     005 in front of non-members. The other issues stay gated.
+
+     How it works: the page carries the same markup magazine.js reads on
+     a reader page (h1.rd-title, .rd-cover, the essay sections), all of
+     it hidden. magazine-embed.js opens the magazine at load. The close
+     button is hidden so the book cannot be dismissed inside the frame. --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Issue 005, Fall 2024 | Mere Orthodoxy Journal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{asset "css/reader-v2.css"}}">
+  <link rel="stylesheet" href="{{asset "css/magazine.css"}}">
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body > :not(.mag) { display: none !important; }
+    .mag-close { display: none !important; }
+    /* Framed, not full-screen: let a vertical drag on the table or the
+       bar scroll the landing page. The book still takes its own swipes. */
+    .mag { touch-action: pan-y !important; overscroll-behavior: auto !important; }
+    .mag-bar button { min-height: 44px; }
+    @media (max-width: 700px) {
+      .mp-ct.mp-letter .mp-pc { font-size: 3.7cqw; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="rd-title-page">
+      <div class="rd-cover"><img src="{{asset "images/journal-issue-005-cover.jpg"}}" alt="Cover of Issue 005, Fall 2024" width="773" height="1000"></div>
+      <h1 class="rd-title">Issue 005, Fall 2024</h1>
+      <p class="rd-actions"></p>
+    </section>
+    {{> "page-journal-issue-05-text"}}
+  </main>
+  <script src="{{asset "js/magazine.js"}}" data-flip="{{asset "js/vendor/page-flip.browser.js"}}" data-emblem="{{asset "images/mere-o-fav-icon.png"}}"></script>
+  <script src="{{asset "js/magazine-embed.js"}}"></script>
+</body>
+</html>

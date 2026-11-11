@@ -15,6 +15,7 @@
     "/contact/": [{ name: "Contact" }],
     "/events/": [{ name: "Events" }],
     "/ebooks/": [{ name: "Ebooks" }],
+    "/journal/": [{ name: "The Journal" }],
     "/give/": [{ name: "Gift a Membership" }],
     "/give/lifetime/": [{ name: "Gift a Membership", url: "/give/" }, { name: "Lifetime" }],
     "/donate/": [{ name: "Donate" }],
