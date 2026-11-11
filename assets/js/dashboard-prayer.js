@@ -98,9 +98,15 @@
   const subEl = document.querySelector("[data-prayer-sub]");
   if (!officeEl) return;
 
+  // Wait for the whole page as well: the site bundle (window.MOLiturgical)
+  // loads after this script, and a cached fetch can beat it.
+  const pageReady = document.readyState === "loading"
+    ? new Promise((r) => { document.addEventListener("DOMContentLoaded", r, { once: true }); })
+    : Promise.resolve();
   Promise.all([
     fetch(DATA_URL).then((r) => { return r.json(); }),
     fetch(COLLECTS_URL).then((r) => { return r.ok ? r.json() : null; }).catch(() => { return null; }),
+    pageReady,
   ]).then(([d, c]) => {
     data = d;
     collects = c;
@@ -111,23 +117,25 @@
   });
 
   // ── Church year ───────────────────────────────────────────────
-  const LIT = window.MOLiturgical || null;
+  // Read when used, not at load: this page script runs before the site
+  // bundle that defines window.MOLiturgical.
+  function lit() { return window.MOLiturgical || null; }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   function easterOffset() {
-    if (!LIT || !LIT.easter) return null;
-    const e = LIT.easter(today.getFullYear());
+    if (!lit() || !lit().easter) return null;
+    const e = lit().easter(today.getFullYear());
     return Math.round((today - e) / 86400000);
   }
 
   // Which group of opening sentences fits today.
   function sentenceGroup() {
-    if (!LIT) return null;
+    if (!lit()) return null;
     const m = today.getMonth();
     const d = today.getDate();
     const off = easterOffset();
-    const season = LIT.computeSeason(today);
+    const season = lit().computeSeason(today);
     // Thanksgiving Day: the fourth Thursday of November.
     if (m === 10 && today.getDay() === 4 && d >= 22 && d <= 28) return "Thanksgiving Day.";
     if (off === -2) return "Good Friday.";
@@ -140,11 +148,11 @@
 
   // Which invitatory antiphon, if any, comes before the Venite today.
   function antiphonLabel() {
-    if (!LIT) return null;
+    if (!lit()) return null;
     const m = today.getMonth();
     const d = today.getDate();
     const off = easterOffset();
-    const season = LIT.computeSeason(today);
+    const season = lit().computeSeason(today);
     if (season === "advent" && today.getDay() === 0) return "On the Sundays in Advent.";
     if ((m === 11 && d >= 25) || (m === 0 && d <= 5)) return "On Christmas Day";
     if (m === 0 && d >= 6 && d <= 13) return "On the Epiphany";
@@ -293,7 +301,7 @@
   }
 
   function collectHtml() {
-    const label = LIT && LIT.computeWeekLabel ? LIT.computeWeekLabel(new Date()) : "";
+    const label = lit() && lit().computeWeekLabel ? lit().computeWeekLabel(new Date()) : "";
     const text = collects && label ? collects[label] : "";
     if (!text) {
       return `<div class="do-chapter"><h3 class="do-ch">The Collect for the Day</h3><p class="do-rubric">Say the Collect appointed for the day.</p></div>`;
@@ -331,7 +339,7 @@
     if (greetingEl) greetingEl.textContent = office === "morning" ? "Morning" : "Evening";
     if (subEl) {
       const day = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-      const week = LIT && LIT.computeWeekLabel ? LIT.computeWeekLabel(new Date()) : "";
+      const week = lit() && lit().computeWeekLabel ? lit().computeWeekLabel(new Date()) : "";
       subEl.textContent = week ? `${day}, ${week}` : day;
     }
 
