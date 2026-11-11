@@ -28465,19 +28465,22 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .mm-appeal p { margin: 0 0 14px; font-size: 16px; line-height: 1.5; color: var(--color-dark); }
 .mm .mm-appeal .mm-note { margin-top: 10px; font-size: 13px; }
 
-/* Support panel: role card. One card shows, picked from the member's
-   Ghost "Role:" survey labels in data-roles (|-separated): pastor >
-   academic > home group leader/elder > student (free only) > default
-   (gift if paid, Become a member otherwise). */
+/* Support panel: role card (the "Role CTAs"). One card shows, picked
+   from the member's Ghost "Role:" survey labels in data-roles
+   (|-separated): pastor > academic > parachurch ministry > home group
+   leader/elder > student (free only) > default (gift if paid, Become a
+   member otherwise). */
 .mm-pick > .mm-pick-church,
 .mm-pick > .mm-pick-school,
+.mm-pick > .mm-pick-ministry,
 .mm-pick > .mm-pick-group,
 .mm-pick > .mm-pick-student { display: none; }
 .mm-pick[data-roles*="|Role:Pastor|"] > .mm-pick-church { display: block; }
 .mm-pick[data-roles*="|Role:Academic|"]:not([data-roles*="|Role:Pastor|"]) > .mm-pick-school { display: block; }
-.mm-pick:is([data-roles*="|Role:Home or Small Group Leader|"], [data-roles*="|Role:Elder or Deacon|"]):not([data-roles*="|Role:Pastor|"], [data-roles*="|Role:Academic|"]) > .mm-pick-group { display: block; }
-.mm-pick[data-paid="0"][data-roles*="|Role:Student|"]:not([data-roles*="|Role:Pastor|"], [data-roles*="|Role:Academic|"], [data-roles*="|Role:Home or Small Group Leader|"], [data-roles*="|Role:Elder or Deacon|"]) > .mm-pick-student { display: block; }
-.mm-pick:is([data-roles*="|Role:Pastor|"], [data-roles*="|Role:Academic|"], [data-roles*="|Role:Home or Small Group Leader|"], [data-roles*="|Role:Elder or Deacon|"]) > .mm-pick-default,
+.mm-pick[data-roles*="|Role:Parachurch Ministry|"]:not([data-roles*="|Role:Pastor|"], [data-roles*="|Role:Academic|"]) > .mm-pick-ministry { display: block; }
+.mm-pick:is([data-roles*="|Role:Home or Small Group Leader|"], [data-roles*="|Role:Elder or Deacon|"]):not([data-roles*="|Role:Pastor|"], [data-roles*="|Role:Academic|"], [data-roles*="|Role:Parachurch Ministry|"]) > .mm-pick-group { display: block; }
+.mm-pick[data-paid="0"][data-roles*="|Role:Student|"]:not([data-roles*="|Role:Pastor|"], [data-roles*="|Role:Academic|"], [data-roles*="|Role:Parachurch Ministry|"], [data-roles*="|Role:Home or Small Group Leader|"], [data-roles*="|Role:Elder or Deacon|"]) > .mm-pick-student { display: block; }
+.mm-pick:is([data-roles*="|Role:Pastor|"], [data-roles*="|Role:Academic|"], [data-roles*="|Role:Parachurch Ministry|"], [data-roles*="|Role:Home or Small Group Leader|"], [data-roles*="|Role:Elder or Deacon|"]) > .mm-pick-default,
 .mm-pick[data-paid="0"][data-roles*="|Role:Student|"] > .mm-pick-default { display: none; }
 
 /* Mere Fidelity and Christians Reading Classics show pages: no italics
