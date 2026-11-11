@@ -11,10 +11,11 @@
  * Modal: opened by any [data-mo-search] element or by "/". The input is a
  * combobox over one listbox; arrow keys move across every group, Enter
  * opens, Esc closes. With an empty box it lists recent searches
- * (localStorage, per browser) or nothing.
+ * (localStorage, per browser, with a Clear button) or nothing. The last
+ * row opens the full /search/ page with the same query.
  *
- * Page: custom-search.hbs renders #mo-search-page. Filters (author, topic,
- * years) and paging live in the URL, so a results page can be linked.
+ * Page: assets/js/page/search-page.js, loaded only by custom-search.hbs.
+ * It uses the helpers this file publishes as window.MOSearch.
  */
 (function () {
   const workerUrl = (document.body.getAttribute("data-search-worker-url") || "").trim().replace(/\/$/, "");
@@ -49,6 +50,42 @@
       parent.appendChild(el("mark", null, s.slice(open + 1, end)));
       i = end + 1;
     }
+  }
+
+  /*
+   * Site sections a search can land on directly ("donate", "submit an
+   * essay", "liturgy"). Matched by word prefix on title and keywords.
+   */
+  const SECTIONS = [
+    { title: "The Faith Received", url: "/the-faith-received/", desc: "A library of historical Christian theology, from the Fathers to the Reformers.", kw: "library fathers reformers creeds confessions catechisms historical tfr patristics church history" },
+    { title: "Membership", url: "/membership/", desc: "Support the work and receive the print journal.", kw: "membership member members subscribe subscription join support print journal" },
+    { title: "Give a membership", url: "/give/", desc: "Give a year of Mere Orthodoxy as a gift.", kw: "gift gifts give present" },
+    { title: "Donate", url: "/donate/", desc: "Make a gift to support Mere Orthodoxy.", kw: "donate donation donations giving tax deductible support" },
+    { title: "Churches and schools", url: "/institutions/", desc: "Memberships for churches, schools and seminaries.", kw: "church churches school schools seminary institution institutions group groups" },
+    { title: "Student rate", url: "/student/", desc: "A reduced membership for students.", kw: "student students discount" },
+    { title: "The Daily Liturgy", url: "/daily-liturgy/read/", desc: "Today's prayers and readings.", kw: "liturgy daily prayer prayers office morning evening readings lectionary" },
+    { title: "Online Forums", url: "/events/", desc: "Live conversations with our writers.", kw: "events event forum forums online webinar live conversation" },
+    { title: "Writers Meetings", url: "/writers-meetings/", desc: "Meet the editors and talk about writing for us.", kw: "writers writing meeting meetings" },
+    { title: "Submit an essay", url: "/submissions/", desc: "How to pitch or submit your work.", kw: "submit submission submissions pitch pitches write writing contribute" },
+    { title: "eBooks", url: "/ebooks/", desc: "Short books from our writers.", kw: "ebook ebooks books download" },
+    { title: "The Bookshelf", url: "/books/", desc: "Books by our writers and books we recommend.", kw: "books bookstore bookshop bookshelf reading recommendations" },
+    { title: "Back issues", url: "/store/", desc: "Order back issues of the print journal.", kw: "journal print issue issues back store order magazine" },
+    { title: "Contributors", url: "/contributors/", desc: "Everyone who writes for Mere Orthodoxy.", kw: "contributors writers authors" },
+    { title: "Archive", url: "/archive/", desc: "Every essay, newest first.", kw: "archive essays latest all" },
+    { title: "About", url: "/about/", desc: "Who we are and what we are for.", kw: "about mission staff team editors masthead who" },
+    { title: "Contact", url: "/contact/", desc: "Write to the editors or ask for help.", kw: "contact email help question questions support" },
+    { title: "Sponsorship", url: "/sponsorship/", desc: "Sponsor the podcasts or the newsletter.", kw: "sponsor sponsorship sponsors advertise advertising ads" },
+    { title: "Your dashboard", url: "/dashboard/", desc: "Your bookmarks, history and membership.", kw: "dashboard account bookmarks history profile settings manage" },
+  ].map((x) => ({ ...x, words: `${x.title} ${x.kw}`.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean) }));
+
+  function matchSections(q, limit) {
+    const toks = String(q || "").toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 3);
+    if (!toks.length) return [];
+    return SECTIONS
+      .map((x) => ({ x, hits: toks.filter((t) => x.words.some((w) => w.startsWith(t))).length }))
+      .filter((m) => m.hits === toks.length)
+      .slice(0, limit || 3)
+      .map((m) => m.x);
   }
 
   function formatDate(iso) {
@@ -114,6 +151,10 @@
     } catch (_) {
       return [];
     }
+  }
+
+  function clearRecent() {
+    try { localStorage.removeItem(RECENT_KEY); } catch (_) { /* storage blocked */ }
   }
 
   function saveRecent(q) {
@@ -186,6 +227,7 @@
   let input = null;
   let listbox = null;
   let statusEl = null;
+  let clearBtn = null;
   let options = [];
   let activeIndex = -1;
   let lastQuery = null;
@@ -241,6 +283,18 @@
     statusEl.hidden = true;
     panel.appendChild(statusEl);
 
+    // Outside the listbox, which may hold only options and groups.
+    clearBtn = el("button", "mo-search-clear", "Clear recent searches");
+    clearBtn.type = "button";
+    clearBtn.hidden = true;
+    clearBtn.addEventListener("click", () => {
+      clearRecent();
+      clearList();
+      setStatus("Recent searches cleared.");
+      input.focus();
+    });
+    panel.appendChild(clearBtn);
+
     listbox = el("div", "mo-search-results");
     listbox.id = "mo-search-listbox";
     listbox.setAttribute("role", "listbox");
@@ -275,12 +329,15 @@
     if (returnFocus && typeof returnFocus.focus === "function") returnFocus.focus();
   }
 
-  // Options are reached with the arrow keys, so Tab cycles input and Close.
+  // Options are reached with the arrow keys, so Tab cycles the input and
+  // the buttons (Close, and Clear when recent searches show).
   function trapTab(e) {
     if (e.key !== "Tab") return;
-    const closeBtn = panel.querySelector(".mo-search-close");
-    if (e.shiftKey && document.activeElement === input) { e.preventDefault(); closeBtn.focus(); }
-    else if (!e.shiftKey && document.activeElement === closeBtn) { e.preventDefault(); input.focus(); }
+    const stops = [input, ...panel.querySelectorAll("button")].filter((n) => !n.hidden && n.offsetParent !== null);
+    const i = stops.indexOf(document.activeElement);
+    if (i < 0) return;
+    e.preventDefault();
+    stops[(i + (e.shiftKey ? stops.length - 1 : 1)) % stops.length].focus();
   }
 
   function setStatus(msg) {
@@ -290,6 +347,7 @@
 
   function clearList() {
     listbox.textContent = "";
+    clearBtn.hidden = true;
     options = [];
     activeIndex = -1;
     input.removeAttribute("aria-activedescendant");
@@ -325,6 +383,14 @@
     g.appendChild(h);
     listbox.appendChild(g);
     return g;
+  }
+
+  function sectionRow(x) {
+    const a = el("a", "mo-sr mo-sr-section");
+    setHref(a, x.url);
+    a.appendChild(el("span", "mo-sr-title", x.title));
+    a.appendChild(el("span", "mo-sr-meta", x.desc));
+    return a;
   }
 
   function navigate(url, q) {
@@ -391,6 +457,7 @@
     const recent = readRecent();
     if (!recent.length) return;
     const g = addGroup("Recent searches");
+    clearBtn.hidden = false;
     recent.forEach((r) => {
       const row = el("div", "mo-sr mo-sr-recent");
       row.appendChild(el("span", "mo-sr-title", r));
@@ -406,6 +473,7 @@
     if (inflight) { try { inflight.abort(); } catch (_) { /* done */ } }
     inflight = new AbortController();
     listbox.setAttribute("aria-busy", "true");
+    setStatus("");
     Promise.all([fetchSearch({ q, page_size: 5 }, inflight.signal), resultsPageAvailable()])
       .then(([data, pageOk]) => {
         if (q !== lastQuery) return;
@@ -429,9 +497,11 @@
     const essays = (g.essays && g.essays.items) || [];
     const podcasts = (g.podcasts && g.podcasts.items) || [];
     const essayCount = (g.essays && g.essays.count) || 0;
+    const podcastCount = (g.podcasts && g.podcasts.count) || 0;
     const used = data && data.corrected ? data.query : q;
+    const sections = matchSections(q, 2);
 
-    if (!authors.length && !topics.length && !essays.length && !podcasts.length) {
+    if (!authors.length && !topics.length && !essays.length && !podcasts.length && !sections.length) {
       setStatus(`No results for “${q}”.`);
       return;
     }
@@ -445,19 +515,27 @@
       const grp = addGroup("Topics");
       topics.forEach((x) => addOption(grp, entityRow(x, "post"), () => navigate(x.url, used)));
     }
+    if (sections.length) {
+      const grp = addGroup("Pages");
+      sections.forEach((x) => addOption(grp, sectionRow(x), () => navigate(x.url, used)));
+    }
     if (essays.length) {
       const grp = addGroup("Essays");
       essays.forEach((x) => addOption(grp, essayRow(x), () => navigate(x.url, used)));
-      if (pageOk && essayCount > essays.length) {
-        const url = resultsPageUrl(used);
-        const more = el("a", "mo-sr mo-sr-more", `Show all ${plural(essayCount, "essay", "essays")}`);
-        setHref(more, url);
-        addOption(grp, more, () => navigate(url, used));
-      }
     }
     if (podcasts.length) {
       const grp = addGroup("Podcasts");
       podcasts.forEach((x) => addOption(grp, podcastRow(x), () => navigate(x.url, used)));
+    }
+    if (pageOk && (essayCount || podcastCount)) {
+      const grp = addGroup("All results");
+      const url = resultsPageUrl(used);
+      const more = el("a", "mo-sr mo-sr-more");
+      setHref(more, url);
+      more.appendChild(el("span", "mo-sr-title", "Filter and browse every result"));
+      const counts = [essayCount ? plural(essayCount, "essay", "essays") : "", podcastCount ? plural(podcastCount, "podcast episode", "podcast episodes") : ""].filter(Boolean).join(" and ");
+      more.appendChild(el("span", "mo-sr-meta", counts));
+      addOption(grp, more, () => navigate(url, used));
     }
     input.setAttribute("aria-expanded", "true");
     listbox.scrollTop = 0;
@@ -484,251 +562,21 @@
     open();
   });
 
-  // ---- /search/ page ------------------------------------------------------
+  // ---- Shared with assets/js/page/search-page.js --------------------------
 
-  const page = document.getElementById("mo-search-page");
-  if (page) initPage(page);
-
-  function initPage(root) {
-    const form = root.querySelector(".search-page-form");
-    const qInput = root.querySelector("#search-page-q");
-    const authorInput = root.querySelector("#search-page-author");
-    const topicInput = root.querySelector("#search-page-topic");
-    const fromSel = root.querySelector("#search-page-from");
-    const toSel = root.querySelector("#search-page-to");
-    const statusLine = root.querySelector(".search-page-status");
-    const results = root.querySelector(".search-page-results");
-    const pager = root.querySelector(".search-page-pager");
-    const authorList = root.querySelector("#search-page-authors");
-    const topicList = root.querySelector("#search-page-topics");
-    const PAGE_SIZE = 20;
-    const names = { author: new Map(), topic: new Map() };
-    if (!form || !qInput || !results) return;
-
-    // Year choices, newest first, back to the first archive year.
-    const thisYear = new Date().getFullYear();
-    [fromSel, toSel].forEach((sel) => {
-      for (let y = thisYear; y >= 2005; y--) {
-        const o = el("option", null, String(y));
-        o.value = String(y);
-        sel.appendChild(o);
-      }
-    });
-
-    function readUrl() {
-      const sp = new URLSearchParams(window.location.search);
-      const year = (v) => (/^\d{4}$/.test(v || "") ? v : "");
-      const slug = (v) => (/^[a-z0-9][a-z0-9-]{0,99}$/.test(v || "") ? v : "");
-      return {
-        q: (sp.get("q") || "").trim().slice(0, 200),
-        author: slug(sp.get("author")),
-        topic: slug(sp.get("topic")),
-        from: year(sp.get("from")),
-        to: year(sp.get("to")),
-        page: Math.max(1, Math.min(50, parseInt(sp.get("page"), 10) || 1)),
-      };
-    }
-
-    function writeUrl(s) {
-      const sp = new URLSearchParams();
-      ["q", "author", "topic", "from", "to"].forEach((k) => { if (s[k]) sp.set(k, s[k]); });
-      if (s.page > 1) sp.set("page", String(s.page));
-      window.history.pushState(null, "", `${window.location.pathname}?${sp.toString()}`);
-    }
-
-    // Author and topic boxes suggest names from the index and map them to slugs.
-    function suggest(kind, text) {
-      const group = kind === "author" ? "authors" : "topics";
-      const list = kind === "author" ? authorList : topicList;
-      const t = text.trim();
-      if (t.length < 2) return Promise.resolve([]);
-      return fetchSearch({ q: t, type: group, page_size: 8 })
-        .then((data) => {
-          const items = (data.groups && data.groups[group] && data.groups[group].items) || [];
-          list.textContent = "";
-          items.forEach((x) => {
-            names[kind].set(x.name.toLowerCase(), x.slug);
-            names[kind].set(`slug:${x.slug}`, x.name);
-            const o = el("option");
-            o.value = x.name;
-            list.appendChild(o);
-          });
-          return items;
-        })
-        .catch(() => []);
-    }
-
-    let suggestTimer = null;
-    [[authorInput, "author"], [topicInput, "topic"]].forEach(([inp, kind]) => {
-      inp.addEventListener("input", () => {
-        clearTimeout(suggestTimer);
-        suggestTimer = setTimeout(() => suggest(kind, inp.value), 200);
-      });
-    });
-
-    function resolve(kind, text) {
-      const t = text.trim();
-      if (!t) return Promise.resolve("");
-      const hit = names[kind].get(t.toLowerCase());
-      if (hit) return Promise.resolve(hit);
-      return suggest(kind, t).then((items) => (items[0] ? items[0].slug : ""));
-    }
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      Promise.all([resolve("author", authorInput.value), resolve("topic", topicInput.value)]).then(([author, topic]) => {
-        if (authorInput.value.trim() && !author) {
-          statusLine.textContent = `No author matches \u201c${authorInput.value.trim()}\u201d.`;
-          return;
-        }
-        if (topicInput.value.trim() && !topic) {
-          statusLine.textContent = `No topic matches \u201c${topicInput.value.trim()}\u201d.`;
-          return;
-        }
-        // A range typed backward still means the same years.
-        let from = fromSel.value;
-        let to = toSel.value;
-        if (from && to && from > to) [from, to] = [to, from];
-        const s = {
-          q: qInput.value.trim().slice(0, 200),
-          author,
-          topic,
-          from,
-          to,
-          page: 1,
-        };
-        if (s.q) saveRecent(s.q);
-        writeUrl(s);
-        fill(s);
-        load(s);
-      });
-    });
-
-    window.addEventListener("popstate", () => { const s = readUrl(); fill(s); load(s); });
-
-    function fill(s) {
-      qInput.value = s.q;
-      fromSel.value = s.from;
-      toSel.value = s.to;
-      authorInput.value = s.author ? (names.author.get(`slug:${s.author}`) || "") : "";
-      topicInput.value = s.topic ? (names.topic.get(`slug:${s.topic}`) || "") : "";
-    }
-
-    function section(title, count) {
-      const sec = el("section", "search-page-group");
-      const h = el("h2", "search-page-group-title", title);
-      if (count != null) h.appendChild(el("span", "search-page-count", ` ${count.toLocaleString("en-US")}`));
-      sec.appendChild(h);
-      const list = el("ol", "search-page-list");
-      sec.appendChild(list);
-      results.appendChild(sec);
-      return list;
-    }
-
-    function li(list, node) {
-      const item = el("li");
-      item.appendChild(node);
-      list.appendChild(item);
-    }
-
-    let pageAbort = null;
-    function load(s) {
-      results.textContent = "";
-      pager.textContent = "";
-      statusLine.textContent = "";
-      if (!s.q) { document.title = "Search | Mere Orthodoxy"; return; }
-      if (!workerUrl) { statusLine.textContent = "Search is unavailable right now."; return; }
-      document.title = `${s.q} | Search | Mere Orthodoxy`;
-      if (pageAbort) { try { pageAbort.abort(); } catch (_) { /* done */ } }
-      pageAbort = new AbortController();
-      results.setAttribute("aria-busy", "true");
-      fetchSearch({
-        q: s.q,
-        author: s.author,
-        topic: s.topic,
-        from: s.from ? `${s.from}-01-01` : "",
-        to: s.to ? `${s.to}-12-31` : "",
-        page: s.page,
-        page_size: PAGE_SIZE,
-      }, pageAbort.signal).then((data) => {
-        results.removeAttribute("aria-busy");
-        render(s, data);
-      }).catch((err) => {
-        if (err && err.name === "AbortError") return;
-        results.removeAttribute("aria-busy");
-        statusLine.textContent = "Search is unavailable right now. Try again in a moment.";
-      });
-    }
-
-    function render(s, data) {
-      const g = data.groups || {};
-      const authors = (g.authors && g.authors.items) || [];
-      const topics = (g.topics && g.topics.items) || [];
-      const essays = g.essays || { items: [], count: 0 };
-      const podcasts = (g.podcasts && g.podcasts.items) || [];
-      const filtered = !!(s.author || s.topic || s.from || s.to);
-      if (!authors.length && !topics.length && !essays.items.length && !podcasts.length) {
-        statusLine.textContent = filtered
-          ? `No essays match “${s.q}” with these filters.`
-          : `No results for “${s.q}”.`;
-        return;
-      }
-      statusLine.textContent = data.corrected ? `Showing results for ${data.query}.` : "";
-      const firstPage = s.page === 1 && !filtered;
-      if (firstPage && authors.length) {
-        const list = section("Authors");
-        authors.forEach((x) => li(list, entityRow(x, "essay")));
-      }
-      if (firstPage && topics.length) {
-        const list = section("Topics");
-        topics.forEach((x) => li(list, entityRow(x, "post")));
-      }
-      if (essays.items.length) {
-        const list = section("Essays", essays.count);
-        list.setAttribute("start", String((s.page - 1) * PAGE_SIZE + 1));
-        essays.items.forEach((x) => li(list, essayRow(x)));
-      } else if (filtered) {
-        statusLine.textContent = `No essays match “${s.q}” with these filters.`;
-      }
-      if (firstPage && podcasts.length) {
-        const list = section("Podcasts");
-        podcasts.forEach((x) => li(list, podcastRow(x)));
-      }
-      renderPager(s, essays.count);
-    }
-
-    function renderPager(s, count) {
-      const pages = Math.min(50, Math.ceil(count / PAGE_SIZE));
-      if (pages <= 1) return;
-      const go = (n) => {
-        const next = { ...s, page: n };
-        writeUrl(next);
-        load(next);
-        root.scrollIntoView({ block: "start" });
-      };
-      if (s.page > 1) {
-        const prev = el("button", "btn", "Previous");
-        prev.type = "button";
-        prev.addEventListener("click", () => go(s.page - 1));
-        pager.appendChild(prev);
-      }
-      pager.appendChild(el("span", "search-page-pageno", `Page ${s.page} of ${pages}`));
-      if (s.page < pages) {
-        const nextBtn = el("button", "btn", "Next");
-        nextBtn.type = "button";
-        nextBtn.addEventListener("click", () => go(s.page + 1));
-        pager.appendChild(nextBtn);
-      }
-    }
-
-    const initial = readUrl();
-    fill(initial);
-    // Turn slugs from a shared link back into names for the filter boxes.
-    Promise.all([
-      initial.author ? suggest("author", initial.author.replace(/^author-/, "").replace(/-/g, " ")) : null,
-      initial.topic ? suggest("topic", initial.topic.replace(/-/g, " ")) : null,
-    ]).then(() => fill(initial));
-    load(initial);
-    if (!initial.q) qInput.focus();
-  }
+  window.MOSearch = {
+    workerUrl,
+    el,
+    setHref,
+    appendSnippet,
+    formatDate,
+    plural,
+    fetchSearch,
+    readRecent,
+    saveRecent,
+    clearRecent,
+    matchSections,
+    sections: SECTIONS,
+    openModal: open,
+  };
 })();
