@@ -140,8 +140,8 @@ html.mag-open, html.mag-open body { overflow: hidden; }
 .mp-ct.mp-letter .mp-pc { columns: auto; font-size: 2.2cqw; }
 .mp-letter-tail .mp-pc { display: flex; flex-direction: column; }
 .mp-letter-end { margin-top: auto; padding-top: 3cqw; break-inside: avoid; }
-.mp-pc .mp-letter-end .letter-sig { margin: 0 0 4.4cqw; font-family: var(--mag-display); font-style: italic; font-size: 2cqw; letter-spacing: 0.22em; text-transform: uppercase; text-align: left; color: var(--mag-accent-deep); }
-.mp-pc .mp-letter-end .contributor-bio { margin: 0 4cqw; font-family: var(--mag-display); font-size: 1.6cqw; line-height: 1.6; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; hyphens: none; -webkit-hyphens: none; }
+.mp-pc .mp-letter-end .letter-sig { margin: 0 0 4.4cqw !important; font-family: var(--mag-display); font-style: italic; font-size: 2cqw; letter-spacing: 0.22em; text-transform: uppercase; text-align: left; color: var(--mag-accent-deep); }
+.mp-pc .mp-letter-end .contributor-bio { margin: 0 4cqw !important; font-family: var(--mag-display); font-size: 1.6cqw; line-height: 1.6; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; hyphens: none; -webkit-hyphens: none; }
 .mp-solo .mp-pc { columns: auto; display: flex; align-items: center; justify-content: center; }
 .mp-solo .mp-bio { max-width: 46cqw; margin: 0; }
 .mp-pc .mp-bio p + p { margin-top: 1.2em; }
@@ -199,8 +199,8 @@ html.mag-open, html.mag-open body { overflow: hidden; }
 .mp-ct.mp-letter .mp-pc { columns: auto; font-size: 2.2cqw; }
 .mp-letter-tail .mp-pc { display: flex; flex-direction: column; }
 .mp-letter-end { margin-top: auto; padding-top: 3cqw; break-inside: avoid; }
-.mp-pc .mp-letter-end .letter-sig { margin: 0 0 4.4cqw; font-family: var(--mag-display); font-style: italic; font-size: 2cqw; letter-spacing: 0.22em; text-transform: uppercase; text-align: left; color: var(--mag-accent-deep); }
-.mp-pc .mp-letter-end .contributor-bio { margin: 0 4cqw; font-family: var(--mag-display); font-size: 1.6cqw; line-height: 1.6; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; hyphens: none; -webkit-hyphens: none; }
+.mp-pc .mp-letter-end .letter-sig { margin: 0 0 4.4cqw !important; font-family: var(--mag-display); font-style: italic; font-size: 2cqw; letter-spacing: 0.22em; text-transform: uppercase; text-align: left; color: var(--mag-accent-deep); }
+.mp-pc .mp-letter-end .contributor-bio { margin: 0 4cqw !important; font-family: var(--mag-display); font-size: 1.6cqw; line-height: 1.6; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; hyphens: none; -webkit-hyphens: none; }
 .mp-solo .mp-pc { columns: auto; display: flex; align-items: center; justify-content: center; }
 .mp-solo .mp-bio { max-width: 46cqw; margin: 0; }
 .mp-pc .mp-bio p + p { margin-top: 1.2em; }
