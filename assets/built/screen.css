@@ -618,6 +618,7 @@ img { max-width: 100%; height: auto; }
 .nav-search:hover {
   color: var(--color-dark);
   background: rgba(45, 41, 39, 0.05);
+  text-decoration: none;
 }
 .nav-search-icon { display: block; }
 
@@ -4127,8 +4128,10 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   letter-spacing: 0.02em;
   width: 100%;
 }
+.mobile-nav-search { text-decoration: none; }
 .mobile-nav-search:hover {
   background: rgba(45, 41, 39, 0.04);
+  text-decoration: none;
 }
 .mobile-nav-search svg { color: var(--color-muted); }
 .mobile-nav-actions .btn {

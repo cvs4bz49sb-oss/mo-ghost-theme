@@ -8,7 +8,8 @@
  * \u0002 and \u0003; they are split here and built as text nodes, so no
  * markup from an essay ever reaches innerHTML.
  *
- * Modal: opened by any [data-mo-search] element or by "/". The input is a
+ * Modal: opened by "/" (or any [data-mo-search] element). The nav's
+ * search icon and the phone menu's Search are plain links to /search/. The input is a
  * combobox over one listbox; arrow keys move across every group, Enter
  * opens, Esc closes. With an empty box it lists recent searches
  * (localStorage, per browser, with a Clear button) or nothing. The last
