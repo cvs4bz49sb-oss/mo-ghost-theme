@@ -28462,8 +28462,9 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .mm-appeal p { margin: 0 0 14px; font-size: 16px; line-height: 1.5; color: var(--color-dark); }
 .mm .mm-appeal .mm-note { margin-top: 10px; font-size: 13px; }
 
-/* Support panel: role card. One card shows, picked from the member's
-   Ghost "Role:" survey labels in data-roles (|-separated): pastor >
+/* Support panel: role card (free members and signed out only; paid
+   members always get the gift card). One card shows, picked from the
+   member's Ghost "Role:" survey labels in data-roles (|-separated): pastor >
    academic > home group leader/elder > student > default. */
 .mm-pick > .mm-pick-church,
 .mm-pick > .mm-pick-school,
