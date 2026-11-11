@@ -14,1159 +14,47 @@
   <title>Christians and Artificial Intelligence &mdash; Mere Orthodoxy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
-  <style>
-    /* ===== CSS Reset & Base ===== */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --primary: #ee7d51;
-      --secondary: #c1593c;
-      --tertiary: #a43a27;
-      --quaternary: #d89f5b;
-      --body-text: #2d2927;
-      --light-text: #9a8773;
-      --dark-bg: #c0b2a5;
-      --light-bg: #f6f3f2;
-      --page-bg: #f1e0c9;
-      --font-headline: 'IM Fell Great Primer', 'Georgia', serif;
-      --font-body: 'Source Serif 4', 'Georgia', serif;
-      --content-width: 680px;
-      --sidebar-width: 260px;
-    }
-
-    /* ===== Dark Mode ===== */
-    [data-theme="dark"] {
-      --page-bg: #2d2927;
-      --body-text: #e8ddd0;
-      --light-text: #9a8773;
-      --primary: #ee7d51;
-      --secondary: #d4826a;
-      --tertiary: #e8a08a;
-      --quaternary: #d89f5b;
-    }
-
-    /* ===== Body ===== */
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 5rem;
-    }
-
-    body {
-      font-family: var(--font-body);
-      font-size: 19px;
-      line-height: 1.75;
-      color: var(--body-text);
-      background-color: var(--page-bg);
-      transition: background-color 0.3s ease, color 0.3s ease;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* ===== Layout ===== */
-    .page-wrapper {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    /* ===== Header Bar ===== */
-    .top-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.25rem 2.5rem;
-      background-color: var(--page-bg);
-      transition: background-color 0.3s ease;
-    }
-
-    .org-name {
-      font-family: var(--font-headline);
-      font-size: 1.1rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--body-text);
-      text-decoration: none;
-      font-weight: 400;
-    }
-
-    .org-name:hover {
-      color: var(--secondary);
-    }
-
-    /* ===== Theme Toggle ===== */
-    .theme-toggle {
-      position: relative;
-      width: 52px;
-      height: 28px;
-      border-radius: 14px;
-      border: 2px solid var(--body-text);
-      background: transparent;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      padding: 0;
-    }
-
-    .theme-toggle::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 4px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background-color: var(--body-text);
-      transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-    [data-theme="dark"] .theme-toggle::after {
-      transform: translateX(22px);
-    }
-
-    /* ===== Sidebar ===== */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: var(--sidebar-width);
-      height: 100vh;
-      padding: 5.5rem 2rem 2rem 2.5rem;
-      overflow-y: auto;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.3s ease;
-    }
-
-    .sidebar.collapsed {
-      transform: translateX(-100%);
-    }
-
-    .sidebar nav {
-      flex: 1;
-    }
-
-    .sidebar-actions {
-      margin-top: auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.75rem;
-      padding-bottom: 1rem;
-    }
-
-    /* ===== About Button ===== */
-    .about-btn {
-      display: block;
-      text-align: center;
-      width: 100%;
-      padding: 0.6rem 1.4rem;
-      font-family: var(--font-body);
-      font-size: 0.9rem;
-      color: var(--body-text);
-      background: transparent;
-      border: 2px solid var(--secondary);
-      border-radius: 4px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-bottom: 0.25rem;
-    }
-
-    .about-btn:hover {
-      background-color: var(--secondary);
-      color: var(--page-bg);
-    }
-
-    [data-theme="dark"] .about-btn {
-      border-color: var(--quaternary);
-      color: var(--body-text);
-    }
-
-    [data-theme="dark"] .about-btn:hover {
-      background-color: var(--quaternary);
-      color: #2d2927;
-    }
-
-    /* ===== Icon Button Row ===== */
-    .icon-btn-row {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-    }
-
-    /* ===== Share Button & Popup ===== */
-    .share-wrapper {
-      position: relative;
-    }
-
-    .share-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      padding: 0;
-      color: var(--secondary);
-      background: transparent;
-      border: 2px solid var(--secondary);
-      border-radius: 50%;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .share-btn svg {
-      width: 15px;
-      height: 15px;
-    }
-
-    .share-btn:hover {
-      background-color: var(--secondary);
-      color: var(--page-bg);
-    }
-
-    [data-theme="dark"] .share-btn {
-      border-color: var(--quaternary);
-      color: var(--quaternary);
-    }
-
-    [data-theme="dark"] .share-btn:hover {
-      background-color: var(--quaternary);
-      color: #2d2927;
-    }
-
-    .share-popup {
-      display: none;
-      position: absolute;
-      bottom: calc(100% + 0.5rem);
-      left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
-      background-color: var(--page-bg);
-      border: 1px solid var(--dark-bg);
-      border-radius: 6px;
-      padding: 0.5rem 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      z-index: 60;
-    }
-
-    .share-popup.open {
-      display: block;
-    }
-
-    [data-theme="dark"] .share-popup {
-      border-color: var(--light-text);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-
-    .share-option {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      width: 100%;
-      padding: 0.5rem 1rem;
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      color: var(--body-text);
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.15s ease;
-    }
-
-    .share-option:hover {
-      background-color: var(--dark-bg);
-    }
-
-    [data-theme="dark"] .share-option:hover {
-      background-color: rgba(255,255,255,0.08);
-    }
-
-    .share-option svg {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-    }
-
-    .share-copied {
-      font-size: 0.8rem;
-      color: var(--secondary);
-      text-align: center;
-      padding: 0.25rem 0;
-      display: none;
-    }
-
-    .share-copied.show {
-      display: block;
-    }
-
-    .toc-title {
-      font-family: var(--font-headline);
-      font-size: 1.05rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-bottom: 1.5rem;
-      letter-spacing: 0.02em;
-    }
-
-    .toc-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .toc-list li {
-      margin-bottom: 0.35rem;
-    }
-
-    .toc-list a {
-      font-family: var(--font-body);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      color: var(--light-text);
-      text-decoration: none;
-      transition: color 0.2s ease;
-      display: block;
-      padding: 0.15rem 0;
-    }
-
-    .toc-list a:hover {
-      color: var(--body-text);
-    }
-
-    .toc-list a.active {
-      color: var(--secondary);
-      font-weight: 600;
-    }
-
-    .toc-list .toc-major {
-      font-family: var(--font-headline);
-      font-size: 0.95rem;
-      color: var(--light-text);
-      margin-top: 0.5rem;
-      transition: color 0.2s ease, font-weight 0.2s ease;
-    }
-
-    .toc-list .toc-major:hover {
-      color: var(--body-text);
-    }
-
-    .toc-list .toc-major.active {
-      color: var(--secondary);
-      font-weight: 600;
-    }
-
-    .toc-list .toc-major:first-child {
-      margin-top: 0;
-    }
-
-    .toc-list .toc-sub {
-      padding-left: 0;
-    }
-
-    /* ===== Main Content ===== */
-    .main-content {
-      margin-left: var(--sidebar-width);
-      flex: 1;
-      padding: 6rem 4rem 6rem 4rem;
-      max-width: calc(var(--content-width) + var(--sidebar-width) + 8rem);
-    }
-
-    .content-container {
-      max-width: var(--content-width);
-    }
-
-    /* ===== Hero ===== */
-    .hero {
-      margin-bottom: 3.5rem;
-      padding-bottom: 0;
-    }
-
-    .hero-title {
-      font-family: var(--font-headline);
-      font-size: clamp(2.8rem, 5.5vw, 4.2rem);
-      line-height: 1.12;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-bottom: 0.6rem;
-      letter-spacing: -0.01em;
-    }
-
-    .hero-subtitle {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-size: clamp(1.1rem, 2vw, 1.35rem);
-      color: var(--body-text);
-      margin-bottom: 1.5rem;
-      line-height: 1.4;
-    }
-
-    .hero-date {
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      color: var(--light-text);
-    }
-
-    /* ===== Sections ===== */
-    .content-section {
-      margin-bottom: 1rem;
-    }
-
-    .section-label {
-      font-family: var(--font-headline);
-      font-size: 0.95rem;
-      font-weight: 400;
-      color: var(--light-text);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 0.75rem;
-      margin-top: 3rem;
-    }
-
-    .content-section:first-child .section-label {
-      margin-top: 0;
-    }
-
-    .section-title {
-      font-family: var(--font-headline);
-      font-size: clamp(2rem, 4vw, 2.8rem);
-      font-weight: 400;
-      color: var(--body-text);
-      margin-top: 4rem;
-      margin-bottom: 1.5rem;
-      line-height: 1.2;
-      padding-top: 2rem;
-      border-top: 3px solid var(--secondary);
-    }
-
-    .essay-heading {
-      font-family: var(--font-headline);
-      font-size: 1.15rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-bottom: 1.75rem;
-      line-height: 1.5;
-    }
-
-    .essay-author {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-size: 1rem;
-      color: var(--light-text);
-      margin-bottom: 1.75rem;
-    }
-
-    .section-heading {
-      font-family: var(--font-headline);
-      font-size: 1.5rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-top: 3rem;
-      margin-bottom: 1rem;
-      line-height: 1.35;
-    }
-
-    .subsection-heading {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-size: 1.25rem;
-      font-weight: 400;
-      color: var(--body-text);
-      margin-top: 2.5rem;
-      margin-bottom: 0.75rem;
-      line-height: 1.4;
-    }
-
-    /* ===== Body Text ===== */
-    p {
-      margin-bottom: 1.25rem;
-    }
-
-    strong {
-      font-weight: 600;
-    }
-
-    em {
-      font-style: italic;
-    }
-
-    /* ===== Callout (bold+italic manifesto statement) ===== */
-    .callout {
-      font-family: var(--font-headline);
-      font-style: italic;
-      font-weight: 400;
-      font-size: 1.05rem;
-      line-height: 1.7;
-      color: var(--body-text);
-      padding: 2rem 0;
-      margin: 2rem 0;
-      border-top: 3px solid var(--secondary);
-      border-bottom: 3px solid var(--secondary);
-    }
-
-    .callout strong {
-      font-weight: 400;
-    }
-
-    /* ===== Blockquote ===== */
-    blockquote {
-      margin: 1.75rem 0;
-      padding: 0.25rem 0 0.25rem 1.75rem;
-      border-left: 3px solid var(--quaternary);
-      color: var(--body-text);
-      font-size: 0.95rem;
-      line-height: 1.8;
-    }
-
-    /* ===== Ordered/Unordered Lists ===== */
-    .barna-list {
-      margin: 1.5rem 0 1.5rem 1.5rem;
-      padding: 0;
-    }
-
-    .barna-list li {
-      margin-bottom: 0.5rem;
-      padding-left: 0.25rem;
-      font-size: 0.95rem;
-      line-height: 1.65;
-    }
-
-    /* ===== Hamburger Menu ===== */
-    .menu-toggle {
-      display: block;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0.5rem;
-      z-index: 200;
-    }
-
-    .menu-toggle span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background-color: var(--body-text);
-      margin: 5px 0;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(45, 41, 39, 0.4);
-      z-index: 5;
-    }
-
-
-    /* ===== Responsive ===== */
-    @media (max-width: 960px) {
-      .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        background-color: var(--page-bg);
-        z-index: 50;
-        width: 280px;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .sidebar-overlay.open {
-        display: block;
-      }
-
-      .main-content {
-        margin-left: 0;
-        padding: 5.5rem 1.5rem 4rem 1.5rem;
-      }
-
-      .hero-title {
-        font-size: 2.4rem;
-      }
-
-      .section-title {
-        font-size: 2rem;
-      }
-
-      .top-bar {
-        padding: 1rem 1.5rem;
-      }
-    }
-
-    @media (max-width: 600px) {
-      body {
-        font-size: 17px;
-      }
-
-      .hero-title {
-        font-size: 2rem;
-      }
-
-      .section-title {
-        font-size: 1.7rem;
-      }
-
-      .section-heading {
-        font-size: 1.3rem;
-      }
-
-      .main-content {
-        padding: 5rem 1.25rem 3rem 1.25rem;
-      }
-    }
-
-    /* ===== Download Popup ===== */
-    .icon-btn-row .download-wrapper {
-      flex: 1;
-    }
-
-    .download-wrapper {
-      position: relative;
-    }
-
-    .download-popup {
-      display: none;
-      position: absolute;
-      bottom: calc(100% + 0.5rem);
-      left: 50%;
-      transform: translateX(-50%);
-      width: 180px;
-      background-color: var(--page-bg);
-      border: 1px solid var(--dark-bg);
-      border-radius: 6px;
-      padding: 0.5rem 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      z-index: 60;
-    }
-
-    .download-popup.open {
-      display: block;
-    }
-
-    [data-theme="dark"] .download-popup {
-      border-color: var(--light-text);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-
-    .download-option {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      width: 100%;
-      padding: 0.5rem 1rem;
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      color: var(--body-text);
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.15s ease;
-    }
-
-    .download-option:hover {
-      background-color: var(--dark-bg);
-    }
-
-    [data-theme="dark"] .download-option:hover {
-      background-color: rgba(255,255,255,0.08);
-    }
-
-    .download-option svg {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-    }
-
-    /* ===== Download Button ===== */
-    .download-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      padding: 0;
-      color: var(--page-bg);
-      background-color: var(--secondary);
-      border: 2px solid var(--secondary);
-      border-radius: 50%;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .download-btn svg {
-      width: 15px;
-      height: 15px;
-    }
-
-    .download-btn:hover {
-      background-color: var(--tertiary);
-      border-color: var(--tertiary);
-      color: var(--page-bg);
-    }
-
-    [data-theme="dark"] .download-btn {
-      color: #2d2927;
-      background-color: var(--quaternary);
-      border-color: var(--quaternary);
-    }
-
-    [data-theme="dark"] .download-btn:hover {
-      background-color: var(--primary);
-      border-color: var(--primary);
-    }
-
-    /* ===== Contributors ===== */
-    .contributors-section {
-      margin-top: 4rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--dark-bg);
-    }
-
-    .contributors-section .section-title {
-      margin-bottom: 2rem;
-    }
-
-    .contributor {
-      margin-bottom: 2rem;
-    }
-
-    .contributor-name {
-      font-family: var(--font-headline);
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--body-text);
-      margin-bottom: 0.25rem;
-    }
-
-    .contributor-bio {
-      font-size: 0.95rem;
-      color: var(--light-text);
-      line-height: 1.65;
-    }
-
-    .essay-author a {
-      color: inherit;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.2s ease;
-    }
-
-    .essay-author a:hover {
-      border-bottom-color: var(--light-text);
-    }
-
-    /* ===== Footer ===== */
-    .site-footer {
-      text-align: center;
-      padding: 3rem 0 2rem;
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      color: var(--light-text);
-    }
-
-    /* ===== PDF / Print Mode ===== */
-    body.print-mode .download-wrapper,
-    body.print-mode .about-btn,
-    body.print-mode .share-wrapper,
-    body.print-mode .sidebar-actions,
-    body.print-mode .top-bar,
-    body.print-mode .sidebar,
-    body.print-mode .sidebar-overlay,
-    body.print-mode .progress-bar,
-    body.print-mode .menu-toggle {
-      display: none !important;
-    }
-
-    body.print-mode {
-      background-color: #ffffff !important;
-      color: #000000 !important;
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      line-height: 1.6 !important;
-    }
-
-    body.print-mode .main-content {
-      margin-left: 0;
-      padding: 0;
-      max-width: 100%;
-    }
-
-    body.print-mode .content-container {
-      max-width: 100%;
-    }
-
-    /* Title page: centered, standalone */
-    body.print-mode .hero {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      height: 100vh;
-      page-break-after: always;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    body.print-mode .hero-title {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 28pt !important;
-      line-height: 1.2 !important;
-      color: #000000 !important;
-      margin-bottom: 0.5rem;
-    }
-
-    body.print-mode .hero-subtitle {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 14pt !important;
-      font-style: italic;
-      color: #000000 !important;
-      margin-bottom: 2rem;
-    }
-
-    body.print-mode .hero-date {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      color: #333333 !important;
-      margin-bottom: 1.5rem;
-    }
-
-    /* Add "Mere Orthodoxy" to title page via pseudo-element */
-    body.print-mode .hero::before {
-      content: "Mere Orthodoxy";
-      font-family: 'Times New Roman', 'Times', serif;
-      font-size: 14pt;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #333333;
-      margin-bottom: 3rem;
-    }
-
-    /* Chapter headings: start on new page */
-    body.print-mode .content-section {
-      page-break-before: always;
-      margin-bottom: 0;
-    }
-
-    body.print-mode .section-title {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 22pt !important;
-      color: #000000 !important;
-      border-top: 1px solid #000000;
-      border-bottom: none;
-      padding-top: 1.5rem;
-      margin-top: 0;
-      margin-bottom: 1.5rem;
-    }
-
-    body.print-mode .section-label {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #333333 !important;
-      margin-top: 0;
-    }
-
-    body.print-mode .section-heading {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 16pt !important;
-      color: #000000 !important;
-      margin-top: 2rem;
-    }
-
-    body.print-mode .subsection-heading {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 13pt !important;
-      font-style: italic;
-      color: #000000 !important;
-    }
-
-    body.print-mode .essay-heading {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 13pt !important;
-      color: #000000 !important;
-    }
-
-    body.print-mode .essay-author {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #333333 !important;
-    }
-
-    body.print-mode p {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      color: #000000 !important;
-      line-height: 1.6 !important;
-    }
-
-    body.print-mode blockquote {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #000000 !important;
-      border-left-color: #999999;
-    }
-
-    body.print-mode .barna-list li {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #000000 !important;
-    }
-
-    body.print-mode .callout {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      color: #000000 !important;
-      border-top-color: #000000;
-      border-bottom-color: #000000;
-    }
-
-    body.print-mode .contributors-section {
-      page-break-before: always;
-      border-top: none;
-    }
-
-    body.print-mode .contributor-name {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 12pt !important;
-      font-weight: bold;
-      color: #000000 !important;
-    }
-
-    body.print-mode .contributor-bio {
-      font-family: 'Times New Roman', 'Times', serif !important;
-      font-size: 11pt !important;
-      color: #000000 !important;
-    }
-
-    body.print-mode .site-footer {
-      display: none;
-    }
-
-    body.print-mode .essay-author a {
-      color: inherit !important;
-      text-decoration: none !important;
-      border-bottom: none !important;
-    }
-
-    /* ===== Highlight & Share Tooltip ===== */
-    .highlight-share {
-      display: none;
-      position: absolute;
-      z-index: 300;
-      background-color: #2d2927;
-      border-radius: 6px;
-      padding: 0.35rem 0.25rem;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-      gap: 0.1rem;
-      align-items: center;
-      transform: translateX(-50%);
-    }
-
-    .highlight-share.visible {
-      display: flex;
-    }
-
-    .highlight-share * {
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    .highlight-share::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 7px solid transparent;
-      border-right: 7px solid transparent;
-      border-top: 7px solid #2d2927;
-    }
-
-    .hs-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 34px;
-      height: 34px;
-      border: none;
-      background: transparent;
-      border-radius: 4px;
-      cursor: pointer;
-      color: #e8ddd0;
-      transition: background-color 0.15s ease;
-      padding: 0;
-    }
-
-    .hs-btn:hover {
-      background-color: rgba(255,255,255,0.12);
-    }
-
-    .hs-btn svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .hs-divider {
-      width: 1px;
-      height: 20px;
-      background-color: rgba(255,255,255,0.2);
-      margin: 0 0.15rem;
-    }
-
-    .hs-copied {
-      position: absolute;
-      top: -28px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #2d2927;
-      color: #e8ddd0;
-      font-family: var(--font-body);
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      pointer-events: none;
-    }
-
-    .hs-copied.show {
-      opacity: 1;
-    }
-
-    @media (max-width: 960px) {
-      .highlight-share {
-        padding: 0.4rem 0.35rem;
-      }
-      .highlight-share::after {
-        bottom: auto;
-        top: -6px;
-        border-top: none;
-        border-bottom: 7px solid #2d2927;
-      }
-      .hs-copied {
-        top: auto;
-        bottom: -28px;
-      }
-      .hs-btn {
-        width: 40px;
-        height: 40px;
-      }
-      .hs-btn svg {
-        width: 18px;
-        height: 18px;
-      }
-    }
-
-    body.print-mode .highlight-share {
-      display: none !important;
-    }
-
-    /* ===== Scroll Progress ===== */
-    .progress-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      z-index: 200;
-      transition: width 0.1s ease-out;
-      width: 0%;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{asset "css/reader-v2.css"}}">
+  <script src="{{asset "js/reader-init.js"}}"></script>
 </head>
-<body data-reader
+<body data-reader data-reader-kind="ebook"
       data-reader-share-title="Christians and Artificial Intelligence &mdash; Mere Orthodoxy"
       data-reader-share-text="Christians and Artificial Intelligence &mdash; Mere Orthodoxy"
       data-reader-attr-full="\n\n&mdash; Christians and Artificial Intelligence, Mere Orthodoxy"
       data-reader-attr-short="\n\n&mdash; Mere Orthodoxy">
-  <!-- Highlight & Share Tooltip -->
-  <div class="highlight-share" id="highlightShare">
-    <span class="hs-copied" id="hsCopied">Copied!</span>
-    <button class="hs-btn" id="hsCopy" title="Copy quote">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-    </button>
-    <button class="hs-btn" id="hsSMS" title="Text message">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    </button>
-    <div class="hs-divider"></div>
-    <button class="hs-btn" id="hsX" title="Share on X">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-    </button>
-    <button class="hs-btn" id="hsFB" title="Share on Facebook">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-    </button>
-    <button class="hs-btn" id="hsIG" title="Instagram Stories">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-    </button>
-  </div>
+  <a class="rd-skip" href="#rd-start">Skip to the text</a>
 
-  <!-- Reading Progress -->
-  <div class="progress-bar" id="progressBar"></div>
-
-  <!-- Top Bar -->
-  <header class="top-bar">
-    <div style="display:flex;align-items:center;gap:1rem;">
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <a href="https://mereorthodoxy.com" class="org-name">Mere Orthodoxy</a>
-    </div>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"></button>
-  </header>
-
-  <!-- Sidebar Overlay (mobile) -->
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-  <div class="page-wrapper">
-    <!-- Sidebar TOC -->
-    <aside class="sidebar" id="sidebar">
-      <nav>
-        <h2 class="toc-title">Contents</h2>
-        <ul class="toc-list">
-          <li><a href="#top" class="toc-major">Top</a></li>
-          <li><a href="#aquinas-ai-and-the-pursuit-of-learning" class="toc-major">Aquinas, AI, and the Pursuit of Learning</a></li>
-          <li><a href="#attentive-parenting-in-the-ai-age" class="toc-major">Attentive Parenting in the AI Age</a></li>
-          <li><a href="#a-hollow-crown-ai-and-the-formation-of-students" class="toc-major">A Hollow Crown: AI and the Formation of Students</a></li>
-          <li><a href="#ai-is-coming-for-online-pastoral-education" class="toc-major">AI is Coming for Online Pastoral Education</a></li>
-          <li><a href="#pandora-ai-girlfriends-and-reborn-babies" class="toc-major">Pandora, AI Girlfriends, and “Reborn” Babies</a></li>
-          <li><a href="#the-mad-farmer-on-claude-ai-and-the-church" class="toc-major">The Mad Farmer on Claude, AI, and the Church</a></li>
-          <li><a href="#ai-safety-without-virtue-will-never-be-safe" class="toc-major">“AI Safety” Without Virtue Will Never Be Safe</a></li>
-          <li><a href="#new-calvinism-in-an-age-of-enchantment-and-ai" class="toc-major">New Calvinism in an Age of Enchantment and AI</a></li>
-          <li><a href="#if-you-ask-ai-for-marriage-advice-itll-probably-tell-you-to-get-divorced" class="toc-major">If You Ask A.I. for Marriage Advice, It'll Probably Tell You to Get Divorced</a></li>
-          <li><a href="#artificial-intelligence-is-a-technology" class="toc-major">Artificial Intelligence is a Technology</a></li>
-          <li><a href="#wendell-berrys-unanswered-question" class="toc-major">Wendell Berry's Unanswered Question</a></li>
-          <li><a href="#life-with-the-machines" class="toc-major">Life with the Machines</a></li>
-          <li><a href="#to-be-a-christian-is-to-sanctify-the-machine" class="toc-major">To Be a Christian Is to Sanctify the Machine</a></li>
-          <li><a href="#why-we-need-christian-anthropology-and-epistemology-in-the-age-of-llms" class="toc-major">Why We Need Christian Anthropology and Epistemology in the Age of LLMs</a></li>
-          <li><a href="#contributors" class="toc-major">Contributors</a></li>
-        </ul>
-      </nav>
-      <div class="sidebar-actions">
-        <a href="https://mereorthodoxy.com/about" class="about-btn">About<br>Mere Orthodoxy</a>
-        <div class="icon-btn-row">
-          <div class="share-wrapper">
-            <div class="share-popup" id="sharePopup">
+  <header class="rd-bar">
+    <a class="rd-back" href="/dashboard/ebooks/" aria-label="Back to the ebook library">&larr;<span class="rd-back-label"> Ebook library</span></a>
+    <p class="rd-now" id="rdNow">Christians and Artificial Intelligence</p>
+    <div class="rd-tools">
+      <button type="button" class="rd-btn" id="menuToggle" aria-controls="sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg><span class="rd-btn-label">Contents</span></button>
+      <div class="rd-pop-wrap">
+        <button type="button" class="rd-btn" id="rdTypeToggle" aria-haspopup="true" aria-expanded="false" aria-controls="rdTypePop" aria-label="Text settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19 9 5l5 14"/><line x1="5.8" y1="14" x2="12.2" y2="14"/><path d="M15 19l3-8 3 8"/><line x1="16" y1="16.5" x2="20" y2="16.5"/></svg></button>
+        <div class="rd-pop" id="rdTypePop" role="dialog" aria-label="Text settings">
+          <p class="rd-pop-label">Text size</p>
+          <div class="rd-seg" role="group" aria-label="Text size">
+            <button type="button" data-rd-size="s" aria-pressed="false">Small</button>
+            <button type="button" data-rd-size="m" aria-pressed="true">Medium</button>
+            <button type="button" data-rd-size="l" aria-pressed="false">Large</button>
+            <button type="button" data-rd-size="xl" aria-pressed="false">Larger</button>
+          </div>
+          <p class="rd-pop-label">Page</p>
+          <div class="rd-seg" role="group" aria-label="Page color">
+            <button type="button" data-rd-theme="paper" aria-pressed="true">Paper</button>
+            <button type="button" data-rd-theme="sepia" aria-pressed="false">Sepia</button>
+            <button type="button" data-rd-theme="dark" aria-pressed="false">Dark</button>
+          </div>
+        </div>
+      </div>
+      <div class="rd-pop-wrap">
+        <button type="button" class="rd-btn" id="downloadToggle" aria-haspopup="true" aria-expanded="false" aria-controls="downloadPopup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg><span class="rd-btn-label">Download</span></button>
+        <div class="rd-pop" id="downloadPopup" role="dialog" aria-label="Download"><a href="{{asset "files/ebooks/ai-and-the-church.pdf"}}" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg> PDF</a><a href="{{asset "files/ebooks/ai-and-the-church.epub"}}" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg> EPUB</a></div>
+      </div>
+      <div class="rd-pop-wrap">
+        <button type="button" class="rd-btn" id="shareToggle" aria-haspopup="true" aria-expanded="false" aria-controls="sharePopup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="m8 8 4-4 4 4"/><path d="M6 12v7h12v-7"/></svg><span class="rd-btn-label">Share</span></button>
+        <div class="rd-pop" id="sharePopup" role="dialog" aria-label="Share">
               <button class="share-option" id="copyLink">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                 Copy link
@@ -1189,44 +77,83 @@
                 Instagram Stories
               </a>
             </div>
-            <button class="share-btn" id="shareToggle" title="Share">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            </button>
-          </div>
-          <div class="download-wrapper">
-            <div class="download-popup" id="downloadPopup">
-              <a class="download-option" href="{{asset "files/ebooks/ai-and-the-church.epub"}}" download>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 1.5h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1z"/><path d="M6 4.5h4M6 7h4M6 9.5h2"/></svg>
-                ePub (e-readers)
-              </a>
-              <a class="download-option" href="{{asset "files/ebooks/ai-and-the-church.pdf"}}" download>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5z"/><path d="M9.5 1.5V5H13"/></svg>
-                PDF
-              </a>
-            </div>
-            <button class="download-btn" id="downloadToggle" title="Download">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9m0 0L4.5 7.5M8 11l3.5-3.5M2 13h12"/></svg>
-            </button>
-          </div>
-        </div>
       </div>
-    </aside>
+    </div>
+    <div class="progress-bar" id="progressBar"></div>
+  </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="content-container">
-        <!-- Hero -->
-        <div id="top" class="hero">
-          <h1 class="hero-title">Christians and Artificial Intelligence</h1>
-          <p class="hero-subtitle">Fourteen essays on artificial intelligence, formation, and faithfulness.</p>
-        </div>
+  <div class="highlight-share" id="highlightShare">
+    <span class="hs-copied" id="hsCopied">Copied!</span>
+    <button class="hs-btn" id="hsCopy" title="Copy quote">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    </button>
+    <button class="hs-btn" id="hsSMS" title="Text message">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <div class="hs-divider"></div>
 
-        <!-- Article Content -->
-        <article>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <aside class="rd-toc sidebar" id="sidebar" aria-label="Contents">
+    <div class="rd-toc-head"><p>Contents</p><button type="button" class="rd-btn rd-toc-close" aria-label="Close contents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button></div>
+    <nav>
+      <ol class="toc-list">
+          <li><a href="#aquinas-ai-and-the-pursuit-of-learning"><span class="rd-toc-n">1</span><span class="rd-toc-t">Aquinas, AI, and the Pursuit of Learning</span><span class="rd-toc-a">Alex Stevens</span></a></li>
+          <li><a href="#attentive-parenting-in-the-ai-age"><span class="rd-toc-n">2</span><span class="rd-toc-t">Attentive Parenting in the AI Age</span><span class="rd-toc-a">Scott Hurst</span></a></li>
+          <li><a href="#a-hollow-crown-ai-and-the-formation-of-students"><span class="rd-toc-n">3</span><span class="rd-toc-t">A Hollow Crown: AI and the Formation of Students</span><span class="rd-toc-a">Chris Sibben</span></a></li>
+          <li><a href="#ai-is-coming-for-online-pastoral-education"><span class="rd-toc-n">4</span><span class="rd-toc-t">AI is Coming for Online Pastoral Education</span><span class="rd-toc-a">Cameron Shaffer</span></a></li>
+          <li><a href="#pandora-ai-girlfriends-and-reborn-babies"><span class="rd-toc-n">5</span><span class="rd-toc-t">Pandora, AI Girlfriends, and “Reborn” Babies</span><span class="rd-toc-a">Nadya Williams</span></a></li>
+          <li><a href="#the-mad-farmer-on-claude-ai-and-the-church"><span class="rd-toc-n">6</span><span class="rd-toc-t">The Mad Farmer on Claude, AI, and the Church</span><span class="rd-toc-a">Hayden Nesbit</span></a></li>
+          <li><a href="#ai-safety-without-virtue-will-never-be-safe"><span class="rd-toc-n">7</span><span class="rd-toc-t">“AI Safety” Without Virtue Will Never Be Safe</span><span class="rd-toc-a">Robin Phillips</span></a></li>
+          <li><a href="#new-calvinism-in-an-age-of-enchantment-and-ai"><span class="rd-toc-n">8</span><span class="rd-toc-t">New Calvinism in an Age of Enchantment and AI</span><span class="rd-toc-a">Cameron Shaffer</span></a></li>
+          <li><a href="#if-you-ask-ai-for-marriage-advice-itll-probably-tell-you-to-get-divorced"><span class="rd-toc-n">9</span><span class="rd-toc-t">If You Ask A.I. for Marriage Advice, It&#x27;ll Probably Tell You to Get Divorced</span><span class="rd-toc-a">Samuel James</span></a></li>
+          <li><a href="#artificial-intelligence-is-a-technology"><span class="rd-toc-n">10</span><span class="rd-toc-t">Artificial Intelligence is a Technology</span><span class="rd-toc-a">Matthew Schultz</span></a></li>
+          <li><a href="#wendell-berrys-unanswered-question"><span class="rd-toc-n">11</span><span class="rd-toc-t">Wendell Berry&#x27;s Unanswered Question</span><span class="rd-toc-a">Samuel C Heard</span></a></li>
+          <li><a href="#life-with-the-machines"><span class="rd-toc-n">12</span><span class="rd-toc-t">Life with the Machines</span><span class="rd-toc-a">Ian Harber</span></a></li>
+          <li><a href="#to-be-a-christian-is-to-sanctify-the-machine"><span class="rd-toc-n">13</span><span class="rd-toc-t">To Be a Christian Is to Sanctify the Machine</span><span class="rd-toc-a">Wyatt Graham</span></a></li>
+          <li><a href="#why-we-need-christian-anthropology-and-epistemology-in-the-age-of-llms"><span class="rd-toc-n">14</span><span class="rd-toc-t">Why We Need Christian Anthropology and Epistemology in the Age of LLMs</span><span class="rd-toc-a">Josh Pauling</span></a></li>
+          <li><a href="#contributors"><span class="rd-toc-n"></span><span class="rd-toc-t">Contributors</span></a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <main class="main-content rd-main">
+    <section class="rd-title-page" id="top" aria-labelledby="rd-title">
+      <div class="rd-cover"><span class="lib-ecover lib-ecover--sand" role="img" aria-label="Christians and Artificial Intelligence"><span class="lib-ecover-mast">Mere Orthodoxy</span><span class="lib-ecover-title">Christians and Artificial Intelligence</span><span class="lib-ecover-foot">14 essays</span></span></div>
+      <div>
+        <h1 class="rd-title" id="rd-title">Christians and Artificial Intelligence</h1>
+        <p class="rd-sub">14 essays</p>
+        <p class="rd-actions">
+          <a class="rd-cta rd-cta--solid" href="#aquinas-ai-and-the-pursuit-of-learning">Begin reading</a>
+          <a class="rd-cta" id="rdContinue" href="#aquinas-ai-and-the-pursuit-of-learning" hidden>Continue: <span data-rd-continue-title></span></a>
+        </p>
+        <h2 class="rd-contents-title">Contents</h2>
+        <ol class="rd-contents">
+            <li><a href="#aquinas-ai-and-the-pursuit-of-learning"><span class="rd-c-t">Aquinas, AI, and the Pursuit of Learning</span><span class="rd-c-a">Alex Stevens</span></a></li>
+            <li><a href="#attentive-parenting-in-the-ai-age"><span class="rd-c-t">Attentive Parenting in the AI Age</span><span class="rd-c-a">Scott Hurst</span></a></li>
+            <li><a href="#a-hollow-crown-ai-and-the-formation-of-students"><span class="rd-c-t">A Hollow Crown: AI and the Formation of Students</span><span class="rd-c-a">Chris Sibben</span></a></li>
+            <li><a href="#ai-is-coming-for-online-pastoral-education"><span class="rd-c-t">AI is Coming for Online Pastoral Education</span><span class="rd-c-a">Cameron Shaffer</span></a></li>
+            <li><a href="#pandora-ai-girlfriends-and-reborn-babies"><span class="rd-c-t">Pandora, AI Girlfriends, and “Reborn” Babies</span><span class="rd-c-a">Nadya Williams</span></a></li>
+            <li><a href="#the-mad-farmer-on-claude-ai-and-the-church"><span class="rd-c-t">The Mad Farmer on Claude, AI, and the Church</span><span class="rd-c-a">Hayden Nesbit</span></a></li>
+            <li><a href="#ai-safety-without-virtue-will-never-be-safe"><span class="rd-c-t">“AI Safety” Without Virtue Will Never Be Safe</span><span class="rd-c-a">Robin Phillips</span></a></li>
+            <li><a href="#new-calvinism-in-an-age-of-enchantment-and-ai"><span class="rd-c-t">New Calvinism in an Age of Enchantment and AI</span><span class="rd-c-a">Cameron Shaffer</span></a></li>
+            <li><a href="#if-you-ask-ai-for-marriage-advice-itll-probably-tell-you-to-get-divorced"><span class="rd-c-t">If You Ask A.I. for Marriage Advice, It&#x27;ll Probably Tell You to Get Divorced</span><span class="rd-c-a">Samuel James</span></a></li>
+            <li><a href="#artificial-intelligence-is-a-technology"><span class="rd-c-t">Artificial Intelligence is a Technology</span><span class="rd-c-a">Matthew Schultz</span></a></li>
+            <li><a href="#wendell-berrys-unanswered-question"><span class="rd-c-t">Wendell Berry&#x27;s Unanswered Question</span><span class="rd-c-a">Samuel C Heard</span></a></li>
+            <li><a href="#life-with-the-machines"><span class="rd-c-t">Life with the Machines</span><span class="rd-c-a">Ian Harber</span></a></li>
+            <li><a href="#to-be-a-christian-is-to-sanctify-the-machine"><span class="rd-c-t">To Be a Christian Is to Sanctify the Machine</span><span class="rd-c-a">Wyatt Graham</span></a></li>
+            <li><a href="#why-we-need-christian-anthropology-and-epistemology-in-the-age-of-llms"><span class="rd-c-t">Why We Need Christian Anthropology and Epistemology in the Age of LLMs</span><span class="rd-c-a">Josh Pauling</span></a></li>
+            <li><a href="#contributors"><span class="rd-c-t">Contributors</span></a></li>
+        </ol>
+      </div>
+    </section>
+
+    <article class="rd-text" id="rd-start">
+
 
           <!-- ====== ESSAY 1 ====== -->
           <section id="aquinas-ai-and-the-pursuit-of-learning" class="content-section">
-            <h2 class="section-title">Aquinas, AI, and the Pursuit of Learning</h2>
+            <p class="rd-essay-n">1 of 14</p>
+    <h2 class="section-title">Aquinas, AI, and the Pursuit of Learning</h2>
             <p class="essay-author">By <a href="#contributor-alex-stevens">Alex Stevens</a></p>
 
             <p>My eight-year-old daughter recently invoked my fatherly duty to help her do research for a presentation about a figure from the Middle Ages; Thomas Aquinas, in her case. My wife and I bought a few books, checked one out from the library, and found some relevant material in reference works we already owned. Notably, we did not search for random articles or videos off the Internet or try using generative AI as a personal tutor; yet this was not enough to entirely avoid <em>AI slop</em>.</p>
@@ -1257,11 +184,14 @@
             <p>We started with a daughter looking to her parents for guidance. Children learn to trust their parents because they are (hopefully) consistently there to provide for them. We ought to be good stewards of that trust and teach them good things &ndash; truth about the world, the God who made the world, and how to live in it. As part of this, it is our privilege and duty to equip them for being in community and learning, for pursuing the true, the good, and the beautiful.</p>
             <p>Lifelong learning is good, and I commend it to all, but there is an important caveat in this whole matter &ndash; there is a real need and place for experts, and, by definition, amateurs are not experts. My point is that one does not need total knowledge with absolute certainty on every point to say that they have knowledge. There are many endeavors we can undertake that do not require us to be experts, simply more knowledge than we currently have; ones that help us to better love God and neighbor, or be better stewards of what we’ve been given, or otherwise seeking to glorify God and enjoy Him. These endeavors are worth pursuing.</p>
             <p>A Christian perspective should give us confidence in persevering in pursuit of learning, because it is not a fruitless endeavor. AI Slop is not an impenetrable barrier between us and God’s creation; it is noise that can be overcome through diligence and community. Joining or forming communities that value the truth can be powerful for building trust, not because they do or don’t use generative AI, but because they are tethered to reality. Welcoming requests for recommendations or questions that could have been a Google search might feel inconvenient at times, but it is more dignifying and constructive than the alternative, even when no one has all the answers.</p>
-          </section>
+          
+    <a class="rd-next" href="#attentive-parenting-in-the-ai-age"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Attentive Parenting in the AI Age</span></a>
+</section>
 
           <!-- ====== ESSAY 2 ====== -->
           <section id="attentive-parenting-in-the-ai-age" class="content-section">
-            <h2 class="section-title">Attentive Parenting in the AI Age</h2>
+            <p class="rd-essay-n">2 of 14</p>
+    <h2 class="section-title">Attentive Parenting in the AI Age</h2>
             <p class="essay-author">By <a href="#contributor-scott-hurst">Scott Hurst</a></p>
 
             <p>Some time ago, I watched <a href="https://www.youtube.com/watch?v=TX9qSaGXFyg&ab_channel=Apple">the promotional video</a> for the Apple Vision Pro. Vision Pro is a spatial computer Apple plans to release next year. The Vision Pro goggles layer the world of our phones over the physical world, integrating the virtual world with the embodied world.</p>
@@ -1323,11 +253,14 @@
             <p>When Paul walked around Athens “he was deeply distressed when he saw that the city was full of idols” (17:17). Parents today can sympathize. A quick walk through the digital world our children inhabit is deeply distressing.</p>
             <p>We can learn from Paul. He didn’t respond to this distress by checking out or giving up. Instead, he engaged. Luke, the author of Acts, connects Paul’s distress to his engagement with one simple word: “So.” “He was deeply distressed when he saw that the city was full of idols. So he reasoned in the synagogue with the Jews and with those who worshiped God, as well as in the marketplace every day with those who happened to be there” (17:17-18). Paul knew God was the Sovereign Lord. He knew God intends that people “might seek God, and perhaps they might reach out and find him, though he is not far from each one of us.” He knew God “now commands all people everywhere to repent, because he has set a day when he is going to judge the world in righteousness by the man he has appointed. He has provided proof of this to everyone by raising him from the dead” (Acts 17:27, 31-32). Paul’s faith in Christ caused him to be distressed by the idols of his time, but that same faith wouldn’t let him check out.</p>
             <p>His confidence in God, his love for Christ, and his conviction that the gospel is better than idols drove him to engage and call people to something better. I sympathize with parents who are overwhelmed by the technologies available to their kids. Parenting has always been hard and it isn’t getting easier. But it isn&rsquo;t hopeless. Parents can engage and help their kids without fear and filled with hope because God is God, the gospel is true, and everything we need for life and godliness, God has already given us in Christ.</p>
-          </section>
+          
+    <a class="rd-next" href="#a-hollow-crown-ai-and-the-formation-of-students"><span class="rd-next-label">Next essay</span><span class="rd-next-title">A Hollow Crown: AI and the Formation of Students</span></a>
+</section>
 
           <!-- ====== ESSAY 3 ====== -->
           <section id="a-hollow-crown-ai-and-the-formation-of-students" class="content-section">
-            <h2 class="section-title">A Hollow Crown: AI and the Formation of Students</h2>
+            <p class="rd-essay-n">3 of 14</p>
+    <h2 class="section-title">A Hollow Crown: AI and the Formation of Students</h2>
             <p class="essay-author">By <a href="#contributor-chris-sibben">Chris Sibben</a></p>
 
             <p>The day after we showed our students <em>Forevergreen</em>, an Academy Award&ndash;nominated short film, something happened that I can&rsquo;t shake.</p>
@@ -1384,11 +317,14 @@
             <p>That is the mark of a regime change: not when a technology appears, but when its values start to feel like common sense. When time feels like waste. When effort feels like error. When simulation feels sufficient.</p>
             <p>Richard&rsquo;s hollow crown is a warning, not a metaphor for despair. He lost his kingdom because he mistook the ceremony for the substance. We are in danger of making the same mistake, accepting the signs of education while quietly abandoning the formation that once gave them weight.</p>
             <p>If schools forget that, they will still have essays. They will still have grades. They will still have endless, fluent signs. But those signs will no longer reliably point to a person. And once that link breaks, we will not only be unsure what student work means; we will begin to lose confidence in what words, promises, and judgments mean at all.</p>
-          </section>
+          
+    <a class="rd-next" href="#ai-is-coming-for-online-pastoral-education"><span class="rd-next-label">Next essay</span><span class="rd-next-title">AI is Coming for Online Pastoral Education</span></a>
+</section>
 
           <!-- ====== ESSAY 4 ====== -->
           <section id="ai-is-coming-for-online-pastoral-education" class="content-section">
-            <h2 class="section-title">AI is Coming for Online Pastoral Education</h2>
+            <p class="rd-essay-n">4 of 14</p>
+    <h2 class="section-title">AI is Coming for Online Pastoral Education</h2>
             <p class="essay-author">By <a href="#contributor-cameron-shaffer">Cameron Shaffer</a></p>
 
             <p>Artificial intelligence is going to make online theological & pastoral education obsolete by 2030\. That’s a bold claim (feel free to remind me that I got this prediction wrong\!), but likely to come to pass. Online theological education as it is currently deployed may continue to exist by that year, but it will be hopelessly and clearly dated and on its way out.</p>
@@ -1439,11 +375,14 @@
             <p>In this model, the classroom is not merely a delivery mechanism for information. It is a space of communal formation. It is where the future minister learns to attend to God’s word with others, to hear truth not only in words but in tone, expression, and shared life with a fallible professor whose quirks and shortcomings cannot be adjusted at a whim. It is a slower process and less efficient one, but it is precisely in that slowness and inefficiency that something vital is formed.</p>
             <p>Personal, embodied teaching of the gospel prepares students for personal, embodied ministry. The challenge for residential schools in the age of AI will be to show that their slower, more expensive model is not a relic of the past but a deep investment in the future of the church. They will need to articulate not just what they teach, but how their way of teaching is part of the formation they offer. That will require clarity, humility, and a renewed commitment to the kind of formation that only happens when truth is shared in person, among the people of God.</p>
             <p>In all these models, the new reality is that the theological institution is no longer the primary dispenser of content, but still has an invaluable role in pastoral formation as the guardian of tradition, mentor for maturity, and the cultivator of character. This is work no AI can do. And it is exactly the work the church most desperately needs seminaries to do for the sake of Christ’s sheep, whether its pastors are formed via online-facilitated or traditional education. In the coming days, an embodied ministry of the gospel is what will distinguish the church from an AI-dominated world.</p>
-          </section>
+          
+    <a class="rd-next" href="#pandora-ai-girlfriends-and-reborn-babies"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Pandora, AI Girlfriends, and “Reborn” Babies</span></a>
+</section>
 
           <!-- ====== ESSAY 5 ====== -->
           <section id="pandora-ai-girlfriends-and-reborn-babies" class="content-section">
-            <h2 class="section-title">Pandora, AI Girlfriends, and “Reborn” Babies</h2>
+            <p class="rd-essay-n">5 of 14</p>
+    <h2 class="section-title">Pandora, AI Girlfriends, and “Reborn” Babies</h2>
             <p class="essay-author">By <a href="#contributor-nadya-williams">Nadya Williams</a></p>
 
             <p>Once upon a time, very long ago, a man lived alone. Perhaps he wished for a companion, perhaps not. We really don’t know. What we do know is that for a set of very complicated reasons, when the well-being of mortals became a pawn in the power struggles of the pagan gods, the gods created a wife for him. She was, in some ways, the perfect woman, a collaborative project of the gods, who each endowed her with a gift, resulting in her name: Pandora&mdash;“all the gifts” or “the gifts of all.”</p>
@@ -1467,11 +406,14 @@
             <p>In the case of Pandora, we never get more details about Pandora’s marriage to Epimetheus. We do not know how the years treated them&mdash;mythology isn’t really interested in documenting such tales. But we know the fruit of this marriage. Pandora’s children are the curses and plagues she had unleashed upon the world when she opened the jar that the gods had sent with her for this very destructive purpose. There is a double-entendre that the original audiences would not have missed: the container is akin to a womb, and opening it was parallel to delivering a baby.</p>
             <p>Pandora turned out to be fruitful indeed, and these children of hers are a good image to consider as a final warning. Every relationship bears fruit, but not every fruit is good. Indeed, not every fruit is human. The fruit of relationships with automata and the larger world of AI that they represent can only be something monstrous, cursed, deformed&mdash;something that seems to be an imitation of the thing, a form of it, just dangerously enough reminiscent of the real thing as to deceive some to receive it as true.</p>
             <p>The pagan gods lied to Epimetheus&mdash;and the rest of humanity in offering this artificial being as a fitting companion. But God did not lie when He knew that only a fully fleshed human, another image-bearer, could be a fitting companion for Adam, and could in relationship teach him to be fully and truly human.</p>
-          </section>
+          
+    <a class="rd-next" href="#the-mad-farmer-on-claude-ai-and-the-church"><span class="rd-next-label">Next essay</span><span class="rd-next-title">The Mad Farmer on Claude, AI, and the Church</span></a>
+</section>
 
           <!-- ====== ESSAY 6 ====== -->
           <section id="the-mad-farmer-on-claude-ai-and-the-church" class="content-section">
-            <h2 class="section-title">The Mad Farmer on Claude, AI, and the Church</h2>
+            <p class="rd-essay-n">6 of 14</p>
+    <h2 class="section-title">The Mad Farmer on Claude, AI, and the Church</h2>
             <p class="essay-author">By <a href="#contributor-hayden-nesbit">Hayden Nesbit</a></p>
 
             <p>While reading <a href="https://x.com/mattshumer_/status/2021256989876109403">a recent post on AI</a> that gained sudden white-hot virality, one line from Wendell Berry kept coming to mind. In his poem titled <em>Anger Against Beasts</em>, Berry reflects on man&rsquo;s will being schooled in having its way to &ldquo;transcend the impossible in simple fury.&rdquo; This is <em>the</em> image underlying our technological discourse, and captures the pathos of the recent post&ndash;&ndash;the furious acceleration of AI advancements is now on the cusp of transcending the impossible. In other words, <em>something big is happening</em>.</p>
@@ -1535,11 +477,14 @@
             <p>in spite of the best advice.</p>
             <p>The church is <em>the</em> community of contrariness in the world. Not because it is anti-technology, but because it is pro-unpredictable-mystery. Its sights are calibrated to resurrection, not optimization. Holy worship, sacred Scriptures, mysterious sacraments, confession and repentance&ndash;&ndash;these textured elements do not compute with the smooth predictability of AI.</p>
             <p>This contrary community cannot be pinned down by technology, but must be a congregation of image-bearing Mad Farmers who plant and till and reap in seemingly wrong directions by unpredictably glorious and mysterious means&ndash;&ndash;Heaven’s favor&ndash;&ndash;in spite of AI’s best advice.</p>
-          </section>
+          
+    <a class="rd-next" href="#ai-safety-without-virtue-will-never-be-safe"><span class="rd-next-label">Next essay</span><span class="rd-next-title">“AI Safety” Without Virtue Will Never Be Safe</span></a>
+</section>
 
           <!-- ====== ESSAY 7 ====== -->
           <section id="ai-safety-without-virtue-will-never-be-safe" class="content-section">
-            <h2 class="section-title">“AI Safety” Without Virtue Will Never Be Safe</h2>
+            <p class="rd-essay-n">7 of 14</p>
+    <h2 class="section-title">“AI Safety” Without Virtue Will Never Be Safe</h2>
             <p class="essay-author">By <a href="#contributor-robin-phillips">Robin Phillips</a></p>
 
             <p>The recent return of Sam Altman to the helm of OpenAI has brought new urgency to the nationwide debate about AI safety.</p>
@@ -1580,11 +525,14 @@
             <p>Stanislav Petrov, the lieutenant colonel on duty in the Soviet Air Defense Forces Dome that night, was cool-headed and thoughtful. Petrov drew on his past training, which had convinced him that any U.S. first strike would be massive, likely more than only five missiles. While the rest of the base was in panic, Petrov put his career on the line, deviated from orders, and declined to follow the instruction to launch an attack. That night Petrov exercised the virtues of patience, prudence, attentiveness, thoughtfulness, and courage, while avoiding vices like reactivity, impulsivity, rigidity, and fear. As a result of his virtue, a nuclear disaster was averted.</p>
             <p>If this incident had happened not in 1983 but in 2023, the outcome would likely have been very different. Today widespread bias for automation has resulted in a shrunken space left to human virtue, including situation-specific prudence. One of the reasons that systems regulating everything from commerce to trading to military defense are increasingly handed over to AI is precisely to eliminate the messiness of human judgment, as if “human factors” are a bug and not a feature. Yet without human agency there can be no virtue, including the type of virtue Petrov exercised when he proved the triumph of the human over the machine.</p>
             <p>Discussion of possible AI doomsday scenarios are often compared to the nuclear threat. Yet if we can learn anything from our near brush with nuclear holocaust, it is that rules, guidelines, policies or procedures will never save us: we need old-fashion human virtue.</p>
-          </section>
+          
+    <a class="rd-next" href="#new-calvinism-in-an-age-of-enchantment-and-ai"><span class="rd-next-label">Next essay</span><span class="rd-next-title">New Calvinism in an Age of Enchantment and AI</span></a>
+</section>
 
           <!-- ====== ESSAY 8 ====== -->
           <section id="new-calvinism-in-an-age-of-enchantment-and-ai" class="content-section">
-            <h2 class="section-title">New Calvinism in an Age of Enchantment and AI</h2>
+            <p class="rd-essay-n">8 of 14</p>
+    <h2 class="section-title">New Calvinism in an Age of Enchantment and AI</h2>
             <p class="essay-author">By <a href="#contributor-cameron-shaffer">Cameron Shaffer</a></p>
 
             <p>The New Calvinist movement needs renewal, not through innovation but the rich sacramental theology of Old Calvinism. As enchantment returns and AI emerges, these deeper resources of the confessional Reformed tradition are an indispensable missional and gospel-centered gift.</p>
@@ -1611,11 +559,14 @@
             <p>First, the obvious: P\&R members of the movement should press for Reformed sacramentology to be prioritized in doctrinal statements and ministry philosophies. When the movement discusses being gospel-centered (preaching, apologetics and evangelism, discipleship practices) Reformed, confessional, sacramental theology should be included. On a practical level, centering the sacraments with a Reformed understanding allows an Evangelical-Reformed alliance to expand its denominational boundaries for the sake of the kingdom. In the same way that New Calvinism itself was initially an expanded, cross-denominational movement, Reformed sacramentology allows the movement to expand again.</p>
             <p>Second, the church should clearly talk to its people about what the sacraments are and what God does through them. We should stress with Martin Luther that we are the baptized ones: We are in Christ because we are baptized into him. This is critical to discipleship. We are washed, we are filled, we are Christ’s. This is the Westminsterian idea of “improving” our baptism &mdash;we grow into who we truly are by relying on the Spirit who has been given to us as we rest upon what Jesus has done for us. When we come to the Table we have true communion with God because he grants us “so to eat the flesh of thy dear Son Jesus Christ, and to drink his blood, that our sinful bodies may be made clean by his body, and our souls washed through his most precious blood, and that we may evermore dwell in him, and he in us.”</p>
             <p>Finally, to the world, our gospel-centered evangelism should have a sacramental dimension. Would you be cleansed? Would you be filled with the Spirit? Would you pass from death to life? Be baptized into Jesus in the name of the Trinity. We should unashamedly maintain the Petrine order in our gospel proclamation: Repent and be baptized for the forgiveness of sins and you will receive the gift of the Holy Spirit. Would you partake of the divine? Would you receive the transcendent and most real? Be redeemed and united to God? Receive the body and blood of Christ. Doing this would refresh and strengthen the New Calvinist movement for ministry in the years to come.</p>
-          </section>
+          
+    <a class="rd-next" href="#if-you-ask-ai-for-marriage-advice-itll-probably-tell-you-to-get-divorced"><span class="rd-next-label">Next essay</span><span class="rd-next-title">If You Ask A.I. for Marriage Advice, It&#x27;ll Probably Tell You to Get Divorced</span></a>
+</section>
 
           <!-- ====== ESSAY 9 ====== -->
           <section id="if-you-ask-ai-for-marriage-advice-itll-probably-tell-you-to-get-divorced" class="content-section">
-            <h2 class="section-title">If You Ask A.I. for Marriage Advice, It&rsquo;ll Probably Tell You to Get Divorced</h2>
+            <p class="rd-essay-n">9 of 14</p>
+    <h2 class="section-title">If You Ask A.I. for Marriage Advice, It&rsquo;ll Probably Tell You to Get Divorced</h2>
             <p class="essay-author">By <a href="#contributor-samuel-james">Samuel James</a></p>
 
             <p>How to watch a massive cultural shift as it happens: A story in two parts.</p>
@@ -1643,11 +594,14 @@
             <p>And here’s where I encourage any pastors, counselors, or youth leaders who may be reading this:</p>
             <p>AI is going to be a major player when it comes to therapy and counseling. Similar to the way Google has transformed how we look for medical advice, AI is going to play the role of sage for a lot of people. There’s a threat and opportunity here. The threat is that Christians will be sucked into destructive decision making as they consult what they naively believe are objective “data” machines. The opportunity is that AI, like all digital tech, is very unsatisfying. Just as porn doesn’t satisfy intimacy and inboxes don’t solve loneliness, AI will not leave users feeling cared for.</p>
             <p>That’s something only people made in the image of God can do.</p>
-          </section>
+          
+    <a class="rd-next" href="#artificial-intelligence-is-a-technology"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Artificial Intelligence is a Technology</span></a>
+</section>
 
           <!-- ====== ESSAY 10 ====== -->
           <section id="artificial-intelligence-is-a-technology" class="content-section">
-            <h2 class="section-title">Artificial Intelligence is a Technology</h2>
+            <p class="rd-essay-n">10 of 14</p>
+    <h2 class="section-title">Artificial Intelligence is a Technology</h2>
             <p class="essay-author">By <a href="#contributor-matthew-schultz">Matthew Schultz</a></p>
 
             <p>A pair of dice rolls across the table. A man glances at a chart and then pulls a measure of music from a pile. He rolls the dice again and selects another measure. Then another. His friend watches and laughs as the piece grows longer and longer. The man sits down at the piano and begins to play. As the randomly arranged segments begin dancing through the air, his friend’s face turns from mirth to furrowed brow. There is something delightfully scandalous about it.</p>
@@ -1665,11 +619,14 @@
             <p>Technology has existed since the Garden and is an integral component of our cultural mandate. We should also remember that one of the core distinctions between the Creator and his creatures is that we never create matter but merely (\!) rearrange it. This becomes clear whether we consider an ancient farmer in Mesopotamia irrigating a plot of soil, a medieval peasant in Northumbria weaving a basket from flax, or a young musician in London taking the raw outputs of machine sound, adjusting its pitch, volume, and length, and incorporating it into a DAW loop. While there are all sorts of important distinctions and qualifications between pre- and post-industrial craft, there is no metaphysical distance between the two.</p>
             <p>If the continuity between industrial technological disruption and its digital age permutations holds, then so do the spiritual realities. As Joseph Minich <a href="https://mereorthodoxy.com/the-experience-of-unbelief">demonstrated in his book <em>Bulwarks of Unbelief</em></a>, our experience of the post-industrial world is phenomenologically bent toward unbelief. Rather than breaking with this posture, artificial intelligence represents an acceleration of this pressure. This suggests not a novel response, but a deeper one consistent with those practices that have always defined Christian community.</p>
             <p>I am thinking here not only of my church’s weekly dinner and hymn sing but an elder who is also an artist who is working on a mural painting for the narthex, a leader practicing his craft in a local community. These sorts of practices create the ground&mdash;the posture of learned humility, embodied friendship, and grounding in a historical tradition&mdash;needed to cultivate people who can use technology responsibly. Our task is not to develop a unique theology of AI but to catechize our members into a people who can wield this technology without becoming captive to its internal logic. Like alcohol, artificial intelligence will become a test of character, a dangerous good that divides the foolish from the wise.</p>
-          </section>
+          
+    <a class="rd-next" href="#wendell-berrys-unanswered-question"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Wendell Berry&#x27;s Unanswered Question</span></a>
+</section>
 
           <!-- ====== ESSAY 11 ====== -->
           <section id="wendell-berrys-unanswered-question" class="content-section">
-            <h2 class="section-title">Wendell Berry&rsquo;s Unanswered Question</h2>
+            <p class="rd-essay-n">11 of 14</p>
+    <h2 class="section-title">Wendell Berry&rsquo;s Unanswered Question</h2>
             <p class="essay-author">By <a href="#contributor-samuel-c-heard">Samuel C Heard</a></p>
 
             <p>Earlier this year, the language education company Duolingo caused a stir when its CEO, Luis von Ahn, put out a memo announcing his intentions on making Duolingo an “AI-first” organization. <a href="https://www.linkedin.com/posts/duolingo_below-is-an-all-hands-email-from-our-activity-7322560534824865792-l9vh/">He wrote in April</a>:</p>
@@ -1735,11 +692,14 @@
             <p>But it’s not good enough simply to leave it there. If we seek to be the kind of culture that can completely justify the work of our own people, then we need to have a shared understanding of what we are even aiming for. Asking may be the right place to start, but Wendell Berry’s question still needs an answer. Leaving the question blank will only tempt our false gods to fill that answer in for us.</p>
             <p>I, for one, cannot claim to have this answer completely figured out. But I know where I am looking. To put my cards on the table, I have been a Christian for over two decades. I am fully convinced in my own mind that the answer to this question is found in the personhood and deity of Christ, in the words of his Scripture and the teachings of his church. I have begun my search there, and I am content to continue searching on this path. But I know I’ve not yet arrived.</p>
             <p>But I also know this: I will not stop looking until I’ve found my answer. People are far too valuable for us to do otherwise.</p>
-          </section>
+          
+    <a class="rd-next" href="#life-with-the-machines"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Life with the Machines</span></a>
+</section>
 
           <!-- ====== ESSAY 12 ====== -->
           <section id="life-with-the-machines" class="content-section">
-            <h2 class="section-title">Life with the Machines</h2>
+            <p class="rd-essay-n">12 of 14</p>
+    <h2 class="section-title">Life with the Machines</h2>
             <p class="essay-author">By <a href="#contributor-ian-harber">Ian Harber</a></p>
 
             <p>I admit that I was a little let down by the ending of Paul Kingsnorth’s <em>Against The Machine.</em> Much has been written about this book and rightfully so. Kingsnorth’s critique of the all-encompassing machine culture we live in is a necessary wake up call from a short-form video induced hypnosis that much of our society seems to be in. I appreciate a lot about the book, but Kingsnorth’s postures for the machine age, for me, left at least a little to be desired.</p>
@@ -1769,11 +729,14 @@
             <p>Kingsnorth wasn’t far off, but I don’t think a Raw Revolution is the answer. And I don’t think it will do to simply not have a smart phone or not scan QR Codes. It’s not that his Cooked category is entirely wrong; it’s that it sees itself primarily as reactionary against something instead of positively trying to preserve and cultivate something of the old that is good in the new world while being willing to utilize technology in order to better enable that kind of life.</p>
             <p>These are the conversations I believe we need to be having. The “How” and “What” of preservation. Building the new institutions, cultivating the new communities, fostering the new habits, and having the <em>old</em> conversations to preserve the good of the old world as we enter into the new. As Kingsnorth rightly said, this is intergenerational work.</p>
             <p>I’m not afraid of using these new tools. But I want my mind, my heart, my life to be so steeped in the riches of what came before me that the machine’s place stays exactly where it is and ever ought to be: as just a machine.</p>
-          </section>
+          
+    <a class="rd-next" href="#to-be-a-christian-is-to-sanctify-the-machine"><span class="rd-next-label">Next essay</span><span class="rd-next-title">To Be a Christian Is to Sanctify the Machine</span></a>
+</section>
 
           <!-- ====== ESSAY 13 ====== -->
           <section id="to-be-a-christian-is-to-sanctify-the-machine" class="content-section">
-            <h2 class="section-title">To Be a Christian Is to Sanctify the Machine</h2>
+            <p class="rd-essay-n">13 of 14</p>
+    <h2 class="section-title">To Be a Christian Is to Sanctify the Machine</h2>
             <p class="essay-author">By <a href="#contributor-wyatt-graham">Wyatt Graham</a></p>
 
             <p>Paul Kingsnorth’s <em>Against the Machine</em> has generated both admiration and frustration, often in equal measure. Some read it as a manifesto against modern technology; others as a hopeless lament for a world already lost. But the book is best understood neither as a how-to guide nor as a call to retreat <em>simpliciter</em>, but as a philosophy of history.</p>
@@ -1831,11 +794,14 @@
             <p>But Christians have known that food and cloth dedicated to the altar can be sanctified, dedicated toward a good use: “nothing is to be rejected, provided it is received with thanksgiving.” Even the Machine’s all-enframing (<em>Gestell</em>) and all-pervasive scope in our lives does not mean it cannot also be “sanctified by God’s word and by prayer.” It is not clear to me that an entire culture, an entire way of being in the world, can be something as black-and-white as murder.</p>
             <p>But Kingsnorth wants us to reject the Machine <em>carte blanche</em>. Still, if God can call <a href="https://www.wyattgraham.com/p/why-does-god-call-cyrus-his-shepherd">Cyrus the Great his messiah</a> (Isa 45:1), using the great empire of Persia to restore Israel to her land, then I believe that God can sanctify, that is, dedicate many ambivalent things toward holy use.</p>
             <p>And so I am not sure the machine, technique-driven as it is, really amounts to a complete death of all things. Instead, to be Christian is to sanctify the machine by God’s word and by prayer. Only then can we receive it with thanksgiving.</p>
-          </section>
+          
+    <a class="rd-next" href="#why-we-need-christian-anthropology-and-epistemology-in-the-age-of-llms"><span class="rd-next-label">Next essay</span><span class="rd-next-title">Why We Need Christian Anthropology and Epistemology in the Age of LLMs</span></a>
+</section>
 
           <!-- ====== ESSAY 14 ====== -->
           <section id="why-we-need-christian-anthropology-and-epistemology-in-the-age-of-llms" class="content-section">
-            <h2 class="section-title">Why We Need Christian Anthropology and Epistemology in the Age of LLMs</h2>
+            <p class="rd-essay-n">14 of 14</p>
+    <h2 class="section-title">Why We Need Christian Anthropology and Epistemology in the Age of LLMs</h2>
             <p class="essay-author">By <a href="#contributor-josh-pauling">Josh Pauling</a></p>
 
             <p>Last year I co-authored a book with Robin Phillips about life in the digital age. The potential implications of what is imprecisely called artificial “intelligence” on our humanity was a theme throughout the book. Recently, Robin thought it would be interesting to see what LLMs had to say about our book collaboration. Here’s what ChatGPT pumped out.</p>
@@ -1955,16 +921,10 @@
             </div>
           </section>
 
-        </article>
+        
+    </article>
+  </main>
 
-        <footer class="site-footer">
-          <p>&copy; 2026 Mere Orthodoxy</p>
-        </footer>
-      </div>
-    </main>
-  </div>
-
-  <!-- Scripts -->
   <script src="{{asset "js/reader.js"}}"></script>
 </body>
 </html>

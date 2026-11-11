@@ -1,8 +1,8 @@
 {{!-- Journal archive for /dashboard/journals/ (redesigned 2026-11-10).
      The latest issue leads with its real cover and full contents; past
-     issues sit on a shelf. Issues 001 to 009 have no cover photographs,
-     so their covers are drawn in CSS after the print design (masthead,
-     issue and season, line art, contributors). Add a new issue: move the
+     issues sit on a shelf. Issues 001 to 007 use their covers taken from page 1 of each
+     PDF (assets/journals/); 008 and 009 have no PDF here yet, so their
+     covers are drawn in CSS after the print design. Add a new issue: move the
      current lead down to the shelf (as a drawn cover) and lead with the
      new one. --}}
 
@@ -68,101 +68,66 @@
     </li>
     <li class="lib-shelf-item">
       <a class="lib-item" href="/journal-archive/issue-07/">
-        <span class="lib-jcover" aria-hidden="true">
-          <span class="lib-jcover-mast">Mere<br>Orthodoxy</span>
-          <span class="lib-jcover-est">Est. MMV</span>
-          <span class="lib-jcover-meta"><span>Issue 007</span><span>Spring 2025</span></span>
-          <span class="lib-jcover-art"></span>
-          <span class="lib-jcover-names">Kirsten Sanders · John Ehrett · Ian Olson · Matthew LaPine</span>
-        </span>
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-007-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
         <span class="lib-item-title">Issue 007</span>
         <span class="lib-item-meta">Spring 2025</span>
         <span class="lib-item-desc">On fidelity, authority, and perseverance. Essays by Kirsten Sanders, John Ehrett, Ian Olson, Matthew LaPine and more.</span>
       </a>
+      <a class="lib-item-pdf" href="{{asset "journals/Journal-Issue07.pdf"}}" download>PDF</a>
     </li>
     <li class="lib-shelf-item">
       <a class="lib-item" href="/journal-archive/issue-06/">
-        <span class="lib-jcover" aria-hidden="true">
-          <span class="lib-jcover-mast">Mere<br>Orthodoxy</span>
-          <span class="lib-jcover-est">Est. MMV</span>
-          <span class="lib-jcover-meta"><span>Issue 006</span><span>Winter 2025</span></span>
-          <span class="lib-jcover-art"></span>
-          <span class="lib-jcover-names">Ana Siljak · Brad Littlejohn · Samuel James · Nadya Williams · James R. Wood</span>
-        </span>
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-006-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
         <span class="lib-item-title">Issue 006</span>
         <span class="lib-item-meta">Winter 2025</span>
         <span class="lib-item-desc">On repair, institutions, and enchantment. Essays by Ana Siljak, Brad Littlejohn, Samuel James, Nadya Williams, James R. Wood and more.</span>
       </a>
+      <a class="lib-item-pdf" href="{{asset "journals/Journal-Issue06.pdf"}}" download>PDF</a>
     </li>
     <li class="lib-shelf-item">
       <a class="lib-item" href="/journal-archive/issue-05/">
-        <span class="lib-jcover" aria-hidden="true">
-          <span class="lib-jcover-mast">Mere<br>Orthodoxy</span>
-          <span class="lib-jcover-est">Est. MMV</span>
-          <span class="lib-jcover-meta"><span>Issue 005</span><span>Fall 2024</span></span>
-          <span class="lib-jcover-art"></span>
-          <span class="lib-jcover-names">E. J. Hutchinson · Brad Littlejohn · Peter Leithart · Ian Harber</span>
-        </span>
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-005-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
         <span class="lib-item-title">Issue 005</span>
         <span class="lib-item-meta">Fall 2024</span>
         <span class="lib-item-desc">On despair, authority, and civic life. Essays by E. J. Hutchinson, Brad Littlejohn, Peter Leithart, Ian Harber and more.</span>
       </a>
+      <a class="lib-item-pdf" href="{{asset "journals/Journal-Issue05.pdf"}}" download>PDF</a>
     </li>
     <li class="lib-shelf-item">
       <a class="lib-item" href="/journal-archive/issue-04/">
-        <span class="lib-jcover" aria-hidden="true">
-          <span class="lib-jcover-mast">Mere<br>Orthodoxy</span>
-          <span class="lib-jcover-est">Est. MMV</span>
-          <span class="lib-jcover-meta"><span>Issue 004</span><span>Winter 2023</span></span>
-          <span class="lib-jcover-art"></span>
-          <span class="lib-jcover-names">L. M. Sacasas · Susannah Black · Brad East · Bonnie Kristian</span>
-        </span>
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-004-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
         <span class="lib-item-title">Issue 004</span>
         <span class="lib-item-meta">Winter 2023</span>
         <span class="lib-item-desc">On culture, technology, and renewal. Essays by L. M. Sacasas, Susannah Black, Brad East, Bonnie Kristian and more.</span>
       </a>
+      <a class="lib-item-pdf" href="{{asset "journals/Journal-Issue04.pdf"}}" download>PDF</a>
     </li>
     <li class="lib-shelf-item">
       <a class="lib-item" href="/journal-archive/issue-03/">
-        <span class="lib-jcover" aria-hidden="true">
-          <span class="lib-jcover-mast">Mere<br>Orthodoxy</span>
-          <span class="lib-jcover-est">Est. MMV</span>
-          <span class="lib-jcover-meta"><span>Issue 003</span><span>Summer 2022</span></span>
-          <span class="lib-jcover-art"></span>
-          <span class="lib-jcover-names">Brad Littlejohn · Leah Libresco Sargeant · Chris Krycho · Paul Kingsnorth</span>
-        </span>
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-003-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
         <span class="lib-item-title">Issue 003</span>
         <span class="lib-item-meta">Summer 2022</span>
         <span class="lib-item-desc">On work, economics, and vocation. Essays by Brad Littlejohn, Leah Libresco Sargeant, Chris Krycho, Paul Kingsnorth and more.</span>
       </a>
+      <a class="lib-item-pdf" href="{{asset "journals/Journal-Issue03.pdf"}}" download>PDF</a>
     </li>
     <li class="lib-shelf-item">
       <a class="lib-item" href="/journal-archive/issue-02/">
-        <span class="lib-jcover" aria-hidden="true">
-          <span class="lib-jcover-mast">Mere<br>Orthodoxy</span>
-          <span class="lib-jcover-est">Est. MMV</span>
-          <span class="lib-jcover-meta"><span>Issue 002</span><span>Winter 2022</span></span>
-          <span class="lib-jcover-art"></span>
-          <span class="lib-jcover-names">Holly Ordway · Susannah Black Roberts · Tara Thieke · Jake Meador</span>
-        </span>
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-002-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
         <span class="lib-item-title">Issue 002</span>
         <span class="lib-item-meta">Winter 2022</span>
         <span class="lib-item-desc">On place, belonging, and the liberal arts. Essays by Holly Ordway, Susannah Black Roberts, Tara Thieke, Jake Meador and more.</span>
       </a>
+      <a class="lib-item-pdf" href="{{asset "journals/Journal-Issue02.pdf"}}" download>PDF</a>
     </li>
     <li class="lib-shelf-item">
       <a class="lib-item" href="/journal-archive/issue-01/">
-        <span class="lib-jcover" aria-hidden="true">
-          <span class="lib-jcover-mast">Mere<br>Orthodoxy</span>
-          <span class="lib-jcover-est">Est. MMV</span>
-          <span class="lib-jcover-meta"><span>Issue 001</span><span>Fall 2021</span></span>
-          <span class="lib-jcover-art"></span>
-          <span class="lib-jcover-names">Oliver O&#x27;Donovan · Kirsten Sanders · Matthew Lee Anderson · Tara Ann Thieke</span>
-        </span>
+        <img class="lib-cover-img" src="{{asset "images/journal-issue-001-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">
         <span class="lib-item-title">Issue 001</span>
         <span class="lib-item-meta">Fall 2021</span>
         <span class="lib-item-desc">The inaugural issue. Essays by Oliver O&#x27;Donovan, Kirsten Sanders, Matthew Lee Anderson, Tara Ann Thieke and more.</span>
       </a>
+      <a class="lib-item-pdf" href="{{asset "journals/Journal-Issue01.pdf"}}" download>PDF</a>
     </li>
   </ol>
 </div>

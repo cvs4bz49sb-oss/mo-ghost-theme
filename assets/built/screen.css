@@ -28848,6 +28848,20 @@ main.dashboard-page * { font-style: normal !important; }
   gap: 40px 28px;
 }
 .lib-item { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+.lib-cover-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 773 / 1000;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(45, 41, 39, 0.08), 0 10px 24px rgba(45, 41, 39, 0.14);
+  margin-bottom: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.lib-item:hover .lib-cover-img { transform: translateY(-4px); box-shadow: 0 2px 4px rgba(45, 41, 39, 0.08), 0 18px 34px rgba(45, 41, 39, 0.2); }
+.lib-item:focus-visible .lib-cover-img { outline: 2px solid var(--color-secondary); outline-offset: 4px; }
+.lib-item-pdf { display: inline-block; margin-top: 8px; font-family: var(--font-body); font-size: 14px; color: var(--color-secondary); text-decoration: none; }
+.lib-item-pdf:hover { text-decoration: underline; text-underline-offset: 3px; }
 .lib-item .lib-jcover { margin-bottom: 14px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
 .lib-item:hover .lib-jcover { transform: translateY(-4px); box-shadow: 0 2px 4px rgba(45, 41, 39, 0.08), 0 18px 34px rgba(45, 41, 39, 0.2); }
 .lib-item:focus-visible { outline: none; }
