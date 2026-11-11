@@ -15677,7 +15677,8 @@ a.sp-match-title:hover { color: var(--color-primary-text); }
   .sp-hero { padding: 36px 0 28px; }
   .sp-title { font-size: 28px; margin-bottom: 16px; }
   .sp-form { flex-wrap: wrap; padding: 6px 6px 6px 14px; gap: 8px; }
-  .sp-form input { font-size: 18px; padding: 10px 0; flex-basis: 0; }
+  .sp-form input { font-size: 17px; padding: 10px 0; flex-basis: 0; min-width: 0; }
+  .sp-form input::placeholder { font-size: 16px; }
   .sp-submit { flex: 1 0 100%; }
   .sp-stats { font-size: 14px; }
   .sp-body { padding-top: 28px; padding-bottom: 64px; }
