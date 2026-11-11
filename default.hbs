@@ -337,7 +337,7 @@
          better server titles. --}}
     <script src="{{asset "built/boot.min.js"}}"></script>
 
-    <header class="site-header" data-hm-section="header">
+    <header class="site-header" data-hm-section="header" data-keep-href>
         <div class="container header-inner">
             <a href="{{@site.url}}" class="brand" aria-label="Mere Orthodoxy home">
                 <img src="{{asset "images/mere-o-logo.png"}}" alt="Mere Orthodoxy" class="brand-logo" width="164" height="72" />
@@ -392,7 +392,7 @@
 
     <div class="mobile-nav" id="mobile-nav" hidden>
         <div class="mobile-nav-backdrop"></div>
-        <aside class="mobile-nav-panel" role="dialog" aria-label="Site navigation">
+        <aside class="mobile-nav-panel" role="dialog" aria-label="Site navigation" data-keep-href>
             <div class="mobile-nav-head">
                 <span class="mobile-nav-wordmark"><em>Mere Orthodoxy</em></span>
                 <button class="mobile-nav-close" type="button" aria-label="Close menu">&times;</button>
