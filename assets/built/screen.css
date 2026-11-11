@@ -16880,9 +16880,12 @@ body[class*="lc-"] .bhero {
 /* Phones and narrow tablets: the running order becomes one line that
    sticks under the header and scrolls sideways. */
 @media (max-width: 900px) {
-  .do-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  /* A block, not a one-column grid: in a grid the bar sits alone in its
+     row and sticky has nowhere to travel. */
+  .do-layout { display: block; }
   .do-order {
-    top: 64px;
+    top: 61px;
+    transition: top var(--hdr-ms) var(--hdr-ease);
     z-index: 5;
     border-left: 0;
     border-bottom: 1px solid var(--color-rule);
@@ -16906,6 +16909,8 @@ body[class*="lc-"] .bhero {
     white-space: nowrap;
   }
   .do-order a[aria-current="step"] { border-bottom-color: var(--color-secondary); }
+  /* The header slides away on scroll down; the bar follows it up. */
+  body:has(.site-header.is-hidden) .do-order { top: 0; }
   .do-part { scroll-margin-top: 120px; }
 }
 @media (max-width: 640px) {
