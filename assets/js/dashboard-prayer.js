@@ -311,6 +311,7 @@
 
   function partHtml(part) {
     let body = "";
+    let titleSub = "";
     if (part.sentence) body = sentencePart();
     else if (part.lesson) body = lessonPart(part.lesson, part.gloria);
     else if (part.choose) body = choosePart(part);
@@ -321,14 +322,20 @@
     } else {
       if (part.antiphon) body += antiphonHtml();
       body += (part.chapters || []).map((t) => {
-        // A part named after its one chapter needs no second heading.
-        return chapterHtml(t, { noHead: part.chapters.length === 1 && t === part.label });
+        // A part that is one chapter of the same name needs no second
+        // heading; its reference moves up beside the part title.
+        const solo = part.chapters.length === 1 && t.startsWith(part.label);
+        if (solo) {
+          const ch = chapter(t);
+          if (ch && ch.subtitle) titleSub = ` <span class="do-sub">${esc(ch.subtitle)}</span>`;
+        }
+        return chapterHtml(t, { noHead: solo });
       }).join("");
       if (part.collect) body += collectHtml();
       if (part.after) body += part.after.map((t) => { return chapterHtml(t); }).join("");
     }
     if (!body) return "";
-    return `<section class="do-part" id="do-${part.id}" aria-labelledby="do-${part.id}-h"><h2 class="do-part-title" id="do-${part.id}-h">${esc(part.label)}</h2>${body}</section>`;
+    return `<section class="do-part" id="do-${part.id}" aria-labelledby="do-${part.id}-h"><h2 class="do-part-title" id="do-${part.id}-h">${esc(part.label)}${titleSub}</h2>${body}</section>`;
   }
 
   // ── Render ────────────────────────────────────────────────────
