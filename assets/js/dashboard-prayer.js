@@ -336,6 +336,82 @@
     return h;
   }
 
+  // ── Scripture layout ──────────────────────────────────────────
+  // The Bible worker returns each chapter as one <p> of text with <sup>
+  // verse numbers and no paragraph or poetry marks. Lay it out as a
+  // printed Bible would: Psalms and Proverbs one verse to a block, broken
+  // at its clauses with the rest indented beneath (as the canticles are);
+  // narrative in paragraphs of a few verses, broken at a sentence end.
+  // A chapter that starts at verse 1 opens with a large chapter numeral.
+  const POETRY = /^(Psalms?|Proverbs|Song of (Songs|Solomon)|Lamentations)\b/i;
+  const PARA_MIN = 4;
+
+  function versesOf(block) {
+    const parts = block.innerHTML.split(/<sup>\s*(\d+)\s*<\/sup>/);
+    const out = [];
+    for (let i = 1; i < parts.length; i += 2) {
+      const tmp = document.createElement("div");
+      tmp.innerHTML = parts[i + 1] || "";
+      const text = tmp.textContent.replace(/\s+/g, " ").trim();
+      if (text) out.push({ n: Number(parts[i]), text });
+    }
+    return out;
+  }
+
+  function scriptureText(text) {
+    return esc(text).replace(/\bLORD\b/g, '<span class="do-sc">Lord</span>');
+  }
+
+  function verseNum(v, chapterNo) {
+    if (v.n === 1 && chapterNo) return `<span class="do-chnum" aria-label="Chapter ${chapterNo}">${chapterNo}</span>`;
+    return `<sup class="do-vn">${v.n}</sup>`;
+  }
+
+  function poetryHtml(verses, chapterNo) {
+    return verses.map((v) => {
+      // Break after a clause mark that is followed by more text.
+      const lines = v.text.split(/(?<=[;:?!.][\u201d\u2019"']*)\s+(?=\S)/);
+      return `<p class="do-pv">${verseNum(v, chapterNo)}${lines.map((l, i) => {
+        return `<span class="${i ? "do-pl do-pl2" : "do-pl"}">${scriptureText(l)}</span>`;
+      }).join("")}</p>`;
+    }).join("");
+  }
+
+  function proseHtml(verses, chapterNo) {
+    const paras = [];
+    let cur = [];
+    verses.forEach((v, i) => {
+      const prev = verses[i - 1];
+      const endsSentence = prev && /[.?!][\u201d\u2019"']*$/.test(prev.text);
+      if (cur.length >= PARA_MIN && endsSentence) { paras.push(cur); cur = []; }
+      cur.push(v);
+    });
+    if (cur.length) paras.push(cur);
+    return paras.map((pv) => {
+      return `<p class="do-prose">${pv.map((v) => { return `${verseNum(v, chapterNo)}${scriptureText(v.text)}`; }).join(" ")}</p>`;
+    }).join("");
+  }
+
+  function formatPassage(html, ref) {
+    const lib = window.MODailyScripture;
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    const blocks = tmp.querySelectorAll(".bolls-scripture");
+    if (!blocks.length) return html;
+    const spans = (lib && lib.parseScriptureRef(ref)) || [];
+    const poetry = POETRY.test(ref);
+    const out = [];
+    blocks.forEach((b, i) => {
+      const verses = versesOf(b);
+      if (!verses.length) return;
+      // Spans and blocks pair up only when every span loaded.
+      const chapterNo = spans.length === blocks.length && spans[i] ? spans[i].chapter : null;
+      if (i > 0) out.push('<p class="do-gap" aria-hidden="true">&hellip;</p>');
+      out.push(poetry ? poetryHtml(verses, chapterNo) : proseHtml(verses, chapterNo));
+    });
+    return out.length ? out.join("") : html;
+  }
+
   function fillReadings() {
     const lib = window.MODailyScripture;
     let t = "ESV";
@@ -345,7 +421,7 @@
       const ref = el.getAttribute("data-do-ref");
       if (!lib) { el.innerHTML = `<p class="do-note">Read ${esc(ref)}.</p>`; return; }
       lib.fetchScripture(ref, t).then((res) => {
-        el.innerHTML = res.html;
+        el.innerHTML = formatPassage(res.html, ref);
         const sub = el.parentElement.querySelector(".do-ch .do-sub");
         if (sub) sub.textContent = `${ref} (${res.fallback ? "ESV" : t})`;
       });
