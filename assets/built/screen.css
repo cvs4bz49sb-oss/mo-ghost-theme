@@ -28681,7 +28681,9 @@ main.dashboard-page * { font-style: normal !important; }
   display: flex;
   flex-direction: column;
   aspect-ratio: 772 / 1000;
-  padding: 11cqw 9cqw 8cqw;
+  /* Percent, not cqw: cqw on the container itself would measure the
+     viewport. Percent padding is a share of the cover's own width. */
+  padding: 11% 9% 8%;
   background: #fbf8f1;
   color: #2d2927;
   border-radius: 3px;
@@ -28757,7 +28759,7 @@ main.dashboard-page * { font-style: normal !important; }
   display: flex;
   flex-direction: column;
   aspect-ratio: 2 / 3;
-  padding: 10cqw 10cqw 9cqw;
+  padding: 10% 10% 9%;
   border-radius: 3px;
   box-shadow: 0 1px 2px rgba(45, 41, 39, 0.08), 0 10px 24px rgba(45, 41, 39, 0.16);
   overflow: hidden;
