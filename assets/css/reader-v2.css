@@ -53,6 +53,7 @@ html[data-rd-size="l"] { --rd-size: 22px; }
 html[data-rd-size="xl"] { --rd-size: 24px; }
 
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { scroll-padding-top: calc(var(--rd-bar-h) + 16px); -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
