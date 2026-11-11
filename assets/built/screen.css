@@ -28456,6 +28456,12 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .mm-grid--read > [data-mm-lead] > .mm-feature { background: #fbf8f3; border: 1px solid var(--color-rule); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 26px 26px 24px; }
 .mm .mm-card > :last-child { margin-bottom: 0; }
 
+/* Support panel: the donate appeal sits where the Donate link was, a
+   tinted block with one solid button so it reads as the panel's ask. */
+.mm .mm-appeal { max-width: 380px; margin-top: 10px; padding: 18px 20px; background: #fbf8f3; border: 1px solid var(--color-rule); border-left: 3px solid var(--color-primary); border-radius: var(--radius-lg); }
+.mm .mm-appeal p { margin: 0 0 14px; font-size: 16px; line-height: 1.5; color: var(--color-dark); }
+.mm .mm-appeal .mm-note { margin-top: 10px; font-size: 13px; }
+
 /* Mere Fidelity and Christians Reading Classics show pages: no italics
    anywhere on the page (Ian, 2026-11-10), including episode titles and
    the hero's highlighted words. */
