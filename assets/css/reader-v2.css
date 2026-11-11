@@ -285,7 +285,8 @@ button { font: inherit; color: inherit; }
   font-weight: 600;
   text-decoration: none;
 }
-.rd-cta [data-rd-continue-title] { margin-left: 0.35em; font-weight: 400; }
+#rdContinue { max-width: 100%; min-width: 0; white-space: nowrap; }
+.rd-cta [data-rd-continue-title] { margin-left: 0.35em; font-weight: 400; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .rd-cta--solid { background: var(--rd-accent); border-color: var(--rd-accent); color: #fff; }
 html[data-theme="dark"] .rd-cta--solid { color: #1d1a18; }
 .rd-cta:hover { filter: brightness(0.95); }
