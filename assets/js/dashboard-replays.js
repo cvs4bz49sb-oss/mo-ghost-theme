@@ -41,7 +41,7 @@
       const t = (ps[i].textContent || "").replace(/\s+/g, " ").trim();
       if (t.length < 60 || LOGISTICS.test(t) || /^[—-]/.test(t)) continue;
       const sentences = t.match(/[^.!?]+[.!?]+["”’]?/g) || [t];
-      return sentences.slice(0, 2).join(" ").trim();
+      return sentences.slice(0, 2).map((x) => { return x.trim(); }).join(" ");
     }
     return "";
   }
@@ -56,6 +56,9 @@
         title: el.getAttribute("data-title") || "",
         ts: isNaN(ts) ? 0 : ts,
         video: videoOf(content),
+        // The post's feature image beats YouTube's auto thumbnail, which
+        // can be a black frame.
+        image: el.getAttribute("data-image") || "",
         desc: descriptionOf(content, el.getAttribute("data-excerpt") || ""),
       };
     })
@@ -81,9 +84,10 @@
     } catch (_) { return ""; }
   }
 
-  function thumbOf(v) {
+  function thumbOf(e) {
+    if (e.image) return e.image;
     // hqdefault always exists; it is 4:3 with bars, which object-fit crops.
-    return v.kind === "youtube" ? `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg` : "";
+    return e.video.kind === "youtube" ? `https://i.ytimg.com/vi/${e.video.id}/hqdefault.jpg` : "";
   }
 
   function embedOf(v) {
@@ -96,7 +100,7 @@
 
   function renderFeature(play) {
     const e = current;
-    const thumb = thumbOf(e.video);
+    const thumb = thumbOf(e);
     const screen = play
       ? `<iframe src="${esc(embedOf(e.video))}" title="${esc(e.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`
       : `<button type="button" class="rp-play" data-rp-play aria-label="Play ${esc(e.title)}">${thumb ? `<img src="${esc(thumb)}" alt="" loading="eager">` : ""}<span class="rp-play-icon" aria-hidden="true"></span></button>`;
@@ -114,7 +118,7 @@
     const rest = items.filter((e) => { return e !== current; });
     if (more) more.hidden = !rest.length;
     list.innerHTML = rest.map((e) => {
-      const thumb = thumbOf(e.video);
+      const thumb = thumbOf(e);
       return `<li class="rp-card"><button type="button" class="rp-card-btn" data-rp-pick="${esc(e.slug)}">` +
         `<span class="rp-thumb">${thumb ? `<img src="${esc(thumb)}" alt="" loading="lazy">` : ""}<span class="rp-play-icon rp-play-icon--sm" aria-hidden="true"></span></span>` +
         `<span class="rp-card-text"><span class="rp-date">${esc(formatDate(e.ts))}</span><span class="rp-card-title">${esc(e.title)}</span></span>` +
