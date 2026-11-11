@@ -433,10 +433,12 @@
                     {{else}}{{#match @member.status "comped"}}
                         <a href="/give/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
                     {{else}}{{#if @member}}
-                        <a href="#join" class="btn btn-solid btn-primary btn-lg" data-hm-goal="journal">Get The Journal</a>
+                        <a href="/journal/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="journal">Get The Journal</a>
                     {{else}}
-                        {{!-- Anonymous — primary CTA is the membership signup. --}}
-                        <a href="#join" class="btn btn-solid btn-primary btn-lg" data-hm-goal="journal">Get The Journal</a>
+                        {{!-- Anonymous and free members go to the Journal page, which
+                             carries the join cards (Ian, 2026-11-11). It used to
+                             jump to #join on this page. --}}
+                        <a href="/journal/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="journal">Get The Journal</a>
                     {{/if}}{{/match}}{{/match}}
                 </div>
             </div>
