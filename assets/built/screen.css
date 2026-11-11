@@ -16700,174 +16700,220 @@ body[class*="lc-"] .bhero {
   color: var(--color-muted);
 }
 
-/* ── Dashboard Prayer (Daily Office) ─────────────────────────── */
+/* ── Dashboard Prayer (Daily Office), redesigned 2026-11-10 ───
+   One continuous office in the prayer book's order with a running
+   order beside it (one line on phones). Prayer book conventions:
+   rubrics in red, the V and R signs, canticle verses broken at the
+   asterisk with the second half indented, opening capitals in small
+   capitals. Roman throughout (the dashboard skin forbids italics). */
 .dashboard-prayer-hero { text-align: center; }
 
-.prayer-office-toggle {
+.do-page { padding: 8px 0 24px; }
+.do-controls {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
   justify-content: center;
-  margin-top: 24px;
+  gap: 12px 20px;
+  padding-top: 28px;
+  padding-bottom: 28px;
 }
-.prayer-office-btn {
-  font-family: var(--font-display);
-  font-size: 15px;
-  padding: 8px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 6px;
+.do-seg {
+  display: inline-flex;
+  border: 1px solid var(--color-rule);
+  border-radius: 3px;
+  padding: 3px;
+  background: var(--color-page);
+}
+.do-seg-btn {
+  appearance: none;
+  border: 0;
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.prayer-office-btn.is-active {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.4);
-}
-.prayer-office-btn:hover:not(.is-active) {
-  color: rgba(255, 255, 255, 0.85);
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
-.prayer-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
-  margin-bottom: 8px;
-  border-bottom: 1px solid var(--color-card-border);
-}
-.prayer-lang-toggle {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--color-muted);
-  background: none;
-  border: 1px solid var(--color-card-border);
-  border-radius: 4px;
-  padding: 6px 14px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.prayer-lang-toggle:hover {
-  color: var(--color-dark);
-  border-color: var(--color-dark);
-}
-.prayer-lang-toggle[aria-pressed="false"] {
-  color: var(--color-secondary);
-  border-color: var(--color-secondary);
-}
-.prayer-source-link {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--color-muted);
-  text-decoration: none;
-}
-.prayer-source-link:hover { color: var(--color-secondary); }
-
-/* Section collapsibles */
-.prayer-section {
-  border-bottom: 1px solid var(--color-card-border);
-}
-.prayer-section-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 0;
-  cursor: pointer;
-  list-style: none;
-}
-.prayer-section-summary::-webkit-details-marker { display: none; }
-.prayer-section-summary::marker { display: none; content: ""; }
-.prayer-section-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 400;
-  margin: 0;
-  color: var(--color-dark);
-}
-.prayer-section-subtitle {
-  display: block;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-style: normal;
-  color: var(--color-muted);
-  margin-top: 2px;
-}
-.prayer-section-chev {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-right: 1.5px solid var(--color-muted);
-  border-bottom: 1.5px solid var(--color-muted);
-  transform: rotate(45deg);
-  transition: transform 0.2s;
-  flex-shrink: 0;
-  margin-left: 16px;
-}
-.prayer-section[open] > .prayer-section-summary .prayer-section-chev {
-  transform: rotate(-135deg);
-}
-
-/* Prayer text */
-.prayer-section-body {
-  padding: 0 0 24px;
-}
-.prayer-section-body p {
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.75;
-  color: var(--color-dark);
-  margin: 0 0 12px;
-}
-.prayer-section-body p:last-child { margin-bottom: 0; }
-
-/* Versicle / Response styling */
-.prayer-versicle {
-  color: var(--color-muted) !important;
-  font-style: italic;
-}
-.prayer-response {
-  margin-left: 24px !important;
-}
-
-/* Canticle verse lines */
-.prayer-verse {
-  padding-left: 20px;
-  text-indent: -20px;
-}
-
-/* Loading / error */
-.prayer-loading,
-.prayer-error {
+  border-radius: 3px;
+  padding: 7px 16px;
   font-family: var(--font-body);
   font-size: 15px;
+  line-height: 1.2;
   color: var(--color-muted);
-  text-align: center;
-  padding: 48px 0;
+  cursor: pointer;
 }
-.prayer-error a { color: var(--color-secondary); }
+.do-seg-btn:hover:not([aria-pressed="true"]):not(:disabled) { color: var(--color-dark); }
+.do-seg-btn[aria-pressed="true"] { background: var(--color-dark); color: var(--color-page); }
+.do-seg-btn:disabled { opacity: 0.35; cursor: default; }
+.do-seg-btn:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 2px; }
+.do-size .do-seg-btn { padding: 7px 12px; }
+.do-size .do-seg-btn[data-prayer-size="-1"] { font-size: 13px; }
+.do-size .do-seg-btn[data-prayer-size="1"] { font-size: 19px; }
 
-/* Back link */
-.prayer-back {
-  padding: 32px 0;
-  text-align: center;
+.do-layout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 660px);
+  justify-content: center;
+  gap: 56px;
+  align-items: start;
 }
-.prayer-back a {
+.do-order {
+  position: sticky;
+  top: 104px;
+  border-left: 1px solid var(--color-rule);
+}
+.do-order ol { list-style: none; margin: 0; padding: 0; }
+.do-order a {
+  display: block;
+  padding: 6px 0 6px 16px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
   font-family: var(--font-body);
   font-size: 14px;
+  line-height: 1.3;
   color: var(--color-muted);
   text-decoration: none;
 }
-.prayer-back a:hover { color: var(--color-secondary); }
+.do-order a:hover { color: var(--color-dark); }
+.do-order a[aria-current="step"] { color: var(--color-dark); border-left-color: var(--color-secondary); font-weight: 600; }
 
-/* Mobile */
+/* The office itself. Size steps scale everything inside it. */
+.do-office { font-size: 19px; line-height: 1.65; color: var(--color-dark); font-family: var(--font-body); }
+.do-office.is-size-s { font-size: 17px; }
+.do-office.is-size-l { font-size: 21px; }
+.do-office.is-size-xl { font-size: 23px; }
+.do-office p { margin: 0 0 0.8em; }
+.do-part { padding: 8px 0 28px; scroll-margin-top: 104px; }
+.do-part + .do-part { border-top: 1px solid var(--color-rule); padding-top: 32px; }
+.do-part-title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.25em;
+  line-height: 1.25;
+  margin: 0 0 0.7em;
+  color: var(--color-dark);
+}
+.do-chapter + .do-chapter { margin-top: 1.4em; }
+.do-ch {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85em;
+  line-height: 1.35;
+  margin: 0 0 0.5em;
+  color: var(--color-dark);
+}
+.do-sub { font-weight: 400; color: var(--color-muted); margin-left: 6px; }
+.do-sc { font-variant: small-caps; letter-spacing: 0.03em; }
+.do-rubric {
+  font-size: 0.8em;
+  line-height: 1.5;
+  color: var(--color-alert-text);
+}
+.do-note { font-size: 0.75em; color: var(--color-muted); }
+
+/* Versicles and responses: the sign hangs in the margin in red. */
+.do-vr { margin: 0 0 1em; }
+.do-vr p { margin: 0 0 0.25em; padding-left: 1.6em; position: relative; }
+.do-sign {
+  position: absolute;
+  left: 0;
+  color: var(--color-alert-text);
+  font-size: 0.95em;
+}
+.do-response { font-weight: 600; }
+
+/* Canticles and psalms: one verse per line, the half after the asterisk
+   indented beneath it. */
+.do-verse { margin: 0 0 1em; }
+.do-v { display: block; margin-bottom: 0.45em; padding-left: 1.4em; text-indent: -1.4em; }
+.do-v2 { display: block; padding-left: 1.4em; }
+
+.do-sentence { font-size: 1.1em; line-height: 1.55; }
+.do-cite { display: block; margin-top: 0.3em; font-style: normal; font-size: 0.72em; color: var(--color-muted); }
+
+.do-tools { margin: 0.4em 0 0; }
+.do-link {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.do-link:hover { color: var(--color-dark); }
+
+.do-choose { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 1em; }
+.do-choose-btn {
+  appearance: none;
+  border: 1px solid var(--color-rule);
+  background: transparent;
+  border-radius: 3px;
+  padding: 5px 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+.do-choose-btn:hover { color: var(--color-dark); border-color: var(--color-muted); }
+.do-choose-btn[aria-pressed="true"] { color: var(--color-dark); border-color: var(--color-dark); }
+
+.do-fold { margin-top: 1em; }
+.do-fold > summary {
+  cursor: pointer;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--color-secondary);
+  list-style: none;
+}
+.do-fold > summary::-webkit-details-marker { display: none; }
+.do-fold > summary::before { content: "+"; display: inline-block; width: 1.1em; }
+.do-fold[open] > summary::before { content: "\2212"; }
+.do-fold[open] > summary { margin-bottom: 1em; }
+
+.do-end { text-align: center; color: var(--color-secondary); font-size: 22px; margin: 8px 0 0; }
+.do-loading,
+.do-error { font-size: 16px; color: var(--color-muted); text-align: center; padding: 40px 0; }
+.do-error a { color: var(--color-secondary); }
+
+.do-back { padding-top: 32px; text-align: center; }
+.do-back a { font-family: var(--font-body); font-size: 14px; color: var(--color-muted); text-decoration: none; }
+.do-back a:hover { color: var(--color-secondary); }
+
+/* Phones and narrow tablets: the running order becomes one line that
+   sticks under the header and scrolls sideways. */
+@media (max-width: 900px) {
+  .do-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .do-order {
+    top: 64px;
+    z-index: 5;
+    border-left: 0;
+    border-bottom: 1px solid var(--color-rule);
+    background: var(--color-page);
+    margin: 0 -16px 24px;
+  }
+  .do-order ol {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 16px;
+  }
+  .do-order ol::-webkit-scrollbar { display: none; }
+  .do-order li { flex: none; }
+  .do-order a {
+    padding: 12px 10px;
+    margin: 0 0 -1px;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .do-order a[aria-current="step"] { border-bottom-color: var(--color-secondary); }
+  .do-part { scroll-margin-top: 120px; }
+}
 @media (max-width: 640px) {
-  .prayer-office-toggle { flex-direction: column; align-items: center; }
-  .prayer-office-btn { width: 200px; }
-  .prayer-controls { flex-direction: column; gap: 12px; align-items: flex-start; }
-  .prayer-section-title { font-size: 16px; }
-  .prayer-section-body p { font-size: 15px; }
+  .do-office { font-size: 18px; }
+  .do-office.is-size-s { font-size: 16px; }
+  .do-office.is-size-l { font-size: 20px; }
+  .do-office.is-size-xl { font-size: 22px; }
+  .do-controls { gap: 10px; padding-top: 20px; padding-bottom: 16px; }
 }
 
 

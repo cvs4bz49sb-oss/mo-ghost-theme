@@ -1,7 +1,11 @@
-{{!-- Dashboard prayer body — the Daily Office.
-     Morning Prayer shown before 4pm, Evening Prayer after.
-     JS handles office selection, section expansion, and language toggle.
-     Data is embedded inline as JSON; the JS reads it on load. --}}
+{{!-- Dashboard prayer body: the Daily Office (redesigned 2026-11-10).
+     One continuous office in the prayer book's own order, with a
+     running order to jump within it. Morning before 4pm, Evening after;
+     #morning / #evening in the address picks one. dashboard-prayer.js
+     renders the office from assets/data/faith-received/prayer.json and
+     picks the day's sentence, antiphon and Collect from the church year
+     (liturgical-calendar.js). Language and text size are remembered in
+     this browser. --}}
 
 <section class="hero dashboard-hero dashboard-prayer-hero">
   <div class="container">
@@ -10,35 +14,33 @@
       <span data-prayer-greeting>Morning</span> <span class="highlight"><em>Prayer</em></span>
     </h1>
     <p class="hero-sub" data-prayer-sub>From the 1928 Book of Common Prayer.</p>
-
-    <nav class="prayer-office-toggle" aria-label="Select office">
-      <button type="button" class="prayer-office-btn is-active" data-prayer-office="morning" aria-pressed="true">
-        <em>Morning Prayer</em>
-      </button>
-      <button type="button" class="prayer-office-btn" data-prayer-office="evening" aria-pressed="false">
-        <em>Evening Prayer</em>
-      </button>
-    </nav>
   </div>
 </section>
 
-<section class="dashboard-body prayer-body">
-  <div class="container container-narrow">
-
-    <div class="prayer-controls">
-      <button type="button" class="prayer-lang-toggle" data-prayer-lang-toggle aria-pressed="true">
-        <span class="prayer-lang-label" data-prayer-lang-label>Modern English</span>
-      </button>
-      {{!-- Link to TFR source text hidden until TFR is publicly launched --}}
+<section class="do-page">
+  <div class="container do-controls">
+    <div class="do-seg" role="group" aria-label="Office">
+      <button type="button" class="do-seg-btn" data-prayer-office="morning" aria-pressed="true">Morning</button>
+      <button type="button" class="do-seg-btn" data-prayer-office="evening" aria-pressed="false">Evening</button>
     </div>
-
-    <div class="prayer-sections" data-prayer-sections>
-      <p class="prayer-loading">Loading the Daily Office&hellip;</p>
+    <div class="do-seg" role="group" aria-label="Language">
+      <button type="button" class="do-seg-btn" data-prayer-lang="modern" aria-pressed="true">Modern</button>
+      <button type="button" class="do-seg-btn" data-prayer-lang="original" aria-pressed="false">1928</button>
     </div>
-
-    <div class="prayer-back">
-      <a href="/dashboard/">&larr; Back to dashboard</a>
+    <div class="do-seg do-size" role="group" aria-label="Text size">
+      <button type="button" class="do-seg-btn" data-prayer-size="-1" aria-label="Smaller text">A</button>
+      <button type="button" class="do-seg-btn" data-prayer-size="1" aria-label="Larger text">A</button>
     </div>
+  </div>
 
+  <div class="container do-layout">
+    <nav class="do-order" aria-label="Order of the office" data-prayer-order></nav>
+    <article class="do-office" data-prayer-sections>
+      <p class="do-loading">Loading the Daily Office&hellip;</p>
+    </article>
+  </div>
+
+  <div class="container do-back">
+    <a href="/dashboard/">&larr; Back to dashboard</a>
   </div>
 </section>
