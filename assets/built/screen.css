@@ -28541,7 +28541,11 @@ html.mm-is-open .site-header { z-index: 111; }
    nothing on it is italic and the display face gives way to the
    working face (DESLOP-AGENT Q11). Scoped to the dashboard <main>s. */
 main.dashboard,
-main.dashboard-page { --font-display: var(--font-body); }
+main.dashboard-page {
+  --font-display: var(--font-body);
+  /* The shared heading rule reads Ghost's own heading-font variable. */
+  --gh-font-heading: var(--font-body);
+}
 main.dashboard,
 main.dashboard *,
 main.dashboard-page,
