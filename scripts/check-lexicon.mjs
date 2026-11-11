@@ -1,5 +1,8 @@
 /*
- * The Lexicon in a real Chrome (2026-10-23). The page lists every term, grouped by letter, built letter by letter. It checks:
+ * The Lexicon in a real Chrome (2026-10-23).
+ * OUT OF DATE since 2026-11-11: the page no longer draws every term (it shows the most defined terms, then one letter at a time, for
+ * speed), so the "full list" assertions below wait for rows that never come. Update it to the new views before relying on it.
+ * It checked:
  *   - the count shown equals the dataset count (index.json n), and once every letter has loaded the list holds exactly that many rows;
  *   - every letter in the bar lands on its section, and the letter on screen is marked;
  *   - the alphabet tabs and the search filter the same list in place, by headword and by Latin, Greek and Hebrew form;

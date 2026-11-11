@@ -187,3 +187,10 @@ main.tfr-lexicon .lx-sk-h { height: 28px; width: 30%; }
   main.tfr-lexicon .lx-bar a { min-width: 40px; min-height: 40px; }
 }
 @media (hover: hover) { main.tfr-lexicon .lx-r:hover { background: var(--highlight); } }
+
+/* Rebuilt for speed (2026-11-11): the landing lists the most defined terms; a letter shows its first 600 with Show all. */
+main.tfr-lexicon .lx-bg-top { display: inline-flex; padding-right: 10px; margin-right: 10px; border-right: 1px solid var(--border); }
+main.tfr-lexicon .lx-bar a[data-home] { padding: 0 4px; }
+main.tfr-lexicon .lx-home .lx-lh small { font-size: 13px; }
+main.tfr-lexicon .lx-hint { margin: 18px 0 0; font-size: 14px; color: var(--muted); }
+main.tfr-lexicon .lx-more { margin: 18px 0 0; }
