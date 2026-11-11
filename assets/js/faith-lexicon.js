@@ -177,9 +177,9 @@
   function paintBar() {
     const tab = S.tab;
     const all = letters();
-    $('#lx-bar').innerHTML = `<span class="lx-bg-top"><a href="${PATH}" data-home>Top</a></span>` + SCRIPTS.filter(([k]) => tab === 'all' || tab === k).map(([k, , rx]) => all.filter((l) => rx.test(l))
+    $('#lx-bar').innerHTML = `<span class="lx-bg-top"><a href="${PATH}" data-home>Top</a></span>${SCRIPTS.filter(([k]) => tab === 'all' || tab === k).map(([k, , rx]) => all.filter((l) => rx.test(l))
       .map((l) => `<a href="#letter-${esc(encodeURIComponent(slug(l)))}" data-jump="${esc(l)}"${k === 'en' ? '' : ` lang="${k}"`} aria-label="${esc(letterName(l))}, ${plural(INDEX.letters[l], 'term', 'terms')}">${esc(letterName(l))}</a>`).join('')).filter(Boolean)
-      .map((g) => `<span class="lx-bg">${g}</span>`).join('');
+      .map((g) => `<span class="lx-bg">${g}</span>`).join('')}`;
     document.querySelectorAll('#lx-tabs [data-t]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.t === tab)));
     setBarH();
   }
@@ -458,7 +458,7 @@
   let ALIAS = {};
   // Loaded the first time an entry needs author links, not when the list opens.
   let roomsLoad = null;
-  const roomsP = { then: (fn) => { if (!roomsLoad) roomsLoad = loadRooms(); return roomsLoad.then(fn); } };
+  const roomsP = { then(fn) { if (!roomsLoad) roomsLoad = loadRooms(); return roomsLoad.then(fn); } };
   const loadRooms = () => Promise.all([get('/v1/author_aliases.json'), ...SHELVES.map((sh) => get(`/v1/bible/${sh}/rooms/index.json`))]).then(([al, ...xs]) => {
     ALIAS = al.data || {};
     const m = new Map();
