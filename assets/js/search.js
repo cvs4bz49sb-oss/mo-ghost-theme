@@ -70,7 +70,6 @@
     { title: "Submit an essay", url: "/submissions/", desc: "How to pitch or submit your work.", kw: "submit submission submissions pitch pitches write writing contribute" },
     { title: "eBooks", url: "/ebooks/", desc: "Short books from our writers.", kw: "ebook ebooks books download" },
     { title: "The Bookshelf", url: "/books/", desc: "Books by our writers and books we recommend.", kw: "books bookstore bookshop bookshelf reading recommendations" },
-    { title: "Back issues", url: "/store/", desc: "Order back issues of the print journal.", kw: "journal print issue issues back store order magazine" },
     { title: "Contributors", url: "/contributors/", desc: "Everyone who writes for Mere Orthodoxy.", kw: "contributors writers authors" },
     { title: "Archive", url: "/archive/", desc: "Every essay, newest first.", kw: "archive essays latest all" },
     { title: "About", url: "/about/", desc: "Who we are and what we are for.", kw: "about mission staff team editors masthead who" },
