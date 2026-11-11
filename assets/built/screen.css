@@ -6228,6 +6228,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .contributors-section-title em { font-style: italic; }
 .contributors-section-intro--link { margin-bottom: 0; }
+.contributors-count { margin: 8px 0 0; font-size: 16px; color: var(--color-muted); }
 .contributors-section:has(.contributors-section-intro--link) + .contributors-view-all { margin-top: 28px; }
 
 @media (max-width: 760px) {
