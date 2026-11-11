@@ -28927,3 +28927,8 @@ main.dashboard-page * { font-style: normal !important; }
   .lib-book-title, .lib-book-meta { grid-column: 2; }
   .lib-book-cover { grid-row: 1 / span 2; }
 }
+
+/* The Faith Received in the header is a link as well as a menu trigger
+   (2026-11-11); it keeps the buttons' look. */
+a.mm-trigger { text-decoration: none; color: inherit; }
+a.mm-trigger:hover { text-decoration: none; }
