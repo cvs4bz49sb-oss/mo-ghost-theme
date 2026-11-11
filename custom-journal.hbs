@@ -17,7 +17,7 @@
      routes.yaml. Anyone can view it; nothing here is gated.
 
      Sections: hero, the new issue (photo + contents), how to get it
-     (grid, free Issue 005 preview, join button), a photo band, past issues (shared shelf
+     (grid, free Issue 007 preview, join button), a photo band, past issues (shared shelf
      partial with public=true, so no PDF links), and the membership
      pricing cards.
 
@@ -122,14 +122,14 @@
           <p class="journal-ways-body">A <a href="/give/">gift membership</a> includes the journal. The recipient adds a mailing address when they redeem it.</p>
         </li>
       </ul>
-      {{!-- Free preview: Issue 005 in the readers' magazine view, framed
+      {{!-- Free preview: Issue 007 in the readers' magazine view, framed
            from /journal/preview/ (custom-journal-preview.hbs). Loaded
            with the page, not lazily, so the book is already open when a
            visitor scrolls to it (Ian, 2026-11-11: "it needs to load
            faster than this"). The document is about 125KB compressed. --}}
       <div class="journal-preview">
-        <p class="journal-preview-note">Issue 005 is free to read here.</p>
-        <iframe class="journal-preview-frame" src="/journal/preview/" title="Issue 005, Fall 2024, in magazine view"></iframe>
+        <p class="journal-preview-note">Issue 007 is free to read here.</p>
+        <iframe class="journal-preview-frame" src="/journal/preview/" title="Issue 007, Spring 2025, in magazine view"></iframe>
       </div>
       <div class="journal-ways-cta">
         {{#match @member.status "paid"}}
