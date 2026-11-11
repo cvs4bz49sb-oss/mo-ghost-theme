@@ -21,8 +21,10 @@ const ok = (m) => console.log(`ok    ${m}`);
 
 const rail = read("partials/faith-received/_tfr-rail.hbs");
 const dStart = rail.indexOf('id="tfrDrawerResearch"');
-const drawer = rail.slice(dStart, rail.indexOf("</div>", dStart));
-const railLinks = [...drawer.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map((m) => ({ href: m[1], name: m[2].trim(), gate: (m[0].match(/data-feature-gate="([^"]+)"/) || [])[1] }));
+// The Research panel (2026-11-11) is columns of links, each a name and the registry's "what" line as its note.
+const drawer = rail.slice(dStart, rail.indexOf("{{!-- /research panel --}}", dStart));
+const railLinks = [...drawer.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>\s*<span class="tfr-dd-name">([^<]+)<\/span>\s*<span class="tfr-dd-note">([^<]*)<\/span>\s*<\/a>/g)].map((m) => ({ href: m[1], name: m[2].trim(), note: m[3].trim(), gate: (m[0].match(/data-feature-gate="([^"]+)"/) || [])[1] }));
+const unent = (x) => x.replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
 if (railLinks.length !== reg.tools.length) fail(`the rail's Research drawer has ${railLinks.length} links, the registry ${reg.tools.length}`);
 reg.tools.forEach((t, i) => {
   const r = railLinks[i];
@@ -30,8 +32,9 @@ reg.tools.forEach((t, i) => {
   if (r.name !== t.name) fail(`rail position ${i + 1} is "${r.name}", registry says "${t.name}"`);
   if (r.href !== t.href) fail(`rail ${t.name}: href ${r.href} != ${t.href}`);
   if (r.gate !== t.gate) fail(`rail ${t.name}: data-feature-gate ${r.gate} != ${t.gate}`);
+  if (unent(r.note) !== t.what) fail(`rail ${t.name}: note "${r.note}" != the registry's what line`);
 });
-if (!bad) ok(`the rail's Research drawer matches the registry (${reg.tools.length} tools, hrefs, order, keys)`);
+if (!bad) ok(`the rail's Research panel matches the registry (${reg.tools.length} tools, hrefs, order, keys, notes)`);
 
 const fg = read("assets/js/feature-gate.js");
 const keys = new Set([...reg.tools.map((t) => t.gate), reg.research.gate]);

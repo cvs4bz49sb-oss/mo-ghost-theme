@@ -20932,3 +20932,103 @@ a[href^="/the-faith-received/maps/"], a[href^="/the-faith-received/controversies
 /* Held with them (Ian, 2026-11-09: no new features for now): the Commentaries page has no route, so the Scripture pane's link to it is hidden, not a 404. */
 a[href^="/the-faith-received/commentaries/"] { display: none !important; }
 .cp-list-foot:has(a[href^="/the-faith-received/commentaries/"]) { display: none !important; }
+
+/* ── TFR rail: dropdown panels (Ian, 2026-11-11) ──────────────────────
+   "Make the navrail a mini version of the same style [as the header
+   menu]. Keep it looking like it is, but instead of the slide out, it's
+   the drop downs." The rail itself is unchanged; Read, Research and
+   About now open a panel under it in the header menu's manner: hairline
+   columns, a title per column, a short note under each link. Smaller
+   than the header menu: no pictures, one line of note.
+   The panel is lifted to be a direct child of .tfr-rail while open
+   (faith-tfr-rail.js), so it is positioned against the rail and escapes
+   the sideways-scrolling row on phones. These rules come last and are
+   rail-scoped so they replace the old sideways-drawer rules above. */
+.tfr-rail .tfr-rail-dd {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 30;
+  display: none;
+  width: auto;
+  margin: 0;
+  opacity: 1;
+  overflow: visible;
+  padding: 22px 0 24px;
+  background: var(--color-page, #f7f4ef);
+  border-bottom: 1px solid var(--color-rule, #e5ded5);
+  box-shadow: 0 18px 30px -22px rgba(0, 0, 0, 0.45);
+  transition: none;
+  text-transform: none;
+}
+.tfr-rail .tfr-rail-dd.is-open { display: block; }
+.tfr-rail .tfr-rail-dd[hidden] { display: none; }
+
+.tfr-dd-grid { display: grid; gap: 0; align-items: start; }
+.tfr-rail-dd--read .tfr-dd-grid { grid-template-columns: repeat(2, minmax(0, 260px)); }
+.tfr-rail-dd--research .tfr-dd-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.tfr-rail-dd--about .tfr-dd-grid { grid-template-columns: minmax(0, 300px); }
+/* The header menu's vertical hairlines between columns. */
+.tfr-dd-col + .tfr-dd-col { border-left: 1px solid var(--color-rule, #e5ded5); padding-left: 24px; }
+.tfr-dd-col { padding-right: 24px; min-width: 0; }
+
+.tfr-dd-title {
+  margin: 0 0 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-dark, #2d2927);
+}
+.tfr-dd-links { list-style: none; margin: 0; padding: 0; }
+.tfr-rail .tfr-rail-dd a {
+  display: block;
+  padding: 7px 0;
+  border: 0;
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: 0;
+  text-decoration: none;
+  color: var(--color-dark, #2d2927);
+  font-family: var(--font-body);
+}
+.tfr-dd-name { display: block; font-size: 16px; line-height: 1.25; }
+.tfr-dd-note { display: block; margin-top: 2px; font-size: 13px; line-height: 1.35; color: var(--color-muted, #6b6660); }
+.tfr-rail .tfr-rail-dd a:hover .tfr-dd-name,
+.tfr-rail .tfr-rail-dd a:focus-visible .tfr-dd-name { color: var(--color-secondary, #c1593c); }
+.tfr-rail .tfr-rail-dd a:hover,
+.tfr-rail .tfr-rail-dd a:focus-visible { border: 0; }
+.tfr-rail .tfr-rail-dd a[aria-current="page"] .tfr-dd-name { color: var(--color-secondary, #c1593c); font-weight: 600; }
+
+/* The caret now points down, like the header menu's, and turns up when open. */
+.tfr-rail-toggle::after { transform: rotate(45deg); vertical-align: 3px; }
+.tfr-rail-toggle[aria-expanded="true"]::after { transform: rotate(-135deg); vertical-align: -1px; }
+
+@media (max-width: 1000px) {
+  .tfr-rail-dd--research .tfr-dd-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 18px; }
+  .tfr-rail-dd--research .tfr-dd-col:nth-child(4) { border-left: 0; padding-left: 0; }
+}
+/* Phones: one column of groups, names only, and the panel scrolls
+   within the screen since the rail is pinned. */
+@media (max-width: 640px) {
+  .tfr-rail .tfr-rail-dd {
+    padding: 6px 0 10px;
+    max-height: calc(100vh - 120px);
+    max-height: calc(100dvh - 120px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .tfr-rail-dd .tfr-dd-grid,
+  .tfr-rail-dd--read .tfr-dd-grid,
+  .tfr-rail-dd--research .tfr-dd-grid,
+  .tfr-rail-dd--about .tfr-dd-grid { grid-template-columns: minmax(0, 1fr); row-gap: 0; padding: 0 16px; }
+  .tfr-dd-col + .tfr-dd-col,
+  .tfr-rail-dd--research .tfr-dd-col:nth-child(4) { border-left: 0; padding-left: 0; border-top: 1px solid var(--color-rule, #e5ded5); }
+  .tfr-dd-col { padding: 10px 0 4px; }
+  .tfr-dd-title { margin-bottom: 2px; font-size: 13px; color: var(--color-muted, #6b6660); }
+  .tfr-rail .tfr-rail-dd a { padding: 9px 0; }
+  .tfr-dd-name { font-size: 16px; }
+  .tfr-dd-note { display: none; }
+}

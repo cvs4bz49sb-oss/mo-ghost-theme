@@ -67,6 +67,16 @@
       "serverRoutes": []
     },
     {
+      "name": "Page Scans",
+      "group": "Read with the commentators",
+      "href": "/the-faith-received/scans/",
+      "gate": "tfr-scans",
+      "page": "custom-faith-scans.hbs",
+      "what": "Works you can read beside the printed page they came from.",
+      "server": "client-only",
+      "serverRoutes": []
+    },
+    {
       "name": "Lexicon",
       "group": "Look things up",
       "href": "/the-faith-received/lexicon/",
@@ -83,16 +93,6 @@
       "gate": "tfr-set-index",
       "page": "custom-faith-set-index.hbs",
       "what": "One index for a whole set of volumes.",
-      "server": "client-only",
-      "serverRoutes": []
-    },
-    {
-      "name": "Page Scans",
-      "group": "Read with the commentators",
-      "href": "/the-faith-received/scans/",
-      "gate": "tfr-scans",
-      "page": "custom-faith-scans.hbs",
-      "what": "Works you can read beside the printed page they came from.",
       "server": "client-only",
       "serverRoutes": []
     },
