@@ -240,7 +240,7 @@
             name,
             labels,
             requestSrc: "portal",
-            redirect: signupRedirect(root),
+            redirect: withOptin(root, signupRedirect(root)),
             // Ghost derives member attribution from urlHistory — it is how
             // Portal populates referrer_source and the utm_* columns. We were
             // not sending it, so 456 of the last 600 signups recorded their
@@ -771,6 +771,181 @@
       if (eventName) out.push(`event: ${eventName}`);
     }
     return out;
+  }
+
+  // -------------------------------------------------------------------
+  // Existing subscribers
+  //
+  // Ghost applies `labels` only when it creates a member. Someone who is
+  // already a member (a Daily Liturgy reader signing up for the Digest,
+  // or a Digest reader signing up for the Daily Liturgy) gets a sign-in
+  // link and nothing else, so the newsletter they asked for never starts.
+  //
+  // So a newsletter form marks its magic-link redirect with
+  // mo_optin=<newsletter>.<nonce>. When the link lands them signed in,
+  // the page asks mo-kit /preferences whether that newsletter is on and
+  // turns it on if not. That is the same write the email preferences
+  // page makes, so Ghost labels and Kit tags stay in step.
+  //
+  // The nonce is kept in this browser at submit. A landing whose nonce
+  // matches is the person who just filled in the form, so it is applied
+  // at once. Any other landing (the link opened on another device, or a
+  // crafted URL) asks first with a Yes / No thanks bar, so a link alone
+  // can never subscribe a signed-in reader to anything.
+  // -------------------------------------------------------------------
+
+  const OPTIN_PARAM = "mo_optin";
+  const OPTIN_KEY = "mo-optin";
+  const OPTIN_TTL = 3 * 24 * 60 * 60 * 1000;
+  const OPTINS = {
+    "weekly-digest": {
+      pref: "digest",
+      ask: "Get the Weekly Digest by email each Thursday?",
+      done: "You're signed up. The Weekly Digest arrives each Thursday.",
+    },
+    "daily-liturgy": {
+      pref: "liturgy",
+      ask: "Get the Daily Liturgy by email each morning?",
+      done: "You're signed up. The Daily Liturgy arrives each morning.",
+    },
+  };
+
+  function optinNonce() {
+    try {
+      const bytes = new Uint8Array(9);
+      window.crypto.getRandomValues(bytes);
+      return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    } catch (_) {
+      return Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+  }
+
+  function withOptin(root, href) {
+    const newsletter = root.getAttribute("data-newsletter");
+    if (!newsletter || !OPTINS[newsletter]) return href;
+    try {
+      const u = new URL(href);
+      const nonce = optinNonce();
+      u.searchParams.set(OPTIN_PARAM, `${newsletter}.${nonce}`);
+      try {
+        window.localStorage.setItem(OPTIN_KEY, JSON.stringify({ newsletter, nonce, at: Date.now() }));
+      } catch (_) { /* private mode: the landing will ask instead */ }
+      return u.href;
+    } catch (_) {
+      return href;
+    }
+  }
+
+  function readStoredOptin() {
+    try {
+      const v = JSON.parse(window.localStorage.getItem(OPTIN_KEY) || "null");
+      return v && typeof v === "object" ? v : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function clearStoredOptin() {
+    try { window.localStorage.removeItem(OPTIN_KEY); } catch (_) { /* noop */ }
+  }
+
+  function optinBar(text, buttons) {
+    const old = document.querySelector(".mo-optin-bar");
+    if (old) old.remove();
+    const bar = document.createElement("div");
+    bar.className = "mo-optin-bar";
+    bar.setAttribute("role", "status");
+    const p = document.createElement("p");
+    p.textContent = text;
+    bar.appendChild(p);
+    for (const b of buttons || []) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = b.label;
+      if (b.primary) btn.className = "is-primary";
+      btn.addEventListener("click", () => b.onClick(bar));
+      bar.appendChild(btn);
+    }
+    if (!buttons || !buttons.length) {
+      const close = document.createElement("button");
+      close.type = "button";
+      close.className = "mo-optin-close";
+      close.setAttribute("aria-label", "Close");
+      close.textContent = "×";
+      close.addEventListener("click", () => bar.remove());
+      bar.appendChild(close);
+    }
+    document.body.appendChild(bar);
+    return bar;
+  }
+
+  function optinFailed() {
+    const bar = optinBar("We couldn't sign you up just now. You can turn it on in your ", []);
+    const a = document.createElement("a");
+    a.href = "/email-preferences/";
+    a.textContent = "email preferences";
+    const p = bar.querySelector("p");
+    p.appendChild(a);
+    p.appendChild(document.createTextNode("."));
+  }
+
+  function claimOptin() {
+    let url;
+    try { url = new URL(window.location.href); } catch (_) { return; }
+    const raw = url.searchParams.get(OPTIN_PARAM);
+    if (!raw) return;
+    // Off the address bar first, whatever happens next, so a reload, a
+    // bookmark or a shared link never carries it.
+    url.searchParams.delete(OPTIN_PARAM);
+    try {
+      window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+    } catch (_) { /* noop */ }
+
+    const dot = raw.indexOf(".");
+    const newsletter = dot > 0 ? raw.slice(0, dot) : raw;
+    const nonce = dot > 0 ? raw.slice(dot + 1) : "";
+    const optin = OPTINS[newsletter];
+    if (!optin) return;
+    const {body} = document;
+    // Signed out (the link expired, or was opened somewhere else without
+    // signing in): nothing to claim.
+    if (!body || !body.getAttribute("data-member-email")) return;
+    const base = (body.getAttribute("data-kit-worker-url") || "").replace(/\/$/, "");
+    if (!base || !window.MOAuth || typeof window.MOAuth.fetch !== "function") return;
+
+    const stored = readStoredOptin();
+    const sameDevice = !!(stored && nonce && stored.nonce === nonce
+      && stored.newsletter === newsletter && Date.now() - (stored.at || 0) < OPTIN_TTL);
+    if (sameDevice) clearStoredOptin();
+
+    const turnOn = () => window.MOAuth.fetch(`${base}/preferences`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ [optin.pref]: true }),
+    }).then((res) => {
+      if (!res.ok) throw new Error(`preferences ${res.status}`);
+      optinBar(optin.done, []);
+    });
+
+    window.MOAuth.fetch(`${base}/preferences`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`preferences ${res.status}`))))
+      .then((data) => {
+        // A brand-new member already carries the label from signup.
+        if (data && data.preferences && data.preferences[optin.pref] === true) return null;
+        if (sameDevice) return turnOn();
+        optinBar(optin.ask, [
+          { label: "Yes", primary: true, onClick(bar) { bar.remove(); turnOn().catch(optinFailed); } },
+          { label: "No thanks", onClick: (bar) => bar.remove() },
+        ]);
+        return null;
+      })
+      .catch(optinFailed);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", claimOptin);
+  } else {
+    claimOptin();
   }
 
   function escapeHtml(s) {

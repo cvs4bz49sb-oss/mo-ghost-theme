@@ -3449,6 +3449,45 @@ body {
 }
 .inline-signup-note { margin-top: 12px; }
 
+/* Opt-in bar (inline-signup.js claimOptin). Shown after a sign-in link
+   from a newsletter form lands an existing member: either "You're
+   signed up" or a Yes / No thanks question. */
+.mo-optin-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 14px 18px;
+  background: var(--color-dark);
+  color: var(--color-white);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.mo-optin-bar p { margin: 0; flex: 1 1 220px; }
+.mo-optin-bar a { color: inherit; text-decoration: underline; }
+.mo-optin-bar button {
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.mo-optin-bar button.is-primary { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-dark); }
+.mo-optin-bar .mo-optin-close { padding: 2px 8px; border: 0; font-size: 20px; line-height: 1; }
+
 /* /forum/ registration extras. Both span the full three-column digest
    grid; dropped into a column they would sit under one field and read
    as belonging to it. The Turnstile slot is revealed as soon as the
