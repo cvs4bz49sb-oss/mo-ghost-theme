@@ -16870,6 +16870,11 @@ body[class*="lc-"] .bhero {
 .do-fold[open] > summary::before { content: "\2212"; }
 .do-fold[open] > summary { margin-bottom: 1em; }
 
+/* Embedded Scripture (Bible in Two Years). */
+.do-reading { margin: 0 0 0.6em; }
+.do-reading p { margin: 0 0 0.8em; }
+.do-reading sup { font-size: 0.6em; color: var(--color-muted); margin-right: 2px; }
+.do-reading .dlr-scripture-gap { text-align: center; color: var(--color-muted); }
 .do-end { text-align: center; color: var(--color-secondary); font-size: 22px; margin: 8px 0 0; }
 .do-loading,
 .do-error { font-size: 16px; color: var(--color-muted); text-align: center; padding: 40px 0; }
@@ -16885,9 +16890,12 @@ body[class*="lc-"] .bhero {
   /* A block, not a one-column grid: in a grid the bar sits alone in its
      row and sticky has nowhere to travel. */
   .do-layout { display: block; }
+  /* Locked: the header stays put on this page and the bar sits under it,
+     so the only movement is the bar's own sideways scroll (Ian,
+     2026-11-10: "it moves around a lot"). */
+  body:has(.do-page) .site-header.is-hidden { transform: none; }
   .do-order {
     top: 61px;
-    transition: top var(--hdr-ms) var(--hdr-ease);
     z-index: 5;
     border-left: 0;
     border-bottom: 1px solid var(--color-rule);
@@ -16911,8 +16919,6 @@ body[class*="lc-"] .bhero {
     white-space: nowrap;
   }
   .do-order a[aria-current="step"] { border-bottom-color: var(--color-secondary); }
-  /* The header slides away on scroll down; the bar follows it up. */
-  body:has(.site-header.is-hidden) .do-order { top: 0; }
   .do-part { scroll-margin-top: 120px; }
 }
 @media (max-width: 640px) {

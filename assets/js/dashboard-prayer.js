@@ -14,6 +14,9 @@
  *   - the invitatory antiphon before the Venite on the days that have one;
  *   - the Collect for the week (1979 BCP, assets/data/collects.json).
  * Where the book offers alternative canticles, a small chooser shows one.
+ * The Psalm and both Lessons are today's readings from the Daily Liturgy's
+ * Bible in Two Years plan, fetched through lib/dl-scripture.js in the
+ * translation the reader last used (ESV by default).
  *
  * Office: before 4pm Morning, after Evening; #morning / #evening wins.
  * Language (modern or 1928) and text size are kept in localStorage.
@@ -23,6 +26,13 @@
 
   const DATA_URL = window.moAssetUrl("/assets/data/faith-received/prayer.json");
   const COLLECTS_URL = window.moAssetUrl("/assets/data/collects.json");
+  // The Daily Liturgy's Bible in Two Years plan supplies the lessons, read
+  // the way daily-liturgy-reader.js reads it (same start, same length).
+  const BI2Y_URL = window.moDataUrl("/assets/data/daily-liturgy/bible-in-2-years.json");
+  const BI2Y_START = new Date(2026, 0, 1);
+  const BI2Y_TOTAL_DAYS = 736;
+  // The reader's saved translation, so both pages read the same Bible.
+  const LS_TRANSLATION = "mo-liturgy-translation";
   const LANG_KEY = "mo_prayer_lang";
   const SIZE_KEY = "mo_prayer_size";
   const SIZES = ["is-size-s", "", "is-size-l", "is-size-xl"];
@@ -43,7 +53,7 @@
       { id: "canticle-2", label: "Canticle", choose: ["Benedictus", "Jubilate Deo"] },
       { id: "creed", label: "The Creed", chapters: ["The Apostles' Creed"] },
       { id: "prayers", label: "The Prayers", chapters: ["Suffrages"], collect: true, after: ["A Collect for Peace", "A Collect for Grace"] },
-      { id: "more", label: "More Prayers", more: ["A Prayer for the President and All in Civil Authority", "A Prayer for the Clergy and People", "A Prayer for All Conditions of Men", "A General Thanksgiving", "A Prayer of St. Chrysostom"] },
+      { id: "more", label: "More Prayers", more: ["A Prayer for the President and All in Civil Authority", "A Prayer for the Clergy and People", "A Prayer for All Conditions of Men", "For a Blessing on the Families of the Land", "For the Children", "A General Thanksgiving", "A Prayer of St. Chrysostom"] },
       { id: "grace", label: "The Grace", chapters: ["The Grace"] },
     ],
     evening: [
@@ -57,9 +67,27 @@
       { id: "canticle-2", label: "Canticle", choose: ["Nunc Dimittis", "Deus Misereatur", "Benedic, Anima Mea"] },
       { id: "creed", label: "The Creed", chapters: ["The Apostles' Creed"] },
       { id: "prayers", label: "The Prayers", chapters: ["Suffrages"], collect: true, after: ["A Collect for Peace", "A Collect for Aid Against Perils"] },
-      { id: "more", label: "More Prayers", more: ["A Prayer for the President and All in Civil Authority", "A Prayer for the Clergy and People", "A Prayer for All Conditions of Men", "A General Thanksgiving", "A Prayer of St. Chrysostom"] },
+      { id: "more", label: "More Prayers", more: ["A Prayer for the President and All in Civil Authority", "A Prayer for the Clergy and People", "A Prayer for All Conditions of Men", "For a Blessing on the Families of the Land", "For the Children", "A General Thanksgiving", "A Prayer of St. Chrysostom"] },
       { id: "grace", label: "The Grace", chapters: ["The Grace"] },
     ],
+  };
+
+  // Prayers from the 1928 BCP's Family Prayer section, which prayer.json
+  // does not carry (website/source-texts/1928-bcp-family-prayer.txt).
+  // `modernized` follows the office's own modern renderings.
+  const EXTRA = {
+    "For a Blessing on the Families of the Land": {
+      title: "For a Blessing on the Families of the Land",
+      subtitle: "Family Prayer",
+      paragraphs: ["ALMIGHTY God, our heavenly Father, who settest the solitary in families; We commend to thy continual care the homes in which thy people dwell. Put far from them, we beseech thee, every root of bitterness, the desire of vain-glory, and the pride of life. Fill them with faith, virtue, knowledge, temperance, patience, godliness. Knit together in constant affection those who, in holy wedlock, have been made one flesh; turn the heart of the fathers to the children, and the heart of the children to the fathers; and so enkindle fervent charity among us all, that we be evermore kindly affectioned with brotherly love; through Jesus Christ our Lord. Amen."],
+      modernized: ["ALMIGHTY God, our heavenly Father, who set the solitary in families; We commend to your continual care the homes in which your people dwell. Put far from them, we beseech you, every root of bitterness, the desire of vain-glory, and the pride of life. Fill them with faith, virtue, knowledge, temperance, patience, godliness. Knit together in constant affection those who, in holy wedlock, have been made one flesh; turn the heart of the fathers to the children, and the heart of the children to the fathers; and so enkindle fervent charity among us all, that we be evermore kindly affectioned with brotherly love; through Jesus Christ our Lord. Amen."],
+    },
+    "For the Children": {
+      title: "For the Children",
+      subtitle: "Family Prayer",
+      paragraphs: ["ALMIGHTY God, heavenly Father, who hast blessed us with the joy and care of children; Give us light and strength so to train them, that they may love whatsoever things are true and pure and lovely and of good report, following the example of their Saviour Jesus Christ. Amen."],
+      modernized: ["ALMIGHTY God, heavenly Father, who have blessed us with the joy and care of children; Give us light and strength so to train them, that they may love whatever things are true and pure and lovely and of good report, following the example of their Saviour Jesus Christ. Amen."],
+    },
   };
 
   // Short names for the canticle chooser.
@@ -76,6 +104,7 @@
   // ── State ─────────────────────────────────────────────────────
   let data = null;
   let collects = null;
+  let plan = null;
   let office = new Date().getHours() >= 16 ? "evening" : "morning";
   let lang = "modern";
   let size = 1;
@@ -106,10 +135,12 @@
   Promise.all([
     fetch(DATA_URL).then((r) => { return r.json(); }),
     fetch(COLLECTS_URL).then((r) => { return r.ok ? r.json() : null; }).catch(() => { return null; }),
+    fetch(BI2Y_URL).then((r) => { return r.ok ? r.json() : null; }).catch(() => { return null; }),
     pageReady,
-  ]).then(([d, c]) => {
+  ]).then(([d, c, p]) => {
     data = d;
     collects = c;
+    plan = p;
     initControls();
     render();
   }).catch(() => {
@@ -166,7 +197,7 @@
   // ── Data helpers ──────────────────────────────────────────────
   function book() { return office === "morning" ? data.books[0] : data.books[1]; }
   function chapter(title) {
-    return (book().chapters || []).find((c) => { return c.title === title; }) || null;
+    return (book().chapters || []).find((c) => { return c.title === title; }) || EXTRA[title] || null;
   }
   function paras(ch) {
     if (!ch) return [];
@@ -271,12 +302,26 @@
     return `<div class="do-chapter"><h3 class="do-ch">The Antiphon</h3><p class="do-verse">${verseHtml(line)}</p></div>`;
   }
 
+  // Today's readings from the Bible in Two Years plan, or null.
+  function todaysReadings() {
+    if (!plan) return null;
+    let day = Math.round((today - BI2Y_START) / 86400000) + 1;
+    day = Math.max(1, Math.min(BI2Y_TOTAL_DAYS, day));
+    return plan[String(day)] || null;
+  }
+
+  // A passage slot; fillReadings() loads the text after render.
+  function readingHtml(title, ref) {
+    return `<div class="do-chapter"><h3 class="do-ch">${esc(title)} <span class="do-sub">${esc(ref)}</span></h3><div class="do-reading" data-do-ref="${esc(ref)}"><p class="do-note">Loading&hellip;</p></div></div>`;
+  }
+
   function lessonPart(which, gloria) {
-    const lead = which === "first"
-      ? "Read the Psalms and the First Lesson appointed for today."
-      : "Read the Second Lesson appointed for today.";
-    let h = `<p class="do-rubric">${lead}</p><p class="do-tools"><a class="btn" href="/daily-liturgy/read/">Today&rsquo;s readings</a></p>`;
+    const r = todaysReadings();
+    let h = "";
     if (which === "first") {
+      if (r) {
+        h += readingHtml(/^Psalm/.test(r.wisdom) ? "The Psalm" : "Wisdom", r.wisdom);
+      }
       const gp = paras(chapter("The Psalter and First Lesson")).filter((p) => { return p.indexOf("*") > -1; });
       if (gp.length) {
         h += `<div class="do-chapter"><h3 class="do-ch">Gloria Patri</h3><p class="do-rubric">At the end of each Psalm.</p>${gp.map((p) => { return paraHtml(p); }).join("")}</div>`;
@@ -284,9 +329,29 @@
       if (gloria && chapter(gloria)) {
         h += `<details class="do-fold"><summary>Or ${esc(gloria)}</summary>${chapterHtml(gloria, { noHead: true })}</details>`;
       }
+      h += r ? readingHtml("The First Lesson", r.ot) : '<p class="do-rubric">Read the Psalms and the First Lesson appointed for today.</p>';
+    } else {
+      h += r ? readingHtml("The Second Lesson", r.nt) : '<p class="do-rubric">Read the Second Lesson appointed for today.</p>';
     }
     return h;
   }
+
+  function fillReadings() {
+    const lib = window.MODailyScripture;
+    let t = "ESV";
+    try { t = localStorage.getItem(LS_TRANSLATION) || "ESV"; } catch (e) { /* storage blocked */ }
+    if (lib && !lib.TRANSLATION_CODES[t]) t = "ESV";
+    officeEl.querySelectorAll("[data-do-ref]").forEach((el) => {
+      const ref = el.getAttribute("data-do-ref");
+      if (!lib) { el.innerHTML = `<p class="do-note">Read ${esc(ref)}.</p>`; return; }
+      lib.fetchScripture(ref, t).then((res) => {
+        el.innerHTML = res.html;
+        const sub = el.parentElement.querySelector(".do-ch .do-sub");
+        if (sub) sub.textContent = `${ref} (${res.fallback ? "ESV" : t})`;
+      });
+    });
+  }
+
 
   function choosePart(part) {
     const opts = part.choose.filter((t) => { return chapter(t); });
@@ -362,6 +427,7 @@
 
     syncButtons();
     watchParts();
+    fillReadings();
   }
 
   function syncButtons() {
