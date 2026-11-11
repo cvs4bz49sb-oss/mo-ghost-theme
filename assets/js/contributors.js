@@ -324,3 +324,23 @@
   }
   function escapeAttr(s) { return escapeHtml(s); }
 })();
+
+/*
+ * /contributors/: the "All Contributors" grid starts closed behind a
+ * Show all button. Closed here rather than in the template so readers
+ * without JS still see every card.
+ */
+(function () {
+  const btn = document.querySelector("[data-contributors-show]");
+  const grid = document.querySelector("[data-contributors-collapsible]");
+  if (!btn || !grid) return;
+  grid.hidden = true;
+  btn.hidden = false;
+  btn.addEventListener("click", () => {
+    grid.hidden = false;
+    btn.hidden = true;
+    btn.setAttribute("aria-expanded", "true");
+    const first = grid.querySelector("a");
+    if (first) first.focus();
+  });
+}());

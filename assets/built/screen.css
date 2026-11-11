@@ -6227,6 +6227,9 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin: 0;
 }
 .contributors-section-title em { font-style: italic; }
+.contributors-show-all { display: flex; margin: 0 auto; }
+.contributors-show-all[hidden],
+.contributors-grid[hidden] { display: none; }
 
 @media (max-width: 760px) {
   .contributors-rail-label { font-size: 10px; }
