@@ -151,7 +151,8 @@
       const t = current && current.querySelector(".section-title");
       nowEl.textContent = t ? t.textContent : nowDefault;
     }
-    if (current) store(POS_KEY, current.id);
+    // Remember essays only, not the letter, contributors or about pages.
+    if (current && current.querySelector(".rd-essay-n")) store(POS_KEY, current.id);
   }
   window.addEventListener("scroll", () => {
     if (!ticking) { ticking = true; window.requestAnimationFrame(onScroll); }
