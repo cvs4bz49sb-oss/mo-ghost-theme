@@ -7,10 +7,22 @@
       "pubDate": "2026-10-07T06:00:00.000-04:00",
       "episode": 38,
       "season": 3,
-      "plays": 4227,
+      "plays": 4231,
       "embedUrl": "https://www.buzzsprout.com/2612792/19918976?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/resisting-therapy-culture-with-matthew-loftus/"
+    },
+    {
+      "id": 19665503,
+      "title": "What Is A Man?",
+      "slug": "what-is-a-man",
+      "pubDate": "2026-08-19T05:00:00.000-04:00",
+      "episode": 31,
+      "season": 3,
+      "plays": 4114,
+      "embedUrl": "https://www.buzzsprout.com/2612792/19665503?client_source=small_player&iframe=true",
+      "hasTranscript": true,
+      "transcriptUrl": "/transcript/mere-fidelity/what-is-a-man/"
     },
     {
       "id": 19702000,
@@ -25,25 +37,13 @@
       "transcriptUrl": "/transcript/mere-fidelity/postliberal-theology-explained/"
     },
     {
-      "id": 19665503,
-      "title": "What Is A Man?",
-      "slug": "what-is-a-man",
-      "pubDate": "2026-08-19T05:00:00.000-04:00",
-      "episode": 31,
-      "season": 3,
-      "plays": 4111,
-      "embedUrl": "https://www.buzzsprout.com/2612792/19665503?client_source=small_player&iframe=true",
-      "hasTranscript": true,
-      "transcriptUrl": "/transcript/mere-fidelity/what-is-a-man/"
-    },
-    {
       "id": 19959169,
       "title": "How to Handle Difficult Bible Passages",
       "slug": "how-to-handle-difficult-bible-passages",
       "pubDate": "2026-10-14T06:00:00.000-04:00",
       "episode": 39,
       "season": 3,
-      "plays": 4102,
+      "plays": 4105,
       "embedUrl": "https://www.buzzsprout.com/2612792/19959169?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/how-to-handle-difficult-bible-passages/"
@@ -55,7 +55,7 @@
       "pubDate": "2026-09-02T06:00:00.000-04:00",
       "episode": 33,
       "season": 3,
-      "plays": 4080,
+      "plays": 4084,
       "embedUrl": "https://www.buzzsprout.com/2612792/19741269?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/in-defense-of-evangelicalism-with-bonnie-kristian/"
@@ -69,7 +69,7 @@
       "pubDate": "2026-06-25T06:00:00.000-04:00",
       "episode": 22,
       "season": 2,
-      "plays": 1435,
+      "plays": 1437,
       "embedUrl": "https://www.buzzsprout.com/2612793/19397594?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/till-we-have-faces-by-c-s-lewis-with-oliver-traldi/"
