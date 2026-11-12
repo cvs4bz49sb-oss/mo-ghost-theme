@@ -29041,6 +29041,7 @@ a.mm-trigger:hover { text-decoration: none; }
    that file (600x400, stretched; every plate is 3:2). */
 .journal-landing-hero-image img,
 .journal-current-photo img,
+.journal-ways-photo,
 .journal-photos-grid img {
   -webkit-mask-image: url("../images/journal/photo-mask.png");
   mask-image: url("../images/journal/photo-mask.png");
@@ -29088,6 +29089,14 @@ a.mm-trigger:hover { text-decoration: none; }
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 40px 48px;
+}
+.journal-ways-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  margin: 0 0 22px;
 }
 .journal-ways-label {
   font-family: var(--font-display);
