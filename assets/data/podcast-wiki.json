@@ -1,7 +1,27 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-11-11T15:33:36.184Z",
+    "updated": "2026-11-12T16:09:59.420Z",
     "episodes": [
+      {
+        "id": 20112293,
+        "title": "Advent in the Early Church, with Adam & Lynneth Renberg",
+        "slug": "advent-in-the-early-church-with-adam-lynneth-renberg",
+        "pubDate": "2026-11-12T06:00:00.000-05:00",
+        "episode": 42,
+        "season": 2,
+        "duration": 3080,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/20112293-advent-in-the-early-church-with-adam-lynneth-renberg.mp3",
+        "description": "Christmas can shrink into a month of noise, nostalgia, and a storyline we think we already know. Our guests this week, historian Lynneth Renberg and theologian Adam Renberg, combine their wisdom to recover Advent as the early and medieval church actually lived it: a season of longing, prayer, and deep attention to the mystery of the Incarnation. Adam and Lynneth are authors of the book Candles in ",
+        "embedUrl": "https://www.buzzsprout.com/2612793/20112293?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/advent-in-the-early-church-with-adam-lynneth-renberg/",
+        "guests": [
+          "Adam",
+          "Lynneth Renberg"
+        ],
+        "topics": []
+      },
       {
         "id": 20076850,
         "title": "Dostoevsky's Crime & Punishment, with Perry Glanzer",
@@ -1287,7 +1307,7 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-11-11T15:33:41.088Z",
+    "updated": "2026-11-12T16:10:04.497Z",
     "episodes": [
       {
         "id": 20097696,
