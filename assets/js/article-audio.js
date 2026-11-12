@@ -199,7 +199,16 @@
     const closeBtn = el("button", { class: "mo-player-close", type: "button", "aria-label": "Close player" }, [icon(PATHS.close)]);
     const status = el("div", { class: "mo-player-status", role: "status", "aria-live": "polite" });
 
+    // The drawer handle. Tap or swipe down tucks the bar away to a sliver
+    // (audio keeps playing); tap or swipe the sliver up to bring it back.
+    const handle = el("button", {
+      class: "mo-player-handle", type: "button", "aria-expanded": "true", "aria-label": "Tuck player away",
+    }, [el("span", { class: "mo-player-grip", "aria-hidden": "true" })]);
+    const sliverLine = el("div", { class: "mo-player-sliver-line", "aria-hidden": "true" });
+
     const bar = el("div", { class: "mo-player", role: "region", "aria-label": "Audio player", hidden: "" }, [
+      handle,
+      sliverLine,
       el("div", { class: "mo-player-inner" }, [
         el("div", { class: "mo-player-meta" }, [art, el("div", { class: "mo-player-text" }, [titleEl, bylineEl])]),
         el("div", { class: "mo-player-center" }, [
@@ -211,18 +220,86 @@
       ]),
     ]);
     document.body.appendChild(bar);
+    const inner = bar.querySelector(".mo-player-inner");
 
     // The bar's height, for body padding and for other fixed bottom UI to
     // sit above it (screen.css, --mo-player-h). It changes with the status
-    // line and the phone layout, so it is measured, not assumed.
+    // line and the phone layout, so it is measured, not assumed. Tucked
+    // away, only the sliver counts.
+    const SLIVER = 32; // px of bar left showing when tucked; matches screen.css
     const root = document.documentElement;
-    function writeHeight() { root.style.setProperty("--mo-player-h", `${bar.offsetHeight}px`); }
+    let collapsed = false;
+    function writeHeight() {
+      root.style.setProperty("--mo-player-h", `${collapsed ? SLIVER : bar.offsetHeight}px`);
+    }
     if ("ResizeObserver" in window) new ResizeObserver(writeHeight).observe(bar);
+
+    // ---- drawer ----
+    function setCollapsed(on) {
+      collapsed = on;
+      bar.classList.toggle("is-collapsed", on);
+      // Controls out of view leave the tab order and the accessibility tree;
+      // focus inside them moves to the handle rather than falling to <body>.
+      if (on && inner.contains(document.activeElement)) handle.focus({ preventScroll: true });
+      inner.inert = on;
+      handle.setAttribute("aria-expanded", String(!on));
+      handle.setAttribute("aria-label", on ? "Show player" : "Tuck player away");
+      writeHeight();
+    }
+    handle.addEventListener("click", () => setCollapsed(!collapsed));
+
+    // Swipe: a vertical drag anywhere on the bar (not the scrubber) moves
+    // it with the finger; release past a short distance tucks it away or
+    // brings it back, otherwise it springs back.
+    let drag = null;
+    let swallowUntil = 0;
+    bar.addEventListener("pointerdown", (e) => {
+      if (!e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
+      if (e.target.closest(".mo-player-scrub")) return;
+      drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, dy: 0, active: false };
+    });
+    bar.addEventListener("pointermove", (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x0;
+      const dy = e.clientY - drag.y0;
+      if (!drag.active) {
+        if (Math.abs(dy) < 8 || Math.abs(dy) < Math.abs(dx)) return;
+        drag.active = true;
+        try { bar.setPointerCapture(drag.id); } catch (_) { /* pointer gone */ }
+        bar.classList.add("is-dragging");
+      }
+      e.preventDefault();
+      drag.dy = dy;
+      const travel = bar.offsetHeight - SLIVER;
+      const y = Math.max(0, Math.min(travel, (collapsed ? travel : 0) + dy));
+      bar.style.transform = `translateY(${y}px)`;
+    });
+    function endDrag(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag;
+      drag = null;
+      if (!d.active) return;
+      bar.classList.remove("is-dragging");
+      bar.style.transform = "";
+      // A drag must not also count as a tap on whatever it started on.
+      swallowUntil = performance.now() + 350;
+      if (!collapsed && d.dy > 40) setCollapsed(true);
+      else if (collapsed && d.dy < -30) setCollapsed(false);
+    }
+    bar.addEventListener("pointerup", endDrag);
+    bar.addEventListener("pointercancel", endDrag);
+    bar.addEventListener("click", (e) => {
+      if (performance.now() > swallowUntil) return;
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
 
     // ---- state ----
     let sayTimer = 0;
     // A passing message; it clears itself unless something replaces it.
     function say(msg, ms) {
+      // A message can't be read from the sliver, so it brings the bar back.
+      if (msg && collapsed) setCollapsed(false);
       clearTimeout(sayTimer);
       status.textContent = msg;
       if (ms) sayTimer = setTimeout(() => { if (status.textContent === msg) status.textContent = ""; }, ms);
@@ -498,6 +575,7 @@
     }
     function hide() {
       cancelSwitch();
+      setCollapsed(false);
       bar.classList.remove("is-open");
       root.classList.remove("has-mo-player");
       bar.hidden = true;
@@ -511,6 +589,7 @@
       unlock();
       const wasHidden = bar.hidden;
       if (wasHidden) show();
+      else if (collapsed) setCollapsed(false);
       if (!hasSrc()) { load(); return; }
       if (wasHidden && !audio.paused) return;
       toggle();

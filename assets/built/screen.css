@@ -29187,7 +29187,9 @@ a.mm-trigger:hover { text-decoration: none; }
    Opened by the Listen button (assets/js/article-audio.js). Fixed to the
    bottom of the window in the brand dark terracotta, slightly translucent.
    Desktop: artwork + title | controls over scrubber | voice, speed, close.
-   Phone: title row, scrubber, then voice | controls | speed.
+   Phone: title row, scrubber, the transport centered on its own row,
+   then voice and speed. A handle at the top tucks the bar down to a
+   sliver (audio keeps playing); tap or swipe the sliver to bring it back.
    ========================================================================== */
 .mo-player {
   --mo-ink: #ffffff;
@@ -29207,12 +29209,66 @@ a.mm-trigger:hover { text-decoration: none; }
   color: var(--mo-ink);
   font-family: var(--font-body);
   box-shadow: 0 -10px 30px -14px rgba(45, 41, 39, 0.5);
+  border-radius: 14px 14px 0 0;
+  padding-top: 18px; /* room for the handle */
   padding-bottom: env(safe-area-inset-bottom, 0px);
   transform: translateY(100%);
-  transition: transform 220ms ease;
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Vertical drags on the bar move the drawer, not the page. */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .mo-player[hidden] { display: none; }
 .mo-player.is-open { transform: none; }
+/* Tucked: only the top 32px shows (SLIVER in article-audio.js). */
+.mo-player.is-open.is-collapsed { transform: translateY(calc(100% - 32px)); }
+.mo-player.is-dragging { transition: none; }
+
+/* The handle: a grip line at the top center. Tucked, it stretches over
+   the whole sliver so any tap there brings the bar back. */
+.mo-player .mo-player-handle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 88px;
+  height: 32px;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  z-index: 1;
+}
+.mo-player.is-collapsed .mo-player-handle {
+  left: 0;
+  width: 100%;
+  transform: none;
+}
+.mo-player-grip {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.7);
+  transition: background 120ms ease;
+}
+@media (hover: hover) {
+  .mo-player .mo-player-handle:hover .mo-player-grip { background: var(--mo-ink); }
+}
+.mo-player .mo-player-handle:focus-visible { outline-offset: -2px; border-radius: 6px; }
+/* Progress shown along the sliver while tucked. */
+.mo-player-sliver-line {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 26px;
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(to right, var(--mo-ink) var(--mo-pct, 0%), var(--mo-rail) var(--mo-pct, 0%));
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.mo-player.is-collapsed .mo-player-sliver-line { opacity: 1; }
+.mo-player.is-collapsed .mo-player-grip { transform: translateY(-3px); }
 /* --mo-player-h is the bar's measured height, written by article-audio.js. */
 html.has-mo-player body { padding-bottom: var(--mo-player-h, 96px); }
 html.has-mo-player body.has-journal-address { padding-bottom: calc(var(--mo-player-h, 96px) + 26px); }
@@ -29235,7 +29291,7 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
   max-width: 1600px;
   min-height: 84px;
   margin: 0 auto;
-  padding-block: 12px;
+  padding-block: 2px 12px;
   padding-left: max(20px, env(safe-area-inset-left, 0px));
   padding-right: max(20px, env(safe-area-inset-right, 0px));
 }
@@ -29443,15 +29499,16 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
    control can take its own cell. */
 @media (max-width: 640px) {
   .mo-player-inner {
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 1fr auto;
     grid-template-areas:
-      "meta meta close"
-      "progress progress progress"
-      "status status status"
-      "voice controls speed";
-    gap: 6px 10px;
+      "meta close"
+      "progress progress"
+      "status status"
+      "controls controls"
+      "voice speed";
+    gap: 4px 10px;
     min-height: 0;
-    padding-block: 10px 12px;
+    padding-block: 2px 10px;
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
@@ -29467,7 +29524,7 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
   .mo-player-status { grid-area: status; }
   .mo-player-voice { grid-area: voice; justify-self: start; }
   .mo-player .mo-player-voice-btn { padding: 7px 10px; }
-  .mo-player-controls { grid-area: controls; gap: 10px; }
+  .mo-player-controls { grid-area: controls; justify-self: center; gap: 28px; }
   .mo-player .mo-player-voice-btn,
   .mo-player .mo-player-speed { min-height: 40px; }
   .mo-player-speed { grid-area: speed; justify-self: end; }
@@ -29484,6 +29541,8 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
   .mo-player { transition: none; }
   .mo-player .mo-player-play { transition: none; }
   .mo-player.is-preparing .mo-player-play { animation: none; }
+  .mo-player-sliver-line,
+  .mo-player-grip { transition: none; }
 }
 
 @media print {
