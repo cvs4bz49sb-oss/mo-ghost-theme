@@ -71,7 +71,7 @@
     errorEl.textContent = '';
     hide(successEl);
     const a = currentAddress || {};
-    ['name', 'organization', 'church', 'line1', 'line2', 'city', 'state', 'postal_code', 'country', 'denomination'].forEach((field) => {
+    ['name', 'organization', 'church', 'phone', 'line1', 'line2', 'city', 'state', 'postal_code', 'country', 'denomination'].forEach((field) => {
       const input = form.elements.namedItem(field);
       if (!input) return;
       input.value = a[field] || (field === 'name' ? (root.dataset.memberName || '') : field === 'country' ? 'US' : '');
@@ -141,9 +141,12 @@
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || 'Could not save address.');
+      const prevPhone = currentAddress && currentAddress.phone;
       currentAddress = {
         email,
         name: data.name,
+        // A blank phone doesn't erase the one on file (the worker keeps it).
+        phone: data.phone || prevPhone || null,
         organization: data.organization || null,
         church: data.church || null,
         line1: data.line1,
