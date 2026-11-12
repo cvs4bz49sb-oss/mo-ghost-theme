@@ -342,8 +342,25 @@ async function renderPdf(browser, htmlPath, pdfPath) {
 
 /* ── EPUB: a plain reflowable copy, as before ──────────────────────── */
 
+// The reader's text, made plain for an e-reader: the essay counter ("2 of
+// 11") and the "Next essay" link are reader furniture and come out. Each
+// essay's wrapper is removed and its title becomes a top-level heading
+// carrying the essay's id, because pandoc builds the EPUB's contents from
+// headings that are not nested inside another element. Section headings
+// move up one level to sit under it.
 function epubHtml(book, { title, article }) {
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${escHtml(title)}</title></head><body>${article}</body></html>`;
+  let body = article
+    .replace(/<a class="rd-next"[\s\S]*?<\/a>/g, "")
+    .replace(/<p class="rd-essay-n">[\s\S]*?<\/p>/g, "")
+    .replace(/<(\/?)h3\b/g, "<$1h2~")
+    .replace(/<section\b([^>]*)>([\s\S]*?)<h2\b(?!~)[^>]*>([\s\S]*?)<\/h2>/g, (_, attrs, before, heading) => {
+      const id = (attrs.match(/\bid="([^"]+)"/) || [])[1];
+      return `${before}<h1${id ? ` id="${id}"` : ""}>${heading}</h1>`;
+    })
+    .replace(/<\/?section\b[^>]*>/g, "")
+    .replace(/<(\/?)h2~/g, "<$1h2")
+    .replace(/^<article\b[^>]*>/, "").replace(/<\/article>$/, "");
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${escHtml(title)}</title></head><body>${body}</body></html>`;
 }
 function hasPandoc() {
   try { execSync("command -v pandoc", { stdio: "ignore" }); return true; } catch (_) { return false; }
@@ -351,7 +368,7 @@ function hasPandoc() {
 function renderEpub(htmlPath, epubPath, book, title) {
   const meta = [`--metadata=title:"${title}"`, book.subtitle ? `--metadata=subtitle:"${book.subtitle}"` : "",
     '--metadata=author:"Mere Orthodoxy"', '--metadata=publisher:"Mere Orthodoxy"', '--metadata=lang:"en-US"'].filter(Boolean).join(" ");
-  execSync(`pandoc "${htmlPath}" -o "${epubPath}" -f html -t epub3 ${meta}`, { stdio: "inherit" });
+  execSync(`pandoc "${htmlPath}" -o "${epubPath}" -f html -t epub3 --toc-depth=2 ${meta}`, { stdio: "inherit" });
 }
 
 /* ── Main ──────────────────────────────────────────────────────────── */
