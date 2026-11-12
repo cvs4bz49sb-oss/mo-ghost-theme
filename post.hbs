@@ -66,11 +66,11 @@
                 <span class="meta-item">{{reading_time minute="1 min read" minutes="% min read"}}</span>
             </div>
 
-            {{!-- Audio article: any signed-in member (free or paid).
-                 Signed-out visitors don't see the button. Click swaps
-                 the button for an inline HTML5 audio player pointing
-                 at the mo-audio worker. Archive posts are synthesized
-                 on first play; new posts are pre-warmed via webhook. --}}
+            {{!-- Audio article: the Listen button opens a player bar fixed
+                 to the bottom of the window (article-audio.js), with a
+                 male (cedar) / female (marin) voice choice. Archive posts
+                 are synthesized on first play; new posts are pre-warmed
+                 via webhook. --}}
             {{!-- Audio player + Bookmark are visible to everyone so
                  the value is obvious at a glance. Click behavior is
                  paid-gated in article-audio.js and article-bookmark.js
@@ -82,11 +82,13 @@
                          data-article-audio
                          data-post-id="{{id}}"
                          data-audio-base="{{@custom.audio_worker_url}}"
+                         data-audio-unlock="{{asset "files/silence.mp3"}}"
                          data-post-title="{{title}}"
                          data-post-author="{{#if primary_author}}{{primary_author.name}}{{else}}Mere Orthodoxy{{/if}}"
                          {{#if feature_image}}data-post-image="{{img_url feature_image size="m"}}"{{/if}}>
                         <button class="article-audio-trigger" type="button" data-hm-goal="listen" data-audio-trigger data-feature-gate="audio" aria-label="Listen to this essay">
-                            <svg class="article-audio-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7V5z"/></svg>
+                            <svg class="article-audio-icon article-audio-icon--play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7V5z"/></svg>
+                            <svg class="article-audio-icon article-audio-icon--pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
                             <span class="article-audio-label">Listen to this essay</span>
                         </button>
                     </div>
