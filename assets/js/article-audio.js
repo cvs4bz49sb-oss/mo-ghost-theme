@@ -14,7 +14,7 @@
  * iOS Safari only lets an <audio> element start playing from inside a
  * tap, and the signed URL arrives after the tap has ended. So the player
  * keeps two elements for its whole life and, inside the first Listen
- * tap, plays a short silent clip on both (data-audio-unlock; the site
+ * tap, plays a short silent clip on both (data-audio-silence; the site
  * CSP rules out data: and blob: audio). Each element is then free to
  * play later. One element is the current voice; switching voice loads
  * the other element and swaps at the same point in the essay once it
@@ -30,7 +30,7 @@
   const trigger = wrap.querySelector("[data-audio-trigger]");
   const postId = wrap.getAttribute("data-post-id");
   const base = (wrap.getAttribute("data-audio-base") || "").replace(/\/$/, "");
-  const unlockSrc = wrap.getAttribute("data-audio-unlock") || "";
+  const unlockSrc = wrap.getAttribute("data-audio-silence") || "";
   if (!trigger || !postId || !base) return;
 
   const VOICES = [
