@@ -82,7 +82,7 @@ const ADMIN_TOOLS = [
   { id: "assets", label: "Social Assets", group: "Marketing", pages: ["assets"], routes: { admin: ["/images/upload", "/assets/lookup"] } },
   { id: "copy", label: "Social Copy", group: "Marketing", pages: ["copy"], routes: { admin: ["/social/copy"] } },
   { id: "extract", label: "Article Extractor", group: "Marketing", pages: ["extract"], routes: {} },
-  { id: "slide-ins", label: "Slide-ins", group: "Marketing", pages: ["slide-ins"], routes: { admin: ["/slide-ins"] } },
+  { id: "slide-ins", label: "Slide-ins", group: "Marketing", pages: ["slide-ins"], routes: { admin: ["/slide-ins", "/eoy/stats"] } },
   { id: "heatmap", label: "Click Heatmap", group: "Marketing", pages: ["heatmap"], routes: { admin: ["/heatmap"] } },
   { id: "engagement", label: "Engagement", group: "Marketing", pages: ["engagement"], routes: { admin: ["/engagement"] } },
   { id: "sponsors", label: "Sponsorships", group: "Marketing", pages: ["sponsors"], routes: { admin: ["/sponsors/"], membership: ["/api/admin/sponsorships"] } },

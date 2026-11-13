@@ -63,7 +63,10 @@
   const btn = bar.querySelector(".eoy-bar-btn");
   if (btn) btn.setAttribute("data-hm-goal", `eoy-bar-${variant}`);
 
+  const eoy = window.MOEoy || null; // eoy-track.js: first-party counts for /admin/slide-ins/
+
   function track(action) {
+    if (eoy && action !== "click") eoy.send(`bar_${action}`, variant);
     const send = () => {
       if (typeof window.plausible === "function") {
         window.plausible("Year-End Bar", { props: { headline: variant, action } });
@@ -76,6 +79,7 @@
   bar.hidden = false;
   document.documentElement.classList.add("has-eoy-bar");
   track("view");
+  if (eoy) eoy.reachOnce("bar_reach", variant);
 
   const root = document.documentElement;
   const fit = () => {
@@ -91,6 +95,10 @@
     let released = false;
     btn.addEventListener("click", (e) => {
       if (released) return;
+      if (eoy) {
+        eoy.send("bar_click", variant);
+        eoy.rememberSource(`bar-${variant}`);
+      }
       if (e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       if (typeof window.plausible !== "function") return;
       e.preventDefault();

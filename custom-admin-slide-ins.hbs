@@ -31,6 +31,18 @@
              {{#if @custom.content_api_key}}data-content-api-key="{{@custom.content_api_key}}"{{/if}}
              data-site-url="{{@site.url}}">
 
+          {{!-- Year-end campaign tracker (2026-11-13). The bottom bar
+               replaced the slide-ins for the campaign, so its numbers live
+               here: assets/js/admin-eoy-tracker.js, mo-admin GET /eoy/stats. --}}
+          <section class="eoy-tracker" data-eoy-tracker data-worker-url="{{@custom.admin_worker_url}}" aria-labelledby="eoy-tracker-title">
+            <div class="eoy-tracker-head">
+              <h2 class="eoy-tracker-title" id="eoy-tracker-title">Year-end campaign</h2>
+              <button type="button" class="btn btn-ghost btn-sm" data-eoy-refresh>Refresh</button>
+            </div>
+            <p class="admin-sub" data-eoy-asof>Loading&hellip;</p>
+            <div data-eoy-out></div>
+          </section>
+
           {{!-- List view --}}
           <div data-slide-in-list>
             <div class="dashboard-address-actions" style="margin-bottom: 36px;">
@@ -236,3 +248,4 @@
 <script src="{{asset "js/admin-auth.js"}}"></script>
 <script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-slide-ins.js"}}"></script>
+<script src="{{asset "js/admin-eoy-tracker.js"}}"></script>

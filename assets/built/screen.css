@@ -30014,6 +30014,19 @@ html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bo
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
+/* Year-end campaign tracker on /admin/slide-ins/ (assets/js/admin-eoy-tracker.js).
+   A working surface: body face, roman headings. */
+.eoy-tracker { margin: 0 0 56px; padding-bottom: 40px; border-bottom: 1px solid var(--color-card-border); }
+.eoy-tracker-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.eoy-tracker-title { font-family: var(--font-body); font-size: 22px; font-weight: 600; margin: 0; }
+.eoy-tracker-section { margin: 36px 0 0; }
+.eoy-tracker-h { font-family: var(--font-body); font-size: 16px; font-weight: 600; margin: 0 0 6px; }
+.eoy-tracker-section .admin-sub { margin: 0 0 14px; max-width: 70ch; }
+.eoy-tracker .admin-stats { margin: 0 0 20px; }
+.eoy-tracker-table .is-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.eoy-tracker-table tbody th { font-weight: 400; text-align: left; padding: 12px; border-bottom: 1px solid var(--color-rule); vertical-align: top; }
+@media (max-width: 640px) { .eoy-tracker-table tbody th { padding: 10px 8px; font-size: 12px; } }
+.eoy-tracker-verdict { font-family: var(--font-body); font-size: 15px; margin: 14px 0 0; max-width: 70ch; }
 .eoy-bar-sub { font-size: 14px; line-height: 1.4; color: var(--color-muted); margin: 0; }
 .eoy-bar-track { height: 6px; border-radius: 3px; overflow: hidden; background: #e2cfb1; }
 .eoy-bar-fill { display: block; height: 100%; border-radius: 3px; background: var(--color-secondary); }

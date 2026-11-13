@@ -54,6 +54,10 @@
       // slide-in. The worker checks its shape and drops anything else.
       const slideIn = new URLSearchParams(window.location.search).get('slide-in');
       if (slideIn) payload.slide_in = slideIn;
+      // Year-end tracker source from /year-end/'s link (eoy-page.js); the
+      // worker keeps only the four known values.
+      const eoy = new URLSearchParams(window.location.search).get('eoy');
+      if (eoy) payload.eoy = eoy;
       const isSignedIn = !!btn.dataset.memberEmail;
       // For anonymous visitors, prefill name if we have it; Stripe
       // collects email at checkout. For signed-in members we send a

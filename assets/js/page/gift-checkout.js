@@ -101,6 +101,12 @@
     errorEl.textContent = "";
     form.querySelectorAll('[aria-invalid="true"]').forEach((el) => el.removeAttribute("aria-invalid"));
 
+    // Year-end tracker: the source /year-end/ put on the link here
+    // (eoy-page.js). Ghost keeps none of our metadata on a gift, so it rides
+    // in cancelUrl, which Stripe echoes to mo-membership's webhook.
+    const eoyRaw = String(new URLSearchParams(window.location.search).get("eoy") || "").toLowerCase();
+    const eoySource = ["bar-a", "bar-b", "email", "page"].indexOf(eoyRaw) === -1 ? "" : eoyRaw;
+
     const delivery = method();
     const duration = Number(value("duration")) || 12;
     const buyerName = value("buyerName");
@@ -113,7 +119,7 @@
       tierId,
       duration,
       deliveryMethod: delivery,
-      cancelUrl: `${window.location.origin}/give/#gift-form`,
+      cancelUrl: `${window.location.origin}/give/${eoySource ? `?eoy=${eoySource}` : ""}#gift-form`,
     };
 
     const problems = [];
