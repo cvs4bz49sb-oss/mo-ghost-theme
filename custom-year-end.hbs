@@ -21,13 +21,14 @@
      the slug "year-end" and this template selected serves it.
 
      WEEKLY METER UPDATE (Mark sends the total; we update once a week)
-     Change these four things together in .eoy-meter below, then push:
+     Change these three things together in .eoy-meter below, then push:
        1. raised:    the "$25,000" in .eoy-meter-raised
        2. to go:     the "$100,000" in .eoy-meter-left (125,000 minus raised)
        3. percent:   aria-valuenow, the width on .eoy-meter-fill, and the
                      aria-valuetext (raised / 125,000, rounded down)
-       4. date:      the <time> in .eoy-meter-asof (its datetime too)
-     The page must always say how old the number is.
+     The meter says "Updated weekly" (Ian, 2026-11-13), not a date, so
+     a week without an update shows nothing stale. Keep to the weekly
+     rhythm.
 
      Member state: paid and comped readers already have a membership, so
      the "Become a Member" card is hidden for them and the Lifetime card
@@ -52,7 +53,7 @@
             </div>
             <p class="eoy-meter-meta">
               <span class="eoy-meter-left">$100,000 to go</span>
-              <span class="eoy-meter-asof">Updated <time datetime="2026-11-14">November 14</time></span>
+              <span class="eoy-meter-asof">Updated weekly</span>
             </p>
           </div>
 
@@ -153,10 +154,16 @@
   <section class="eoy-thanks" aria-labelledby="eoy-thanks-title">
     <div class="container">
       <div class="eoy-thanks-inner">
-        {{> "flourish-mark"}}
-        <h2 class="section-heading" id="eoy-thanks-title">A Thank-You Book</h2>
-        <p>We will send a thank-you book to everyone who gives $500 or more, starts a monthly gift of $50 or more, or becomes a Lifetime Member. The book is <cite>The Lord Is My Light: A Liturgy for Daily Prayer</cite>, compiled by Trevin Wax. It sets Scripture among confessions and prayers from believers across the centuries.</p>
-        <p class="eoy-thanks-follow">We report our progress in <a href="/#digest">the Weekly Digest</a> every Thursday.</p>
+        <figure class="eoy-thanks-book">
+          <img src="{{asset "images/year-end/lord-is-my-light.jpg"}}"
+               alt="The Lord Is My Light: A Liturgy for Daily Prayer in blue cloth stamped in gold"
+               width="520" height="784" loading="lazy" />
+        </figure>
+        <div class="eoy-thanks-text">
+          <h2 class="section-heading" id="eoy-thanks-title">A Thank-You Book</h2>
+          <p>We will send a thank-you book to everyone who gives $500 or more, starts a monthly gift of $50 or more, or becomes a Lifetime Member. The book is <cite>The Lord Is My Light: A Liturgy for Daily Prayer</cite>, compiled by Trevin Wax. It sets Scripture among confessions and prayers from believers across the centuries.</p>
+          <p class="eoy-thanks-follow">We report our progress in <a href="/#digest">the Weekly Digest</a> every Thursday.</p>
+        </div>
       </div>
     </div>
   </section>

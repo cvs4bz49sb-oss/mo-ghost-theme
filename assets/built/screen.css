@@ -29739,15 +29739,25 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
 /* The thank-you book */
 .eoy-thanks { padding: 80px 0 96px; background: var(--color-background); }
 .eoy-thanks-inner {
-  max-width: 640px;
+  max-width: 880px;
   margin: 0 auto;
-  text-align: center;
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  gap: 56px;
+  align-items: center;
   font-family: var(--font-body);
   font-size: 18px;
   line-height: 1.65;
   color: var(--color-dark);
 }
-.eoy-thanks .flourish-mark { margin: 0 auto 20px; }
+.eoy-thanks-book { margin: 0; }
+.eoy-thanks-book img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(45, 41, 39, 0.18), 0 14px 32px -12px rgba(45, 41, 39, 0.35);
+}
 .eoy-thanks .section-heading { margin-bottom: 20px; }
 .eoy-thanks p { margin: 0 0 16px; }
 .eoy-thanks cite { font-style: normal; }
@@ -29758,6 +29768,8 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
   .eoy-year-grid { grid-template-columns: 1fr; gap: 40px; }
   .eoy-ways-grid { grid-template-columns: 1fr; max-width: 560px; gap: 48px; }
   .eoy-other { grid-template-columns: 1fr; max-width: 560px; }
+  .eoy-thanks-inner { grid-template-columns: 1fr; gap: 32px; max-width: 560px; }
+  .eoy-thanks-book { width: min(220px, 60%); margin: 0 auto; }
 }
 @media (max-width: 640px) {
   .eoy-hero { padding: 48px 0 56px; }
