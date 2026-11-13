@@ -30008,6 +30008,12 @@ html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bo
   line-height: 1.15;
   margin: 0 0 2px;
 }
+.eoy-bar-headline .highlight {
+  background-color: rgba(193, 89, 60, 0.78);
+  padding: 0 0.14em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
 .eoy-bar-sub { font-size: 14px; line-height: 1.4; color: var(--color-muted); margin: 0; }
 .eoy-bar-track { height: 6px; border-radius: 3px; overflow: hidden; background: #e2cfb1; }
 .eoy-bar-fill { display: block; height: 100%; border-radius: 3px; background: var(--color-secondary); }

@@ -48,7 +48,7 @@
     if (window.localStorage.getItem(KEY)) return;
   } catch (e) { /* storage blocked: show the bar */ }
 
-  const HEADLINES = { a: null, b: "Help us build on our best year ever." };
+  const HEADLINES = { a: null, b: "on our best year ever." };
   const VKEY = "mo_eoy_bar_headline";
   let variant = null;
   try { variant = window.localStorage.getItem(VKEY); } catch (e) { /* noop */ }
@@ -56,8 +56,9 @@
     variant = Math.random() < 0.5 ? "a" : "b";
     try { window.localStorage.setItem(VKEY, variant); } catch (e) { /* noop */ }
   }
-  const headline = bar.querySelector(".eoy-bar-headline");
-  if (headline && HEADLINES[variant]) headline.textContent = HEADLINES[variant];
+  // Only the words after the highlighted "Help us build" change.
+  const tail = bar.querySelector("[data-eoy-bar-tail]");
+  if (tail && HEADLINES[variant]) tail.textContent = HEADLINES[variant];
   bar.setAttribute("data-headline", variant);
   const btn = bar.querySelector(".eoy-bar-btn");
   if (btn) btn.setAttribute("data-hm-goal", `eoy-bar-${variant}`);
