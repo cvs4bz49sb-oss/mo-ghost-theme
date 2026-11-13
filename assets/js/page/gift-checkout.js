@@ -13,21 +13,23 @@
  *   - a signed-out buyer must send customerEmail.
  */
 (function () {
+  // The 20%-off gift sale ends at data-sale-ends, the same instant mo-gift's
+  // scheduled job raises the Gift Membership tier to full price. From then
+  // on every [data-full] element shows its full-price text and the
+  // struck-through prices go, so no page quotes a price Ghost no longer
+  // charges. Runs on /give/ and on the year-end page, form or not.
+  const saleEl = document.querySelector("[data-sale-ends]");
+  const saleEnds = saleEl ? Date.parse(saleEl.getAttribute("data-sale-ends") || "") : NaN;
+  if (isFinite(saleEnds) && Date.now() >= saleEnds) {
+    document.querySelectorAll("[data-full]").forEach((el) => { el.textContent = el.getAttribute("data-full"); });
+    document.querySelectorAll("[data-sale-only]").forEach((el) => { el.hidden = true; });
+  }
+
   const form = document.querySelector("[data-gift-checkout]");
   if (!form) return;
 
   const tierId = form.getAttribute("data-gift-tier");
 
-  // The 20%-off sale ends at data-sale-ends, the same instant mo-gift's
-  // scheduled job raises the Gift Membership tier to full price. From then
-  // on every [data-full] element on the page shows its full-price text and
-  // the struck-through prices go, so the page never quotes a price Ghost
-  // no longer charges.
-  const saleEnds = Date.parse(form.getAttribute("data-sale-ends") || "");
-  if (isFinite(saleEnds) && Date.now() >= saleEnds) {
-    document.querySelectorAll("[data-full]").forEach((el) => { el.textContent = el.getAttribute("data-full"); });
-    document.querySelectorAll("[data-sale-only]").forEach((el) => { el.hidden = true; });
-  }
   const emailFields = form.querySelector("[data-gift-email-fields]");
   const buyerEmailField = form.querySelector("[data-gift-buyer-email]");
   const errorEl = form.querySelector("[data-gift-error]");
