@@ -1,0 +1,22 @@
+{{!-- Year-end giving bar (Ian chose mockup Option B, 2026-11-13): a tan
+     band fixed to the bottom of every page with a photo, headline,
+     subheader, the meter and a button to /year-end/.
+
+     Rendered hidden. assets/js/page/eoy-bar.js shows it unless the page
+     is one where it would get in the way (the year-end, gift, donate,
+     checkout and welcome pages, the admin), the reader closed it, the
+     audio player or the journal address prompt is open, or the campaign
+     has ended (data-ends). While the campaign runs, slide-in.js stands
+     down for every page (it checks [data-eoy-bar] and data-ends), so
+     the two never compete. Remove this partial from default.hbs after
+     the campaign. --}}
+<aside class="eoy-bar" data-eoy-bar data-ends="2027-01-01T06:00:00Z" aria-label="Year-end giving" hidden>
+  <img class="eoy-bar-photo" src="{{asset "images/year-end/bar-thumb.jpg"}}" alt="" width="160" height="160" loading="lazy" />
+  <div class="eoy-bar-text">
+    <p class="eoy-bar-headline">Help us build on 2026.</p>
+    <p class="eoy-bar-sub">Our year-end goal is $125,000. The work we have planned for 2027 depends on it.</p>
+  </div>
+  {{> "year-end-meter" bar=true}}
+  <a class="btn btn-solid btn-primary eoy-bar-btn" href="/year-end/" data-hm-goal="eoy-bar">Make a gift</a>
+  <button type="button" class="eoy-bar-close" data-eoy-bar-close aria-label="Close">&times;</button>
+</aside>

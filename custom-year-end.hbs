@@ -20,15 +20,8 @@
      check. Routed in routes.yaml; until that upload, a Ghost Page with
      the slug "year-end" and this template selected serves it.
 
-     WEEKLY METER UPDATE (Mark sends the total; we update once a week)
-     Change these three things together in .eoy-meter below, then push:
-       1. raised:    the "$25,000" in .eoy-meter-raised
-       2. to go:     the "$100,000" in .eoy-meter-left (125,000 minus raised)
-       3. percent:   aria-valuenow, the width on .eoy-meter-fill, and the
-                     aria-valuetext (raised / 125,000, rounded down)
-     The meter says "Updated weekly" (Ian, 2026-11-13), not a date, so
-     a week without an update shows nothing stale. Keep to the weekly
-     rhythm.
+     The meter lives in partials/year-end-meter.hbs (shared with the
+     site-wide bottom bar); the weekly update happens there.
 
      Member state: paid and comped readers already have a membership, so
      the "Become a Member" card is hidden for them and the Lifetime card
@@ -43,19 +36,7 @@
           <h1 class="hero-headline eoy-headline" id="eoy-title"><span class="highlight">Help us build</span> on 2026.</h1>
           <p class="hero-sub">This year our readership more than doubled. Our year-end goal is $125,000. The work we have planned for 2027 depends on reaching it.</p>
 
-          <div class="eoy-meter">
-            <p class="eoy-meter-figures">
-              <span class="eoy-meter-raised">$25,000</span>
-              <span class="eoy-meter-goal">raised of $125,000</span>
-            </p>
-            <div class="eoy-meter-track" role="progressbar" aria-label="Year-end giving" aria-valuemin="0" aria-valuemax="100" aria-valuenow="20" aria-valuetext="$25,000 of $125,000 raised">
-              <span class="eoy-meter-fill" style="width: 20%"></span>
-            </div>
-            <p class="eoy-meter-meta">
-              <span class="eoy-meter-left">$100,000 to go</span>
-              <span class="eoy-meter-asof">Updated weekly</span>
-            </p>
-          </div>
+          {{> "year-end-meter"}}
 
           <div class="hero-ctas">
             <a href="/donate/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="eoy-give">Make a gift</a>

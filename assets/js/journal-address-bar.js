@@ -85,8 +85,18 @@
     // One tab at a time, and migrating wins: the migration checkout
     // collects the address too, so asking for both asks twice.
     if (migrate) mount(false, true);
-    else if (p.address) mount(true, false);
+    else if (p.address && !eoyCampaign()) mount(true, false);
   }).catch(() => { /* no bar is the safe failure */ });
+
+  // Year-end campaign (Ian, 2026-11-13): while partials/year-end-bar.hbs
+  // runs, the "Confirm Address For Journal" tab stands down so the
+  // year-end bar is the only thing along the bottom. The migration tab
+  // still shows (the year-end bar steps aside for it in CSS). Returns on
+  // its own when the campaign ends or the partial is removed.
+  function eoyCampaign() {
+    const eoy = document.querySelector("[data-eoy-bar]");
+    return !!eoy && Date.now() < Date.parse(eoy.getAttribute("data-ends") || "");
+  }
 
   function mount(address, migrate) {
     const root = document.createElement("div");

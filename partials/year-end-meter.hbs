@@ -1,0 +1,33 @@
+{{!-- The year-end giving meter, used by the /year-end/ hero
+     ({{> "year-end-meter"}}) and the site-wide bottom bar
+     ({{> "year-end-meter" bar=true}},
+     partials/year-end-bar.hbs).
+
+     WEEKLY UPDATE (Mark sends the total). Change both blocks below, in
+     this one file, then push:
+       - the raised figure ($25,000)
+       - the amount to go ($100,000 = $125,000 minus raised)
+       - the percent: aria-valuenow and the fill width (raised / 125,000,
+         rounded down)
+     The line says "Updated weekly" (Ian, 2026-11-13), so keep to the
+     weekly rhythm. --}}
+{{#if bar}}
+<div class="eoy-bar-meter">
+  <div class="eoy-bar-track" role="progressbar" aria-label="Year-end giving" aria-valuemin="0" aria-valuemax="100" aria-valuenow="20" aria-valuetext="$25,000 of $125,000 raised"><span class="eoy-bar-fill" style="width: 20%"></span></div>
+  <p class="eoy-bar-figures"><b>$25,000</b> raised of $125,000</p>
+</div>
+{{else}}
+<div class="eoy-meter">
+  <p class="eoy-meter-figures">
+    <span class="eoy-meter-raised">$25,000</span>
+    <span class="eoy-meter-goal">raised of $125,000</span>
+  </p>
+  <div class="eoy-meter-track" role="progressbar" aria-label="Year-end giving" aria-valuemin="0" aria-valuemax="100" aria-valuenow="20" aria-valuetext="$25,000 of $125,000 raised">
+    <span class="eoy-meter-fill" style="width: 20%"></span>
+  </div>
+  <p class="eoy-meter-meta">
+    <span class="eoy-meter-left">$100,000 to go</span>
+    <span class="eoy-meter-asof">Updated weekly</span>
+  </p>
+</div>
+{{/if}}

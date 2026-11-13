@@ -37,6 +37,12 @@
  *     has ignored it five times is not going to convert on the sixth.
  */
 (function () {
+  // Year-end campaign (2026-11-13): while partials/year-end-bar.hbs is on
+  // the page and its campaign has not ended, this bar stands down so the
+  // year-end bar is the only thing along the bottom. It returns on its own
+  // when the campaign ends or the partial is removed.
+  const eoyBar = document.querySelector("[data-eoy-bar]");
+  if (eoyBar && Date.now() < Date.parse(eoyBar.getAttribute("data-ends") || "")) return;
   const workerUrl = (document.body.getAttribute("data-admin-worker-url") || "").replace(/\/$/, "");
   if (!workerUrl) return;
 
