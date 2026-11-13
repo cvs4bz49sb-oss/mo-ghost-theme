@@ -276,7 +276,7 @@
 
         <div class="dashboard-rail-item">
           <p class="eyebrow">Your Membership</p>
-          <p class="dashboard-rail-tier">{{#match @member.status "paid"}}Paid member{{/match}}{{#match @member.status "comped"}}Complimentary{{/match}}{{#match @member.status "gift"}}Complimentary{{/match}}{{#match @member.status "free"}}Free subscriber{{/match}}</p>
+          <p class="dashboard-rail-tier">{{#match @member.status "paid"}}Paid member{{/match}}{{#match @member.status "comped"}}Complimentary{{/match}}{{#match @member.status "gift"}}Gift membership{{/match}}{{#match @member.status "free"}}Free subscriber{{/match}}</p>
           {{!-- Why a membership is complimentary, one sentence picked from
                the member's labels by the CSS under "Dashboard: comp
                reason": institution > lifetime > gift > student > Substack >
@@ -293,16 +293,7 @@
             <p class="dashboard-rail-meta why-staff">Our staff set up your membership.</p>
           </div>
           {{/match}}{{#match @member.status "gift"}}
-          <div class="dashboard-comp-why" data-labels="|">
-            <p class="dashboard-rail-meta why-institution">Your church or institution provides your membership.</p>
-            <p class="dashboard-rail-meta why-lifetime">Your lifetime membership never renews or expires.</p>
-            <p class="dashboard-rail-meta why-gift">Someone gave you this membership as a gift.</p>
-            <p class="dashboard-rail-meta why-student">You have a student membership.</p>
-            <p class="dashboard-rail-meta why-substack">You support Mere Orthodoxy through Substack.</p>
-            <p class="dashboard-rail-meta why-patreon">You support Mere Orthodoxy through Patreon.</p>
-            <p class="dashboard-rail-meta why-hubspot">Your membership moved over from our previous system, which still handles your billing.</p>
-            <p class="dashboard-rail-meta why-staff">Our staff set up your membership.</p>
-          </div>
+          <p class="dashboard-rail-meta">Someone gave you this membership as a gift.</p>
           {{/match}}
           {{!-- Filled by member-profile.js from mo-kit /member-profile,
                like data-labels above: the first date this member ever paid, which
