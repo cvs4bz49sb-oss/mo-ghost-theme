@@ -29629,7 +29629,8 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
 
 .eoy-hero-image { margin: 0; }
 .eoy-hero-image img,
-.eoy-way-photo {
+.eoy-way-photo,
+.eoy-year-photo {
   display: block;
   width: 100%;
   height: auto;
@@ -29657,6 +29658,7 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
   color: var(--color-dark);
   margin: 0 0 18px;
 }
+.eoy-year-photo { margin-top: 32px; }
 .eoy-year-list { list-style: none; margin: 0; padding: 0; }
 .eoy-year-list li {
   padding: 14px 0;
