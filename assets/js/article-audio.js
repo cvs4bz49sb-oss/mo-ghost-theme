@@ -668,6 +668,7 @@
     let currentIdx = -1;
     let following = true;
     let ownScroll = false;
+    let settleUntil = 0; // after an unlock; scrollend can't shorten it
     let ownScrollTimer = 0;
     let open = false;
     let loadToken = 0;
@@ -759,13 +760,13 @@
 
     // Our own scroll lasts until scrollend (timer fallback for Safari
     // without it); until then the scroll handler leaves following alone.
-    function scrollTo(elm) {
+    function scrollTo(elm, now) {
       const r = elm.getBoundingClientRect();
       ownScroll = true;
       clearTimeout(ownScrollTimer);
       ownScrollTimer = setTimeout(() => { ownScroll = false; }, 2500);
       // "instant", not "auto": html has scroll-behavior: smooth.
-      window.scrollTo({ top: window.scrollY + r.top - window.innerHeight * 0.28, behavior: reduceMotion ? "instant" : "smooth" });
+      window.scrollTo({ top: window.scrollY + r.top - window.innerHeight * 0.28, behavior: reduceMotion || now ? "instant" : "smooth" });
     }
     window.addEventListener("scrollend", () => {
       if (!ownScroll) return;
@@ -783,18 +784,29 @@
       if (idx < 0) return;
       const elm = timed[idx].el;
       elm.classList.add("is-audio-current");
-      if (open && following && !getAudio().paused && !inView(elm)) scrollTo(elm);
+      // Locked phone or background tab: the audio plays on, the page waits.
+      if (open && following && !document.hidden && !getAudio().paused && !inView(elm)) scrollTo(elm);
     }
 
     // A scroll we didn't start, that leaves the current paragraph out of
     // view, means the reader went elsewhere: stop following.
     window.addEventListener("scroll", () => {
       if (!open || !timed.length || currentIdx < 0) return;
-      if (ownScroll) return;
+      if (ownScroll || document.hidden || performance.now() < settleUntil) return;
       const vis = visible(timed[currentIdx].el);
       if (following && !vis) { following = false; returnBtn.hidden = false; }
       else if (!following && vis) { following = true; returnBtn.hidden = true; }
     }, { passive: true });
+
+    // Back from a locked phone or another tab: the reader is where the
+    // audio is, at once. Unlocking resizes the viewport on iOS, so the
+    // scroll it causes must not count as the reader leaving.
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden || !open || !following || currentIdx < 0) return;
+      settleUntil = performance.now() + 800;
+      const elm = timed[currentIdx].el;
+      if (!inView(elm)) scrollTo(elm, true);
+    });
 
     returnBtn.addEventListener("click", () => {
       following = true;
