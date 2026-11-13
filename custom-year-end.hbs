@@ -173,5 +173,44 @@
     </div>
   </section>
 
+  {{!-- The reader quotes and "What You're Supporting" from /membership/
+       (partials/membership-body.hbs and partials/membership-supporting.hbs),
+       wrapped in .membership so the same phone rules apply. Set roman here:
+       no italics on this page (Deslop D25). --}}
+  <div class="membership eoy-proof">
+    <section class="readers">
+      <div class="container">
+        <div class="section-intro">
+          <h2 class="section-heading">From Our Readers</h2>
+        </div>
+
+        <blockquote class="reader-feature">I'm very grateful for the work of Mere&nbsp;Orthodoxy. It has been a genuine companion on my spiritual journey.</blockquote>
+
+        <div class="readers-grid">
+          <blockquote class="reader-quote">
+            <p>Thank you for offering thoughtful, reasonable and decent commentary. It is a boon to my sanity at this stage of my life in this cultural moment.</p>
+          </blockquote>
+          <blockquote class="reader-quote reader-quote--long">
+            <p>I used to be a campus minister with a parachurch organization. In finding Mere&nbsp;Orthodoxy, it has felt like a little more balance in perspectives like I had when I worked for the ministry. Appreciate your work as it grows my faith.</p>
+          </blockquote>
+          <blockquote class="reader-quote">
+            <p>Mere&nbsp;Orthodoxy is (for me) a counterpoint to social media, a place of depth and critical thought.</p>
+          </blockquote>
+        </div>
+
+        <blockquote class="reader-feature reader-feature--coda">I love Mere&nbsp;Orthodoxy! One of the best protestant publications out there!</blockquote>
+      </div>
+    </section>
+
+    <section class="included">
+      <div class="container">
+        {{> "membership-supporting"}}
+        <div class="included-cta">
+          <a href="/donate/" class="btn btn-solid btn-dark btn-inline" data-hm-goal="eoy-give-supporting">Make a gift</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
 </main>
 <script src="{{asset "js/page/gift-checkout.js"}}"></script>

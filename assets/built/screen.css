@@ -29950,3 +29950,11 @@ html[data-theme="dark"] .article-content.is-following-along [data-mo-follow]::af
 .gift-length { grid-template-columns: auto 1fr; row-gap: 2px; align-items: start; }
 .gift-length input { margin-top: 3px; }
 .gift-length-price { grid-column: 2; }
+/* Year-end page: the /membership/ reader quotes and "What You're
+   Supporting" band, set roman (no italics, Deslop D25). */
+.eoy-proof .section-heading em,
+.eoy-proof .reader-feature,
+.eoy-proof .reader-quote,
+.eoy-proof .reader-quote p,
+.eoy-proof .capstone-title,
+.eoy-proof .capstone-title em { font-style: normal; }
