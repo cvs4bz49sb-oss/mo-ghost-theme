@@ -48,11 +48,9 @@
       <div class="cards">
 
         {{!-- data-card-cta: membership-cards.js makes the whole card
-             fire its CTA. Carried over from the pricing cards, where
-             the heatmap recorded more dead clicks on benefit rows than
-             real clicks on the button. Its INTERACTIVE list already
-             excludes [data-portal], so forwarding to the Portal anchor
-             below is safe and does not double-fire. --}}
+             fire its CTA. The Membership card's CTA is now the
+             #gift-form anchor below; `a` is in that script's INTERACTIVE
+             list, so a click on the button itself does not double-fire. --}}
         <article class="card card-member is-featured" data-card-cta data-hm-goal="gift-card">
           <span class="card-flag">Most Popular</span>
           <h2 class="card-label">Membership</h2>
@@ -63,7 +61,7 @@
           <p class="card-subtext">20% off through December 26</p>
           <p class="card-pitch">Choose the length, write a note, and pick the day it lands in their inbox.</p>
           <a
-            class="btn btn-solid btn-primary"
+            class="btn btn-primary"
             href="#gift-form"
             data-hm-goal="gift-checkout"
           >Gift a Membership</a>
@@ -124,14 +122,14 @@
            remove this section. --}}
       <section class="gift-checkout" id="gift-form" aria-labelledby="gift-form-title">
         <h2 class="gift-checkout-title" id="gift-form-title">Gift a Membership</h2>
-        <form class="gift-checkout-form" data-gift-checkout data-gift-tier="6af751e9a28c1600017e7d61" novalidate>
+        <form class="gift-checkout-form" method="post" data-gift-checkout data-gift-tier="6af751e9a28c1600017e7d61" novalidate>
           <fieldset class="gift-checkout-group">
             <legend class="gift-checkout-legend">How long</legend>
             <div class="gift-lengths">
-              <label class="gift-length"><input type="radio" name="duration" value="12" checked /><span class="gift-length-name">One year</span><span class="gift-length-price">$80 <s>$100</s></span></label>
-              <label class="gift-length"><input type="radio" name="duration" value="6" /><span class="gift-length-name">Six months</span><span class="gift-length-price">$48 <s>$60</s></span></label>
-              <label class="gift-length"><input type="radio" name="duration" value="3" /><span class="gift-length-name">Three months</span><span class="gift-length-price">$24 <s>$30</s></span></label>
-              <label class="gift-length"><input type="radio" name="duration" value="1" /><span class="gift-length-name">One month</span><span class="gift-length-price">$8 <s>$10</s></span></label>
+              <label class="gift-length"><input type="radio" name="duration" value="12" checked /><span class="gift-length-name">One year</span><span class="gift-length-price">$80 <s><span class="visually-hidden">was </span>$100</s></span></label>
+              <label class="gift-length"><input type="radio" name="duration" value="6" /><span class="gift-length-name">Six months</span><span class="gift-length-price">$48 <s><span class="visually-hidden">was </span>$60</s></span></label>
+              <label class="gift-length"><input type="radio" name="duration" value="3" /><span class="gift-length-name">Three months</span><span class="gift-length-price">$24 <s><span class="visually-hidden">was </span>$30</s></span></label>
+              <label class="gift-length"><input type="radio" name="duration" value="1" /><span class="gift-length-name">One month</span><span class="gift-length-price">$8 <s><span class="visually-hidden">was </span>$10</s></span></label>
             </div>
           </fieldset>
 
@@ -145,11 +143,11 @@
 
           <div class="gift-checkout-group" data-gift-email-fields>
             <div class="gift-checkout-row">
-              <label class="gift-field">Their name<input type="text" name="recipientName" maxlength="191" autocomplete="off" /></label>
+              <label class="gift-field"><span>Their name <span class="gift-field-hint">(optional)</span></span><input type="text" name="recipientName" maxlength="191" autocomplete="off" /></label>
               <label class="gift-field">Their email<input type="email" name="recipientEmail" maxlength="191" autocomplete="off" /></label>
             </div>
             <label class="gift-field">Send it on<input type="date" name="deliveryDate" data-gift-date /></label>
-            <label class="gift-field">Your note <span class="gift-field-hint">(up to 250 characters)</span><textarea name="personalMessage" maxlength="250" rows="3"></textarea></label>
+            <label class="gift-field"><span>Your note <span class="gift-field-hint">(up to 250 characters)</span></span><textarea name="personalMessage" maxlength="250" rows="3"></textarea></label>
           </div>
 
           <div class="gift-checkout-row">

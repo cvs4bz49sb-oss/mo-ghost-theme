@@ -51,8 +51,16 @@
   });
   syncMethod();
 
-  function fail(message) {
+  function fail(message, field) {
+    errorEl.textContent = "";
     errorEl.textContent = message;
+    if (field) {
+      const el = form.elements[field];
+      if (el && el.setAttribute) {
+        el.setAttribute("aria-invalid", "true");
+        el.focus();
+      }
+    }
     submit.disabled = false;
     submit.textContent = "Continue to payment";
   }
@@ -78,6 +86,7 @@
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorEl.textContent = "";
+    form.querySelectorAll('[aria-invalid="true"]').forEach((el) => el.removeAttribute("aria-invalid"));
 
     const delivery = method();
     const duration = Number(value("duration")) || 12;
@@ -94,24 +103,34 @@
       cancelUrl: `${window.location.origin}/give/#gift-form`,
     };
 
+    const problems = [];
     if (delivery === "email") {
       const recipientEmail = value("recipientEmail");
-      if (!EMAIL.test(recipientEmail)) return fail("Add their email address so we can send the gift.");
-      if (!buyerName) return fail("Add your name so they know who it is from.");
+      if (!EMAIL.test(recipientEmail)) problems.push(["recipientEmail", "their email address"]);
+      if (!buyerName) problems.push(["buyerName", "your name"]);
       body.recipientEmail = recipientEmail;
       const recipientName = value("recipientName");
       const personalMessage = value("personalMessage");
       const deliveryDate = value("deliveryDate");
       if (recipientName) body.recipientName = recipientName;
       if (personalMessage) body.personalMessage = personalMessage.slice(0, 250);
-      if (deliveryDate) body.deliveryDate = deliveryDate;
+      // Today's date is left out: Ghost then sends it now, and an evening
+      // buyer's local "today" can already be tomorrow or yesterday in UTC.
+      if (deliveryDate && dateInput && deliveryDate !== dateInput.min) body.deliveryDate = deliveryDate;
       body.buyerName = buyerName;
     } else if (buyerName) {
       body.buyerName = buyerName;
     }
+    if (!signedInEmail && !EMAIL.test(customerEmail)) problems.push(["customerEmail", "your email address"]);
 
-    if (!signedInEmail && !EMAIL.test(customerEmail)) {
-      return fail("Add your email address for the receipt.");
+    if (problems.length) {
+      problems.forEach(([name]) => {
+        const el = form.elements[name];
+        if (el && el.setAttribute) el.setAttribute("aria-invalid", "true");
+      });
+      const list = problems.map((p) => p[1]);
+      const joined = list.length > 1 ? `${list.slice(0, -1).join(", ")} and ${list[list.length - 1]}` : list[0];
+      return fail(`Please add ${joined}.`, problems[0][0]);
     }
     if (customerEmail) body.customerEmail = customerEmail;
 
@@ -119,6 +138,7 @@
     submit.textContent = "Opening checkout…";
 
     body.identity = await identity();
+    if (!body.identity && signedInEmail) body.customerEmail = signedInEmail;
 
     try {
       const r = await fetch("/members/api/create-stripe-checkout-session/", {

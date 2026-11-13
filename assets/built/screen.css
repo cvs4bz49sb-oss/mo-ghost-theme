@@ -29841,18 +29841,19 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
   background: var(--color-white);
   cursor: pointer;
 }
-.gift-length:has(input:checked) { border-color: var(--color-secondary); background: #fbf4ec; }
+.gift-length:has(input:checked) { border-color: var(--color-secondary); box-shadow: inset 0 0 0 1px var(--color-secondary); }
 .gift-length input,
 .gift-delivery-option input { accent-color: var(--color-secondary); width: 18px; height: 18px; margin: 0; }
 .gift-length-name { font-size: 17px; color: var(--color-dark); }
 .gift-length-price { font-size: 17px; font-weight: 600; color: var(--color-dark); font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
 .gift-length-price s { font-weight: 400; color: var(--color-muted); margin-left: 4px; }
 .gift-delivery { display: flex; flex-direction: column; gap: 10px; }
-.gift-delivery-option { display: flex; align-items: center; gap: 10px; font-size: 17px; color: var(--color-dark); cursor: pointer; }
+.gift-delivery-option { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 17px; color: var(--color-dark); cursor: pointer; }
 .gift-checkout-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .gift-field { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 600; color: var(--color-dark); }
 .gift-field[hidden] { display: none; }
 .gift-field-hint { font-weight: 400; color: var(--color-muted); }
+.gift-field > span { display: block; }
 .gift-field input,
 .gift-field textarea {
   font-family: var(--font-body);
@@ -29873,8 +29874,9 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
 .gift-checkout-error:empty { display: none; }
 .gift-checkout-submit { align-self: flex-start; }
 .gift-checkout-note { margin: -12px 0 0; font-size: 15px; color: var(--color-muted); }
+@media (max-width: 480px) { .gift-lengths { grid-template-columns: 1fr; } }
 @media (max-width: 640px) {
-  .gift-lengths, .gift-checkout-row { grid-template-columns: 1fr; }
+  .gift-checkout-row { grid-template-columns: 1fr; }
   .gift-checkout { margin-top: 48px; }
   .gift-checkout-submit { align-self: stretch; }
 }
@@ -29882,3 +29884,4 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
 .membership-support .card-label,
 .membership-support .gift-note-heading,
 .membership-support .page-hero-headline { font-style: normal; }
+.gift-field input[aria-invalid="true"] { border-color: #9c4126; }
