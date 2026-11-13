@@ -29786,12 +29786,13 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
 }
 .eoy-way-alt { margin: 0 0 20px; font-family: var(--font-body); font-size: 15px; color: var(--color-muted); }
 .eoy-way-alt a { text-decoration: underline; text-underline-offset: 3px; }
-/* Paid and comped readers see three cards: center the last one. */
+/* Paid and comped readers see three cards (no Membership card): set
+   all three on one line. */
 @media (min-width: 901px) {
-  .eoy-ways-grid > .eoy-way:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-    width: calc(50% - 24px);
-    justify-self: center;
+  .eoy-ways-grid:has(> .eoy-way:nth-child(3):last-child) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: 1180px;
+    gap: 40px 36px;
   }
 }
 
