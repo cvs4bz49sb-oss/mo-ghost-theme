@@ -892,7 +892,8 @@ a.btn-solid:focus-visible {
   margin: 0 0 28px;
 }
 .hero-headline em { font-style: italic; }
-.hero-headline .highlight {
+.hero-headline .highlight,
+.page-hero-headline .highlight {
   background-image: linear-gradient(90deg, rgba(193, 89, 60, 0.78) 0%, rgba(193, 89, 60, 0.78) 100%);
   background-repeat: no-repeat;
   background-size: 0% 100%;
@@ -913,7 +914,8 @@ a.btn-solid:focus-visible {
   to { background-size: 100% 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-headline .highlight {
+  .hero-headline .highlight,
+  .page-hero-headline .highlight {
     background-size: 100% 100%;
     animation: none;
   }
