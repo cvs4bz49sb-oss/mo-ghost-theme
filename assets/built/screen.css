@@ -29884,7 +29884,8 @@ html[data-theme="dark"] .article-content.is-following-along [data-mo-follow]::af
   padding: 0;
   margin: 0 0 12px;
 }
-.gift-lengths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.gift-lengths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .gift-lengths { grid-template-columns: 1fr; } }
 .gift-length {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -29944,3 +29945,8 @@ html[data-theme="dark"] .article-content.is-following-along [data-mo-follow]::af
 .eoy-way-price s { font-weight: 400; color: var(--color-muted); margin-left: 4px; }
 .gift-field input[aria-invalid="true"] { border-color: #9c4126; }
 .membership-support .price-was { margin-left: 8px; font-size: 18px; color: var(--color-muted); align-self: baseline; }
+/* Three length tiles in a row: the price sits under the length so
+   "Three months" never wraps. */
+.gift-length { grid-template-columns: auto 1fr; row-gap: 2px; align-items: start; }
+.gift-length input { margin-top: 3px; }
+.gift-length-price { grid-column: 2; }
