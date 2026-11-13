@@ -21,6 +21,12 @@ jobs:
         # risk per Codex audit 2026-05-11. v4 = 34e114876b0b...
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
+      - name: Check the Daily Liturgy data for markup
+        # 2026-11-13 sent inline CSS ("--stroke-style: none;...") inside three
+        # prayers to every Daily Liturgy subscriber. A bad data commit now
+        # stops here instead of reaching the reader page and mo-kit's email.
+        run: node scripts/check-liturgy-data.mjs
+
       - name: Use the podcast wiki index from the data branch
         # Podcast Wiki publishes assets/data/podcast-wiki.json to the
         # podcast-data branch (main is ruleset-protected). Ship that copy

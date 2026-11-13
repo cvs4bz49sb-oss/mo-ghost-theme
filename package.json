@@ -25,6 +25,7 @@
     "check:lifetime-gift": "node scripts/check-lifetime-gift.mjs",
     "check:slide-ins": "node scripts/check-slide-in-tracking.mjs",
     "check:meta": "node scripts/check-meta.mjs",
+    "check:liturgy-data": "node scripts/check-liturgy-data.mjs",
     "check:research-tools": "node scripts/check-research-tools.mjs",
     "check:research-gate": "node scripts/check-research-gate.mjs",
     "check:author-layout": "node scripts/check-author-layout.mjs",
