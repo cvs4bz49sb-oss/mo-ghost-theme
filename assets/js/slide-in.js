@@ -119,7 +119,7 @@
   // have complimentary full access, so treat them as paid — they must
   // NOT match a "free subscribers only" audience. Only a true "free"
   // status is a free subscriber.
-  const isPaid = memberStatus === "paid" || memberStatus === "comped";
+  const isPaid = memberStatus === "paid" || memberStatus === "comped" || memberStatus === "gift";
   const isFree = isMember && memberStatus === "free";
   // Already Lifetime, by purchase or by gift. default.hbs writes the flag
   // from the member's labels, so it is empty for everyone else, signed

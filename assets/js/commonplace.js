@@ -15,7 +15,7 @@
   const EMAIL = body.getAttribute("data-member-email") || "";
   const STATUS = body.getAttribute("data-member-status") || "";
 
-  const canSave = !!WORKER && !!EMAIL && (STATUS === "paid" || STATUS === "comped");
+  const canSave = !!WORKER && !!EMAIL && (STATUS === "paid" || STATUS === "comped" || STATUS === "gift");
   // Share image (quote-card.js) is offered on essays only. The Faith
   // Received reader makes its own quote image in its own template.
   const canShare = body.classList.contains("post-template") &&

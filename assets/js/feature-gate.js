@@ -265,10 +265,10 @@
        served by this. */
     if (window.MOTour && window.MOTour.active === true) return true;
     if (feature.requires === "subscriber") {
-      return STATUS === "free" || STATUS === "paid" || STATUS === "comped";
+      return STATUS === "free" || STATUS === "paid" || STATUS === "comped" || STATUS === "gift";
     }
     if (feature.requires === "member") {
-      return STATUS === "paid" || STATUS === "comped";
+      return STATUS === "paid" || STATUS === "comped" || STATUS === "gift";
     }
     return true;
   }

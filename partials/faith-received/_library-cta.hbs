@@ -17,7 +17,7 @@
      Not to be used under a post. The sitewide partial is still correct
      there and is untouched. --}}
 {{#match @member.status "paid"}}{{else}}
-{{#match @member.status "comped"}}{{else}}
+{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
 <section class="membership-cta">
     <div class="cta-inner">
         <p class="eyebrow">The Faith Received</p>
@@ -30,5 +30,5 @@
         </div>
     </div>
 </section>
-{{/match}}
+{{/match}}{{/match}}
 {{/match}}

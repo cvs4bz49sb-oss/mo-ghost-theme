@@ -35,9 +35,9 @@
       <h1 class="page-hero-headline"><em>Pick up</em> where you left off.</h1>
       {{!-- The offer line is for former members only. Paid and comped
            visitors get the "already a member" block below. --}}
-      {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+      {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
       <p class="page-hero-sub">Mere&nbsp;Orthodoxy is reader-supported. Rejoin with your first month free or your first year for $90.</p>
-      {{/match}}{{/match}}
+      {{/match}}{{/match}}{{/match}}
     </div>
   </section>
 
@@ -46,6 +46,8 @@
   {{#match @member.status "paid"}}
     {{> "membership-already"}}
   {{else}}{{#match @member.status "comped"}}
+    {{> "membership-already"}}
+  {{else}}{{#match @member.status "gift"}}
     {{> "membership-already"}}
   {{else}}
   <section class="pricing" id="offers">
@@ -89,16 +91,16 @@
       </div>
     </div>
   </section>
-  {{/match}}{{/match}}
+  {{/match}}{{/match}}{{/match}}
 
   <section class="included">
     <div class="container">
       {{> "membership-supporting"}}
-      {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+      {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
       <div class="included-cta">
         <a href="#offers" class="btn btn-solid btn-dark btn-inline" data-hm-goal="winback-bottom">Choose your plan</a>
       </div>
-      {{/match}}{{/match}}
+      {{/match}}{{/match}}{{/match}}
     </div>
   </section>
 

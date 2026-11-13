@@ -27,7 +27,7 @@
 
   /* ---- check member status ----------------------------------------- */
   const status = (document.body.getAttribute("data-member-status") || "anonymous").toLowerCase();
-  if (status === "paid" || status === "comped") {
+  if (status === "paid" || status === "comped" || status === "gift") {
     /* The hero's "Watch the replay" button jumps to #replay. */
     const first = content.querySelector('iframe[src*="youtube"], iframe[src*="youtu.be"], iframe[src*="vimeo"]');
     if (first) (first.closest(".kg-embed-card, .kg-card") || first).id = "replay";

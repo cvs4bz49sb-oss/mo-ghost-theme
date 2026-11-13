@@ -42,7 +42,7 @@
     }
 
     // User is now a paid member — redirect to address capture
-    if (status === 'paid' || status === 'comped') {
+    if (status === 'paid' || status === 'comped' || status === 'gift') {
       sessionStorage.removeItem(FLAG);
       // eslint-disable-next-line no-restricted-syntax -- same-origin path literal
       window.location.assign(REDIRECT_PATH);

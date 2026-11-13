@@ -46,7 +46,7 @@
   if (!body) return;
   const email = (body.getAttribute("data-member-email") || "").toLowerCase();
   const status = body.getAttribute("data-member-status") || "";
-  if (!email || (status !== "paid" && status !== "comped")) { forget(); return; }
+  if (!email || (status !== "paid" && status !== "comped" && status !== "gift")) { forget(); return; }
 
   const metaBase = document.querySelector('meta[name="mo-api-base"]');
   const apiBase = ((metaBase && metaBase.getAttribute("content")) || "").replace(/\/+$/, "");

@@ -116,9 +116,12 @@
           {{else}}{{#match @member.status "comped"}}
             <p class="eoy-way-alt">Already Lifetime? <a href="/give/lifetime/" data-hm-goal="eoy-lifetime-gift">Give one as a gift.</a></p>
             <a href="/membership/#lifetime-upgrade" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Upgrade to Lifetime</a>
+          {{else}}{{#match @member.status "gift"}}
+            <p class="eoy-way-alt">Already Lifetime? <a href="/give/lifetime/" data-hm-goal="eoy-lifetime-gift">Give one as a gift.</a></p>
+            <a href="/membership/#lifetime-upgrade" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Upgrade to Lifetime</a>
           {{else}}
             <a href="/membership/" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Choose Lifetime</a>
-          {{/match}}{{/match}}
+          {{/match}}{{/match}}{{/match}}
         </li>
         <li class="eoy-way">
           <img class="eoy-way-photo" src="{{asset "images/year-end/way-gift.jpg"}}" alt="Three issues of the journal on a round wooden tray among flocked evergreens" width="900" height="600" loading="lazy" />
@@ -127,7 +130,7 @@
           <p class="eoy-way-body">Every gift membership includes the print journal. You choose the day it arrives, and your recipient adds a mailing address when they claim it. Gift memberships never renew.</p>
           <a href="/give/" class="btn eoy-way-btn" data-hm-goal="eoy-gift">Gift a Membership</a>
         </li>
-        {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+        {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
         <li class="eoy-way">
           <img class="eoy-way-photo" src="{{asset "images/year-end/way-member.jpg"}}" alt="A reader in an orange shirt reading the journal at a cafe table with a coffee" width="900" height="600" loading="lazy" />
           <h3 class="eoy-way-title">Membership</h3>
@@ -136,7 +139,7 @@
           <p class="eoy-way-alt">Prefer annual? <a href="/eoy-2026-annual/" data-hm-goal="eoy-member-annual">$80 for your first year, usually $100.</a></p>
           <a href="/eoy-2026-monthly/" class="btn eoy-way-btn" data-hm-goal="eoy-member">Become a Member</a>
         </li>
-        {{/match}}{{/match}}
+        {{/match}}{{/match}}{{/match}}
       </ul>
 
       <div class="eoy-other">

@@ -24,7 +24,7 @@
         <h2 class="section-heading section-heading-light"><em>20% off membership.</em></h2>
       </div>
     </div>
-    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
       <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
         <div class="toggle">
           <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
@@ -34,16 +34,18 @@
           <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
         </div>
       </div>
-    {{/match}}{{/match}}
+    {{/match}}{{/match}}{{/match}}
   </section>
 
   {{#match @member.status "paid"}}
     {{> "membership-already"}}
   {{else}}{{#match @member.status "comped"}}
     {{> "membership-already"}}
+  {{else}}{{#match @member.status "gift"}}
+    {{> "membership-already"}}
   {{else}}
     {{> "offer-pricing"}}
-  {{/match}}{{/match}}
+  {{/match}}{{/match}}{{/match}}
 
   <section class="included">
     <div class="container">
@@ -95,11 +97,11 @@
         <p class="capstone-body">Your membership funds the next writer commissioned, the next journal published, and the next essay and episode we can bring to readers and listeners like you.</p>
       </div>
       {{#match @member.status "paid"}}{{else}}
-      {{#match @member.status "comped"}}{{else}}
+      {{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
       <div class="included-cta">
         <a href="#" class="btn btn-solid btn-dark btn-inline offer-cta-bottom" data-offer-annual="6a04ee5c015d2700011cab3c" data-offer-monthly="6a04ee28015d2700011cab39">Claim Your 20% Off</a>
       </div>
-      {{/match}}
+      {{/match}}{{/match}}
       {{/match}}
     </div>
   </section>

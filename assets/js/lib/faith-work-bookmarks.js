@@ -48,7 +48,7 @@
   const { body } = document;
   const WORKER = (body.getAttribute("data-kit-worker-url") || "").replace(/\/$/, "");
   const status = body.getAttribute("data-member-status") || "";
-  const paid = status === "paid" || status === "comped";
+  const paid = status === "paid" || status === "comped" || status === "gift";
   /* Who may keep a work. Saving is one of the research tools, so it
      follows the same tier as the rest of them: an account during the
      beta, a membership after it. Before 2026-09-22 this was paid-only
@@ -57,7 +57,7 @@
      could not keep the work the answer sent them to.
 
      The constant is declared once, in assets/js/boot/tfr-tier.js. */
-  const signedIn = status === "paid" || status === "comped" || status === "free";
+  const signedIn = status === "paid" || status === "comped" || status === "gift" || status === "free";
   const beta = window.MO_TFR_BETA_OPEN_TO_ALL_MEMBERS !== false;
   const allowed = beta ? signedIn : paid;
 

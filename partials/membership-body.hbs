@@ -28,13 +28,15 @@
           <a href="/give/" class="btn btn-primary mb-hero-gift-cta" data-hm-goal="gift">Gift A Membership</a>
         {{else}}{{#match @member.status "comped"}}
           <a href="/give/" class="btn btn-primary mb-hero-gift-cta" data-hm-goal="gift">Gift A Membership</a>
+        {{/match}}{{#match @member.status "gift"}}
+          <a href="/give/" class="btn btn-primary mb-hero-gift-cta" data-hm-goal="gift">Gift A Membership</a>
         {{/match}}{{/match}}
       </div>
     </div>
     {{!-- Annual/Monthly toggle: pricing-only, so hidden for
          paid/comped members who see the gift CTA above and the
          "already a member" block below instead. --}}
-    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
       <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
         <div class="toggle">
           <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true" data-hm-goal="plan-annual">
@@ -44,7 +46,7 @@
           <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false" data-hm-goal="plan-monthly">Monthly</button>
         </div>
       </div>
-    {{/match}}{{/match}}
+    {{/match}}{{/match}}{{/match}}
   </section>
 
   {{!-- Pricing vs "already a member" is gated by paid/comped status.
@@ -54,9 +56,11 @@
     {{> "membership-already"}}
   {{else}}{{#match @member.status "comped"}}
     {{> "membership-already"}}
+  {{else}}{{#match @member.status "gift"}}
+    {{> "membership-already"}}
   {{else}}
     {{> "membership-pricing"}}
-  {{/match}}{{/match}}
+  {{/match}}{{/match}}{{/match}}
 
   <section class="readers">
     <div class="container">
@@ -89,11 +93,11 @@
       {{!-- Hide the CTA for paid/comped only; free Subscribers AND
            anonymous visitors both see it. --}}
       {{#match @member.status "paid"}}{{else}}
-      {{#match @member.status "comped"}}{{else}}
+      {{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
       <div class="included-cta">
         <a href="#/portal/signup" class="btn btn-solid btn-dark btn-inline" data-portal="signup" data-hm-goal="member-cta">Become a Member</a>
       </div>
-      {{/match}}
+      {{/match}}{{/match}}
       {{/match}}
     </div>
   </section>

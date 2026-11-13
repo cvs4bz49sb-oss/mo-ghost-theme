@@ -29,7 +29,7 @@
   {{else}}
 
     {{#match @member.status "paid"}}{{> "dashboard-prayer-body"}}{{else}}
-    {{#match @member.status "comped"}}{{> "dashboard-prayer-body"}}{{else}}
+    {{#match @member.status "comped"}}{{> "dashboard-prayer-body"}}{{else}}{{#match @member.status "gift"}}{{> "dashboard-prayer-body"}}{{else}}
       <section class="hero dashboard-hero">
         <div class="container">
           <p class="hero-kicker"><span class="dot"></span> Daily Office</p>
@@ -37,7 +37,7 @@
           <p class="dashboard-actions"><a href="/membership/" class="btn btn-primary">Become a Member</a></p>
         </div>
       </section>
-    {{/match}}
+    {{/match}}{{/match}}
     {{/match}}
 
   {{/unless}}

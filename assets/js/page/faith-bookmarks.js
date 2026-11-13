@@ -103,7 +103,7 @@
   const WORKER = (body.getAttribute("data-kit-worker-url") || "").replace(/\/$/, "");
   const memberStatus = body.getAttribute("data-member-status") || "";
   const signedIn = !!body.getAttribute("data-member-email");
-  const paid = memberStatus === "paid" || memberStatus === "comped";
+  const paid = memberStatus === "paid" || memberStatus === "comped" || memberStatus === "gift";
   /* Who may SEE their saved works, which has to be whoever may make one.
      This panel used to hardcode paid/comped while
      assets/js/lib/faith-work-bookmarks.js — the file that decides

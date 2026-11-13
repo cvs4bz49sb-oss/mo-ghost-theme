@@ -59,7 +59,7 @@
 
   function hasPaidAccess() {
     const status = document.body.getAttribute("data-member-status") || "";
-    return status === "paid" || status === "comped";
+    return status === "paid" || status === "comped" || status === "gift";
   }
 
   function setState(bookmarked) {

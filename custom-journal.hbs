@@ -53,10 +53,13 @@
             {{else}}{{#match @member.status "comped"}}
               <a href="/dashboard/journals/" class="btn btn-solid btn-primary btn-lg">Read past issues</a>
               <a href="/give/" class="btn btn-lg" data-hm-goal="gift">Give a Membership</a>
+            {{else}}{{#match @member.status "gift"}}
+              <a href="/dashboard/journals/" class="btn btn-solid btn-primary btn-lg">Read past issues</a>
+              <a href="/give/" class="btn btn-lg" data-hm-goal="gift">Give a Membership</a>
             {{else}}
               <a href="/membership/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="journal">Become a Member</a>
               <a href="#current" class="btn btn-lg">See the new issue</a>
-            {{/match}}{{/match}}
+            {{/match}}{{/match}}{{/match}}
           </div>
         </div>
         <figure class="journal-landing-hero-image">
@@ -139,9 +142,11 @@
           <a href="/give/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
         {{else}}{{#match @member.status "comped"}}
           <a href="/give/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
+        {{else}}{{#match @member.status "gift"}}
+          <a href="/give/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
         {{else}}
           <a href="/membership/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="journal">Become a Member</a>
-        {{/match}}{{/match}}
+        {{/match}}{{/match}}{{/match}}
       </div>
     </div>
   </section>
@@ -162,9 +167,9 @@
         <p class="eyebrow">The Archive</p>
         <h2 class="section-heading" id="journal-archive-title">Past issues</h2>
       </div>
-      {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+      {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
       <p class="journal-archive-lede">Members have access to digital editions of every past issue online. <a href="/membership/">Become a Member</a> to gain access.</p>
-      {{/match}}{{/match}}
+      {{/match}}{{/match}}{{/match}}
       {{> "journal-shelf" public=true}}
     </div>
   </section>
@@ -174,7 +179,7 @@
        and its scripts), wrapped in .membership so the house card styles
        apply. Paid and comped members already have the journal, so they
        see none of it. --}}
-  {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+  {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
   <div class="membership journal-join" id="join" data-hm-section="join">
     <section class="mb-hero journal-join-band">
       <div class="container">
@@ -199,6 +204,6 @@
   <script src="{{asset "js/page/membership-cards.js"}}"></script>
   <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
   <script src="{{asset "js/lifetime-checkout.js"}}"></script>
-  {{/match}}{{/match}}
+  {{/match}}{{/match}}{{/match}}
 
 </main>

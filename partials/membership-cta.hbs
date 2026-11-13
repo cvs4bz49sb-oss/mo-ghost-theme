@@ -4,7 +4,7 @@
      for free Subscribers AND anonymous visitors (both should be
      converted). --}}
 {{#match @member.status "paid"}}{{else}}
-{{#match @member.status "comped"}}{{else}}
+{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
 {{> "membership-cta-body"}}
-{{/match}}
+{{/match}}{{/match}}
 {{/match}}

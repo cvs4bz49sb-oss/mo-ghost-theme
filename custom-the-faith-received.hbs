@@ -380,7 +380,7 @@
      one-time gift under it. --}}
 <div id="support" class="tfr-support">
 {{#match @member.status "paid"}}{{else}}
-{{#match @member.status "comped"}}{{else}}
+{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
 <section class="faith-join" id="become-a-member">
   <div class="container">
     <p class="lp-num">Become a member</p>
@@ -398,7 +398,7 @@
 </section>
 
 {{> "membership-pricing"}}
-{{/match}}
+{{/match}}{{/match}}
 {{/match}}
 
 {{!-- Ian, 2026-09-22: a one-time donation under the membership section,
@@ -411,10 +411,13 @@
     {{else}}{{#match @member.status "comped"}}
     <h2 class="lp-head" id="tfr-give-head">Support the work</h2>
     <p>Thank you for being a member. If you'd like to give more, a one-time gift goes directly to this work.</p>
+    {{else}}{{#match @member.status "gift"}}
+    <h2 class="lp-head" id="tfr-give-head">Support the work</h2>
+    <p>Thank you for being a member. If you'd like to give more, a one-time gift goes directly to this work.</p>
     {{else}}
     <h2 class="lp-head" id="tfr-give-head">Rather give once?</h2>
     <p>A one-time gift supports The Faith Received without a membership.</p>
-    {{/match}}{{/match}}
+    {{/match}}{{/match}}{{/match}}
     <p class="tfr-give-act"><a class="btn btn-primary btn-solid btn-lg" href="https://secure.anedot.com/institute-for-christianity-and-common-life/donate" data-hm-goal="tfr-give-once">Make a one-time gift</a></p>
   </div>
 </section>

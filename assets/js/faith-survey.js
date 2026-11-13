@@ -233,7 +233,7 @@
     const email = document.body.getAttribute("data-member-email") || "";
     if (!email) return "anon";
     const status = document.body.getAttribute("data-member-status") || "";
-    return status === "paid" || status === "comped" ? "paid" : "free";
+    return status === "paid" || status === "comped" || status === "gift" ? "paid" : "free";
   }
 
   /*

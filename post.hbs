@@ -231,7 +231,7 @@
                      * free subscriber   → "Become a Member" pitch
                      * anonymous visitor → weekly digest signup --}}
                 {{#match @member.status "paid"}}{{else}}
-                {{#match @member.status "comped"}}{{else}}
+                {{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
                 {{#if @member}}
                     {{!-- Free subscriber — already on the list; upgrade nudge. --}}
                     <div class="inline-support" data-hm-section="inline-cta">
@@ -269,7 +269,7 @@
                         </div>
                     </div>
                 {{/if}}
-                {{/match}}
+                {{/match}}{{/match}}
                 {{/match}}
             </div>
 

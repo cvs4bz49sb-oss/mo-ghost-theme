@@ -71,7 +71,7 @@
 
   function hasPaidAccess() {
     const status = document.body.getAttribute("data-member-status") || "";
-    return status === "paid" || status === "comped";
+    return status === "paid" || status === "comped" || status === "gift";
   }
 
   // Contributors are tags with an author- slug; the post's Ghost author is

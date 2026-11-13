@@ -17,6 +17,8 @@
                         <a href="/dashboard/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="dashboard">Your Member Dashboard</a>
                     {{else}}{{#match @member.status "comped"}}
                         <a href="/dashboard/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="dashboard">Your Member Dashboard</a>
+                    {{else}}{{#match @member.status "gift"}}
+                        <a href="/dashboard/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="dashboard">Your Member Dashboard</a>
                     {{else}}{{#if @member}}
                         {{!-- Free Subscriber: already on the list, so a single upgrade button. --}}
                         <a href="#join" class="btn btn-solid btn-primary btn-lg" data-hm-goal="member-cta">Become a Member</a>
@@ -24,7 +26,7 @@
                         {{!-- Anonymous visitor — primary CTA is now Membership. --}}
                         <a href="#join" class="btn btn-solid btn-primary btn-lg" data-hm-goal="member-cta">Become a Member</a>
                         <a href="#digest" class="btn btn-ghost btn-lg" data-hm-goal="digest-cta">Never Miss An Essay</a>
-                    {{/if}}{{/match}}{{/match}}
+                    {{/if}}{{/match}}{{/match}}{{/match}}
                 </div>
             </div>
 
@@ -195,7 +197,7 @@
      * signed-out visitor        → nothing here; the digest signup sits
                                    in the Today section under the feature --}}
 {{#match @member.status "paid"}}{{else}}
-{{#match @member.status "comped"}}{{else}}
+{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
 {{#if @member}}
     {{!-- Free Subscriber upgrade pitch — styled inline in the
          same light container the digest CTA uses, so this block
@@ -228,7 +230,7 @@
         </div>
     </section>
 {{/if}}
-{{/match}}
+{{/match}}{{/match}}
 {{/match}}
 
 {{!-- THE FAITH RECEIVED BAND: the library, just above This Week and the
@@ -432,6 +434,8 @@
                         <a href="/give/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
                     {{else}}{{#match @member.status "comped"}}
                         <a href="/give/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
+                    {{else}}{{#match @member.status "gift"}}
+                        <a href="/give/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
                     {{else}}{{#if @member}}
                         <a href="/journal/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="journal">Get The Journal</a>
                     {{else}}
@@ -439,7 +443,7 @@
                              carries the join cards (Ian, 2026-11-11). It used to
                              jump to #join on this page. --}}
                         <a href="/journal/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="journal">Get The Journal</a>
-                    {{/if}}{{/match}}{{/match}}
+                    {{/if}}{{/match}}{{/match}}{{/match}}
                 </div>
             </div>
         </div>

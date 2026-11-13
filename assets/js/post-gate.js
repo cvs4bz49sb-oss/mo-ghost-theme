@@ -89,7 +89,9 @@
     // be on a paid plan. Free Subscribers hit the gate when tier=paid.
     if (isMember) {
       if (tier === "members") return;
-      if (tier === "paid" && memberStatus === "paid") return;
+      // Ghost member statuses that hold a paid membership: paid, comped
+      // (complimentary) and gift (a gift subscription, Ghost 6).
+      if (tier === "paid" && (memberStatus === "paid" || memberStatus === "comped" || memberStatus === "gift")) return;
     }
 
     applyGate(content, tier);

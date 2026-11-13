@@ -197,7 +197,7 @@
     const status = document.body.getAttribute("data-member-status") || "";
     // The rail only renders inside the paid/comped dashboard body, but
     // don't assume it: an unsaveable button is worse than no button.
-    if (!worker || !email || (status !== "paid" && status !== "comped")) {
+    if (!worker || !email || (status !== "paid" && status !== "comped" && status !== "gift")) {
       bookmarkButtons.forEach((b) => b.remove());
       bookmarkButtons = [];
       return;

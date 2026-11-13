@@ -39,7 +39,7 @@
   {{else}}
 
     {{#match @member.status "paid"}}{{> "dashboard-body"}}{{else}}
-    {{#match @member.status "comped"}}{{> "dashboard-body"}}{{else}}
+    {{#match @member.status "comped"}}{{> "dashboard-body"}}{{else}}{{#match @member.status "gift"}}{{> "dashboard-body"}}{{else}}
       <section class="hero dashboard-hero">
         <div class="container">
           <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
@@ -53,7 +53,7 @@
           </p>
         </div>
       </section>
-    {{/match}}
+    {{/match}}{{/match}}
     {{/match}}
 
   {{/unless}}

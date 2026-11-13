@@ -4822,7 +4822,7 @@ function frKeepPlace(){
 function scanAllowed(){
   if(window.MOFeatureGate)return window.MOFeatureGate.allowed('tfr-scans');
   const st=(document.body&&document.body.getAttribute('data-member-status')||'anonymous').toLowerCase();
-  return st==='free'||st==='paid'||st==='comped';
+  return st==='free'||st==='paid'||st==='comped'||st==='gift';
 }
 function scanDoor(){return !LN.fx&&!scanAllowed()&&!!window.MOFeatureGate&&window.MOFeatureGate.open('tfr-scans');}
 function applyLanes(){

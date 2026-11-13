@@ -538,7 +538,7 @@
      The pricing cards are inside the same condition. They are the other
      half of this block, and hiding the heading while leaving three
      price columns underneath would be worse than leaving both. --}}
-{{#if @member}}{{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+{{#if @member}}{{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
 <section class="faith-join faith-join--after-tools">
   <div class="container">
     <p class="blabel">Become a member</p>
@@ -556,7 +556,7 @@
 </section>
 
 {{> "membership-pricing"}}
-{{/match}}{{/match}}{{/if}}
+{{/match}}{{/match}}{{/match}}{{/if}}
 {{> "faith-received/_beta-band"}}
 </main>
 {{!-- The sitewide membership CTA used to sit here. It was pulled on

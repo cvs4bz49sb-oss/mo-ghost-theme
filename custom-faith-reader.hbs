@@ -169,9 +169,9 @@
           that almost nobody reaches. Same paid/comped gate as every
           other membership prompt on the site. --}}
     {{#match @member.status "paid"}}{{else}}
-    {{#match @member.status "comped"}}{{else}}
+    {{#match @member.status "comped"}}{{else}}{{#match @member.status "gift"}}{{else}}
     <a href="/membership/" class="faith-dock-btn faith-dock-support" data-hm-goal="member-cta">Support</a>
-    {{/match}}
+    {{/match}}{{/match}}
     {{/match}}
     <button type="button" class="faith-dock-btn faith-dock-toggle" data-faith-dock-toggle
             aria-expanded="false" aria-controls="faith-dock-panel" aria-label="Text tools">
