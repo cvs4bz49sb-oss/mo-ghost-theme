@@ -29780,7 +29780,7 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
   .eoy-way-title { font-size: 22px; }
   .eoy-hero .hero-ctas .btn-lg { font-size: 15px; }
 }
-.eoy-way-alt { margin: 12px 0 0; font-family: var(--font-body); font-size: 15px; color: var(--color-muted); }
+.eoy-way-alt { margin: 0 0 20px; font-family: var(--font-body); font-size: 15px; color: var(--color-muted); }
 .eoy-way-alt a { text-decoration: underline; text-underline-offset: 3px; }
 /* Paid and comped readers see three cards: center the last one. */
 @media (min-width: 901px) {

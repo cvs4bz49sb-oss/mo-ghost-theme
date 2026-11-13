@@ -110,11 +110,11 @@
           <p class="eoy-way-price">$995 once</p>
           <p class="eoy-way-body">Membership for the rest of your life, plus two one-year gift memberships to give to friends or family. $500 of it is tax-deductible and goes toward resources like The Faith Received.</p>
           {{#match @member.status "paid"}}
-            <a href="/membership/#lifetime-upgrade" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Upgrade to Lifetime</a>
             <p class="eoy-way-alt">Already Lifetime? <a href="/give/lifetime/" data-hm-goal="eoy-lifetime-gift">Give one as a gift.</a></p>
+            <a href="/membership/#lifetime-upgrade" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Upgrade to Lifetime</a>
           {{else}}{{#match @member.status "comped"}}
-            <a href="/membership/#lifetime-upgrade" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Upgrade to Lifetime</a>
             <p class="eoy-way-alt">Already Lifetime? <a href="/give/lifetime/" data-hm-goal="eoy-lifetime-gift">Give one as a gift.</a></p>
+            <a href="/membership/#lifetime-upgrade" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Upgrade to Lifetime</a>
           {{else}}
             <a href="/membership/" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Choose Lifetime</a>
           {{/match}}{{/match}}
