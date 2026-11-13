@@ -29496,6 +29496,61 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
 .article-audio.is-playing .article-audio-icon--play { display: none; }
 .article-audio.is-playing .article-audio-icon--pause { display: block; }
 
+/* Follow-along (article-audio.js). While the player is open on an article
+   that has paragraph timing, the paragraph being read gets a line in the
+   player's orange down its left side, the page follows the audio, and a
+   tap on a paragraph moves the audio there. ::after, because h2 and
+   blockquote already use ::before. */
+.article-content.is-following-along [data-mo-follow] { position: relative; cursor: pointer; }
+.article-content.is-following-along [data-mo-follow]::after {
+  content: "";
+  position: absolute;
+  top: 0.25em;
+  bottom: 0.25em;
+  left: -20px;
+  width: 3px;
+  border-radius: 2px;
+  background: #aa4e35;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.article-content.is-following-along blockquote[data-mo-follow]::after { left: 4px; }
+.article-content.is-following-along li[data-mo-follow]::after { left: -48px; }
+html[data-theme="dark"] .article-content.is-following-along [data-mo-follow]::after { background: #ee7d51; }
+.article-content.is-following-along h2[data-mo-follow]::after { top: 24px; }
+.article-content.is-following-along [data-mo-follow].is-audio-current::after { opacity: 1; }
+@media (hover: hover) {
+  .article-content.is-following-along [data-mo-follow]:not(.is-audio-current):hover::after { opacity: 0.3; }
+}
+@media (max-width: 640px) {
+  .article-content.is-following-along [data-mo-follow]::after { left: -11px; }
+  .article-content.is-following-along blockquote[data-mo-follow]::after { left: 4px; }
+  .article-content.is-following-along li[data-mo-follow]::after { left: -39px; }
+}
+
+/* Shown once the reader scrolls away from the paragraph being read. */
+.mo-player .mo-player-return {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 4px;
+  background: var(--mo-ground);
+  color: var(--mo-ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+}
+.mo-player .mo-player-return[hidden] { display: none; }
+.mo-player .mo-player-return:focus-visible { outline-offset: -4px; }
+@media (prefers-reduced-motion: reduce) {
+  .article-content.is-following-along [data-mo-follow]::after { transition: none; }
+}
+
 @keyframes mo-player-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }

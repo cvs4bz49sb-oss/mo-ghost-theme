@@ -22,6 +22,13 @@
  *
  * Lock-screen / notification-shade controls on iOS and Android are
  * wired through the Media Session API.
+ *
+ * Follow-along: the worker publishes when each paragraph of the
+ * narration starts (GET /:post-id.timing.json, signed like the MP3).
+ * While the bar is open, the paragraph being read gets an orange line
+ * down its left side, the page scrolls with the audio, and tapping a
+ * paragraph moves the audio there. Scrolling away stops the following
+ * and shows "Back to audio". Articles without timing just play.
  */
 (function () {
   const wrap = document.querySelector("[data-article-audio]");
@@ -219,6 +226,8 @@
         el("div", { class: "mo-player-side" }, [voiceGroup, speedBtn, closeBtn]),
       ]),
     ]);
+    const returnBtn = el("button", { class: "mo-player-return", type: "button", hidden: "", text: "Back to audio" });
+    bar.appendChild(returnBtn);
     document.body.appendChild(bar);
     const inner = bar.querySelector(".mo-player-inner");
 
@@ -359,11 +368,15 @@
       if (ready) return;
       ready = true;
       setPreparing(false);
+      // Asked for once the audio is playing: on a first listen the timing
+      // is written just after the MP3, so earlier it would 404.
+      follow.load(timingUrl(audio.src));
     });
     const onTime = current(() => {
       if (!ready && audio.currentTime > 0) onReady({ target: audio });
       showTime();
       updatePositionState(audio);
+      follow.tick(audio.currentTime);
     });
     const onError = current(() => {
       if (!audio.getAttribute("src")) return;
@@ -409,6 +422,12 @@
         });
       }
     }
+
+    const follow = createFollowAlong({
+      getAudio: () => audio,
+      play(a) { if (a.paused) playSafe(a); },
+      returnBtn,
+    });
 
     // ---- controls ----
     playBtn.addEventListener("click", toggle);
@@ -552,6 +571,7 @@
         applySpeed(incoming);
         if (incoming.duration) incoming.currentTime = f * incoming.duration;
         showTime();
+        follow.load(timingUrl(incoming.src));
         if (wasPlaying) playSafe(incoming); else setPlaying(false);
         old.removeAttribute("src");
         old.load();
@@ -570,6 +590,7 @@
       bar.hidden = false;
       root.classList.add("has-mo-player");
       writeHeight();
+      follow.setOpen(true);
       // Next frame so the slide-up transition runs.
       requestAnimationFrame(() => bar.classList.add("is-open"));
     }
@@ -579,6 +600,7 @@
       bar.classList.remove("is-open");
       root.classList.remove("has-mo-player");
       bar.hidden = true;
+      follow.setOpen(false);
       setPlaying(false);
       if (!ready) { loadToken++; setPreparing(false); }
     }
@@ -606,6 +628,221 @@
     }
 
     return { fromTrigger };
+  }
+
+  // The timing file sits next to the MP3 and takes the same signature.
+  function timingUrl(mp3Url) {
+    try {
+      const u = new URL(mp3Url);
+      if (!/\.mp3$/.test(u.pathname)) return "";
+      u.pathname = u.pathname.replace(/\.mp3$/, ".timing.json");
+      return u.toString();
+    } catch (_) { return ""; }
+  }
+
+  // Same normalization as the worker's lib/timing.js fingerprint().
+  function words(text) {
+    return String(text || "").toLowerCase().replace(/[’']/g, "")
+      .replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter(Boolean);
+  }
+
+  // How well a narration paragraph's opening words match a block on the
+  // page: the share of the shorter opening found in the other. The
+  // narration adds "Quote." to block quotes and spells out abbreviations,
+  // so it is a set overlap, not an exact prefix.
+  function overlap(a, b) {
+    const n = Math.min(8, a.length, b.length);
+    if (!n) return 0;
+    // A very short block ("Amen.", a one-word heading) must match exactly.
+    if (n < 3) return a.slice(0, n).join(" ") === b.slice(0, n).join(" ") ? 1 : 0;
+    const set = new Set(b.slice(0, 10));
+    let hit = 0;
+    new Set(a.slice(0, 8)).forEach((w) => { if (set.has(w)) hit++; });
+    return Math.min(1, hit / n);
+  }
+
+  function createFollowAlong({ getAudio, play, returnBtn }) {
+    const content = document.querySelector(".article-content");
+    let timed = []; // [{ el, t }] in reading order
+    let byEl = new Map();
+    let currentIdx = -1;
+    let following = true;
+    let ownScroll = false;
+    let ownScrollTimer = 0;
+    let open = false;
+    let loadToken = 0;
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function blocks() {
+      if (!content) return [];
+      return Array.from(content.querySelectorAll("p, h2, h3, h4, h5, h6, li, blockquote")).filter((b) => {
+        if (b.closest("figure, figcaption, aside")) return false;
+        if (b.tagName !== "BLOCKQUOTE" && b.parentElement && b.parentElement.closest("blockquote, li")) return false;
+        return (b.textContent || "").trim().length > 0;
+      });
+    }
+
+    function clear() {
+      timed.forEach((x) => { x.el.removeAttribute("data-mo-follow"); x.el.classList.remove("is-audio-current"); });
+      timed = [];
+      byEl = new Map();
+      currentIdx = -1;
+      if (content) content.classList.remove("is-following-along");
+      returnBtn.hidden = true;
+    }
+
+    function apply(data) {
+      clear();
+      const paras = (data && Array.isArray(data.paras) ? data.paras : [])
+        .filter((p) => p && typeof p.t === "number" && isFinite(p.t) && typeof p.w === "string")
+        .map((p) => ({ t: p.t, w: words(p.w) }));
+      if (!paras.length) return;
+      let j = 0;
+      const all = blocks();
+      all.forEach((b) => {
+        const bw = words(b.textContent);
+        for (let k = j; k < Math.min(paras.length, j + 8); k++) {
+          let pw = paras[k].w;
+          if (b.tagName === "BLOCKQUOTE" && pw[0] === "quote") pw = pw.slice(1);
+          if (overlap(pw, bw) >= 0.6) {
+            timed.push({ el: b, t: paras[k].t });
+            j = k + 1;
+            return;
+          }
+        }
+      });
+      // Too few matches means the page and the narration disagree (an
+      // edited post with old audio): offer nothing rather than wrong lines.
+      if (timed.length < Math.max(3, all.length * 0.5)) { timed = []; return; }
+      timed.forEach((x) => { x.el.setAttribute("data-mo-follow", ""); byEl.set(x.el, x); });
+      following = true;
+      if (open && content) content.classList.add("is-following-along");
+      tick(getAudio().currentTime);
+    }
+
+    const RETRY_MS = [2000, 5000, 10000];
+    function load(url) {
+      const token = ++loadToken;
+      clear();
+      if (!url) return;
+      const attempt = (n) => {
+        fetch(url, { mode: "cors", credentials: "omit", cache: "no-store" })
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null)
+          .then((data) => {
+            if (token !== loadToken) return;
+            if (data) { apply(data); return; }
+            if (n < RETRY_MS.length) setTimeout(() => { if (token === loadToken) attempt(n + 1); }, RETRY_MS[n]);
+          });
+      };
+      attempt(0);
+    }
+
+    function band() {
+      const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--mo-player-h")) || 0;
+      return { top: 72, bottom: window.innerHeight - h - 24 };
+    }
+
+    function inView(elm) {
+      const r = elm.getBoundingClientRect();
+      const { top, bottom } = band();
+      return r.top >= top && r.top <= bottom - 40;
+    }
+
+    // Any part of the paragraph in the reading band (a long paragraph
+    // scrolled partway, or iOS's toolbar coming back, is still "here").
+    function visible(elm) {
+      const r = elm.getBoundingClientRect();
+      const { top, bottom } = band();
+      return r.bottom > top + 40 && r.top < bottom;
+    }
+
+    // Our own scroll lasts until scrollend (timer fallback for Safari
+    // without it); until then the scroll handler leaves following alone.
+    function scrollTo(elm) {
+      const r = elm.getBoundingClientRect();
+      ownScroll = true;
+      clearTimeout(ownScrollTimer);
+      ownScrollTimer = setTimeout(() => { ownScroll = false; }, 2500);
+      // "instant", not "auto": html has scroll-behavior: smooth.
+      window.scrollTo({ top: window.scrollY + r.top - window.innerHeight * 0.28, behavior: reduceMotion ? "instant" : "smooth" });
+    }
+    window.addEventListener("scrollend", () => {
+      if (!ownScroll) return;
+      clearTimeout(ownScrollTimer);
+      ownScrollTimer = setTimeout(() => { ownScroll = false; }, 50);
+    });
+
+    function tick(t) {
+      if (!timed.length) return;
+      let idx = -1;
+      for (let i = 0; i < timed.length; i++) { if (timed[i].t <= t + 0.25) idx = i; else break; }
+      if (idx === currentIdx) return;
+      if (currentIdx >= 0) timed[currentIdx].el.classList.remove("is-audio-current");
+      currentIdx = idx;
+      if (idx < 0) return;
+      const elm = timed[idx].el;
+      elm.classList.add("is-audio-current");
+      if (open && following && !getAudio().paused && !inView(elm)) scrollTo(elm);
+    }
+
+    // A scroll we didn't start, that leaves the current paragraph out of
+    // view, means the reader went elsewhere: stop following.
+    window.addEventListener("scroll", () => {
+      if (!open || !timed.length || currentIdx < 0) return;
+      if (ownScroll) return;
+      const vis = visible(timed[currentIdx].el);
+      if (following && !vis) { following = false; returnBtn.hidden = false; }
+      else if (!following && vis) { following = true; returnBtn.hidden = true; }
+    }, { passive: true });
+
+    returnBtn.addEventListener("click", () => {
+      following = true;
+      returnBtn.hidden = true;
+      if (currentIdx >= 0) scrollTo(timed[currentIdx].el);
+    });
+
+    // Tap a paragraph to move the audio there. Links, footnotes, buttons
+    // and text selection (commonplace) keep their own behavior.
+    // A tap that clears a selection (commonplace) is not a seek, nor is a
+    // double-click to select a word: the seek waits a beat and is dropped
+    // if a second click or a selection follows.
+    const selecting = () => {
+      const sel = window.getSelection && window.getSelection();
+      return !!(sel && !sel.isCollapsed);
+    };
+    if (content) {
+      let wasSelecting = false;
+      let pending = 0;
+      content.addEventListener("pointerdown", () => { wasSelecting = selecting(); });
+      content.addEventListener("click", (e) => {
+        clearTimeout(pending);
+        if (!open || !timed.length || wasSelecting || e.detail > 1) return;
+        if (e.target.closest("a, button, sup, input, textarea, select, summary, label, [role=button]")) return;
+        if (selecting()) return;
+        const b = e.target.closest("[data-mo-follow]");
+        const x = b && byEl.get(b);
+        if (!x) return;
+        pending = setTimeout(() => {
+          if (selecting()) return;
+          const a = getAudio();
+          a.currentTime = x.t;
+          following = true;
+          returnBtn.hidden = true;
+          tick(x.t);
+          play(a);
+        }, 250);
+      });
+    }
+
+    function setOpen(on) {
+      open = on;
+      if (on) following = true;
+      if (content) content.classList.toggle("is-following-along", on && timed.length > 0);
+      if (!on) returnBtn.hidden = true;
+    }
+
+    return { load, tick, setOpen };
   }
 
   function setMediaSession(getAudio, justSwapped) {
