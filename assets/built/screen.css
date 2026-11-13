@@ -29958,3 +29958,14 @@ html[data-theme="dark"] .article-content.is-following-along [data-mo-follow]::af
 .eoy-proof .reader-quote p,
 .eoy-proof .capstone-title,
 .eoy-proof .capstone-title em { font-style: normal; }
+/* Year-end page: the headline note under the year-in-review list. */
+.eoy-year-note {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.2;
+  color: var(--color-dark);
+  text-wrap: balance;
+  margin: 40px 0 0;
+}
+@media (max-width: 640px) { .eoy-year-note { margin-top: 28px; } }
