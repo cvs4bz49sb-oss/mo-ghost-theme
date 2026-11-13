@@ -11,6 +11,19 @@
  *
  * html.has-eoy-bar reserves room at the bottom of the page so the bar
  * never covers the last lines of an article or the footer.
+ *
+ * HEADLINE A/B TEST (Ian, 2026-11-13). Each reader is assigned one
+ * headline at random and keeps it (localStorage):
+ *   a  "Help us build on 2026."  (the partial's own text)
+ *   b  "Help us build on our best year ever."
+ * Plausible gets a "Year-End Bar" event with props {headline, action}
+ * for view (once per page the bar shows), click and close. The button's
+ * data-hm-goal is eoy-bar-a / eoy-bar-b so the click heatmap splits too.
+ * The click event holds the navigation until Plausible confirms (or 800ms)
+ * so it is not lost when the page unloads.
+ *
+ * Headline B can wrap to two lines on a phone, so the room reserved at the
+ * bottom of the page follows the bar's real height (--eoy-bar-h).
  */
 (function () {
   const bar = document.querySelector("[data-eoy-bar]");
@@ -35,12 +48,65 @@
     if (window.localStorage.getItem(KEY)) return;
   } catch (e) { /* storage blocked: show the bar */ }
 
+  const HEADLINES = { a: null, b: "Help us build on our best year ever." };
+  const VKEY = "mo_eoy_bar_headline";
+  let variant = null;
+  try { variant = window.localStorage.getItem(VKEY); } catch (e) { /* noop */ }
+  if (!Object.prototype.hasOwnProperty.call(HEADLINES, variant)) {
+    variant = Math.random() < 0.5 ? "a" : "b";
+    try { window.localStorage.setItem(VKEY, variant); } catch (e) { /* noop */ }
+  }
+  const headline = bar.querySelector(".eoy-bar-headline");
+  if (headline && HEADLINES[variant]) headline.textContent = HEADLINES[variant];
+  bar.setAttribute("data-headline", variant);
+  const btn = bar.querySelector(".eoy-bar-btn");
+  if (btn) btn.setAttribute("data-hm-goal", `eoy-bar-${variant}`);
+
+  function track(action) {
+    const send = () => {
+      if (typeof window.plausible === "function") {
+        window.plausible("Year-End Bar", { props: { headline: variant, action } });
+      }
+    };
+    if (document.readyState === "complete") send();
+    else window.addEventListener("load", send, { once: true });
+  }
+
   bar.hidden = false;
   document.documentElement.classList.add("has-eoy-bar");
+  track("view");
+
+  const root = document.documentElement;
+  const fit = () => {
+    if (!bar.hidden) root.style.setProperty("--eoy-bar-h", `${Math.ceil(bar.getBoundingClientRect().height)}px`);
+  };
+  fit();
+  window.addEventListener("resize", fit);
+  window.addEventListener("load", fit, { once: true });
+
+  if (btn) {
+    // The held click is replayed through the link itself (released = true)
+    // so the browser follows the href as it would have.
+    let released = false;
+    btn.addEventListener("click", (e) => {
+      if (released) return;
+      if (e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (typeof window.plausible !== "function") return;
+      e.preventDefault();
+      const go = () => {
+        if (released) return;
+        released = true;
+        btn.click();
+      };
+      window.plausible("Year-End Bar", { props: { headline: variant, action: "click" }, callback: go });
+      setTimeout(go, 800);
+    });
+  }
 
   const close = bar.querySelector("[data-eoy-bar-close]");
   if (close) {
     close.addEventListener("click", () => {
+      track("close");
       bar.hidden = true;
       document.documentElement.classList.remove("has-eoy-bar");
       try { window.localStorage.setItem(KEY, String(Date.now())); } catch (e) { /* noop */ }
