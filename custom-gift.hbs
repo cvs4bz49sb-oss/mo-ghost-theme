@@ -58,15 +58,15 @@
           <h2 class="card-label">Membership</h2>
           <div class="card-price">
             <span class="price-interval price-lead">Starts at</span>
-            <span class="price-amount">$10</span>
+            <span class="price-amount" data-full="$10">$8</span>
             <span class="price-interval">/month</span>
+            <s class="price-was" data-sale-only><span class="visually-hidden">was </span>$10</s>
           </div>
-          <p class="card-subtext">One month, three, six, or a full year</p>
+          <p class="card-subtext" data-full="One month, three, six, or a full year">20% off through February 28</p>
           <p class="card-pitch">Choose the length, write a note, and pick the day it lands in their inbox.</p>
           <a
-            class="btn btn-solid btn-primary"
-            href="#/portal/gift"
-            data-portal="gift"
+            class="btn btn-primary"
+            href="#gift-form"
             data-hm-goal="gift-checkout"
           >Gift a Membership</a>
           <p class="btn-tagline">Never renews. No card from them.</p>
@@ -105,6 +105,68 @@
 
       </div>
 
+      {{!-- YEAR-END GIFT CHECKOUT (2026-11-13). Gift memberships are 20%
+           off through the year-end campaign. Ghost refuses Offers on
+           gifts ("Offers cannot be applied to gift subscriptions"), so
+           the discount is a second paid tier, "Gift Membership"
+           (slug gift-membership, $8/mo, $80/yr), hidden from Portal.
+           Portal's own gift picker only lists visible tiers, so this
+           form posts the same request Portal sends to Ghost's members
+           API with that tier's id. Ghost prices it, takes payment in
+           Stripe, sends the gift email and handles redemption.
+
+           RENEWAL: a recipient who continues after their gift pays the
+           gift tier's price on the day they continue. mo-gift's scheduled
+           job raises the tier to $10/$100 at GIFT_SALE_ENDS (midnight
+           Central, March 1, 2027), and gift-checkout.js swaps every
+           [data-full] price on this page at data-sale-ends, the same
+           instant. Change the two together.
+
+           The prices below are written out because a hidden tier is not
+           in the Content API. Change them with the tier. To end the
+           sale for good, restore the Portal CTA above (data-portal="gift")
+           and remove this section. After March 1 the form keeps working at
+           full price, so nothing breaks if that waits. --}}
+      <section class="gift-checkout" id="gift-form" aria-labelledby="gift-form-title">
+        <h2 class="gift-checkout-title" id="gift-form-title">Gift a Membership</h2>
+        <form class="gift-checkout-form" method="post" data-gift-checkout data-gift-tier="6af751e9a28c1600017e7d61" data-sale-ends="2027-03-01T06:00:00Z" novalidate>
+          <fieldset class="gift-checkout-group">
+            <legend class="gift-checkout-legend">How long</legend>
+            <div class="gift-lengths">
+              <label class="gift-length"><input type="radio" name="duration" value="12" checked /><span class="gift-length-name">One year</span><span class="gift-length-price"><span data-full="$100">$80</span> <s data-sale-only><span class="visually-hidden">was </span>$100</s></span></label>
+              <label class="gift-length"><input type="radio" name="duration" value="6" /><span class="gift-length-name">Six months</span><span class="gift-length-price"><span data-full="$60">$48</span> <s data-sale-only><span class="visually-hidden">was </span>$60</s></span></label>
+              <label class="gift-length"><input type="radio" name="duration" value="3" /><span class="gift-length-name">Three months</span><span class="gift-length-price"><span data-full="$30">$24</span> <s data-sale-only><span class="visually-hidden">was </span>$30</s></span></label>
+              <label class="gift-length"><input type="radio" name="duration" value="1" /><span class="gift-length-name">One month</span><span class="gift-length-price"><span data-full="$10">$8</span> <s data-sale-only><span class="visually-hidden">was </span>$10</s></span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="gift-checkout-group">
+            <legend class="gift-checkout-legend">How it arrives</legend>
+            <div class="gift-delivery">
+              <label class="gift-delivery-option"><input type="radio" name="deliveryMethod" value="email" checked /> We email it to them on the day you choose</label>
+              <label class="gift-delivery-option"><input type="radio" name="deliveryMethod" value="link" /> You get a link to hand over yourself</label>
+            </div>
+          </fieldset>
+
+          <div class="gift-checkout-group" data-gift-email-fields>
+            <div class="gift-checkout-row">
+              <label class="gift-field"><span>Their name <span class="gift-field-hint">(optional)</span></span><input type="text" name="recipientName" maxlength="191" autocomplete="off" /></label>
+              <label class="gift-field">Their email<input type="email" name="recipientEmail" maxlength="191" autocomplete="off" /></label>
+            </div>
+            <label class="gift-field">Send it on<input type="date" name="deliveryDate" data-gift-date /></label>
+            <label class="gift-field"><span>Your note <span class="gift-field-hint">(up to 250 characters)</span></span><textarea name="personalMessage" maxlength="250" rows="3"></textarea></label>
+          </div>
+
+          <div class="gift-checkout-row">
+            <label class="gift-field">Your name<input type="text" name="buyerName" maxlength="191" autocomplete="name" /></label>
+            <label class="gift-field" data-gift-buyer-email>Your email<input type="email" name="customerEmail" maxlength="191" autocomplete="email" /></label>
+          </div>
+
+          <p class="gift-checkout-error" role="alert" data-gift-error></p>
+          <button type="submit" class="btn btn-solid btn-primary gift-checkout-submit" data-hm-goal="gift-checkout-submit">Continue to payment</button>
+          <p class="gift-checkout-note">You pay through Stripe. Gift memberships never renew.</p>
+        </form>
+      </section>
 
       {{!-- The two products behave differently at the moment of giving,
            and that difference is the thing buyers get wrong. Say it
@@ -140,4 +202,6 @@
   </section>
 
   <script src="{{asset "js/page/membership-cards.js"}}"></script>
+  <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
+  <script src="{{asset "js/page/gift-checkout.js"}}"></script>
 </main>
