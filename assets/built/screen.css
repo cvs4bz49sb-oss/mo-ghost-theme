@@ -29855,3 +29855,6 @@ html[data-theme="dark"] .article-content.is-following-along [data-mo-follow]::af
 .membership-support .card-label,
 .membership-support .gift-note-heading,
 .membership-support .page-hero-headline { font-style: normal; }
+/* /give/ gift card: "Starts at $10/month". */
+.membership-support .price-lead { margin-right: 6px; }
+.eoy-way-price s { font-weight: 400; color: var(--color-muted); margin-left: 4px; }
