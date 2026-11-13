@@ -19,6 +19,7 @@
     "/give/": [{ name: "Gift a Membership" }],
     "/give/lifetime/": [{ name: "Gift a Membership", url: "/give/" }, { name: "Lifetime" }],
     "/donate/": [{ name: "Donate" }],
+    "/year-end/": [{ name: "Year-End Giving" }],
     "/books/": [{ name: "Bookstore" }],
     "/the-faith-received/": [{ name: "The Faith Received" }],
     "/podcasts/mere-fidelity/": [{ name: "Podcasts", url: "/" }, { name: "Mere Fidelity" }],

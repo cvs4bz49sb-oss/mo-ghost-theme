@@ -1,0 +1,164 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Year-End Giving | Mere Orthodoxy</title>
+<meta name="description" content="Help Mere Orthodoxy meet its $125,000 year-end goal. Give online or become a Lifetime member. You can also give a membership or give by stock, donor-advised fund or check." />
+<meta property="og:title" content="Year-End Giving at Mere Orthodoxy" />
+<meta property="og:description" content="Help us meet our $125,000 year-end goal and build on 2026." />
+<meta property="og:image" content="{{asset "images/year-end/share.jpg"}}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Issues of the Mere Orthodoxy journal on green gingham under pine boughs and red berries" />
+<meta name="twitter:title" content="Year-End Giving at Mere Orthodoxy" />
+<meta name="twitter:description" content="Help us meet our $125,000 year-end goal and build on 2026." />
+<meta name="twitter:image" content="{{asset "images/year-end/share.jpg"}}" />
+<meta name="twitter:image:alt" content="Issues of the Mere Orthodoxy journal on green gingham under pine boughs and red berries" />
+{{/contentFor}}
+{{!-- /year-end/ — the 2026 year-end giving page (custom-year-end.hbs,
+     2026-11-13). One place for every way to support Mere Orthodoxy
+     through December: the goal and a progress meter, online giving,
+     Lifetime, gift memberships, regular membership, and stock, DAF and
+     check. Routed in routes.yaml; until that upload, a Ghost Page with
+     the slug "year-end" and this template selected serves it.
+
+     WEEKLY METER UPDATE (Mark sends the total; we update once a week)
+     Change these four things together in .eoy-meter below, then push:
+       1. raised:    the "$25,000" in .eoy-meter-raised
+       2. to go:     the "$100,000" in .eoy-meter-left (125,000 minus raised)
+       3. percent:   aria-valuenow, the width on .eoy-meter-fill, and the
+                     aria-valuetext (raised / 125,000, rounded down)
+       4. date:      the <time> in .eoy-meter-asof (its datetime too)
+     The page must always say how old the number is.
+
+     Member state: paid and comped readers already have a membership, so
+     the "Become a Member" card is hidden for them and the Lifetime card
+     points at the upgrade on /membership/. --}}
+
+<main class="eoy">
+
+  <section class="hero eoy-hero" aria-labelledby="eoy-title">
+    <div class="container">
+      <div class="eoy-hero-grid">
+        <div class="eoy-hero-content">
+          <h1 class="hero-headline eoy-headline" id="eoy-title">Help us build on <span class="highlight">2026.</span></h1>
+          <p class="hero-sub">This year our readership more than doubled. Our year-end goal is $125,000. The work we have planned for 2027 depends on reaching it.</p>
+
+          <div class="eoy-meter">
+            <p class="eoy-meter-figures">
+              <span class="eoy-meter-raised">$25,000</span>
+              <span class="eoy-meter-goal">raised of $125,000</span>
+            </p>
+            <div class="eoy-meter-track" role="progressbar" aria-label="Year-end giving" aria-valuemin="0" aria-valuemax="100" aria-valuenow="20" aria-valuetext="$25,000 of $125,000 raised">
+              <span class="eoy-meter-fill" style="width: 20%"></span>
+            </div>
+            <p class="eoy-meter-meta">
+              <span class="eoy-meter-left">$100,000 to go</span>
+              <span class="eoy-meter-asof">Updated <time datetime="2026-11-14">November 14</time></span>
+            </p>
+          </div>
+
+          <div class="hero-ctas">
+            <a href="/donate/" class="btn btn-solid btn-primary btn-lg" data-hm-goal="eoy-give">Make a gift</a>
+            <a href="#ways" class="btn btn-lg">See every way to give</a>
+          </div>
+        </div>
+        <figure class="eoy-hero-image">
+          <img src="{{asset "images/year-end/hero.jpg"}}"
+               alt="Issues of the Mere Orthodoxy journal on green gingham under pine boughs"
+               width="1400" height="933" fetchpriority="high" />
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="eoy-year" aria-labelledby="eoy-year-title">
+    <div class="container">
+      <div class="eoy-year-grid">
+        <div class="eoy-year-intro">
+          <h2 class="section-heading eoy-year-heading" id="eoy-year-title">What You Made Possible This Year</h2>
+          <p>2026 was a loud year. Through it we tried to offer something steadier: patient, rooted thinking about faith and the culture we live in. It came from dozens of writers and guests and from our editors, Jake Meador and Nadya Williams.</p>
+          <p>In 2027 we plan to redesign the journal. That plan depends on this campaign.</p>
+        </div>
+        <ul class="eoy-year-list">
+          <li>A new website and Mere Orthodoxy on Substack.</li>
+          <li>Twice as much writing as the year before.</li>
+          <li>A fourth issue of the print journal each year.</li>
+          <li><a href="/the-faith-received/">The Faith Received</a>: 19,318 works of Christian theology from the Fathers to the Reformers and after.</li>
+          <li>Two new podcasts. One of them is <a href="/daily-liturgy/">The Daily Liturgy</a>, morning prayer read aloud each day.</li>
+          <li><a href="/events/">Online forums</a> where Members put their questions to the authors of new books.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="eoy-ways" id="ways" aria-labelledby="eoy-ways-title">
+    <div class="container">
+      <div class="section-intro">
+        <h2 class="section-heading" id="eoy-ways-title">Ways to Give</h2>
+      </div>
+      <ul class="eoy-ways-grid">
+        <li class="eoy-way">
+          <img class="eoy-way-photo" src="{{asset "images/year-end/way-give.jpg"}}" alt="An issue of the journal on green plaid among evergreen sprigs, red berries and a pinecone" width="900" height="600" loading="lazy" />
+          <h3 class="eoy-way-title">Give online</h3>
+          <p class="eoy-way-body">Give once or every month. A gift of $1,000, $2,500 or $5,000 goes a long way toward the goal. Gifts of $250 and $500 move it too.</p>
+          <p class="eoy-way-note">Tax-deductible through the Institute for Christianity and Common Life.</p>
+          <a href="/donate/" class="btn eoy-way-btn" data-hm-goal="eoy-give">Make a gift</a>
+        </li>
+        <li class="eoy-way">
+          <img class="eoy-way-photo" src="{{asset "images/year-end/way-lifetime.jpg"}}" alt="A stack of journal issues on a wooden stool with their spines facing out" width="900" height="600" loading="lazy" />
+          <h3 class="eoy-way-title">Lifetime membership</h3>
+          <p class="eoy-way-price">$995 once</p>
+          <p class="eoy-way-body">Membership for the rest of your life, plus two one-year gift memberships to give to friends or family. $500 of it is tax-deductible and goes toward resources like The Faith Received.</p>
+          {{#match @member.status "paid"}}
+            <a href="/membership/#lifetime-upgrade" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Upgrade to Lifetime</a>
+            <p class="eoy-way-alt">Already Lifetime? <a href="/give/lifetime/" data-hm-goal="eoy-lifetime-gift">Give one as a gift.</a></p>
+          {{else}}{{#match @member.status "comped"}}
+            <a href="/membership/#lifetime-upgrade" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Upgrade to Lifetime</a>
+            <p class="eoy-way-alt">Already Lifetime? <a href="/give/lifetime/" data-hm-goal="eoy-lifetime-gift">Give one as a gift.</a></p>
+          {{else}}
+            <a href="/membership/" class="btn eoy-way-btn" data-hm-goal="eoy-lifetime">Choose Lifetime</a>
+          {{/match}}{{/match}}
+        </li>
+        <li class="eoy-way">
+          <img class="eoy-way-photo" src="{{asset "images/year-end/way-gift.jpg"}}" alt="Three issues of the journal on a round wooden tray among flocked evergreens" width="900" height="600" loading="lazy" />
+          <h3 class="eoy-way-title">Give a membership</h3>
+          <p class="eoy-way-price">20% off</p>
+          <p class="eoy-way-body">Every gift membership includes the print journal. You choose the day it arrives, and your recipient adds a mailing address when they claim it. Gift memberships never renew.</p>
+          <a href="/give/" class="btn eoy-way-btn" data-hm-goal="eoy-gift">Give a Membership</a>
+        </li>
+        {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+        <li class="eoy-way">
+          <img class="eoy-way-photo" src="{{asset "images/year-end/way-member.jpg"}}" alt="A reader at an outdoor table reading an issue of the journal" width="900" height="600" loading="lazy" />
+          <h3 class="eoy-way-title">Membership</h3>
+          <p class="eoy-way-price">$100/yr or $10/mo</p>
+          <p class="eoy-way-body">Members get the print journal four times a year. They can also listen to every article and read every past issue online.</p>
+          <a href="/membership/" class="btn eoy-way-btn" data-hm-goal="eoy-member">Become a Member</a>
+        </li>
+        {{/match}}{{/match}}
+      </ul>
+
+      <div class="eoy-other">
+        <div class="eoy-other-item">
+          <h3 class="eoy-other-title">Stock or a donor-advised fund</h3>
+          <p>You can give appreciated stock directly, or give from a donor-advised fund. <a href="/contact/">Write to us</a> and our publisher Mark Kremer will send you what you need.</p>
+        </div>
+        <div class="eoy-other-item">
+          <h3 class="eoy-other-title">By check</h3>
+          <p>Make it out to the Institute for Christianity and Common Life and mail it to:</p>
+          <address class="eoy-address">2040 South Street<br />Lincoln, NE 68502</address>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="eoy-thanks" aria-labelledby="eoy-thanks-title">
+    <div class="container">
+      <div class="eoy-thanks-inner">
+        {{> "flourish-mark"}}
+        <h2 class="section-heading" id="eoy-thanks-title">A Thank-You Book</h2>
+        <p>We will send a thank-you book to everyone who gives $500 or more, starts a monthly gift of $50 or more, or becomes a Lifetime Member. The book is <cite>The Lord Is My Light: A Liturgy for Daily Prayer</cite>, compiled by Trevin Wax. It sets Scripture among confessions and prayers from believers across the centuries.</p>
+        <p class="eoy-thanks-follow">We report our progress in <a href="/#digest">the Weekly Digest</a> every Thursday.</p>
+      </div>
+    </div>
+  </section>
+
+</main>

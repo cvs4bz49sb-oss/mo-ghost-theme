@@ -29557,3 +29557,224 @@ html.has-mo-player body.has-journal-address .slide-in { bottom: calc(var(--mo-pl
 @media print {
   .mo-player { display: none !important; }
 }
+
+/* =============================================================
+   /year-end/ — the 2026 year-end giving page (custom-year-end.hbs,
+   2026-11-13). Reuses .hero, .section-intro, .section-heading and the
+   journal page's photo mask. Everything is scoped to .eoy. No italics
+   and no eyebrows (Deslop D25). Money is set in the body face, never
+   IM Fell, because readers act on it.
+   ============================================================= */
+
+.eoy { overflow-x: clip; }
+
+.eoy-hero { padding: 72px 0 96px; }
+.eoy-hero .container { text-align: left; }
+.eoy-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 64px;
+  align-items: center;
+}
+.eoy-headline {
+  font-size: clamp(38px, 5vw, 62px);
+  line-height: 1.16;
+  text-wrap: balance;
+  max-width: 12ch;
+}
+.eoy-headline .highlight { white-space: nowrap; padding: 0.02em 0.16em 0.06em; }
+.eoy-hero .hero-sub { margin-bottom: 32px; max-width: 34em; }
+.eoy-hero .hero-ctas { justify-content: flex-start; }
+
+.eoy-meter { margin: 0 0 36px; max-width: 520px; font-family: var(--font-body); }
+.eoy-meter-figures {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0 0 12px;
+}
+.eoy-meter-raised {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-white);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.eoy-meter-goal { font-size: 18px; color: rgba(255, 255, 255, 0.82); }
+.eoy-meter-track {
+  position: relative;
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+.eoy-meter-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  min-width: 14px;
+  border-radius: 7px;
+  background: var(--color-primary);
+}
+.eoy-meter-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin: 10px 0 0;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.78);
+}
+.eoy-meter-left { color: var(--color-white); font-weight: 600; }
+
+.eoy-hero-image { margin: 0; }
+.eoy-hero-image img,
+.eoy-way-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-mask-image: url("../images/journal/photo-mask.png");
+  mask-image: url("../images/journal/photo-mask.png");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* The year in review */
+.eoy-year { padding: 88px 0; background: var(--color-background); }
+.eoy-year-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 64px;
+  align-items: start;
+}
+.eoy-year-heading { margin-bottom: 24px; }
+.eoy-year-intro p {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--color-dark);
+  margin: 0 0 18px;
+}
+.eoy-year-list { list-style: none; margin: 0; padding: 0; }
+.eoy-year-list li {
+  padding: 14px 0;
+  border-top: 1px solid var(--color-card-border);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--color-dark);
+}
+.eoy-year-list li:last-child { border-bottom: 1px solid var(--color-card-border); }
+.eoy-year a,
+.eoy-way-body a,
+.eoy-other a,
+.eoy-thanks a { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Ways to give */
+.eoy-ways { padding: 88px 0; border-top: 1px solid var(--color-card-border); }
+.eoy-ways .section-intro { margin-bottom: 48px; }
+.eoy-ways-grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 1080px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 56px 48px;
+}
+.eoy-way { display: flex; flex-direction: column; }
+.eoy-way-photo { aspect-ratio: 3 / 2; object-fit: cover; margin: 0 0 22px; }
+.eoy-way-title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0 0 8px;
+}
+.eoy-way-price {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  color: #9c4126;
+  margin: 0 0 8px;
+}
+.eoy-way-body,
+.eoy-way-note {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+}
+.eoy-way-note { font-size: 15px; }
+.eoy-way-btn { align-self: flex-start; margin-top: auto; }
+.eoy-way > p:last-of-type { margin-bottom: 20px; }
+
+.eoy-other {
+  max-width: 1080px;
+  margin: 64px auto 0;
+  padding-top: 40px;
+  border-top: 1px solid var(--color-card-border);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px 48px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.eoy-other p { margin: 0 0 8px; }
+.eoy-other-title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 19px;
+  color: var(--color-dark);
+  margin: 0 0 8px;
+}
+.eoy-address { font-style: normal; color: var(--color-dark); }
+
+/* The thank-you book */
+.eoy-thanks { padding: 80px 0 96px; background: var(--color-background); }
+.eoy-thanks-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--color-dark);
+}
+.eoy-thanks .flourish-mark { margin: 0 auto 20px; }
+.eoy-thanks .section-heading { margin-bottom: 20px; }
+.eoy-thanks p { margin: 0 0 16px; }
+.eoy-thanks cite { font-style: normal; }
+.eoy-thanks-follow { font-size: 16px; color: var(--color-dark); }
+
+@media (max-width: 900px) {
+  .eoy-hero-grid,
+  .eoy-year-grid { grid-template-columns: 1fr; gap: 40px; }
+  .eoy-ways-grid { grid-template-columns: 1fr; max-width: 560px; gap: 48px; }
+  .eoy-other { grid-template-columns: 1fr; max-width: 560px; }
+}
+@media (max-width: 640px) {
+  .eoy-hero { padding: 48px 0 56px; }
+  .eoy-headline { font-size: clamp(36px, 10vw, 48px); }
+  .eoy-meter-raised { font-size: 34px; }
+  .eoy-year, .eoy-ways { padding: 56px 0; }
+  .eoy-thanks { padding: 56px 0 64px; }
+  .eoy-way-title { font-size: 22px; }
+  .eoy-hero .hero-ctas .btn-lg { font-size: 15px; }
+}
+.eoy-way-alt { margin: 12px 0 0; font-family: var(--font-body); font-size: 15px; color: var(--color-muted); }
+.eoy-way-alt a { text-decoration: underline; text-underline-offset: 3px; }
+/* Paid and comped readers see three cards: center the last one. */
+@media (min-width: 901px) {
+  .eoy-ways-grid > .eoy-way:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    width: calc(50% - 24px);
+    justify-self: center;
+  }
+}

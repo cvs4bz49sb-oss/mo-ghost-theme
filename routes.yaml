@@ -37,6 +37,9 @@ routes:
     template: custom-gift
   /donate/:
     template: custom-donate
+  # 2026 year-end giving page: goal, meter and every way to give.
+  /year-end/:
+    template: custom-year-end
   /groups/:
     template: custom-groups
   /group-manage/:
