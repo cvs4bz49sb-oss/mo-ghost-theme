@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-14T22:31:26.008Z",
+  "generated_at": "2026-11-15T06:43:17.655Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 326,
-      "plays": 113920,
+      "plays": 113984,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -19,7 +19,7 @@
         {
           "date": "2025-08-27",
           "title": "Two Cheers For Modernity!",
-          "plays": 75
+          "plays": 76
         },
         {
           "date": "2025-09-03",
@@ -164,7 +164,7 @@
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 550
+          "plays": 551
         },
         {
           "date": "2026-05-06",
@@ -214,7 +214,7 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 4050
+          "plays": 4051
         },
         {
           "date": "2026-07-15",
@@ -239,12 +239,12 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3607
+          "plays": 3608
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 4121
+          "plays": 4123
         },
         {
           "date": "2026-08-26",
@@ -274,37 +274,37 @@
         {
           "date": "2026-09-30",
           "title": "Finding Happiness That Lasts",
-          "plays": 3934
+          "plays": 3939
         },
         {
           "date": "2026-10-07",
           "title": "Resisting Therapy Culture, with Matthew Loftus",
-          "plays": 4253
+          "plays": 4258
         },
         {
           "date": "2026-10-14",
           "title": "How to Handle Difficult Bible Passages",
-          "plays": 4125
+          "plays": 4126
         },
         {
           "date": "2026-10-21",
           "title": "Replay: Martin Luther and the Rule of Faith, with Dr. Todd Hains",
-          "plays": 3290
+          "plays": 3292
         },
         {
           "date": "2026-10-28",
           "title": "The Old Testament's Fingerprints on Acts",
-          "plays": 3658
+          "plays": 3661
         },
         {
           "date": "2026-11-04",
           "title": "Replay: Christian Politics with Oliver O’Donovan",
-          "plays": 3021
+          "plays": 3028
         },
         {
           "date": "2026-11-11",
           "title": "Replay: C.S. Lewis for Everyone",
-          "plays": 2522
+          "plays": 2549
         }
       ],
       "per_episode": [
@@ -445,12 +445,12 @@
         },
         {
           "month": "2019-11",
-          "avg": 28,
+          "avg": 29,
           "episodes": 3
         },
         {
           "month": "2019-12",
-          "avg": 21,
+          "avg": 22,
           "episodes": 2
         },
         {
@@ -765,7 +765,7 @@
         },
         {
           "month": "2025-08",
-          "avg": 150,
+          "avg": 151,
           "episodes": 3
         },
         {
@@ -820,7 +820,7 @@
         },
         {
           "month": "2026-07",
-          "avg": 3435,
+          "avg": 3436,
           "episodes": 5
         },
         {
@@ -830,24 +830,24 @@
         },
         {
           "month": "2026-09",
-          "avg": 3987,
+          "avg": 3988,
           "episodes": 5
         },
         {
           "month": "2026-10",
-          "avg": 3832,
+          "avg": 3834,
           "episodes": 4
         },
         {
           "month": "2026-11",
-          "avg": 2772,
+          "avg": 2789,
           "episodes": 2
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 60,
-      "plays": 29474,
+      "plays": 29495,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -893,7 +893,7 @@
         {
           "date": "2025-09-04",
           "title": "Alexis de Tocqueville - Democracy in America with John Wilsey",
-          "plays": 98
+          "plays": 99
         },
         {
           "date": "2025-09-11",
@@ -1068,7 +1068,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 1110
+          "plays": 1111
         },
         {
           "date": "2026-07-29",
@@ -1083,7 +1083,7 @@
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 802
+          "plays": 803
         },
         {
           "date": "2026-08-20",
@@ -1098,7 +1098,7 @@
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 1111
+          "plays": 1112
         },
         {
           "date": "2026-09-10",
@@ -1133,22 +1133,22 @@
         {
           "date": "2026-10-22",
           "title": "Moby-Dick, with Kyle Harper",
-          "plays": 865
+          "plays": 867
         },
         {
           "date": "2026-10-29",
           "title": "Edgar Allan Poe: America's Spookiest Classic with Fr. Ryan Duns and Steven Knepper",
-          "plays": 823
+          "plays": 824
         },
         {
           "date": "2026-11-05",
           "title": "Dostoevsky's Crime & Punishment, with Perry Glanzer",
-          "plays": 855
+          "plays": 859
         },
         {
           "date": "2026-11-12",
           "title": "Advent in the Early Church, with Adam & Lynneth Renberg",
-          "plays": 669
+          "plays": 679
         }
       ],
       "per_episode": [
@@ -1219,24 +1219,24 @@
         },
         {
           "month": "2026-09",
-          "avg": 920,
+          "avg": 921,
           "episodes": 4
         },
         {
           "month": "2026-10",
-          "avg": 840,
+          "avg": 841,
           "episodes": 5
         },
         {
           "month": "2026-11",
-          "avg": 762,
+          "avg": 769,
           "episodes": 2
         }
       ]
     },
     "daily-liturgy": {
       "episodes": 202,
-      "plays": 216896,
+      "plays": 217075,
       "earliest": "2026-03-02",
       "recent": [
         {
@@ -1377,7 +1377,7 @@
         {
           "date": "2026-10-08",
           "title": "Thursday, October 8, 2026",
-          "plays": 2144
+          "plays": 2145
         },
         {
           "date": "2026-10-09",
@@ -1487,7 +1487,7 @@
         {
           "date": "2026-11-03",
           "title": "Tuesday, November 3, 2026",
-          "plays": 2327
+          "plays": 2328
         },
         {
           "date": "2026-11-04",
@@ -1507,37 +1507,37 @@
         {
           "date": "2026-11-07",
           "title": "Saturday, November 7, 2026",
-          "plays": 2143
+          "plays": 2146
         },
         {
           "date": "2026-11-09",
           "title": "Monday, November 9, 2026",
-          "plays": 2321
+          "plays": 2325
         },
         {
           "date": "2026-11-10",
           "title": "Tuesday, November 10, 2026",
-          "plays": 2375
+          "plays": 2379
         },
         {
           "date": "2026-11-11",
           "title": "Wednesday, November 11, 2026",
-          "plays": 2190
+          "plays": 2198
         },
         {
           "date": "2026-11-12",
           "title": "Thursday, November 12, 2026",
-          "plays": 2183
+          "plays": 2195
         },
         {
           "date": "2026-11-13",
           "title": "Friday, November 13, 2026",
-          "plays": 1970
+          "plays": 1992
         },
         {
           "date": "2026-11-14",
           "title": "Saturday, November 14, 2026",
-          "plays": 1370
+          "plays": 1485
         }
       ],
       "per_episode": [
@@ -1583,7 +1583,7 @@
         },
         {
           "month": "2026-11",
-          "avg": 2170,
+          "avg": 2184,
           "episodes": 12
         }
       ]
