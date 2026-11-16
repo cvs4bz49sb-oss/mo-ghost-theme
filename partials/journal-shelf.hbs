@@ -3,17 +3,15 @@
      custom-journal.hbs (/journal/, public).
 
      public=true (the /journal/ landing page):
-       - adds Issue 010, which the dashboard shows as its lead issue
-         instead, so it would otherwise be missing from /journal/;
        - drops the PDF links. Downloads stay off the public sales
          page. The PDFs are public theme assets and are not access-
          controlled. Hiding the links is presentation, not a gate.
 
      When a new issue is digitized and becomes the dashboard lead, move
-     the old lead into this list for everyone and delete the
-     "if public" block. --}}
+     the old lead to the top of this list. The current issue is not on
+     the shelf: the dashboard leads with it and /journal/ shows it in
+     "The New Issue". --}}
   <ol class="lib-shelf lib-shelf--journals">
-    {{#if public}}
     <li class="lib-shelf-item">
       <a class="lib-item" href="/journal-archive/issue-10/">
         <img class="lib-cover-img" src="{{asset "images/journal-issue-010-cover.jpg"}}" alt="" width="772" height="1000" loading="lazy">
@@ -22,7 +20,6 @@
         <span class="lib-item-desc">On attention, dignity, and the work of seeing a person. Essays by Brian Auten, Annie Crawford, Agnes R. Howard, Joshua Heavin and more.</span>
       </a>
     </li>
-    {{/if}}
     <li class="lib-shelf-item">
       <a class="lib-item" href="/journal-archive/issue-09/">
         <img class="lib-cover-img" src="{{asset "images/journal-issue-009-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">

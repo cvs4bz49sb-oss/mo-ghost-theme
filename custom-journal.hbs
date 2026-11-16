@@ -101,6 +101,9 @@
             <li>Kyle Edward Williams on Political Economy</li>
             <li>Sarah-Jane Murray on <cite>The Odyssey</cite></li>
           </ul>
+          {{#if @member}}{{#match @member.status "!=" "free"}}
+            <p class="lib-actions"><a class="btn btn-solid btn-primary" href="/journal-archive/issue-11/">Read this issue online</a></p>
+          {{/match}}{{/if}}
         </div>
       </div>
     </div>
