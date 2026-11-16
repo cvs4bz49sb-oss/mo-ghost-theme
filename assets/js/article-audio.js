@@ -29,6 +29,11 @@
  * down its left side, the page scrolls with the audio, and tapping a
  * paragraph moves the audio there. Scrolling away stops the following
  * and shows "Back to audio". Articles without timing just play.
+ *
+ * Resume: the place in each essay is kept in localStorage on this device
+ * (mo-audio-pos), so a refresh or a closed tab picks up where the reader
+ * stopped. It is kept as a fraction of the essay as well as seconds,
+ * because the two voices read at different speeds. Finishing clears it.
  */
 (function () {
   const wrap = document.querySelector("[data-article-audio]");
@@ -97,6 +102,46 @@
   }
   function saveVoice(v) {
     try { window.localStorage.setItem(VOICE_KEY, v); } catch (_) { /* storage blocked */ }
+  }
+
+  // ---- resume position (per post, this device only) ----
+  const POS_KEY = "mo-audio-pos";
+  const POS_MAX = 40; // posts remembered; oldest dropped first
+  const POS_TTL = 90 * 24 * 3600 * 1000;
+  function readPositions() {
+    try {
+      const all = JSON.parse(window.localStorage.getItem(POS_KEY) || "{}");
+      return all && typeof all === "object" && !Array.isArray(all) ? all : {};
+    } catch (_) { return {}; }
+  }
+  function writePositions(all) {
+    const now = Date.now();
+    const keep = Object.keys(all)
+      .filter((k) => all[k] && now - Number(all[k].at || 0) < POS_TTL)
+      .sort((a, b) => all[b].at - all[a].at)
+      .slice(0, POS_MAX);
+    const out = {};
+    keep.forEach((k) => { out[k] = all[k]; });
+    try { window.localStorage.setItem(POS_KEY, JSON.stringify(out)); } catch (_) { /* storage blocked or full */ }
+  }
+  function readPosition() {
+    const p = readPositions()[postId];
+    if (!p || typeof p.f !== "number" || !isFinite(p.f) || p.f <= 0 || p.f >= 0.98) return null;
+    return { f: p.f, t: Number(p.t) || 0, d: Number(p.d) || 0, v: p.v };
+  }
+  function savePosition(a, v) {
+    if (!a.duration || !isFinite(a.duration) || a.currentTime < 5) return;
+    const f = a.currentTime / a.duration;
+    const all = readPositions();
+    if (f >= 0.98) delete all[postId];
+    else all[postId] = { f: Math.round(f * 10000) / 10000, t: Math.round(a.currentTime), d: Math.round(a.duration), v, at: Date.now() };
+    writePositions(all);
+  }
+  function clearPosition() {
+    const all = readPositions();
+    if (!(postId in all)) return;
+    delete all[postId];
+    writePositions(all);
   }
 
   // Signed URLs are cached per voice for this page view; they last 4h.
@@ -177,6 +222,8 @@
     let emittedPlayEvent = false;
     let loadToken = 0;
     let swappedAt = 0;
+    let resumeTo = -1; // seconds a resume is seeking to; -1 when none pending
+    let resumeRetried = false;
 
     // ---- DOM ----
     const art = meta.image
@@ -363,7 +410,14 @@
         window.__kitEmit("audio_played", { postId, postTags: topicTags, voice });
       }
     });
-    const onPause = current(() => setPlaying(false));
+    let savedAt = 0;
+    function remember() {
+      if (!ready || switching || resumeTo >= 0 || (UNLOCK_URL && audio.src === UNLOCK_URL)) return;
+      savedAt = Date.now();
+      savePosition(audio, voice);
+    }
+    const onPause = current(() => { setPlaying(false); remember(); });
+    const onEnded = current(() => { setPlaying(false); clearPosition(); });
     const onReady = current(() => {
       if (ready) return;
       ready = true;
@@ -373,10 +427,24 @@
       follow.load(timingUrl(audio.src));
     });
     const onTime = current(() => {
-      if (!ready && audio.currentTime > 0) onReady({ target: audio });
+      // A resume seek is not playback: readiness waits for "playing".
+      if (!ready && audio.currentTime > 0 && resumeTo < 0) onReady({ target: audio });
+      if (resumeTo >= 0 && !audio.paused && audio.readyState >= 3) {
+        // Some browsers drop a seek made before playback starts. Try once
+        // more, then accept wherever it is, so a failed resume can never
+        // overwrite the saved place with the start of the essay.
+        if (Math.abs(audio.currentTime - resumeTo) > 2 && !resumeRetried) {
+          resumeRetried = true;
+          audio.currentTime = resumeTo;
+          return;
+        }
+        if (Math.abs(audio.currentTime - resumeTo) <= 2) follow.jumpNext();
+        resumeTo = -1;
+      }
       showTime();
       updatePositionState(audio);
       follow.tick(audio.currentTime);
+      if (!audio.paused && Date.now() - savedAt > 5000) remember();
     });
     const onError = current(() => {
       if (!audio.getAttribute("src")) return;
@@ -387,12 +455,16 @@
     els.forEach((a) => {
       a.addEventListener("play", onPlay);
       a.addEventListener("pause", onPause);
-      a.addEventListener("ended", onPause);
+      a.addEventListener("ended", onEnded);
       a.addEventListener("timeupdate", onTime);
       a.addEventListener("loadedmetadata", onTime);
       a.addEventListener("playing", onReady);
       a.addEventListener("error", onError);
     });
+
+    // A refresh, a closed tab or a phone putting the page away: save now.
+    window.addEventListener("pagehide", remember);
+    document.addEventListener("visibilitychange", () => { if (document.hidden) remember(); });
 
     // Must run inside a tap. Plays the silent clip on both elements so
     // iOS lets each of them start later without a tap.
@@ -507,10 +579,27 @@
       signedUrl(v)
         .then((url) => {
           if (token !== loadToken || bar.hidden) return;
-          audio.src = url;
-          applySpeed(audio);
+          const media = audio;
+          const resume = readPosition();
+          resumeTo = -1;
+          resumeRetried = false;
+          if (resume) {
+            // Same voice: the exact second. The other voice: the same
+            // point in the essay. Back up a few seconds for context.
+            media.addEventListener("loadedmetadata", () => {
+              if (token !== loadToken || media !== audio || !media.duration || !isFinite(media.duration)) return;
+              // Exact seconds only if this is the same recording (an
+              // edited post regenerates audio at a new length).
+              const same = resume.v === v && resume.t && Math.abs(resume.d - media.duration) <= 2;
+              const at = same ? resume.t : resume.f * media.duration;
+              resumeTo = Math.max(0, Math.min(media.duration - 1, at - 3));
+              media.currentTime = resumeTo;
+            }, { once: true });
+          }
+          media.src = url;
+          applySpeed(media);
           wireMediaSession();
-          playSafe(audio);
+          playSafe(media);
         })
         .catch((err) => {
           if (token !== loadToken) return;
@@ -602,7 +691,7 @@
       bar.hidden = true;
       follow.setOpen(false);
       setPlaying(false);
-      if (!ready) { loadToken++; setPreparing(false); }
+      if (!ready) { loadToken++; setPreparing(false); resumeTo = -1; }
     }
 
     // The header Listen button: open the bar if closed, then load or
@@ -672,6 +761,7 @@
     let ownScrollTimer = 0;
     let open = false;
     let loadToken = 0;
+    let jump = false; // next follow scroll is instant (after a resume)
     const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function blocks() {
@@ -785,7 +875,7 @@
       const elm = timed[idx].el;
       elm.classList.add("is-audio-current");
       // Locked phone or background tab: the audio plays on, the page waits.
-      if (open && following && !document.hidden && !getAudio().paused && !inView(elm)) scrollTo(elm);
+      if (open && following && !document.hidden && !getAudio().paused && !inView(elm)) { scrollTo(elm, jump); jump = false; }
     }
 
     // A scroll we didn't start, that leaves the current paragraph out of
@@ -854,7 +944,11 @@
       if (!on) returnBtn.hidden = true;
     }
 
-    return { load, tick, setOpen };
+    // After a resume the reader may be far from the paragraph: go there at
+    // once instead of a long smooth scroll down the page.
+    function jumpNext() { jump = true; }
+
+    return { load, tick, setOpen, jumpNext };
   }
 
   function setMediaSession(getAudio, justSwapped) {
