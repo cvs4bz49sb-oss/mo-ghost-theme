@@ -38,15 +38,15 @@ const ADMIN_TOOLS = [
     id: "members",
     label: "Members",
     group: "Executive",
-    note: "Also covers addresses, gifts, groups, institutions, students, drift, journeys and cancellations.",
+    note: "Also covers the member map, addresses, gifts, groups, institutions, students, drift, journeys and cancellations.",
     pages: ["members"],
     // The member sub-pages all render with active="members" today. Named
     // here so that splitting one into its own page id rides this grant
     // instead of tripping the build check as an unclaimed dashboard.
-    subPages: ["addresses", "gifts", "groups", "institutions", "students", "influencers", "drift", "journeys", "cancellations"],
+    subPages: ["map", "addresses", "gifts", "groups", "institutions", "students", "influencers", "drift", "journeys", "cancellations"],
     routes: {
       admin: ["/members", "/journeys", "/cancellations"],
-      membership: ["/api/admin/addresses", "/api/admin/gifts", "/api/admin/groups", "/api/admin/institutions", "/api/admin/institutions-list", "/api/admin/students", "/api/admin/student", "/api/admin/member"],
+      membership: ["/api/admin/member-map", "/api/admin/addresses", "/api/admin/gifts", "/api/admin/groups", "/api/admin/institutions", "/api/admin/institutions-list", "/api/admin/students", "/api/admin/student", "/api/admin/member"],
       // mo-kit-bridge: the Ghost↔Kit drift report and its reconcile
       // action, which is the /admin/members/drift/ sub-page.
       "kit-bridge": ["/api/drift", "/api/reconcile"],

@@ -1,0 +1,83 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Member Map | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="Member Map | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="Member Map | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+<link rel="stylesheet" href="{{asset "css/vendor/leaflet.css"}}" />
+<link rel="stylesheet" href="{{asset "css/vendor/leaflet-markercluster.css"}}" />
+<link rel="stylesheet" href="{{asset "css/admin-member-map.css"}}&amp;frv=member-map-20261117" />
+{{/contentFor}}
+{{!-- /admin/members/map/ - where members live, from the shipping
+     addresses in mo-membership's D1 (member_addresses). Each member is
+     placed at their postcode (ZIP, Canadian forward sortation area, UK
+     outward code) or, elsewhere, their town: never the street address.
+     The worker returns locations and counts only.
+
+     Locations are looked up on OpenStreetMap's Nominatim by the
+     mo-membership hourly cron (lib/member-map.js), so a new member shows
+     up within the hour after saving an address. Tiles are OpenStreetMap's
+     own (img-src https: in the CSP); Leaflet and Leaflet.markercluster are
+     vendored under assets/js/vendor/ and assets/css/vendor/.
+
+     Admin-gated like the other member pages: the shell renders for any
+     signed-in member, the worker answers 403 to anyone without the
+     Members grant, and the JS shows the denied state. --}}
+
+<main class="admin-page admin-workspace">
+  {{#if @member}}
+    {{> "admin-sidebar" active="members"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title">Member Map</h1>
+        <p class="admin-topbar-sub">Where members live, placed by postcode or town from their shipping addresses. New members appear within the hour.</p>
+      </header>
+
+    <section class="admin-body">
+      <div class="container">
+        <div class="admin-members-layout">
+          <aside class="admin-members-sidebar">
+            {{> "admin-members-subnav" active="map"}}
+          </aside>
+          <div class="admin-members-main member-map"
+               data-member-map
+               data-api-base="{{@custom.membership_api_base}}">
+            <ul class="admin-stats" data-map-stats>
+              <li class="admin-stat"><span class="admin-stat-label">On the map</span><span class="admin-stat-value" data-stat="placed">&mdash;</span></li>
+              <li class="admin-stat"><span class="admin-stat-label">Countries</span><span class="admin-stat-value" data-stat="countries">&mdash;</span></li>
+              <li class="admin-stat"><span class="admin-stat-label">Waiting to be placed</span><span class="admin-stat-value" data-stat="pending">&mdash;</span></li>
+              <li class="admin-stat"><span class="admin-stat-label">Could not be placed</span><span class="admin-stat-value" data-stat="unplaced">&mdash;</span></li>
+            </ul>
+
+            <div class="member-map-toolbar">
+              <div class="admin-table-scope" role="group" aria-label="Which members">
+                <button type="button" class="admin-table-scope-btn is-active" data-map-scope="" aria-pressed="true">Active members</button>
+                <button type="button" class="admin-table-scope-btn" data-map-scope="all" aria-pressed="false">All saved addresses</button>
+              </div>
+              <div class="admin-table-scope member-map-regions" role="group" aria-label="Zoom to" data-map-regions>
+                <button type="button" class="admin-table-scope-btn" data-map-region="world">World</button>
+              </div>
+            </div>
+
+            <p class="admin-table-status" data-map-status role="status">Loading the map&hellip;</p>
+            <div class="member-map-canvas" data-map-canvas role="region" aria-label="Map of member locations"></div>
+            <p class="member-map-note">Each dot is a postcode or town, never a street address. A number is how many members are in that circle: click or tap it to zoom in. Map data &copy; OpenStreetMap contributors.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    </div>
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/vendor/leaflet.js"}}"></script>
+<script src="{{asset "js/vendor/leaflet.markercluster.js"}}"></script>
+<script src="{{asset "js/admin-member-map.js"}}&amp;frv=member-map-20261117"></script>

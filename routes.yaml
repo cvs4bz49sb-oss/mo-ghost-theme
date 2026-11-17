@@ -140,6 +140,8 @@ routes:
     template: custom-admin
   /admin/members/:
     template: custom-admin-members
+  /admin/members/map/:
+    template: custom-admin-member-map
   /admin/members/cancellations/:
     template: custom-admin-cancellations
   /admin/members/journeys/:
