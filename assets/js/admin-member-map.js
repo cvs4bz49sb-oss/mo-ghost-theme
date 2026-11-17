@@ -3,7 +3,7 @@
  *
  * GET {membership_api_base}/api/admin/member-map[?status=all] returns
  * { points: [{lat, lon, n, cc, precision, place}], total, placed, pending,
- *   unplaced, countries: [{cc, n}], scope, warning? }. One point is one
+ *   unplaced, unknown, sources, countries: [{cc, n}], scope, warning? }. One point is one
  * postcode or town with n members in it. Nothing here is a street address,
  * so the map stops at zoom 12, the scale where a postcode reads as a place.
  *
@@ -178,6 +178,7 @@
     setStat('countries', (data.countries || []).length);
     setStat('pending', data.pending);
     setStat('unplaced', data.unplaced);
+    setStat('unknown', data.unknown);
 
     const notes = [];
     if (data.warning) notes.push(data.warning);
