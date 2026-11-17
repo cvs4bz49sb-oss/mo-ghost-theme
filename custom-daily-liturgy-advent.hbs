@@ -1,0 +1,130 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Free Morning Prayer for Advent | The Daily Liturgy</title>
+<meta name="description" content="A daily devotional podcast and newsletter for Advent. Fifteen minutes of morning prayer, Monday through Saturday. Free." />
+<meta name="robots" content="noindex, follow" />
+<meta property="og:title" content="Free morning prayer for Advent" />
+<meta property="og:description" content="A daily devotional podcast and newsletter from Coram Deo Church and Mere Orthodoxy. Free." />
+<meta property="og:image" content="{{asset "images/daily-liturgy-advent-hero-1600.jpg"}}" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Purple and rose Advent candles lit against a dark background of soft lights" />
+<meta name="twitter:title" content="Free morning prayer for Advent" />
+<meta name="twitter:description" content="A daily devotional podcast and newsletter from Coram Deo Church and Mere Orthodoxy. Free." />
+<meta name="twitter:image" content="{{asset "images/daily-liturgy-advent-hero-1600.jpg"}}" />
+<meta name="twitter:image:alt" content="Purple and rose Advent candles lit against a dark background of soft lights" />
+<link rel="stylesheet" href="{{asset "css/daily-liturgy-advent.css"}}" />
+{{/contentFor}}
+{{!-- /daily-liturgy/advent/ — routed via routes.yaml.
+
+     Landing page for the Advent Meta ads. It is the /daily-liturgy/ page
+     rebuilt for one season: the Advent photograph and church-calendar
+     palette in the header, the sign-up form on the first screen, and one
+     message that matches the ads. Same form, same worker. The form
+     carries data-campaign so sign-ups from this page are tagged in Kit;
+     a ?utm_campaign= on the ad link overrides it (assets/js/site-forms.js).
+
+     noindex on purpose: it repeats /daily-liturgy/ and should not compete
+     with it in search. Ghost's ghost_head already emits a self-canonical,
+     so do not add one pointing elsewhere. After Christmas, 301 it to
+     /daily-liturgy/ in routes.yaml so ad and social links do not 404.
+
+     No card around the form (DESIGN-AGENT 6.1) and Source Serif for the
+     headings, not IM Fell (DESIGN-AGENT 6.25: the Daily Liturgy is its
+     own brand).
+
+     The photograph is Unsplash (free licence). Credit is in the README
+     of the ad project, not on the page. --}}
+
+<main class="daily-liturgy-page dla-page">
+
+  <section class="dla-hero" aria-labelledby="dla-title">
+    <picture class="dla-hero-media">
+      <source media="(max-width: 700px)" srcset="{{asset "images/daily-liturgy-advent-hero-m-900.jpg"}}" />
+      <img src="{{asset "images/daily-liturgy-advent-hero-1600.jpg"}}"
+           srcset="{{asset "images/daily-liturgy-advent-hero-800.jpg"}} 800w, {{asset "images/daily-liturgy-advent-hero-1600.jpg"}} 1600w"
+           sizes="100vw" alt="" width="1600" height="900" fetchpriority="high" decoding="async" />
+    </picture>
+
+    <div class="container dla-hero-inner">
+      <img src="{{asset "images/daily-liturgy-logo-light.png"}}" alt="The Daily Liturgy" class="dla-logo" width="260" height="79" />
+      <h1 id="dla-title" class="dla-title">Free morning prayer for Advent.</h1>
+      <p class="dla-sub">A daily devotional podcast and newsletter from Coram Deo Church and Mere Orthodoxy. Fifteen minutes each morning. It starts Monday, November 30.</p>
+
+      <div class="dla-card" id="sign-up">
+        <h2 class="dla-card-title">Get Advent prayers by email</h2>
+        <form class="dl-signup-form dla-form" data-site-form="newsletter" data-campaign="tdl-advent-page" data-worker-url="{{@custom.kit_worker_url}}" novalidate>
+          <div class="dl-field-row">
+            <label class="dl-field">
+              <span class="dl-field-label">First name</span>
+              <input type="text" name="firstName" required autocomplete="given-name" />
+            </label>
+            <label class="dl-field">
+              <span class="dl-field-label">Last name</span>
+              <input type="text" name="lastName" required autocomplete="family-name" />
+            </label>
+          </div>
+          <label class="dl-field">
+            <span class="dl-field-label">Email</span>
+            <input type="email" name="email" required placeholder="you@example.com" autocomplete="email" inputmode="email" />
+          </label>
+          <div class="dl-turnstile" data-turnstile-wrap></div>
+          <button type="submit" class="btn dla-submit">Sign up free</button>
+          <p class="dl-form-status" data-form-status role="status" aria-live="polite"></p>
+        </form>
+        <p class="dl-form-fine">Free. One short email each morning, Monday through Saturday. Unsubscribe anytime.</p>
+        {{!-- Shown by CSS only after a successful signup (it replaces the form
+             with .site-form-success): the date, and the podcast path. --}}
+        <div class="dla-after">
+          <p>The first Advent liturgy arrives Monday, November 30.</p>
+          <p>Prefer to listen? <a href="https://podcasts.apple.com/us/podcast/the-daily-liturgy-podcast/id1177180357" target="_blank" rel="noopener noreferrer">Apple Podcasts</a> or <a href="https://open.spotify.com/show/5QgbJ8qxN4W7ftSn7dyK6u" target="_blank" rel="noopener noreferrer">Spotify</a>.</p>
+        </div>
+      </div>
+
+      <p class="dla-listen">Prefer to listen? <a href="https://podcasts.apple.com/us/podcast/the-daily-liturgy-podcast/id1177180357" target="_blank" rel="noopener noreferrer">Apple Podcasts</a> <span aria-hidden="true">&middot;</span> <a href="https://open.spotify.com/show/5QgbJ8qxN4W7ftSn7dyK6u" target="_blank" rel="noopener noreferrer">Spotify</a></p>
+    </div>
+  </section>
+
+  <section class="dla-section">
+    <div class="container dla-narrow">
+      <h2 class="dla-h2">A short order of prayer for each morning of Advent.</h2>
+      <p>Advent begins Sunday, November 29. It's the church's season of waiting. For four weeks we look back to the first coming of Christ and ahead to his return.</p>
+      <p>Monday through Saturday, the Daily Liturgy gives you fifteen minutes to wait with the church. Each morning has five parts.</p>
+      <ol class="dla-order">
+        <li>A call to worship</li>
+        <li>A prayer of confession</li>
+        <li>A reading from Scripture</li>
+        <li>A prayer from the Psalms</li>
+        <li>A benediction</li>
+      </ol>
+      <p>It continues through the twelve days of Christmas. Those run from December 25 to January 5.</p>
+    </div>
+  </section>
+
+  <section class="dla-section dla-section--alt">
+    <div class="container dla-narrow">
+      <div class="dla-two">
+        <div>
+          <h3 class="dla-h3">The newsletter</h3>
+          <p>The full prayer for the day arrives in your inbox each morning. Read it in about fifteen minutes.</p>
+        </div>
+        <div>
+          <h3 class="dla-h3">The podcast</h3>
+          <p>The same prayers, read aloud. Listen on a walk or in the car.</p>
+          <p class="dla-links">
+            <a class="btn dla-btn-outline" href="https://podcasts.apple.com/us/podcast/the-daily-liturgy-podcast/id1177180357" target="_blank" rel="noopener noreferrer">Apple Podcasts</a>
+            <a class="btn dla-btn-outline" href="https://open.spotify.com/show/5QgbJ8qxN4W7ftSn7dyK6u" target="_blank" rel="noopener noreferrer">Spotify</a>
+          </p>
+        </div>
+      </div>
+      <p class="dla-close"><a class="btn dla-cta" href="#sign-up">Sign up free</a></p>
+      <div class="dla-credit">
+        <img src="https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/07/Mere-Orthodoxy---Coram-Deo.png" alt="Mere Orthodoxy and Coram Deo Church" class="dla-partner" width="240" height="60" loading="lazy" />
+        <p>Coram Deo Church in Omaha, Nebraska produces the Daily Liturgy in partnership with Mere Orthodoxy.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/site-forms.js"}}"></script>

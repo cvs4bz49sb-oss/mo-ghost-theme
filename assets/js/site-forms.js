@@ -89,6 +89,20 @@
     handleSubmit(form);
   });
 
+  // First-party ad attribution for the Daily Liturgy signup. A
+  // ?utm_campaign= on the landing URL wins over the form's own
+  // data-campaign. Shape-checked here; the worker enforces an allowlist
+  // and ignores anything else, so a bad value never blocks a signup.
+  function campaignFor(form) {
+    const shape = /^[a-z0-9][a-z0-9-]{0,39}$/;
+    let c = "";
+    try {
+      c = String(new URLSearchParams(window.location.search).get("utm_campaign") || "").trim().toLowerCase();
+    } catch (_) { /* ignore */ }
+    if (!shape.test(c)) c = String(form.getAttribute("data-campaign") || "").trim().toLowerCase();
+    return shape.test(c) ? c : "";
+  }
+
   function handleSubmit(form) {
     const kind = form.getAttribute("data-site-form");
     const worker = (form.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
@@ -151,6 +165,8 @@
         lastName: val("[name=lastName]"),
         turnstile_token: turnstileToken,
       };
+      const campaign = campaignFor(form);
+      if (campaign) body.campaign = campaign;
       init = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
