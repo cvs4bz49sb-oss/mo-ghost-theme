@@ -30026,6 +30026,8 @@ html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bo
 .eoy-tracker-table .is-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .eoy-tracker-table tbody th { font-weight: 400; text-align: left; padding: 12px; border-bottom: 1px solid var(--color-rule); vertical-align: top; }
 @media (max-width: 640px) { .eoy-tracker-table tbody th { padding: 10px 8px; font-size: 12px; } }
+.eoy-offline-form { max-width: 420px; margin: 8px 0 0; }
+.eoy-offline-form .eoy-offline-status { margin: 10px 0 0; }
 .eoy-tracker-verdict { font-family: var(--font-body); font-size: 15px; margin: 14px 0 0; max-width: 70ch; }
 .eoy-bar-sub { font-size: 14px; line-height: 1.4; color: var(--color-muted); margin: 0; }
 .eoy-bar-track { height: 6px; border-radius: 3px; overflow: hidden; background: #e2cfb1; }

@@ -105,15 +105,90 @@
     return `Headline ${win} gets more clicks (A ${pct(ca, va)}, B ${pct(cb, vb)}). The gap is unlikely to be chance (95% confidence). Check that it also brings in more money below before switching.`;
   }
 
+  let justSaved = false; // keeps the "Saved" line through the re-render
+
   function render(data) {
     out.textContent = "";
     const daily = data.daily || [];
     const pays = payments(data);
     const total = tally(pays, () => true);
 
+    // Meter (Ian, 2026-11-17): online payments count themselves; offline
+    // gifts are one figure kept here. PUT /eoy/offline saves it.
+    if (data.meter) {
+      const m = data.meter;
+      const off = data.offline || {};
+      const met = section("The meter on /year-end/ and the bar",
+        "The meter adds every online payment below to the offline amount here, and updates itself within a few minutes. Add each check, stock gift or donor-advised fund gift to the offline amount and save. Do not add online gifts here. They are already counted.");
+      const ms = el("ul", "admin-stats");
+      [["Meter total", money(m.raised_cents)], ["Online", money(m.online_cents)], ["Offline", money(m.offline_cents)],
+        ["Goal", money(m.goal_cents)], ["Reached", pct(m.raised_cents, m.goal_cents)]].forEach(([label, value]) => {
+        const li = el("li", "admin-stat");
+        li.appendChild(el("span", "admin-stat-label", label));
+        li.appendChild(el("span", "admin-stat-value", value));
+        ms.appendChild(li);
+      });
+      met.appendChild(ms);
+
+      const form = el("form", "eoy-offline-form");
+      const amount = el("label", "dashboard-form-field");
+      amount.appendChild(el("span", "dashboard-form-label", "Offline amount (dollars)"));
+      const amountInput = el("input");
+      amountInput.type = "text";
+      amountInput.inputMode = "decimal";
+      amountInput.name = "dollars";
+      amountInput.required = true;
+      amountInput.value = String(Math.round((off.cents || 0) / 100));
+      amount.appendChild(amountInput);
+      const note = el("label", "dashboard-form-field");
+      note.appendChild(el("span", "dashboard-form-label", "Note"));
+      const noteInput = el("input");
+      noteInput.type = "text";
+      noteInput.name = "note";
+      noteInput.maxLength = 200;
+      noteInput.placeholder = "e.g. Added $5,000 check from the Smith family";
+      noteInput.value = off.note || "";
+      note.appendChild(noteInput);
+      const save = el("button", "btn btn-primary btn-sm", "Save offline amount");
+      save.type = "submit";
+      const status = el("p", "admin-sub eoy-offline-status");
+      status.setAttribute("role", "status");
+      const who = off.updated_at
+        ? `Last saved ${new Date(off.updated_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/Chicago" })} Central${off.by ? ` by ${off.by}` : ""}.`
+        : "Not saved yet. This is the starting amount from the hand-set meter on November 13.";
+      status.textContent = justSaved ? `Saved. The meter on the site shows it within a few minutes. ${who}` : who;
+      justSaved = false;
+      form.appendChild(amount);
+      form.appendChild(note);
+      form.appendChild(save);
+      form.appendChild(status);
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        save.disabled = true;
+        status.textContent = "Saving…";
+        window.MOAuth.fetch(`${workerUrl}/eoy/offline`, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ dollars: amountInput.value, note: noteInput.value }),
+        })
+          .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
+          .then(({ ok, j }) => {
+            if (!ok) throw new Error((j && j.error) || "Could not save.");
+            justSaved = true;
+            load();
+          })
+          .catch((err) => {
+            status.textContent = (err && err.message) || "Could not save. Try again.";
+            save.disabled = false;
+          });
+      });
+      met.appendChild(form);
+      out.appendChild(met);
+    }
+
     // Results
     const res = section("What it has raised online",
-      "Every online gift and checkout from every source since November 13. Checks, stock and donor-advised fund gifts are not here. The meter on /year-end/ is still updated by hand.");
+      "Every online gift and checkout from every source since November 13. Checks, stock and donor-advised fund gifts are not here. They go in the offline amount above.");
     const stats = el("ul", "admin-stats");
     const tile = (label, value) => {
       const li = el("li", "admin-stat");
