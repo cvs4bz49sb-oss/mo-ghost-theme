@@ -4,13 +4,13 @@
 <meta name="description" content="A daily devotional podcast and newsletter for Advent. Fifteen minutes of morning prayer, Monday through Saturday. Free." />
 <meta name="robots" content="noindex, follow" />
 <meta property="og:title" content="Free morning prayer for Advent" />
-<meta property="og:description" content="A daily devotional podcast and newsletter from Coram Deo Church and Mere Orthodoxy. Free." />
+<meta property="og:description" content="A daily devotional podcast and newsletter from Mere Orthodoxy and Coram Deo Church. Free." />
 <meta property="og:image" content="{{asset "images/daily-liturgy-advent-hero-1600.jpg"}}" />
 <meta property="og:image:width" content="1600" />
 <meta property="og:image:height" content="900" />
 <meta property="og:image:alt" content="Purple and rose Advent candles lit against a dark background of soft lights" />
 <meta name="twitter:title" content="Free morning prayer for Advent" />
-<meta name="twitter:description" content="A daily devotional podcast and newsletter from Coram Deo Church and Mere Orthodoxy. Free." />
+<meta name="twitter:description" content="A daily devotional podcast and newsletter from Mere Orthodoxy and Coram Deo Church. Free." />
 <meta name="twitter:image" content="{{asset "images/daily-liturgy-advent-hero-1600.jpg"}}" />
 <meta name="twitter:image:alt" content="Purple and rose Advent candles lit against a dark background of soft lights" />
 <link rel="stylesheet" href="{{asset "css/daily-liturgy-advent.css"}}" />
@@ -49,7 +49,7 @@
     <div class="container dla-hero-inner">
       <img src="{{asset "images/daily-liturgy-logo-light.png"}}" alt="The Daily Liturgy" class="dla-logo" width="260" height="79" />
       <h1 id="dla-title" class="dla-title">Free morning prayer for Advent.</h1>
-      <p class="dla-sub">A daily devotional podcast and newsletter from Coram Deo Church and Mere Orthodoxy. Fifteen minutes each morning. It starts Monday, November 30.</p>
+      <p class="dla-sub">A daily devotional podcast and newsletter from Mere Orthodoxy and Coram Deo Church. Fifteen minutes each morning. It starts Monday, November 30.</p>
 
       <div class="dla-card" id="sign-up">
         <h2 class="dla-card-title">Get Advent prayers by email</h2>
@@ -86,18 +86,43 @@
   </section>
 
   <section class="dla-section">
-    <div class="container dla-narrow">
-      <h2 class="dla-h2">A short order of prayer for each morning of Advent.</h2>
-      <p>Advent begins Sunday, November 29. It's the church's season of waiting. For four weeks we look back to the first coming of Christ and ahead to his return.</p>
-      <p>Monday through Saturday, the Daily Liturgy gives you fifteen minutes to wait with the church. Each morning has five parts.</p>
-      <ol class="dla-order">
-        <li>A call to worship</li>
-        <li>A prayer of confession</li>
-        <li>A reading from Scripture</li>
-        <li>A prayer from the Psalms</li>
-        <li>A benediction</li>
-      </ol>
-      <p>It continues through the twelve days of Christmas. Those run from December 25 to January 5.</p>
+    <div class="container dla-wide">
+      <div class="dla-sample-row">
+        <div class="dla-sample-text">
+          <h2 class="dla-h2">A short order of prayer for each morning of Advent.</h2>
+          <p>Advent begins Sunday, November 29. It's the church's season of waiting. For four weeks we look back to the first coming of Christ and ahead to his return.</p>
+          <p>Monday through Saturday, the Daily Liturgy gives you fifteen minutes to wait with the church. Each morning follows the same order.</p>
+          <ol class="dla-order">
+            <li>An opening prayer</li>
+            <li>A prayer of confession</li>
+            <li>An Old Testament reading</li>
+            <li>The Lord's Prayer</li>
+            <li>A New Testament reading</li>
+            <li>A prayer of adoration</li>
+            <li>A Psalm</li>
+            <li>A prayer of consecration</li>
+            <li>A benediction</li>
+          </ol>
+          <p>It continues through the twelve days of Christmas. Those run from December 25 to January 5.</p>
+        </div>
+        <figure class="dla-sample">
+          <img src="{{asset "images/daily-liturgy-advent-sample-nov30.jpg"}}" alt="The Daily Liturgy email for Monday, November 30. It shows the opening prayer, the prayer of confession and the Old Testament reading from Isaiah 2." width="840" height="1802" loading="lazy" />
+          <figcaption>The first liturgy, Monday, November 30.</figcaption>
+        </figure>
+      </div>
+
+      {{!-- Reader endorsement: the same figure as /daily-liturgy/ (engraved
+           portrait, aria-hidden, named in the text). Styles are global.
+           The book title is roman on purpose: no italics on our surfaces. --}}
+      <figure class="dl-endorsement">
+        <div class="dl-endorsement-por">
+          <canvas data-engrave="{{asset "images/dlp-noble-engrave.jpg"}}" width="200" height="250" aria-hidden="true"></canvas>
+        </div>
+        <blockquote class="dl-endorsement-quote">
+          <p>I love this podcast. I listen to it daily when the semester starts up as I drive to work. Excited about this partnership.</p>
+          <footer class="dl-endorsement-cite"><b>O. Alan Noble</b><span>Author of You Are Not Your Own</span></footer>
+        </blockquote>
+      </figure>
     </div>
   </section>
 
@@ -120,7 +145,7 @@
       <p class="dla-close"><a class="btn dla-cta" href="#sign-up">Sign up free</a></p>
       <div class="dla-credit">
         <img src="https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/07/Mere-Orthodoxy---Coram-Deo.png" alt="Mere Orthodoxy and Coram Deo Church" class="dla-partner" width="240" height="60" loading="lazy" />
-        <p>Coram Deo Church in Omaha, Nebraska produces the Daily Liturgy in partnership with Mere Orthodoxy.</p>
+        <p>The Daily Liturgy is a partnership of Mere Orthodoxy and Coram Deo Church in Omaha, Nebraska.</p>
       </div>
     </div>
   </section>
@@ -128,3 +153,4 @@
 </main>
 
 <script src="{{asset "js/site-forms.js"}}"></script>
+<script src="{{asset "js/engraved-portrait.js"}}"></script>

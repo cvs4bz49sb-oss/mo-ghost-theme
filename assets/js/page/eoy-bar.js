@@ -38,7 +38,7 @@
     "/year-end/", "/give/", "/donate/", "/membership/", "/offer/", "/kirk-offer/",
     "/student/", "/groups/", "/group-manage/", "/institutions/", "/institution-manage/",
     "/join/", "/manage/", "/migrate/", "/success/", "/welcome/", "/complete-membership/",
-    "/admin/",
+    "/admin/", "/daily-liturgy/advent/",
   ];
   const path = `${String(window.location.pathname || "/").toLowerCase().replace(/\/+$/, "")}/`;
   if (SKIP.some((p) => path === p || path.indexOf(p) === 0)) return;
