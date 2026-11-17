@@ -1,0 +1,78 @@
+/* /admin/members/map/ (custom-admin-member-map.hbs, assets/js/admin-member-map.js).
+   Loaded by that template only, after the vendored Leaflet and
+   markercluster styles, so it is not in screen.css. */
+
+.member-map-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  margin: 1.25rem 0 0.75rem;
+}
+
+/* The country group can hold World and eight countries. .admin-table-scope
+   does not shrink above 560px, so without these the last buttons run past
+   the column at 640 to 820px. */
+.member-map-regions {
+  flex: 0 1 auto;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.member-map-canvas {
+  height: min(70vh, 640px);
+  min-height: 360px;
+  border: 1px solid var(--color-card-border, #e5ded3);
+  border-radius: 4px;
+  background: #aad3df; /* OpenStreetMap's sea, so the gap before tiles load is not white */
+}
+
+.member-map-note {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--color-muted, #6b6259);
+}
+
+/* A single member: a small orange dot. */
+.member-map-point.is-single {
+  background: var(--color-primary, #ee7d51);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+/* Several members, at one postcode or in a cluster: an orange circle with
+   the count. Clusters get a softer ring so they read as groups. */
+.member-map-point:not(.is-single),
+.member-map-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary, #ee7d51);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  color: #fff;
+  font: 600 12px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.member-map-cluster {
+  box-shadow: 0 0 0 5px rgba(238, 125, 81, 0.3);
+  cursor: pointer;
+}
+
+.member-map-popup {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.member-map-popup em {
+  color: var(--color-muted, #6b6259);
+}
+
+@media (max-width: 640px) {
+  .member-map-canvas {
+    height: 60vh;
+    min-height: 320px;
+  }
+}
