@@ -527,3 +527,10 @@ body.research-page .pinb{min-height:0;min-width:0;font:500 12.5px/1.2 var(--sans
  .cd .cd-tools>label:not(.rx-search){flex:1 1 44%}
  .cd .cd-tools>label:not(.rx-search) select{width:100%}
 }
+
+/* MereO delta (deslop 2026-11-18, DESLOP Q11/Q16): the compare desk is a working surface, so its heads take the body face,
+   not IM Fell (--display resolves to IM Fell Great Primer on this page), and come down a step as they swap. No italics. */
+.research-compare,.cd{--display:var(--body,"Source Serif Pro",Georgia,serif)}
+.cd .cd-topic-head h3{font-size:24px}
+.research-compare .cn-title,.research-compare .cd-suggest h2,.research-compare .rx-loci-head{font-size:20px}
+.research-compare .cd-sg-and{font-style:normal}

@@ -1,0 +1,72 @@
+/* THE SKIN OVER THE READER'S NOTES AND MARGIN (deslop + design pass, 2026-11-18)
+
+   Stiven's reader work of 10-22 to 11-05 (the notes toggle set in the left margin at 1000px+, the seam carry, the folded
+   note, speaker turns, the Greek-missing label) is his bones. This sheet is our skin over it, per DESLOP §6.20: it loads
+   after faith-port-reader-skin.css and his sheets, and he does not touch it, so it survives his next merge. It sets face,
+   style, ink and corners only. No size, position or behavior changes, except the phone tap target his own 11-07 commit
+   meant to set and a specificity tie lost.
+
+   Rules: no italics on furniture (§6.21, Q16); Source Serif on working furniture, no EB Garamond or IM Fell (Q11);
+   3px corners, no filled chip on hover (Q12, Q15); one grammar for one action (§6.20). Corpus text is never touched:
+   nothing here reaches .en or .la prose, a quotation's emphasis, or the printed argument (.inarg). */
+
+/* The notes toggle. Closed it sits in the margin (one-language view, 1000px+) or on a short right-aligned line; open it
+   heads its notes. Pages view set it in italic EB Garamond and lit it with a --highlight chip on hover; Flow set it
+   upright Source Serif and only darkened the ink. One look for both. */
+html #app .apptog {
+  font-family: "Source Serif Pro", Georgia, serif;
+  font-style: normal;
+  border-radius: 3px;
+}
+html #app .apptog:hover {
+  background: transparent;
+  color: var(--fg);
+}
+
+/* Phone tap target. reader-footnotes.css gives .apptog 44px under 700px, but the closed toggle's own rule
+   (.apptog:not(.open)) outranks it and holds 32px (measured at 390px). Stiven's 8c888248 meant the closed toggle. */
+@media (max-width: 700px) {
+  html:not(.fr-plain) #app.rflow .apptog:not(.open) {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+}
+
+/* The page number in the margin beside the toggle: italic EB Garamond against the toggle's upright Source Serif, two
+   faces in one margin. Upright, the reading face's family; size, figures and place unchanged. */
+html:not(.fr-plain) #app .fmark .ff {
+  font-family: "Source Serif Pro", Georgia, serif;
+  font-style: normal;
+}
+
+/* "Continue the note" on a folded note: italic 600 EB Garamond in terracotta, a tinted chip and a press shrink. It does
+   the toggle's job one level down, so it takes the toggle's look. */
+html #app .fnmore {
+  font: 400 13px/1.4 "Source Serif Pro", Georgia, serif;
+  font-style: normal;
+  letter-spacing: 0;
+  color: var(--muted);
+  border-radius: 3px;
+}
+html #app .fnmore:hover {
+  background: transparent;
+  color: var(--fg);
+}
+html #app .fnmore:active {
+  transform: none;
+}
+
+/* The note's return arrow: italic display face on a glyph. */
+html #app .fn-ret {
+  font-family: "Source Serif Pro", Georgia, serif;
+  font-style: normal;
+}
+
+/* "No Greek for this page in our text..." is a misreading guard and stays visible. Its rule reads --body, which the
+   reader never defines, so it fell through to the inherited EB Garamond. */
+html #app .pld-note-label {
+  font-family: "Source Serif Pro", Georgia, serif;
+  font-style: normal;
+}

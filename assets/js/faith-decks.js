@@ -74,7 +74,7 @@ const GRID={
   metaphysics:{noun:'disputation',nouns:'disputations',one:'work',many:'works',head:'Works beside',find:'work',name:"Suárez's Metaphysical Disputations",text:"Suárez's text",cell:['section','sections']}
 };
 // a deck's own lede, under the tabs while it is open
-const DECKLEDE={metaphysics:"Suárez's Metaphysical Disputations, section by section. Each section shows the authors he cites and the authors who received him."};
+const DECKLEDE={metaphysics:"Each section of Suárez's Metaphysical Disputations shows the authors he cites and the authors who received him."}; // MereO delta: no hanging phrase (Q3)
 const GD=()=>Object.prototype.hasOwnProperty.call(GRID,S.deck);
 const G=()=>(D&&D.grids&&D.grids[S.deck])||null;
 const NAMED=()=>SYS()||GD();
@@ -88,7 +88,7 @@ Object.assign(DECKNAME,{reformed:GRID.reformed.name,vitringa:GRID.vitringa.name,
 const PROB={
   reformed:{base:'Voetius, Syllabus problematum theologicorum, Utrecht 1643',who:'Voetius',systems:'the Reformed systems',short:'Syllabus',one:'problem',many:'problems',tab:'Problems',more:'Also argued in the Selectae on this title'},
   lutheran:{base:"Quenstedt's questions, Systema theologicum, Wittenberg 1691",who:'Quenstedt',systems:'the Lutheran systems',short:'Systema',one:'question',many:'questions',tab:'Questions',more:'Also argued on this locus'},
-  metaphysics:{base:'Suárez, Disputationes metaphysicae, section by section',who:'Suárez',short:'DM',one:'section',many:'sections',tab:'Sections',more:''}
+  metaphysics:{base:'Suárez, Disputationes metaphysicae',who:'Suárez',short:'DM',one:'section',many:'sections',tab:'Sections',more:''} // MereO delta: no tagline (Deslop 6.18)
 };
 const PRB=()=>(Object.prototype.hasOwnProperty.call(PROB,S.deck)?PROB[S.deck]:null);
 // the problems' book as their file names it (spine_title), else as the deck does
@@ -549,7 +549,7 @@ function basePageHTML(side,slug,n,cols,lanes){
     // a plate with no English: its Latin, so the page is not empty
     if(!bs.length&&vit&&l==='en'&&lanes.length===1&&(cols.la||[]).length){bs=cols.la;ll='la';}
     if(!bs.length)return `<div class="ln" lang="${l}"><p class="note">No ${l==='en'?'English':'Latin'} on this page.</p></div>`;
-    return `<div class="ln" lang="${ll}">${ll!==l?'<p class="note vnote">The Latin; this page has no English.</p>':''}${vit&&richLane(ll)?vitRows(bs,ll,side):linesHTML(bs,ll,new Map(),null)}</div>`;
+    return `<div class="ln" lang="${ll}">${ll!==l?'<p class="note vnote">This page has no English.</p>':''}${vit&&richLane(ll)?vitRows(bs,ll,side):linesHTML(bs,ll,new Map(),null)}</div>`; // MereO delta: one sentence, no semicolon (Q6)
   };
   const mark=vit?`<a class="pgno pgm" href="${read(slug,n)}" title="Open this page in the reader" aria-label="${esc(`${atw(slug)} ${n}, open in the reader`)}" data-p="${esc(`${atw(slug)} ${n}`)}"></a>`:`<a class="pgno" href="${read(slug,n)}" title="Open this page in the reader">${atw(slug)} ${esc(n)}</a>`;
   return `<section class="pg${vit?' vpg':''}" data-n="${n}">${mark}${lanes.length>1?`<div class="duo">${col('la')}${col('en')}</div>`:col(lanes[0])}</section>`;
@@ -987,7 +987,7 @@ function graphHTML(P,cfg){
   const ag=g.agree||null,agN=ag?Number(ag.agrees||0)+Number(ag.differs||0)+Number(ag.silent||0):0;
   const box=(h,body)=>`<div class="pg-c"><h3 class="pg-h">${h}</h3>${body}</div>`;
   return `<section class="pgraph tg" aria-label="This ${esc(noun())} in figures">${vs.length?box(`The verdicts on these ${esc(cfg.many)}`,tgBar(vs,`The verdicts on the ${cfg.many} of this ${noun()}`)):''}`
-    +`${pa.length?box('Their adversaries, by party',tgBar(pa,'The adversaries named, by party')):''}`
+    +`${pa.length?box('Their adversaries by party',tgBar(pa,'The adversaries named, by party')):''}` // MereO delta: no trailing tail (Q2)
     +`${agN?`<p class="pg-agree"><span class="pg-h">Beside ${esc(cfg.who)}</span> ${fmtN(ag.agrees)} agree, <span class="pg-dif">${fmtN(ag.differs)} differ</span>${Number(ag.silent)?`, ${fmtN(ag.silent)} silent`:''}</p>`:''}</section>`;
 }
 // THE SELECTAE ON A TITLE (2026-10-23, the owner's words above). Where a title's parked Selectae items have been placed (props: argued
@@ -1236,7 +1236,7 @@ function viewsBoard(s,n,ctx){
   const sch=k=>((MSCH.find(([x])=>x===k)||[])[1]||'').replace(/s$/,'');
   const op=o=>{const k=opSchools(o)[0],sv=SV[o.suarez_on],names=[...new Set((o.holders||[]).map(h=>h.author||h.name).filter(Boolean))];
     return `<section class="op" id="a-s${esc(n)}-o${esc(o.i)}" data-sc="${opSchools(o).join(' ')}"><h4 class="op-h"><i class="dot" style="--sc:${mcol(k)}" aria-hidden="true"></i><button type="button" class="cc-sel" data-osel="s${esc(n)}/o${esc(o.i)}">${esc(cap1(o.label||`Opinion ${Number(o.i)+1}`))}</button>${k!=='others'?CARD.schTag(sch(k)):''}${sv?`<span class="pty"><i class="dot" style="--sc:${sv[1]}" aria-hidden="true"></i>${esc(sv[0])}</span>`:''}</h4>`
-      +`${names.length?`<p class="who">${names.map(x=>CARD.who(x)).join(', ')}</p>`:''}${o.position?`${lab('Position, as Francisco Suárez states it')}<p class="pos">${esc(o.position)}</p>`:''}`
+      +`${names.length?`<p class="who">${names.map(x=>CARD.who(x)).join(', ')}</p>`:''}${o.position?`${lab('Position as Francisco Suárez states it')}<p class="pos">${esc(o.position)}</p>`:''}` // MereO delta: no trailing tail (Q2)
       +`${o.quote?CARD.quoteHTML({quote:cut(qclean(o.quote)),w:c2.slug,p:o.page,t:T}):''}</section>`;};
   const head=ad?`Francisco Suárez sides with ${esc(lowerThe(ad.label||`opinion ${Number(ad.i)+1}`))}`:'Francisco Suárez resolves it his own way';
   const res=r.resolution||r.quote||(r.page!=null&&r.page!=='')?`<section class="judgment" data-cco="r"><h4 class="jd-h">${CARD.dot(CARD.schoolOf('Francisco Suárez'))}<button type="button" class="cc-sel" data-osel="s${esc(n)}/r">${head}</button></h4>`
@@ -1336,7 +1336,7 @@ function mGraphHTML(P){
   const marks=[{y:SUAREZ_Y,label:'Suárez',p:-1}].concat(items.slice().sort((a,b)=>(cnt.get(b.name)-cnt.get(a.name))||(a.y-b.y)).map((x,i)=>({y:x.y,label:x.name,p:i}))).slice(0,matchMedia('(max-width:480px)').matches?4:undefined);
   const strip=items.length?TG.eraStrip(TG.bin(items,25),{unit:'author',units:'authors',labels:TGL,title:'Authors Suárez cites and authors who received him, by birth year',legendLabel:'Schools shown',marks}):'';
   const box=(h,body)=>`<div class="pg-c"><h3 class="pg-h">${h}</h3>${body}</div>`;
-  return `<section class="pgraph pg-schools tg" aria-label="This disputation in figures">${parts.length?box('The opinions’ holders, by school',tgBar(parts,'The holders of the opinions in this disputation, by school')):''}`
+  return `<section class="pgraph pg-schools tg" aria-label="This disputation in figures">${parts.length?box('The opinions’ holders by school',tgBar(parts,'The holders of the opinions in this disputation, by school')):''}` // MereO delta: no trailing tail (Q2)
     +`${vs.length?box('Suárez’s verdicts on the opinions',tgBar(vs,'Suárez’s verdicts on the opinions of this disputation')):''}`
     +`${strip?`<div class="pg-wide"><h3 class="pg-h">Before and after Suárez</h3>${strip}${early.length?`<p class="pg-note">Earlier than the chart: ${esc(early.join(', '))}</p>`:''}</div>`:''}</section>`;
 }
@@ -1842,7 +1842,7 @@ async function recFill(root,s,sel,c){
       const total=m.n||m.positions.reduce((n,p)=>n+(p.holders||[]).length,0);
       mapBox.innerHTML=`<p class="rec-sub">On the map: <a href="${MAPSP}#${encodeURIComponent(m.id||mapBox.dataset.map)}">${esc(m.q)}</a></p>${
         best&&TG?TG.positionBlock(best,{total,read,preview:(w,p)=>pvBtn(w,p),level:5,open:false})
-          :`${info&&info.holders&&info.holders.length?'<p class="rec-note">The map does not place these holders; its positions:</p>':''}${TG?TG.positionRows(m.positions.map(p=>[p.label,(p.holders||[]).length])):''}`}`;
+          :`${info&&info.holders&&info.holders.length?'<p class="rec-note">The map does not place these holders. Its positions:</p>':''}${TG?TG.positionRows(m.positions.map(p=>[p.label,(p.holders||[]).length])):''}`}`; // MereO delta: no semicolon join (Q1)
       if(TG)TG.layout(mapBox);
     }
   }

@@ -559,7 +559,7 @@
     if (t.how === "nearest") return `Opens at its note on ${ref(t.v)}, ${at} (${none})`;
     if (t.how === "later") return `Opens at its first note in ${name} ${M.ch}, on ${M.ch}:${t.v}, ${at} (${none})`;
     if (t.how === "chapter") return `Opens at ${name} ${M.ch}, ${at} (${none})`;
-    if (t.how === "cites") return `Cites ${name} ${M.ch} on ${at}, in its commentary on another passage (${none})`;
+    if (t.how === "cites") return `Cites ${name} ${M.ch} on ${at} in its commentary on another passage (${none})`; // MereO delta (2026-11-18): no comma before the tail
     if (t.how === "treats") return `Treats this chapter on ${at} (${none})`;
     if (t.how === "head") return `Opens at ${name} ${M.ch}, ${at} (${none})`;
     if (t.how === "book") return `Opens at the start of ${M.book === "psalms" ? "the Psalms" : name}, ${at}. This work has no marked start for chapter ${M.ch}`;

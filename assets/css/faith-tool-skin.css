@@ -169,3 +169,78 @@ main.tfr-tool .hpane { max-height: none; overflow: visible; }
 main.tfr-decks :is(.argued, .fork, .objs, .stated, .pth-rows, .cc-rows) > li { min-width: 0; }
 main.tfr-decks :is(.mv, .mv-h, .mv-q, .mv-a, .fork li, .ob, .op) { overflow-wrap: anywhere; }
 main.tfr-decks .adv { white-space: normal; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   STIVEN'S 10-22 TO 11-08 WORK IN OUR SKIN (Ian, 2026-11-18: "go through
+   and deslop everything and implement our design"). The Suárez controversies
+   card, the Latin toggles, Vitringa's page, Voetius's and Quenstedt's rows,
+   the Controversies and Maps pages, and the Commentaries page. His
+   templates and scripts are the bones. Every rule below carries one more
+   class or element than the rule it replaces, so it holds after his next
+   merge. Deslop §6.20, §6.21; Design §6.1.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── No eyebrows: the deck groups, the pane's source line and the tradition
+      heads read as plain small labels, not tracked caps ── */
+main.tfr-decks .tgk { letter-spacing: 0; text-transform: none; color: var(--muted); font-size: .8125rem; }
+main.tfr-decks .srcl > span, main.tfr-decks .trad { letter-spacing: 0; text-transform: none; font-size: .875rem; }
+main.tfr-tool :is(.bb, .pvw) .pw-page h4 { letter-spacing: 0; text-transform: none; font-size: .8125rem; }
+
+/* ── No terracotta top bars: the panes and the place picker take one hairline ── */
+main.tfr-decks :is(.pane, .grid) { border-top: 1px solid var(--border); }
+
+/* ── No italics on furniture (labels, empty states, note folds, margin refs).
+      Quoted words and Latin titles keep the face the text gives them. ── */
+main.tfr-tool.tfr-tool :is(.ph .what, .bh .what, .bb .lead, .bb .empty, .bb .np-h, .bb-k, .wk-k, .rec-for, .rcp-hd, .ap .refs, .vn > summary, .cpg-w, .sh-t, .h-w, .pw-col .pw-none) { font-style: normal; }
+
+/* ── No pills: tags, counts, seals, toggles and the sheet's Close take 3px ── */
+main.tfr-tool.tfr-tool :is(.pw-lanes, .pw-page h4 span, .bsheet .close, .seal, .ptog, .adv, .sv, .cc-kind, .arg-k, .rcv-tag, .pty, .kind, .pchip, .cpg button, .sh-x, .pvb) { border-radius: 3px; }
+main.tfr-tool.tfr-tool :is(.pfind, .gq, .find, .pane select, .stepper button, .morebar button, .tip, .c-read, .op-row, .f1-row, .qr-b, .rq, .hr-t, .rr-t, .loci li button, .books li button, .lg button, .chips button, .tgl, .dbl a.dl, .nav-t, .more) { border-radius: 3px; }
+
+/* ── The TFR button where he set a black chip: hollow terracotta at rest,
+      filled terracotta when chosen ── */
+main.tfr-tool.tfr-tool :is(.ptog, .bsheet .close, .cpg button, .sh-x) { border-color: var(--accent); background: transparent; color: var(--accent); }
+main.tfr-tool.tfr-tool :is(.ptog, .cpg button)[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+main.tfr-tool.tfr-tool .ptog[aria-pressed="true"] :is(small, .seal) { color: var(--on-accent); }
+main.tfr-tool.tfr-tool :is(.ptog, .bsheet .close, .cpg button, .sh-x):hover:not([aria-pressed="true"]) { background: var(--accent); color: var(--on-accent); }
+main.tfr-tool.tfr-tool .ptog:hover:not([aria-pressed="true"]) :is(small, .seal) { color: var(--on-accent); }
+main.tfr-decks .grid.sys button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+main.tfr-decks .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+main.tfr-decks .chip[aria-pressed="true"] small { color: var(--on-accent); }
+main.tfr-decks .parts .chip[aria-pressed="true"] small { color: var(--muted); }
+/* "His own disputation" and "Selectae" are labels, not buttons: terracotta ink on a hairline, no black block */
+main.tfr-decks :is(.own-b, .own-m) { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* ── No cards: objections, moves, resolutions, Vitringa's notes and the lead
+      notes run as hairline rows on the page's ground ── */
+main.tfr-decks :is(.ob, .mv, .res, .wk-lead, .bb-lead, .bb .np-c, .vn, .cc-judgment),
+main.tfr-tool :is(.res, .psn, .brief, .across, .judgment, .rc) {
+  background: none; border: 0; border-top: 1px solid var(--border); border-radius: 0; padding-left: 0; padding-right: 0;
+}
+main.tfr-tool .cc-card .judgment { background: none; border: 0; border-top: 1px solid var(--border); border-radius: 0; padding-left: 0; padding-right: 0; }
+main.tfr-decks .vn > summary { padding-left: 0; padding-right: 0; }
+main.tfr-decks .vn-b { padding-left: 0; padding-right: 0; }
+main.tfr-decks .vn > summary:focus-visible { border-radius: 3px; }
+main.tfr-decks :is(.arg-rows > li.arg-own, .arg-rows > li.arg-own:first-child) { background: none; border-radius: 0; padding-left: 0; padding-right: 0; }
+main.tfr-decks .probs.acc > .pr.ln1.is-open { background: none; margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; border-radius: 0; }
+
+/* ── No quotation-mark ornament: his own words hang on a hairline, as the
+      quotations elsewhere on the decks do ── */
+main.tfr-tool figure.own.own blockquote::before { content: none; }
+main.tfr-tool figure.own.own blockquote { padding-left: .85rem; border-left: 1px solid var(--muted); }
+main.tfr-tool figure.own.own :is(figcaption, .says, .own-la) { margin-left: .85rem; }
+
+/* ── Dark: the school colors lift off the dark ground ── */
+html[data-sd-theme="dark"] main.tfr-tool {
+  --s-thomist: #8fb0dd; --s-scotist: #b99ad2; --s-nominalist: #d6b06a; --s-jesuit: #77c0c5; --s-augustinian: #d39ab4; --s-other: #a8a8a2; --s-bonaventurian: #b3bd7c;
+}
+
+/* ── Controversies and Maps: no scroll box inside the reading. The question
+      rails beside the reading keep their scroll, as every sidebar does. ── */
+main.tfr-tool ol.pm-list, main.tfr-tool .qr-p { max-height: none; overflow: visible; }
+
+/* ── Commentaries (main.sdc): the two lists are columns on the page, not
+      cards. A hairline over each, the desk's ground under both. ── */
+main.sdc .sdc-col { padding: 14px 0 10px; background: none; border: 0; border-top: 1px solid var(--cp-rule); border-radius: 0; }
+@media (max-width: 760px) { main.sdc .sdc-col { margin: 0; padding: 12px 0 6px; } }
+main.sdc { --cp-paper: #f6f3f2; --cp-ground: #f6f3f2; --cp-sheet: #fffdfa; }

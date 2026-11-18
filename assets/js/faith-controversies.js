@@ -789,7 +789,7 @@ function railDraw(){
   const host=$('#dlist');if(!host||!DEB||!DEB.groups)return;
   const by=railBy(),q=!!fold(($('#dfind')||{}).value||''),G=DEB.groups;
   if(!G.length){host.innerHTML='<p class="muted">Nothing matches.</p>';return;}
-  const key=by==='disp'?'':DEB.digest?'Each question with the number of positions taken on it.':'Each question with the number of its controversies, where it has several.';
+  const key=by==='disp'?'':DEB.digest?'Each question with the number of positions taken on it.':'Each question with the count of its controversies when it has more than one.'; // MereO delta: no trailing tail (Q2)
   let tab=false;
   host.innerHTML=`${key?`<p class="rl-k">${key}</p>`:''}<ol class="rgs">${G.map(g=>{
     const open=q||DEB.gopen.has(g.key),n=g.rows.length,pages=Math.ceil(n/RAIL_PAGE),p=Math.min(pages-1,Math.max(0,DEB.gpage.get(g.key)||0));
@@ -1227,7 +1227,7 @@ const pathsFile=id=>{
 const TRAD_COL={'Greek Fathers':'#2E6E8E','Latin Fathers':'#7A4E9B','Eastern Fathers':'#5E8C61','Byzantine':'#1F8A7A','Medieval':'#B07B2A','Lutheran':'#C1593C','Reformed':'#2F7D4F','Continental Reformed':'#2F7D4F','Roman Catholic':'#A63D5A','English Divines':'#3B5BA5','Humanism and Law':'#8C7B5C'};
 const PATH_LABEL={thomist:'follows the Thomists',scotist:'follows the Scotists',suarezian:'follows Suárez',nominalist:'with the Nominalists',own:'his own way'};
 const PATH_ORDER=['thomist','scotist','suarezian','nominalist','own','unplaced'];
-const PATH_NOTE='Among the Reformed and Lutherans, each metaphysician\'s position, the path it takes and his line are read by machine from his own pages: open the page to check it.';
+const PATH_NOTE='Among the Reformed and Lutherans each metaphysician\'s position, path and line are read by machine from his own pages. Open the page to check them.'; // MereO delta: AI disclosure kept, splice split (Q1)
 /* a place as the work heads it: an English heading with its Latin after a dash keeps the English; a heading the file cut short ends at
    a whole word */
 const LATIN_HEAD=/^(?:caput|quaestio|articulus|disputatio|sectio|liber|capitulum|theoremata|problema|de|an|utrum)\b/i;
@@ -1566,7 +1566,7 @@ function rcAtlas(host){
     const ans=(a&&a.answers)||[];if(!ans.length){box.innerHTML='';return;}
     const cnt=new Map();for(const x of ans){const k=ANS[x.answer]?x.answer:'unclear';cnt.set(k,(cnt.get(k)||0)+1);}
     const ks=Object.keys(ANS).filter(k=>cnt.has(k)),tot=ans.length;
-    box.innerHTML=`<h4>In the atlas<span class="ct">${fmt(tot)} ${tot===1?'answer':'answers'}</span></h4><div class="rc-ans" aria-hidden="true">${ks.map(k=>`<i class="an-${ANS_CLS[k]}" style="flex:${cnt.get(k)} 1 0"></i>`).join('')}</div><p class="rc-ak">${ks.map(k=>`<span><i class="sw an-${ANS_CLS[k]}" aria-hidden="true"></i>${ANS[k]} ${fmt(cnt.get(k))}</span>`).join('')}</p><p class="rc-note"><a href="${ATLAS}#${esc(id)}">Every answer, each with the page it rests on</a></p>`;
+    box.innerHTML=`<h4>In the atlas<span class="ct">${fmt(tot)} ${tot===1?'answer':'answers'}</span></h4><div class="rc-ans" aria-hidden="true">${ks.map(k=>`<i class="an-${ANS_CLS[k]}" style="flex:${cnt.get(k)} 1 0"></i>`).join('')}</div><p class="rc-ak">${ks.map(k=>`<span><i class="sw an-${ANS_CLS[k]}" aria-hidden="true"></i>${ANS[k]} ${fmt(cnt.get(k))}</span>`).join('')}</p><p class="rc-note"><a href="${ATLAS}#${esc(id)}">Every answer with the page it rests on</a></p>`; // MereO delta: no trailing tail (Q2)
   });
 }
 function rcPaths(host){

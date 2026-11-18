@@ -543,7 +543,7 @@
     const [slug, p] = b.dataset.vrWpv.split("|"), T = root.FRCommentaryText;
     box.innerHTML = '<p class="vr-pv-wait" role="status">Opening the page…</p>';
     (T && T.fill ? T.fill(box, { slug, page: p }).catch(() => false) : Promise.resolve(false)).then((ok) => {
-      if (!ok && box.isConnected) { box.classList.remove("pw"); box.innerHTML = '<p class="vr-empty">This page cannot be shown here: the page number opens it in the reader.</p>'; }
+      if (!ok && box.isConnected) { box.classList.remove("pw"); box.innerHTML = '<p class="vr-empty">This page cannot be shown here. The page number opens it in the reader.</p>'; } // MereO delta (2026-11-18): two sentences, as the desk says it
     });
   }
   // the rail's shared behaviour inside a rendered block: gist toggles, Show more, author rows, Preview in place; chips and "all in

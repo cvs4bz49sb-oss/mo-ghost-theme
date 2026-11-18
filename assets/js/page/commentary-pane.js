@@ -913,7 +913,7 @@
     });
     const cfg = { name, ch: w.ch, v: n, read: SITE.read, rankOf, tradOf, keySet, keyOrder: keys.map((c) => c.slug), era: ERA, show: 6 };
     box.innerHTML = VR.reception.head(rv, ns, cfg) + VR.reception.strip(rv.strip || []) + VR.reception.notes(ns, cfg) + VR.reception.eras(rv.eras || [], cfg)
-      + mostHTML + VR.reception.foot('Every page in the library that cites the verse, dated by its author\'s life; the gists are machine-written from the pages.');
+      + mostHTML + VR.reception.foot('Each page that cites the verse is dated by its author\'s life. The gists are machine-written from the pages.'); // MereO delta (2026-11-18): two sentences, not a tail and a semicolon
     VR.wire(box, { era(id) { setTab('s'); window.dispatchEvent(new CustomEvent('fr-verse-citations', { detail: { era: id, verse: n } })); } });
     box.scrollTop = 0;
   }
@@ -1792,7 +1792,7 @@
       : t.how === 'page' ? `Its comment on ${name} ${w.ch}:${t.v} is on ${at}`
       : t.how === 'later' ? `No separate note on ${w.ch}:${v}. Its next note is on ${w.ch}:${t.v}, ${at}`
       : t.how === 'nearest' ? `No separate note on ${w.ch}:${v}. Its closest earlier note is on ${w.ch}:${t.v}, ${at}`
-      : t.how === 'cites' ? `It cites ${name} ${w.ch} on ${at}, in its commentary on another passage`
+      : t.how === 'cites' ? `It cites ${name} ${w.ch} on ${at} in its commentary on another passage` // MereO delta (2026-11-18): no comma before the tail
       : t.how === 'cites-v' ? `No note on ${name} ${w.ch}:${v} was found. It cites the verse on ${at}`
       : t.how === 'treats' ? `Treats this chapter on ${at}`
       : t.how === 'head' ? `No note on ${w.ch}:${v} was found. ${name} ${w.ch} begins on ${at}, by its heading`
@@ -1961,7 +1961,7 @@
       : t.how === 'nearest' ? `No separate note on ${sh.ch}:${S.verse}. Its closest earlier note is on ${ref(t.v)}`
       : t.how === 'chapter' ? `No note on ${ref(S.verse)} was found. This is where it opens ${bookName} ${sh.ch}`
       // (10-22) a work on another book, at the page where it cites the chapter; a set whose map knows only where the book begins
-      : t.how === 'cites' ? `It cites ${bookName} ${sh.ch} on this page, in its commentary on another passage`
+      : t.how === 'cites' ? `It cites ${bookName} ${sh.ch} on this page in its commentary on another passage` // MereO delta (2026-11-18): no comma before the tail
       // (2026-11-08, as at farPlace) a page the library finds citing the verse, in a work the map does not place in the chapter
       : t.how === 'cites-v' ? `No note on ${ref(S.verse)} was found. It cites the verse on this page`
       : t.how === 'treats' ? 'Treats this chapter on this page'

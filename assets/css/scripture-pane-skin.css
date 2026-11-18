@@ -1,0 +1,62 @@
+/* ═══════════════════════════════════════════════════════════════
+   THE COMMENTARY PANE IN OUR SKIN (Deslop design pass, 2026-11-18; Ian: "go through and deslop everything and implement our design")
+   commentary-pane.css and scripture-verse-rail.css are shared with The Faith Received's own site. Their structure stays. This sheet is
+   the pane's one visual layer over them on custom-scripture-dev.hbs, as verse-desk-skin.css is for the Verse Desk. It loads after them,
+   so it survives the next merge of the contributor's branch. "We are the skin, he is the bones." (DESLOP-AGENT.md 6.20)
+
+   The rules it enforces (DESLOP-AGENT.md 3c):
+   - One button: a 3px outline, filled terracotta when pressed or hovered. No pills, no ink-filled chips.
+   - No italics on titles, labels or status lines (6.21). The commentary's own words are not touched.
+   - No eyebrow over the heading: the tab row already names the view.
+   - No cards on a working surface. Hairlines only.
+   - Tokens only, so the page's own dark (html[data-sd-theme], scripture-dev.css) follows.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* dark: --cp-sheet stayed white under the page's dark, so the find box and a work's preview were white with light ink */
+html.cp-site-mo[data-sd-theme="dark"] { --cp-sheet: var(--sd-dk-card); }
+
+/* ── the head: no eyebrow ("Commentary on this verse" repeated the tab) ── */
+html.cp-site-mo .cp-pane .cp-eyebrow { display: none; }
+
+/* ── no italics: work titles, the chosen commentary, status lines, glosses ── */
+html.cp-site-mo :is(.cp-what, .cp-row-t, .cp-empty, .vr-e-t, .vr-pv-wait, .vr-empty, .vr-g, .vr-gl li, .vr-row .vr-what cite, .vr-work cite, .fr-rd-proves em) { font-style: normal; }
+html.cp-site-mo .sd-source .sd-title-read { font-style: normal; }
+/* the commentary being read: roman now, so its weight carries it over the author line */
+html.cp-site-mo .cp-pane .cp-what { font-weight: 600; }
+
+/* ── the tab row: at 900 to 1100px the four views were squeezed to 78px each and "Commentary" ran into "Citations".
+   The views keep their own width; the Verse Desk goes to the row's end, or under it when there is no room ── */
+@media (min-width: 900px) {
+  html.cp-site-mo :is(.cp-pane, .sd-side) > .cp-tabs { flex-wrap: wrap; column-gap: 18px; }
+  html.cp-site-mo :is(.cp-pane, .sd-side) > .cp-tabs > button:not(.cp-desk) { flex: none; padding-left: 0; padding-right: 0; }
+  html.cp-site-mo :is(.cp-pane, .sd-side) > .cp-tabs > .cp-desk { margin-left: auto; }
+}
+
+/* ── the key commentaries: the button, not a pill; pressed is terracotta, never an ink fill ── */
+html.cp-site-mo .cp-pane .cp-key { border: 1px solid var(--cp-ink); border-radius: 3px; background: transparent; color: var(--cp-ink); }
+html.cp-site-mo .cp-pane .cp-key:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+html.cp-site-mo .cp-pane .cp-key[aria-pressed="true"] { border-color: var(--cp-accent); background: var(--cp-accent); color: var(--cp-paper); }
+html.cp-site-mo .cp-pane .cp-key:focus-visible { outline-color: var(--cp-accent); }
+@media (min-width: 900px) {
+  /* the pane's "button { font: inherit }" set them at 15px, a step over the rows they open */
+  html.cp-site-mo .cp-pane .cp-key { min-height: 34px; padding: 4px 10px; font-size: 14px; line-height: 1.2; }
+  /* "On Hebrews", "Whole Bible" and the traditions are one kind of label: one size */
+  html.cp-site-mo .cp-pane :is(.cp-keys-lab, .cp-keys-sub) { font-size: 13px; letter-spacing: 0; }
+}
+
+/* ── English or the source: the chosen half in terracotta ── */
+html.cp-site-mo .cp-pane .cp-lang button[aria-pressed="true"] { background: var(--cp-accent); color: var(--cp-paper); }
+
+/* ── the Commentaries list and Reception: one radius, one fill ── */
+html.cp-site-mo :is(.vr-find input, .vr-dir-find input, .vr-vols, .vr-e-vol, .vr-gbtn, .vr-chips button, .vr-e-box .vr-pv-read, .cp-rec-most button) { border-radius: 3px; }
+html.cp-site-mo :is(.vr-vols[aria-expanded="true"], .vr-chips button[aria-pressed="true"]) {
+  border-color: var(--sd-accent, var(--cp-ink)); background: var(--sd-accent, var(--cp-ink)); color: var(--cp-paper);
+}
+/* Read beside the text, in a work's preview: the outline, filled on hover like "Read" on its row */
+html.cp-site-mo .vr-e-box .vr-pv-read { border-color: var(--cp-ink); background: transparent; color: var(--cp-ink); }
+html.cp-site-mo .vr-e-box .vr-pv-read:is(:hover, :focus-visible) { border-color: var(--sd-accent, var(--cp-ink)); background: var(--sd-accent, var(--cp-ink)); color: var(--cp-paper); }
+
+/* ── Reception's figures: hairline rows, not cards; labels in sentence case at the working size ── */
+html.cp-site-mo body .cp-pane .cp-stat { padding: 10px 0 8px; border: 0; border-top: 1px solid var(--cp-rule); border-radius: 0; background: none; }
+html.cp-site-mo .cp-pane .cp-stat span { font-size: 13px; letter-spacing: 0; text-transform: none; }
+html.cp-site-mo .cp-pane .cp-h3 { font: 600 15px/1.3 var(--font-body); letter-spacing: 0; text-transform: none; color: var(--cp-ink); }

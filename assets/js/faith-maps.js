@@ -275,7 +275,7 @@ function tgHTML(pid,t,xs){
    the same fold with its own note in place of a thesis. */
 function posHTML(p,k,total){
   const hs=p.holders,un=p.id==='unplaced',f=p.first&&p.first.author?p.first:null;
-  const body=un?'<p class="thesis muted">Answers the reading could not file under a position; each stands on his page.</p>'
+  const body=un?'<p class="thesis muted">Answers the reading could not file under a position. Each stands on his page.</p>' // MereO delta: no semicolon join (Q1)
     :`${p.summary?`<p class="thesis">${esc(p.summary)}</p>`:''}${p.distinction||f?`<dl class="lab">${p.distinction?`<div><dt>Turns on</dt><dd>${esc(p.distinction)}</dd></div>`:''}${f?`<div><dt>Earliest</dt><dd>${manHTML(f)}${yrOf(f)?`<span class="muted">, ${esc(yrOf(f))}</span>`:''}</dd></div>`:''}</dl>`:''}`;
   const rl0=!un&&PL&&k!=null&&PL.at[k]?pthHTML(pathGroups(PL.at[k].map(e=>({e}))),true):'',rl=rl0?`<dl class="lab pth-dl">${rl0}</dl>`:'';
   return `<details class="pos" name="pos" data-pos="${esc(p.id)}"><summary><h4 class="pos-n">${esc(p.label)}</h4><span class="ct">${fmt(hs.length)} of ${fmt(total)} authors</span>${barHTML(hs,total)}</summary><div class="pos-b">${body}<div class="tgs">${byTradition(hs).map(([t,xs])=>tgHTML(p.id,t,xs)).join('')}<p class="tg-none muted" hidden>None of the traditions shown holds this position.</p></div>${rl}</div></details>`;
