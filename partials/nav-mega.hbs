@@ -162,6 +162,16 @@
             <li><a href="/institutions/">For churches and schools</a></li>
             <li><a href="/student/">Student rate</a></li>
           </ul>
+          {{!-- The four newest issues, above the status card (Ian,
+               2026-11-18). When a new issue is digitized, add it first
+               and drop the last. --}}
+          <p class="mm-col-title mm-col-title--next">Recent issues</p>
+          <ul class="mm-issues">
+            <li><a class="mm-issue" href="/journal-archive/issue-11/"><img src="{{asset "images/journal-issue-011-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">Issue 011</a></li>
+            <li><a class="mm-issue" href="/journal-archive/issue-10/"><img src="{{asset "images/journal-issue-010-cover.jpg"}}" alt="" width="772" height="1000" loading="lazy">Issue 010</a></li>
+            <li><a class="mm-issue" href="/journal-archive/issue-09/"><img src="{{asset "images/journal-issue-009-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">Issue 009</a></li>
+            <li><a class="mm-issue" href="/journal-archive/issue-08/"><img src="{{asset "images/journal-issue-008-cover.jpg"}}" alt="" width="773" height="1000" loading="lazy">Issue 008</a></li>
+          </ul>
           {{!-- Same stage and issue as the homepage tracker; site-settings.js
                fills both from the mo-admin settings. --}}
           <div class="mm-journal-status mm-card">

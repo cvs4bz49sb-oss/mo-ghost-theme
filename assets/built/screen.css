@@ -28559,6 +28559,12 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .journal-status-label { font-size: 15px; letter-spacing: 0; text-transform: none; font-weight: 400; color: #6f6964; }
 .mm .journal-status-mark.is-active + .journal-status-label { color: var(--color-dark); font-weight: 600; }
 
+/* Journal panel: the four newest covers in a row above the status card. */
+.mm .mm-issues { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.mm .mm-issue { display: block; font-size: 15px; line-height: 1.3; color: var(--color-dark); text-decoration: none; }
+.mm .mm-issue img { display: block; width: 100%; height: auto; margin: 0 0 8px; border-radius: 2px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18); }
+.mm .mm-issue:hover, .mm .mm-issue:focus-visible { color: var(--color-secondary); }
+
 /* A second heading in the same column (Support: Join, then Give). */
 .mm .mm-col-title--next { margin-top: 32px; }
 
