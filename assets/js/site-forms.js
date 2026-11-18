@@ -247,6 +247,16 @@
       })
       .then((res) => {
         if (res.ok && res.body && res.body.ok) {
+          // A new Daily Liturgy subscriber goes straight to the welcome
+          // survey, carrying the key mo-kit minted in place of the Ghost
+          // sign-in they do not have. Fragment, not query: it stays out of
+          // server logs and Referer headers. Not when confirmation is
+          // pending, or they would never see "check your inbox".
+          const key = kind === "newsletter" && res.body.surveyKey;
+          if (key && !res.body.pending && /^[A-Za-z0-9_.-]{20,600}$/.test(key)) {
+            window.location.assign("/welcome/#k=" + key);
+            return;
+          }
           renderSuccess(form, kind, res.body);
         } else {
           const msg = (res.body && res.body.error) || "Something went wrong. Try again.";

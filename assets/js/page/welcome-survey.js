@@ -238,6 +238,25 @@
 
   let lastAddress = "";
 
+  /*
+   * Survey key. A Daily Liturgy signup lands here as /welcome/#k=<key>,
+   * with no Ghost session; the key (minted by mo-kit, verified by
+   * mo-membership, save-only) stands in for one. Kept for the tab so a
+   * reload still saves, and wiped from the address bar at once so it is not
+   * bookmarked or shared along with the page.
+   */
+  let surveyKey = "";
+  try {
+    const m = /(?:^#|&)k=([A-Za-z0-9_.-]{20,600})/.exec(window.location.hash || "");
+    if (m) {
+      surveyKey = m[1];
+      try { sessionStorage.setItem("mo-survey-key", surveyKey); } catch (e) { /* private mode */ }
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    } else {
+      surveyKey = sessionStorage.getItem("mo-survey-key") || "";
+    }
+  } catch (e) { /* no key; signed-in members do not need one */ }
+
   function save(completed) {
     if (!API || !window.MOAuth) return;
     const payload = collect();
@@ -249,9 +268,11 @@
     const fingerprint = JSON.stringify(payload);
     if (fingerprint !== lastSent) {
       lastSent = fingerprint;
+      const headers = { "content-type": "application/json" };
+      if (surveyKey) headers["x-survey-key"] = surveyKey;
       window.MOAuth.fetch(`${API}/api/welcome-survey`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers,
         body: fingerprint,
       }).catch(() => { /* optional survey; never surface a network error */ });
     }

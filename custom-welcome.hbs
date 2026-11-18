@@ -27,7 +27,12 @@
      clicked, so this must hang off the tier's welcome_page_url (Ghost Admin
      -> Settings -> Tiers -> Subscribe -> Welcome page), never the "check your
      inbox" interstitial. Until then a visitor who is not signed in still sees
-     the questions; the save simply no-ops. --}}
+     the questions; the save simply no-ops.
+
+     Daily Liturgy signups (2026-11-18) are wired: site-forms.js sends them
+     here as /welcome/#k=<key>, and welcome-survey.js posts that key as
+     x-survey-key in place of a Ghost sign-in (_shared/survey-key.js in
+     mo-workers). --}}
 
 <main class="welcome-page">
   <div class="container container-narrow">
