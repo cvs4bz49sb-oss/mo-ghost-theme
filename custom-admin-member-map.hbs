@@ -11,8 +11,10 @@
 <link rel="stylesheet" href="{{asset "css/vendor/leaflet-markercluster.css"}}" />
 <link rel="stylesheet" href="{{asset "css/admin-member-map.css"}}&amp;frv=member-map-20261117" />
 {{/contentFor}}
-{{!-- /admin/members/map/ - where members live, from the shipping
-     addresses in mo-membership's D1 (member_addresses). Each member is
+{{!-- /admin/members/map/ - where members live. Every Ghost member, from
+     mo-membership's D1: their shipping address (member_addresses) or,
+     failing that, the HubSpot address, Ghost signup location or HubSpot
+     IP city the hourly sync found (member_map_people). Each member is
      placed at their postcode (ZIP, Canadian forward sortation area, UK
      outward code) or, elsewhere, their town: never the street address.
      The worker returns locations and counts only.
@@ -33,7 +35,7 @@
     <div class="admin-main">
       <header class="admin-topbar">
         <h1 class="admin-topbar-title">Member Map</h1>
-        <p class="admin-topbar-sub">Where members live, placed by postcode or town from their shipping addresses. New members appear within the hour.</p>
+        <p class="admin-topbar-sub">Where members live: their shipping address if they gave one, otherwise their HubSpot address or the town they signed up from. New members appear within the hour.</p>
       </header>
 
     <section class="admin-body">
@@ -50,12 +52,13 @@
               <li class="admin-stat"><span class="admin-stat-label">Countries</span><span class="admin-stat-value" data-stat="countries">&mdash;</span></li>
               <li class="admin-stat"><span class="admin-stat-label">Waiting to be placed</span><span class="admin-stat-value" data-stat="pending">&mdash;</span></li>
               <li class="admin-stat"><span class="admin-stat-label">Could not be placed</span><span class="admin-stat-value" data-stat="unplaced">&mdash;</span></li>
+              <li class="admin-stat"><span class="admin-stat-label">No location on file</span><span class="admin-stat-value" data-stat="unknown">&mdash;</span></li>
             </ul>
 
             <div class="member-map-toolbar">
               <div class="admin-table-scope" role="group" aria-label="Which members">
                 <button type="button" class="admin-table-scope-btn is-active" data-map-scope="" aria-pressed="true">Active members</button>
-                <button type="button" class="admin-table-scope-btn" data-map-scope="all" aria-pressed="false">All saved addresses</button>
+                <button type="button" class="admin-table-scope-btn" data-map-scope="all" aria-pressed="false">All members</button>
               </div>
               <div class="admin-table-scope member-map-regions" role="group" aria-label="Zoom to" data-map-regions>
                 <button type="button" class="admin-table-scope-btn" data-map-region="world">World</button>
