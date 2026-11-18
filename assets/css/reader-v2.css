@@ -245,7 +245,10 @@ button { font: inherit; color: inherit; }
     z-index: 50;
     transform: none;
     box-shadow: none;
-    background: transparent;
+    /* Opaque, not transparent: Safari paints a selection's "gap fill"
+       behind fixed content, so a transparent column let the blue band
+       show through over the contents (member report, 2026-11-18). */
+    background: var(--rd-bg);
   }
   .rd-toc .rd-toc-close { display: none; }
   body.rd-toc-hidden .rd-toc { transform: translateX(-100%); }
@@ -328,7 +331,10 @@ html[data-theme="dark"] .rd-cta--solid { color: #1d1a18; }
 .lib-ecover--cream .lib-ecover-mast { color: #b45f3d; }
 
 /* ── The text ─────────────────────────────────────────────────── */
-.rd-text { max-width: var(--rd-measure); margin: 0 auto; }
+/* position: relative makes the column Safari's selection root, so a
+   selection's gap fill stops at the column's edges instead of running
+   the full width of the page, across the contents and the margin. */
+.rd-text { position: relative; max-width: var(--rd-measure); margin: 0 auto; }
 .content-section { padding: 88px 0 24px; }
 .content-section + .content-section { border-top: 1px solid var(--rd-rule); }
 .rd-essay-n {
