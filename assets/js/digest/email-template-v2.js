@@ -212,6 +212,7 @@
   }
   const DEFAULT_SECTION_ORDER = [
     "letter",
+    "yearEnd",
     "membership",
     "sponsorTop",
     "essays",
@@ -348,6 +349,27 @@
       body: "Your members-only essay this week, The Liturgy of the Inbox by Brad East, is now live in the archive.",
       cta: "Read the Member Essay \u2192",
       href: "#member"
+    },
+    // Year-end giving box (Ian, 2026-11-18): the site's year-end bar as a
+    // digest CTA, sent to free subscribers and members alike. It is OPT-IN:
+    // it renders only when sections.yearEnd === true, so saved CTA emails,
+    // appeals and older History versions (which have no yearEnd key) never
+    // grow a giving box. The Weekly Digest preset switches it on. It also
+    // stops rendering once `ends` has passed. raisedCents/goalCents/asOf are
+    // not typed in: app-v2.jsx fills them from mo-admin GET /eoy/meter (the
+    // same live figure as the site's meter) each time the builder loads.
+    yearEnd: {
+      image: "https://mereorthodoxy.com/assets/images/year-end/hero.jpg",
+      imageAlt: "Issue 011 of the journal on a wooden stool in striped window light",
+      highlight: "Help us build",
+      headline: "on 2026.",
+      body: "This year our readership more than doubled. Our year-end goal is $125,000. The work we have planned for 2027 depends on reaching it.",
+      cta: "Make a gift",
+      href: "https://mereorthodoxy.com/year-end/?eoy=email",
+      raisedCents: 2681327,
+      goalCents: 125e5,
+      asOf: "2026-11-18T21:07:00.000Z",
+      ends: "2027-01-01T06:00:00Z"
     },
     dailyLiturgy: {
       // Standard copy, matching /daily-liturgy/ and the homepage band so the
@@ -800,6 +822,54 @@
   function PodcastsGrid({ tokens, accent, podcasts, heading }) {
     return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 8px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement(SectionLabel, { tokens, accent }, heading || "This Week's Podcasts"), /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", className: "mo-stack" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%" }, className: "mo-stack-cell" }, podcasts[0] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[0], accent })), /* @__PURE__ */ React.createElement("td", { style: { width: "6%" }, className: "mo-stack-gap" }), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%" }, className: "mo-stack-cell" }, podcasts[1] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[1], accent }))))));
   }
+  function eoyDollars(cents) {
+    return `$${Math.round((Number(cents) || 0) / 100).toLocaleString("en-US")}`;
+  }
+  function eoyAsOf(iso) {
+    const d = iso ? new Date(iso) : null;
+    if (!d || isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/Chicago" });
+  }
+  function YearEndBlock({ tokens, accent, content }) {
+    const c = content || {};
+    const goal = Number(c.goalCents) || 0;
+    const raised = Math.max(0, Number(c.raisedCents) || 0);
+    const pct = goal ? Math.min(100, Math.round(raised / goal * 100)) : 0;
+    const fill = Math.max(pct, 2);
+    const left = Math.max(0, goal - raised);
+    const asOf = eoyAsOf(c.asOf);
+    const sans = '"Source Sans 3", "Helvetica Neue", Arial, sans-serif';
+    const meta = [left ? `${eoyDollars(left)} to go` : "Goal reached. Thank you.", asOf ? `as of ${asOf}` : ""].filter(Boolean).join(" \xB7 ");
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "0 32px 8px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("div", { style: {
+      padding: "32px 28px 30px",
+      background: tokens.bgCream,
+      color: tokens.bodyText,
+      textAlign: "center",
+      border: `1px solid ${tokens.ruleSoft}`,
+      borderRadius: 5
+    }, className: "mo-pad-32-tight" }, c.image ? /* @__PURE__ */ React.createElement("img", { src: c.image, alt: c.imageAlt || "", width: "476", style: {
+      display: "block",
+      width: "100%",
+      maxWidth: 476,
+      height: "auto",
+      margin: "0 auto 22px",
+      borderRadius: 3
+    } }) : null, /* @__PURE__ */ React.createElement("h2", { className: "mo-cta-headline", style: {
+      fontFamily: '"IM Fell English", Georgia, serif',
+      fontSize: 26,
+      lineHeight: 1.25,
+      margin: "0 0 12px",
+      fontWeight: 400,
+      color: tokens.bodyText
+    } }, c.highlight ? /* @__PURE__ */ React.createElement("span", { style: { backgroundColor: tokens.secondary, color: "#ffffff", padding: "0 4px" } }, c.highlight) : null, c.highlight && c.headline ? " " : null, c.headline ? /* @__PURE__ */ React.createElement("span", { dangerouslySetInnerHTML: { __html: markdownInline(c.headline, tokens) } }) : null), c.body ? /* @__PURE__ */ React.createElement("p", { className: "mo-cta-body", style: {
+      fontFamily: "Georgia, serif",
+      fontSize: 15,
+      lineHeight: 1.6,
+      margin: "0 auto 22px",
+      maxWidth: 440,
+      color: tokens.lightText
+    }, dangerouslySetInnerHTML: { __html: markdownInline(c.body, tokens) } }) : null, goal ? /* @__PURE__ */ React.createElement("table", { role: "presentation", width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", style: { maxWidth: 400, margin: "0 auto" } }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { padding: "0 0 8px", fontFamily: sans, fontSize: 15, color: tokens.lightText, textAlign: "center" } }, /* @__PURE__ */ React.createElement("b", { style: { fontWeight: 700, color: tokens.bodyText, fontSize: 20 } }, eoyDollars(raised)), "\xA0 raised of ", eoyDollars(goal))), /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", null, /* @__PURE__ */ React.createElement("table", { role: "presentation", width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", style: { borderCollapse: "separate", background: "#e2cfb1", borderRadius: 5 } }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { width: `${fill}%`, height: "10", bgcolor: tokens.secondary, style: { height: 10, lineHeight: "10px", fontSize: 0, msoLineHeightRule: "exactly", background: tokens.secondary, borderRadius: 5 } }, "\xA0"), fill < 100 ? /* @__PURE__ */ React.createElement("td", { width: `${100 - fill}%`, height: "10", bgcolor: "#e2cfb1", style: { height: 10, lineHeight: "10px", fontSize: 0, msoLineHeightRule: "exactly", background: "#e2cfb1" } }, "\xA0") : null))))), /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { padding: "8px 0 0", fontFamily: sans, fontSize: 12.5, color: tokens.mutedText, textAlign: "center" } }, meta)))) : null, /* @__PURE__ */ React.createElement(Spacer, { h: 24 }), /* @__PURE__ */ React.createElement(Button, { tokens, variant: "primary", size: "lg", accent, href: c.href }, c.cta || "Make a gift")));
+  }
   function DailyLiturgyBlock({ tokens, content }) {
     const c = content || {};
     const logo = c.logo || "https://mereorthodoxy.com/assets/images/daily-liturgy-logo.png";
@@ -1022,6 +1092,12 @@
       switch (key) {
         case "letter":
           return /* @__PURE__ */ React.createElement(LetterFromEditor, { tokens, content });
+        case "yearEnd": {
+          if (sections.yearEnd !== true || !content.yearEnd) return null;
+          const ends = Date.parse(content.yearEnd.ends || "");
+          if (ends && Date.now() >= ends) return null;
+          return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Spacer, { h: 20 }), /* @__PURE__ */ React.createElement(YearEndBlock, { tokens, accent, content: content.yearEnd }), /* @__PURE__ */ React.createElement(Spacer, { h: 14 }));
+        }
         case "membership":
           return showCTA ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Spacer, { h: 20 }), /* @__PURE__ */ React.createElement(MembershipCTA, { tokens, accent, content: content.membership }), /* @__PURE__ */ React.createElement(Spacer, { h: 14 })) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Spacer, { h: 20 }), /* @__PURE__ */ React.createElement(MemberThanks, { tokens, content: content.memberThanks }), /* @__PURE__ */ React.createElement(Spacer, { h: 14 }));
         case "sponsorTop":
@@ -1111,5 +1187,5 @@
       boxShadow: "0 1px 3px rgba(45,41,39,0.06), 0 12px 36px rgba(45,41,39,0.10)"
     } }, /* @__PURE__ */ React.createElement(Masthead, { tokens, issueNumber: content.issueNumber, dateStr: content.dateStr, mastheadTitle: content.mastheadTitle }), renderedSections.map(({ key, node }, i) => /* @__PURE__ */ React.createElement(React.Fragment, { key }, i > 0 && !(isButton(renderedSections[i - 1].key) && isButton(key)) && /* @__PURE__ */ React.createElement(Divider, null), node)), lastKey !== "sponsorBottom" && /* @__PURE__ */ React.createElement(Spacer, { h: 28 }), /* @__PURE__ */ React.createElement(Footer, { tokens, isMember }));
   }
-  Object.assign(window, { EmailTemplate, MO_TOKENS, DEFAULT_CONTENT, DEFAULT_SECTION_ORDER, SIGNATURES, tfrSpotlightDay, tfrSpotlightPick });
+  Object.assign(window, { EmailTemplate, MO_TOKENS, DEFAULT_CONTENT, DEFAULT_SECTION_ORDER, SIGNATURES, tfrSpotlightDay, tfrSpotlightPick, eoyDollars, eoyAsOf });
 })();

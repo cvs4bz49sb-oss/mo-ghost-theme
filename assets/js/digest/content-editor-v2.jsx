@@ -1,4 +1,4 @@
-/* global React, DEFAULT_CONTENT */
+/* global React, DEFAULT_CONTENT, eoyDollars, eoyAsOf */
 
 // =====================================================
 // Content Editor Modal
@@ -1852,6 +1852,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
             {(() => {
               const FIXED_SECTION_LABELS = {
                 letter: 'Body block',
+                yearEnd: 'Year-end giving box (free + members)',
                 membership: 'Membership CTA / thanks',
                 sponsorTop: 'Top sponsor block',
                 essays: 'Essays grid',
@@ -1909,7 +1910,11 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {fullOrder.map((k, i) => {
-                    const enabled = content.sections?.[k] !== false;
+                    // The year-end box is opt-in (see DEFAULT_CONTENT.yearEnd):
+                    // a missing key means off, not on.
+                    const enabled = k === 'yearEnd'
+                      ? content.sections?.[k] === true
+                      : content.sections?.[k] !== false;
                     const { label, isBlock } = labelFor(k);
                     const audienceHidden = isMember && (k === 'sponsorTop' || k === 'sponsorBottom');
                     const audienceNote = audienceHidden
@@ -2330,6 +2335,29 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
               <Field label="CTA text" value={content.membership?.cta} onChange={(v) => updateField('membership.cta', v)} />
               <Field label="Link" value={content.membership?.href} onChange={(v) => updateField('membership.href', v)} />
+            </div>
+          </Group>
+
+          <Group title="Year-end giving">
+            <p style={{ margin: '0 0 10px', fontSize: 12, color: '#9a8773', lineHeight: 1.5 }}>
+              Goes to free subscribers and members alike. Switch it on in the Sections list above.
+              The meter is the site's live figure, pulled each time this page loads
+              {content.yearEnd?.raisedCents != null
+                ? ` (now ${eoyDollars(content.yearEnd.raisedCents)} of ${eoyDollars(content.yearEnd.goalCents)}${eoyAsOf(content.yearEnd.asOf) ? `, as of ${eoyAsOf(content.yearEnd.asOf)}` : ''}).`
+                : '.'}
+              {window.MO_EOY_METER_LIVE ? '' : ' The live figure has not loaded, so this is the last saved figure.'}
+              {' '}Reload the page right before you push to Kit so the figure is current. It stops showing after December 31.
+            </p>
+            <Field label="Image URL" value={content.yearEnd?.image} onChange={(v) => updateField('yearEnd.image', v)} />
+            <Field label="Image description (alt text)" value={content.yearEnd?.imageAlt} onChange={(v) => updateField('yearEnd.imageAlt', v)} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <Field label="Headline, highlighted part" value={content.yearEnd?.highlight} onChange={(v) => updateField('yearEnd.highlight', v)} />
+              <Field label="Headline, rest" value={content.yearEnd?.headline} onChange={(v) => updateField('yearEnd.headline', v)} />
+            </div>
+            <Field label="Body" value={content.yearEnd?.body} multiline rows={3} onChange={(v) => updateField('yearEnd.body', v)} />
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+              <Field label="CTA text" value={content.yearEnd?.cta} onChange={(v) => updateField('yearEnd.cta', v)} />
+              <Field label="Link" value={content.yearEnd?.href} onChange={(v) => updateField('yearEnd.href', v)} />
             </div>
           </Group>
 

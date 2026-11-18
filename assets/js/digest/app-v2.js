@@ -767,6 +767,7 @@
         sectionOrder: [...DEFAULT_SECTION_ORDER],
         sections: {
           letter: true,
+          yearEnd: true,
           membership: true,
           sponsorTop: true,
           essays: true,
@@ -1243,6 +1244,40 @@
         cancelled = true;
       };
     }, [tfrDay, tfrCount]);
+    const eoyMeterRef = React.useRef(null);
+    const eoyAsOfNow = content.yearEnd && content.yearEnd.asOf;
+    React.useEffect(() => {
+      let cancelled = false;
+      const fill = (m) => {
+        if (cancelled || !m || !m.goal_cents) return;
+        setContent((prev) => {
+          const cur = { ...DEFAULT_CONTENT.yearEnd, ...prev.yearEnd || {} };
+          if (cur.asOf === m.as_of && cur.raisedCents === m.raised_cents) return prev;
+          return {
+            ...prev,
+            yearEnd: { ...cur, raisedCents: m.raised_cents, goalCents: m.goal_cents, asOf: m.as_of }
+          };
+        });
+      };
+      if (eoyMeterRef.current) {
+        fill(eoyMeterRef.current);
+        return () => {
+          cancelled = true;
+        };
+      }
+      const base = (window.MODigestRoot ? window.MODigestRoot.url("workerUrl") : "").replace(/\/+$/, "");
+      if (!base) return void 0;
+      fetch(`${base}/eoy/meter`, { credentials: "omit", cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((m) => {
+        if (!m || !m.goal_cents) return;
+        eoyMeterRef.current = m;
+        window.MO_EOY_METER_LIVE = true;
+        fill(m);
+      }).catch(() => {
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [eoyAsOfNow]);
     const HISTORY_KEY = "mo:content:history";
     const HISTORY_MAX = 50;
     const [history, setHistory] = React.useState(() => {
