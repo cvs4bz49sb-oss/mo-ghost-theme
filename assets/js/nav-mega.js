@@ -468,7 +468,8 @@
         return `<a href="${esc(href)}">${esc(label)}</a>`;
       };
       // A button whose page the list already links (About) stays out.
-      const lead = Array.prototype.filter.call(panel.querySelectorAll(".mm-feature > .btn:not(.btn-solid)"), (b) => {
+      // data-mm-drawer-lead (Support's Donate, 2026-11-18) also leads.
+      const lead = Array.prototype.filter.call(panel.querySelectorAll(".mm-feature > .btn:not(.btn-solid), [data-mm-drawer-lead]"), (b) => {
         return !panel.querySelector(`.mm-links a[href="${CSS.escape(b.getAttribute("href"))}"]`);
       }).map(linkHtml).join("");
       const rest = Array.prototype.map.call(
