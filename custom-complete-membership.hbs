@@ -290,6 +290,13 @@
                   <option value="ZW">Zimbabwe</option>
                 </select></label>
             </div>
+            {{!-- Ghost builds the $100/yr and $10/mo Stripe page itself and
+                  can't ask for a phone there, so this is where Portal
+                  members give one. Optional, so it never stands between a
+                  member and saving their journal address; a blank value
+                  leaves any number already on file alone. --}}
+            <label class="welcome-flabel"><span>Phone <em>optional</em></span>
+              <input class="welcome-input" type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="40" /></label>
             {{!-- Optional, and carried rather than dropped: the address
                   endpoint writes every column it is sent, so omitting these
                   would null out anything a member had already set from the
