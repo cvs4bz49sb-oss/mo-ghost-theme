@@ -82,6 +82,12 @@ const ERROR_PHRASES = [
   // page's own animation. One "Scroll to begin" prompt is all a reader needs.
   [/^Scroll (down )?to (?!begin\b)/i, "narrates the page's animation: cut it (only \"Scroll to begin\" stays)"],
 ];
+// Names of real pages and features that happen to contain a banned word.
+// Only the capitalized name passes; "curated" and "Curated by ..." still
+// block. A sentence that opens with "Curated" also passes, so the agent's
+// LLM pass is what catches that one.
+// Curated: the TFR page at /the-faith-received/curated/ (Nov 11 health check).
+const PAGE_NAMES = /\bCurated\b(?! by\b)/g;
 const WARN_PHRASES = [
   [/^(Watch|Follow) (the|them|how|as|it)\b/i, "narrates the page's animation: cut it"],
   [/[a-z)”’]; [a-z]/, "semicolon joining two sentences: make two sentences"],
@@ -203,7 +209,8 @@ function checkProse(file, line, prose) {
       if (BRITISH[w]) add("error", file, line, `British spelling "${m[1]}": write "${BRITISH[w]}"`, t);
       else if (BRITISH_SOFT[w]) add("warn", file, line, `British form "${m[1]}": prefer "${BRITISH_SOFT[w]}"`, t);
     }
-    for (const [re, why] of ERROR_PHRASES) if (re.test(t)) add("error", file, line, why, t);
+    const unnamed = t.replace(PAGE_NAMES, "Page");
+    for (const [re, why] of ERROR_PHRASES) if (re.test(unnamed)) add("error", file, line, why, t);
     for (const [re, why] of WARN_PHRASES) if (re.test(t)) add("warn", file, line, why, t);
     if (STITCH.test(t)) add("warn", file, line, "\", and/but\" stitching an independent clause: make two sentences", t);
     if (TAIL.test(t) && t.split(" ").length > 6) add("warn", file, line, "trailing modifier hung off a comma: fold it in or give it its own sentence", t);
