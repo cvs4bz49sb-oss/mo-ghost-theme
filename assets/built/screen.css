@@ -29933,7 +29933,7 @@ html[data-theme="dark"] .article-content.is-following-along [data-mo-follow]::af
   line-height: 1.2;
   color: var(--color-dark);
   text-wrap: balance;
-  margin: 40px 0 0;
+  margin: 40px 0 28px;
 }
 @media (max-width: 640px) { .eoy-year-note { margin-top: 28px; } }
 

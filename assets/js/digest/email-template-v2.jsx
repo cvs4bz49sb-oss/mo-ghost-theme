@@ -465,9 +465,9 @@ const DEFAULT_CONTENT = {
   yearEnd: {
     image: 'https://mereorthodoxy.com/assets/images/year-end/hero.jpg',
     imageAlt: 'Issue 011 of the journal on a wooden stool in striped window light',
-    highlight: 'Help us build',
-    headline: 'on 2026.',
-    body: 'This year our readership more than doubled. Our year-end goal is $125,000. The work we have planned for 2027 depends on reaching it.',
+    highlight: 'Ideas',
+    headline: 'shape the world.',
+    body: 'The essays in this Digest are part of a conversation about what the Church will believe and do in the years ahead. Your year-end gift keeps that conversation going.',
     cta: 'Make a gift',
     href: 'https://mereorthodoxy.com/year-end/?eoy=email',
     raisedCents: 2681327,

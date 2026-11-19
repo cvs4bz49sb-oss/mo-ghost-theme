@@ -9,12 +9,17 @@
      has ended (data-ends). While the campaign runs, slide-in.js stands
      down for every page (it checks [data-eoy-bar] and data-ends), so
      the two never compete. Remove this partial from default.hbs after
-     the campaign. --}}
+     the campaign.
+
+     2026-11-19: copy moved to Mark's year-end message ("Ideas shape the
+     world."). The headline no longer has a [data-eoy-bar-tail] span, so
+     eoy-bar.js's headline B swap does nothing and every reader sees this
+     text. The a/b assignment and tracking still run. --}}
 <aside class="eoy-bar" data-eoy-bar data-ends="2027-01-01T06:00:00Z" aria-label="Year-end giving" hidden>
   <img class="eoy-bar-photo" src="{{asset "images/year-end/bar-thumb.jpg"}}" alt="" width="160" height="160" loading="lazy" />
   <div class="eoy-bar-text">
-    <p class="eoy-bar-headline"><span class="highlight">Help us build</span> <span data-eoy-bar-tail>on 2026.</span></p>
-    <p class="eoy-bar-sub">Our year-end goal is $125,000. The work we have planned for 2027 depends on it.</p>
+    <p class="eoy-bar-headline"><span class="highlight">Ideas</span> shape the world.</p>
+    <p class="eoy-bar-sub">Help shape the conversations that shape the Church.</p>
   </div>
   {{> "year-end-meter" bar=true}}
   <a class="btn btn-solid btn-primary eoy-bar-btn" href="/year-end/" data-hm-goal="eoy-bar">Make a gift</a>
