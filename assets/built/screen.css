@@ -29995,7 +29995,7 @@ html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bo
   font-weight: 400;
   font-size: 21px;
   line-height: 1.15;
-  margin: 0 0 2px;
+  margin: 0 0 7px;
 }
 .eoy-bar-headline .highlight {
   background-color: rgba(193, 89, 60, 0.78);
@@ -30049,7 +30049,7 @@ html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bo
   }
   .eoy-bar-photo { width: 76px; height: 76px; }
   .eoy-bar-headline { font-size: 18px; text-wrap: balance; }
-  .eoy-bar-sub { font-size: 13px; line-height: 1.35; margin-top: 2px; }
+  .eoy-bar-sub { font-size: 13px; line-height: 1.35; margin-top: 0; }
   .eoy-bar-close { grid-column: 3; grid-row: 1; justify-self: end; margin: -6px -8px 0 0; }
   /* "Shape the conversation" (11/20) is too long to share a row with the
      meter, so on phones the meter and the button each get a full row. */
