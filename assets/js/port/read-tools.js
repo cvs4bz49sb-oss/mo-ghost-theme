@@ -190,9 +190,25 @@ function findRuns(root){
   }
   return runs;
 }
+// STACKED AND MERGED RUNS (Stiven, theme PR 252, 2026-11-18: "Search this work" hits in rc-, cf- and lc- confessions and in
+// Wolleb's Harmonirendes Systema did not jump to the passage). A stacked run lifts each row's cells into two columns
+// (.stkwrap > .stk) and gives the row's id to one cell; the cross-page merge then appends the next pages' runs into the same
+// columns behind a page anchor. No .row is left, so every word read as the folio's first page and no hit matched its page.
+// The page now comes from the cell's own id, or, for a cell without one, from the nearest block id or page anchor above it in
+// its column (the phone zip interleaves both lanes in one .zipcol, which reads the same way).
+function findStackedPage(cell){
+  if(!cell?.parentElement?.matches('.stk,.zipcol'))return null;
+  for(let prev=cell.previousElementSibling;prev;prev=prev.previousElementSibling){
+    const block=(prev.id.match(/^b(.+)-\d+$/)||[])[1];if(block)return {page:block,pageBoundary:prev.classList.contains('pganchor')};
+    if(prev.classList.contains('pganchor')&&prev.dataset.page)return {page:String(prev.dataset.page),pageBoundary:true};
+  }
+  return null;
+}
 function findCanonicalTarget(node){
   const element=node.nodeType===3?node.parentElement:node,row=element.closest('.row[id]'),folio=element.closest('.folio'),note=element.closest('.rapp[data-fnid]'),lane=element.closest('.en,.la,.hen,.hla');
-  const id=row?.id||folio?.id||'';let page=(id.match(/^b(.+)-\d+$/)||[])[1]||String(folio?.dataset.page??''),pageBoundary=false;
+  const cell=!row&&/^b.+-\d+$/.test(lane?.id||'')?lane:null;
+  const id=row?.id||cell?.id||folio?.id||'';let page=(id.match(/^b(.+)-\d+$/)||[])[1]||String(folio?.dataset.page??''),pageBoundary=false;
+  if(!row&&!cell){const stacked=findStackedPage(lane);if(stacked)({page,pageBoundary}=stacked);}
   for(const anchor of lane?.querySelectorAll('.pganchor[data-page]')||[]){
     if(anchor.closest('.en,.la,.hen,.hla')!==lane||!findVisible(anchor)||!(anchor.compareDocumentPosition(node)&4))continue;
     page=String(anchor.dataset.page);pageBoundary=true;
@@ -852,6 +868,15 @@ function frReaderSearchPassages(nodes,lane){
   };
   for(const node of nodes||[])walk(node);return passages;
 }
+// THE PAGE TEXT AS THE READER SHOWS IT (Stiven, theme PR 252, 2026-11-18): DATA.pages carries the reader's Markdown and its
+// inline sentinels, which inl() turns into markup. Indexed raw, a hit's snippet showed the marks and its words around the match
+// (the context findResultOccurrence compares with the painted text) did not read like the page, so a close hit could fail to
+// land. Same rules as inl() in reader-core.js; note refs drop out because Find skips the <sup> they become.
+function frReaderSearchPlain(value){
+  return String(value||'').replace(/^#{1,6}[ \t]+/gm,'').replace(/^[ \t]*\*([^*\n]{2,600}?)\*[ \t]*$/gm,'$1')
+    .replace(/\*\*([^*\n]{1,200}?)\*\*/g,'$1').replace(/\*([^*\n]{1,200}?)\*/g,'$1').replace(/\*\*/g,'')
+    .replace(/\[\^[^\]]+\](?!:)/g,'').replace(/\u000E[^\u000E\u000F]*\u000F/g,'').replace(/\u0007/g,' ').replace(/[\u0002-\u0006\u000E\u000F\u2045\u2046]/g,'');
+}
 async function frBuildReaderSearchIndex({tei,pages=[],loaded=[],texts=null,sourceLabel='Source'},yieldTask=()=>new Promise(resolve=>setTimeout(resolve,0))){
   const canonical=!!tei&&['en','la'].some(lane=>Object.keys(tei[lane]||{}).length),records=[],lanes=[];
   if(canonical){
@@ -870,7 +895,7 @@ async function frBuildReaderSearchIndex({tei,pages=[],loaded=[],texts=null,sourc
     const names={en:'English',la:sourceLabel};
     for(let i=0;i<texts.length;i++){
       const t=texts[i],passages=[];
-      for(const lane of ['en','la']){const text=String(t[lane]||'').replace(/\s+/g,' ').trim();if(text){passages.push({text,lower:text.toLowerCase(),lane,kind:'body'});if(!lanes.includes(names[lane]))lanes.push(names[lane]);}}
+      for(const lane of ['en','la']){const text=frReaderSearchPlain(t[lane]).replace(/\s+/g,' ').trim();if(text){passages.push({text,lower:text.toLowerCase(),lane,kind:'body'});if(!lanes.includes(names[lane]))lanes.push(names[lane]);}}
       if(passages.length){const text=passages.map(x=>x.text).join(' ');records.push({page:String(t.page),text,lower:text.toLowerCase(),passages});}
       if(i%64===63)await yieldTask();
     }
