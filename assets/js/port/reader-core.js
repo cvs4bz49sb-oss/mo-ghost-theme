@@ -6863,6 +6863,12 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
       pvUrl:!!pvUrl,fill:Object.keys(pgpvFill).length};
   }
   let _colLa=[],_colEn=[];
+  // A PAGE LAID FROM ITS SOURCE STAYS LAID (report 2026-11-18, pg-3102 ?src=grc: 27,492 Greek letters against the site's 20,981):
+  // when addPb lays a page from the opening's Greek, its zone, the site vtx or the gap sidecar, _colLa._zoned tells the walk to skip
+  // the canon's own <p>s. A <head> in the middle of that page flushes, and the fresh _colLa forgot the flag, so every paragraph after
+  // the head was carved a second time with no English beside it (Gregory Nazianzen Or. 22 cols. 1131, 1139, 1143, 1147; Gregory of
+  // Nyssa pg-578 col. 187). The page remembers it was laid until the next page opens.
+  let _pageZoned=false;
   let _pvFill=null;   // page -> paragraphs for pages whose reading lanes carry no text (A PAGE WITH NO SOURCE TEXT, built before the walk)
   // READING-SURFACE TIDY (owner 2026-08-18 'page transcription good + read cleanly'):
   // join line-break hyphens (the facsimile shows the break; the reading text joins the
@@ -6895,6 +6901,7 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
   const _frNoArticle=w=>{w=String(w||"").toLowerCase();return _OA_NOT.has(w)||window.FRPgParallel.dropGutterLetters(`A ${w}`)!==`A ${w}`;};
   const _frLeadA=(e,l,w,m)=>{if(l!=="A")return "";const d=_frOpenA.get(_oaKey(e));return d==="lower"?"a ":(d==="drop"||_frNoArticle(w))?"":m;};
   const flushCol=()=>{
+    if(_colLa._zoned)_pageZoned=true;   // laid by its source (see _pageZoned); a later fill in this flush does not count
     // A PAGE WITH NO SOURCE TEXT (owner 2026-09-22, pg-1924 page 27, Greek view: the English of Fabricius' Notitia beside an empty
     // lane; 666 pages in 151 works on the live canon carry English and no source text). The page reads its own scan: _pvFill holds its
     // canon opening's Greek, else its pageview Greek zone when column-sized, else its canon (secondary) Latin, else its pageview Latin
@@ -7105,7 +7112,7 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
      if(!window.__pgSpread&&_last!=null&&_last%2===1&&n===_last+1){seen.add(n);
        if(enByCol[n]&&enByCol[n].length&&!(window.__enUsed&&window.__enUsed.has(n))){_colEn.push(...enByCol[n]);(window.__enUsed=window.__enUsed||new Set()).add(n);}
        return;}}
-    flushCol();seen.add(n);pages.push(n);_pageText=false;_pageHeads=0;_pageRun=null;
+    flushCol();seen.add(n);pages.push(n);_pageText=false;_pageHeads=0;_pageRun=null;_pageZoned=false;
     for(const [D,B] of [[laD,laB],[enD,enB]]){const pb=D.createElement("pb");pb.setAttribute("n",String(n));B.appendChild(pb);}
     // EN SPAN-UNION (owner 2026-08-18 'matching vol by col'): opening-keyed canons carry
     // EN under BOTH columns of the opening — consume every EN column in [n .. nextPb-1],
@@ -7382,7 +7389,7 @@ const _canonOpenings=window.FRPgParallel.canonicalOpenings(doc),_printedColumns=
       if(ln==="pb")addPb(+ch.getAttribute("n"));
       else if(ln==="milestone"&&ch.getAttribute("unit")==="column")addPb(+ch.getAttribute("n"));
       else if(ln==="head")addHead(ch.textContent.replace(/\s+/g," ").trim(),depth,ch);
-      else if(ln==="p"){_pageText=true;if(!_colLa._zoned){
+      else if(ln==="p"){_pageText=true;if(!_colLa._zoned&&!_pageZoned){
         // THE TRANSCRIPTION KNOWS ITS PARAGRAPHS (owner 2026-09-03 pg-1445 'so please
         // figure it out'): vision-era canon <p>s carry real \n\n breaks — the homily head
         // (ΟΜΙΛΙΑ Β΄.), the lemma and each paragraph arrive pre-segmented; flattening the
