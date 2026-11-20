@@ -29988,7 +29988,7 @@ body.has-journal-address .eoy-bar { display: none; }
 /* Room for the bar, except while the audio player or the member bar
    holds the bottom: their own padding rules apply then. */
 html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bottom: var(--eoy-bar-h, 92px); }
-.eoy-bar-photo { width: 56px; height: 56px; object-fit: cover; border-radius: 3px; display: block; }
+.eoy-bar-photo { width: 72px; height: 72px; object-fit: cover; border-radius: 4px; display: block; }
 .eoy-bar-text { min-width: 0; }
 .eoy-bar-headline {
   font-family: var(--font-display);
@@ -30047,7 +30047,7 @@ html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bo
     gap: 12px 14px;
     padding: 18px max(20px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
   }
-  .eoy-bar-photo { width: 44px; height: 44px; }
+  .eoy-bar-photo { width: 76px; height: 76px; }
   .eoy-bar-headline { font-size: 18px; text-wrap: balance; }
   .eoy-bar-sub { font-size: 13px; line-height: 1.35; margin-top: 2px; }
   .eoy-bar-close { grid-column: 3; grid-row: 1; justify-self: end; margin: -6px -8px 0 0; }
