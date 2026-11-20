@@ -28657,7 +28657,13 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .mm-eoy-body { font-size: 16px; line-height: 1.55; color: #4a4542; margin: 0 0 16px; max-width: 34em; }
 .mm .mm-eoy .eoy-bar-meter { max-width: 320px; margin: 0 0 18px; }
 .mm .mm-eoy-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
-.mm .mm-eoy > .mm-note { margin-top: 12px; font-size: 13px; }
+.mm .mm-eoy-text > .mm-note { margin-top: 12px; font-size: 13px; }
+.mm-grid--eoy { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.mm .mm-eoy { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 32px; align-items: start; }
+.mm .mm-eoy .mm-feature-title { margin-top: 0; }
+.mm .mm-eoy-ways .mm-links a { font-size: 17px; padding: 5px 0; }
+.mm .mm-eoy-ways .mm-note { font-size: 13px; }
+.mm .mm-eoy-book { font-size: 14px; line-height: 1.5; color: var(--color-muted); margin: 16px 0 10px; padding-top: 14px; border-top: 1px solid var(--color-rule); }
 
 /* Support panel: role card (the "Role CTAs"). One card shows, picked
    from the member's Ghost "Role:" survey labels in data-roles
