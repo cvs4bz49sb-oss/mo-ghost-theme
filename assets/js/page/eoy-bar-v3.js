@@ -17,13 +17,9 @@
  * html.has-eoy-bar reserves room at the bottom of the page so the bar
  * never covers the last lines of an article or the footer.
  *
- * HEADLINE A/B TEST (Ian, 2026-11-13). Each reader is assigned one
- * headline at random and keeps it (localStorage):
- *   a  "Help us build on 2026."  (the partial's own text)
- *   b  "Help us build on our best year ever."
- * Plausible gets a "Year-End Bar" event with props {headline, action}
- * for view (once per page the bar shows), click and close. The button's
- * data-hm-goal is eoy-bar-a / eoy-bar-b so the click heatmap splits too.
+ * Tracking (the headline A/B test ran Nov 13 to 20 and is over): a
+ * Plausible "Year-End Bar" event with props {headline: "a", action} for
+ * view, click and close, and first-party counts for /admin/slide-ins/.
  * The click event holds the navigation until Plausible confirms (or 800ms)
  * so it is not lost when the page unloads.
  *
@@ -55,17 +51,14 @@
     if (window.sessionStorage.getItem(KEY)) return;
   } catch (e) { /* storage blocked: show the bar */ }
 
-  const HEADLINES = { a: null, b: "on our best year ever." };
-  const VKEY = "mo_eoy_bar_headline";
-  let variant = null;
-  try { variant = window.localStorage.getItem(VKEY); } catch (e) { /* noop */ }
-  if (!Object.prototype.hasOwnProperty.call(HEADLINES, variant)) {
-    variant = Math.random() < 0.5 ? "a" : "b";
-    try { window.localStorage.setItem(VKEY, variant); } catch (e) { /* noop */ }
-  }
-  // Only the words after the highlighted "Help us build" change.
-  const tail = bar.querySelector("[data-eoy-bar-tail]");
-  if (tail && HEADLINES[variant]) tail.textContent = HEADLINES[variant];
+  // A/B TEST ENDED (Ian, 2026-11-20). Everyone sees the same bar, so every
+  // bar event goes out as segment "a" and every click is credited to
+  // source "bar-a". Those are the values the mo-admin tracker and the
+  // conversion webhooks already accept (no worker change); the admin panel
+  // adds old "b" rows in under one "Bar" line. The -v3 file name is a
+  // cache-buster: the CDN keys on path.
+  const variant = "a";
+  try { window.localStorage.removeItem("mo_eoy_bar_headline"); } catch (e) { /* noop */ }
   bar.setAttribute("data-headline", variant);
   const btn = bar.querySelector(".eoy-bar-btn");
   if (btn) btn.setAttribute("data-hm-goal", `eoy-bar-${variant}`);

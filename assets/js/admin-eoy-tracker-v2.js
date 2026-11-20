@@ -1,6 +1,6 @@
 /*
  * Year-end campaign tracker on /admin/slide-ins/ (Ian, 2026-11-13): the
- * bottom bar, its headline A/B test, /year-end/ itself, and what all of it
+ * bottom bar, /year-end/ itself, and what all of it
  * raised. Reads mo-admin GET /eoy/stats (admin/lib/eoy-stats.js), which
  * returns raw daily rows; everything is added up here.
  *
@@ -19,11 +19,16 @@
   const asOf = host.querySelector("[data-eoy-asof]");
   const refresh = host.querySelector("[data-eoy-refresh]");
 
-  const HEADLINES = { a: "Help us build on 2026.", b: "Help us build on our best year ever." };
+  // The bar's headline A/B test ended 2026-11-20 (Ian). Every reader now
+  // sends "a" / "bar-a"; rows from the test's "b" side are added in, so
+  // "Bar" is the whole bar from Nov 13 on. The -v2 file name is a
+  // cache-buster.
+  const BAR_SRCS = ["bar-a", "bar-b"];
   const SOURCES = [
-    ["bar-a", "Bar, headline A"], ["bar-b", "Bar, headline B"],
+    ["bar", "Bottom bar"],
     ["email", "Email"], ["page", "Other visits"], ["none", "Did not visit /year-end/"],
   ];
+  const srcIs = (s) => (s === "bar" ? (x) => BAR_SRCS.includes(x) : (x) => x === s);
   const KINDS = [
     ["donation", "Donations (Anedot)"], ["lifetime", "Lifetime"],
     ["offer", "Membership, year-end offer"], ["membership", "Membership, full price"],
@@ -47,9 +52,11 @@
   const money = (cents) => `$${(Number(cents || 0) / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   const pct = (a, b) => (b ? `${((100 * a) / b).toFixed(1)}%` : "·");
 
+  // seg: null for any, a string, or a function that tests the segment.
   function sumDaily(daily, event, seg, goal) {
+    const segOk = (x) => (seg == null || (typeof seg === "function" ? seg(x) : x === seg));
     return daily.reduce((t, r) => t
-      + ((r.event === event && (seg == null || r.seg === seg) && (goal == null || r.goal === goal)) ? Number(r.n) || 0 : 0), 0);
+      + ((r.event === event && segOk(r.seg) && (goal == null || r.goal === goal)) ? Number(r.n) || 0 : 0), 0);
   }
 
   // One list of every payment: { day, kind, src, cents }.
@@ -89,20 +96,6 @@
     s.appendChild(el("h3", "eoy-tracker-h", title));
     if (note) s.appendChild(el("p", "admin-sub", note));
     return s;
-  }
-
-  // Two-proportion z test on click rate. Says "too early" until each side
-  // has 30 clicks, so a handful of early clicks is never called a winner.
-  function verdict(ca, va, cb, vb) {
-    if (ca < 30 || cb < 30) return `Too early to call. Each headline needs at least 30 clicks (A has ${num(ca)}, B has ${num(cb)}).`;
-    const pa = ca / va;
-    const pb = cb / vb;
-    const p = (ca + cb) / (va + vb);
-    const se = Math.sqrt(p * (1 - p) * (1 / va + 1 / vb));
-    const z = se ? (pa - pb) / se : 0;
-    if (Math.abs(z) < 1.96) return `No clear winner yet on clicks (A ${pct(ca, va)}, B ${pct(cb, vb)}). The difference could still be chance.`;
-    const win = z > 0 ? "A" : "B";
-    return `Headline ${win} gets more clicks (A ${pct(ca, va)}, B ${pct(cb, vb)}). The gap is unlikely to be chance (95% confidence). Check that it also brings in more money below before switching.`;
   }
 
   let justSaved = false; // keeps the "Saved" line through the re-render
@@ -212,33 +205,27 @@
     res.appendChild(notes);
     out.appendChild(res);
 
-    // Headline test
-    const ab = section("Bottom bar: headline test",
-      `Each reader is shown one headline at random and keeps it. Headline A is "${HEADLINES.a}" Headline B is "${HEADLINES.b}" Readers counts each reader once a day. Click rate is clicks per reader. Bar views counts every page the bar appeared on.`);
-    const abRows = ["a", "b"].map((v) => {
-      const reach = sumDaily(daily, "bar_reach", v);
-      const views = sumDaily(daily, "bar_view", v);
-      const clicks = sumDaily(daily, "bar_click", v);
-      const closes = sumDaily(daily, "bar_close", v);
-      const t = tally(pays, (p) => p.src === `bar-${v}`);
-      return {
-        v, reach, clicks,
-        cells: [v.toUpperCase(), num(reach), num(views), num(clicks), pct(clicks, reach), num(closes),
-          num(t.n), money(t.cents), reach ? money(t.cents / reach) : "·"],
-      };
-    });
-    ab.appendChild(table(["Headline", "Readers", "Bar views", "Clicks", "Click rate", "Closed", "Gifts", "Raised", "Raised per reader"], abRows, 1));
-    ab.appendChild(el("p", "eoy-tracker-verdict", verdict(abRows[0].clicks, abRows[0].reach, abRows[1].clicks, abRows[1].reach)));
+    // The bar
+    const ab = section("Bottom bar",
+      "\"Ideas shape the world.\" with the button \"Shape the conversation\". Readers counts each reader once a day. Click rate is clicks per reader. Bar views counts every page the bar appeared on. Gifts are payments made after clicking the bar. Includes the headline test that ran Nov 13 to 20.");
+    const reach = sumDaily(daily, "bar_reach");
+    const views = sumDaily(daily, "bar_view");
+    const clicks = sumDaily(daily, "bar_click");
+    const closes = sumDaily(daily, "bar_close");
+    const bt = tally(pays, (p) => BAR_SRCS.includes(p.src));
+    ab.appendChild(table(["Surface", "Readers", "Bar views", "Clicks", "Click rate", "Closed", "Gifts", "Raised", "Raised per reader"],
+      [{ cells: ["Bar", num(reach), num(views), num(clicks), pct(clicks, reach), num(closes), num(bt.n), money(bt.cents), reach ? money(bt.cents / reach) : "·"] }], 1));
     out.appendChild(ab);
 
     // By source
     const bySrc = section("/year-end/ by where readers came from",
       "Gifts are credited to the last place a reader came from before paying. \"Did not visit /year-end/\" is everything else in the campaign window, such as offer links in emails or a donation straight from Anedot.");
     const srcRows = SOURCES.map(([s, label]) => {
-      const reach = s === "none" ? null : sumDaily(daily, "page_reach", s);
-      const views = s === "none" ? null : sumDaily(daily, "page_view", s);
-      const clicks = s === "none" ? null : sumDaily(daily, "cta", s);
-      const t = tally(pays, (p) => p.src === s);
+      const is = srcIs(s);
+      const reach = s === "none" ? null : sumDaily(daily, "page_reach", is);
+      const views = s === "none" ? null : sumDaily(daily, "page_view", is);
+      const clicks = s === "none" ? null : sumDaily(daily, "cta", is);
+      const t = tally(pays, (p) => is(p.src));
       return { cells: [label, reach == null ? "·" : num(reach), views == null ? "·" : num(views),
         clicks == null ? "·" : num(clicks), num(t.n), money(t.cents), reach ? pct(t.n, reach) : "·"] };
     });
@@ -250,23 +237,23 @@
     const srcKeys = SOURCES.map(([s]) => s);
     const kindRows = KINDS.map(([k, label]) => {
       const cells = [label];
-      srcKeys.forEach((s) => { cells.push(num(tally(pays, (p) => p.kind === k && p.src === s).n)); });
+      srcKeys.forEach((s) => { const is = srcIs(s); cells.push(num(tally(pays, (p) => p.kind === k && is(p.src)).n)); });
       const t = tally(pays, (p) => p.kind === k);
       cells.push(num(t.n), money(t.cents));
       return { cells };
     });
-    kinds.appendChild(table(["Gift", "Bar A", "Bar B", "Email", "Other", "No visit", "All", "Raised"], kindRows, 1));
+    kinds.appendChild(table(["Gift", "Bar", "Email", "Other", "No visit", "All", "Raised"], kindRows, 1));
     out.appendChild(kinds);
 
     // Buttons
     const btns = section("Buttons on /year-end/", "Clicks only. What those clicks became is in the tables above.");
     const goalRows = GOALS.map(([g, label]) => {
       const cells = [label];
-      ["bar-a", "bar-b", "email", "page"].forEach((s) => cells.push(num(sumDaily(daily, "cta", s, g))));
+      ["bar", "email", "page"].forEach((s) => cells.push(num(sumDaily(daily, "cta", srcIs(s), g))));
       cells.push(num(sumDaily(daily, "cta", null, g)));
       return { cells };
     });
-    btns.appendChild(table(["Button", "Bar A", "Bar B", "Email", "Other", "All"], goalRows, 1));
+    btns.appendChild(table(["Button", "Bar", "Email", "Other", "All"], goalRows, 1));
     out.appendChild(btns);
 
     // By day
