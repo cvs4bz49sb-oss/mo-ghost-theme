@@ -30003,7 +30003,7 @@ html[data-theme="dark"] .article-content.is-following-along [data-mo-follow]::af
   bottom: 0;
   z-index: 900;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) minmax(180px, 240px) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) minmax(180px, 240px) auto;
   align-items: center;
   gap: 18px;
   padding: 12px max(22px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(22px, env(safe-area-inset-left, 0px));
@@ -30069,21 +30069,27 @@ html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bo
   opacity: .7;
   cursor: pointer;
   font-family: var(--font-body);
+  /* Top right corner, out of the grid (Ian, 2026-11-20). */
+  position: absolute;
+  top: 2px;
+  right: max(4px, env(safe-area-inset-right, 0px));
 }
 .eoy-bar-close:hover, .eoy-bar-close:focus-visible { opacity: 1; }
+.eoy-bar-btn { margin-right: 34px; }
 @media (max-width: 860px) {
   /* More room around the bar's contents on phones (Ian, 2026-11-20).
      The bar grows taller; eoy-bar-v2.js keeps the page's bottom padding
      matched to its real height. */
   .eoy-bar {
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
     gap: 12px 14px;
     padding: 18px max(20px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
   }
   .eoy-bar-photo { width: 76px; height: 76px; }
   .eoy-bar-headline { font-size: 18px; text-wrap: balance; }
   .eoy-bar-sub { font-size: 13px; line-height: 1.35; margin-top: 0; }
-  .eoy-bar-close { grid-column: 3; grid-row: 1; justify-self: end; margin: -6px -8px 0 0; }
+  .eoy-bar-text { padding-right: 30px; }
+  .eoy-bar-btn { margin-right: 0; }
   /* "Shape the conversation" (11/20) is too long to share a row with the
      meter, so on phones the meter and the button each get a full row. */
   .eoy-bar-meter { grid-column: 1 / -1; grid-row: 2; align-self: center; }
