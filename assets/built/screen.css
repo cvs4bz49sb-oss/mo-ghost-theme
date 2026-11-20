@@ -30039,7 +30039,14 @@ html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bo
 }
 .eoy-bar-close:hover, .eoy-bar-close:focus-visible { opacity: 1; }
 @media (max-width: 860px) {
-  .eoy-bar { grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px 12px; padding-top: 10px; }
+  /* More room around the bar's contents on phones (Ian, 2026-11-20).
+     The bar grows taller; eoy-bar-v2.js keeps the page's bottom padding
+     matched to its real height. */
+  .eoy-bar {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 12px 14px;
+    padding: 18px max(20px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+  }
   .eoy-bar-photo { width: 44px; height: 44px; }
   .eoy-bar-headline { font-size: 18px; text-wrap: balance; }
   .eoy-bar-sub { font-size: 13px; line-height: 1.35; margin-top: 2px; }
@@ -30049,5 +30056,5 @@ html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bo
   .eoy-bar-meter { grid-column: 1 / -1; grid-row: 2; align-self: center; }
   .eoy-bar-btn { grid-column: 1 / -1; grid-row: 3; padding: 10px 16px; font-size: 14px; }
   .eoy-bar-figures { margin-top: 4px; font-size: 12.5px; }
-  html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bottom: var(--eoy-bar-h, 168px); }
+  html.has-eoy-bar:not(.has-mo-player) body:not(.has-journal-address) { padding-bottom: var(--eoy-bar-h, 200px); }
 }
