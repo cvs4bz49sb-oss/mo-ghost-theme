@@ -24,9 +24,21 @@
   // "Bar" is the whole bar from Nov 13 on. The -v2 file name is a
   // cache-buster.
   const BAR_SRCS = ["bar-a", "bar-b"];
+  // Support menu and dashboard card sources added 2026-11-20 (the -v3
+  // file name is a cache-buster). Gifts there are credited even when the
+  // reader went straight to a checkout without opening /year-end/.
   const SOURCES = [
-    ["bar", "Bottom bar"],
+    ["bar", "Bottom bar"], ["menu", "Support menu"], ["dash", "Dashboard card"],
     ["email", "Email"], ["page", "Other visits"], ["none", "Did not visit /year-end/"],
+  ];
+  const SHORT = { bar: "Bar", menu: "Menu", dash: "Dashboard", email: "Email", page: "Other", none: "No visit" };
+  const LINKS = [
+    ["eoy-nav", "Support (header link)"], ["eoy-menu", "Menu: Shape the conversation"],
+    ["eoy-menu-why", "Menu: Why it matters"], ["eoy-menu-give", "Menu: Give online"],
+    ["eoy-menu-lifetime", "Menu: Lifetime"], ["eoy-menu-gift", "Menu: Gift a membership"],
+    ["eoy-menu-member", "Menu: Become a member"], ["eoy-menu-other", "Menu: Stock, fund or check"],
+    ["eoy-menu-ways", "Menu: See every way to give"],
+    ["eoy-dashboard", "Dashboard: Shape the conversation"], ["eoy-dashboard-why", "Dashboard: Why it matters"],
   ];
   const srcIs = (s) => (s === "bar" ? (x) => BAR_SRCS.includes(x) : (x) => x === s);
   const KINDS = [
@@ -242,19 +254,26 @@
       cells.push(num(t.n), money(t.cents));
       return { cells };
     });
-    kinds.appendChild(table(["Gift", "Bar", "Email", "Other", "No visit", "All", "Raised"], kindRows, 1));
+    kinds.appendChild(table(["Gift"].concat(srcKeys.map((s) => SHORT[s]), ["All", "Raised"]), kindRows, 1));
     out.appendChild(kinds);
 
     // Buttons
     const btns = section("Buttons on /year-end/", "Clicks only. What those clicks became is in the tables above.");
     const goalRows = GOALS.map(([g, label]) => {
       const cells = [label];
-      ["bar", "email", "page"].forEach((s) => cells.push(num(sumDaily(daily, "cta", srcIs(s), g))));
+      ["bar", "menu", "dash", "email", "page"].forEach((s) => cells.push(num(sumDaily(daily, "cta", srcIs(s), g))));
       cells.push(num(sumDaily(daily, "cta", null, g)));
       return { cells };
     });
-    btns.appendChild(table(["Button", "Bar", "Email", "Other", "All"], goalRows, 1));
+    btns.appendChild(table(["Button", "Bar", "Menu", "Dashboard", "Email", "Other", "All"], goalRows, 1));
     out.appendChild(btns);
+
+    // Links in the Support menu and the dashboard card
+    const links = section("Support menu and dashboard card",
+      "Clicks on the desktop menu and the dashboard card, from Nov 20. Phone menu taps are not counted here. Gifts after them are still credited to Support menu, except Become a member, which opens the membership popup without a source on phones.");
+    const linkRows = LINKS.map(([g, label]) => ({ cells: [label, num(sumDaily(daily, "link_click", null, g))] }));
+    links.appendChild(table(["Link", "Clicks"], linkRows, 1));
+    out.appendChild(links);
 
     // By day
     const days = {};

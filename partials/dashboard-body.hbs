@@ -34,15 +34,15 @@
              live meter (the bar's partial, filled by eoy-meter-v2.js) and a
              button to /year-end/. Remove after December 31 with the bar
              (partials/year-end-bar.hbs) and the .dash-eoy CSS. --}}
-        <aside class="dash-eoy" aria-labelledby="dash-eoy-title">
-          <a class="dash-eoy-photo" href="/year-end/" tabindex="-1" aria-hidden="true"><img src="{{asset "images/year-end/way-gift.jpg"}}" alt="" width="900" height="600" loading="lazy"></a>
+        <aside class="dash-eoy" aria-labelledby="dash-eoy-title" data-eoy-src="dash">
+          <a class="dash-eoy-photo" href="/year-end/?eoy=dash" tabindex="-1" aria-hidden="true"><img src="{{asset "images/year-end/way-gift.jpg"}}" alt="" width="900" height="600" loading="lazy"></a>
           <div class="dash-eoy-text">
             <h2 class="dash-eoy-title" id="dash-eoy-title"><span class="highlight">Ideas</span> shape the world.</h2>
             <p class="dash-eoy-body">Help shape the conversations that shape the Church and the culture with our end of year campaign.</p>
             {{> "year-end-meter" bar=true}}
             <div class="dash-eoy-actions">
-              <a class="btn btn-solid" href="/year-end/" data-hm-goal="eoy-dashboard">Shape the conversation</a>
-              <a class="dash-eoy-more" href="/year-end/#eoy-year-title" data-hm-goal="eoy-dashboard-why">Why it matters</a>
+              <a class="btn btn-solid" href="/year-end/?eoy=dash" data-hm-goal="eoy-dashboard">Shape the conversation</a>
+              <a class="dash-eoy-more" href="/year-end/?eoy=dash#eoy-year-title" data-hm-goal="eoy-dashboard-why">Why it matters</a>
             </div>
           </div>
         </aside>

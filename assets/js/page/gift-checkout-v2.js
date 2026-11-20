@@ -105,7 +105,7 @@
     // (eoy-page.js). Ghost keeps none of our metadata on a gift, so it rides
     // in cancelUrl, which Stripe echoes to mo-membership's webhook.
     const eoyRaw = String(new URLSearchParams(window.location.search).get("eoy") || "").toLowerCase();
-    const eoySource = ["bar-a", "bar-b", "email", "page"].indexOf(eoyRaw) === -1 ? "" : eoyRaw;
+    const eoySource = ["bar-a", "bar-b", "menu", "dash", "email", "page"].indexOf(eoyRaw) === -1 ? "" : eoyRaw;
 
     const delivery = method();
     const duration = Number(value("duration")) || 12;

@@ -7,7 +7,17 @@
  *   send(event, segment, goal)  counts one event at mo-admin POST /eoy/track
  *                               (worker: admin/lib/eoy-stats.js has the list)
  *   reachOnce(event, segment)   the same, at most once per reader per day
- *   rememberSource(src)         the bar was clicked (src = bar-a / bar-b)
+ *   rememberSource(src)         the bar was clicked (src = bar-a) or a link
+ *                               in the Support menu / dashboard card
+ *                               (src = menu / dash)
+ *
+ * Support menu and dashboard card (2026-11-20): their links carry
+ * ?eoy=menu|dash (or Anedot's source_code=eoy-menu) in the template, which
+ * the checkouts pass on. A click inside [data-eoy-src] also remembers the
+ * source for /year-end/, counts a link_click (goal = data-hm-goal), and for
+ * a Portal offer link adds ?eoy= to this page's URL, because Portal uses
+ * the page it opened on as the checkout's cancel_url. The -v2 file name is
+ * a cache-buster.
  *   recentSource()              that source, if it was in the last day
  *
  * Beacons are text/plain so they stay CORS-simple (no preflight), as in
@@ -16,7 +26,8 @@
  */
 (function () {
   if (window.MOEoy) return;
-  const SOURCES = ["bar-a", "bar-b", "email", "page"];
+  const SOURCES = ["bar-a", "bar-b", "menu", "dash", "email", "page"];
+  const LINK_SOURCES = ["menu", "dash"];
   const SRC_KEY = "mo_eoy_src";
   const DAY_MS = 86400000;
 
@@ -70,4 +81,33 @@
   }
 
   window.MOEoy = { SOURCES, send, reachOnce, rememberSource, recentSource };
+
+  // Clicks in the Support menu (desktop panel and its header link) and the
+  // dashboard card. The phone drawer's copies carry ?eoy=menu in their
+  // href, which is enough for the checkouts; they have no goal to count.
+  document.addEventListener("click", (e) => {
+    const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    const holder = a.closest("[data-eoy-src]");
+    let src = holder ? holder.getAttribute("data-eoy-src") : "";
+    if (!src) {
+      // Only an ?eoy= written into the link itself (the phone drawer's
+      // copies), never one inherited from this page's own URL.
+      const raw = a.getAttribute("href") || "";
+      if (raw.indexOf("?") === -1) return;
+      try { src = new URL(raw, window.location.href).searchParams.get("eoy") || ""; } catch (err) { src = ""; }
+    }
+    if (LINK_SOURCES.indexOf(src) === -1) return;
+    rememberSource(src);
+    const goal = a.getAttribute("data-hm-goal");
+    if (goal) send("link_click", src, goal);
+    if ((a.getAttribute("href") || "").indexOf("#/portal/offers/") === 0) {
+      try {
+        const q = new URLSearchParams(window.location.search);
+        q.set("eoy", src);
+        window.history.replaceState(window.history.state, "", `${window.location.pathname}?${q.toString()}${window.location.hash}`);
+        window.sessionStorage.setItem("mo_checkout_pending", Date.now().toString());
+      } catch (err) { /* the offer just goes uncredited */ }
+    }
+  }, true);
 })();

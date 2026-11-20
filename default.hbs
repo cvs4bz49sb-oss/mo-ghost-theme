@@ -355,7 +355,7 @@
                 <a href="/the-faith-received/" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="tfr" aria-expanded="false" aria-controls="mm">The Faith Received</a>
                 <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="resources" aria-expanded="false" aria-controls="mm">Resources</button>
                 {{!-- Year-end (Ian, 2026-11-20): Support is also a link, to /year-end/, the same way Journal and The Faith Received work. Back to a plain <button> after December 31. --}}
-                <a href="/year-end/" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="support" aria-expanded="false" aria-controls="mm" data-hm-goal="eoy-nav">Support</a>
+                <a href="/year-end/?eoy=menu" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="support" aria-expanded="false" aria-controls="mm" data-hm-goal="eoy-nav" data-eoy-src="menu">Support</a>
                 <button type="button" class="nav-dropdown-toggle mm-trigger" data-mm-trigger="about" aria-expanded="false" aria-controls="mm">About</button>
             </nav>
             <div class="nav-actions">
@@ -541,7 +541,7 @@
          podcast-feed, title-cleanup, viewport-fix. --}}
     {{> "year-end-bar"}}
     <script src="{{asset "built/site.min.js"}}"></script>
-    <script src="{{asset "js/page/eoy-track.js"}}"></script>
+    <script src="{{asset "js/page/eoy-track-v2.js"}}"></script>
     <script src="{{asset "js/page/eoy-bar-v3.js"}}"></script>
     <script src="{{asset "js/page/eoy-meter-v2.js"}}"></script>
     {{ghost_foot}}

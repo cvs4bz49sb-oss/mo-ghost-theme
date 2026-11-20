@@ -335,17 +335,17 @@
          though #mm is hidden until it opens. Two columns (Ian, 11/20):
          a wide one with the photo beside the message, a tight one with
          Ways to give and the thank-you book. --}}
-    <section class="mm-panel" data-mm-panel="support" aria-label="Support">
+    <section class="mm-panel" data-mm-panel="support" aria-label="Support" data-eoy-src="menu">
       <div class="mm-grid mm-grid--eoy">
         <div class="mm-eoy">
-          <a class="mm-eoy-photo" href="/year-end/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/year-end/hero.jpg"}}" alt="" loading="lazy"></div></a>
+          <a class="mm-eoy-photo" href="/year-end/?eoy=menu" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/year-end/hero.jpg"}}" alt="" loading="lazy"></div></a>
           <div class="mm-eoy-text">
           <p class="mm-feature-title mm-eoy-title"><span class="highlight">Ideas</span> shape the world.</p>
           <p class="mm-eoy-body">Every movement that shapes the Church begins as an idea worked out in conversation. Mere Orthodoxy hosts those conversations in essays, the print journal, our podcasts and The Faith Received. Help shape the conversations that shape the Church and the culture with our end of year campaign.</p>
           {{> "year-end-meter" bar=true}}
           <div class="mm-eoy-actions">
-            <a class="btn btn-solid" href="/year-end/" data-mm-drawer-lead data-hm-goal="eoy-menu">Shape the conversation</a>
-            <a class="mm-more" href="/year-end/#eoy-year-title" data-hm-goal="eoy-menu-why">Why it matters</a>
+            <a class="btn btn-solid" href="/year-end/?eoy=menu" data-mm-drawer-lead data-hm-goal="eoy-menu">Shape the conversation</a>
+            <a class="mm-more" href="/year-end/?eoy=menu#eoy-year-title" data-hm-goal="eoy-menu-why">Why it matters</a>
           </div>
           <span class="mm-note">Tax-deductible through the Institute for Christianity and Common Life</span>
           </div>
@@ -353,24 +353,24 @@
         <div class="mm-eoy-ways">
           <p class="mm-col-title">Ways to give</p>
           <ul class="mm-links">
-            <li><a href="/donate/" data-hm-goal="eoy-menu-give">Give online<span class="mm-note">Once or every month</span></a></li>
+            <li><a href="https://secure.anedot.com/institute-for-christianity-and-common-life/donate?source_code=eoy-menu" data-hm-goal="eoy-menu-give">Give online<span class="mm-note">Once or every month</span></a></li>
             {{#match @member.status "free"}}
-            <li><a href="/membership/" data-hm-goal="eoy-menu-lifetime">Lifetime membership<span class="mm-note">$995 once with two gift memberships to pass along</span></a></li>
+            <li><a href="/membership/?eoy=menu" data-hm-goal="eoy-menu-lifetime">Lifetime membership<span class="mm-note">$995 once with two gift memberships to pass along</span></a></li>
             {{else}}{{#if @member}}
-            <li><a href="/membership/#lifetime-upgrade" data-hm-goal="eoy-menu-lifetime">Upgrade to Lifetime<span class="mm-note">$995 once with two gift memberships to pass along</span></a></li>
+            <li><a href="/membership/?eoy=menu#lifetime-upgrade" data-hm-goal="eoy-menu-lifetime">Upgrade to Lifetime<span class="mm-note">$995 once with two gift memberships to pass along</span></a></li>
             {{else}}
-            <li><a href="/membership/" data-hm-goal="eoy-menu-lifetime">Lifetime membership<span class="mm-note">$995 once with two gift memberships to pass along</span></a></li>
+            <li><a href="/membership/?eoy=menu" data-hm-goal="eoy-menu-lifetime">Lifetime membership<span class="mm-note">$995 once with two gift memberships to pass along</span></a></li>
             {{/if}}{{/match}}
-            <li><a href="/give/" data-hm-goal="eoy-menu-gift">Gift a membership<span class="mm-note">Starts at $8/month and includes the print journal</span></a></li>
+            <li><a href="/give/?eoy=menu" data-hm-goal="eoy-menu-gift">Gift a membership<span class="mm-note">Starts at $8/month and includes the print journal</span></a></li>
             {{#match @member.status "free"}}
             <li><a href="#/portal/offers/6af76821a28c1600017e7e36" data-hm-goal="eoy-menu-member">Become a member<span class="mm-note">20% off your first three months</span></a></li>
             {{else}}{{#unless @member}}
             <li><a href="#/portal/offers/6af76821a28c1600017e7e36" data-hm-goal="eoy-menu-member">Become a member<span class="mm-note">20% off your first three months</span></a></li>
             {{/unless}}{{/match}}
-            <li><a href="/year-end/#ways" data-hm-goal="eoy-menu-other">Stock, donor-advised fund or check<span class="mm-note">Write to us and we'll send what you need</span></a></li>
+            <li><a href="/year-end/?eoy=menu#ways" data-hm-goal="eoy-menu-other">Stock, donor-advised fund or check<span class="mm-note">Write to us and we'll send what you need</span></a></li>
           </ul>
           <p class="mm-eoy-book">Give $500 or more, start a monthly gift of $50 or more, or become a Lifetime Member. We'll send you The Lord Is My Light: A Liturgy for Daily Prayer, compiled by Trevin Wax.</p>
-          <a class="mm-more" href="/year-end/#ways">See every way to give</a>
+          <a class="mm-more" href="/year-end/?eoy=menu#ways" data-hm-goal="eoy-menu-ways">See every way to give</a>
         </div>
       </div>
     </section>
