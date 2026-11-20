@@ -4,7 +4,12 @@
  * The bar is rendered hidden and shown here unless:
  *   - the campaign has ended (data-ends on the bar),
  *   - the page is one where it would get in the way (SKIP below),
- *   - the reader closed it (remembered in localStorage until the campaign
+ *   - the reader closed it during this visit (sessionStorage, Ian
+ *     2026-11-20: the bar comes back on every new visit, with no wait.
+ *     A visit is the browser tab's session; a new tab or a return later
+ *     shows it again),
+ *   (was: closed until the campaign ended, in localStorage; that old key
+ *   is cleared below so readers who closed it before see it again)
  *     ends; the bar comes back if storage is unavailable, which is fine),
  *   - the audio player or the journal address prompt is open. Those are
  *     handled in CSS so the bar steps aside while they are up.
@@ -43,9 +48,11 @@
   const path = `${String(window.location.pathname || "/").toLowerCase().replace(/\/+$/, "")}/`;
   if (SKIP.some((p) => path === p || path.indexOf(p) === 0)) return;
 
-  const KEY = "mo_eoy_bar_closed_2026";
+  // The -v2 file name is a cache-buster: the CDN keys on path.
+  const KEY = "mo_eoy_bar_closed_visit";
+  try { window.localStorage.removeItem("mo_eoy_bar_closed_2026"); } catch (e) { /* noop */ }
   try {
-    if (window.localStorage.getItem(KEY)) return;
+    if (window.sessionStorage.getItem(KEY)) return;
   } catch (e) { /* storage blocked: show the bar */ }
 
   const HEADLINES = { a: null, b: "on our best year ever." };
@@ -118,7 +125,7 @@
       track("close");
       bar.hidden = true;
       document.documentElement.classList.remove("has-eoy-bar");
-      try { window.localStorage.setItem(KEY, String(Date.now())); } catch (e) { /* noop */ }
+      try { window.sessionStorage.setItem(KEY, String(Date.now())); } catch (e) { /* noop */ }
     });
   }
 })();
