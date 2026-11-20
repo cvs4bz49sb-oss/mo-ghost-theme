@@ -8089,6 +8089,39 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   min-height: calc(100vh - 240px);
 }
 
+/* Year-end card at the top of the member dashboard (Ian, 2026-11-20).
+   Remove with partials/year-end-bar.hbs after December 31. */
+.dash-eoy {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 28px;
+  align-items: center;
+  margin: 0 0 56px;
+  padding: 18px 26px 18px 18px;
+  background: #fbf8f2;
+  border: 1px solid var(--color-card-border);
+  border-radius: 14px;
+}
+.dash-eoy-photo { display: block; }
+.dash-eoy-photo img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 8px; }
+.dash-eoy-title { font: 600 26px/1.2 var(--font-body); color: var(--color-dark); margin: 0 0 8px; }
+.dash-eoy-title .highlight {
+  background-color: rgba(193, 89, 60, 0.78);
+  padding: 0 0.14em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.dash-eoy-body { font-family: var(--font-body); font-size: 17px; line-height: 1.5; color: var(--color-dark); margin: 0 0 16px; }
+.dash-eoy .eoy-bar-meter { max-width: 340px; margin: 0 0 18px; }
+.dash-eoy-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.dash-eoy-more { font: 600 15px var(--font-body); color: var(--color-secondary); border-bottom: 1px solid currentColor; padding-bottom: 2px; text-decoration: none; }
+.dash-eoy-more:hover { color: var(--color-dark); }
+@media (max-width: 640px) {
+  .dash-eoy { grid-template-columns: 1fr; gap: 18px; padding: 14px 14px 20px; margin-bottom: 40px; }
+  .dash-eoy-text { padding: 0 6px; }
+  .dash-eoy-title { font-size: 23px; }
+}
+
 /* --- Module (expandable section) -------------------------------------- */
 .dashboard-module {
   background: transparent;
