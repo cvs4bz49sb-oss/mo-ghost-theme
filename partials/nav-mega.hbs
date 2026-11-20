@@ -322,82 +322,54 @@
       </div>
     </section>
 
+    {{!-- Support, year-end version (Ian, 2026-11-20): a small version of
+         /year-end/ until the campaign ends. The standard panel (Join, Give
+         and the Role CTAs) is saved word for word in the MOCA at
+         website/archive/support-panel-standard-2026-11-20/ and in git at
+         2002f223. To flip back after December 31, put that block back here.
+         The Role CTAs CSS and member-profile.js are untouched meanwhile.
+
+         The phone drawer carries only links (nav-mega.js): "Make a
+         year-end gift" leads it (data-mm-drawer-lead), then Ways to give.
+         The meter is the bar's partial; eoy-meter-v2.js fills it even
+         though #mm is hidden until it opens. --}}
     <section class="mm-panel" data-mm-panel="support" aria-label="Support">
-      <div class="mm-grid mm-grid--two">
-        <div>
-          <p class="mm-col-title">Join</p>
-          <ul class="mm-links">
-            <li><a href="/membership/">Membership<span class="mm-note">For individual readers</span></a></li>
-            <li><a href="/groups/">Group memberships<span class="mm-note">For a staff, cohort or reading group</span></a></li>
-            <li><a href="/student/">Student discount<span class="mm-note">For undergraduate and graduate students</span></a></li>
-            <li><a href="/institutions/">Churches and institutions<span class="mm-note">Seats for your staff or congregation</span></a></li>
-          </ul>
-          <p class="mm-col-title mm-col-title--next">Give</p>
-          <div class="mm-appeal">
-            <p>Mere Orthodoxy is paid for by its readers. A gift keeps the essays, podcasts, resources, and print journal going.</p>
-            {{!-- data-mm-drawer-lead puts Donate at the top of the phone
-                 drawer's Support section (Ian, 2026-11-18). --}}
-            <a class="btn btn-solid" href="https://secure.anedot.com/institute-for-christianity-and-common-life/donate" data-mm-drawer-lead>Donate</a>
-            <span class="mm-note">Tax-deductible through the Institute for Christianity and Common Life</span>
+      <div class="mm-grid mm-grid--three">
+        <div class="mm-eoy">
+          <p class="mm-feature-title mm-eoy-title"><span class="highlight">Ideas</span> shape the world.</p>
+          <p class="mm-eoy-body">Every movement that shapes the Church begins as an idea worked out in conversation. Mere Orthodoxy hosts those conversations in essays, the print journal, our podcasts and The Faith Received.</p>
+          {{> "year-end-meter" bar=true}}
+          <div class="mm-eoy-actions">
+            <a class="btn btn-solid" href="/year-end/" data-mm-drawer-lead data-hm-goal="eoy-menu">Make a year-end gift</a>
+            <a class="mm-more" href="/year-end/#eoy-year-title" data-hm-goal="eoy-menu-why">Why it matters</a>
           </div>
+          <span class="mm-note">Tax-deductible through the Institute for Christianity and Common Life</span>
         </div>
         <div>
-          {{!-- One card by membership and survey role (Ghost "Role:"
-               labels), highest leverage first. Pastor -> church,
-               academic -> school, parachurch ministry -> ministry (all three
-               institutions), home group leader or
-               elder -> groups, student -> student (free members only). With
-               no matching role, paid members get the gift card and everyone
-               else gets Become a member. Ghost gives the theme no labels,
-               so member-profile.js fills data-roles from mo-kit. The CSS
-               under "Support panel: role card" picks which card shows. --}}
-          <div class="mm-pick" data-paid="{{#if @member.paid}}1{{else}}0{{/if}}" data-roles="|">
-            <div class="mm-feature mm-card mm-pick-church">
-              <a href="/institutions/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
-              <p class="mm-feature-title">Bring Mere Orthodoxy to your church</p>
-              <p>Organizational memberships give seats to your staff and congregation.</p>
-              <a class="btn" href="/institutions/">See organizational memberships</a>
-            </div>
-            <div class="mm-feature mm-card mm-pick-school">
-              <a href="/institutions/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
-              <p class="mm-feature-title">Bring Mere Orthodoxy to your school</p>
-              <p>Organizational memberships give seats to your faculty and students.</p>
-              <a class="btn" href="/institutions/">See organizational memberships</a>
-            </div>
-            <div class="mm-feature mm-card mm-pick-ministry">
-              <a href="/institutions/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
-              <p class="mm-feature-title">Bring Mere Orthodoxy to your ministry</p>
-              <p>Organizational memberships give seats to your staff and volunteers.</p>
-              <a class="btn" href="/institutions/">See organizational memberships</a>
-            </div>
-            <div class="mm-feature mm-card mm-pick-group">
-              <a href="/groups/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
-              <p class="mm-feature-title">Read together with your group</p>
-              <p>Group memberships cover a small group, staff or elder board.</p>
-              <a class="btn" href="/groups/">See group memberships</a>
-            </div>
-            <div class="mm-feature mm-card mm-pick-student">
-              <a href="/student/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
-              <p class="mm-feature-title">Student membership</p>
-              <p>Undergraduate and graduate students get membership at a discount.</p>
-              <a class="btn" href="/student/">See student membership</a>
-            </div>
-            {{#if @member.paid}}
-            <div class="mm-feature mm-card mm-pick-default">
-              <a href="/give/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
-              <p class="mm-feature-title">Give a membership</p>
-              <p>Share Mere Orthodoxy with a friend.</p>
-              <a class="btn" href="/give/">Give a membership</a>
-            </div>
+          <p class="mm-col-title">Ways to give</p>
+          <ul class="mm-links">
+            <li><a href="/donate/" data-hm-goal="eoy-menu-give">Give online<span class="mm-note">Once or every month</span></a></li>
+            {{#match @member.status "free"}}
+            <li><a href="/membership/" data-hm-goal="eoy-menu-lifetime">Lifetime membership<span class="mm-note">$995 once with two gift memberships to pass along</span></a></li>
+            {{else}}{{#if @member}}
+            <li><a href="/membership/#lifetime-upgrade" data-hm-goal="eoy-menu-lifetime">Upgrade to Lifetime<span class="mm-note">$995 once with two gift memberships to pass along</span></a></li>
             {{else}}
-            <div class="mm-feature mm-card mm-pick-default">
-              <a href="/membership/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/nav/membership-hero.jpg"}}" alt="" loading="lazy"></div></a>
-              <p class="mm-feature-title">Become a member</p>
-              <p>Get the print journal and support the work of Mere Orthodoxy.</p>
-              <a class="btn" href="/membership/">See membership</a>
-            </div>
-            {{/if}}
-          </div>
+            <li><a href="/membership/" data-hm-goal="eoy-menu-lifetime">Lifetime membership<span class="mm-note">$995 once with two gift memberships to pass along</span></a></li>
+            {{/if}}{{/match}}
+            <li><a href="/give/" data-hm-goal="eoy-menu-gift">Gift a membership<span class="mm-note">Starts at $8/month and includes the print journal</span></a></li>
+            {{#match @member.status "free"}}
+            <li><a href="#/portal/offers/6af76821a28c1600017e7e36" data-hm-goal="eoy-menu-member">Become a member<span class="mm-note">20% off your first three months</span></a></li>
+            {{else}}{{#unless @member}}
+            <li><a href="#/portal/offers/6af76821a28c1600017e7e36" data-hm-goal="eoy-menu-member">Become a member<span class="mm-note">20% off your first three months</span></a></li>
+            {{/unless}}{{/match}}
+            <li><a href="/year-end/#ways" data-hm-goal="eoy-menu-other">Stock, donor-advised fund or check<span class="mm-note">Write to us and we'll send what you need</span></a></li>
+          </ul>
+        </div>
+        <div class="mm-feature">
+          <a href="/year-end/" tabindex="-1" aria-hidden="true"><div class="mm-plate"><img src="{{asset "images/year-end/way-gift.jpg"}}" alt="" loading="lazy"></div></a>
+          <p class="mm-feature-title">Give before December 31</p>
+          <p>Give $500 or more, start a monthly gift of $50 or more, or become a Lifetime Member. We'll send you The Lord Is My Light: A Liturgy for Daily Prayer, compiled by Trevin Wax.</p>
+          <a class="mm-more" href="/year-end/#ways">See every way to give</a>
         </div>
       </div>
     </section>

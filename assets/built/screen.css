@@ -28646,6 +28646,19 @@ html.mm-is-open .site-header { z-index: 111; }
 .mm .mm-appeal p { margin: 0 0 14px; font-size: 16px; line-height: 1.5; color: var(--color-dark); }
 .mm .mm-appeal .mm-note { margin-top: 10px; font-size: 13px; }
 
+/* Support panel, year-end version (2026-11-20, partials/nav-mega.hbs).
+   Remove with the panel after the campaign. */
+.mm .mm-eoy-title .highlight {
+  background-color: rgba(193, 89, 60, 0.78);
+  padding: 0 0.14em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.mm .mm-eoy-body { font-size: 16px; line-height: 1.55; color: #4a4542; margin: 0 0 16px; max-width: 34em; }
+.mm .mm-eoy .eoy-bar-meter { max-width: 320px; margin: 0 0 18px; }
+.mm .mm-eoy-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.mm .mm-eoy > .mm-note { margin-top: 12px; font-size: 13px; }
+
 /* Support panel: role card (the "Role CTAs"). One card shows, picked
    from the member's Ghost "Role:" survey labels in data-roles
    (|-separated): pastor > academic > parachurch ministry > home group

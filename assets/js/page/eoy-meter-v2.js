@@ -1,6 +1,7 @@
 /*
  * Live year-end meter (Ian, 2026-11-17). Fills every [data-eoy-meter]
- * (partials/year-end-meter.hbs: the /year-end/ hero and the bottom bar)
+ * (partials/year-end-meter.hbs: the /year-end/ hero, the bottom bar and,
+ * from 2026-11-20, the header menu's Support panel)
  * from mo-admin GET /eoy/meter, which adds every online payment since
  * Nov 13 to the offline amount staff keep on /admin/slide-ins/
  * (admin/lib/eoy-stats.js in mo-workers).
@@ -11,8 +12,13 @@
  */
 (function () {
   // Skip the bar's meter when the bar stays hidden (closed, a skipped page,
-  // campaign over). eoy-bar.js has already run by now.
-  const meters = Array.prototype.filter.call(document.querySelectorAll("[data-eoy-meter]"), (el) => !el.closest("[hidden]"));
+  // campaign over). eoy-bar.js has already run by now. The header menu
+  // (#mm, partials/nav-mega.hbs) is hidden until it opens, so its meter is
+  // filled anyway.
+  //
+  // The -v2 suffix is a cache-buster (2026-11-20): the CDN keys on path, so
+  // an edited file keeps serving its old bytes at the old name.
+  const meters = Array.prototype.filter.call(document.querySelectorAll("[data-eoy-meter]"), (el) => !el.closest("[hidden]") || el.closest("[data-mm]"));
   if (!meters.length) return;
   const base = ((document.body && document.body.getAttribute("data-admin-worker-url")) || "").replace(/\/+$/, "");
   if (!base) return;
