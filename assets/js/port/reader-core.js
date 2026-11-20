@@ -1631,7 +1631,9 @@ function restoreReaderPosition(position){
       const delta=target.getBoundingClientRect().top-sc.getBoundingClientRect().top;
       // The mobile masthead can grow after fonts load. Keep source-heading arrivals
       // below its current bottom instead of freezing the initial desktop-sized gap.
-      const header=(position.sourcePath||target.classList?.contains('pganchor')||frReaderBlockReference(position.id)?.index==='0')&&document.querySelector?.('.ph');
+      // A search occurrence keeps the place __frPlaceReaderAnchor gave it (centred): pinned under the masthead because its block is
+      // a page's first, the word sat behind the sticky find bar (Stiven, theme PR 252, 2026-11-18). Stacked runs send most hits here.
+      const header=!position.focusId&&(position.sourcePath||target.classList?.contains('pganchor')||frReaderBlockReference(position.id)?.index==='0')&&document.querySelector?.('.ph');
       if(header)offset=Math.max(14,header.getBoundingClientRect().bottom-sc.getBoundingClientRect().top+14);
       if(offset==null)offset=delta;
       const drift=delta-offset;if(Math.abs(drift)>2){sc.scrollTop+=drift;stable=0;}else stable++;
