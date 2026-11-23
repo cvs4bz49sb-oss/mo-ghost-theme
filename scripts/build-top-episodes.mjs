@@ -119,13 +119,21 @@ function playsOf(ep) {
 }
 
 async function fetchShow(slug, podcastId) {
-  const res = await fetch(`https://www.buzzsprout.com/api/${podcastId}/episodes.json`, {
-    headers: {
-      Authorization: `Token token=${token}`,
-      "User-Agent": "MereOrthodoxy-TopEpisodes/1.0 (+https://mereorthodoxy.com)",
-      Accept: "application/json",
-    },
-  });
+  // Buzzsprout throws occasional 502/503s. One 502 on 2026-11-22 failed the
+  // whole run and left podcast-totals.json stale for a day, so retry 5xx/429
+  // with a short backoff before giving up.
+  let res;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    res = await fetch(`https://www.buzzsprout.com/api/${podcastId}/episodes.json`, {
+      headers: {
+        Authorization: `Token token=${token}`,
+        "User-Agent": "MereOrthodoxy-TopEpisodes/1.0 (+https://mereorthodoxy.com)",
+        Accept: "application/json",
+      },
+    });
+    if (res.ok || (res.status < 500 && res.status !== 429) || attempt === 4) break;
+    await new Promise((r) => setTimeout(r, attempt * 5000));
+  }
   if (!res.ok) throw new Error(`${slug}: buzzsprout ${res.status}`);
   const list = await res.json();
   const now = Date.now();
