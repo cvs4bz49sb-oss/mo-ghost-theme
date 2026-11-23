@@ -26450,6 +26450,18 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   font-size: 11px;
   color: var(--color-muted);
 }
+/* The Profile row holds every survey question, and a select sizes itself to
+   its longest option ("Appreciate the theological and cultural
+   perspectives"). Capped so eight controls wrap into two tidy rows. */
+@media (min-width: 641px) {
+  [data-aud-profile-filters] .aud-select { width: 210px; }
+}
+/* On a phone each control takes the full row, and the select is allowed to
+   shrink below its longest option instead of pushing the page sideways. */
+@media (max-width: 640px) {
+  [data-aud-profile-filters] .aud-filter { flex: 1 1 100%; min-width: 0; }
+  [data-aud-profile-filters] .aud-select { width: 100%; min-width: 0; }
+}
 .aud-filter-msg {
   font-family: var(--font-body);
   font-size: 13px;

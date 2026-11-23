@@ -306,9 +306,17 @@
         `Filters apply to Real Time answers. ${cohortLabel(cohort)} is a precomputed aggregate, so it can only be cut by age, in Break it down by age below.`));
       return;
     }
-    const dims = activeDims();
+    const dims = profDims();
     const signature = dims.map((d) => `${d.key}:${d.values.join(",")}`).join("|");
-    if (signature === profVocab) { renderProfileFilterState(); return; }
+    // A switch between the three live tabs keeps the same controls but needs
+    // the cut for the new tab's subscriber/member split.
+    if (signature === profVocab) {
+      renderProfileFilterState();
+      if (profKey() && !profSegCache[profKey()]) {
+        loadProfSegment(() => { renderProfileFilterState(); renderProfile(); });
+      }
+      return;
+    }
     profVocab = signature;
     profFilterHost.textContent = "";
 
@@ -366,11 +374,13 @@
       profStatus.className = "aud-legend is-warn";
       return;
     }
-    const who = activeDims().filter((d) => profFilters[d.key]).map((d) => profFilters[d.key]).join(" + ");
+    // "Responses are Get the print Journal" does not parse, so the answers
+    // are named as answers rather than as what the respondents are.
+    const who = profDims().filter((d) => profFilters[d.key]).map((d) => profFilters[d.key]).join(", ");
     profStatus.className = cut.total < 20 ? "aud-legend is-warn" : "aud-legend";
     profStatus.textContent = cut.total
-      ? `${cut.total} live ${cut.total === 1 ? "response is" : "responses are"} ${who}${cut.total < 20 ? " \u2014 read the shape, not the decimals." : "."}`
-      : `No live responses are ${who}.`;
+      ? `${cut.total} live ${cut.total === 1 ? "response matches" : "responses match"}: ${who}.${cut.total < 20 ? " Read the shape, not the decimals." : ""}`
+      : `No live responses match: ${who}.`;
   }
 
   function renderProfile() {
@@ -450,6 +460,13 @@
 
       if (compare && !other) {
         block.appendChild(el("p", "aud-foot", `Not asked of ${cohortLabel(compareWith)}.`));
+      }
+      // The filter is this question's own answer, so the chosen option reads
+      // 100% by construction. Said once here so it is not taken as a finding.
+      if (isLive(cohort) && profFilters[q.id]) {
+        block.appendChild(el("p", "aud-foot", q.multi
+          ? `Filtered to people who chose ${profFilters[q.id]}, so it reads 100%. The other bars show what else they chose.`
+          : `Filtered to ${profFilters[q.id]}, so this chart only repeats the filter.`));
       }
       host.appendChild(block);
     });
@@ -742,10 +759,13 @@
   // Keys are built in the generator's dimension order, so lookups must use the
   // same order or every multi-filter combination misses.
   function segKey() {
-    return activeDims()
+    const key = activeDims()
       .filter((d) => svdFilters[d.key])
       .map((d) => `${d.key}=${svdFilters[d.key]}`)
       .join("|");
+    // The cache is keyed per live tab as well, so a cut fetched on Real Time:
+    // everyone is never served under Real Time: members.
+    return key && isLive(cohort) && LIVE_COHORTS[cohort] ? `${key}|status=${LIVE_COHORTS[cohort]}` : key;
   }
   function activeFilterCount() {
     return Object.keys(svdFilters).filter((k) => svdFilters[k]).length;
@@ -805,7 +825,8 @@
   // this did) silently swapped the Interest column for survey data while the
   // tab still said Real Time, and dropped the four categories the 2026
   // instrument never asked about.
-  const LIVE_PARAM = { gender: "gender", age: "age", denom: "denomination", role: "role" };
+  const LIVE_PARAM = { gender: "gender", age: "age", denom: "denomination", role: "role",
+    topics: "interests", heard: "heard", join: "join", ask: "ask" };
   // The two instruments spell two of the church roles differently. The filter
   // control is built from the 2026 vocabulary, so its values have to be
   // translated on the way out or the worker matches nothing and reports an
@@ -831,6 +852,27 @@
   // denom) so nothing downstream has to know which vocabulary is in play.
   const LIVE_DIM_KEY = { gender: "gender", age: "age", denomination: "denom", role: "role" };
   let liveDims = null;
+  // The Profile filters take every question the live survey asks, not only
+  // the four demographics. Supply and Demand keeps the four: cutting stated
+  // interest by an interest would only report the filter back as 100%.
+  const LIVE_PROF_DIM_KEY = { ...LIVE_DIM_KEY,
+    interests: "topics", heard: "heard", join: "join", ask: "ask" };
+  // Short labels for the control. The question titles are sentences and would
+  // stretch the filter row past the chart it controls.
+  const PROF_DIM_LABEL = { topics: "Content interest", heard: "How they heard",
+    join: "Why they joined", ask: "What would add value" };
+  let liveProfDims = null;
+  function profDims() {
+    if (isLive(cohort) && liveProfDims) return liveProfDims;
+    return activeDims();
+  }
+  // The subscriber and member tabs are cuts of the same table. A filter has
+  // to carry that split to the worker, or "Real Time: subscribers" filtered
+  // to Pastors would report every pastor under the subscribers label.
+  function liveStatusParam() {
+    const st = LIVE_COHORTS[cohort];
+    return st ? `status=${encodeURIComponent(st)}` : "";
+  }
 
   function activeDims() {
     const sv = DATA.sayvsdo;
@@ -858,6 +900,7 @@
       if (!param) return;
       parts.push(`${param}=${encodeURIComponent(LIVE_VALUE[v] || v)}`);
     });
+    if (parts.length && liveStatusParam()) parts.push(liveStatusParam());
     return parts.join("&");
   }
 
@@ -877,19 +920,21 @@
   const profSegCache = {};
 
   function profKey() {
-    return activeDims()
+    const key = profDims()
       .filter((d) => profFilters[d.key])
       .map((d) => `${d.key}=${profFilters[d.key]}`)
       .join("|");
+    return key && LIVE_COHORTS[cohort] ? `${key}|status=${LIVE_COHORTS[cohort]}` : key;
   }
   function profQuery() {
-    return activeDims()
+    const parts = profDims()
       .filter((d) => profFilters[d.key])
-      .map((d) => `${LIVE_PARAM[d.key]}=${encodeURIComponent(LIVE_VALUE[profFilters[d.key]] || profFilters[d.key])}`)
-      .join("&");
+      .map((d) => `${LIVE_PARAM[d.key]}=${encodeURIComponent(LIVE_VALUE[profFilters[d.key]] || profFilters[d.key])}`);
+    if (liveStatusParam()) parts.push(liveStatusParam());
+    return parts.join("&");
   }
   function profActiveCount() {
-    return activeDims().filter((d) => profFilters[d.key]).length;
+    return profDims().filter((d) => profFilters[d.key]).length;
   }
 
   function loadProfSegment(then) {
@@ -1746,6 +1791,12 @@
         .map((d) => ({ key: LIVE_DIM_KEY[d.key],
           label: labels[LIVE_DIM_KEY[d.key]] || d.key,
           values: d.values }));
+      liveProfDims = summary.dimensions
+        .filter((d) => LIVE_PROF_DIM_KEY[d.key])
+        .map((d) => {
+          const k = LIVE_PROF_DIM_KEY[d.key];
+          return { key: k, label: labels[k] || PROF_DIM_LABEL[k] || d.key, values: d.values };
+        });
     }
     Object.keys(LIVE_MAP).forEach((dim) => {
       const q = findQ(LIVE_MAP[dim]);
