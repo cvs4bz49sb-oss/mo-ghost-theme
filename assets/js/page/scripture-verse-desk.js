@@ -3,7 +3,13 @@
  * (research_shell.html, #b/<book>/<c>?v=<v>&view=desk) and Mere Orthodoxy's (/the-faith-received/scripture/desk/?ref=<book>.<c>.<v>,
  * scripture-dev-desk.js) mount this one file, word for word on both, as they share scripture-verse-rail.js.
  *
- * On the desk, top to bottom:
+ * THE LISTS FIRST (2026-11-22, owner: "The verse deck is lowkey unusable to try and track down and open up whole Bible commentaries
+ * and chapter commentaries want to make it easy to open a new tab"). The band stood between the verse and the lists, and the first
+ * commentary row began 1,050 px down the page (1,530 px on a phone). The order is now: the verse, the kinds, the groups (with the
+ * reading at the side), then the band. The parts are as described below; only their order on the page changed. See also THE WAY
+ * OUT OF A ROW and A FOLD'S HEAD STAYS UNDER THE HAND in mount().
+ *
+ * On the desk (described in the order of 10-22; the band now stands under the groups):
  *   the verse   its reference, the verses before and after as quiet arrows, the text in the translation chosen (the picker inline),
  *               and small controls beside it: the verse in every translation, the source filter (where the host has one), Save verse,
  *               the chapter in the reader
@@ -807,11 +813,11 @@
         <div class="vdb-drawer" data-vdb-drawer="sources" id="${id}-src" hidden></div>
         <p class="vdb-said" role="status" hidden></p>
       </header>
-      <section class="vdb-band" aria-labelledby="${id}-bh"><div class="vdb-band-h"><h3 id="${id}-bh">Who treats this verse</h3><p class="vdb-band-sum" data-vdb-sum></p></div>
-        <div class="vdb-strip" data-vdb-strip><p class="vdb-wait" role="status">Gathering who treats the verse…</p></div>
-        <div class="vdb-kinds" role="group" aria-label="Show only" data-vdb-kinds></div></section>
+      <div class="vdb-kinds" role="group" aria-label="Show only" data-vdb-kinds></div>
       ${cfg.side ? '<div class="vdb-cols"><div class="vdb-main">' : ""}<div class="vdb-groups" data-vdb-groups><p class="vdb-wait" role="status">Opening the commentaries on ${esc(chRef)}…</p></div>
-      <div class="vdb-after" data-vdb-after></div>${cfg.side ? '</div><aside class="vdb-side" data-vdb-side aria-label="Reading" tabindex="-1"></aside></div>' : ""}`;
+      <div class="vdb-after" data-vdb-after></div>${cfg.side ? '</div><aside class="vdb-side" data-vdb-side aria-label="Reading" tabindex="-1"></aside></div>' : ""}
+      <section class="vdb-band" aria-labelledby="${id}-bh"><div class="vdb-band-h"><h3 id="${id}-bh">Who treats this verse</h3><p class="vdb-band-sum" data-vdb-sum></p></div>
+        <div class="vdb-strip" data-vdb-strip><p class="vdb-wait" role="status">Gathering who treats the verse…</p></div></section>`;
     if (cfg.side) host.classList.add("vdb-has-side");
     const $ = (s) => host.querySelector(s);
     /* THE READING AT THE SIDE (10-28, owner: "do another pass on the scripture deck so that i can preview more and incorporate our
@@ -1437,9 +1443,12 @@
           const extra = await D.json(`${D.base}/v1/bible/all/${M.book}/${M.ch}.more.json.gz`);
           for (const x of (M.file && M.file.verses) || []) { if (x.full) continue; x.rows = (x.rows || []).concat((extra.verses || {})[String(x.v)] || []); x.full = true; }
         }
+        // (11-22) pressed in the band, which stands under the lists: the band keeps its place while the lists above it are drawn again
+        const band = btn.closest(".vdb-band"), y = band ? band.getBoundingClientRect().top : 0;
         CM = citationModel(M, v, keep);
         drawGroups(); drawBand();
         setGroup("cite", true);
+        if (band) hold(band, y);
       } catch (_) { btn.disabled = false; btn.textContent = "Retry loading the remaining citations"; }
     }
 

@@ -23,7 +23,7 @@ html[data-sd-theme="dark"] .vdb{--tg-gf:#6EAED0;--tg-pl:#BC8EE0;--tg-po:#83B386;
 .vdb .vdb-n{margin-left:.35rem;color:var(--vdb-muted);font:400 var(--vdb-small)/1.3 var(--vdb-body);font-variant-numeric:tabular-nums;white-space:nowrap}
 
 /* ── the verse ─────────────────────────────────────────────────────────────────────────────────────────────────────────── */
-.vdb-head{margin:0 0 1.6rem}
+.vdb-head{margin:0 0 .9rem}
 .vdb-top{display:flex;flex-wrap:wrap;align-items:center;gap:.2rem 1rem}
 .vdb .vdb-title{margin:0;color:var(--vdb-ink);font:500 2rem/1.15 var(--vdb-display);letter-spacing:-.01em;text-wrap:balance}
 .vdb-title:focus{outline:none}
@@ -49,7 +49,8 @@ span.vdb-arrow{color:var(--vdb-line)}
 .vdb-said{margin:.4rem 0 0 1.6rem;color:var(--vdb-muted);font:var(--vdb-small)/1.5 var(--vdb-body)}
 
 /* ── the band: who treats the verse ───────────────────────────────────────────────────────────────────────────────────────── */
-.vdb-band{margin:0 0 1.8rem;padding:1rem 0 0;border-top:1px solid var(--vdb-ink)}
+/* (11-22) the band stands under the lists: the kinds and the groups come first, so a commentary is in the first screen */
+.vdb-band{margin:2.6rem 0 0;padding:1rem 0 0;border-top:1px solid var(--vdb-ink)}
 .vdb-band-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:.1rem 1rem;margin:0 0 .3rem}
 .vdb .vdb-band-h h3{margin:0;color:var(--vdb-ink);font:500 1.25rem/1.3 var(--vdb-display)}
 .vdb-band-sum{margin:0;color:var(--vdb-muted);font:var(--vdb-small)/1.5 var(--vdb-body);font-variant-numeric:tabular-nums}
@@ -65,7 +66,7 @@ span.vdb-arrow{color:var(--vdb-line)}
 @container (max-width:54rem){.vdb-cents span:not(.e2){display:none}}
 @container (max-width:30rem){.vdb-cents span:not(.e4){display:none}}
 .vdb-method{max-width:75ch;margin:.3rem 0 0;color:var(--vdb-muted);font:var(--vdb-small)/1.55 var(--vdb-body);text-wrap:pretty}
-.vdb-kinds{display:flex;flex-wrap:wrap;align-items:center;gap:0 .15rem;margin:.5rem 0 0 -.45rem}
+.vdb-kinds{display:flex;flex-wrap:wrap;align-items:center;gap:0 .15rem;margin:0 0 .5rem -.45rem}
 .vdb-kind{display:inline-flex;align-items:baseline;gap:0;min-height:2.5rem;padding:.35rem .45rem;border:0;border-radius:6px;background:none;color:var(--vdb-ink);font:.9375rem/1.3 var(--vdb-body);cursor:pointer}
 .vdb-kind:hover{box-shadow:inset 0 0 0 1px var(--vdb-line)}
 .vdb-kind[aria-pressed="true"]{background:var(--vdb-ink);color:var(--vdb-stone)}
