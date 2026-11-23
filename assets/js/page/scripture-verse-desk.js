@@ -800,7 +800,7 @@
     const method = typeof cfg.method === "function" ? cfg.method : (html) => `<p class="vdb-method">${html.replace(/^<p>|<\/p>$/g, "")}</p>`;
     let v = Number(cfg.verse) || Number((cfg.verses || [])[0]) || 1;
     let M = null, VM = null, CM = null, dead = false;
-    const st = { g: cfg.state && cfg.state.g != null ? String(cfg.state.g) : null, r: (cfg.state && cfg.state.r) || "", k: "", tool: "", lane: new Map(), limit: new Map() };
+    const st = { g: cfg.state && cfg.state.g != null ? String(cfg.state.g) : null, r: (cfg.state && cfg.state.r) || "", k: "", tool: "", lane: new Map(), limit: new Map(), pick: new Map(), done: new Set() };
     let verses = (cfg.verses || []).map(Number);
     const ref = (x) => `${cfg.book.slug === "psalms" ? "Psalm" : cfg.book.name} ${cfg.ch}:${x}`;
     const chRef = `${cfg.book.slug === "psalms" ? "Psalm" : cfg.book.name} ${cfg.ch}`;
@@ -815,6 +815,7 @@
       </header>
       <div class="vdb-kinds" role="group" aria-label="Show only" data-vdb-kinds></div>
       ${cfg.side ? '<div class="vdb-cols"><div class="vdb-main">' : ""}<div class="vdb-groups" data-vdb-groups><p class="vdb-wait" role="status">Opening the commentaries on ${esc(chRef)}…</p></div>
+      <div class="vdb-pickbar" data-vdb-pickbar role="region" aria-label="Chosen works" hidden><div class="vdb-pb-row"><strong data-vdb-pn></strong><button type="button" class="vdb-pb-open" data-vdb-openpicked></button><button type="button" class="vdb-act" data-vdb-clearpicked>Clear</button></div><p class="vdb-pb-note" data-vdb-pnote hidden>The first time, your browser will hold tabs back until you allow pop-ups for this site.</p><p class="vdb-pb-msg" data-vdb-pmsg role="status" hidden></p></div>
       <div class="vdb-after" data-vdb-after></div>${cfg.side ? '</div><aside class="vdb-side" data-vdb-side aria-label="Reading" tabindex="-1"></aside></div>' : ""}
       <section class="vdb-band" aria-labelledby="${id}-bh"><div class="vdb-band-h"><h3 id="${id}-bh">Who treats this verse</h3><p class="vdb-band-sum" data-vdb-sum></p></div>
         <div class="vdb-strip" data-vdb-strip><p class="vdb-wait" role="status">Gathering who treats the verse…</p></div></section>`;
@@ -934,6 +935,9 @@
     const newTab = (slug, p, label) => (p != null && p !== "" ? `<a class="vdb-nt" href="${esc(cfg.read(slug, p))}" target="_blank" rel="noopener" title="Open in a new tab" aria-label="${esc(`Open ${label}, ${pgOf(slug, p)}, in a new tab`)}"><span class="vdb-nt-w">New tab</span>${ICON.out}</a>` : "");
     const outLinks = (href, cls) => (href ? `<a${cls ? ` class="${cls}"` : ""} href="${esc(href)}">Open in the reader</a><a class="${cls ? `${cls} ` : ""}vdb-out-a" href="${esc(href)}" target="_blank" rel="noopener">Open in a new tab${ICON.out}</a>` : "");
     const rowOut = (rb) => { const a = rb.closest(".vdb-r").querySelector(":scope > .vdb-rl .vdb-nt"); return a ? a.href : ""; };
+    // a box before each row that has a page to open, and "Choose all" at the head of a fold (CHOOSING SEVERAL, below)
+    const pickBox = (o) => (o.nt ? `<label class="vdb-pk"><input type="checkbox" data-vdb-pick="${esc(o.id)}"${st.pick.has(o.id) ? " checked" : ""}><span class="vdb-sr">Choose ${esc(o.who)}${o.what ? `, ${esc(o.what)}` : ""}, to open with others</span></label>` : '<span class="vdb-pk"></span>');
+    const pickAll = (gid, n) => (n > 1 ? `<p class="vdb-all"><label><input type="checkbox" data-vdb-pickall="${esc(gid)}"><span>Choose all ${fmt(n)}</span></label><small>Tick the works you want, then open them together in new tabs.</small></p>` : "");
     const glimpse = (names) => { const u = [...new Set(names.filter(Boolean))]; return u.slice(0, 3).map((x) => cut(String(x), 30)).join(", ") + (u.length > 3 ? ", …" : ""); };
     const whenOf = (a, y) => datesOf(M, a) || (y && y < 9999 ? (y % 100 === 50 ? `${ord(Math.floor(y / 100) + 1)} century` : `c. ${y}`) : "");
     const hasLine = (w) => {
@@ -951,7 +955,7 @@
      * a mess too"): a commentary's row (o.href, the host's cfg.beside) is a link to the Scripture reader with the work beside the text at
      * the verse; its Preview opens in place what the row opened before (the passage on the verse and the ways on), with its page under it.
      * On a wide screen the row is still read in the pane at the side. Other rows open in place as before. */
-    const row = (o) => `<div class="vdb-r${o.cls ? ` ${o.cls}` : ""}" data-vdb-row="${esc(o.id)}"><div class="vdb-rl">`
+    const row = (o) => `<div class="vdb-r${o.cls ? ` ${o.cls}` : ""}" data-vdb-row="${esc(o.id)}"><div class="vdb-rl">${pickBox(o)}`
       + `${o.href ? `<a class="vdb-rb" href="${esc(o.href)}" data-vdb-r="${esc(o.id)}">` : `<button type="button" class="vdb-rb" data-vdb-r="${esc(o.id)}" aria-expanded="false" aria-controls="${id}-o-${esc(o.key)}">`}`
       + `<span class="vdb-who">${esc(o.who)}${o.when ? `<small>${esc(o.when)}</small>` : ""}</span>`
       + `<span class="vdb-what"><cite${o.tl ? ` title="${esc(o.tl)}"` : ""}>${esc(o.what)}</cite>${o.has ? `<small>${esc(o.has)}</small>` : ""}</span>${o.href ? "</a>" : "</button>"}`
@@ -991,11 +995,11 @@
       + `<div class="vdb-gp" id="${id}-g-${keyOf(gid)}" data-vdb-body="${esc(gid)}" hidden></div></section>`;
     const LIMIT = 40;
     function groupBody(gid) {
-      if (gid === "landmark") return VM.landmark.map(workRow).join("");
-      if (gid === "whole") return (VM.whole || []).map((g) => `<p class="vdb-wh">${esc(g.name)}</p>${g.works.map(workRow).join("")}`).join("");
-      if (gid.startsWith("t:")) { const g = VM.trads.find((x) => `t:${x.k}` === gid); return g ? g.works.map(workRow).join("") : ""; }
-      if (gid === "sermons") return VM.sermons.map(sermonRow).join("");
-      if (gid === "hymns") return VM.hymns.map(hymnRow).join("");
+      if (gid === "landmark") return pickAll(gid, VM.landmark.length) + VM.landmark.map(workRow).join("");
+      if (gid === "whole") return pickAll(gid, (VM.whole || []).reduce((s, g) => s + g.works.length, 0)) + (VM.whole || []).map((g) => `<p class="vdb-wh">${esc(g.name)}</p>${g.works.map(workRow).join("")}`).join("");
+      if (gid.startsWith("t:")) { const g = VM.trads.find((x) => `t:${x.k}` === gid); return g ? pickAll(gid, g.works.length) + g.works.map(workRow).join("") : ""; }
+      if (gid === "sermons") return pickAll(gid, VM.sermons.length) + VM.sermons.map(sermonRow).join("");
+      if (gid === "hymns") return pickAll(gid, VM.hymns.length) + VM.hymns.map(hymnRow).join("");
       if (gid.startsWith("c:")) {
         const g = CM.trads.find((x) => `c:${x.k}` === gid); if (!g) return "";
         const lim = st.limit.get(gid) || LIMIT, more = g.works.length - lim;
@@ -1034,12 +1038,13 @@
       box.innerHTML = html;
       applyKind();
       restore();
+      drawPick();
     }
     const groupEl = (gid) => host.querySelector(`[data-vdb-gid="${CSS.escape(gid)}"]`);
     function fill(gid) {
       const b = host.querySelector(`[data-vdb-body="${CSS.escape(gid)}"]`);
       if (!b || gid === "cite" || b.dataset.filled === "1") return;
-      b.innerHTML = groupBody(gid); b.dataset.filled = "1";
+      b.innerHTML = groupBody(gid); b.dataset.filled = "1"; syncAll();
       if (sideMode() && st.r) b.querySelectorAll(`[data-vdb-row="${CSS.escape(st.r)}"]`).forEach((x) => { x.classList.add("is-sel"); const rb = x.querySelector(".vdb-rb"); if (rb) rb.setAttribute("aria-current", "true"); });
     }
     // one group open at a time, at its own level (the citations' traditions inside the citations)
@@ -1069,6 +1074,69 @@
       const y = gb.getBoundingClientRect().top;
       setGroup(gb.dataset.vdbG, open);
       hold(gb, y);
+    }
+    /* CHOOSING SEVERAL (2026-11-22, owner: "make it essy to open up a dozen commentaries if a user chooses on a passage", "a seamless
+     * experience"). A box stands before every row that has a page; "Choose all" heads a fold of commentaries, sermons or hymns. Once a
+     * work is chosen a bar stays at the foot of the list: how many are chosen, "Open N in new tabs", "Clear". The choices are kept in
+     * memory only (never in the address), through every redrawing of the lists, and they stay when the verse changes, so the same
+     * dozen can be opened verse after verse; each opens at its own page for the verse shown (the address its "New tab" has).
+     * WHAT A BROWSER ALLOWS (measured 11-22, runs/desk_open_1122/popups.mjs, Chrome with its pop-up blocker on, as it ships): one
+     * press opens ONE new tab; the other eleven window.open calls return nothing. After the reader allows pop-ups for the site once,
+     * one press opens them all. So a press opens as many as the browser lets it, never counts a refused tab as opened, keeps the rest
+     * for the next press, and says in the bar (it stays: the new tab takes the screen) what the one-time step is. No more than twelve
+     * are opened by one press: twelve readers opened together all showed their text (burst.mjs, 11-22, a busy machine: 12 of 12,
+     * median 3.7 s), twenty did not (13 of 20 within 90 s, the first after 80 s). window.open is called without "noopener", which would make it return nothing even when a tab
+     * opened; the new tab's opener is cleared afterwards. */
+    // the choices outlive a visit to the reader: below 1180 px a row is a link that leaves the desk, and Back draws the desk anew
+    const PICK_KEY = `fr_desk_picks:${cfg.site || "tfr"}:${cfg.book.slug}.${cfg.ch}`;
+    const pickSave = () => { try { root.sessionStorage.setItem(PICK_KEY, JSON.stringify([...st.pick.keys()])); } catch (_) { /* no storage: the choices last while the desk does */ } };
+    try { for (const rid of JSON.parse(root.sessionStorage.getItem(PICK_KEY) || "[]")) st.pick.set(String(rid), 1); } catch (_) { /* none kept */ }
+    const PICK_CAP = 12;
+    const tabsOk = () => { try { return root.localStorage.getItem("fr_desk_tabs_ok") === "1"; } catch (_) { return false; } };
+    const pickOut = (rid) => {
+      const i = VM && CM ? sideInfo(rid) : null; if (!i) return null;
+      let p = null;
+      if (i.g) p = (i.g.pages[0] || {}).p; else if (i.x) p = i.p; else if (rid.startsWith("s:")) p = rid.slice(2).split("@")[1];
+      else { const t = targetOf(M, i.c, v); p = t ? t.p : null; }
+      return p != null && p !== "" ? cfg.read(i.slug, p) : null;
+    };
+    const pickLeft = () => [...st.pick.keys()].filter((rid) => !st.done.has(rid)).map((rid) => [rid, pickOut(rid)]).filter((x) => x[1]);
+    function syncAll() {
+      host.querySelectorAll("[data-vdb-pick]").forEach((x) => { x.checked = st.pick.has(x.dataset.vdbPick); });
+      host.querySelectorAll("[data-vdb-pickall]").forEach((x) => {
+        const xs = [...x.closest(".vdb-gp").querySelectorAll(":scope > .vdb-r [data-vdb-pick]")], on = xs.filter((y) => y.checked).length;
+        x.checked = xs.length > 0 && on === xs.length; x.indeterminate = on > 0 && on < xs.length;
+      });
+    }
+    function drawPick(msg) {
+      const bar = host.querySelector("[data-vdb-pickbar]"); if (!bar) return;
+      const all = [...st.pick.keys()].filter((rid) => pickOut(rid)).length, n = pickLeft().length, k = Math.min(n, PICK_CAP);
+      bar.hidden = !all;
+      if (!all) return;
+      bar.querySelector("[data-vdb-pn]").textContent = `${fmt(all)} chosen`;
+      const label = st.done.size ? (n > PICK_CAP ? `Open the next ${k} of ${fmt(n)}` : `Open the other ${fmt(n)}`) : n > PICK_CAP ? `Open the first ${k} of ${fmt(n)}` : n === 1 ? "Open 1 in a new tab" : `Open ${fmt(n)} in new tabs`;
+      bar.querySelector("[data-vdb-openpicked]").innerHTML = `${esc(label)}${ICON.out}`;
+      const m = bar.querySelector("[data-vdb-pmsg]");
+      if (msg !== undefined) { m.textContent = msg; m.hidden = !msg; }
+      bar.querySelector("[data-vdb-pnote]").hidden = !(n > 1 && m.hidden && !tabsOk());
+    }
+    function openPicked() {
+      const batch = pickLeft().slice(0, PICK_CAP); let opened = 0;
+      for (const [rid, href] of batch) {
+        let w = null;
+        try { w = root.open(href, "_blank"); } catch (_) { w = null; }
+        if (!w) break;
+        try { w.opener = null; } catch (_) { /* the tab is already elsewhere */ }
+        st.done.add(rid); opened += 1;
+      }
+      if (opened > 1) { try { root.localStorage.setItem("fr_desk_tabs_ok", "1"); } catch (_) { /* a private window */ } }
+      const rest = pickLeft().length; let msg;
+      if (opened < batch.length) {
+        msg = opened ? `Your browser opened ${fmt(opened)} and held ${fmt(rest)} back. To open them all at once, allow pop-ups for this site: the pop-up sign in the address bar, then "Always allow". Until then each press opens the next one.`
+          : 'Your browser blocked the new tab. Allow pop-ups for this site (the pop-up sign in the address bar, "Always allow"), then press the button again.';
+      } else if (rest) msg = `${fmt(opened)} opened. ${fmt(rest)} to go: press the button again.`;
+      else { msg = `${fmt(st.done.size)} opened in new tabs.${verses.length > 1 ? " They stay chosen for the next verse." : ""}`; st.done.clear(); }
+      drawPick(msg);
     }
     function restore() {
       let { g } = st;
@@ -1362,6 +1430,8 @@
     host.addEventListener("click", (e) => {
       const t = e.target;
       if (sideClick(e)) return;
+      if (t.closest("[data-vdb-openpicked]")) { openPicked(); return; }
+      if (t.closest("[data-vdb-clearpicked]")) { st.pick.clear(); st.done.clear(); pickSave(); syncAll(); drawPick(""); return; }
       const gb = t.closest(".vdb-gb");
       if (gb) { pressGroup(gb, gb.getAttribute("aria-expanded") !== "true"); return; }
       const rb = t.closest(".vdb-rb");
@@ -1415,6 +1485,12 @@
     });
     host.addEventListener("change", (e) => {
       const t = e.target;
+      if (t.matches("[data-vdb-pick], [data-vdb-pickall]")) {
+        const set = (rid, on) => { if (on) st.pick.set(rid, 1); else st.pick.delete(rid); };
+        if (t.matches("[data-vdb-pick]")) set(t.dataset.vdbPick, t.checked);
+        else t.closest(".vdb-gp").querySelectorAll(":scope > .vdb-r [data-vdb-pick]").forEach((x) => set(x.dataset.vdbPick, t.checked));
+        st.done.clear(); pickSave(); syncAll(); drawPick(""); return;
+      }
       if (t.matches("[data-vdb-tr]") && cfg.translation && cfg.translation.set) { cfg.translation.set(t.value); return; }
       if (t.matches("[data-vdb-cmp]")) { st.cmp[Number(t.dataset.vdbCmp)] = t.value; const area = host.querySelector("[data-vdb-toolarea]"); if (area) compareWorks(area); const sel = host.querySelector(`[data-vdb-cmp="${t.dataset.vdbCmp}"]`); if (sel) sel.focus(); return; }
       if (t.matches("[data-vdb-verse]")) { const to = Number(t.value); if (cfg.go && cfg.go(to) !== false) setVerse(to, true); else if (cfg.deskHref) { const a = document.createElement("a"); a.href = cfg.deskHref(to); a.click(); } }
@@ -1461,7 +1537,7 @@
     function setVerse(to, notify) {
       if (!verses.includes(Number(to))) return;
       v = Number(to);
-      st.r = ""; st.lane.clear(); st.limit.clear();
+      st.r = ""; st.lane.clear(); st.limit.clear(); st.done.clear();
       if (st.tool) { st.tool = ""; }
       drawHead();
       if (M) render();

@@ -116,7 +116,7 @@ span.vdb-arrow{color:var(--vdb-line)}
 /* ── a row: author and dates, the work and what it holds for the verse, its page and Preview ─────────────────────────────── */
 .vdb-r{border-top:1px solid color-mix(in srgb,var(--vdb-line) 70%,transparent)}
 .vdb-r:first-child{border-top:0}
-.vdb-rl{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:0 1rem}
+.vdb-rl{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:0 .7rem}
 .vdb-rb{display:grid;grid-template-columns:minmax(10rem,15rem) minmax(0,1fr);align-items:baseline;gap:.1rem 1.2rem;min-width:0;min-height:2.75rem;padding:.45rem 0;border:0;background:none;color:var(--vdb-ink);text-align:left;cursor:pointer}
 .vdb-who{min-width:0;font:500 1.0625rem/1.35 var(--vdb-display);text-wrap:balance}
 .vdb-who small{margin-left:.45rem;color:var(--vdb-muted);font:400 var(--vdb-small)/1.3 var(--vdb-body);font-variant-numeric:tabular-nums}
@@ -141,6 +141,20 @@ span.vdb-arrow{color:var(--vdb-line)}
 .vdb-nt::after{content:"";position:absolute;inset:-.4rem -.15rem}
 .vdb-out{flex:none}
 .vdb a.vdb-out-a{gap:.3rem}
+/* choosing several (11-22): a box before each row, "Choose all" at the head of a fold, and the bar that opens the chosen works */
+.vdb-pk{display:inline-flex;align-items:center;justify-content:center;width:1.4rem;min-height:2.5rem;margin:0;cursor:pointer}
+.vdb-pk input,.vdb-all input{width:1.05rem;height:1.05rem;margin:0;accent-color:var(--vdb-ink);cursor:pointer}
+.vdb .vdb-all{display:flex;flex-wrap:wrap;align-items:center;gap:.05rem 1rem;margin:0;padding:.3rem 0 .35rem;color:var(--vdb-muted);font:var(--vdb-small)/1.4 var(--vdb-body)}
+.vdb-all label{display:inline-flex;align-items:center;gap:.7rem;min-height:2rem;padding-left:.175rem;color:var(--vdb-ink);font-weight:600;cursor:pointer}
+.vdb-all small{font:inherit}
+.vdb-pickbar{position:sticky;bottom:0;z-index:2;padding:.6rem .9rem .7rem;border:1px solid var(--vdb-ink);border-bottom:0;border-radius:6px 6px 0 0;background:var(--vdb-sheet)}
+.vdb-pb-row{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem 1rem;font:.9375rem/1.3 var(--vdb-body)}
+.vdb-pb-row strong{font-weight:600;font-variant-numeric:tabular-nums}
+/* (.vdb twice over: the sheet's own reset gives every button the ink colour, which on this button's ink ground hid its words) */
+.vdb .vdb-pb-open{display:inline-flex;align-items:center;gap:.4rem;min-height:2.5rem;padding:.35rem .95rem;border:1px solid var(--vdb-ink);border-radius:6px;background:var(--vdb-ink);color:var(--vdb-stone);font:600 .9375rem/1.2 var(--vdb-body);cursor:pointer}
+.vdb .vdb-pb-open:hover{background:transparent;color:var(--vdb-ink)}
+.vdb .vdb-pb-msg{max-width:64ch;margin:.5rem 0 0;color:var(--vdb-ink);font:var(--vdb-small)/1.5 var(--vdb-body);text-wrap:pretty}
+.vdb .vdb-pb-note{margin:.35rem 0 0;color:var(--vdb-muted);font:var(--vdb-small)/1.45 var(--vdb-body)}
 /* the chapter's other commentaries, named over their traditions */
 .vdb .vdb-sec{display:flex;flex-wrap:wrap;align-items:baseline;gap:0;margin:0;padding:1.05rem 0 .45rem 1.25rem;border-top:1px solid var(--vdb-ink);color:var(--vdb-ink);font:500 1.25rem/1.3 var(--vdb-display)}
 .vdb .vdb-sec small{margin-left:1.1rem;color:var(--vdb-muted);font:italic var(--vdb-small)/1.5 var(--vdb-body)}
@@ -180,7 +194,10 @@ span.vdb-arrow{color:var(--vdb-line)}
   .vdb-strip .tg-plot{height:6rem}
   .vdb-glimpse{flex-basis:100%;margin-left:1.25rem}
   .vdb-gp{padding-left:0}
-  .vdb-rl{grid-template-columns:minmax(0,1fr);gap:0}
+  .vdb-rl{grid-template-columns:auto minmax(0,1fr);gap:0 .5rem}
+  .vdb-pk{align-self:start;min-height:2.7rem}
+  .vdb-ra{grid-column:2}
+  .vdb-pickbar{margin:0 -.25rem;padding-right:7rem}
   .vdb-rb{grid-template-columns:minmax(0,1fr);gap:.05rem;padding:.55rem 0 .1rem}
     .vdb-ra{flex-wrap:wrap;padding:0 0 .45rem}
   .vdb-trbar{flex-basis:100%;width:auto;margin:0 0 .3rem 1.25rem}
@@ -238,8 +255,16 @@ span.vdb-arrow{color:var(--vdb-line)}
 /* ── THE DESIGN PASS (2026-11-23, owner: "use design and ui fixes to do this"): what the screens showed at 1440, 1280, 1024 and 390 px ── */
 /* a commentary's row is a link since the 11-07 change came over: it keeps the row's plain look, its name underlined under the pointer */
 .vdb a.vdb-rb{text-decoration:none}
+/* hit areas of 40 px: the tick box (22 px wide before) grows into the fold's own margin, never over the row beside it */
+.vdb-pk{width:2.5rem;min-height:2.75rem;margin:0 -.35rem 0 -.6rem}
+.vdb-pk input,.vdb-all input{width:1.125rem;height:1.125rem}
+.vdb-all label{min-height:2.5rem;padding-left:.09rem}
+.vdb input:focus-visible{outline:2px solid var(--vdb-ink);outline-offset:2px}
+/* once a work is chosen the bar says what to do next: the hint at the head of each fold goes */
+.vdb:has([data-vdb-pick]:checked) .vdb-all small{display:none}
 /* the arrow stands after the words: a little less room on its side, so the pill and the button look centred */
 .vdb-nt{padding:.1rem .5rem .1rem .6rem}
+.vdb .vdb-pb-open{padding:.35rem .8rem .35rem .95rem;font-variant-numeric:tabular-nums}
 .vdb .vdb-sec{text-wrap:balance}
 /* an author's dates never break in two ("c." on one line, the years on the next) */
 .vdb-who small{white-space:nowrap}
@@ -250,6 +275,9 @@ span.vdb-arrow{color:var(--vdb-line)}
   .vdb-has-side .vdb-nt{min-width:1.9rem;padding:.1rem .5rem;justify-content:center}
 }
 @media (prefers-reduced-motion:no-preference){
-  .vdb-nt,.vdb-pv{transition:background-color .12s var(--vdb-ease),border-color .12s var(--vdb-ease),color .12s var(--vdb-ease),transform .12s var(--vdb-ease)}
-  .vdb-nt:active,.vdb-pv:active{transform:scale(.96)}
+  /* a press answers under the finger, and the bar comes up into its place */
+  .vdb .vdb-pb-open,.vdb-nt,.vdb-pv{transition:background-color .12s var(--vdb-ease),border-color .12s var(--vdb-ease),color .12s var(--vdb-ease),transform .12s var(--vdb-ease)}
+  .vdb .vdb-pb-open:active,.vdb-nt:active,.vdb-pv:active{transform:scale(.96)}
+  .vdb-pickbar:not([hidden]){animation:vdb-up .2s var(--vdb-ease)}
 }
+@keyframes vdb-up{from{opacity:0;transform:translateY(6px)}}
