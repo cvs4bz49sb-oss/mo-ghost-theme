@@ -777,6 +777,7 @@
   const ICON = {
     prev: '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     next: '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M7.5 4.5 13 10l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    out: '<svg class="vdb-out" viewBox="0 0 20 20" width="13" height="13" aria-hidden="true" focusable="false"><path d="M8.5 5H5v10h10v-3.5M11.5 4.5h4v4M15.5 4.5 9.5 10.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   };
 
   /* cfg: {base, site ("tfr" | "mo"), book {slug, name}, ch, verse, verses [n…], chapter (the chapter file, if the host holds it),
@@ -918,6 +919,15 @@
     // ── the groups ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
     const pv = (slug, p, label) => (p != null && p !== "" ? `<button type="button" class="vdb-pv" data-vdb-pv="${esc(slug)}|${esc(p)}" aria-expanded="false" aria-label="Preview ${esc(label || pgOf(slug, p))}">Preview</button>` : "");
     const pageLink = (slug, p, label) => (p != null && p !== "" ? `<a class="vdb-pg" href="${esc(cfg.read(slug, p))}" aria-label="${esc(`${label}, ${pgOf(slug, p)}, in the reader`)}">${esc(pgOf(slug, p))}</a>` : "");
+    /* THE WAY OUT OF A ROW (2026-11-22, owner: "The verse deck is lowkey unusable to try and track down and open up whole Bible
+     * commentaries and chapter commentaries want to make it easy to open a new tab"). A row's author and title are a button (a press
+     * reads its passage at the side), so no gesture on them opened the work in another tab, and the page number beside them opens it
+     * in this one. Every row now ends in "New tab": the address of its page number (cfg.read), in a new tab, the desk left as it
+     * stands. Ctrl or Cmd with a press on the row, and the middle button, do the same. Wherever the desk says "Open in the reader"
+     * it says "Open in a new tab" beside it. */
+    const newTab = (slug, p, label) => (p != null && p !== "" ? `<a class="vdb-nt" href="${esc(cfg.read(slug, p))}" target="_blank" rel="noopener" title="Open in a new tab" aria-label="${esc(`Open ${label}, ${pgOf(slug, p)}, in a new tab`)}"><span class="vdb-nt-w">New tab</span>${ICON.out}</a>` : "");
+    const outLinks = (href, cls) => (href ? `<a${cls ? ` class="${cls}"` : ""} href="${esc(href)}">Open in the reader</a><a class="${cls ? `${cls} ` : ""}vdb-out-a" href="${esc(href)}" target="_blank" rel="noopener">Open in a new tab${ICON.out}</a>` : "");
+    const rowOut = (rb) => { const a = rb.closest(".vdb-r").querySelector(":scope > .vdb-rl .vdb-nt"); return a ? a.href : ""; };
     const glimpse = (names) => { const u = [...new Set(names.filter(Boolean))]; return u.slice(0, 3).map((x) => cut(String(x), 30)).join(", ") + (u.length > 3 ? ", …" : ""); };
     const whenOf = (a, y) => datesOf(M, a) || (y && y < 9999 ? (y % 100 === 50 ? `${ord(Math.floor(y / 100) + 1)} century` : `c. ${y}`) : "");
     const hasLine = (w) => {
@@ -939,7 +949,7 @@
       + `${o.href ? `<a class="vdb-rb" href="${esc(o.href)}" data-vdb-r="${esc(o.id)}">` : `<button type="button" class="vdb-rb" data-vdb-r="${esc(o.id)}" aria-expanded="false" aria-controls="${id}-o-${esc(o.key)}">`}`
       + `<span class="vdb-who">${esc(o.who)}${o.when ? `<small>${esc(o.when)}</small>` : ""}</span>`
       + `<span class="vdb-what"><cite${o.tl ? ` title="${esc(o.tl)}"` : ""}>${esc(o.what)}</cite>${o.has ? `<small>${esc(o.has)}</small>` : ""}</span>${o.href ? "</a>" : "</button>"}`
-      + `<span class="vdb-ra">${o.page || ""}${o.pv || ""}<button type="button" class="vdb-lane" data-vdb-lane aria-pressed="false" hidden>Latin</button></span></div>`
+      + `<span class="vdb-ra">${o.page || ""}${o.pv || ""}${o.nt || ""}<button type="button" class="vdb-lane" data-vdb-lane aria-pressed="false" hidden>Latin</button></span></div>`
       + `<div class="vdb-ro" id="${id}-o-${esc(o.key)}" hidden></div><div class="vdb-pvw" hidden></div></div>`;
     const keyOf = (s) => String(s).replace(/[^A-Za-z0-9_-]+/g, "_");
     // a key set's volume named by the set too (10-28): "The Ordinary Gloss (Glossa Ordinaria): Epistle to the Romans"
@@ -951,23 +961,23 @@
       const c = w.main, t = targetOf(M, c, v), p = t ? t.p : null;
       const vol = w.vols.length > 1 ? "" : c.vol && /\d/.test(c.vol) ? ` (${String(c.vol).replace(/^Weimar Edition: Writings, Volume\s*/i, "WA ")})` : "";
       return row({ id: c.slug, key: keyOf(c.slug), who: properName(c.a) || c.t, when: whenOf(c.a, w.year), what: keyTitle(c, `${c.t}${vol}`), tl: c.tl,
-        has: `${hasLine(w)}${w.vols.length > 1 ? `${DOT}${w.vols.length} volumes` : ""}${w.whole ? `${DOT}whole Bible` : ""}`, page: pageLink(c.slug, p, c.t), pv: pv(c.slug, p, `${c.t}, ${p != null ? pgOf(c.slug, p) : ""}`),
+        has: `${hasLine(w)}${w.vols.length > 1 ? `${DOT}${w.vols.length} volumes` : ""}${w.whole ? `${DOT}whole Bible` : ""}`, page: pageLink(c.slug, p, c.t), pv: pv(c.slug, p, `${c.t}, ${p != null ? pgOf(c.slug, p) : ""}`), nt: newTab(c.slug, p, c.t),
         href: cfg.beside ? cfg.beside(c.slug, v) : "" });
     };
     const sermonRow = (s) => {
       const c = s.c || s.w.main, { x } = s, who = properName(x.a || c.a) || c.t;
       return row({ id: `s:${c.slug}@${x.p}`, key: keyOf(`s-${c.slug}-${x.p}`), who, when: whenOf(x.a || c.a, Number(x.fl || x.year) || s.w.year),
         what: x.t, tl: x.tl && x.tl !== x.t ? x.tl : "", has: `${x.ref ? (x.vul ? `${x.ref}, the Vulgate's count` : x.ref) : chRef}${s.on ? `${DOT}on ${cfg.ch}:${v}` : ""}`,
-        page: pageLink(c.slug, x.p, x.t), pv: pv(c.slug, x.p, `${x.t}, ${pgOf(c.slug, x.p)}`) });
+        page: pageLink(c.slug, x.p, x.t), pv: pv(c.slug, x.p, `${x.t}, ${pgOf(c.slug, x.p)}`), nt: newTab(c.slug, x.p, x.t) });
     };
     const hymnRow = (x) => row({ id: `h:${x.slug}@${x.p}`, key: keyOf(`h-${x.slug}-${x.p}`), who: x.t, when: x.year ? String(x.year) : "", what: properName(x.a) || "", tl: x.tl && x.tl !== x.t ? x.tl : "",
-      has: `${x.ref ? (x.vul ? `${x.ref}, the Vulgate's count` : x.ref) : chRef}${serOn(x, v) ? `${DOT}on ${cfg.ch}:${v}` : ""}`, page: pageLink(x.slug, x.p, x.t), pv: pv(x.slug, x.p, `${x.t}, ${pgOf(x.slug, x.p)}`), cls: "vdb-hymn" });
+      has: `${x.ref ? (x.vul ? `${x.ref}, the Vulgate's count` : x.ref) : chRef}${serOn(x, v) ? `${DOT}on ${cfg.ch}:${v}` : ""}`, page: pageLink(x.slug, x.p, x.t), pv: pv(x.slug, x.p, `${x.t}, ${pgOf(x.slug, x.p)}`), nt: newTab(x.slug, x.p, x.t), cls: "vdb-hymn" });
     const citeRow = (g) => {
       const ps = g.pages.map((x) => x.p).filter((p, i, a) => a.indexOf(p) === i);
       const first = g.pages[0], kinds = KIND_ORDER.filter((k) => g.kinds[k]).map((k) => KIND[k]);
       const pgs = ps.length === 1 ? pageLink(g.w, ps[0], g.t) : `<span class="vdb-pgs">${esc(/^(pld|pg)-/.test(g.w) ? "cols." : "pp.")} ${ps.slice(0, 4).map((p) => `<a class="vdb-pg" href="${esc(cfg.read(g.w, p))}" aria-label="${esc(`${g.t}, ${pgOf(g.w, p)}`)}">${esc(p)}</a>`).join(", ")}${ps.length > 4 ? ` <span class="vdb-more-n">+${ps.length - 4}</span>` : ""}</span>`;
       return row({ id: g.id, key: keyOf(g.id), who: properName(g.a) || g.t, when: whenOf(g.a, g.year), what: g.t, has: `${kinds.join(", ")}${first && first.g ? `${DOT}${first.g}` : ""}`,
-        page: pgs, pv: pv(g.w, first && first.p, `${g.t}, ${first ? pgOf(g.w, first.p) : ""}`), cls: "vdb-cite" });
+        page: pgs, pv: pv(g.w, first && first.p, `${g.t}, ${first ? pgOf(g.w, first.p) : ""}`), nt: newTab(g.w, first && first.p, g.t), cls: "vdb-cite" });
     };
     const groupHead = (gid, title, n, names, extra) => `<h3 class="vdb-gh"><button type="button" class="vdb-gb" data-vdb-g="${esc(gid)}" aria-expanded="false" aria-controls="${id}-g-${keyOf(gid)}">`
       + `<span class="vdb-sign" aria-hidden="true"></span><span class="vdb-gt">${esc(title)}</span><span class="vdb-n">${esc(n)}</span>${names ? `<span class="vdb-glimpse">${esc(names)}</span>` : ""}${extra || ""}</button></h3>`;
@@ -998,6 +1008,10 @@
       if (VM.landmark.length) html += groupHTML("landmark", "comm", "Key commentaries on this verse", fmt(VM.landmark.length), names(VM.landmark), "", "vdb-g-key");
       const wholeN = (VM.whole || []).reduce((s, g) => s + g.works.length, 0);
       if (wholeN) html += groupHTML("whole", "comm", "Whole-Bible commentaries", fmt(wholeN), glimpse(VM.whole.flatMap((g) => g.works.map((w) => w.set.label))), "", "vdb-g-key vdb-g-whole");
+      // the chapter's commentaries that are neither landmarks nor sets, named for what they are over their traditions (11-22: the
+      // folds said only "Greek Fathers", "Medieval"; the Scripture page calls this list "Commentaries on Romans 5")
+      const tradN = VM.trads.reduce((s, g) => s + g.works.length, 0);
+      if (tradN) html += `<p class="vdb-sec" data-vdb-kind="comm">${esc(`${VM.landmark.length || wholeN ? "Other commentaries" : "Commentaries"} on ${chRef}`)}<span class="vdb-n">${fmt(tradN)}</span><small>by tradition</small></p>`;
       for (const g of VM.trads) html += groupHTML(`t:${g.k}`, "comm", g.name, fmt(g.works.length), names(g.works), "", `vdb-g-trad`);
       if (VM.sermons.length) html += groupHTML("sermons", "sermons", `Homilies and sermons on ${chRef}`, fmt(VM.sermons.length), glimpse(VM.sermons.map((s) => short(s.x.a || s.w.main.a))), "");
       if (VM.hymns.length) html += groupHTML("hymns", "hymns", `Hymns on ${chRef}`, fmt(VM.hymns.length), glimpse(VM.hymns.map((x) => x.t)), "");
@@ -1036,6 +1050,20 @@
       b.setAttribute("aria-expanded", String(open)); body.hidden = !open; sec.classList.toggle("is-open", open);
       if (!quiet) { st.g = open ? gid : parent; if (!open || !(st.r && sec.querySelector(`[data-vdb-row="${CSS.escape(st.r)}"]`))) st.r = ""; report(); }
     }
+    /* A FOLD'S HEAD STAYS UNDER THE HAND (2026-11-22). One group is open at a time, so a head pressed below the open one closes a
+     * list above itself: "Whole-Bible commentaries", pressed under the fifteen landmarks on Romans 5:12, went 406 px up and off the
+     * screen at 1440 px and 1,381 px up on a phone (runs/desk_open_1122/jump.mjs), and the reader had to look for the list just
+     * opened. The page now moves by what the head moved, so the head is where it was pressed. */
+    const hold = (el, y) => {
+      const dy = el.getBoundingClientRect().top - y;
+      if (Math.abs(dy) < 1 || !root.scrollBy) return;
+      try { root.scrollBy({ top: dy, left: 0, behavior: "instant" }); } catch (_) { root.scrollBy(0, dy); }
+    };
+    function pressGroup(gb, open) {
+      const y = gb.getBoundingClientRect().top;
+      setGroup(gb.dataset.vdbG, open);
+      hold(gb, y);
+    }
     function restore() {
       let { g } = st;
       if (g == null) g = VM.landmark.length ? "landmark" : "";
@@ -1049,7 +1077,7 @@
     }
     const report = () => { if (cfg.onState) cfg.onState({ v, g: st.g, r: st.r }); };
     function applyKind() {
-      host.querySelectorAll(".vdb-groups > .vdb-g").forEach((s) => { s.hidden = !!st.k && s.dataset.vdbKind !== st.k; });
+      host.querySelectorAll(".vdb-groups > [data-vdb-kind]").forEach((s) => { s.hidden = !!st.k && s.dataset.vdbKind !== st.k; });
     }
 
     // ── a row opened: the passage as a block quote, English first, the source a press away ───────────────────────────────────────────
@@ -1073,7 +1101,7 @@
         }
         if (rid.startsWith("h:")) {
           const [slug, p] = rid.slice(2).split("@"), x = VM.hymns.find((h) => h.slug === slug && String(h.p) === p);
-          box.innerHTML = x && x.first ? `<blockquote class="vdb-q" lang="en"><p>${esc(x.first)}</p></blockquote><p class="vdb-go"><a href="${esc(cfg.read(slug, p))}">Open in the reader</a></p>` : `<p class="vdb-go"><a href="${esc(cfg.read(slug, p))}">Open in the reader</a></p>`;
+          box.innerHTML = x && x.first ? `<blockquote class="vdb-q" lang="en"><p>${esc(x.first)}</p></blockquote><p class="vdb-go">${outLinks(cfg.read(slug, p))}</p>` : `<p class="vdb-go">${outLinks(cfg.read(slug, p))}</p>`;
           return;
         }
         let c;
@@ -1092,7 +1120,7 @@
       if (dead || !box.isConnected) return;
       const lane = st.lane.get(rid) || "en";
       const body = P.none && !(P.en || P.src) ? `<p class="vdb-wait">${esc(P.none)}</p>` : quoteHTML(P, lane);
-      box.innerHTML = `${P.where ? `<p class="vdb-where">${esc(P.where)}</p>` : ""}<div data-vdb-quote>${body}</div><p class="vdb-go">${beside ? `<a href="${esc(beside)}">Read beside the text</a>` : ""}<a href="${esc(read)}">Open in the reader</a></p>`;
+      box.innerHTML = `${P.where ? `<p class="vdb-where">${esc(P.where)}</p>` : ""}<div data-vdb-quote>${body}</div><p class="vdb-go">${beside ? `<a href="${esc(beside)}">Read beside the text</a>` : ""}${outLinks(read)}</p>`;
       box.__P = P;
       if (lb && P.en && P.src) { lb.hidden = false; lb.textContent = P.srcName || "Latin"; lb.setAttribute("aria-pressed", String(lane === "src")); lb.setAttribute("aria-label", `Show the ${P.srcName || "Latin"} of this passage`); }
     }
@@ -1105,7 +1133,7 @@
       if (!open) { box.innerHTML = ""; box.classList.remove("pw"); return; }
       const [slug, p] = b.dataset.vdbPv.split("|");
       box.innerHTML = '<p class="vdb-wait" role="status">Loading the page…</p>';
-      previewInto(M, box, slug, p, "").catch(() => false).then((ok) => { if (!ok && box.isConnected) box.innerHTML = `<p class="vdb-wait">This page cannot be shown here. <a href="${esc(cfg.read(slug, p))}">Open ${esc(pgOf(slug, p))} in the reader</a></p>`; });
+      previewInto(M, box, slug, p, "").catch(() => false).then((ok) => { if (!ok && box.isConnected) box.innerHTML = `<p class="vdb-wait">This page cannot be shown here. <a href="${esc(cfg.read(slug, p))}">Open ${esc(pgOf(slug, p))} in the reader</a>, or <a href="${esc(cfg.read(slug, p))}" target="_blank" rel="noopener">in a new tab</a>.</p>`; });
     }
     function openRow(rowEl, open, quiet) {
       const b = rowEl.querySelector(".vdb-rb"), box = rowEl.querySelector(".vdb-ro"), rid = rowEl.dataset.vdbRow;
@@ -1132,7 +1160,7 @@
       const [slug, p] = btn.dataset.vdbPv.split("|");
       box.innerHTML = '<p class="vdb-wait" role="status">Loading the page…</p>';
       const ok = await previewInto(M, box, slug, p, "").catch(() => false);
-      if (!ok && box.isConnected) box.innerHTML = `<p class="vdb-wait">This page cannot be shown here. <a href="${esc(cfg.read(slug, p))}">Open ${esc(pgOf(slug, p))} in the reader</a></p>`;
+      if (!ok && box.isConnected) box.innerHTML = `<p class="vdb-wait">This page cannot be shown here. <a href="${esc(cfg.read(slug, p))}">Open ${esc(pgOf(slug, p))} in the reader</a>, or <a href="${esc(cfg.read(slug, p))}" target="_blank" rel="noopener">in a new tab</a>.</p>`;
     }
 
     // ── the reading at the side ──────────────────────────────────────────────────────────────────────────────────────────────────
@@ -1178,7 +1206,7 @@
         if (!pages || !(more || e.target.closest("[data-lane]"))) return;
         new MutationObserver((_, ob) => { ob.disconnect(); bring(!more ? cited() : more.dataset.more === "-1" ? pages.firstElementChild : pages.lastElementChild); }).observe(pages, { childList: true });
       });
-      if (!ok) w.innerHTML = `<p class="vdb-wait">This page cannot be shown here. <a href="${esc(cfg.read(slug, p))}">Open ${esc(pgOf(slug, p))} in the reader</a></p>`;
+      if (!ok) w.innerHTML = `<p class="vdb-wait">This page cannot be shown here. <a href="${esc(cfg.read(slug, p))}">Open ${esc(pgOf(slug, p))} in the reader</a>, or <a href="${esc(cfg.read(slug, p))}" target="_blank" rel="noopener">in a new tab</a>.</p>`;
     }
     async function sideShow(rid, opts = {}) {
       const side = host.querySelector("[data-vdb-side]"); if (!side || !rid || !VM) return;
@@ -1202,14 +1230,14 @@
           const g = info.g, first = opts.page != null ? String(opts.page) : String((g.pages[0] || {}).p);
           say(`${g.pages.length === 1 ? "One page cites" : `${fmt(g.pages.length)} pages cite`} ${ref(v)}`);
           q.innerHTML = `<ul class="vdb-cps vdb-scps">${g.pages.map((x) => `<li${String(x.p) === first ? ' class="is-on"' : ""}><button type="button" class="vdb-spb" data-vdb-sp="${esc(x.p)}" aria-pressed="${String(x.p) === first}">${esc(pgOf(g.w, x.p))}</button><span class="vdb-k">${esc(KIND[x.how] || "cites")}</span>${x.g ? `<span class="vdb-gist">${esc(x.g)}</span>` : ""}</li>`).join("")}</ul>`;
-          acts.innerHTML = link(cfg.read(g.w, first), "Open in the reader");
+          acts.innerHTML = outLinks(cfg.read(g.w, first), "vdb-tool");
           await sidePage(g.w, first, tok, true);
           return;
         }
         if (info.x) {
           say(`${info.x.ref ? (info.x.vul ? `${info.x.ref}, the Vulgate's count` : info.x.ref) : chRef}`);
           q.innerHTML = info.x.first ? `<blockquote class="vdb-q" lang="en"><p>${esc(info.x.first)}</p></blockquote>` : "";
-          acts.innerHTML = link(cfg.read(info.slug, info.p), "Open in the reader");
+          acts.innerHTML = outLinks(cfg.read(info.slug, info.p), "vdb-tool");
           await sidePage(info.slug, info.p, tok, true);
           return;
         }
@@ -1219,7 +1247,7 @@
         say(P.where || "");
         const lane = st.lane.get(rid) || "en";
         const laneBtn = P.en && P.src ? `<button type="button" class="vdb-lane" data-vdb-slane aria-pressed="${lane === "src"}" aria-label="${esc(`Show the ${P.srcName || "Latin"} of this passage`)}">${esc(P.srcName || "Latin")}</button>` : "";
-        acts.innerHTML = `${laneBtn}${link(cfg.beside ? cfg.beside(P.slug, v) : "", "Read beside the text")}${link(cfg.read(P.slug, P.page), "Open in the reader")}`;
+        acts.innerHTML = `${laneBtn}${link(cfg.beside ? cfg.beside(P.slug, v) : "", "Read beside the text")}${outLinks(cfg.read(P.slug, P.page), "vdb-tool")}`;
         q.innerHTML = P.none && !(P.en || P.src) ? `<p class="vdb-wait">${esc(P.none)}</p>` : `<div data-vdb-quote>${quoteHTML(P, lane)}</div>`;
         q.__P = P;
         await sidePage(P.slug, opts.page != null ? opts.page : P.page, tok, opts.page != null);
@@ -1233,7 +1261,7 @@
       if (pb) {
         const info = sideInfo(st.r); if (!info || !info.g) return true;
         side.querySelectorAll(".vdb-scps li").forEach((li) => { const b = li.querySelector("[data-vdb-sp]"), on = b === pb; li.classList.toggle("is-on", on); b.setAttribute("aria-pressed", String(on)); });
-        const acts = side.querySelector("[data-vdb-sha]"); if (acts) acts.innerHTML = `<a class="vdb-tool" href="${esc(cfg.read(info.g.w, pb.dataset.vdbSp))}">Open in the reader</a>`;
+        const acts = side.querySelector("[data-vdb-sha]"); if (acts) acts.innerHTML = outLinks(cfg.read(info.g.w, pb.dataset.vdbSp), "vdb-tool");
         sidePage(info.g.w, pb.dataset.vdbSp, ++sideTok, true);
         return true;
       }
@@ -1311,7 +1339,7 @@
       const open = t.matches("a.vdb-rb") ? t.closest(".vdb-r").classList.contains("is-open") : t.getAttribute("aria-expanded") === "true";
       if (e.key === "ArrowRight") {
         e.preventDefault();
-        if (t.matches(".vdb-gb")) { if (!open) setGroup(t.dataset.vdbG, true); else go(items[i + 1]); }
+        if (t.matches(".vdb-gb")) { if (!open) pressGroup(t, true); else go(items[i + 1]); }
         else if (sideMode()) sideShow(t.closest(".vdb-r").dataset.vdbRow);
         else if (!open) openRow(t.closest(".vdb-r"), true);
         return;
@@ -1329,11 +1357,12 @@
       const t = e.target;
       if (sideClick(e)) return;
       const gb = t.closest(".vdb-gb");
-      if (gb) { setGroup(gb.dataset.vdbG, gb.getAttribute("aria-expanded") !== "true"); return; }
+      if (gb) { pressGroup(gb, gb.getAttribute("aria-expanded") !== "true"); return; }
       const rb = t.closest(".vdb-rb");
       if (rb) {
         // a commentary's row is a link (owner 2026-11-07, above): read at the side on a wide screen, else followed (a new tab where asked)
         if (rb.tagName === "A") { if (sideMode() && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) { e.preventDefault(); sideShow(rb.closest(".vdb-r").dataset.vdbRow); } return; }
+        if ((e.metaKey || e.ctrlKey) && rowOut(rb)) { root.open(rowOut(rb), "_blank", "noopener"); return; }
         if (sideMode()) sideShow(rb.closest(".vdb-r").dataset.vdbRow); else openRow(rb.closest(".vdb-r"), rb.getAttribute("aria-expanded") !== "true");
         return;
       }
@@ -1372,6 +1401,11 @@
       }
       const gv = t.closest("[data-vdb-go]");
       if (gv && cfg.go && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) { const to = Number(gv.dataset.vdbGo); if (cfg.go(to) !== false) { e.preventDefault(); setVerse(to, true); } }
+    });
+    // the middle button on a row that is a button (a sermon, a hymn, a citing work): its page in a new tab, as on a link
+    host.addEventListener("auxclick", (e) => {
+      const rb = e.button === 1 && e.target.closest ? e.target.closest("button.vdb-rb") : null, out = rb ? rowOut(rb) : "";
+      if (out) { e.preventDefault(); root.open(out, "_blank", "noopener"); }
     });
     host.addEventListener("change", (e) => {
       const t = e.target;
