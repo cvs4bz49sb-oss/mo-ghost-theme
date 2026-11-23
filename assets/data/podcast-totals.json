@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-23T03:07:13.166Z",
+  "generated_at": "2026-11-23T07:48:33.413Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 327,
-      "plays": 118930,
+      "plays": 118958,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -229,7 +229,7 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 3124
+          "plays": 3125
         },
         {
           "date": "2026-08-12",
@@ -239,7 +239,7 @@
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 4154
+          "plays": 4157
         },
         {
           "date": "2026-08-26",
@@ -254,7 +254,7 @@
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 4000
+          "plays": 4001
         },
         {
           "date": "2026-09-16",
@@ -299,12 +299,12 @@
         {
           "date": "2026-11-11",
           "title": "Replay: C.S. Lewis for Everyone",
-          "plays": 3036
+          "plays": 3037
         },
         {
           "date": "2026-11-18",
           "title": "Did Paul Teach Keeping the Torah?",
-          "plays": 3031
+          "plays": 3046
         }
       ],
       "per_episode": [
@@ -380,7 +380,7 @@
         },
         {
           "month": "2018-09",
-          "avg": 24,
+          "avg": 25,
           "episodes": 3
         },
         {
@@ -555,7 +555,7 @@
         },
         {
           "month": "2021-09",
-          "avg": 73,
+          "avg": 74,
           "episodes": 4
         },
         {
@@ -615,7 +615,7 @@
         },
         {
           "month": "2022-09",
-          "avg": 29,
+          "avg": 30,
           "episodes": 4
         },
         {
@@ -825,12 +825,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 3757,
+          "avg": 3758,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 4010,
+          "avg": 4011,
           "episodes": 5
         },
         {
@@ -840,14 +840,14 @@
         },
         {
           "month": "2026-11",
-          "avg": 3096,
+          "avg": 3101,
           "episodes": 3
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 61,
-      "plays": 30947,
+      "plays": 30972,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -858,17 +858,17 @@
         {
           "date": "2025-08-12",
           "title": "A. A. Milne - Winnie the Pooh with Ivana D. Greco and Dixie Dillon Lane",
-          "plays": 186
+          "plays": 187
         },
         {
           "date": "2025-08-12",
           "title": "Ignazio Silone - Bread and Wine with Geoffrey Kurtz",
-          "plays": 77
+          "plays": 78
         },
         {
           "date": "2025-08-12",
           "title": "Laura Ingalls Wilder - Little House on the Prairie with John Fry and LuElla D'Amico",
-          "plays": 171
+          "plays": 172
         },
         {
           "date": "2025-08-12",
@@ -878,7 +878,7 @@
         {
           "date": "2025-08-21",
           "title": "J.R.R. Tolkien - The Return of the King with Kirsten Sanders",
-          "plays": 191
+          "plays": 192
         },
         {
           "date": "2025-08-28",
@@ -893,7 +893,7 @@
         {
           "date": "2025-09-11",
           "title": "C. S. Lewis - That Hideous Strength with Philip D. Bunn and Ronni Kurtz",
-          "plays": 221
+          "plays": 222
         },
         {
           "date": "2025-09-18",
@@ -968,7 +968,7 @@
         {
           "date": "2026-03-12",
           "title": "The Nichomachean Ethics by Aristotle with Sabrina Little | America 250",
-          "plays": 157
+          "plays": 158
         },
         {
           "date": "2026-03-18",
@@ -978,7 +978,7 @@
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 236
+          "plays": 237
         },
         {
           "date": "2026-04-02",
@@ -1023,12 +1023,12 @@
         {
           "date": "2026-05-28",
           "title": "Augustine's Confessions with Joey Sherrard",
-          "plays": 1182
+          "plays": 1183
         },
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 974
+          "plays": 975
         },
         {
           "date": "2026-06-11",
@@ -1043,7 +1043,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1454
+          "plays": 1455
         },
         {
           "date": "2026-07-02",
@@ -1128,33 +1128,33 @@
         {
           "date": "2026-10-22",
           "title": "Moby-Dick, with Kyle Harper",
-          "plays": 889
+          "plays": 891
         },
         {
           "date": "2026-10-29",
           "title": "Edgar Allan Poe: America's Spookiest Classic with Fr. Ryan Duns and Steven Knepper",
-          "plays": 856
+          "plays": 857
         },
         {
           "date": "2026-11-05",
           "title": "Dostoevsky's Crime & Punishment, with Perry Glanzer",
-          "plays": 926
+          "plays": 928
         },
         {
           "date": "2026-11-12",
           "title": "Advent in the Early Church, with Adam & Lynneth Renberg",
-          "plays": 902
+          "plays": 904
         },
         {
           "date": "2026-11-19",
           "title": "Staying Sober: The Healing Power of Classic Books, with Ken Craycraft",
-          "plays": 759
+          "plays": 766
         }
       ],
       "per_episode": [
         {
           "month": "2025-07",
-          "avg": 203,
+          "avg": 204,
           "episodes": 1
         },
         {
@@ -1164,7 +1164,7 @@
         },
         {
           "month": "2025-09",
-          "avg": 120,
+          "avg": 121,
           "episodes": 4
         },
         {
@@ -1224,26 +1224,21 @@
         },
         {
           "month": "2026-10",
-          "avg": 859,
+          "avg": 860,
           "episodes": 5
         },
         {
           "month": "2026-11",
-          "avg": 862,
+          "avg": 866,
           "episodes": 3
         }
       ]
     },
     "daily-liturgy": {
-      "episodes": 208,
-      "plays": 232085,
+      "episodes": 209,
+      "plays": 232526,
       "earliest": "2026-03-02",
       "recent": [
-        {
-          "date": "2026-09-14",
-          "title": "Monday, September 14, 2026",
-          "plays": 2200
-        },
         {
           "date": "2026-09-15",
           "title": "Tuesday, September 15, 2026",
@@ -1497,7 +1492,7 @@
         {
           "date": "2026-11-12",
           "title": "Thursday, November 12, 2026",
-          "plays": 2356
+          "plays": 2357
         },
         {
           "date": "2026-11-13",
@@ -1512,32 +1507,37 @@
         {
           "date": "2026-11-16",
           "title": "Monday, November 16, 2026",
-          "plays": 2367
+          "plays": 2369
         },
         {
           "date": "2026-11-17",
           "title": "Tuesday, November 17, 2026",
-          "plays": 2408
+          "plays": 2409
         },
         {
           "date": "2026-11-18",
           "title": "Wednesday, November 18, 2026",
-          "plays": 2292
+          "plays": 2295
         },
         {
           "date": "2026-11-19",
           "title": "Thursday, November 19, 2026",
-          "plays": 2264
+          "plays": 2269
         },
         {
           "date": "2026-11-20",
           "title": "Friday, November 20, 2026",
-          "plays": 2109
+          "plays": 2125
         },
         {
           "date": "2026-11-21",
           "title": "Saturday, November 21, 2026",
-          "plays": 1840
+          "plays": 1891
+        },
+        {
+          "date": "2026-11-23",
+          "title": "Monday, November 23, 2026",
+          "plays": 361
         }
       ],
       "per_episode": [
@@ -1583,8 +1583,8 @@
         },
         {
           "month": "2026-11",
-          "avg": 2276,
-          "episodes": 18
+          "avg": 2179,
+          "episodes": 19
         }
       ]
     }
