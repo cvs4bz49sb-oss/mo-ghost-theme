@@ -133,6 +133,8 @@ html.has-eoy-bar .sd-desk .vdb-pickbar { bottom: var(--eoy-bar-h, 0px); }
 .sd-desk .vdb .vdb-pb-open:hover { background: transparent; color: var(--sd-accent); }
 .sd-desk :is(.vdb-pk input, .vdb-all input) { accent-color: var(--sd-accent); }
 @media (pointer: coarse) { .sd-desk .vdb .vdb-pb-open { min-height: 44px; } }
+/* the shared sheet keeps the bar clear of a floating button The Faith Received has at the foot of a phone screen; there is none here */
+@media (max-width: 720px) { .sd-desk .vdb-pickbar { margin: 0; padding-right: 0.9rem; } }
 /* "Read on" is one fold in the pane's own scroll: never a scroller inside a scroller, and never the note printed twice */
 .sd-desk .vdb-side .pw-pages { max-height: none; overflow: visible; }
 .sd-desk .vdb-spd > summary.vdb-sph { display: flex; align-items: baseline; margin: 1.25rem 0 0; padding: 0.6rem 0; border-top: 1px solid var(--vds-rule); font: var(--vds-label); cursor: pointer; list-style: none; }
