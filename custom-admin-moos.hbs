@@ -1,0 +1,67 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Connect MOOS | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="Connect MOOS | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="Connect MOOS | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+<link rel="stylesheet" href="{{asset "css/admin-moos.css"}}" />
+{{/contentFor}}
+{{!-- /admin/moos/ — where a staff member approves the MOOS desktop app
+     (2026-11-25). MOOS shows a code; the person types it here and
+     approves. mo-admin (lib/moos-pair.js) then issues that computer a
+     MOOS token bound to this person's email: 30 days, staff only,
+     limited to the routes of the MOOS Tools. The same page lists their
+     connected computers and disconnects them.
+
+     The code is typed, never carried in the link, so a link someone
+     sends cannot arrive with an approval already filled in.
+
+     No sidebar on purpose: this is a one-step page reached from MOOS,
+     not a dashboard, so it has no tool in admin-tools.js. The worker
+     refuses every /moos/* call from anyone but Ghost staff. --}}
+
+<main class="admin-page moos-connect">
+  {{#if @member}}
+    <section class="moos-connect-body" data-moos-connect data-worker-url="{{@custom.admin_worker_url}}">
+      <div class="moos-card" data-moos-step="enter">
+        <h1 class="moos-title">Connect MOOS</h1>
+        <form class="moos-form" data-moos-form novalidate>
+          <label class="moos-label" for="moos-code">Code from MOOS</label>
+          <input id="moos-code" class="moos-code" name="code" type="text" inputmode="text" autocomplete="one-time-code"
+                 autocapitalize="characters" spellcheck="false" maxlength="9" placeholder="XXXX-XXXX" data-moos-code required />
+          <button type="submit" class="btn btn-primary moos-btn" data-moos-check>Continue</button>
+          <p class="moos-msg" data-moos-msg role="alert" hidden></p>
+        </form>
+      </div>
+
+      <div class="moos-card" data-moos-step="confirm" hidden>
+        <h1 class="moos-title">Approve this computer?</h1>
+        <p class="moos-device" data-moos-device></p>
+        <p class="moos-when" data-moos-when></p>
+        <div class="moos-actions">
+          <button type="button" class="btn btn-primary moos-btn" data-moos-approve>Approve</button>
+          <button type="button" class="btn moos-btn" data-moos-deny>Decline</button>
+        </div>
+        <p class="moos-msg" data-moos-confirm-msg role="alert" hidden></p>
+      </div>
+
+      <div class="moos-card" data-moos-step="done" hidden>
+        <h1 class="moos-title" data-moos-done-title>Connected</h1>
+        <p class="moos-device" data-moos-done-device></p>
+        <p class="moos-when">Return to MOOS.</p>
+      </div>
+
+      <div class="moos-devices" data-moos-devices hidden>
+        <h2 class="moos-subtitle">Your computers</h2>
+        <ul class="moos-list" data-moos-list></ul>
+      </div>
+    </section>
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+</main>
+
+<script src="{{asset "js/admin-moos.js"}}"></script>

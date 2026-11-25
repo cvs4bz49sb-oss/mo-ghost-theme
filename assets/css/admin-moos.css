@@ -1,0 +1,148 @@
+/* /admin/moos/ (custom-admin-moos.hbs, assets/js/admin-moos.js).
+   Loaded by that template only. One card at a time, centered, in the
+   site's paper and terracotta. */
+
+.moos-connect {
+  min-height: 70vh;
+  padding: clamp(48px, 10vh, 120px) 16px 96px;
+  background: var(--color-page, #f6f3f2);
+}
+
+.moos-connect-body {
+  max-width: 520px;
+  margin: 0 auto;
+  display: grid;
+  gap: 48px;
+}
+
+.moos-card {
+  display: grid;
+  gap: 20px;
+  padding: 44px 40px;
+  background: var(--color-white, #ffffff);
+  border: 1px solid var(--color-card-border, #d9c6a7);
+  border-radius: 10px;
+  text-align: center;
+  animation: moos-rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.moos-title {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.15;
+  font-style: normal;
+  color: var(--color-dark, #2d2927);
+}
+
+.moos-subtitle {
+  margin: 0 0 12px;
+  font-size: 19px;
+  font-style: normal;
+  color: var(--color-dark, #2d2927);
+}
+
+.moos-form {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+}
+
+.moos-label {
+  color: var(--color-muted, #6b6660);
+  font-size: 15px;
+}
+
+.moos-code {
+  width: min(320px, 100%);
+  padding: 14px 16px;
+  border: 1px solid var(--color-card-border, #d9c6a7);
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 30px;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--color-dark, #2d2927);
+}
+
+.moos-code:focus {
+  outline: 2px solid var(--color-primary, #ee7d51);
+  outline-offset: 2px;
+}
+
+.moos-btn {
+  min-width: 160px;
+}
+
+.moos-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.moos-device {
+  margin: 0;
+  font-size: 22px;
+  color: var(--color-dark, #2d2927);
+  overflow-wrap: anywhere;
+}
+
+.moos-when,
+.moos-msg {
+  margin: 0;
+  color: var(--color-muted, #6b6660);
+  font-size: 15px;
+}
+
+.moos-msg {
+  color: var(--color-alert-text, #9c4126);
+}
+
+.moos-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-rule, #d9c6a7);
+}
+
+.moos-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 2px;
+  border-bottom: 1px solid var(--color-rule, #d9c6a7);
+}
+
+.moos-row-name {
+  overflow-wrap: anywhere;
+  color: var(--color-dark, #2d2927);
+}
+
+.moos-row-when {
+  color: var(--color-muted, #6b6660);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.moos-row-btn {
+  padding: 6px 14px;
+  font-size: 14px;
+}
+
+@keyframes moos-rise {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+@media (max-width: 560px) {
+  .moos-card { padding: 32px 22px; }
+  .moos-code { font-size: 24px; }
+  .moos-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .moos-row-when { grid-column: 1; grid-row: 2; }
+  .moos-row-btn { grid-row: 1 / span 2; grid-column: 2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moos-card { animation: none; }
+}

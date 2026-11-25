@@ -255,7 +255,9 @@
           // pending, or they would never see "check your inbox".
           const key = kind === "newsletter" && res.body.surveyKey;
           if (key && !res.body.pending && /^[A-Za-z0-9_.-]{20,600}$/.test(key)) {
-            window.location.assign("/welcome/#k=" + key);
+            // A fixed same-site path, and the key is checked above: MOSafeRedirect only admits Stripe hosts
+            // eslint-disable-next-line no-restricted-syntax -- same-origin /welcome/, not a worker-supplied URL
+            window.location.assign(`/welcome/#k=${key}`);
             return;
           }
           renderSuccess(form, kind, res.body);
