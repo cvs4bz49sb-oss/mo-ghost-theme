@@ -1,0 +1,904 @@
+{
+ "v": 1,
+ "slug": "sponsorship-guide",
+ "title": "Sponsorship Opportunities",
+ "sub": "2027",
+ "blocks": [
+  {
+   "t": "chapter",
+   "n": "I",
+   "text": "About Mere Orthodoxy",
+   "id": "about"
+  },
+  {
+   "t": "eyebrow",
+   "text": "About"
+  },
+  {
+   "t": "h3",
+   "text": "A Christian journal of ideas since 2005"
+  },
+  {
+   "t": "p",
+   "lede": true,
+   "text": "Mere Orthodoxy publishes essays, reviews and a print journal on theology, culture and politics. It writes from an orthodox Protestant perspective for pastors, academics and serious lay readers."
+  },
+  {
+   "t": "rows",
+   "cols": 2,
+   "items": [
+    {
+     "label": "The website",
+     "body": [
+      {
+       "t": "p",
+       "text": "Essays, reviews and cultural commentary"
+      }
+     ]
+    },
+    {
+     "label": "The print journal",
+     "body": [
+      {
+       "t": "p",
+       "text": "Mailed to paying members"
+      }
+     ]
+    },
+    {
+     "label": "The newsletter",
+     "body": [
+      {
+       "t": "p",
+       "text": "A weekly digest of new writing"
+      }
+     ]
+    },
+    {
+     "label": "Substack",
+     "body": [
+      {
+       "t": "p",
+       "text": "New essays by email most weekdays"
+      }
+     ]
+    },
+    {
+     "label": "The Daily Liturgy",
+     "body": [
+      {
+       "t": "p",
+       "text": "Daily prayer by email and audio"
+      }
+     ]
+    },
+    {
+     "label": "Mere Fidelity",
+     "body": [
+      {
+       "t": "p",
+       "text": "A weekly podcast on theology and culture"
+      }
+     ]
+    },
+    {
+     "label": "Christians Reading Classics",
+     "body": [
+      {
+       "t": "p",
+       "text": "A podcast on classic books"
+      }
+     ]
+    },
+    {
+     "label": "The Faith Received",
+     "body": [
+      {
+       "t": "p",
+       "text": "A free library of the church’s historic texts"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "Reach"
+  },
+  {
+   "t": "h3",
+   "text": "Who Mere Orthodoxy reaches"
+  },
+  {
+   "t": "figures",
+   "items": [
+    {
+     "value": "110,596",
+     "label": "website visits in the last 30 days"
+    },
+    {
+     "value": "3,860",
+     "label": "downloads per Mere Fidelity episode"
+    },
+    {
+     "value": "29,011",
+     "label": "email and Substack subscribers"
+    },
+    {
+     "value": "1,518",
+     "label": "paying members"
+    }
+   ]
+  },
+  {
+   "t": "chapter",
+   "n": "II",
+   "text": "The readers",
+   "id": "readers"
+  },
+  {
+   "t": "eyebrow",
+   "text": "Church roles"
+  },
+  {
+   "t": "h3",
+   "text": "Half of readers lead in church or ministry"
+  },
+  {
+   "t": "figures",
+   "items": [
+    {
+     "value": "22%",
+     "label": "Pastors"
+    },
+    {
+     "value": "12%",
+     "label": "Elders and deacons"
+    },
+    {
+     "value": "12%",
+     "label": "Academics"
+    },
+    {
+     "value": "11%",
+     "label": "Small group leaders"
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "Age and gender"
+  },
+  {
+   "t": "h3",
+   "text": "Most readers are under 45"
+  },
+  {
+   "t": "bars",
+   "items": [
+    {
+     "label": "18–24",
+     "value": 11.6,
+     "text": "11.6%"
+    },
+    {
+     "label": "25–34",
+     "value": 22.6,
+     "text": "22.6%"
+    },
+    {
+     "label": "35–44",
+     "value": 23.5,
+     "text": "23.5%"
+    },
+    {
+     "label": "45–54",
+     "value": 16.0,
+     "text": "16.0%"
+    },
+    {
+     "label": "55–64",
+     "value": 10.7,
+     "text": "10.7%"
+    },
+    {
+     "label": "65–74",
+     "value": 11.2,
+     "text": "11.2%"
+    },
+    {
+     "label": "75+",
+     "value": 4.4,
+     "text": "4.4%"
+    }
+   ],
+   "side": [
+    {
+     "value": "79%",
+     "label": "men"
+    },
+    {
+     "value": "20%",
+     "label": "women"
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "Church and place"
+  },
+  {
+   "t": "h3",
+   "text": "Protestant across the denominations"
+  },
+  {
+   "t": "bars",
+   "items": [
+    {
+     "label": "Presbyterian",
+     "value": 21.5,
+     "text": "21.5%"
+    },
+    {
+     "label": "Baptist",
+     "value": 19.6,
+     "text": "19.6%"
+    },
+    {
+     "label": "Nondenominational",
+     "value": 18.7,
+     "text": "18.7%"
+    },
+    {
+     "label": "Anglican",
+     "value": 10.6,
+     "text": "10.6%"
+    },
+    {
+     "label": "Lutheran",
+     "value": 3.8,
+     "text": "3.8%"
+    },
+    {
+     "label": "Pentecostal",
+     "value": 2.0,
+     "text": "2.0%"
+    },
+    {
+     "label": "Episcopal",
+     "value": 1.2,
+     "text": "1.2%"
+    },
+    {
+     "label": "Methodist",
+     "value": 1.1,
+     "text": "1.1%"
+    },
+    {
+     "label": "Other Protestant",
+     "value": 15.1,
+     "text": "15.1%"
+    },
+    {
+     "label": "Not Protestant",
+     "value": 6.3,
+     "text": "6.3%",
+     "muted": true
+    }
+   ],
+   "side": [
+    {
+     "value": "94%",
+     "label": "Protestant"
+    },
+    {
+     "value": "81%",
+     "label": "live in the United States"
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "Interests"
+  },
+  {
+   "t": "h3",
+   "text": "Readers come for theology"
+  },
+  {
+   "t": "bars",
+   "items": [
+    {
+     "label": "Theology",
+     "value": 88,
+     "text": "88%"
+    },
+    {
+     "label": "Church",
+     "value": 66,
+     "text": "66%"
+    },
+    {
+     "label": "Philosophy",
+     "value": 47,
+     "text": "47%"
+    },
+    {
+     "label": "Culture",
+     "value": 42,
+     "text": "42%"
+    },
+    {
+     "label": "Family",
+     "value": 26,
+     "text": "26%"
+    },
+    {
+     "label": "Formation",
+     "value": 24,
+     "text": "24%"
+    },
+    {
+     "label": "Book reviews",
+     "value": 21,
+     "text": "21%"
+    },
+    {
+     "label": "Leadership",
+     "value": 17,
+     "text": "17%"
+    },
+    {
+     "label": "Politics",
+     "value": 17,
+     "text": "17%"
+    }
+   ]
+  },
+  {
+   "t": "chapter",
+   "n": "III",
+   "text": "The channels",
+   "id": "channels"
+  },
+  {
+   "t": "eyebrow",
+   "text": "The website"
+  },
+  {
+   "t": "h3",
+   "text": "Visits are up 7.6% this year"
+  },
+  {
+   "t": "figures",
+   "items": [
+    {
+     "value": "110,596",
+     "label": "visits in the last 30 days"
+    },
+    {
+     "value": "626,746",
+     "label": "visits from January to September"
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "Email"
+  },
+  {
+   "t": "h3",
+   "text": "The digest reaches 20,865 inboxes"
+  },
+  {
+   "t": "figures",
+   "items": [
+    {
+     "value": "22,230",
+     "label": "active subscribers"
+    },
+    {
+     "value": "51%",
+     "label": "digest open rate"
+    },
+    {
+     "value": "4.8%",
+     "label": "digest click rate"
+    }
+   ]
+  },
+  {
+   "t": "kv",
+   "items": [
+    {
+     "label": "Readers who click each digest",
+     "value": "about 960"
+    },
+    {
+     "label": "Average recipients per digest since late August",
+     "value": "20,209"
+    },
+    {
+     "label": "The Daily Liturgy email",
+     "value": "1,799 readers (up 32% since August)"
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "Substack"
+  },
+  {
+   "t": "h3",
+   "text": "Substack grew 42.5% in six months"
+  },
+  {
+   "t": "figures",
+   "items": [
+    {
+     "value": "6,781",
+     "label": "subscribers"
+    },
+    {
+     "value": "25,000",
+     "label": "post views a week"
+    }
+   ]
+  },
+  {
+   "t": "kv",
+   "items": [
+    {
+     "label": "Subscribers six months ago",
+     "value": "4,760"
+    },
+    {
+     "label": "Post views, January 5 to October 1",
+     "value": "973,688"
+    },
+    {
+     "label": "Best four weeks, August 31 to September 27",
+     "value": "138,141 views"
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "Podcasts"
+  },
+  {
+   "t": "h3",
+   "text": "Mere Orthodoxy publishes three podcasts"
+  },
+  {
+   "t": "cards",
+   "items": [
+    {
+     "img": {
+      "src": "img/brand-guide/mf-cover.jpg",
+      "alt": "Mere Fidelity podcast cover",
+      "w": 800,
+      "h": 800
+     },
+     "eyebrow": "Weekly",
+     "value": "3,860",
+     "unit": "downloads per Mere Fidelity episode",
+     "text": "Pastors and lay leaders following theology and the church"
+    },
+    {
+     "img": {
+      "src": "img/brand-guide/crc-cover.jpg",
+      "alt": "Christians Reading Classics podcast cover",
+      "w": 800,
+      "h": 800
+     },
+     "eyebrow": "Weekly",
+     "value": "850",
+     "unit": "downloads per Christians Reading Classics episode",
+     "text": "Christian readers of classic literature"
+    },
+    {
+     "img": {
+      "src": "img/brand-guide/dl-podcast.jpg",
+      "alt": "The Daily Liturgy Podcast cover",
+      "w": 800,
+      "h": 800
+     },
+     "eyebrow": "Daily",
+     "value": "2,110",
+     "unit": "downloads per Daily Liturgy episode",
+     "text": "Christians who pray morning prayer each day"
+    }
+   ]
+  },
+  {
+   "t": "chapter",
+   "n": "IV",
+   "text": "The Faith Received",
+   "id": "tfr"
+  },
+  {
+   "t": "eyebrow",
+   "text": "What it is"
+  },
+  {
+   "t": "h3",
+   "text": "The Christian tradition is the Christian’s inheritance"
+  },
+  {
+   "t": "p",
+   "text": "The Faith Received gathers the church’s own writings into one free library: Migne’s Latin and Greek fathers, the councils and creeds, the medieval doctors, the Reformation confessions and the English books printed before 1700."
+  },
+  {
+   "t": "p",
+   "text": "For centuries these texts sat in research libraries, untranslated and unsearchable. Now a pastor can read the fathers on a phone, see where the church’s teachers cite Romans 8 and trace a doctrine from Nicaea to Westminster."
+  },
+  {
+   "t": "figures",
+   "items": [
+    {
+     "value": "19,903",
+     "label": "works available to read"
+    },
+    {
+     "value": "Every verse",
+     "label": "of Scripture linked to the teachers who cite it"
+    },
+    {
+     "value": "16,927",
+     "label": "readers in its first three days"
+    },
+    {
+     "value": "Free",
+     "label": "for everyone to read"
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "The Faith Received"
+  },
+  {
+   "t": "h3",
+   "text": "The church’s historic texts"
+  },
+  {
+   "t": "figures",
+   "items": [
+    {
+     "value": "19,903",
+     "label": "works available to read"
+    },
+    {
+     "value": "3,213",
+     "label": "authors on the shelves"
+    }
+   ]
+  },
+  {
+   "t": "rows",
+   "cols": 2,
+   "items": [
+    {
+     "label": "The Library",
+     "body": [
+      {
+       "t": "p",
+       "text": "Church fathers, councils, reformers and Puritans"
+      }
+     ]
+    },
+    {
+     "label": "The Bible",
+     "body": [
+      {
+       "t": "p",
+       "text": "Where the church’s teachers cite each verse"
+      }
+     ]
+    },
+    {
+     "label": "The Topics",
+     "body": [
+      {
+       "t": "p",
+       "text": "Doctrines traced through creeds and confessions"
+      }
+     ]
+    },
+    {
+     "label": "The Tools",
+     "body": [
+      {
+       "t": "p",
+       "text": "Search, reading plans and research aids"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "The Faith Received"
+  },
+  {
+   "t": "h3",
+   "text": "The library draws 59% of all pageviews"
+  },
+  {
+   "t": "figures",
+   "items": [
+    {
+     "value": "39,747",
+     "label": "library visitors in the last 30 days"
+    },
+    {
+     "value": "180,247",
+     "label": "library pageviews in the last 30 days"
+    },
+    {
+     "value": "25,692",
+     "label": "front-page visitors in the last 30 days"
+    }
+   ]
+  },
+  {
+   "t": "kv",
+   "items": [
+    {
+     "label": "First three days after launch",
+     "value": "16,927 visitors"
+    },
+    {
+     "label": "Front page since launch week",
+     "value": "about 470 visitors a day"
+    },
+    {
+     "label": "Author pages",
+     "value": "5,706 visitors in the last 30 days"
+    }
+   ]
+  },
+  {
+   "t": "chapter",
+   "n": "V",
+   "text": "Sponsorship",
+   "id": "sponsorship"
+  },
+  {
+   "t": "eyebrow",
+   "text": "Newsletter"
+  },
+  {
+   "t": "h3",
+   "text": "Two slots in every weekly digest"
+  },
+  {
+   "t": "cards",
+   "items": [
+    {
+     "title": "Top slot",
+     "value": "$750",
+     "unit": "per week"
+    },
+    {
+     "title": "Bottom slot",
+     "value": "$550",
+     "unit": "per week"
+    }
+   ]
+  },
+  {
+   "t": "p",
+   "text": "Both slots reach 20,865 inboxes each week. Each sells alone or in a package."
+  },
+  {
+   "t": "eyebrow",
+   "text": "Substack"
+  },
+  {
+   "t": "h3",
+   "text": "One ad in each Substack newsletter"
+  },
+  {
+   "t": "cards",
+   "items": [
+    {
+     "value": "$250",
+     "unit": "per newsletter",
+     "list": [
+      "Sent to 6,781 subscribers",
+      "The only ad in that newsletter",
+      "Book single or multiple newsletters"
+     ]
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "Podcasts"
+  },
+  {
+   "t": "h3",
+   "text": "Podcast ads are priced per episode"
+  },
+  {
+   "t": "cards",
+   "items": [
+    {
+     "title": "Mere Fidelity",
+     "figures": [
+      {
+       "value": "$150",
+       "label": "pre-roll"
+      },
+      {
+       "value": "$100",
+       "label": "mid-roll"
+      }
+     ]
+    },
+    {
+     "title": "Christians Reading Classics",
+     "figures": [
+      {
+       "value": "$75",
+       "label": "pre-roll"
+      },
+      {
+       "value": "$50",
+       "label": "mid-roll"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "Packages"
+  },
+  {
+   "t": "h3",
+   "text": "Email, podcasts and an interview"
+  },
+  {
+   "t": "cards",
+   "items": [
+    {
+     "title": "Package 1",
+     "eyebrow": "Each month",
+     "list": [
+      "4 top-slot ads in the weekly digest",
+      "4 Mere Fidelity pre-roll ads",
+      "4 Christians Reading Classics pre-roll ads",
+      "1 sponsored author interview on the website"
+     ],
+     "prices": [
+      {
+       "label": "Monthly",
+       "value": "$4,900"
+      },
+      {
+       "label": "Quarterly",
+       "note": "save 5%",
+       "value": "$13,965"
+      },
+      {
+       "label": "Annual",
+       "note": "save 10%",
+       "value": "$52,920"
+      }
+     ]
+    },
+    {
+     "title": "Package 2",
+     "eyebrow": "Each month",
+     "list": [
+      "4 bottom-slot ads in the weekly digest",
+      "4 Mere Fidelity mid-roll ads",
+      "4 Christians Reading Classics mid-roll ads",
+      "1 sponsored author interview on the website"
+     ],
+     "prices": [
+      {
+       "label": "Monthly",
+       "value": "$3,800"
+      },
+      {
+       "label": "Quarterly",
+       "note": "save 5%",
+       "value": "$10,830"
+      },
+      {
+       "label": "Annual",
+       "note": "save 10%",
+       "value": "$41,040"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "The Faith Received"
+  },
+  {
+   "t": "h3",
+   "text": "Founding Underwriters"
+  },
+  {
+   "t": "cards",
+   "items": [
+    {
+     "value": "$10,000",
+     "unit": "per year",
+     "list": [
+      "Name and logo on the library’s front page",
+      "Credit on the library’s About page",
+      "A credit in The Faith Received welcome emails",
+      "Logo in the weekly digest newsletter’s The Faith Received section"
+     ]
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "The Faith Received Bookshelf"
+  },
+  {
+   "t": "h3",
+   "text": "Sell your books to the library’s readers"
+  },
+  {
+   "t": "p",
+   "lede": true,
+   "text": "12,402 people visited the library in the last two weeks. Our team hand-selects recent books to resource readers in theology, history, and primary sources."
+  },
+  {
+   "t": "cards",
+   "items": [
+    {
+     "title": "Direct sales",
+     "value": "20%",
+     "unit": "commission on each sale",
+     "list": [
+      "Your titles link to your store, not Bookshop.org or Amazon",
+      "You keep the customer and the rest of the sale"
+     ]
+    },
+    {
+     "title": "Featured placement",
+     "value": "$3,500",
+     "unit": "per year",
+     "list": [
+      "Three of your listed titles at the top of the Bookshelf",
+      "Swap the featured titles each month"
+     ]
+    }
+   ]
+  },
+  {
+   "t": "eyebrow",
+   "text": "Terms"
+  },
+  {
+   "t": "h3",
+   "text": "How every agreement works"
+  },
+  {
+   "t": "list",
+   "items": [
+    "Quarterly packages save 5%. Annual packages save 10% and lock in the rate for the year.",
+    "Payment is due in full within 30 days of signing.",
+    "Mere Fidelity will consider sponsors’ authors and books for interviews and book discussions. The hosts make the final call.",
+    "Sponsorship never buys an essay or a book review. Sponsored author interviews are labeled as sponsored."
+   ]
+  },
+  {
+   "t": "contact",
+   "name": "Ian Harber",
+   "role": "Director of Communications and Marketing",
+   "email": "ian@mereorthodoxy.com"
+  }
+ ]
+}

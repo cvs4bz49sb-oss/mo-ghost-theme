@@ -15,6 +15,7 @@
  *   assets/moos/web.js          parts/web.js, the web adapter (piece C),
  *                               which the host page loads before MOOS
  *   assets/moos/parts/**        every other part
+ *   assets/moos/docs/**         the Documents section's JSON, PDFs and images, byte for byte
  *   assets/moos/geo/*.<hash>.json  the map outlines, the content hash in the
  *                               name because the core fetches them by bare
  *                               path and a bare /assets/ path can be served
@@ -189,6 +190,19 @@ if (existsSync(geoDir)) {
     const hashed = `${base}.${sha(buf).slice(0, 10)}.json`;
     geoNames[`geo/${base}.json`] = `/${OUT}/geo/${hashed}`;
     files.set(`${OUT}/geo/${hashed}`, buf);
+  }
+}
+
+// ---------------------------------------------------------------- docs
+// The Documents section's files (website/moos/docs/: each document's JSON, its PDF and the images it shows), copied
+// byte for byte to assets/moos/docs/. documents.js resolves "../docs/<name>" from its own URL and adds the part's ?v=,
+// so these keep their names. Dotfiles (.DS_Store) stay behind.
+const docsDir = path.join(SRC, "docs");
+if (existsSync(docsDir)) {
+  for (const abs of await walk(docsDir)) {
+    if (path.basename(abs).startsWith(".")) continue;
+    await note(abs);
+    files.set(`${OUT}/${posix(path.relative(SRC, abs))}`, await fs.readFile(abs));
   }
 }
 
