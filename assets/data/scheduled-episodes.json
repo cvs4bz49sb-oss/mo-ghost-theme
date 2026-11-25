@@ -1,32 +1,18 @@
 {
-  "mere-fidelity": {
-    "id": 20175025,
-    "title": "Replay: A Theology of Gratitude",
-    "slug": "replay-a-theology-of-gratitude",
-    "pubDate": "2026-11-25T06:00:00.000-05:00",
-    "episode": 45,
-    "season": 3,
-    "description": "Every year Americans celebrate Thanksgiving as a secular, not a Christian, holiday. But gratitude is baked into the very foundation of Christianity, and even of Creation itself. On this episode, Matt, Derek, and Alastair unpack the role of gratitude in theology and in Christian practice. One could even say Christianity is gratitude. And at the end, they enjoy an awkward moment of traditional sharing. Originally released November 17, 2020. More from Mere Fidelity at mereorthodoxy.com/podcasts/mere-fidelity .",
-    "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
-    "audioUrl": "https://www.buzzsprout.com/2612792/episodes/20175025-replay-a-theology-of-gratitude.mp3",
-    "link": "https://mereorthodoxy.com/podcasts/mere-fidelity/",
-    "embedUrl": "https://www.buzzsprout.com/2612792/20175025?client_source=small_player&iframe=true",
-    "hasTranscript": true,
-    "transcriptUrl": "/transcript/mere-fidelity/replay-a-theology-of-gratitude/"
-  },
+  "mere-fidelity": null,
   "christians-reading-classics": {
-    "id": 20159164,
-    "title": "Alexis de Tocqueville - Democracy in America with John Wilsey (Replay)",
-    "slug": "alexis-de-tocqueville-democracy-in-america-with-john-wilsey-replay",
-    "pubDate": "2026-11-25T06:00:00.000-05:00",
-    "episode": 44,
+    "id": 20174965,
+    "title": "Sherlock Holmes and Advent Classics, with Tim Larsen",
+    "slug": "sherlock-holmes-and-advent-classics-with-tim-larsen",
+    "pubDate": "2026-12-03T06:00:00.000-05:00",
+    "episode": 45,
     "season": 2,
-    "description": "We’re revisiting one of the most famous outside views of America ever written. In the 1830s a young French aristocrat crossed the Atlantic, officially to study prisons, and was struck most by “the equality of conditions.” Church historian John Wilsey joins Nadya to discuss why Democracy in America is still a classic. They cover how Tocqueville saw religion thriving without a state church, how he traced American life back to the Puritans, and why he believed freedom depends on responsibility. John is professor of church history and philosophy at the Southern Baptist Theological Seminary. He also edited an abridged edition of Democracy in America .",
+    "description": "Why would a Sherlock Holmes mystery open a collection of Christmas stories? In “The Adventure of the Blue Carbuncle,” a battered hat and a Christmas goose lead Holmes to a jewel thief. The ending turns on forgiveness. Timothy Larsen, sometimes called Dr. Christmas, joins Nadya to read it as an Advent story. They talk about why so many Christmas tales make room for suffering and death, what Conan Doyle’s later life says about our hunger for more than reason, a defense of honest sentiment, and how a family can start reading aloud together this season. Timothy Larsen is McManus Professor of Christian Thought and professor of history at Wheaton College. He is the editor of Twelve Classic Christmas Stories: A Feast of Yuletide Tales (Moody Publishers) and The Oxford Handbook of Christmas .",
     "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
-    "audioUrl": "https://www.buzzsprout.com/2612793/episodes/20159164-alexis-de-tocqueville-democracy-in-america-with-john-wilsey-replay.mp3",
+    "audioUrl": "https://www.buzzsprout.com/2612793/episodes/20174965-sherlock-holmes-and-advent-classics-with-tim-larsen.mp3",
     "link": "https://mereorthodoxy.com/podcasts/christians-reading-classics/",
-    "embedUrl": "https://www.buzzsprout.com/2612793/20159164?client_source=small_player&iframe=true",
+    "embedUrl": "https://www.buzzsprout.com/2612793/20174965?client_source=small_player&iframe=true",
     "hasTranscript": true,
-    "transcriptUrl": "/transcript/christians-reading-classics/alexis-de-tocqueville-democracy-in-america-with-john-wilsey-replay/"
+    "transcriptUrl": "/transcript/christians-reading-classics/sherlock-holmes-and-advent-classics-with-tim-larsen/"
   }
 }
