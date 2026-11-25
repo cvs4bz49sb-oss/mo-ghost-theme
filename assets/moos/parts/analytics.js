@@ -97,6 +97,36 @@ const legend = items => h("div", { class: "legend row-legend" }, items.map(([l, 
 const card = (size, title, ...body) => h("section", { class: `card ${size} rise` }, title ? h("h2", {}, title) : null, body);
 
 // ---------------------------------------------------------------- Web
+const SOURCE = { hubspot: "HubSpot", "hubspot+plausible": "HubSpot + Plausible" };
+const HS_FILL = "color-mix(in srgb, var(--accent) 40%, var(--card))", PL_FILL = "var(--accent)";
+// A period with HubSpot days, month by month: HubSpot's month totals (the sync's hubspot_months) and Plausible's
+// (plausible_months, or else its day line summed), as [month, [sessions, pageviews] or null, the same for Plausible].
+// Null when the document has no months (before the sync carried them): the daily line as before.
+function byMonth(p, W, range) {
+  if (!p.hubspot || !p.hubspot_months?.length) return null;
+  const m = new Map(p.hubspot_months.map(([k, s, pv]) => [k, [[s, pv], null]]));
+  const pl = p.plausible_months || Object.values(W.daily.filter(r => r[1] != null && r[0] > p.hubspot[1] && r[0] >= range[0] && r[0] <= range[1])
+    .reduce((a, r) => { const x = a[r[0].slice(0, 7)] ||= [r[0].slice(0, 7), 0, 0]; x[1] += r[3] || 0; x[2] += r[2] || 0; return a; }, {}));
+  for (const [k, v, pv] of pl) (m.get(k) || m.set(k, [null, null]).get(k))[1] = [v, pv];
+  return [...m].sort((a, b) => a[0] < b[0] ? -1 : 1).map(([k, [hs, pl]]) => [k, hs, pl]);
+}
+// Sessions or pageviews per month, HubSpot's part in a lighter fill under Plausible's; a month with HubSpot days whose
+// pageviews are not on record is left empty
+function monthChart(months, metric) {
+  const i = metric === "pageviews" ? 1 : 0, gaps = [];
+  const values = months.map(([, hs, pl], j) => {
+    if (hs && hs[i] == null) { gaps.push(j); return null; }
+    return [[hs ? hs[i] : 0, HS_FILL], [pl ? pl[i] || 0 : 0, PL_FILL]];
+  });
+  const long = k => asDate(k + "-01").toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const tips = months.map(([k, hs, pl]) => hs && pl ? long(k) : `${long(k)} · ${hs ? "HubSpot" : "Plausible"}`);
+  const el = columns(values, months.map(([k]) => monthLabel(k)), metric === "pageviews" ? "Pageviews per month" : "Sessions per month", short,
+    { every: months.length > 8 && matchMedia("(max-width: 760px)").matches ? 2 : 1, names: ["HubSpot", "Plausible"], tipLabels: tips, tipShow: n => n == null ? "Not recorded" : fmt(n) });
+  const cols = el.querySelectorAll(".cols > .col");
+  for (const j of gaps) { cols[j].firstChild.style.visibility = "hidden"; cols[j].setAttribute("aria-label", `${tips[j]}: not recorded`); }
+  const has = [months.some(m => m[1]) && ["HubSpot", HS_FILL], months.some(m => m[2]) && ["Plausible", PL_FILL]].filter(Boolean);
+  return [el, legend(has)];
+}
 function web(P, range) {
   const W = doc("analytics-web", "daily"), D = doc("analytics-days", "days");
   if (!W) return null;
@@ -105,8 +135,17 @@ function web(P, range) {
   // A period reaching back before Plausible (May 26, 2026) takes those days from HubSpot (moos_feeds.mjs), which counts
   // sessions, not unique visitors: such a period shows sessions, and each figure HubSpot fed is marked
   const unit = p.visitors != null || !p.hubspot ? "visitors" : "visits", COL = { visitors: 1, pageviews: 2, visits: 3 };
-  const fromHs = k => /hubspot/.test(p.src?.[k] || ""), mark = (k, label) => fromHs(k) ? `${label} · HubSpot` : label;
-  const fig = (k, value, label, show, prev) => value == null ? null : figure(value, mark(k, label), show, prev);
+  // Ian, Nov 25: each figure says where it came from, "HubSpot" when every day is HubSpot's, "HubSpot + Plausible" when
+  // both, nothing when Plausible's alone; a comparison against a period from other sources names them on its change
+  const from = s => SOURCE[s] ?? "", mark = (k, label) => from(p.src?.[k]) ? `${label} · ${from(p.src[k])}` : label;
+  const fig = (k, value, label, show, prev) => {
+    if (value == null) return null;
+    const f = figure(value, mark(k, label), show, prev), d = f.querySelector(".delta");
+    const was = p.prev?.src?.[k] ? from(p.prev.src[k]) || "Plausible" : null;
+    if (d && was && was !== (from(p.src?.[k]) || "Plausible")) { d.title = `Against ${was}`; d.setAttribute("aria-label", `${d.textContent} against ${was}`); }
+    return f;
+  };
+  const months = byMonth(p, W, range);
   const empty = p.hubspot ? "Not recorded" : undefined;
   let metric = unit, picked = null;
   const chart = h("div"), dayBox = h("div"), switcher = h("div");
@@ -122,8 +161,8 @@ function web(P, range) {
         : h("div", { class: "lbl" }, "No page detail for this day")));
   };
   const whole = daily.filter(r => r[0] !== W.today);  // today is still in progress, so the line stops at yesterday
-  const paintChart = () => put(chart, lineChart(whole.map(r => r[0]), whole.map(r => r[COL[metric]]), fmt, { pick: d => { picked = d; paintDay(); dayBox.scrollIntoView({ block: "nearest", behavior: "smooth" }); } }) || "");
-  const paintSwitch = () => put(switcher, whole.length > 1 ? chipset([[unit, unit === "visits" ? "Sessions" : "Visitors"], ["pageviews", "Pageviews"]], metric, v => { metric = v; paintSwitch(); paintChart(); }) : "");
+  const paintChart = () => months ? put(chart, monthChart(months, metric)) : put(chart, lineChart(whole.map(r => r[0]), whole.map(r => r[COL[metric]]), fmt, { pick: d => { picked = d; paintDay(); dayBox.scrollIntoView({ block: "nearest", behavior: M.calm ? "auto" : "smooth" }); } }) || "");
+  const paintSwitch = () => put(switcher, whole.length > 1 || months ? chipset([[unit, unit === "visits" ? "Sessions" : "Visitors"], ["pageviews", "Pageviews"]], metric, v => { metric = v; paintSwitch(); paintChart(); }) : "");
   paintSwitch(); paintChart();
   const per = p.pageviews == null || p[unit] == null ? null : p[unit] ? p.pageviews / p[unit] : 0, prevPer = p.prev?.[unit] && p.prev?.pageviews != null ? p.prev.pageviews / p.prev[unit] : 0;
   const total = p[unit] ?? undefined, devTotal = p.devices.reduce((a, r) => a + r[1], 0);
@@ -133,17 +172,17 @@ function web(P, range) {
         fig("pageviews", per, unit === "visits" ? "Pages per session" : "Pages per visitor", n => n.toFixed(2), prevPer), fig("duration", p.duration, "Average visit", minutes, p.prev?.duration), fig("bounce", p.bounce, "Bounce rate", pct, p.prev?.bounce)),
       chart, dayBox),
     // HubSpot counts no visitors per page, so its days' pages carry pageviews alone and share is of pageviews
-    card("s12", "Top pages", p.pages.length ? h("div", { class: "table" }, h("div", { class: "trow th" }, h("span", {}, "Page"), h("span", {}, "Visitors"), h("span", {}, "Pageviews"), h("span", {}, "Share")),
+    card("s12", mark("pages", "Top pages"), p.pages.length ? h("div", { class: "table" }, h("div", { class: "trow th" }, h("span", {}, "Page"), h("span", {}, "Visitors"), h("span", {}, "Pageviews"), h("span", {}, "Share")),
       p.pages.map(([title, path, v, pv]) => h("div", { class: "trow" }, h("a", { href: "https://mereorthodoxy.com" + path, target: "_blank", rel: "noopener" }, title), h("span", {}, v == null ? "" : fmt(v)), h("span", {}, fmt(pv)), h("span", { class: "lbl" }, v == null ? share(pv, p.pageviews) : share(v, p.visitors)))))
       : h("div", { class: "lbl" }, empty || "None in this period")),
-    card("s6", "Channels", ranked(p.channels, { total, empty })),
-    card("s6", "Sources", ranked(p.sources, { total, empty })),
-    card("s6", "Landing pages", ranked(p.entries.map(([t, , v]) => [t, v]), { total, empty })),
-    card("s6", "Devices", p.devices.length || !empty ? h("div", { class: "ring-wrap" }, ring(p.devices.map(([, v], i) => [v, PALETTE[i]]), short(devTotal)),
+    card("s6", mark("channels", "Channels"), ranked(p.channels, { total, empty })),
+    card("s6", mark("sources", "Sources"), ranked(p.sources, { total, empty })),
+    card("s6", mark("entries", "Landing pages"), ranked(p.entries.map(([t, , v]) => [t, v]), { total, empty })),
+    card("s6", mark("devices", "Devices"), p.devices.length || !empty ? h("div", { class: "ring-wrap" }, ring(p.devices.map(([, v], i) => [v, PALETTE[i]]), short(devTotal)),
       h("div", { class: "legend" }, p.devices.map(([l, v], i) => h("button", { type: "button", tabindex: -1 }, h("span", { class: "sw", style: `--sw: ${PALETTE[i]}` }), l || "Not recorded", h("b", {}, share(v, devTotal))))))
       : h("div", { class: "lbl" }, empty)),
-    card("s6", "Countries", ranked(p.countries, { total, empty })),
-    card("s6", "Cities", ranked(p.cities, { total, empty })),
+    card("s6", mark("countries", "Countries"), ranked(p.countries, { total, empty })),
+    card("s6", mark("cities", "Cities"), ranked(p.cities, { total, empty })),
     W.topics?.length ? card("s6", "Topics, last 30 days", ranked(W.topics.map(([n, v, r]) => [n, v, r]), { sub: r => `${fmt(r)} reads` })) : null,
     W.authors?.length ? card("s6", "Authors, last 30 days", ranked(W.authors.slice(0, 10).map(([n, v, r]) => [n, v, r]), { sub: r => `${fmt(r)} reads` })) : null,
     W.tfr?.length ? card("s6", "The Faith Received, weekly visitors", columns(W.tfr.map(w => w[1]), W.tfr.map(w => asDate(w[0]).toLocaleDateString("en-US", { month: "short", day: "numeric" })), "The Faith Received weekly visitors", short, { every: 1 })) : null,
