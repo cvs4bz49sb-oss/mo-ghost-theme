@@ -61,6 +61,7 @@ function toCents(text) {
   return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : undefined;
 }
 const pname = p => p.n || p.e[0] || "Unnamed";
+M.ICONS["dn-fwd"] = '<path d="M9 5l7 7-7 7"/>';
 const teamName = id => S.names.get(id)?.name || (id === S.me ? "You" : "Someone");
 const lifeOf = g => g ? (+g.total || (g.gifts || []).reduce((t, x) => t + (+x[1] || 0), 0)) : 0;
 // The Donors tab's "Recurring?" reads "Yes (monthly $50, ...)", "No", or both joined
@@ -242,7 +243,7 @@ addEventListener("scroll", hideTip, { passive: true, capture: true });
 const fitText = typeof ResizeObserver === "function" ? new ResizeObserver(es => {
   for (const e of es) { const w = e.contentRect.width; if (w) e.target.style.setProperty("--k", Math.min(3, Math.max(.8, e.target.viewBox.baseVal.width / w)).toFixed(3)); }
 }) : null;
-function monthsChart(Y, cur, prev, upto) {
+function monthsChart(Y, cur, prev, upto, pick) {
   const sm = matchMedia("(max-width: 760px)").matches, W = sm ? 400 : 700, H = sm ? 250 : 320, L = sm ? 54 : 62, R = sm ? 14 : 20, T = 22, B = 34;
   const top = M.niceTop(Math.max(0, ...prev, ...cur.slice(0, upto))) || 1;
   const x = i => L + i / 11 * (W - L - R), y = v => T + (1 - v / top) * (H - T - B);
@@ -269,14 +270,50 @@ function monthsChart(Y, cur, prev, upto) {
       h("div", { class: "tip-row" }, h("span", { class: "sw", style: "--sw: var(--cat-2)" }), h("span", {}, String(Y - 1)), h("b", {}, money(prev[i])))]);
   });
   root.addEventListener("pointerleave", () => { hover.setAttribute("visibility", "hidden"); hideTip(); });
+  root.addEventListener("click", e => {  // Ian, Nov 25: "click a month and see a day-by-day breakdown of that month"
+    const box = root.getBoundingClientRect(), i = Math.round(((e.clientX - box.left) / box.width * W - L) / (W - L - R) * 11);
+    if (i >= 0 && i <= 11) { hideTip(); pick(i); }
+  });
   later(() => { for (const p of [pPath, cPath]) p.style.setProperty("--len", p.getTotalLength() || 3000); });
   fitText?.observe(root);
   return root;
 }
-function bandRows(bands) {
+// One month day by day: this year's gifts as columns, last year's same month as a line
+function daysChart(Y, m, cur, prev, upto, counts) {
+  const sm = matchMedia("(max-width: 760px)").matches, W = sm ? 400 : 700, H = sm ? 250 : 320, L = sm ? 54 : 62, R = sm ? 14 : 20, T = 22, B = 34;
+  const n = Math.max(cur.length, prev.length), top = M.niceTop(Math.max(0, ...prev, ...cur.slice(0, upto))) || 1;
+  const step = (W - L - R) / n, x = i => L + (i + .5) * step, y = v => T + (1 - v / top) * (H - T - B), bw = Math.max(2, step * .62);
+  const root = svg("svg", { class: "line dn-lines dn-days", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `Giving by day, ${MONTH[m]} ${Y} against ${Y - 1}` });
+  for (const f of [0, .5, 1]) root.append(svg("line", { class: "grid", x1: L, x2: W - R, y1: y(top * f), y2: y(top * f) }),
+    svg("text", { class: "axis", x: L - (sm ? 8 : 12), y: y(top * f) + 5, "text-anchor": "end" }, short(top * f)));
+  for (let i = 0; i < n; i++) if (i === 0 || (i + 1) % (sm ? 7 : 5) === 0) root.append(svg("text", { class: "axis", x: x(i), y: H - 8, "text-anchor": "middle" }, String(i + 1)));
+  cur.slice(0, upto).forEach((v, i) => { if (v > 0) root.append(svg("rect", { class: "dn-day rise", style: `--i:${Math.min(i, 20)}`, x: x(i) - bw / 2, y: y(v), width: bw, height: Math.max(1, H - B - y(v)), rx: Math.min(3, bw / 3) })); });
+  const pPath = svg("path", { class: "stroke dn-prev", d: prev.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("") });
+  root.append(pPath);
+  const vline = svg("line", { y1: T, y2: H - B }), hover = svg("g", { class: "hover", visibility: "hidden" }, vline);
+  root.append(hover, svg("rect", { x: L, y: 0, width: W - L - R, height: H, fill: "transparent" }));
+  root.addEventListener("pointermove", e => {
+    const box = root.getBoundingClientRect(), i = Math.floor(((e.clientX - box.left) / box.width * W - L) / step);
+    if (i < 0 || i >= n) { hover.setAttribute("visibility", "hidden"); return hideTip(); }
+    for (const a of ["x1", "x2"]) vline.setAttribute(a, x(i));
+    hover.setAttribute("visibility", "visible");
+    const has = i < cur.length && i < upto;
+    showTip(box.left + x(i) / W * box.width, box.top + y(Math.max(prev[i] || 0, has ? cur[i] : 0)) / H * box.height, [h("div", { class: "tip-head" }, `${MONTH[m]} ${i + 1}`),
+      has ? h("div", { class: "tip-row" }, h("span", { class: "sw", style: "--sw: var(--accent)" }), h("span", {}, `${Y}${counts[i] ? `, ${counts[i]} gift${counts[i] === 1 ? "" : "s"}` : ""}`), h("b", {}, money(cur[i]))) : null,
+      i < prev.length ? h("div", { class: "tip-row" }, h("span", { class: "sw", style: "--sw: var(--cat-2)" }), h("span", {}, String(Y - 1)), h("b", {}, money(prev[i]))) : null]);
+  });
+  root.addEventListener("pointerleave", () => { hover.setAttribute("visibility", "hidden"); hideTip(); });
+  later(() => pPath.style.setProperty("--len", pPath.getTotalLength() || 3000));
+  fitText?.observe(root);
+  return root;
+}
+// Ian, Nov 25: "I should be able to click these and sort by them." A band filters the donor list to it; again, clears it.
+const inBand = i => r => r.ytd > 0 && r.ytd >= BANDS[i][1] && r.ytd < BANDS[i][2];
+function bandRows(bands, picked, pick) {
   const total = bands.reduce((t, b) => t + b[0], 0), max = Math.max(1, ...bands.map(b => b[0]));
   if (!total) return h("div", { class: "lbl" }, "No gifts");
-  return h("div", { class: "ranked dn-bands" }, BANDS.map(([label], i) => h("div", { class: "rank rise", style: `--i:${i}` },
+  return h("div", { class: "ranked dn-bands" }, BANDS.map(([label], i) => h("button", { type: "button", class: "rank rise", style: `--i:${i}`,
+    "aria-pressed": String(picked === i), disabled: !bands[i][0] || null, onclick: () => pick(i) },
     h("span", { class: "name" }, label, h("span", { class: "lbl" }, money(bands[i][1]))), meter(bands[i][0] / max),
     h("span", { class: "v" }, num(bands[i][0])), h("span", { class: "share" }, `| ${pctOf(bands[i][0], total)}`))));
 }
@@ -463,7 +500,7 @@ hooks.person.push(p => {
 
 // ---------------------------------------------------------------- Donors
 const PAGE = 50;
-const V = { year: null, seg: "all", sort: { key: "ytd", dir: -1 } };
+const V = { year: null, seg: "all", band: null, month: null, sort: { key: "ytd", dir: -1 } };
 const COLS = [["name", "Name"], ["life", "Lifetime"], ["ytd", null], ["ly", null], ["last", "Last gift"], ["big", "Largest"], ["n", "Gifts"], ["rec", "Recurring"], ["seg", "Segment"], ["stage", "Stage"], ["next", "Next step"]];
 const NUMERIC = new Set(["life", "ytd", "ly", "big", "n"]);
 const FIRST_DIR = { name: 1, rec: 1, seg: 1, stage: 1, next: 1 };
@@ -478,7 +515,7 @@ function sortRows(list) {
     return c ? c * dir : tie(x, y);
   }).map(x => x[1]);
 }
-async function downloadCSV(rows, Y, seg) {
+async function downloadCSV(rows, Y, seg, band = null) {
   if (!can("export")) return toast("Downloads aren't part of your access");
   const dl = await M.use("downloads");
   if (!dl) return toast("Downloads aren't available here");
@@ -490,7 +527,8 @@ async function downloadCSV(rows, Y, seg) {
     r.recurring, SEG[r.seg], c.stage ? STAGE[c.stage].l : "", c.rating, c.owner ? teamName(c.owner) : "", c.ask_cents != null ? amt(c.ask_cents / 100) : "", c.ask_by,
     c.next_step, c.next_date, c.interests, c.pledge_cents != null ? amt(c.pledge_cents / 100) : "", c.pledge_due]; });
   const label = FILTERS.find(f => f[0] === seg)[1](Y);
-  try { await dl.save({ filename: `Donors ${Y}${seg === "all" ? "" : ", " + label}.csv`.replace(/[^\w ,-.]+/g, ""), data: [head, ...out].map(r => r.map(cell).join(",")).join("\r\n") }); }
+  const name = [`Donors ${Y}`, seg === "all" ? null : label, band == null ? null : BANDS[band][0].replace("$", "").replace("-", " to ")].filter(Boolean).join(", ");
+  try { await dl.save({ filename: `${name}.csv`.replace(/[^\w ,-.]+/g, ""), data: [head, ...out].map(r => r.map(cell).join(",")).join("\r\n") }); }
   catch (e) { if (e?.code !== "declined") toast("Couldn't save the file"); }
 }
 function donorsView() {
@@ -502,6 +540,42 @@ function donorsView() {
   const tiles = h("div", { class: "dn-tiles" }), grid = h("div", { class: "grid" });
   const tHead = h("div", { class: "card-head" }), tBody = h("div", { class: "dn-table" }), tcard = h("section", { class: "card rise dn-tcard" }, tHead, tBody);
   const pickSeg = seg => { V.seg = seg; limit = PAGE; table(); tcard.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" }); };
+  // A gift band narrows the list to it, largest gift first; picking it again (or the x) lets it go
+  const pickBand = i => {
+    V.band = V.band === i ? null : i;
+    if (V.band != null) V.sort = { key: "ytd", dir: -1 };
+    limit = PAGE; shown = ""; update();
+    if (V.band != null) tcard.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+  };
+  const pickMonth = m => { V.month = m; V.monthMore = false; shown = ""; update(); };
+  // One month, day by day: the columns, the month against the same month last year, then every gift in it, newest first
+  function monthCard(m) {
+    const cur = Y === thisYear(), mm = String(m + 1).padStart(2, "0");
+    const len = y => new Date(y, m + 1, 0).getDate(), days = Array(len(Y)).fill(0), daysLY = Array(len(Y - 1)).fill(0), counts = Array(len(Y)).fill(0), gifts = [];
+    for (const r of rows) for (const [d, a] of r.gifts) {
+      if (d.slice(5, 7) !== mm) continue;
+      const y = +d.slice(0, 4), i = +d.slice(8, 10) - 1;
+      if (y === Y) { days[i] += a; counts[i]++; gifts.push([d, a, r.p]); } else if (y === Y - 1) daysLY[i] += a;
+    }
+    const upto = cur && m === +today().slice(5, 7) - 1 ? +today().slice(8, 10) : days.length;
+    const total = days.reduce((t, v) => t + v, 0), totalLY = daysLY.reduce((t, v, i) => t + (i < upto ? v : 0), 0), fullLY = daysLY.reduce((t, v) => t + v, 0);
+    gifts.sort((a, b) => b[0].localeCompare(a[0]) || b[1] - a[1]);
+    const shownGifts = V.monthMore ? gifts : gifts.slice(0, 10);
+    const nav = (d, label) => h("button", { type: "button", class: "x dn-mnav", "aria-label": label, disabled: m + d < 0 || m + d > 11 || (cur && m + d > +today().slice(5, 7) - 1) || null, onclick: () => pickMonth(m + d) }, icon(d < 0 ? "back" : "dn-fwd"));
+    return h("section", { class: "card s7 rise dn-month" },
+      h("div", { class: "card-head" }, h("h2", {}, `${MONTH[m]} ${Y}`),
+        h("div", { class: "actions" }, nav(-1, "Month before"), nav(1, "Month after"),
+          h("button", { type: "button", class: "btn quiet", onclick: () => { V.month = null; shown = ""; update(); } }, "All months"))),
+      h("div", { class: "dn-mfig" },
+        h("div", {}, h("span", { class: "big md" }, money(total)), h("span", { class: "lbl" }, `${fmt(gifts.length)} gift${gifts.length === 1 ? "" : "s"}`)),
+        h("div", {}, h("span", { class: "big md dn-prevfig" }, money(upto < days.length ? totalLY : fullLY)), h("span", { class: "lbl" }, upto < days.length ? `${MONTH[m]} 1 to ${upto}, ${Y - 1}` : `${MONTH[m]} ${Y - 1}`)),
+        h("div", { class: "dn-line" }, change(total, upto < days.length ? totalLY : fullLY, money))),
+      daysChart(Y, m, days, daysLY, upto, counts),
+      gifts.length ? h("div", { class: "dn-mgifts" }, shownGifts.map(([d, a, p]) => h("div", { class: "dn-mgift" },
+        h("span", { class: "dn-vs" }, shortDay(d)), h("a", { href: "#p-" + p.id }, pname(p)), h("b", {}, money(a)))),
+        gifts.length > 10 && !V.monthMore ? h("button", { type: "button", class: "btn quiet dn-more", onclick: () => { V.monthMore = true; shown = ""; update(); } }, `Show ${fmt(gifts.length - 10)} more`) : null)
+        : h("div", { class: "dn-empty" }, "No gifts"));
+  }
   function tile({ big, of, label, chg, extra, seg }, i) {
     const kids = [h("div", { class: "dn-fig" }, h("span", { class: "big" }, big), of ? h("span", { class: "dn-of" }, `| ${of}`) : null), h("span", { class: "lbl" }, label),
       chg ? h("div", { class: "dn-line" }, chg[0], h("span", { class: "dn-vs" }, chg[1])) : null, extra ? h("div", { class: "dn-line" }, extra) : null];
@@ -517,7 +591,7 @@ function donorsView() {
         : [h("div", { class: "dn-tiles" }, Array.from({ length: 6 }, () => h("div", { class: "skel", style: "height: 150px" }))), h("div", { class: "skel", style: "height: 360px" })]);
     }
     Y = V.year || thisYear();
-    const key = [S.version, D.ver, Y, today(), S.names.size, can("export"), D.gotRecs].join("|");
+    const key = [S.version, D.ver, Y, today(), S.names.size, can("export"), D.gotRecs, V.band, V.month, V.monthMore].join("|");
     if (key === shown) return;
     shown = key;
     rows = donorRows(Y);
@@ -536,11 +610,12 @@ function donorsView() {
       tile({ big: num(s.recurring), of: pctOf(s.recurring, s.donors), label: "Recurring donors", seg: "recurring" }, 4),
       tile({ big: num(avg, money), label: "Average gift", chg: [change(avg, avgLY, money), vs] }, 5));
     const upto = cur ? +today().slice(5, 7) : 12, sum = a => a.reduce((t, v) => t + v, 0);
+    if (V.month != null && cur && V.month > +today().slice(5, 7) - 1) V.month = null;
     put(grid,
-      h("section", { class: "card s7 rise" }, h("h2", {}, "Giving by month"), monthsChart(Y, s.months, s.monthsLY, upto),
+      V.month != null ? monthCard(V.month) : h("section", { class: "card s7 rise" }, h("h2", {}, "Giving by month"), monthsChart(Y, s.months, s.monthsLY, upto, pickMonth),
         h("div", { class: "legend row-legend" }, [[Y, sum(s.months), "var(--accent)"], [Y - 1, sum(s.monthsLY), "var(--cat-2)"]].map(([y, v, c]) =>
           h("span", {}, h("span", { class: "sw", style: `--sw: ${c}` }), `${y}  ${money(v)}`)))),
-      h("section", { class: "card s5 rise" }, h("h2", {}, "Donors by gift band"), bandRows(s.bands)));
+      h("section", { class: "card s5 rise" }, h("h2", {}, "Donors by gift band"), bandRows(s.bands, V.band, pickBand)));
     table();
     if (!el.firstChild || el.firstChild !== head) put(el, head, tiles, grid, tcard);
   }
@@ -548,9 +623,12 @@ function donorsView() {
     const counts = Object.fromEntries(FILTERS.map(([k, , test]) => [k, rows.filter(test).length]));
     put(segSel, FILTERS.map(([k, label]) => h("option", { value: k }, `${label(Y)} (${fmt(counts[k])})`)));
     segSel.value = V.seg;
-    const list = sortRows(rows.filter(FILTER[V.seg])), label = FILTERS.find(f => f[0] === V.seg)[1](Y);
+    const band = V.band != null ? inBand(V.band) : () => true;
+    const list = sortRows(rows.filter(FILTER[V.seg]).filter(band)), label = FILTERS.find(f => f[0] === V.seg)[1](Y);
     put(tHead, h("h2", {}, V.seg === "all" ? "All donors" : label, h("span", { class: "n" }, fmt(list.length))),
-      h("div", { class: "actions" }, segSel, can("export") ? h("button", { type: "button", class: "btn quiet", onclick: () => downloadCSV(list, Y, V.seg) }, "Download CSV") : null));
+      h("div", { class: "actions" },
+        V.band != null ? h("button", { type: "button", class: "chip dn-band-on", "aria-label": `Show every gift band, not just ${BANDS[V.band][0]}`, onclick: () => pickBand(V.band) }, BANDS[V.band][0], icon("x")) : null,
+        segSel, can("export") ? h("button", { type: "button", class: "btn quiet", onclick: () => downloadCSV(list, Y, V.seg, V.band) }, "Download CSV") : null));
     const sortBy = k => { V.sort = V.sort.key === k ? { key: k, dir: -V.sort.dir } : { key: k, dir: FIRST_DIR[k] || -1 }; table(); };
     put(tBody,
       h("div", { class: "dn-th" }, COLS.map(([k, l]) => h("button", { type: "button", class: `c-${k}` + (NUMERIC.has(k) ? " num" : ""),
@@ -732,10 +810,26 @@ document.body.append(h("style", {}, `
 .dn-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 15px; font-variant-numeric: tabular-nums }
 .dn-chg { color: var(--muted) } .dn-chg.up { color: var(--cat-8) } .dn-chg.down { color: var(--cat-11) }
 .dn-vs { color: var(--muted); font-size: 14px }
-.dn-lines { cursor: crosshair }
+.dn-lines { cursor: pointer }
+.dn-days { cursor: crosshair }
+.dn-day { fill: var(--accent) }
+.dn-month .card-head .actions { display: flex; align-items: center; gap: 6px }
+.dn-mnav svg { width: 18px; height: 18px }
+.dn-mfig { display: flex; flex-wrap: wrap; align-items: end; gap: 10px 34px; margin: 4px 0 14px }
+.dn-mfig > div:not(.dn-line) { display: grid; gap: 2px }
+.dn-prevfig { color: var(--cat-2) }
+.dn-mgifts { display: grid; margin-top: 16px; border-top: 1px solid var(--rule) }
+.dn-mgift { display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 14px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--rule) }
+.dn-mgift a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap } .dn-mgift a:hover { color: var(--accent) }
+.dn-mgift b { font-weight: 400; font-variant-numeric: tabular-nums }
 .dn-lines .stroke.dn-prev { stroke: var(--cat-2); stroke-width: 2 }
 .dn-lines .end.dn-prev, .dn-lines .hover circle.dn-prev { fill: var(--cat-2) }
-.dn-bands .rank { grid-template-columns: minmax(96px, 1fr) minmax(60px, 1.3fr) 40px 54px }
+.dn-bands .rank { grid-template-columns: minmax(96px, 1fr) minmax(60px, 1.3fr) 40px 54px; padding: 7px 10px; margin: 0 -10px; width: calc(100% + 20px); border-radius: 8px; color: inherit; font: inherit; cursor: pointer; transition: background .2s }
+.dn-bands .rank:hover:not(:disabled) { background: var(--tint) }
+.dn-bands .rank[aria-pressed="true"] { background: var(--tint); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent) }
+.dn-bands .rank:disabled { cursor: default; opacity: .55 }
+.dn-band-on { display: inline-flex; align-items: center; gap: 6px; min-height: 36px }
+.dn-band-on svg { width: 14px; height: 14px }
 .dn-bands .rank .name { white-space: nowrap }
 .dn-bands .rank .name .lbl { font-size: 13px }
 .dn-life { white-space: nowrap }
