@@ -1,7 +1,29 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-11-23T19:26:32.411Z",
+    "updated": "2026-11-25T18:08:34.640Z",
     "episodes": [
+      {
+        "id": 20159164,
+        "title": "Alexis de Tocqueville - Democracy in America with John Wilsey (Replay)",
+        "slug": "alexis-de-tocqueville-democracy-in-america-with-john-wilsey-replay",
+        "pubDate": "2026-11-25T06:00:00.000-05:00",
+        "episode": 44,
+        "season": 2,
+        "duration": 4513,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/20159164-alexis-de-tocqueville-democracy-in-america-with-john-wilsey-replay.mp3",
+        "description": "We’re revisiting one of the most famous outside views of America ever written. In the 1830s a young French aristocrat crossed the Atlantic, officially to study prisons, and was struck most by “the equality of conditions.” Church historian John Wilsey joins Nadya to discuss why Democracy in America is still a classic. They cover how Tocqueville saw religion thriving without a state church, how he t",
+        "embedUrl": "https://www.buzzsprout.com/2612793/20159164?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/alexis-de-tocqueville-democracy-in-america-with-john-wilsey-replay/",
+        "guests": [
+          "John Wilsey (Replay)"
+        ],
+        "topics": [
+          "American Literature",
+          "Political Thought"
+        ]
+      },
       {
         "id": 20147778,
         "title": "Staying Sober: The Healing Power of Classic Books, with Ken Craycraft",
@@ -1329,8 +1351,31 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-11-23T19:26:32.882Z",
+    "updated": "2026-11-25T18:08:35.010Z",
     "episodes": [
+      {
+        "id": 20175025,
+        "title": "Replay: A Theology of Gratitude",
+        "slug": "replay-a-theology-of-gratitude",
+        "pubDate": "2026-11-25T06:00:00.000-05:00",
+        "episode": 45,
+        "season": 3,
+        "duration": 2648,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/20175025-replay-a-theology-of-gratitude.mp3",
+        "description": "Every year Americans celebrate Thanksgiving as a secular, not a Christian, holiday. But gratitude is baked into the very foundation of Christianity, and even of Creation itself. On this episode, Matt, Derek, and Alastair unpack the role of gratitude in theology and in Christian practice. One could even say Christianity is gratitude. And at the end, they enjoy an awkward moment of traditional shari",
+        "embedUrl": "https://www.buzzsprout.com/2612792/20175025?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/replay-a-theology-of-gratitude/",
+        "guests": [],
+        "topics": [
+          "Virtue, Character & Christian Ethics",
+          "Worship & Liturgy",
+          "Spiritual Formation & Prayer",
+          "Biblical Theology & Typology",
+          "Nature & Grace"
+        ]
+      },
       {
         "id": 20143128,
         "title": "Did Paul Teach Keeping the Torah?",
