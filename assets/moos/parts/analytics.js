@@ -85,8 +85,8 @@ function figure(value, label, show = fmt, prev) {
   return h("div", {}, h("span", { class: "big md" }, num(value || 0, show)), h("span", { class: "lbl" }, label, delta(value, prev, lowerIsBetter(label))));
 }
 // Ranked bars with each row's share of the total
-function ranked(rows, { total, show = fmt, pick, sub } = {}) {
-  if (!rows?.length) return h("div", { class: "lbl" }, "None in this period");
+function ranked(rows, { total, show = fmt, pick, sub, empty = "None in this period" } = {}) {
+  if (!rows?.length) return h("div", { class: "lbl" }, empty);
   total ??= rows.reduce((a, r) => a + r[1], 0);
   const max = Math.max(...rows.map(r => r[1]));
   return h("div", { class: "ranked" }, rows.map(([label, v, extra], i) => h(pick ? "button" : "div", { type: pick ? "button" : null, class: "rank rise", style: `--i:${i}`, onclick: pick ? () => pick(label, extra) : null },
@@ -102,38 +102,48 @@ function web(P, range) {
   if (!W) return null;
   const p = W.periods[P], daily = W.daily.filter(r => r[0] >= range[0] && r[0] <= range[1]);
   const dayMap = new Map(D?.days || []);
-  let metric = "visitors", picked = null;
+  // A period reaching back before Plausible (May 26, 2026) takes those days from HubSpot (moos_feeds.mjs), which counts
+  // sessions, not unique visitors: such a period shows sessions, and each figure HubSpot fed is marked
+  const unit = p.visitors != null || !p.hubspot ? "visitors" : "visits", COL = { visitors: 1, pageviews: 2, visits: 3 };
+  const fromHs = k => /hubspot/.test(p.src?.[k] || ""), mark = (k, label) => fromHs(k) ? `${label} · HubSpot` : label;
+  const fig = (k, value, label, show, prev) => value == null ? null : figure(value, mark(k, label), show, prev);
+  const empty = p.hubspot ? "Not recorded" : undefined;
+  let metric = unit, picked = null;
   const chart = h("div"), dayBox = h("div"), switcher = h("div");
   const paintDay = () => {
     if (!picked) return put(dayBox);
     const rows = dayMap.get(picked), total = daily.find(r => r[0] === picked) || W.daily.find(r => r[0] === picked);
+    const said = !total ? "" : total[1] != null ? `${fmt(total[1])} visitors · ${fmt(total[2])} pageviews` : `${fmt(total[3])} sessions` + (total[2] != null ? ` · ${fmt(total[2])} pageviews` : "");
     put(dayBox, h("div", { class: "day-pages rise" },
-      h("div", { class: "card-head" }, h("h3", {}, asDate(picked).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" })), h("span", { class: "lbl" }, total ? `${fmt(total[1])} visitors · ${fmt(total[2])} pageviews` : ""),
+      h("div", { class: "card-head" }, h("h3", {}, asDate(picked).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" })), h("span", { class: "lbl" }, said),
         h("button", { type: "button", class: "x", "aria-label": "Close", onclick: () => { picked = null; paintDay(); } }, M.icon("x"))),
       rows ? h("div", { class: "table" }, h("div", { class: "trow th" }, h("span", {}, "Page"), h("span", {}, "Visitors"), h("span", {}, "Pageviews"), h("span", {}, "Share")),
         rows.map(([title, path, v, pv]) => h("div", { class: "trow" }, h("a", { href: "https://mereorthodoxy.com" + path, target: "_blank", rel: "noopener" }, title), h("span", {}, fmt(v)), h("span", {}, fmt(pv)), h("span", { class: "lbl" }, total ? share(v, total[1]) : ""))))
         : h("div", { class: "lbl" }, "No page detail for this day")));
   };
   const whole = daily.filter(r => r[0] !== W.today);  // today is still in progress, so the line stops at yesterday
-  const paintChart = () => put(chart, lineChart(whole.map(r => r[0]), whole.map(r => r[metric === "visitors" ? 1 : 2]), fmt, { pick: d => { picked = d; paintDay(); dayBox.scrollIntoView({ block: "nearest", behavior: "smooth" }); } }) || "");
-  const paintSwitch = () => put(switcher, chipset([["visitors", "Visitors"], ["pageviews", "Pageviews"]], metric, v => { metric = v; paintSwitch(); paintChart(); }));
+  const paintChart = () => put(chart, lineChart(whole.map(r => r[0]), whole.map(r => r[COL[metric]]), fmt, { pick: d => { picked = d; paintDay(); dayBox.scrollIntoView({ block: "nearest", behavior: "smooth" }); } }) || "");
+  const paintSwitch = () => put(switcher, whole.length > 1 ? chipset([[unit, unit === "visits" ? "Sessions" : "Visitors"], ["pageviews", "Pageviews"]], metric, v => { metric = v; paintSwitch(); paintChart(); }) : "");
   paintSwitch(); paintChart();
-  const ppv = p.visitors ? p.pageviews / p.visitors : 0, prevPpv = p.prev?.visitors ? p.prev.pageviews / p.prev.visitors : 0;
-  const devTotal = p.devices.reduce((a, r) => a + r[1], 0);
+  const per = p.pageviews == null || p[unit] == null ? null : p[unit] ? p.pageviews / p[unit] : 0, prevPer = p.prev?.[unit] && p.prev?.pageviews != null ? p.prev.pageviews / p.prev[unit] : 0;
+  const total = p[unit] ?? undefined, devTotal = p.devices.reduce((a, r) => a + r[1], 0);
   return [
     card("s12", null, h("div", { class: "card-head" }, h("h2", {}, "Traffic"), switcher),
-      h("div", { class: "figures" }, figure(p.visitors, "Visitors", fmt, p.prev?.visitors), figure(p.pageviews, "Pageviews", fmt, p.prev?.pageviews),
-        figure(ppv, "Pages per visitor", n => n.toFixed(2), prevPpv), figure(p.duration, "Average visit", minutes, p.prev?.duration), figure(p.bounce, "Bounce rate", pct, p.prev?.bounce)),
+      h("div", { class: "figures" }, fig(unit, p[unit], unit === "visits" ? "Sessions" : "Visitors", fmt, p.prev?.[unit]), fig("pageviews", p.pageviews, "Pageviews", fmt, p.prev?.pageviews),
+        fig("pageviews", per, unit === "visits" ? "Pages per session" : "Pages per visitor", n => n.toFixed(2), prevPer), fig("duration", p.duration, "Average visit", minutes, p.prev?.duration), fig("bounce", p.bounce, "Bounce rate", pct, p.prev?.bounce)),
       chart, dayBox),
-    card("s12", "Top pages", h("div", { class: "table" }, h("div", { class: "trow th" }, h("span", {}, "Page"), h("span", {}, "Visitors"), h("span", {}, "Pageviews"), h("span", {}, "Share")),
-      p.pages.map(([title, path, v, pv]) => h("div", { class: "trow" }, h("a", { href: "https://mereorthodoxy.com" + path, target: "_blank", rel: "noopener" }, title), h("span", {}, fmt(v)), h("span", {}, fmt(pv)), h("span", { class: "lbl" }, share(v, p.visitors)))))),
-    card("s6", "Channels", ranked(p.channels, { total: p.visitors })),
-    card("s6", "Sources", ranked(p.sources, { total: p.visitors })),
-    card("s6", "Landing pages", ranked(p.entries.map(([t, , v]) => [t, v]), { total: p.visitors })),
-    card("s6", "Devices", h("div", { class: "ring-wrap" }, ring(p.devices.map(([, v], i) => [v, PALETTE[i]]), short(devTotal)),
-      h("div", { class: "legend" }, p.devices.map(([l, v], i) => h("button", { type: "button", tabindex: -1 }, h("span", { class: "sw", style: `--sw: ${PALETTE[i]}` }), l || "Not recorded", h("b", {}, share(v, devTotal))))))),
-    card("s6", "Countries", ranked(p.countries, { total: p.visitors })),
-    card("s6", "Cities", ranked(p.cities, { total: p.visitors })),
+    // HubSpot counts no visitors per page, so its days' pages carry pageviews alone and share is of pageviews
+    card("s12", "Top pages", p.pages.length ? h("div", { class: "table" }, h("div", { class: "trow th" }, h("span", {}, "Page"), h("span", {}, "Visitors"), h("span", {}, "Pageviews"), h("span", {}, "Share")),
+      p.pages.map(([title, path, v, pv]) => h("div", { class: "trow" }, h("a", { href: "https://mereorthodoxy.com" + path, target: "_blank", rel: "noopener" }, title), h("span", {}, v == null ? "" : fmt(v)), h("span", {}, fmt(pv)), h("span", { class: "lbl" }, v == null ? share(pv, p.pageviews) : share(v, p.visitors)))))
+      : h("div", { class: "lbl" }, empty || "None in this period")),
+    card("s6", "Channels", ranked(p.channels, { total, empty })),
+    card("s6", "Sources", ranked(p.sources, { total, empty })),
+    card("s6", "Landing pages", ranked(p.entries.map(([t, , v]) => [t, v]), { total, empty })),
+    card("s6", "Devices", p.devices.length || !empty ? h("div", { class: "ring-wrap" }, ring(p.devices.map(([, v], i) => [v, PALETTE[i]]), short(devTotal)),
+      h("div", { class: "legend" }, p.devices.map(([l, v], i) => h("button", { type: "button", tabindex: -1 }, h("span", { class: "sw", style: `--sw: ${PALETTE[i]}` }), l || "Not recorded", h("b", {}, share(v, devTotal))))))
+      : h("div", { class: "lbl" }, empty)),
+    card("s6", "Countries", ranked(p.countries, { total, empty })),
+    card("s6", "Cities", ranked(p.cities, { total, empty })),
     W.topics?.length ? card("s6", "Topics, last 30 days", ranked(W.topics.map(([n, v, r]) => [n, v, r]), { sub: r => `${fmt(r)} reads` })) : null,
     W.authors?.length ? card("s6", "Authors, last 30 days", ranked(W.authors.slice(0, 10).map(([n, v, r]) => [n, v, r]), { sub: r => `${fmt(r)} reads` })) : null,
     W.tfr?.length ? card("s6", "The Faith Received, weekly visitors", columns(W.tfr.map(w => w[1]), W.tfr.map(w => asDate(w[0]).toLocaleDateString("en-US", { month: "short", day: "numeric" })), "The Faith Received weekly visitors", short, { every: 1 })) : null,
