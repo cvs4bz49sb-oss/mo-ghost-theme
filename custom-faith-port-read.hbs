@@ -110,15 +110,15 @@
 <div class="app no-facs nosb faith-port-read-page" id="app">
   {{!-- First paint is final layout: rail height counted, sidebar open. --}}
   <script src="{{asset "js/page/faith-port-read-early.js"}}&amp;frv=5daaea80e63f552b"></script>
-  <aside class="sidebar">
+  <aside class="sidebar" data-hm-section="contents">
     <div class="work"><div class="wt" id="wt">…</div><div class="wmeta" id="wmeta"></div>{{!-- COinS removed: it advertised thefaithreceived.vercel.app as publisher. --}}</div>
     <div class="contents-toolbar"><span>Contents</span><button id="contentsClose" type="button" aria-label="Close contents">×</button></div>
     <nav class="nav" id="nav"></nav>
   </aside>
-  <div class="scroll" id="scroll">
+  <div class="scroll" id="scroll" data-hm-scroller>
     <div class="main">
       <a class="skiplink" href="#reading">Skip to the text</a>
-      <header class="ph fr-reader-head"><div class="phl"><button id="sbT" class="sbt" title="Collapse / show the contents sidebar" aria-label="Toggle sidebar">☰</button><a id="mhHome" class="mh-home" href="/the-faith-received/all-works/?collection=all" title="Back to the library" aria-label="Back to the library"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m14 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Library</span></a><div class="reader-identity"><h1 id="h1">Loading…</h1><div class="reader-reference"><a id="reader-author" href="/the-faith-received/all-works/?collection=all"></a><span id="reader-volume"></span><button id="reader-location" type="button" title="Go to a place in this work"></button></div><div class="sub" id="sub"></div><div class="ploc" id="phLoc" aria-live="polite" title="Current section — click to show or hide the outline"></div></div><button id="rdAbout" class="tgl" title="About this work & its author — what it is and who wrote it">ⓘ About</button></div>
+      <header class="ph fr-reader-head" data-hm-section="toolbar"><div class="phl"><button id="sbT" class="sbt" title="Collapse / show the contents sidebar" aria-label="Toggle sidebar">☰</button><a id="mhHome" class="mh-home" href="/the-faith-received/all-works/?collection=all" title="Back to the library" aria-label="Back to the library"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m14 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Library</span></a><div class="reader-identity"><h1 id="h1">Loading…</h1><div class="reader-reference"><a id="reader-author" href="/the-faith-received/all-works/?collection=all"></a><span id="reader-volume"></span><button id="reader-location" type="button" title="Go to a place in this work"></button></div><div class="sub" id="sub"></div><div class="ploc" id="phLoc" aria-live="polite" title="Current section: click to show or hide the outline"></div></div><button id="rdAbout" class="tgl" title="About this work and its author">ⓘ About</button></div>
         <div class="ctr">
           <div class="seg pnav" role="group" aria-label="Page"><button id="pPrev" title="Previous page (←)">‹</button><button id="pNext" title="Next page (→)">›</button></div><div class="seg pgjump"><input type="text" id="pgJump" inputmode="text" autocomplete="off" title="Jump to page" aria-label="Page number"><span class="pg-total" id="pgTotal"></span></div>
           <div class="seg lanes" role="group" aria-label="What to show — combine freely">
@@ -179,12 +179,12 @@
            faith-port-work-status.js does that and then starts it. --}}
       <meta name="tfr-library-base" content="https://mo-tfr-library.mo-podcast-feed.workers.dev" />
       <div class="faith-reader-status" data-fr-status data-fr-status-defer hidden></div>
-      <main id="reading" aria-label="The text"><div class="loading">Loading the text…</div></main>
+      <main id="reading" aria-label="The text" data-hm-section="text"><div class="loading">Loading the text…</div></main>
     </div>
     <div class="prog"><i id="prog"></i></div>
   </div>
   <div class="rz" id="rz" title="Drag to resize the facsimile"></div>
-  <aside class="facs" id="facs">
+  <aside class="facs" id="facs" data-hm-section="facsimile">
     <button class="facs-x" id="facsX" aria-label="Close the facsimile" title="Close the facsimile">×</button>
     <div class="fh"><button id="fPrev" class="fnav" aria-label="Previous page" title="Previous page (←)">‹</button><span id="ffol">fol. —</span><button id="fNext" class="fnav" aria-label="Next page" title="Next page (→)">›</button><span class="fh-ct" id="fhct"></span><span class="lbl" style="margin-left:.7em">Source scan</span><button id="fzOut" class="fnav" aria-label="Zoom out" title="Zoom the scan out">−</button><button id="fzIn" class="fnav" aria-label="Zoom in" title="Zoom the scan in (or Ctrl/⌘ + scroll)">+</button><button id="facsExp" class="fexp" aria-pressed="false" title="Fill the window with the scan (click again to bring the text back)">⤢</button></div>
     <div class="fstage"><img id="fimg" alt="Source page scan"></div>

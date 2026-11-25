@@ -378,9 +378,9 @@
                          preferences page instead (Ian, 2026-09-09). Paid +
                          comped keep the dashboard. --}}
                     {{#match @member.status "free"}}
-                        <a href="/email-preferences/" class="btn btn-solid btn-primary btn-account">{{#if @member.name}}{{@member.name}}{{else}}Your Emails{{/if}}</a>
+                        <a href="/email-preferences/" class="btn btn-solid btn-primary btn-account" data-hm-label="Account">{{#if @member.name}}{{@member.name}}{{else}}Your Emails{{/if}}</a>
                     {{else}}
-                        <a href="/dashboard/" class="btn btn-solid btn-primary btn-account">{{#if @member.name}}{{@member.name}}{{else}}Dashboard{{/if}}</a>
+                        <a href="/dashboard/" class="btn btn-solid btn-primary btn-account" data-hm-label="Account">{{#if @member.name}}{{@member.name}}{{else}}Dashboard{{/if}}</a>
                     {{/match}}
                 {{/unless}}
             </div>
@@ -417,9 +417,9 @@
                     <a href="/membership/" class="btn btn-solid btn-primary">Become a Member</a>
                 {{else}}
                     {{#match @member.status "free"}}
-                        <a href="/email-preferences/" class="btn btn-solid btn-primary btn-account">{{#if @member.name}}{{@member.name}}{{else}}Your Emails{{/if}}</a>
+                        <a href="/email-preferences/" class="btn btn-solid btn-primary btn-account" data-hm-label="Account">{{#if @member.name}}{{@member.name}}{{else}}Your Emails{{/if}}</a>
                     {{else}}
-                        <a href="/dashboard/" class="btn btn-solid btn-primary btn-account">{{#if @member.name}}{{@member.name}}{{else}}Dashboard{{/if}}</a>
+                        <a href="/dashboard/" class="btn btn-solid btn-primary btn-account" data-hm-label="Account">{{#if @member.name}}{{@member.name}}{{else}}Dashboard{{/if}}</a>
                     {{/match}}
                     <button class="mobile-nav-signout" data-portal="signout">Sign out</button>
                 {{/unless}}

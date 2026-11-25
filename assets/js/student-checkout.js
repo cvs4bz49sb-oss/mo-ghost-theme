@@ -136,6 +136,7 @@
       if (!res.ok || !body.ok) {
         throw new Error(body.error || 'Unable to send the confirmation email.');
       }
+      if (window.MOForms) window.MOForms.done(form);
       // Swap the form for a confirmation message.
       if (successEl) {
         const target = successEl.querySelector('[data-student-success-email]');

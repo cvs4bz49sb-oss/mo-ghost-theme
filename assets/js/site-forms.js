@@ -247,6 +247,7 @@
       })
       .then((res) => {
         if (res.ok && res.body && res.body.ok) {
+          if (window.MOForms) window.MOForms.done(form);
           // A new Daily Liturgy subscriber goes straight to the welcome
           // survey, carrying the key mo-kit minted in place of the Ghost
           // sign-in they do not have. Fragment, not query: it stays out of

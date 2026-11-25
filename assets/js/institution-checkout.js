@@ -34,6 +34,7 @@
       if (body.url) {
         // Same guard the group and gift flows use: only follow a
         // worker-supplied URL if it lands on a known Stripe host.
+        if (window.MOForms) window.MOForms.done(form);
         window.MOSafeRedirect.go(body.url);
         return;
       }

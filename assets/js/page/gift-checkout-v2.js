@@ -171,6 +171,7 @@
       if (!r.ok || !json.url) {
         return fail("We couldn't open the checkout. Please try again, or email ian@mereorthodoxy.com.");
       }
+      if (window.MOForms) window.MOForms.done(form);
       window.MOSafeRedirect.go(json.url);
     } catch (err) {
       fail("We couldn't open the checkout. Please try again, or email ian@mereorthodoxy.com.");

@@ -64,6 +64,7 @@
       if (body.url) {
         // Validate the worker-supplied URL is on a known Stripe host
         // before navigating, to defang a tampered worker response.
+        if (window.MOForms) window.MOForms.done(form);
         window.MOSafeRedirect.go(body.url);
         return;
       }

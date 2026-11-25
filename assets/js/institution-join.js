@@ -130,6 +130,7 @@
       } else if (manualEl) {
         manualEl.hidden = false;
       }
+      if (window.MOForms) window.MOForms.done(formEl);
       formEl.hidden = true;
       successEl.hidden = false;
     } catch (err) {

@@ -117,11 +117,13 @@
     </div>
   </details>
 
-  {{!-- Devotional body --}}
+  {{!-- Devotional body. Each part of the office is a heatmap section, and
+       the whole article is the block whose depth the heatmap records
+       (assets/js/heatmap-collect.js, DEPTH_TARGETS). --}}
   <article class="dlr-body" data-dlr-body>
 
     {{!-- Opening Prayer --}}
-    <section class="dlr-section">
+    <section class="dlr-section" data-hm-section="opening-prayer">
       <p class="dlr-label">Opening Prayer</p>
       <div class="dlr-prayer-lines" data-dlr-opening-prayer></div>
     </section>
@@ -129,7 +131,7 @@
     <hr class="dlr-rule" />
 
     {{!-- Confession --}}
-    <section class="dlr-section">
+    <section class="dlr-section" data-hm-section="confession">
       <p class="dlr-transition">A Prayer of Confession</p>
       <p class="dlr-label">Confession of Sin &amp; Prayer for Grace</p>
       <div class="dlr-prayer-text" data-dlr-confession></div>
@@ -138,7 +140,7 @@
     <hr class="dlr-rule" />
 
     {{!-- OT Reading --}}
-    <section class="dlr-section">
+    <section class="dlr-section" data-hm-section="ot-reading">
       <p class="dlr-transition">The word of the Lord, from the Old Testament</p>
       <p class="dlr-label">Old Testament Reading</p>
       <div class="dlr-scripture" data-dlr-ot-reading>
@@ -150,7 +152,7 @@
     <hr class="dlr-rule" />
 
     {{!-- Lord's Prayer --}}
-    <section class="dlr-section">
+    <section class="dlr-section" data-hm-section="lords-prayer">
       <p class="dlr-transition">And now we pray</p>
       <p class="dlr-label">The Lord's Prayer</p>
       <div class="dlr-prayer-lines">
@@ -173,7 +175,7 @@
     <hr class="dlr-rule" />
 
     {{!-- NT Reading --}}
-    <section class="dlr-section">
+    <section class="dlr-section" data-hm-section="nt-reading">
       <p class="dlr-transition">The word of the Lord, from the New Testament</p>
       <p class="dlr-label">New Testament Reading</p>
       <div class="dlr-scripture" data-dlr-nt-reading>
@@ -185,7 +187,7 @@
     <hr class="dlr-rule" />
 
     {{!-- Prayer of Adoration --}}
-    <section class="dlr-section">
+    <section class="dlr-section" data-hm-section="adoration">
       <p class="dlr-label">Prayer of Adoration</p>
       <div class="dlr-prayer-text" data-dlr-adoration></div>
     </section>
@@ -193,7 +195,7 @@
     <hr class="dlr-rule" />
 
     {{!-- Psalm Reading --}}
-    <section class="dlr-section">
+    <section class="dlr-section" data-hm-section="psalm-reading">
       <p class="dlr-transition">The word of the Lord, from the Psalms</p>
       <p class="dlr-label">Psalm Reading</p>
       <div class="dlr-scripture" data-dlr-psalm-reading>
@@ -205,7 +207,7 @@
     <hr class="dlr-rule" />
 
     {{!-- Prayer of Consecration --}}
-    <section class="dlr-section">
+    <section class="dlr-section" data-hm-section="consecration">
       <p class="dlr-label">Prayer of Consecration</p>
       <div class="dlr-prayer-text" data-dlr-consecration></div>
     </section>
@@ -213,7 +215,7 @@
     <hr class="dlr-rule" />
 
     {{!-- Benediction --}}
-    <section class="dlr-section dlr-section--benediction">
+    <section class="dlr-section dlr-section--benediction" data-hm-section="benediction">
       <p class="dlr-ornament" aria-hidden="true">&#10013;&#xFE0E;</p>
       <p class="dlr-label dlr-label--center">Benediction</p>
       <div class="dlr-prayer-text dlr-prayer-text--benediction" data-dlr-benediction></div>

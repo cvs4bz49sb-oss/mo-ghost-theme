@@ -88,6 +88,7 @@
     })
       .then((r) => { return r.ok ? r.json() : r.json().then((j) => { throw new Error(j.error || "Couldn't sign you up."); }); })
       .then(() => {
+        if (window.MOForms) window.MOForms.done(signupEl);
         const card = root.querySelector("[data-ebook-card]");
         if (!card) return;
         card.innerHTML =

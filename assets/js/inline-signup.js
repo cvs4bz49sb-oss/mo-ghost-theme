@@ -156,13 +156,17 @@
 
     if (!endpoint) {
       ghostSignup(root, email, name)
-        .then(() => { renderSuccess(root, email); })
+        .then(() => {
+          if (window.MOForms) window.MOForms.done(root);
+          renderSuccess(root, email);
+        })
         .catch((err) => { restore(root, submit, originalText, err); });
       return;
     }
 
     registerForum(root, endpoint, { first, last, email })
       .then((result) => {
+        if (window.MOForms) window.MOForms.done(root);
         const success = renderRegisteredSuccess(root, email, result);
         // Two emails land within seconds of each other, so the second
         // one gets explained rather than looking like spam. It is

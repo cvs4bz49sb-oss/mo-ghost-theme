@@ -750,6 +750,7 @@
               }
               return;
             }
+            if (window.MOForms) window.MOForms.done(form);
             if (doneEl) doneEl.hidden = false;
             form.reset();
             if (remainingEl) remainingEl.textContent = body.credits_remaining;

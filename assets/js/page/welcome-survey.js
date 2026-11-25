@@ -360,6 +360,7 @@
     // completed:true only ever ratchets up on the worker side, so a reader
     // who returns to the page later cannot un-complete themselves.
     save(true);
+    if (window.MOForms) window.MOForms.done(form);
     steps.forEach((s) => { s.hidden = true; s.classList.remove("is-active"); });
     // BOTH are required. .welcome-step is display:none and only .is-active
     // sets display:block, so clearing the hidden attribute on its own leaves

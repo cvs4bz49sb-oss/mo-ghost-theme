@@ -113,10 +113,13 @@ const BUNDLES = [
       "assets/js/commonplace.js",
       "assets/js/liturgical-calendar.js",
       "assets/js/slide-in.js",
-      // Homepage click-heatmap collector. In the site bundle because
-      // the homepage has no template-local script block, and because
-      // the file returns on its first line for any path but "/".
+      // Page keys and heatmap sections (window.MOPageKey). Ahead of the
+      // two files that read it: the click-heatmap collector and the form
+      // counter. Both run on every page, so both live in the site bundle
+      // rather than in some ninety page templates.
+      "assets/js/page-key.js",
       "assets/js/heatmap-collect.js",
+      "assets/js/form-track.js",
       "assets/js/topic-filter.js",
       "assets/js/podcast-feed.js",
       "assets/js/dlp-band.js",

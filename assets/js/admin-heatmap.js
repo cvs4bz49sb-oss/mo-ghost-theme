@@ -858,8 +858,16 @@
     const scrollY = doc.documentElement.scrollTop || doc.body.scrollTop || 0;
     const scrollX = doc.documentElement.scrollLeft || doc.body.scrollLeft || 0;
 
-    doc.querySelectorAll("[data-hm-section]").forEach((node) => {
-      const key = node.getAttribute("data-hm-section");
+    // Marked sections plus the automatic ones (page-key.js), resolved
+    // against the framed page with the same rule the collector used, so
+    // a click stored as "topics" or "lp-band-2" lands on that block.
+    const keys = window.MOPageKey;
+    const list = keys && keys.sections
+      ? keys.sections(doc)
+      : Array.from(doc.querySelectorAll("[data-hm-section]"), (node) => ({
+        key: node.getAttribute("data-hm-section"), node,
+      }));
+    list.forEach(({ key, node }) => {
       if (!key || rects[key]) return;
       const r = node.getBoundingClientRect();
       rects[key] = {
