@@ -54,8 +54,12 @@
        podcast feed and this site with a plain fetch (bridge.js, auth: false),
        so neither is here. Narrower than default.hbs's list on purpose. --}}
   <meta name="mo-trusted-hosts" content="{{@custom.admin_worker_url}}|https://mo-email.mo-podcast-feed.workers.dev" />
-  <link rel="icon" type="image/jpeg" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
-  <link rel="apple-touch-icon" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
+  {{!-- MOOS's own M. mark in the tab and on a home screen (Ian, 2026-11-25: "the MOOS logo, not the
+       Mere O logo... and not change it on the whole Mere O site"). Only this page names these;
+       default.hbs keeps mere-o-fav-icon.jpg for everything else. --}}
+  <link rel="icon" type="image/png" sizes="32x32" href="{{asset "images/moos-icon-32.png"}}" />
+  <link rel="icon" type="image/png" sizes="64x64" href="{{asset "images/moos-icon-64.png"}}" />
+  <link rel="apple-touch-icon" href="{{asset "images/moos-touch-icon.png"}}" />
   {{#if @member}}
   <script src="{{asset "js/moos-web-config.js"}}" data-admin="{{@custom.admin_worker_url}}" data-email="https://mo-email.mo-podcast-feed.workers.dev" data-podcast="{{#if @custom.podcast_feed_url}}{{@custom.podcast_feed_url}}{{else}}https://mo-podcast-feed.mo-podcast-feed.workers.dev{{/if}}"></script>
   {{> "moos-app-head"}}

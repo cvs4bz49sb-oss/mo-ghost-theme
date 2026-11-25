@@ -1243,4 +1243,4 @@ dl.pm-fields { grid-template-columns: 78px minmax(0, 1fr); align-items: center; 
 }
 `));
 
-addView("tasks", "Projects", projects, { icon: '<rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="17" y="4" width="4" height="7" rx="1.5"/>' });
+addView("tasks", "Projects", projects, { group: "work", icon: '<rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="17" y="4" width="4" height="7" rx="1.5"/>' });

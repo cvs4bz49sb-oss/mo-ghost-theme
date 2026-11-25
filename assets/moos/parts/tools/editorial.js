@@ -2,8 +2,10 @@
 // the same board as /admin/editorial/ (custom-admin-editorial.hbs, assets/js/admin-editorial.js).
 // Same endpoints and payloads, all on mo-admin, whose SETTINGS KV ("editorial_submissions") holds the
 // board: GET and POST /editorial/submissions, DELETE /editorial/submissions/<id>, POST .../<id>/status
-// {status}, .../<id>/notes {notes}, .../<id>/assign {assigned_to} followed by POST /inbox/notify for
-// the assignee, and GET /admin-users for who can be assigned. A MOOS token reaches these routes once
+// {status}, .../<id>/notes {notes}, .../<id>/venue {venue, journal}, .../<id>/assign {assigned_to}
+// followed by POST /inbox/notify for the assignee, and GET /admin-users for who can be assigned.
+// A piece runs on the web or in print; a print piece names its Journal issue by number. A submission
+// saved before venue existed has none and counts as web (mo-admin's venueOf does the same). A MOOS token reaches these routes once
 // mo-admin names them in MOOS_TOOL_ROUTES (_shared/moos-token.js).
 // Files: mo-admin answers 404 for a submission's essay and headshot, and the bridge carries text, not
 // files, so a submission that names files links to the board on the site.
@@ -19,12 +21,23 @@ const HUE = { submitted: "var(--accent)", approved: "var(--cat-2)", edited: "var
 const COLS = ["approved", "edited", "scheduled", "published"];
 const ALL = ["submitted", ...COLS, "denied"];
 const PAGE = 12;  // cards a column shows before "Show more"
+const VENUES = [["web", "Web"], ["print", "Print"]];
+// The Journal's issues to pick from: the newest one with a season and the next four, plus any a piece already names
+const latestIssue = () => Math.max(0, ...Object.keys(M.ISSUES || {}).map(Number));
+const issueName = n => `Issue ${n}${M.ISSUES?.[n] ? ", " + M.ISSUES[n] : ""}`;
+function issueChoices(extra = []) {
+  const top = latestIssue();
+  return [...new Set([...Array.from({ length: 5 }, (_, i) => top + i), ...extra.filter(Boolean)])].filter(n => n > 0).sort((a, b) => a - b);
+}
+const remembered = (k, ok, fallback) => { try { const v = localStorage.getItem("moos-ed-" + k); return ok(v) ? v : fallback; } catch { return fallback; } };
+const remember = (k, v) => { try { localStorage.setItem("moos-ed-" + k, v); } catch { /* private window */ } };
 
 M.ICONS["group-editorial"] = '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h4"/>';
 M.ICONS["ed-inbox"] = '<path d="M3 13l2.6-7.4A1.5 1.5 0 0 1 7 4.6h10a1.5 1.5 0 0 1 1.4 1l2.6 7.4v5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/>';
 M.ICONS["ed-pipeline"] = '<rect x="3" y="5" width="5" height="14" rx="1.5"/><rect x="16" y="5" width="5" height="14" rx="1.5"/><path d="M10 12h4M12.5 10l2 2-2 2"/>';
 M.ICONS["ed-file"] = '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/>';
 M.ICONS["ed-plus"] = '<path d="M12 5v14M5 12h14"/>';
+M.ICONS["ed-journal"] = '<path d="M5 4.5h11a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>';
 
 // ---------------------------------------------------------------- the board, shared by both views
 const B = { rows: null, err: null, at: 0, loading: null, users: null, usersLoading: null, subs: new Set() };
@@ -34,7 +47,12 @@ const str = v => v == null ? "" : String(v);
 const clean = r => ({ id: str(r.id), first_name: str(r.first_name), last_name: str(r.last_name), email: str(r.email).trim(), phone: str(r.phone),
   bio: str(r.bio), ai_attested: Number(r.ai_attested) === 1 || r.ai_attested === true, essay_name: str(r.essay_name), headshot_name: str(r.headshot_name),
   has_essay: !!r.essay_key, has_headshot: !!r.headshot_key, status: ALL.includes(r.status) ? r.status : "submitted", notes: str(r.notes),
-  assigned_to: str(r.assigned_to).trim().toLowerCase(), created_at: str(r.created_at), updated_at: str(r.updated_at) });
+  assigned_to: str(r.assigned_to).trim().toLowerCase(), created_at: str(r.created_at), updated_at: str(r.updated_at), ...placeOf(r) });
+// Where a piece runs, as mo-admin keeps it: print with an issue number, or web with none
+function placeOf(r) {
+  const venue = r.venue === "print" ? "print" : "web", n = Number(r.journal);
+  return { venue, journal: venue === "print" && Number.isInteger(n) && n > 0 ? n : null };
+}
 
 async function load(force) {
   if (B.loading) return B.loading;
@@ -78,6 +96,16 @@ async function saveNotes(r, text) {
   changed();
   return true;
 }
+async function setPlace(r, venue, journal) {
+  const next = placeOf({ venue, journal });
+  if (next.venue === r.venue && next.journal === r.journal) return;
+  const prev = { venue: r.venue, journal: r.journal };
+  Object.assign(r, next);
+  changed();
+  try { await T.api(`/editorial/submissions/${encodeURIComponent(r.id)}/venue`, { method: "POST", body: next }); }
+  catch (e) { Object.assign(r, prev); changed(); toast(e.message || "Couldn't change it"); return; }
+  toast(next.venue === prev.venue ? (next.journal ? `Moved to ${issueName(next.journal)}` : "No issue yet") : next.venue === "print" ? "Moved to Print" : "Moved to Web");
+}
 async function assign(r, email) {
   const prev = r.assigned_to;
   r.assigned_to = email || "";
@@ -92,7 +120,7 @@ async function assign(r, email) {
 }
 async function create(d) {
   const body = { first_name: d.first_name.trim(), last_name: d.last_name.trim(), email: d.email.trim(), phone: d.phone.trim() || null, bio: d.bio.trim() || null,
-    status: d.status, notes: d.notes.trim() || null };
+    status: d.status, notes: d.notes.trim() || null, ...placeOf(d) };
   const res = await T.api("/editorial/submissions", { method: "POST", body });
   if (!res?.id) throw Object.assign(new Error(res?.error || "Couldn't add it"), { code: "server" });
   const now = new Date().toISOString();
@@ -132,9 +160,12 @@ function mail(email) {
 }
 const face = email => h("span", { class: "ed-av", "aria-hidden": "true" }, (userName(email)[0] || "?").toUpperCase());
 const sw = status => h("span", { class: "ed-sw", style: `--c:${HUE[status]}`, "aria-hidden": "true" });
+// Web | Print: one control, two halves
+const venueSwitch = (current, pick, label = "Runs") => h("div", { class: "ed-venue", role: "group", "aria-label": label },
+  VENUES.map(([v, l]) => h("button", { type: "button", "aria-pressed": String(v === current), onclick: () => { if (v !== current) pick(v); } }, l)));
 const head = (title, n, ...right) => h("div", { class: "head ed-head rise" }, h("h1", {}, title, n == null ? null : h("span", { class: "ed-n" }, fmt(n))),
   h("div", { class: "ed-head-r" }, ...right, T.chip()));
-const newBtn = (status, dr) => h("button", { type: "button", class: "btn quiet", onclick: e => dr.openNew(status, e.currentTarget) }, icon("ed-plus"), "New submission");
+const newBtn = (status, dr, place) => h("button", { type: "button", class: "btn quiet", onclick: e => dr.openNew(status, e.currentTarget, place) }, icon("ed-plus"), place?.venue === "print" ? "New print piece" : "New submission");
 function trouble(e) {
   if (e.code === "forbidden") {
     return h("div", { class: "card empty rise" }, h("h2", {}, "MOOS can't open submissions yet"),
@@ -172,7 +203,7 @@ function panel() {
     loadUsers();
   }
   function open(rid, from) { id = rid; draft = null; asking = false; show(from); }
-  function openNew(status, from) { id = null; draft = { first_name: "", last_name: "", email: "", phone: "", bio: "", status, notes: "" }; tried = false; busy = false; show(from); }
+  function openNew(status, from, place = {}) { id = null; draft = { first_name: "", last_name: "", email: "", phone: "", bio: "", status, notes: "", venue: "web", journal: null, ...place }; tried = false; busy = false; show(from); }
   function close() {
     if (!shown) return;
     flushNotes();
@@ -208,6 +239,15 @@ function panel() {
   }
 
   const close$ = () => h("button", { type: "button", class: "x ed-x", "aria-label": "Close", onclick: () => close() }, icon("x"));
+  // Web or Print, and for print the Journal issue
+  function placeFields(p, pick) {
+    const sel = h("select", { "aria-label": "Journal issue", onchange: e => pick(p.venue, e.target.value ? Number(e.target.value) : null) },
+      h("option", { value: "" }, "No issue yet"), issueChoices([p.journal]).map(n => h("option", { value: String(n) }, issueName(n))));
+    sel.value = p.journal ? String(p.journal) : "";
+    return h("div", { class: "ed-place" },
+      h("div", { class: "ed-field" }, h("span", { class: "lbl" }, "Runs"), venueSwitch(p.venue, v => pick(v, v === "print" ? p.journal : null))),
+      p.venue === "print" ? h("label", { class: "ed-field ed-issue" }, h("span", { class: "lbl" }, "Journal"), sel) : null);
+  }
   function paint() {
     if (!shown) return;
     if (draft) return paintNew();
@@ -224,11 +264,13 @@ function panel() {
     const inbox = r.status === "submitted", notes = notesBox(r);
     put(el, close$(),
       h("div", { class: "ed-dhead" }, h("h2", {}, nameOf(r)),
-        h("div", { class: "ed-dmeta" }, sw(r.status), h("span", {}, LABEL[r.status]), r.created_at ? h("span", {}, day(r.created_at)) : null)),
+        h("div", { class: "ed-dmeta" }, sw(r.status), h("span", {}, LABEL[r.status]), h("span", {}, r.venue === "print" ? (r.journal ? issueName(r.journal) : "Print") : "Web"),
+          r.created_at ? h("span", {}, day(r.created_at)) : null)),
       inbox ? h("div", { class: "ed-decide" },
         h("button", { type: "button", class: "btn solid", onclick: () => move(r, "approved") }, icon("check"), "Approve"),
         h("button", { type: "button", class: "btn quiet", onclick: () => move(r, "denied") }, "Decline"))
         : h("div", { class: "ed-field" }, h("span", { class: "lbl" }, "Status"), chipset(ALL.map(s => [s, LABEL[s]]), r.status, s => move(r, s))),
+      placeFields(r, (v, j) => setPlace(r, v, j)),
       r.email || r.phone ? h("div", { class: "ed-contact" }, mail(r.email), r.phone ? h("span", {}, r.phone) : null) : null,
       r.has_essay || r.ai_attested ? h("div", { class: "ed-ai" + (r.ai_attested ? " yes" : "") }, r.ai_attested ? icon("check") : icon("x"), r.ai_attested ? "AI policy attested" : "AI policy not attested") : null,
       r.bio ? h("section", { class: "ed-sec" }, h("h3", {}, "Bio"), h("p", { class: "ed-bio-full" }, r.bio)) : null,
@@ -262,6 +304,7 @@ function panel() {
         h("div", { class: "ed-two" }, field("email", "Email", { type: "email" }), field("phone", "Phone")),
         field("bio", "Bio", { area: true }),
         h("div", { class: "ed-field" }, h("span", { class: "lbl" }, "Status"), chipset(ALL.map(s => [s, LABEL[s]]), d.status, s => { d.status = s; paintNew(); })),
+        placeFields(d, (v, j) => { Object.assign(d, placeOf({ venue: v, journal: j })); paintNew(); }),
         field("notes", "Notes", { area: true }),
         h("div", { class: "ed-decide" }, h("button", { type: "submit", class: "btn solid", disabled: busy }, busy ? "Adding" : "Add"),
           h("button", { type: "button", class: "btn quiet", onclick: () => close() }, "Cancel"))));
@@ -314,6 +357,8 @@ function inboxView() {
 
 // ---------------------------------------------------------------- Pipeline
 let pickCol = "approved", showDeclined = false;
+let venue = remembered("venue", v => v === "web" || v === "print", "web");
+let issue = remembered("issue", v => v === "all" || v === "none" || /^\d+$/.test(v || ""), "all");  // the print board's issue filter
 function pipelineView() {
   const el = h("div", { class: "view ed" });
   const dr = panel();
@@ -326,6 +371,7 @@ function pipelineView() {
       onkeydown: e => { if (e.key === "Enter" && e.target === c) dr.open(r.id, c); },
       onpointerdown: e => lift(e, c, r) },
       h("div", { class: "ed-card-name" }, nameOf(r)),
+      r.venue === "print" ? h("div", { class: "ed-card-issue" + (r.journal ? "" : " none") }, icon("ed-journal"), h("span", {}, r.journal ? issueName(r.journal) : "No issue yet")) : null,
       r.notes ? h("div", { class: "ed-card-note" }, icon("note"), h("span", {}, r.notes)) : null,
       h("div", { class: "ed-card-meta" }, r.assigned_to ? h("span", { class: "ed-who" }, face(r.assigned_to), h("span", {}, userName(r.assigned_to))) : h("span", {}),
         r.created_at ? h("span", { class: "ed-day" }, day(r.created_at)) : null));
@@ -371,20 +417,35 @@ function pipelineView() {
   function paint() {
     const g = T.gate();
     if (g) return put(el, head("Pipeline"), g);
+    const place = { venue, journal: venue === "print" && /^\d+$/.test(issue) ? Number(issue) : null };
+    const top = () => head("Pipeline", null, venueSwitch(venue, v => { venue = v; remember("venue", v); more.clear(); paint(); }, "Web or Print"), newBtn("approved", dr, place));
     if (!B.rows) {
       if (B.err && !B.loading) return put(el, head("Pipeline"), trouble(B.err));
-      return put(el, head("Pipeline", null, newBtn("approved", dr)), h("div", { class: "ed-bar" }), h("div", { class: "ed-board", style: "--n:4" }, COLS.map(() => h("div", { class: "skel ed-skel-col" }))));
+      return put(el, top(), h("div", { class: "ed-bar" }), h("div", { class: "ed-board", style: "--n:4" }, COLS.map(() => h("div", { class: "skel ed-skel-col" }))));
     }
-    const rows = B.rows, count = s => rows.filter(r => r.status === s).length;
+    const here = B.rows.filter(r => r.venue === venue);
+    const issues = issueChoices(here.map(r => r.journal));
+    if (/^\d+$/.test(issue) && !issues.includes(Number(issue))) issue = "all";
+    const rows = venue !== "print" || issue === "all" ? here : here.filter(r => issue === "none" ? !r.journal : r.journal === Number(issue));
+    const count = s => rows.filter(r => r.status === s).length;
+    const issuePick = () => {
+      const n = k => here.filter(r => k === "all" ? true : k === "none" ? !r.journal : r.journal === k).length;
+      const sel = h("select", { class: "ed-issue-pick", "aria-label": "Journal issue", onchange: e => { issue = e.target.value; remember("issue", issue); more.clear(); paint(); } },
+        h("option", { value: "all" }, `Every issue (${fmt(n("all"))})`), issues.map(k => h("option", { value: String(k) }, `${issueName(k)} (${fmt(n(k))})`)),
+        h("option", { value: "none" }, `No issue yet (${fmt(n("none"))})`));
+      sel.value = issue;
+      return sel;
+    };
     if (pickCol === "denied") showDeclined = true;
     const cols = [...COLS, ...(showDeclined ? ["denied"] : [])];
-    const bar = h("div", { class: "ed-bar rise", style: "--i:1" },
+    const bar = h("div", { class: "ed-bar rise" + (venue === "print" ? " print" : ""), style: "--i:1" },
+      venue === "print" ? issuePick() : null,
       h("div", { class: "ed-pick" }, chipset([...COLS, "denied"].map(s => [s, [LABEL[s], h("b", {}, fmt(count(s)))]]), pickCol, s => { pickCol = s; paint(); })),
       h("button", { type: "button", class: "chip ed-decl", "aria-pressed": String(showDeclined), onclick: () => { showDeclined = !showDeclined; if (!showDeclined && pickCol === "denied") pickCol = "approved"; paint(); } },
         sw("denied"), "Declined", h("b", {}, fmt(count("denied")))));
     const board = h("div", { class: "ed-board", style: `--n:${cols.length}` }, cols.map((s, i) => column(s, rows, i)));
     const box = el.querySelector(".ed-board");
-    const draw = () => put(el, head("Pipeline", null, newBtn("approved", dr)), bar, board);
+    const draw = () => put(el, top(), bar, board);
     if (box) glide(box, draw); else draw();
     dr.paint();
   }
@@ -395,7 +456,7 @@ function pipelineView() {
   return { el, update() {}, leave() { B.subs.delete(paint); off(); dr.leave(); } };
 }
 
-M.addGroup("editorial", "Editorial", { after: "calendar" });
+M.addGroup("editorial", "Editorial", { after: "analytics" });
 M.addView("editorial-inbox", "Inbox", inboxView, { group: "editorial", icon: M.ICONS["ed-inbox"] });
 M.addView("editorial-pipeline", "Pipeline", pipelineView, { group: "editorial", icon: M.ICONS["ed-pipeline"] });
 
@@ -426,6 +487,19 @@ a.ed-mail:hover { color: var(--accent) }
 .ed-item-act { display: flex; align-items: center; gap: 10px }
 .ed-open { color: var(--muted); font-size: 15px; padding: 10px 4px }
 .ed .empty svg.icon { width: 34px; height: 34px; color: var(--muted); stroke-width: 1.3 }
+
+/* web or print */
+.ed-venue { display: inline-flex; padding: 3px; border: 1px solid var(--rule); border-radius: 9px; background: var(--card) }
+.ed-venue button { min-height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: none; color: var(--muted); font: inherit; font-size: 15px; transition: background .2s, color .2s }
+.ed-venue button:hover { color: var(--ink) }
+.ed-venue button[aria-pressed="true"] { background: var(--tint); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent) }
+.ed-place { display: flex; flex-wrap: wrap; align-items: start; gap: 14px 22px }
+.ed-place .ed-field { justify-items: start }
+.ed-issue select { min-width: 220px }
+.ed-issue-pick { margin-right: auto; min-width: 220px }
+.ed-card-issue { display: inline-flex; align-items: center; gap: 7px; color: var(--ink); font-size: 13px }
+.ed-card-issue svg { width: 14px; height: 14px; color: var(--cat-7) }
+.ed-card-issue.none { color: var(--muted) } .ed-card-issue.none svg { color: var(--muted) }
 
 /* pipeline */
 .ed-bar { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-height: 36px; margin: -14px 0 -10px }
@@ -496,7 +570,10 @@ body.ed-dragging, body.ed-dragging * { cursor: grabbing !important; user-select:
   .ed-item { grid-template-columns: minmax(0, 1fr); padding: 20px 18px }
   .ed-item-act .btn { flex: 1 1 0; min-height: 44px }
   .ed-open { display: none }
-  .ed-bar { justify-content: stretch; margin: -6px 0 0 }
+  .ed-bar { justify-content: stretch; flex-wrap: wrap; margin: -6px 0 0 }
+  .ed-issue-pick { flex: 1 1 100%; min-height: 44px; margin: 0 }
+  .ed-head-r { width: 100% } .ed-venue { flex: 1 1 auto } .ed-venue button { flex: 1 1 0; min-height: 44px }
+  .ed-place { display: grid } .ed-issue select { width: 100%; min-height: 46px }
   .ed-pick { display: block; flex: 1 1 100% }
   .ed-decl { display: none }
   .ed-board { grid-template-columns: minmax(0, 1fr) }
