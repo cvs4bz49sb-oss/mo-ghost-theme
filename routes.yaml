@@ -177,6 +177,8 @@ routes:
     template: custom-admin-settings
   /admin/slide-ins/:
     template: custom-admin-slide-ins
+  /admin/moos/:
+    template: custom-admin-moos
   /admin/engagement/:
     template: custom-admin-engagement
   /admin/heatmap/:
