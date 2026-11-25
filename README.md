@@ -146,6 +146,28 @@ Give the new section a label in `SECTION_LABEL` (and a position in
 top-to-bottom; a new goal gets a row in `GOAL_LABEL`. Both fall back to
 the raw key if you forget.
 
+## Book, ebook and journal clicks
+
+`assets/js/item-clicks.js` records every click on a single book, ebook or
+journal issue: any link to Bookshop.org, an ebook or issue opened, read,
+downloaded or previewed, and the store's buy button for an issue. It also
+records one `read` each time an ebook or journal reader page loads. Each
+event goes to mo-kit `POST /item-click` and becomes a row in `item_clicks`
+(mo-membership D1), which MOOS reads. Signed-in members are sent with
+`MOAuth.fetch`, so the worker ties the row to them; signed-out readers send
+no identifier, and nothing at all under Do Not Track or Global Privacy
+Control. Disclosed on `/privacy/`.
+
+It rides in `site.min.js` and is also loaded on its own (after
+`admin-auth.js`) by the standalone reader templates, which carry the
+mo-kit host in their CSP `connect-src`, a `mo-trusted-hosts` meta and
+`data-kit-worker-url` / `data-member-status` on `<body>`. A new
+`page-ebook-*-read.hbs` or `page-journal-issue-*-read.hbs` copied from an
+existing one keeps all four. A new ebook or issue needs a line in the
+title maps at the top of the script; until then its link text stands in.
+The workers side (route, migration, tests) is `kit/lib/item-clicks.js` in
+mo-workers.
+
 ## Deploying theme updates
 
 Use the official `TryGhost/action-deploy-theme` GitHub Action so you can git-push theme changes instead of re-zipping and re-uploading each time.

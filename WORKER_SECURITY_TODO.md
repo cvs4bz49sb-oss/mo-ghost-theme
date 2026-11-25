@@ -53,6 +53,7 @@ This is the canonical list of every theme→worker route, the auth model the the
 | mo-membership | `/api/admin/*` | GET/POST | JWT (admin) | Verify JWT + check sub against staff list | **SHIPPED** (verified 2026-05-11) |
 | mo-gift | `/mint` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
 | mo-kit | `/event` | POST | JWT | Require JWT, derive/verify email from sub | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/item-click` | POST | JWT when signed in (`MOAuth.fetch`); anon otherwise, plain fetch, nothing sent under DNT/GPC | Optional JWT: email only from a verified `sub`, never the body; same 200 with or without a token; origin allowlist; per-IP 120/15min + 30,000 rows/day account-wide; fixed-shape validation, title cleaned and withheld when the injection guard flags it; no Kit calls. Writes `item_clicks` (mo-membership D1) | NEW 2026-11-25 (mo-workers branch `item-clicks`; not deployed) |
 | mo-kit | `/bookmarks` | GET | JWT | Require JWT, derive email from sub, drop email param | **SHIPPED** (verified 2026-05-11) |
 | mo-kit | `/bookmarks/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
 | mo-kit | `/bookmarks/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |

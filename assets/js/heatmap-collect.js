@@ -54,6 +54,10 @@
  * survive both, and let the admin tool re-project clicks onto today's
  * layout at any width.
  *
+ * Per-item clicks on books, ebooks and journal issues are a separate
+ * record, tied to the member when signed in: see item-clicks.js and the
+ * "Books, Ebooks and Journal Issues" section of /privacy/.
+ *
  * Off switch: Ghost Admin -> Design -> Customize -> "Homepage heatmap
  * sampling". Set it to Off and this file stops collecting. Do Not
  * Track and Global Privacy Control are honored unconditionally.

@@ -101,6 +101,10 @@ const BUNDLES = [
       // after the header, before {{{body}}}, to prevent FOUC.
       "assets/js/inline-signup.js",
       "assets/js/kit-events.js",
+      // Book, ebook and journal clicks (mo-kit /item-click). Site-wide
+      // because a Bookshop.org link can sit in any essay. The standalone
+      // reader templates load it on their own; it runs once either way.
+      "assets/js/item-clicks.js",
       "assets/js/dark-mode.js",
       "assets/js/feature-gate.js",
       "assets/js/search.js",
