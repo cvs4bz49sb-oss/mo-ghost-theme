@@ -1246,8 +1246,8 @@ function review() {
 // Giving, Activity and Finances are copied into each granted person's private area (here and by every hourly push,
 // moos_push.py), so the store itself keeps them from everyone else; the other permissions show or hide views and actions.
 const PERMS = [["contacts", "Contacts"], ["edit", "Edit"], ["export", "Downloads"], ["analytics", "Analytics"], ["calendar", "Calendar"],
-  ["projects", "Projects"], ["journal", "Journal"], ["editorial", "Editorial"], ["tools", "Tools"], ["giving", "Giving"], ["activity", "Activity"], ["finances", "Finances"]];
-const LOCKED = ["giving", "activity", "finances"];
+  ["projects", "Projects"], ["journal", "Journal"], ["editorial", "Editorial"], ["tools", "Tools"], ["sponsors", "Sponsors"], ["giving", "Giving"], ["activity", "Activity"], ["finances", "Finances"]];
+const LOCKED = ["giving", "activity", "finances", "sponsors"];
 const sectionOf = docId => docId.startsWith("giving-finances") ? "finances" : docId.split("-")[0];
 // Before permissions existed, a granted person saw every view: an entry without any view key keeps that
 const legacy = g => g && !g.admin && !PERMS.some(([k]) => !LOCKED.includes(k) && k in g);
@@ -1258,12 +1258,12 @@ function can(perm) {
   if (g.admin || g[perm]) return true;
   return legacy(g) && !LOCKED.includes(perm);
 }
-const VIEW_PERM = { home: "contacts", analytics: "analytics", calendar: "calendar", tasks: "projects", projects: "projects", agenda: "projects", journal: "journal" };
-const GROUP_PERM = { people: "contacts", finances: "finances", tools: "tools", editorial: "editorial" };
+const VIEW_PERM = { home: "contacts", analytics: "analytics", calendar: "calendar", tasks: "projects", projects: "projects", agenda: "projects", journal: "journal", donors: "giving", "donor-pipeline": "giving" };
+const GROUP_PERM = { people: "contacts", finances: "finances", tools: "tools", editorial: "editorial", sponsors: "sponsors" };
 function viewAllowed(id) {
   if (id === "access") return S.owner;
   const group = NAV.find(n => n[0] === id)?.[2];
-  const perm = GROUP_PERM[group] || VIEW_PERM[id];
+  const perm = VIEW_PERM[id] || GROUP_PERM[group];  // a view's own permission first: Donors sits in Finances but needs Giving
   return !perm || can(perm);
 }
 function noAccess() {
@@ -1386,8 +1386,9 @@ const VIEWS = { home, people, lists, journal, tasks, review, access };
 const NAV = [["home", "Overview"], ["people", "Contacts", "people"], ["lists", "Lists", "people"], ["review", "Review", "people"], ["journal", "Journal"], ["tasks", "Projects", "work"], ["access", "Access"]];
 // The rail, top to bottom, whichever module loads first. "group:x" places a group. A view not named here
 // follows the view in its after, or comes last; inside a group the same goes for GROUP_ORDER.
-const ORDER = ["home", "group:people", "group:work", "analytics", "group:editorial", "group:tools", "journal", "group:finances"];
-const GROUP_ORDER = { people: ["people", "audience", "lists", "review"], work: ["calendar", "tasks", "agenda"], finances: ["finances", "migration"], tools: ["email-builder", "social", "liturgy", "auto-responders", "slide-ins", "site-settings"] };
+// Ian, Nov 25: Overview, Analytics, People, Work, Editorial, Tools, Finances, Sponsors, Journal
+const ORDER = ["home", "analytics", "group:people", "group:work", "group:editorial", "group:tools", "group:finances", "group:sponsors", "journal"];
+const GROUP_ORDER = { people: ["people", "audience", "lists", "review"], work: ["calendar", "tasks", "agenda"], finances: ["finances", "donors", "donor-pipeline", "migration"], tools: ["email-builder", "social", "liturgy", "auto-responders", "slide-ins", "site-settings"] };
 const FOOT = new Set(["access"]);  // Access sits in the rail's foot, beside the theme and collapse switches
 const AFTER = {};
 // Modules hook in: connect runs once the store is reachable, chrome on every redraw of the rail,
