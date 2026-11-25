@@ -1705,6 +1705,25 @@ window.__frNavigateReaderAnchor=href=>{
   document.addEventListener('wheel',cancel,{capture:true,passive:true});document.addEventListener('touchmove',cancel,{capture:true,passive:true});
   document.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End'].includes(e.key)&&!e.target.closest('input,textarea,select,[contenteditable]'))cancel(e);},true);
 })();
+// The address follows the page being read (TFR ticket #66, Keckermann Works vol. 2: every link a reader copied opened at
+// p. 10). Scrolling never touched the URL, so an address copied mid-volume still held the arrival (or no page at all).
+// Only once the reader moves on their own: arrival targets, saved places and choices keep their URL until then, and a
+// bare link still opens at the top (report #42). Debounced, since Safari caps replaceState calls.
+function frReaderPageHref(href,page){
+  const url=new URL(href),ref=frReaderBlockReference(url.hash);if(ref&&String(ref.page)===String(page))return null;
+  for(const key of ['p','section','heading','at'])url.searchParams.delete(key);
+  url.hash='b'+String(page)+'-0';return url.href;
+}
+let frPageUrlTimer=0;
+function syncReaderPageUrl(page){
+  const idle=()=>window.__frUserScrolled&&!window.__readerChoice&&!window.__readerPendingPosition&&!window.__readerNavigationSuspended;
+  if(!idle())return;clearTimeout(frPageUrlTimer);
+  frPageUrlTimer=setTimeout(()=>{if(String(cur)!==String(page)||!idle())return;
+    try{const next=frReaderPageHref(location.href,page);if(next)history.replaceState(history.state,'',next);}catch(_){}},500);
+}
+// Changing the page in the address bar (#b10-0 to #b500-0) is a same-document hash change: the browser does not reload,
+// so the reader stayed where it was (ticket #66). A block reference in the new hash now lands like a fresh link.
+addEventListener('hashchange',()=>{if(frReaderBlockReference(location.hash))window.__frNavigateReaderAnchor?.(location.href);});
 // Citation and research anchors may resolve to a merged Flow row spanning several pages. Start
 // a row that is taller than the available reading viewport so its cited opening is visible;
 // center short passages for a comfortable reading position. The row scroll margin above clears
@@ -4687,7 +4706,7 @@ function pgDenom(){const ns=(DATA&&DATA.pages||[]).map(x=>+x.n).filter(Number.is
   if(ns.length>1&&ns.every((v,i)=>i===0||v>=ns[i-1])&&ns[ns.length-1]!==ns.length)
     return {txt:String(ns[ns.length-1]),tip:(DATA.pages.length)+" pages, numbered to "+ns[ns.length-1]};
   return {txt:String(DATA&&DATA.pages?DATA.pages.length:0),tip:""};}
-function setFolio(pg){if(!pg||cur===pg.n)return;cur=pg.n;syncReaderHeader(pg.n);try{if(window.__relFollow)window.__relFollow(pg.n);}catch(e){}{const pj=$("#pgJump");if(pj){if(document.activeElement!==pj)pj.value=pg.n;pj.min=DATA.pages[0].n;pj.max=DATA.pages[DATA.pages.length-1].n;}const pt=$("#pgTotal");if(pt){const _pd=pgDenom();pt.textContent="/ "+_pd.txt+(DATA.__loadRest?"+":"");pt.title=DATA.__loadRest?"Loading the rest of the volume…":_pd.tip;}}
+function setFolio(pg){if(!pg||cur===pg.n)return;cur=pg.n;syncReaderHeader(pg.n);syncReaderPageUrl(pg.n);try{if(window.__relFollow)window.__relFollow(pg.n);}catch(e){}{const pj=$("#pgJump");if(pj){if(document.activeElement!==pj)pj.value=pg.n;pj.min=DATA.pages[0].n;pj.max=DATA.pages[DATA.pages.length-1].n;}const pt=$("#pgTotal");if(pt){const _pd=pgDenom();pt.textContent="/ "+_pd.txt+(DATA.__loadRest?"+":"");pt.title=DATA.__loadRest?"Loading the rest of the volume…":_pd.tip;}}
   {const pl=$("#phLoc");if(pl){let _sv=SECMAP&&SECMAP[pg.n];
     if(!_sv&&SECMAP){const _ks=Object.keys(SECMAP).map(Number).filter(n2=>n2<=pg.n);if(_ks.length)_sv=SECMAP[Math.max(..._ks)];}
     const t=_sv?String(_sv).slice(0,90):"";
