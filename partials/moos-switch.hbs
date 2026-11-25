@@ -1,0 +1,102 @@
+{{!-- "Try MOOS" (Ian, 2026-11-25; MOCA website/moos/WEB.md, "Host page and
+     switch"). A switch fixed to the bottom right that moves between MOAdmin
+     and MOOS and remembers the choice. assets/js/moos-switch.js wires it.
+
+     Two places include it:
+       admin-sidebar.hbs           every /admin page. Off. Rendered hidden and
+                                   shown once /my-permissions says staff, since
+                                   MOOS's web API answers staff only.
+       custom-admin-moos-app.hbs   MOOS on the web, with app=true. On, and
+                                   always shown: it is the way back.
+
+     The styles sit here rather than in screen.css because the MOOS page is a
+     standalone document that does not load screen.min.css. Square corners
+     (3px), no pill: DESLOP Q12, DESIGN 6.18. Source Serif, never IM Fell.
+     Colors are the house paper, ink, hairline and terracotta; in MOOS they
+     follow MOOS's own tokens so the switch takes its dark theme. --}}
+<style>
+  .moos-switch {
+    --ms-ground: #fffdfa;
+    --ms-ink: #2d2927;
+    --ms-muted: #6b6660;
+    --ms-line: #d9c6a7;
+    --ms-accent: #c1593c;
+    --ms-on: #ffffff;
+    --ms-ring: #ee7d51;
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    z-index: 105;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+    min-height: 44px;
+    margin: 0;
+    padding: 0 12px 0 14px;
+    background: var(--ms-ground);
+    color: var(--ms-ink);
+    border: 1px solid var(--ms-line);
+    border-radius: 3px;
+    box-shadow: none;
+    font: 600 14px/1 "Source Serif Pro", "Source Serif 4", Georgia, serif;
+    font-style: normal;
+    letter-spacing: 0;
+    text-transform: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .moos-switch[hidden] { display: none; }
+  .moos-switch:hover { border-color: var(--ms-ink); }
+  .moos-switch:focus-visible { outline: 2px solid var(--ms-ring); outline-offset: 2px; }
+  .moos-switch-track {
+    position: relative;
+    flex: none;
+    box-sizing: border-box;
+    width: 30px;
+    height: 16px;
+    border: 1px solid var(--ms-muted);
+    border-radius: 3px;
+    background: transparent;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+  .moos-switch-track::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--ms-muted);
+    transition: transform 0.15s, background-color 0.15s;
+  }
+  .moos-switch[aria-checked="true"] .moos-switch-track { background: var(--ms-accent); border-color: var(--ms-accent); }
+  .moos-switch[aria-checked="true"] .moos-switch-track::before { transform: translateX(14px); background: var(--ms-on); }
+  @media (prefers-reduced-motion: reduce) {
+    .moos-switch-track, .moos-switch-track::before { transition: none; }
+  }
+  /* The member bar (journal-address-bar.js) runs along the bottom with its tab at the right. */
+  body.has-journal-address .moos-switch { bottom: 54px; }
+
+  /* In MOOS: under MOOS's drawers (44, 45), palette (50) and toasts (60), over
+     its phone tab bar (40). On a phone it sits just above that bar. */
+  .moos-switch--app {
+    --ms-ground: var(--card, #fffdfa);
+    --ms-ink: var(--ink, #2d2927);
+    --ms-muted: var(--muted, #6b6660);
+    --ms-line: var(--rule-strong, #d9c6a7);
+    --ms-accent: var(--accent, #c1593c);
+    --ms-on: var(--on-accent, #ffffff);
+    --ms-ring: var(--ring, #ee7d51);
+    z-index: 42;
+  }
+  @media (max-width: 760px) {
+    .moos-switch--app { bottom: calc(74px + env(safe-area-inset-bottom, 0px)); }
+  }
+</style>
+<button type="button" class="moos-switch{{#if app}} moos-switch--app{{/if}}" role="switch" aria-checked="{{#if app}}true{{else}}false{{/if}}" data-moos-switch{{#unless app}} hidden{{/unless}}>
+  <span class="moos-switch-label">Try MOOS</span>
+  <span class="moos-switch-track" aria-hidden="true"></span>
+</button>
+<script src="{{asset "js/moos-switch.js"}}"></script>

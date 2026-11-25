@@ -179,6 +179,10 @@ routes:
     template: custom-admin-slide-ins
   /admin/moos/:
     template: custom-admin-moos
+  # MOOS on the web (MOCA website/moos/WEB.md). The "Try MOOS" switch on
+  # every admin page opens it. Its files are built by scripts/build-moos.mjs.
+  /admin/moos/app/:
+    template: custom-admin-moos-app
   /admin/engagement/:
     template: custom-admin-engagement
   /admin/heatmap/:

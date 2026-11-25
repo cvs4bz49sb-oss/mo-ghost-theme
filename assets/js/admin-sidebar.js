@@ -96,6 +96,8 @@
       }
 
       window.__moPerms = perms;
+      // moos-switch.js shows "Try MOOS" to staff only.
+      document.dispatchEvent(new CustomEvent("mo:admin-perms", { detail: perms }));
 
       if (perms.isStaff || perms.tools === null) return;
       // No registry means the boot bundle is stale. The worker still
