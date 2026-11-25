@@ -1,26 +1,31 @@
 // MOOS: Editorial. The essay submissions inbox and the pipeline each accepted piece moves through, on
 // the same board as /admin/editorial/ (custom-admin-editorial.hbs, assets/js/admin-editorial.js).
-// Same endpoints and payloads, all on mo-admin, whose SETTINGS KV ("editorial_submissions") holds the
-// board: GET and POST /editorial/submissions, DELETE /editorial/submissions/<id>, POST .../<id>/status
+// Same endpoints and payloads, all on mo-admin, which keeps the board in the submissions table of the
+// mo-membership D1, the table the public /submissions/ form writes (admin/lib/editorial-submissions.js):
+// GET and POST /editorial/submissions, DELETE /editorial/submissions/<id>, POST .../<id>/status
 // {status}, .../<id>/notes {notes}, .../<id>/venue {venue, journal}, .../<id>/assign {assigned_to}
 // followed by POST /inbox/notify for the assignee, and GET /admin-users for who can be assigned.
+// An id is the table's integer id, as a string. Every form submission is here, so the Inbox shows
+// INBOX_PAGE at a time with a Show more.
 // A piece runs on the web or in print; a print piece names its Journal issue by number. A submission
 // saved before venue existed has none and counts as web (mo-admin's venueOf does the same). A MOOS token reaches these routes once
 // mo-admin names them in MOOS_TOOL_ROUTES (_shared/moos-token.js).
-// Files: mo-admin answers 404 for a submission's essay and headshot, and the bridge carries text, not
-// files, so a submission that names files links to the board on the site.
-// The public /submissions/ form writes mo-membership's D1 table and R2 instead, which this board
-// doesn't read (checked 2026-11-25).
+// Files: GET .../<id>/essay and .../<id>/headshot answer the file as a download. On the web the page
+// fetches it through MOAuth (the staff bearer) and saves it. The desktop bridge carries text, not
+// files, so there a file links to the board on the site, which downloads it.
 // Everything in a submission is public input: shown only as text (h() children), never as markup.
 const M = window.MOOS, T = M.tools;
 const { S, h, put, icon, toast, fmt, chipset, calm } = M;
 
 const BOARD_URL = "https://mereorthodoxy.com/admin/editorial/";
+const WEB = window.MOOS_WEB && typeof window.MOOS_WEB === "object" ? window.MOOS_WEB : null;
+const ADMIN = "https://mo-admin.mo-podcast-feed.workers.dev";
 const LABEL = { submitted: "Inbox", approved: "Approved", edited: "Edited", scheduled: "Scheduled", published: "Published", denied: "Declined" };
 const HUE = { submitted: "var(--accent)", approved: "var(--cat-2)", edited: "var(--cat-4)", scheduled: "var(--cat-7)", published: "var(--cat-8)", denied: "var(--c-subscriber)" };
 const COLS = ["approved", "edited", "scheduled", "published"];
 const ALL = ["submitted", ...COLS, "denied"];
 const PAGE = 12;  // cards a column shows before "Show more"
+const INBOX_PAGE = 25;  // submissions the Inbox shows before "Show more"
 const VENUES = [["web", "Web"], ["print", "Print"]];
 // The Journal's issues to pick from: the newest one with a season and the next four, plus any a piece already names
 const latestIssue = () => Math.max(0, ...Object.keys(M.ISSUES || {}).map(Number));
@@ -132,6 +137,48 @@ async function remove(r) {
   await T.api(`/editorial/submissions/${encodeURIComponent(r.id)}`, { method: "DELETE" });
   B.rows = (B.rows || []).filter(x => x.id !== r.id);
   changed();
+}
+
+// A submission's essay or headshot, saved to the computer. Web only: the page fetches it with the
+// staff bearer (MOAuth) and hands the browser a download. A type outside SAFE is saved as plain bytes,
+// so nothing a submitter sent can open as a page here.
+const SAFE = /^(image\/(jpeg|png|webp|heic|heif)|application\/(pdf|msword|vnd\.openxmlformats-officedocument\.wordprocessingml\.document|vnd\.oasis\.opendocument\.text))$/;
+const canDownload = () => !!WEB && typeof window.MOAuth?.fetch === "function";
+async function download(r, which) {
+  const base = String(WEB?.workers?.admin || ADMIN).replace(/\/+$/, "");
+  let url;
+  try { url = new URL(`${base}/editorial/submissions/${encodeURIComponent(r.id)}/${which}`); } catch { url = null; }
+  if (!url || url.protocol !== "https:" || url.origin !== new URL(base).origin || !canDownload()) throw new Error("Download it from the board on the site");
+  const get = () => window.MOAuth.fetch(url.href, { method: "GET" });
+  let res;
+  try {
+    res = await get();
+    // MOAuth drops a bearer the worker refused; one more try asks the site for a fresh one (as bridge.js does)
+    if (res.status === 401) res = await get();
+  } catch { throw new Error("Couldn't reach the site"); }
+  if (!res.ok) {
+    let said = "";
+    try { said = (await res.json())?.error; } catch { /* not JSON */ }
+    throw new Error(typeof said === "string" && said ? said : res.status === 404 ? "That file isn't in the archive" : `The site answered ${res.status}`);
+  }
+  const got = await res.blob(), type = (got.type || "").split(";")[0].toLowerCase();
+  const blob = new Blob([got], { type: SAFE.test(type) ? type : "application/octet-stream" });
+  const said = /filename="([^"]+)"/.exec(res.headers.get("content-disposition") || "")?.[1];
+  const name = String(said || r[which + "_name"] || which).replace(/[\\/:*?"<>|\x00-\x1f]+/g, "_").slice(-120);
+  const a = h("a", { href: URL.createObjectURL(blob), download: name, hidden: "" });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+  return name;
+}
+// One file: a download button on the web, its name alone in the desktop app
+function fileBtn(r, which, label) {
+  if (!canDownload()) return h("span", { class: "ed-file" }, icon("ed-file"), h("span", {}, label));
+  return h("button", { type: "button", class: "plain ed-file ed-dl", title: `Download ${label}`, onclick: async e => {
+    const b = e.currentTarget;
+    if (b.getAttribute("aria-busy") === "true") return;
+    b.setAttribute("aria-busy", "true");
+    try { await download(r, which); } catch (x) { toast(x.message || "Couldn't download it"); } finally { b.removeAttribute("aria-busy"); }
+  } }, icon("ed-file"), h("span", {}, label), h("span", { class: "ed-dl-say" }, "Download"));
 }
 
 // ---------------------------------------------------------------- small parts
@@ -260,7 +307,7 @@ function panel() {
       r.assigned_to && !known ? h("option", { value: r.assigned_to }, r.assigned_to) : null,
       users.map(u => h("option", { value: u.email }, u.name)));
     pick.value = r.assigned_to;
-    const files = [r.has_essay || r.essay_name ? [r.essay_name || "Essay"] : null, r.has_headshot || r.headshot_name ? [r.headshot_name || "Headshot"] : null].filter(Boolean);
+    const files = [r.has_essay ? [r.essay_name || "Essay", "essay"] : null, r.has_headshot ? [r.headshot_name || "Headshot", "headshot"] : null].filter(Boolean);
     const inbox = r.status === "submitted", notes = notesBox(r);
     put(el, close$(),
       h("div", { class: "ed-dhead" }, h("h2", {}, nameOf(r)),
@@ -275,8 +322,9 @@ function panel() {
       r.has_essay || r.ai_attested ? h("div", { class: "ed-ai" + (r.ai_attested ? " yes" : "") }, r.ai_attested ? icon("check") : icon("x"), r.ai_attested ? "AI policy attested" : "AI policy not attested") : null,
       r.bio ? h("section", { class: "ed-sec" }, h("h3", {}, "Bio"), h("p", { class: "ed-bio-full" }, r.bio)) : null,
       files.length ? h("section", { class: "ed-sec" }, h("h3", {}, "Files"),
-        h("div", { class: "ed-files" }, files.map(([n]) => h("span", { class: "ed-file" }, icon("ed-file"), h("span", {}, n))),
-          h("a", { class: "btn quiet", href: BOARD_URL, target: "_blank", rel: "noopener noreferrer" }, icon("out"), "Open on the site"))) : null,
+        h("div", { class: "ed-files" }, files.map(([n, which]) => fileBtn(r, which, n)),
+          canDownload() ? null : h("p", { class: "lbl ed-files-say" }, "Files download from the board on the site."),
+          canDownload() ? null : h("a", { class: "btn quiet", href: BOARD_URL, target: "_blank", rel: "noopener noreferrer" }, icon("out"), "Open on the site"))) : null,
       h("section", { class: "ed-sec" }, h("h3", {}, "Assigned to"), pick),
       h("section", { class: "ed-sec" }, h("div", { class: "ed-sec-head" }, h("h3", {}, "Notes"), notesSay), notes),
       h("div", { class: "ed-remove" }, asking
@@ -319,6 +367,7 @@ function panel() {
 function inboxView() {
   const el = h("div", { class: "view ed" });
   const dr = panel();
+  let shown = INBOX_PAGE;
   function item(r, i) {
     const open = e => dr.open(r.id, e.currentTarget);
     return h("article", { class: "card ed-item rise", style: `--i:${Math.min(i + 1, 8)}`, "data-id": r.id },
@@ -326,7 +375,7 @@ function inboxView() {
         h("button", { type: "button", class: "plain ed-item-name", onclick: open }, h("h2", {}, nameOf(r))),
         h("div", { class: "ed-meta" }, mail(r.email), r.created_at ? h("span", {}, day(r.created_at)) : null,
           r.has_essay || r.ai_attested ? h("span", { class: "ed-ai" + (r.ai_attested ? " yes" : "") }, r.ai_attested ? icon("check") : icon("x"), r.ai_attested ? "AI policy attested" : "AI policy not attested") : null),
-        r.essay_name ? h("div", { class: "ed-file" }, icon("ed-file"), h("span", {}, r.essay_name)) : null,
+        r.has_essay ? h("div", { class: "ed-item-file" }, fileBtn(r, "essay", r.essay_name || "Essay")) : null,
         r.bio ? h("p", { class: "ed-bio" }, r.bio) : null),
       h("div", { class: "ed-item-act" },
         h("button", { type: "button", class: "btn solid", onclick: () => move(r, "approved") }, "Approve"),
@@ -340,9 +389,11 @@ function inboxView() {
       if (B.err && !B.loading) return put(el, head("Inbox"), trouble(B.err));
       return put(el, head("Inbox", null, newBtn("submitted", dr)), h("div", { class: "ed-list" }, [0, 1, 2, 3].map(() => h("div", { class: "skel ed-skel-row" }))));
     }
-    const rows = B.rows.filter(r => r.status === "submitted").sort(newest);
-    const list = h("div", { class: "ed-list" }, rows.length ? rows.map(item)
-      : h("div", { class: "card empty rise", style: "--i:1" }, icon("ed-inbox"), h("h2", {}, "The inbox is clear")));
+    const rows = B.rows.filter(r => r.status === "submitted").sort(newest), cut = rows.slice(0, shown), left = rows.length - cut.length;
+    const list = h("div", { class: "ed-list" }, rows.length ? cut.map(item)
+      : h("div", { class: "card empty rise", style: "--i:1" }, icon("ed-inbox"), h("h2", {}, "The inbox is clear")),
+      left > 0 ? h("button", { type: "button", class: "ed-more ed-inbox-more", onclick: () => { shown += INBOX_PAGE; paint(); } },
+        `Show ${fmt(Math.min(left, INBOX_PAGE))} more of ${fmt(left)}`) : null);
     const box = el.querySelector(".ed-list");
     if (box) glide(box, () => put(el, head("Inbox", rows.length, newBtn("submitted", dr)), list));
     else put(el, head("Inbox", rows.length, newBtn("submitted", dr)), list);
@@ -483,6 +534,15 @@ a.ed-mail:hover { color: var(--accent) }
 .ed-ai.yes svg { color: var(--cat-8) }
 .ed-file { display: inline-flex; align-items: center; gap: 8px; min-width: 0; font-size: 15px; overflow-wrap: anywhere }
 .ed-file svg { width: 16px; height: 16px; color: var(--muted) }
+.ed-item-file { display: flex; min-width: 0 }
+.ed-dl { justify-self: start; min-height: 32px; padding: 4px 0; text-align: left; color: var(--ink) }
+.ed-dl:hover, .ed-dl:hover svg { color: var(--accent) }
+.ed-dl[aria-busy="true"] { opacity: .55; cursor: progress }
+@media (pointer: coarse), (max-width: 760px) { .ed-dl { min-height: 44px } }
+.ed-dl-say { color: var(--muted); font-size: 14px; text-decoration: underline; text-underline-offset: 3px }
+.ed-dl:hover .ed-dl-say { color: var(--accent) }
+.ed-files-say { margin: 0 }
+.ed-inbox-more { justify-self: center; padding: 0 22px }
 .ed-bio { margin: 2px 0 0; color: var(--muted); font-size: 15px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere }
 .ed-item-act { display: flex; align-items: center; gap: 10px }
 .ed-open { color: var(--muted); font-size: 15px; padding: 10px 4px }
