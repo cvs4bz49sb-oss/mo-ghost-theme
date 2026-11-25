@@ -134,6 +134,17 @@
     let lastKey = "";
     let lastAt = 0;
 
+    // A reader who is not signed in but came from one of our emails: the Kit subscriber id kit-events.js keeps for 90
+    // days (localStorage "mo:ksid"). It lets MOOS put their clicks in their activity feed. Never sent when signed in
+    // (the JWT is the identity) or when the reader opted out.
+    let ksid = null;
+    if (!signedIn && !optedOut) {
+      try {
+        const saved = JSON.parse(window.localStorage.getItem("mo:ksid") || "null");
+        if (saved && saved.exp > Date.now() && /^\d{1,12}$/.test(String(saved.id))) ksid = String(saved.id);
+      } catch (_) { /* storage blocked: anonymous */ }
+    }
+
     function send(ev) {
       if (!ev || !ev.kind || !ev.item || !ev.action) return;
       // A double click is one click.
@@ -149,6 +160,7 @@
         action: ev.action,
         title: clip(ev.title || ""),
         page,
+        ...(ksid ? { sid: ksid } : {}),
       });
       try {
         if (signedIn && window.MOAuth && typeof window.MOAuth.fetch === "function") {
