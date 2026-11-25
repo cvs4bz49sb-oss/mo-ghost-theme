@@ -3,6 +3,8 @@
 //   History: the locked document data/users/<me>/sponsors-history, written by moos_part_sponsors.py from
 //     business/sponsorship/sponsors.json: sponsors, deals, placements (with Kit clicks), touchpoints and the rate
 //     card, plus totals per sponsor and by_month. The owner and people granted Sponsors (or Admin) receive it.
+//     It keeps only the newest email lines for size; data/users/<me>/sponsors-touchpoints holds every one, and
+//     its list is used in place of the history's whenever it is there.
 //   The board: mo-admin's sponsorships board, the same one /admin/sponsors/ uses (custom-admin-sponsors.hbs,
 //     assets/js/admin-sponsors.js), through the Tools bridge with the same routes and payloads:
 //     GET and POST /sponsors/sponsorships; PUT /sponsors/sponsorships/<id> for the details, the three flags and
@@ -10,6 +12,9 @@
 //     {assigned_to} followed by POST /inbox/notify; GET and POST .../<id>/assets {label, url} and
 //     DELETE .../<id>/assets/<asset>; GET /sponsors/schedule (the slot catalog and each slot's status on the
 //     public page); GET /admin-users. mo-admin stores no asset files (it answers 501), so assets are links.
+//   The slot catalog is GET /sponsors/schedule's (mo-admin's SPONSOR_SLOT_CATALOG), so MOOS names the slots the site
+//     does: every placement in the 2027 sponsorship guide. A slot with open: false is not for sale yet (opens says
+//     when): Schedule, the slot menus and the rate card list it, marked, and open counts leave it out.
 //   A MOOS token reaches /sponsors once mo-admin names it in MOOS_TOOL_ROUTES (_shared/moos-token.js). Until
 //   then Deals and Schedule link to the board on the site.
 // Bookings on the schedule are worked out here from the board's agreed and active deals that name a slot, the
@@ -39,14 +44,17 @@ const KIND = { publisher: "Publisher", school: "School", nonprofit: "Nonprofit",
 const STATUS = { active: ["Active", "var(--cat-8)"], prospect: ["Prospect", "var(--cat-2)"], past: ["Past", "var(--cat-5)"], lapsed: ["Lapsed", "var(--c-subscriber)"] };
 const STATUS_RANK = { active: 0, prospect: 1, past: 2, lapsed: 3 };
 const CHANNEL = { weekly_digest: ["Weekly Digest", "var(--cat-1)"], mere_fidelity: ["Mere Fidelity", "var(--cat-5)"], crc: ["Christians Reading Classics", "var(--cat-3)"], website: ["Website", "var(--cat-6)"], other: ["Other", "var(--cat-12)"] };
-const CAT_SHORT = { newsletter: "Digest", mere_fidelity: "Mere Fidelity", crc: "CRC", website: "Website" };
+const CAT_SHORT = { newsletter: "Digest", substack: "Substack", mere_fidelity: "Mere Fidelity", crc: "CRC", website: "Website", the_faith_received: "Faith Received", daily: "Daily", journal: "Journal" };
+// Schedule's tiles count open weeks by medium; a category not named here has a tile of its own
+const TILE_GROUP = { newsletter: "Newsletters", substack: "Newsletters", daily: "Newsletters", mere_fidelity: "Podcasts", crc: "Podcasts" };
 const FLAGS = [
   ["agreement_signed", "Agreement signed", "spo-signed", "Agreement signed", "Agreement not signed"],
   ["invoiced", "Invoiced", "spo-invoiced", "Invoiced", "Not invoiced"],
   ["paid", "Paid", "spo-paid", "Paid", "Not paid"],
 ];
 const DETAIL = ["sponsor_name", "contact_name", "contact_email", "type", "placement", "slot", "amount_cents", "start_date", "end_date", "description"];
-// mo-admin's SPONSOR_SLOT_CATALOG, for labels until GET /sponsors/schedule answers (the server's copy wins)
+// The slots before the 2027 guide, only for labels and the loading state until GET /sponsors/schedule answers
+// (the server's catalog is the one MOOS lists)
 const CATALOG = [
   ["newsletter", "Weekly Digest", [["nl_top", "Top Ad"], ["nl_bottom", "Bottom Ad"]]],
   ["mere_fidelity", "Mere Fidelity", [["mf_preroll1", "Pre-Roll 1"], ["mf_preroll2", "Pre-Roll 2"], ["mf_midroll1", "Mid-Roll 1"], ["mf_midroll2", "Mid-Roll 2"], ["mf_postroll", "Post-Roll"]]],
@@ -54,7 +62,7 @@ const CATALOG = [
   ["website", "Website", [["web_homepage", "Homepage Slide-In"], ["web_cat_church", "Church (Category Slide-In)"], ["web_cat_culture", "Culture (Category Slide-In)"],
     ["web_cat_formation", "Formation (Category Slide-In)"], ["web_cat_family", "Family (Category Slide-In)"], ["web_cat_theology", "Theology (Category Slide-In)"],
     ["web_cat_technology", "Technology (Category Slide-In)"], ["web_cat_bookreviews", "Book Reviews (Category Slide-In)"]]],
-].map(([category, categoryLabel, slots]) => ({ category, categoryLabel, slots: slots.map(([id, label]) => ({ id, label, manual_status: "available", manual_until: "" })) }));
+].map(([category, categoryLabel, slots]) => ({ category, categoryLabel, slots: slots.map(([id, label]) => ({ id, label, open: true, opens: "", manual_status: "available", manual_until: "" })) }));
 
 M.ICONS["group-sponsors"] = '<circle cx="12" cy="9" r="5.5"/><path d="M8.6 13.4L7 21l5-2.7 5 2.7-1.6-7.6"/>';
 const VIEW_ICONS = {
@@ -116,10 +124,16 @@ function monthKeys(from, to) {
 const counted = d => (d.paid === true || d.agreement_signed === true) && ["agreed", "active", "completed"].includes(d.status) && Number.isInteger(d.amount_cents);
 
 // ---------------------------------------------------------------- history
-let hist, histV = 0, H = null, H0 = null, tReady = false;  // hist: undefined while loading, null when there is none. H0: the history alone
+let hist, histV = 0, H = null, H0 = null, tReady = false;  // hist: undefined while loading, null when there is none. H0: the history before corrections
+let emailLog = null;  // sponsors-touchpoints: every email line, when the sync has written it (sponsors-history keeps only the newest)
 T.ready.then(() => { tReady = true; });
 hooks.connect.push(() => {
-  listen(M.db.doc(`data/users/${S.me}/sponsors-history`), d => { hist = (d.exists === false ? null : d.data()) || null; H0 = index(hist); rebuild(); });
+  listen(M.db.doc(`data/users/${S.me}/sponsors-history`), d => { hist = (d.exists === false ? null : d.data()) || null; fromHistory(); });
+  listen(M.db.doc(`data/users/${S.me}/sponsors-touchpoints`), d => {
+    const t = d.exists === false ? null : d.data();
+    emailLog = t && Array.isArray(t.touchpoints) ? t.touchpoints : null;
+    if (hist) fromHistory();
+  });
   if (M.can("sponsors")) listen(M.db.collection("sponsor-edits"), snap => {
     E.docs = Object.fromEntries(snap.docs.map(x => [x.id, x.data()]).filter(([, v]) => v && typeof v === "object"));
     M.names(Object.values(E.docs).map(e => str(e.by)).filter(Boolean));
@@ -127,7 +141,10 @@ hooks.connect.push(() => {
   });
   setTimeout(() => { if (hist === undefined) { hist = null; histV++; M.refresh(); } }, 15000);  // a refused read never answers
 });
-function rebuild() { H = index(merge(hist, editsNow())); histV++; M.refresh(); changed(); }
+// The history with the full email list in place of its trimmed one, when there is one
+const withMail = d => d && typeof d === "object" && emailLog ? { ...d, touchpoints: emailLog } : d;
+function fromHistory() { H0 = index(withMail(hist)); rebuild(); }
+function rebuild() { H = index(merge(withMail(hist), editsNow())); histV++; M.refresh(); changed(); }
 
 // ---------------------------------------------------------------- corrections, merged over the history
 const E = { docs: {}, pend: new Map() };  // docs: sponsor-edits as the store has them; pend: writes on their way
@@ -294,20 +311,34 @@ const clean = r => ({
 function cleanCatalog(c) {
   if (!Array.isArray(c)) return null;
   const out = c.filter(x => x && Array.isArray(x.slots)).map(x => ({ category: str(x.category), categoryLabel: str(x.categoryLabel) || str(x.category),
-    slots: x.slots.filter(s => s && s.id).map(s => ({ id: str(s.id), label: str(s.label) || str(s.id), manual_status: str(s.manual_status) || "available", manual_until: str(s.manual_until) })) }));
+    // a server from before the open flag sends none: every slot it lists is open
+    slots: x.slots.filter(s => s && s.id).map(s => ({ id: str(s.id), label: str(s.label) || str(s.id), open: s.open !== false, opens: s.open === false ? str(s.opens).trim() : "",
+      manual_status: str(s.manual_status) || "available", manual_until: str(s.manual_until) })) }));
   return out.length ? out : null;
 }
-const catalog = () => B.cat || CATALOG;
+// The site's catalog as it last answered, kept on this device so the slot menus and the rate card still list every
+// slot while the Tools are away
+const CAT_KEY = "moos-sponsor-slots";
+const savedCat = (() => { try { return cleanCatalog(JSON.parse(localStorage.getItem(CAT_KEY) || "null")); } catch { return null; } })();
+const catalog = () => B.cat || savedCat || CATALOG;
+const catKey = () => B.cat ? "site" : savedCat ? "saved" : "copy";  // which catalog a menu or the rate card was drawn from
+const catalogPending = () => !B.cat && !!B.catLoading;  // waiting on GET /sponsors/schedule
+const closedText = sl => sl.opens ? `Opens ${sl.opens}` : "Not open yet";
 function findSlot(id) { for (const cat of catalog()) { const slot = cat.slots.find(s => s.id === id); if (slot) return { cat, slot }; } return null; }
 const slotShort = l => l.replace(/ \(Category Slide-In\)$/, " slide-in");
 function slotName(id, brief) {
   const f = findSlot(id);
-  return f ? `${brief ? CAT_SHORT[f.cat.category] || f.cat.categoryLabel : f.cat.categoryLabel}, ${slotShort(f.slot.label)}` : id;
+  return f ? `${brief ? CAT_SHORT[f.cat.category] || f.cat.categoryLabel : f.cat.categoryLabel}, ${slotShort(f.slot.label)}` : H?.rate.find(r => r.slot === id)?.label || id;
 }
-// A slot in a few characters, for a chart's ticks
+// A slot in a few characters, for a chart's ticks: the digest, podcast and slide-in slots by their ids, any other by its
+// category when it is the only slot there, else by the last words of its label
 function slotTick(id) {
-  const m = /^(nl|mf|crc|web)_(.+)$/.exec(id || "");
-  if (!m) return id || "";
+  const m = /^(nl|mf|crc|web)_(top|bottom|homepage|cat_[a-z]+|(?:pre|mid|post)roll\d?)$/.exec(id || "");
+  if (!m) {
+    const f = findSlot(id);
+    if (!f) return id || "";
+    return f.cat.slots.length > 1 ? f.slot.label.split(/\s+/).slice(-2).join(" ") : CAT_SHORT[f.cat.category] || f.cat.categoryLabel;
+  }
   if (m[1] === "nl") return "Digest " + m[2];
   if (m[1] === "web") return m[2] === "homepage" ? "Home" : m[2] === "cat_bookreviews" ? "Reviews" : cap(m[2].replace(/^cat_/, ""));
   const r = /^(pre|mid|post)roll(\d?)$/.exec(m[2]);
@@ -332,7 +363,10 @@ async function load(force) {
 }
 function loadCatalog() {
   if (B.cat || B.catLoading) return;
-  B.catLoading = T.api("/sponsors/schedule").then(r => { B.cat = cleanCatalog(r?.catalog); }).catch(() => {}).finally(() => { B.catLoading = null; changed(); });
+  B.catLoading = T.api("/sponsors/schedule").then(r => {
+    B.cat = cleanCatalog(r?.catalog);
+    if (B.cat) try { localStorage.setItem(CAT_KEY, JSON.stringify(B.cat)); } catch { /* storage blocked: the copy above serves next time */ }
+  }).catch(() => {}).finally(() => { B.catLoading = null; changed(); });
 }
 function loadUsers() {
   if (B.users || B.usersLoading) return;
@@ -533,13 +567,18 @@ let want = null;  // a sponsor to open when the Sponsors view next mounts
 const openSponsor = id => { want = id; go("sponsors"); };
 
 // ---------------------------------------------------------------- the deal form: every field the board keeps
-function slotSelect(value, onchange) {
-  const sel = h("select", { onchange }, h("option", { value: "" }, "No slot yet"),
-    catalog().map(c => h("optgroup", { label: c.categoryLabel }, c.slots.map(s => h("option", { value: s.id }, slotShort(s.label))))));
+// Every slot in the catalog, one not open yet marked so (a deal may still be booked early); filled again once the
+// site's catalog lands, keeping what is picked
+function fillSlots(sel, value) {
+  sel.replaceChildren(h("option", { value: "" }, "No slot yet"),
+    ...catalog().map(c => h("optgroup", { label: c.categoryLabel }, c.slots.map(s => h("option", { value: s.id }, s.open ? slotShort(s.label) : `${slotShort(s.label)}, ${closedText(s).toLowerCase()}`)))));
   sel.value = value || "";
-  if (value && sel.value !== value) { sel.append(h("option", { value }, value)); sel.value = value; }
+  if (value && sel.value !== value) { sel.append(h("option", { value }, slotName(value))); sel.value = value; }
+  sel.dataset.cat = catKey();
   return sel;
 }
+const slotSelect = (value, onchange) => fillSlots(h("select", { onchange }), value);
+const freshSlots = sel => { if (sel && sel.dataset.cat !== catKey() && document.activeElement !== sel) fillSlots(sel, sel.value); };  // not while it is in use
 function fields(v, onInput) {
   const inp = {};
   const box = (label, control) => h("label", { class: "spo-field" }, h("span", { class: "lbl" }, label), control);
@@ -564,7 +603,7 @@ function fields(v, onInput) {
       placement: inp.placement.value.trim(), slot: inp.slot.value, amount_cents: Number.isFinite(cents) && cents >= 0 ? cents : null,
       start_date: inp.start_date.value, end_date: inp.end_date.value, description: inp.description.value.trim() };
   };
-  return { el, inp, read, bad: on => name.classList.toggle("bad", on) };
+  return { el, inp, read, fresh: () => freshSlots(inp.slot), bad: on => name.classList.toggle("bad", on) };
 }
 const sameDetails = (v, r) => DETAIL.every(k => k === "amount_cents" ? (v[k] ?? null) === (r[k] ?? null) : str(v[k]) === str(r[k]));
 
@@ -632,6 +671,7 @@ function panel() {
       const sync = () => { const x = rowOf(form.for); save.disabled = form.busy || !x || sameDetails(f.read(), x); };
       form = { for: r.id, f, save, sync, busy: false, el: h("div", { class: "spo-details" }, f.el, h("div", { class: "spo-decide" }, save)) };
     }
+    form.f.fresh();
     form.sync();
     return form.el;
   }
@@ -737,6 +777,7 @@ function panel() {
   function paintNew() {
     const d = draft;
     if (!d.f) { d.f = fields(d.v, () => {}); d.notes = h("textarea", { rows: 3, "aria-label": "Notes" }); d.notes.value = d.v.notes || ""; }
+    d.f.fresh();
     put(el, closeBtn(), h("div", { class: "spo-dhead" }, h("h2", {}, "New deal")),
       h("form", { class: "spo-newform", novalidate: true, onsubmit: e => { e.preventDefault(); submit(); } },
         d.f.el,
@@ -839,7 +880,7 @@ function dealForm(d, sid) {
       amount_cents: Number.isFinite(cents) && cents >= 0 ? cents : null, start_date: f.start_date.value, end_date: f.end_date.value,
       agreement_signed: flagOut(f.agreement_signed.value), invoiced: flagOut(f.invoiced.value), paid: flagOut(f.paid.value), description: f.description.value.trim() };
   };
-  return { el, check };
+  return { el, check, fresh: () => freshSlots(f.slot) };
 }
 
 function runForm(p, sid) {
@@ -872,7 +913,7 @@ function runForm(p, sid) {
     if (badUrl) { f.url.focus(); return null; }
     return v;
   };
-  return { el, check };
+  return { el, check, fresh: () => freshSlots(f.slot) };
 }
 
 // What differs from the history: the keys whose value is not what the rebuild says (empty is stored as null)
@@ -918,6 +959,7 @@ function editor(onAdded) {
 
   function paint() {
     if (!shown || !cur) return;
+    cur.form.fresh?.();
     const c = cur, found = c.id && c.kind !== "sponsor" ? find(c.kind, c.id) : null, s = c.kind === "sponsor" && c.id ? H?.byId.get(c.id) : null;
     const title = c.kind === "sponsor" ? (s ? s.name : "New sponsor") : c.kind === "deal" ? (c.id ? "Edit deal" : "Add deal") : (c.id ? "Edit placement" : "Add placement");
     const ed = s?.ed || found?.row.ed || null;
@@ -1363,20 +1405,23 @@ function scheduleView() {
     if (sg.kind === "booked") return h("button", { type: "button", class: "spo-seg booked", style, title: `${sg.name}, ${span}`, "aria-label": `${sg.name}, booked, ${span}`, onclick: e => dr.open(sg.did, e.currentTarget) }, h("span", {}, sg.name));
     if (sg.kind === "ran") return h("button", { type: "button", class: "spo-seg ran", style, title: `${sg.name}, ran ${span}`, "aria-label": `${sg.name}, ran, ${span}`, onclick: () => openSponsor(sg.sid) }, h("span", {}, sg.name));
     if (sg.kind === "open") return h("span", { class: "spo-seg open", style, role: "img", "aria-label": `Open, ${span}` });
+    if (sg.kind === "closed") return h("span", { class: "spo-seg closed", style, role: "img", "aria-label": `${sg.name}, ${span}` }, h("span", {}, sg.name));
     return h("span", { class: "spo-seg none", style, "aria-hidden": "true" });
   }
+  // A slot not open yet: one muted run where its open weeks would be (anything booked early or run still shows)
   function slotRow(sl, per, book, today) {
     const mine = book.get(sl.id) || [], undated = mine.filter(r => !r.start_date && !r.end_date), ran = (H?.placements || []).filter(p => p.slot === sl.id);
     const cells = per.map((p, i) => {
       const past = p.b < today, r = mine.find(x => overlaps(x, p.a, p.b)), pl = ran.find(x => x.date >= p.a && x.date <= p.b);
       if (pl && (past || !r)) return { key: "s:" + pl.sponsor_id, kind: "ran", name: H.byId.get(pl.sponsor_id)?.name || "", hue: hueOf(pl.sponsor_id), sid: pl.sponsor_id };
       if (r) { const s = sponsorOfDeal(r); return { key: "d:" + r.id, kind: "booked", name: r.sponsor_name || "No name", hue: hueOf(s ? s.id : keyOf(r.sponsor_name)), did: r.id }; }
+      if (!sl.open) return past ? { key: "past", kind: "none" } : { key: "closed", kind: "closed", name: closedText(sl) };
       return past ? { key: "past", kind: "none" } : { key: "open" + i, kind: "open" };
     });
     const segs = [];
     cells.forEach((c, i) => { const last = segs.at(-1); if (last && last.key === c.key) last.span++; else segs.push({ ...c, start: i, span: 1 }); });
     const filled = sl.manual_status && sl.manual_status !== "available";
-    return h("div", { class: "spo-srow" },
+    return h("div", { class: "spo-srow" + (sl.open ? "" : " closed") },
       h("div", { class: "spo-slot" }, h("span", {}, slotShort(sl.label)),
         filled ? h("span", { class: "lbl" }, `Site shows filled${sl.manual_until ? " to " + (isDay(sl.manual_until) ? dayText(sl.manual_until.slice(0, 10)) : sl.manual_until) : ""}`) : null,
         undated.length ? h("span", { class: "lbl" }, "No dates: " + undated.map(r => r.sponsor_name).join(", ")) : null),
@@ -1386,16 +1431,19 @@ function scheduleView() {
     seen = histV;
     const g = T.gate();
     if (g) return put(el, head("Schedule"), g);
-    if (!B.rows) {
-      if (B.err && !B.loading) return put(el, head("Schedule", null, T.chip()), trouble(B.err));
-      return put(el, waiting(head("Schedule", null, T.chip()), skelTiles(5), h("div", { class: "spo-rangebar" }), CATALOG.map(c => h("div", { class: "skel", style: `height: ${120 + c.slots.length * 48}px` }))));
+    if (!B.rows || catalogPending()) {
+      if (!B.rows && B.err && !B.loading) return put(el, head("Schedule", null, T.chip()), trouble(B.err));
+      return put(el, waiting(head("Schedule", null, T.chip()), skelTiles(5), h("div", { class: "spo-rangebar" }), catalog().map(c => h("div", { class: "skel", style: `height: ${120 + c.slots.length * 48}px` }))));
     }
     const book = bookings(), cat = catalog(), today = localDay(), per = periods(), now = per.findIndex(p => p.a <= today && today <= p.b);
     const w8 = Array.from({ length: 8 }, (_, i) => { const a = monday(new Date()); a.setDate(a.getDate() + i * 7); const b = new Date(a); b.setDate(b.getDate() + 6); return [localDay(a), localDay(b)]; });
+    // open weeks count only the slots for sale, so a medium with none has no tile
+    const forSale = cat.flatMap(c => c.slots.filter(sl => sl.open)), groups = new Map();
+    for (const c of cat) for (const sl of c.slots) if (sl.open) { const g = TILE_GROUP[c.category] || c.categoryLabel; groups.set(g, [...(groups.get(g) || []), sl]); }
     const openOf = slots => slots.reduce((n, sl) => n + w8.filter(([a, b]) => !(book.get(sl.id) || []).some(r => overlaps(r, a, b))).length, 0);
-    const slots = cat.flatMap(c => c.slots), whole = slots.length * 8, open = openOf(slots);
+    const whole = forSale.length * 8, open = openOf(forSale);
     const tiles = h("div", { class: "tiles" }, tile("Open in the next 8 weeks", open, fmt, whole, 0, meter(whole ? open / whole : 0, true)),
-      cat.map((c, i) => { const o = openOf(c.slots), t = c.slots.length * 8; return tile(`${c.categoryLabel} open`, o, fmt, t, i + 1, meter(t ? o / t : 0, true)); }));
+      [...groups].map(([g, list], i) => { const o = openOf(list), t = list.length * 8; return tile(`${g} open`, o, fmt, t, i + 1, meter(t ? o / t : 0, true)); }));
     const first = per[0].a, last = per.at(-1).b, sameYear = first.slice(0, 4) === last.slice(0, 4);
     const rangeBar = h("div", { class: "spo-rangebar rise", style: "--i:5" },
       h("div", { class: "spo-nav" },
@@ -1426,7 +1474,7 @@ function performanceView() {
   const el = h("div", { class: "view spo" });
   let shown = "";
   function paint() {
-    const sig = [histV, clickMode].join("|");
+    const sig = [histV, clickMode, catKey()].join("|");
     if (sig === shown) return;
     shown = sig;
     if (hist === undefined) return put(el, waiting(head("Performance"), skelTiles(4), h("div", { class: "skel spo-skel-chart" })));
@@ -1501,10 +1549,11 @@ function performanceView() {
         h("div", {}, h("span", { class: "big md" }, num(now90)), h("span", { class: "lbl" }, "Last 90 days"), delta(now90, was90, fmt))),
       chart || h("div", { class: "lbl" }, "Not enough issues yet"));
   }
-  // What each slot lists for against what sponsors paid per unit: a deal's amount over the months or weeks it covered
-  // when the rate is by the month or week, otherwise over the times it ran in that slot, or once
+  // Every placement in the catalog, in its order, then any other slot the rate card or a deal names: what each lists
+  // for against what sponsors paid per unit (a deal's amount over the months or weeks it covered when the rate is by
+  // the month or week, otherwise over the times it ran in that slot, or once). A slot's rate is its first rate card row.
   function rateCard() {
-    const slots = [...new Set([...H.rate.map(r => r.slot), ...H.deals.filter(d => d.slot).map(d => d.slot)].filter(Boolean))];
+    const slots = [...new Set([...catalog().flatMap(c => c.slots.map(sl => sl.id)), ...H.rate.map(r => r.slot), ...H.deals.filter(d => d.slot).map(d => d.slot)].filter(Boolean))];
     const rows = slots.map(id => {
       const rc = H.rate.find(r => r.slot === id) || null, unitText = rc?.unit || "";
       let amount = 0, units = 0, n = 0;
@@ -1515,22 +1564,29 @@ function performanceView() {
           : dated && /week/i.test(unitText) ? Math.max(1, Math.round((asDate(d.end_date) - asDate(d.start_date)) / (7 * DAY)) + 1) : runs;
         amount += d.amount_cents / 100; units += u || 1; n++;
       }
-      return { id, label: rc?.label || slotName(id), unit: unitText, rate: rc?.price_cents != null ? rc.price_cents / 100 : null, paid: units ? amount / units : null, deals: n, units };
-    }).filter(r => r.rate != null || r.paid != null);
+      const sl = findSlot(id)?.slot;
+      return { id, label: sl ? slotName(id) : rc?.label || id, unit: unitText, closed: sl && !sl.open ? closedText(sl) : "", rate: rc?.price_cents != null ? rc.price_cents / 100 : null,
+        paid: units ? amount / units : null, deals: n, units };
+    });
     const sec = h("section", { class: "card s12 rise", style: "--i:8" }, h("h2", {}, "Rate card and what sponsors paid"));
     if (!rows.length) return put(sec, h("h2", {}, "Rate card and what sponsors paid"), h("div", { class: "lbl" }, "None yet")), sec;
-    const RATE = "color-mix(in srgb, var(--ink) 30%, var(--card))", PAID = "var(--cat-1)";
-    sec.append(columns(rows.map(r => [[r.rate || 0, RATE], [r.paid || 0, PAID]]), rows.map(r => slotTick(r.id)), "Rate card and paid per unit, by slot", short,
-      { grouped: true, every: 1, names: ["Rate card", "Paid per unit"], tipShow: money, tipLabels: rows.map(r => r.label) }),
-      legend([["Rate card", RATE], ["Paid per unit", PAID]]), h("div", { class: "spo-gap" }),
+    // the chart compares rate and paid where sponsors have paid; the table lists every placement
+    const sold = rows.filter(r => r.paid != null), RATE = "color-mix(in srgb, var(--ink) 30%, var(--card))", PAID = "var(--cat-1)";
+    sec.append(sold.length ? columns(sold.map(r => [[r.rate || 0, RATE], [r.paid || 0, PAID]]), sold.map(r => slotTick(r.id)), "Rate card and paid per unit, by slot", short,
+      { grouped: true, every: 1, names: ["Rate card", "Paid per unit"], tipShow: money, tipLabels: sold.map(r => r.label) }) : null,
+      sold.length ? legend([["Rate card", RATE], ["Paid per unit", PAID]]) : null, sold.length ? h("div", { class: "spo-gap" }) : null,
       table("spo-rates", ["Slot", "Rate card", "Deals", "Units run", "Paid per unit", "Difference"], rows.map(r => {
         const diff = r.rate && r.paid != null ? (r.paid - r.rate) / r.rate : null;
-        return [[h("span", { class: "spo-two-line" }, h("span", {}, r.label), r.unit ? h("span", { class: "lbl" }, r.unit) : null), r.rate != null ? money(r.rate) : "", fmt(r.deals), r.units ? fmt(r.units) : "",
+        return [[h("span", { class: "spo-two-line" + (r.closed ? " spo-closed" : "") }, h("span", {}, r.label), r.closed || r.unit ? h("span", { class: "lbl" }, r.closed || r.unit) : null),
+          r.rate != null ? money(r.rate) : "", r.deals ? fmt(r.deals) : "", r.units ? fmt(r.units) : "",
           r.paid != null ? money(r.paid) : "", diff == null ? "" : h("span", { class: "spo-delta" + (diff > 0 ? " up" : diff < 0 ? " down" : "") }, `${diff > 0 ? "+" : diff < 0 ? "−" : ""}${share(Math.abs(diff), 1)}`)]];
-      }), { cols: "minmax(0, 1fr) 96px 64px 84px 112px 96px", pcols: "minmax(0, 1fr) 80px 70px", ph: [0, 4, 5], left: [0] }));
+      }), { cols: "minmax(0, 1fr) 96px 64px 84px 112px 96px", pcols: "minmax(0, 1fr) 76px 84px", ph: [0, 1, 4], left: [0] }));
     return sec;
   }
-  return { el, update() { paint(); } };
+  B.subs.add(paint);
+  const off = T.onChange(st => { if (st === "connected") loadCatalog(); paint(); });
+  T.ready.then(() => { if (T.status() === "connected") loadCatalog(); });
+  return { el, update() { paint(); }, leave() { B.subs.delete(paint); off(); } };
 }
 
 // ---------------------------------------------------------------- a person's profile: the sponsors they are a contact for
@@ -1712,6 +1768,8 @@ body.spo-dragging, body.spo-dragging * { cursor: grabbing !important; user-selec
 .spo-seg.booked:hover, .spo-seg.ran:hover { filter: brightness(1.06); box-shadow: inset 3px 0 0 var(--c), 0 0 0 1px var(--c) }
 .spo-seg.open { border: 1.5px dashed color-mix(in srgb, var(--cat-8) 60%, var(--rule-strong)); background: color-mix(in srgb, var(--cat-8) 5%, transparent) }
 .spo-seg.none { background: color-mix(in srgb, var(--ink) 3%, transparent) }
+.spo-seg.closed { background: color-mix(in srgb, var(--ink) 5%, transparent); color: var(--muted) }
+.spo-srow.closed .spo-slot > span:first-child, .spo-closed > span:first-child { color: var(--muted) }
 .enter .spo-seg, .spo-sched.moved .spo-seg { animation: spo-grow .6s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(.15s + var(--x, 0) * 22ms) }
 @keyframes spo-grow { from { opacity: 0; transform: scaleX(.3) } }
 

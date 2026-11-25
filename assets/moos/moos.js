@@ -1387,7 +1387,7 @@ const NAV = [["home", "Overview"], ["people", "Contacts", "people"], ["lists", "
 // The rail, top to bottom, whichever module loads first. "group:x" places a group. A view not named here
 // follows the view in its after, or comes last; inside a group the same goes for GROUP_ORDER.
 // Ian, Nov 25: Overview, Analytics, People, Work, Editorial, Tools, Finances, Sponsors, Journal
-const ORDER = ["home", "analytics", "group:people", "group:work", "group:editorial", "group:tools", "group:finances", "group:sponsors", "journal"];
+const ORDER = ["home", "analytics", "group:people", "group:work", "group:editorial", "group:tools", "group:finances", "group:sponsors", "journal", "group:documents"];
 const GROUP_ORDER = { people: ["people", "audience", "lists", "review"], work: ["calendar", "tasks", "agenda"], finances: ["finances", "donors", "donor-pipeline", "migration"], tools: ["email-builder", "social", "liturgy", "auto-responders", "slide-ins", "site-settings"] };
 const FOOT = new Set(["access"]);  // Access sits in the rail's foot, beside the theme and collapse switches
 const AFTER = {};
