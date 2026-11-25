@@ -1,0 +1,84 @@
+{{!-- /admin/moos/app/ : MOOS on the web (Ian, 2026-11-25: "When you open
+     up /admin, I want a toggle on the bottom right that says 'Try MOOS'...
+     every board needs to work on web"). The contract is MOCA
+     website/moos/WEB.md; this page is its piece B.
+
+     A standalone document, like the journal readers, so it does not extend
+     default.hbs: MOOS is a full-screen app with its own rail and its own
+     stylesheet, and the site's header, footer, screen.css and site bundle
+     would sit on top of it and restyle its controls.
+
+     What loads, in order:
+       1. js/moos-web-config.js sets window.MOOS_WEB from the theme settings
+          on its data attributes (the CSP allows no inline script).
+       2. moos-app-head: fonts, MOOS's stylesheet, d3 and topojson.
+       3. js/error-beacon.js, so MOOS's errors and CSP refusals reach
+          mo-errors like the rest of the site's.
+       4. js/admin-auth.js: window.MOAuth, the staff bearer. It reads the
+          mo-trusted-hosts meta below once, as it loads.
+       5. moos-app-body: assets/moos/web.js (the web adapter, piece C), then
+          MOOS's markup, its core module and its parts.
+       6. The "Try MOOS" switch, on.
+     Both moos-app-* partials and everything in assets/moos/ are GENERATED
+     by scripts/build-moos.mjs from the MOCA. Re-run it when MOOS changes.
+
+     Staff only, the way the other admin pages gate: the template shows MOOS
+     to a signed-in member, and mo-admin's /moos/web/* routes answer Ghost
+     staff and nobody else. A signed-out visitor gets the admin pages'
+     "Staff only" panel.
+
+     CSP: the site's policy narrowed to what MOOS uses. Scripts from this
+     site and three pinned jsDelivr packages (d3, topojson, and xlsx when a
+     workbook is saved; build-moos.mjs fails if MOOS uses one not listed in
+     script-src); data from mo-admin, mo-email, the podcast feed and
+     mo-errors. A new worker for MOOS goes in connect-src here and in
+     moos-web-config.js's data attributes, and in mo-trusted-hosts too if it
+     takes the staff bearer.
+
+     Leave /admin/moos/ (custom-admin-moos.hbs, the desktop pairing page)
+     alone: it is a different page. --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/d3@7.9.0/ https://cdn.jsdelivr.net/npm/topojson@3.0.2/ https://cdn.jsdelivr.net/npm/xlsx@0.18.5/; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' https:; connect-src 'self' https://mo-admin.mo-podcast-feed.workers.dev https://mo-email.mo-podcast-feed.workers.dev https://mo-podcast-feed.mo-podcast-feed.workers.dev https://mo-errors.mo-podcast-feed.workers.dev; frame-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>MOOS | MO Admin</title>
+  <meta name="description" content="Internal Mere Orthodoxy staff tool." />
+  <meta name="theme-color" content="#f6f3f2" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#24201e" media="(prefers-color-scheme: dark)" />
+  {{!-- MOAuth.fetch attaches the staff bearer only to these hosts: exactly
+       the two workers that take it, mo-admin and mo-email. MOOS reaches the
+       podcast feed and this site with a plain fetch (bridge.js, auth: false),
+       so neither is here. Narrower than default.hbs's list on purpose. --}}
+  <meta name="mo-trusted-hosts" content="{{@custom.admin_worker_url}}|https://mo-email.mo-podcast-feed.workers.dev" />
+  <link rel="icon" type="image/jpeg" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
+  <link rel="apple-touch-icon" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
+  {{#if @member}}
+  <script src="{{asset "js/moos-web-config.js"}}" data-admin="{{@custom.admin_worker_url}}" data-email="https://mo-email.mo-podcast-feed.workers.dev" data-podcast="{{#if @custom.podcast_feed_url}}{{@custom.podcast_feed_url}}{{else}}https://mo-podcast-feed.mo-podcast-feed.workers.dev{{/if}}"></script>
+  {{> "moos-app-head"}}
+  {{else}}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" href="{{asset "built/screen.min.css"}}" />
+  {{/if}}
+</head>
+<body class="moos-web"
+      {{#if @member}}data-member-email="{{@member.email}}"{{/if}}
+      {{#if @custom.admin_worker_url}}data-admin-worker-url="{{@custom.admin_worker_url}}"{{/if}}
+      data-error-worker-url="{{#if @custom.error_worker_url}}{{@custom.error_worker_url}}{{else}}https://mo-errors.mo-podcast-feed.workers.dev{{/if}}">
+  <script src="{{asset "js/error-beacon.js"}}"></script>
+  <script src="{{asset "js/admin-auth.js"}}"></script>
+  {{#if @member}}
+    {{> "moos-app-body"}}
+    {{> "moos-switch" app=true}}
+  {{else}}
+    <main class="admin-page">
+      {{> "admin-denied"}}
+    </main>
+  {{/if}}
+</body>
+</html>
