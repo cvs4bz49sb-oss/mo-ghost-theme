@@ -1383,12 +1383,12 @@ function skeleton() {
 // ---------------------------------------------------------------- shell
 const VIEWS = { home, people, lists, journal, tasks, review, access };
 // [id, label, group]. Every view the palette can find; the rail draws them in ORDER below.
-const NAV = [["home", "Overview"], ["people", "Contacts", "people"], ["lists", "Lists", "people"], ["review", "Review", "people"], ["journal", "Journal"], ["tasks", "Projects", "work"], ["access", "Access"]];
+const NAV = [["home", "Overview"], ["people", "Contacts", "people"], ["lists", "Lists", "people"], ["review", "Review", "people"], ["journal", "Journal", "editorial"], ["tasks", "Projects", "work"], ["access", "Access"]];
 // The rail, top to bottom, whichever module loads first. "group:x" places a group. A view not named here
 // follows the view in its after, or comes last; inside a group the same goes for GROUP_ORDER.
-// Ian, Nov 25: Overview, Analytics, People, Work, Editorial, Tools, Finances, Sponsors, Journal
-const ORDER = ["home", "analytics", "group:people", "group:work", "group:editorial", "group:tools", "group:finances", "group:sponsors", "journal", "group:documents"];
-const GROUP_ORDER = { people: ["people", "audience", "lists", "review"], work: ["calendar", "tasks", "agenda"], finances: ["finances", "donors", "donor-pipeline", "migration"], tools: ["email-builder", "social", "liturgy", "auto-responders", "slide-ins", "site-settings"] };
+// Ian, Nov 25: Overview, Analytics, People, Work, Editorial (with Journal), Tools, Finances, Sponsors, Documents
+const ORDER = ["home", "analytics", "group:people", "group:work", "group:editorial", "group:tools", "group:finances", "group:sponsors", "group:documents"];
+const GROUP_ORDER = { people: ["people", "audience", "lists", "review"], work: ["calendar", "tasks", "agenda"], editorial: ["editorial-inbox", "editorial-pipeline", "journal"], finances: ["finances", "donors", "donor-pipeline", "migration"], tools: ["email-builder", "social", "liturgy", "auto-responders", "slide-ins", "site-settings"] };
 const FOOT = new Set(["access"]);  // Access sits in the rail's foot, beside the theme and collapse switches
 const AFTER = {};
 // Modules hook in: connect runs once the store is reachable, chrome on every redraw of the rail,
