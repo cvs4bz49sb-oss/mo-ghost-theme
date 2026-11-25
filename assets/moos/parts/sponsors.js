@@ -14,6 +14,11 @@
 //   then Deals and Schedule link to the board on the site.
 // Bookings on the schedule are worked out here from the board's agreed and active deals that name a slot, the
 // same rule handleGetSponsorSchedule uses, so a move shows at once.
+// Corrections: sponsor-edits/<sponsor_id> in the MOOS store holds what Ian changed in the history (only the changed
+// keys, hidden rows, rows added by hand, and sponsors added by hand). The history is merged with them before
+// anything is worked out, and totals and by_month are counted again here the way moos_part_sponsors.py counts them,
+// so the hourly rebuild never undoes a correction. The store lets only the owner and people granted Sponsors (or
+// Admin) read or write sponsor-edits/**.
 // Everything from either source is data: shown as text (h() children), never markup, and linked only when it
 // is an https:// address or a valid email.
 const M = window.MOOS, T = M.tools;
@@ -68,6 +73,7 @@ Object.assign(M.ICONS, {
   "spo-deal": '<path d="M3.5 12.2V4.5h7.7l9.3 9.3-7.7 7.7z"/><circle cx="7.8" cy="8.8" r="1.3"/>',
   "spo-run": '<path d="M4 10v4h3l6 4V6l-6 4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>',
   "spo-file": '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/>',
+  "spo-edit": '<path d="M5 19h3.6L19.2 8.4a2.5 2.5 0 0 0-3.6-3.6L5 15.4z"/><path d="M13.8 6.6l3.6 3.6"/>',
 });
 
 // ---------------------------------------------------------------- small helpers
@@ -110,33 +116,138 @@ function monthKeys(from, to) {
 const counted = d => (d.paid === true || d.agreement_signed === true) && ["agreed", "active", "completed"].includes(d.status) && Number.isInteger(d.amount_cents);
 
 // ---------------------------------------------------------------- history
-let hist, histV = 0, H = null, tReady = false;  // hist: undefined while loading, null when there is none
+let hist, histV = 0, H = null, H0 = null, tReady = false;  // hist: undefined while loading, null when there is none. H0: the history alone
 T.ready.then(() => { tReady = true; });
 hooks.connect.push(() => {
-  listen(M.db.doc(`data/users/${S.me}/sponsors-history`), d => { hist = (d.exists === false ? null : d.data()) || null; H = index(hist); histV++; M.refresh(); changed(); });
+  listen(M.db.doc(`data/users/${S.me}/sponsors-history`), d => { hist = (d.exists === false ? null : d.data()) || null; H0 = index(hist); rebuild(); });
+  if (M.can("sponsors")) listen(M.db.collection("sponsor-edits"), snap => {
+    E.docs = Object.fromEntries(snap.docs.map(x => [x.id, x.data()]).filter(([, v]) => v && typeof v === "object"));
+    M.names(Object.values(E.docs).map(e => str(e.by)).filter(Boolean));
+    rebuild();
+  });
   setTimeout(() => { if (hist === undefined) { hist = null; histV++; M.refresh(); } }, 15000);  // a refused read never answers
 });
+function rebuild() { H = index(merge(hist, editsNow())); histV++; M.refresh(); changed(); }
+
+// ---------------------------------------------------------------- corrections, merged over the history
+const E = { docs: {}, pend: new Map() };  // docs: sponsor-edits as the store has them; pend: writes on their way
+const SP_FIELDS = ["name", "kind", "website", "status", "summary", "first_contact", "last_contact"];
+const DEAL_FIELDS = ["sponsor_id", "type", "placement", "slot", "amount_cents", "start_date", "end_date", "status", "agreement_signed", "invoiced", "paid", "description"];
+const RUN_FIELDS = ["sponsor_id", "deal_id", "date", "channel", "slot", "issue", "kit_broadcast_id", "url", "clicks", "unique_clicks", "recipients", "opens"];
+const obj = v => v && typeof v === "object" && !Array.isArray(v) ? v : {};
+const objs = v => Array.isArray(v) ? v.filter(x => x && typeof x === "object") : [];
+const canEdit = () => !!H && M.can("sponsors") && S.canWriteBase !== false;
+function editsNow() {
+  const out = { ...E.docs };
+  for (const [id, p] of E.pend) { if (p.body) out[id] = p.body; else delete out[id]; }
+  return out;
+}
+// The history with every correction applied: edits win, hidden rows drop out (kept aside to restore), added rows join
+function merge(d, ed) {
+  if (!d || typeof d !== "object" || !Object.keys(ed).length) return d;
+  const mark = (e, how) => ({ by: str(e.by), at: str(e.updated), how });
+  const sponsors = objs(d.sponsors).map(s => {
+    const e = ed[str(s.id)];
+    if (!e) return s;
+    const f = obj(e.fields), keys = SP_FIELDS.filter(k => k in f), out = { ...s };
+    for (const k of keys) out[k] = f[k];
+    if (Array.isArray(e.contacts)) out.contacts = e.contacts;
+    out._ed = keys.length || Array.isArray(e.contacts) ? { ...mark(e, "edited"), fields: keys, contacts: Array.isArray(e.contacts) } : null;
+    return out;
+  });
+  const ids = new Set(sponsors.map(s => str(s.id)));
+  for (const [id, e] of Object.entries(ed)) {
+    const f = obj(e.fields);
+    if (!e.new || ids.has(id) || !str(f.name).trim()) continue;
+    sponsors.push({ ...Object.fromEntries(SP_FIELDS.map(k => [k, f[k] ?? null])), id, contacts: objs(e.contacts), _ed: { ...mark(e, "added"), fields: SP_FIELDS, contacts: true } });
+    ids.add(id);
+  }
+  const hidden = { deals: [], placements: [] };
+  const rows = (given, key, fields) => {
+    const out = [];
+    for (const x of objs(given)) {
+      const home = str(x.sponsor_id), e = ed[home], o = obj(obj(e?.[key])[str(x.id)]), keys = fields.filter(k => k in o), row = { ...x, _home: home, _ed: null };
+      for (const k of keys) row[k] = o[k];
+      if (keys.length) row._ed = mark(e, "edited");
+      (o.hidden === true ? hidden[key] : out).push(row);
+    }
+    for (const [home, e] of Object.entries(ed)) for (const x of objs(obj(e.added)[key])) if (str(x.id)) out.push({ ...x, sponsor_id: str(x.sponsor_id) || home, _home: home, _ed: mark(e, "added") });
+    return out;
+  };
+  const deals = rows(d.deals, "deals", DEAL_FIELDS), placements = rows(d.placements, "placements", RUN_FIELDS);
+  return { ...d, sponsors, deals, placements, _hidden: hidden, ...tally(sponsors, deals, placements) };
+}
+// totals and by_month, counted the way moos_part_sponsors.py counts them: revenue from deals that are paid or signed
+// and agreed or later; a deal's revenue split evenly over the months its placements ran, else start to end, else
+// its start (or only) month, with the rounding in the last month
+const ym = v => { const s = str(v); return /^\d{4}-\d{2}/.test(s) ? s.slice(0, 7) : ""; };
+function spread(d, runs) {
+  let months = [...new Set(runs.map(p => ym(p.date)).filter(Boolean))].sort();
+  if (!months.length) {
+    const a = ym(d.start_date), b = ym(d.end_date);
+    months = a && b && a <= b ? monthKeys(a, b).slice(0, 60) : [a, b].filter(Boolean).slice(0, 1);
+  }
+  if (!months.length) return [];
+  const each = Math.floor(d.amount_cents / months.length);
+  return months.map((m, i) => [m, i === months.length - 1 ? d.amount_cents - each * (months.length - 1) : each]);
+}
+function tally(sponsors, deals, runs) {
+  const totals = Object.fromEntries(sponsors.map(s => [str(s.id), { revenue_cents: 0, deals: 0, placements: 0, clicks: 0, first_run: null, last_run: null }]));
+  const month = {}, at = k => (month[k] ||= { month: k, revenue_cents: 0, placements: 0, clicks: 0 }), runsOf = new Map();
+  let undated = 0;
+  for (const p of runs) {
+    const t = totals[str(p.sponsor_id)];
+    if (!t) continue;
+    if (p.deal_id) { const k = str(p.deal_id); if (!runsOf.has(k)) runsOf.set(k, []); runsOf.get(k).push(p); }
+    t.placements++;
+    if (Number.isInteger(p.clicks)) t.clicks += p.clicks;
+    const day = dayOf(p.date);
+    if (!day) continue;
+    t.first_run = t.first_run && t.first_run < day ? t.first_run : day;
+    t.last_run = t.last_run && t.last_run > day ? t.last_run : day;
+    const m = at(day.slice(0, 7));
+    m.placements++;
+    if (Number.isInteger(p.clicks)) m.clicks += p.clicks;
+  }
+  for (const d of deals) {
+    const t = totals[str(d.sponsor_id)];
+    if (!t) continue;
+    t.deals++;
+    if (!counted(d)) continue;
+    t.revenue_cents += d.amount_cents;
+    const parts = spread(d, runsOf.get(str(d.id)) || []);
+    if (!parts.length) undated += d.amount_cents;
+    for (const [m, c] of parts) at(m).revenue_cents += c;
+  }
+  return { totals, by_month: Object.values(month).sort((a, b) => a.month.localeCompare(b.month)), undated_cents: undated };
+}
 
 function index(d) {
   if (!d || typeof d !== "object") return null;
-  const arr = v => Array.isArray(v) ? v.filter(x => x && typeof x === "object") : [];
+  const arr = objs;
   const flag = v => v === true ? true : v === false ? false : null;
+  const ed = v => v && typeof v === "object" ? v : null;
   const sponsors = arr(d.sponsors).filter(s => str(s.id)).map(s => ({
     id: str(s.id), name: str(s.name).trim() || str(s.id), kind: str(s.kind), website: str(s.website).trim(), status: str(s.status),
     first_contact: dayOf(s.first_contact), last_contact: dayOf(s.last_contact), summary: str(s.summary).trim(),
     contacts: arr(s.contacts).map(c => ({ name: str(c.name).trim(), email: str(c.email).trim(), role: str(c.role).trim(), pid: str(c.pid) })).filter(c => c.name || c.email),
+    ed: ed(s._ed),
   }));
   const byId = new Map(sponsors.map(s => [s.id, s]));
-  const deals = arr(d.deals).filter(x => byId.has(str(x.sponsor_id))).map(x => ({
+  const dealOf = x => ({
     id: str(x.id), sponsor_id: str(x.sponsor_id), type: str(x.type), placement: str(x.placement).trim(), slot: str(x.slot),
     amount_cents: Number.isInteger(x.amount_cents) ? x.amount_cents : null, start_date: dayOf(x.start_date), end_date: dayOf(x.end_date), status: str(x.status),
     agreement_signed: flag(x.agreement_signed), invoiced: flag(x.invoiced), paid: flag(x.paid), description: str(x.description).trim(),
-  }));
-  const placements = arr(d.placements).filter(p => byId.has(str(p.sponsor_id)) && dayOf(p.date)).map(p => ({
+    home: str(x._home) || str(x.sponsor_id), ed: ed(x._ed),
+  });
+  const runOf = p => ({
     id: str(p.id), sponsor_id: str(p.sponsor_id), deal_id: str(p.deal_id), date: dayOf(p.date), channel: CHANNEL[p.channel] ? p.channel : "other",
     slot: str(p.slot), issue: str(p.issue).trim(), url: str(p.url).trim(), clicks: numOr(p.clicks), unique_clicks: numOr(p.unique_clicks),
-    recipients: numOr(p.recipients), opens: numOr(p.opens),
-  })).sort((a, b) => a.date.localeCompare(b.date));
+    recipients: numOr(p.recipients), opens: numOr(p.opens), kit_broadcast_id: numOr(p.kit_broadcast_id), home: str(p._home) || str(p.sponsor_id), ed: ed(p._ed),
+  });
+  const deals = arr(d.deals).filter(x => byId.has(str(x.sponsor_id))).map(dealOf);
+  const placements = arr(d.placements).filter(p => byId.has(str(p.sponsor_id)) && dayOf(p.date)).map(runOf).sort((a, b) => a.date.localeCompare(b.date));
+  const hidden = { deals: arr(d._hidden?.deals).map(dealOf), placements: arr(d._hidden?.placements).map(runOf) };
   const touch = arr(d.touchpoints).filter(t => byId.has(str(t.sponsor_id))).map(t => ({
     sponsor_id: str(t.sponsor_id), date: dayOf(t.date), direction: t.direction === "out" ? "out" : "in", subject: str(t.subject).trim(), summary: str(t.summary).trim(),
   }));
@@ -164,7 +275,7 @@ function index(d) {
     months = Object.values(by);
   }
   months.sort((a, b) => a.month.localeCompare(b.month));
-  return { asOf: dayOf(d.as_of), sponsors, byId, deals, placements, touch, rate, dealsOf, runsOf, touchOf, totals, months };
+  return { asOf: dayOf(d.as_of), sponsors, byId, deals, placements, touch, rate, dealsOf, runsOf, touchOf, totals, months, hidden };
 }
 const totalsAll = () => Object.values(H.totals).reduce((a, t) => ({ revenue: a.revenue + t.revenue, placements: a.placements + t.placements, clicks: a.clicks + t.clicks }), { revenue: 0, placements: 0, clicks: 0 });
 
@@ -301,6 +412,49 @@ async function remove(r) {
   B.rows = (B.rows || []).filter(x => x.id !== r.id);
   changed();
 }
+
+// ---------------------------------------------------------------- correction writes: optimistic, put back when the store says no
+// A sponsor's corrections with the empty parts dropped, or null when nothing is left (the document is then deleted)
+function tidy(e) {
+  const out = {};
+  if (e.new) out.new = true;
+  const f = Object.fromEntries(Object.entries(obj(e.fields)).filter(([k]) => SP_FIELDS.includes(k)));
+  if (Object.keys(f).length) out.fields = f;
+  if (Array.isArray(e.contacts)) out.contacts = e.contacts;
+  for (const k of ["deals", "placements"]) {
+    const m = Object.fromEntries(Object.entries(obj(e[k])).filter(([, v]) => Object.keys(obj(v)).length));
+    if (Object.keys(m).length) out[k] = m;
+  }
+  const a = { deals: objs(obj(e.added).deals), placements: objs(obj(e.added).placements) };
+  if (a.deals.length || a.placements.length) out.added = a;
+  return Object.keys(out).length ? out : null;
+}
+const copyOf = id => JSON.parse(JSON.stringify(editsNow()[id] || {}));
+async function keep(sid, next, done) {
+  if (!canEdit()) { toast("You can view sponsors but not change them"); return false; }
+  const t = next && tidy(next), body = t ? JSON.parse(JSON.stringify({ ...t, updated: new Date().toISOString(), by: S.me })) : null, mine = {};
+  E.pend.set(sid, { body, mine });
+  rebuild();
+  const ref = M.db.doc("sponsor-edits/" + sid);
+  const ok = await M.save(() => body ? ref.set(body) : ref.delete(), done);
+  if (E.pend.get(sid)?.mine === mine) {
+    E.pend.delete(sid);
+    if (ok) { if (body) E.docs[sid] = body; else delete E.docs[sid]; }  // the store's own snapshot follows
+    rebuild();
+  }
+  return ok;
+}
+const kebab = s => fold(s).replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "sponsor";
+function freshId(base) {
+  const taken = new Set([...(H?.sponsors || []).map(s => s.id), ...Object.keys(editsNow())]);
+  let id = base, n = 2;
+  while (taken.has(id)) id = `${base}-${n++}`;
+  return id;
+}
+const rowId = home => `${home}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
+const whoEdited = ed => `${ed.how === "added" ? "Added" : "Edited"} by ${ed.by === S.me ? "you" : M.nameOf(ed.by)}${stamp(ed.at) ? ", " + stamp(ed.at) : ""}`;
+// The quiet marker on a corrected value; who and when on hover (worked out then, once the name has arrived)
+const edMark = ed => ed ? h("span", { class: "spo-ed", title: whoEdited(ed), onmouseenter: e => { e.currentTarget.title = whoEdited(ed); } }, ed.how === "added" ? "Added" : "Edited") : null;
 
 // ---------------------------------------------------------------- shared parts
 const head = (title, n, ...right) => h("div", { class: "head spo-head" }, h("h1", {}, title, n == null ? null : h("span", { class: "spo-n" }, fmt(n))),
@@ -606,9 +760,256 @@ function panel() {
   return { open, openNew, close, paint, leave() { close(); removeEventListener("keydown", onKey); el.remove(); scrim.remove(); } };
 }
 
+// ---------------------------------------------------------------- correcting the history: a sponsor, a deal or a placement
+const FLAG3 = [["", "Unknown"], ["yes", "Yes"], ["no", "No"]];
+const flagIn = v => v === true ? "yes" : v === false ? "no" : "";
+const flagOut = v => v === "yes" ? true : v === "no" ? false : null;
+const wholeOr = v => { const t = str(v).trim(); if (t === "") return null; const n = Math.round(Number(t)); return Number.isFinite(n) && n >= 0 ? n : null; };
+function pickIn(options, value, attrs = {}) {
+  const blank = !value && !options.some(([k]) => k === "");  // a value the history left empty stays empty until it is picked
+  const sel = h("select", attrs, blank ? h("option", { value: "" }, "None") : null, options.map(([k, l]) => h("option", { value: k }, l)));
+  sel.value = value ?? "";
+  if (value && sel.value !== value) { sel.append(h("option", { value }, value)); sel.value = value; }
+  return sel;
+}
+const box = (label, control, cls) => h("label", { class: "spo-field" + (cls ? " " + cls : "") }, h("span", { class: "lbl" }, label), control);
+const textIn = (v, type = "text", extra = {}) => h("input", { type, value: v ?? "", autocomplete: "off", ...extra });
+const areaIn = v => { const t = h("textarea", { rows: 3 }); t.value = v ?? ""; return t; };
+const moneyIn = cents => h("span", { class: "spo-dollar" }, h("input", { type: "number", min: "0", step: "0.01", inputmode: "decimal", "aria-label": "Amount in dollars", value: cents != null ? String(+(cents / 100).toFixed(2)) : "" }));
+const countIn = (v, label) => h("input", { type: "number", min: "0", step: "1", inputmode: "numeric", "aria-label": label, value: v != null ? String(v) : "" });
+const sponsorOptions = () => [...(H?.sponsors || [])].sort((a, b) => a.name.localeCompare(b.name)).map(s => [s.id, s.name]);
+
+function sponsorForm(s) {
+  const f = {
+    name: textIn(s?.name), kind: pickIn([["", "None"], ...Object.entries(KIND)], s?.kind || ""),
+    status: pickIn(Object.entries(STATUS).map(([k, [l]]) => [k, l]), s ? s.status : "prospect"),
+    website: textIn(s?.website, "url", { placeholder: "https://", spellcheck: "false" }),
+    first_contact: textIn(s?.first_contact, "date"), last_contact: textIn(s?.last_contact, "date"), summary: areaIn(s?.summary),
+  };
+  const people = h("div", { class: "spo-cts" }), rows = [];
+  const addRow = (c = {}) => {
+    const r = { name: textIn(c.name, "text", { "aria-label": "Contact name", placeholder: "Name" }), email: textIn(c.email, "email", { "aria-label": "Contact email", placeholder: "Email", spellcheck: "false" }),
+      role: textIn(c.role, "text", { "aria-label": "Contact role", placeholder: "Role" }) };
+    r.el = h("div", { class: "spo-ct" }, r.name, r.email, r.role,
+      h("button", { type: "button", class: "x", "aria-label": "Remove contact", onclick: () => { rows.splice(rows.indexOf(r), 1); r.el.remove(); } }, icon("x")));
+    rows.push(r); people.append(r.el);
+    return r;
+  };
+  (s?.contacts || []).forEach(c => addRow(c));
+  const nameBox = box("Name", f.name), siteBox = box("Website", f.website);
+  const el = h("div", { class: "spo-fields" }, nameBox,
+    h("div", { class: "spo-two" }, box("Kind", f.kind), box("Status", f.status)), siteBox,
+    h("div", { class: "spo-two" }, box("First contact", f.first_contact), box("Last contact", f.last_contact)),
+    box("Summary", f.summary),
+    h("section", { class: "spo-sec" }, h("h3", {}, "Contacts"), people,
+      h("button", { type: "button", class: "btn quiet spo-addct", onclick: () => addRow().name.focus() }, icon("spo-plus"), "Add contact")));
+  const read = () => ({
+    fields: { name: f.name.value.trim(), kind: f.kind.value, status: f.status.value, website: f.website.value.trim(), summary: f.summary.value.trim(),
+      first_contact: f.first_contact.value, last_contact: f.last_contact.value },
+    contacts: rows.map(r => ({ name: r.name.value.trim(), email: r.email.value.trim(), role: r.role.value.trim() })).filter(c => c.name || c.email),
+  });
+  const check = () => {
+    const v = read(), badName = !v.fields.name, badSite = !!v.fields.website && !https(v.fields.website);
+    nameBox.classList.toggle("bad", badName); siteBox.classList.toggle("bad", badSite);
+    const badMail = rows.find(r => r.email.value.trim() && !validEmail(r.email.value.trim()));
+    rows.forEach(r => r.email.classList.toggle("bad", r === badMail));
+    const first = badName ? f.name : badSite ? f.website : badMail?.email;
+    if (first) { first.focus(); return null; }
+    return v;
+  };
+  return { el, check };
+}
+
+function dealForm(d, sid) {
+  const f = {
+    sponsor_id: pickIn(sponsorOptions(), d?.sponsor_id || sid), type: pickIn(Object.entries(TYPE), d ? d.type : "newsletter"),
+    status: pickIn(Object.entries(DEAL_STATUS), d ? d.status : "agreed"), placement: textIn(d?.placement), slot: slotSelect(d?.slot || "", null),
+    amount: moneyIn(d?.amount_cents), start_date: textIn(d?.start_date, "date"), end_date: textIn(d?.end_date, "date"), description: areaIn(d?.description),
+  };
+  for (const [k] of FLAGS) f[k] = pickIn(FLAG3, flagIn(d?.[k]));
+  const el = h("div", { class: "spo-fields" }, box("Sponsor", f.sponsor_id),
+    h("div", { class: "spo-two" }, box("Type", f.type), box("Status", f.status)),
+    box("Placement", f.placement), box("Slot", f.slot),
+    h("div", { class: "spo-three" }, box("Amount", f.amount), box("Starts", f.start_date), box("Ends", f.end_date)),
+    h("div", { class: "spo-three" }, FLAGS.map(([k, label]) => box(label, f[k]))),
+    box("Description", f.description));
+  const check = () => {
+    const a = f.amount.firstChild.value.trim(), cents = a === "" ? null : Math.round(parseFloat(a) * 100);
+    return { sponsor_id: f.sponsor_id.value, type: f.type.value, status: f.status.value, placement: f.placement.value.trim(), slot: f.slot.value,
+      amount_cents: Number.isFinite(cents) && cents >= 0 ? cents : null, start_date: f.start_date.value, end_date: f.end_date.value,
+      agreement_signed: flagOut(f.agreement_signed.value), invoiced: flagOut(f.invoiced.value), paid: flagOut(f.paid.value), description: f.description.value.trim() };
+  };
+  return { el, check };
+}
+
+function runForm(p, sid) {
+  const f = {
+    sponsor_id: pickIn(sponsorOptions(), p?.sponsor_id || sid), date: textIn(p?.date, "date"), channel: pickIn(Object.entries(CHANNEL).map(([k, [l]]) => [k, l]), p?.channel || "weekly_digest"),
+    slot: slotSelect(p?.slot || "", null), issue: textIn(p?.issue), url: textIn(p?.url, "url", { placeholder: "https://", spellcheck: "false" }),
+    clicks: countIn(p?.clicks, "Clicks"), unique_clicks: countIn(p?.unique_clicks, "Unique clicks"), recipients: countIn(p?.recipients, "Recipients"), opens: countIn(p?.opens, "Opens"),
+    kit_broadcast_id: countIn(p?.kit_broadcast_id, "Kit broadcast"),
+  };
+  const dealBox = h("span", { class: "spo-dealpick" });
+  const fillDeals = keepId => {
+    const mine = (H?.dealsOf.get(f.sponsor_id.value) || []).map(d => [d.id, d.placement || (d.slot ? slotName(d.slot) : TYPE[d.type] || d.id) + (d.start_date ? `, ${dayText(d.start_date)}` : "")]);
+    f.deal_id = pickIn([["", "No deal"], ...mine], keepId || "", { "aria-label": "Deal" });
+    dealBox.replaceChildren(f.deal_id);
+  };
+  fillDeals(p?.deal_id);
+  f.sponsor_id.addEventListener("change", () => fillDeals(""));
+  const dateBox = box("Date", f.date), urlBox = box("Link", f.url);
+  const el = h("div", { class: "spo-fields" }, box("Sponsor", f.sponsor_id), h("label", { class: "spo-field" }, h("span", { class: "lbl" }, "Deal"), dealBox),
+    h("div", { class: "spo-two" }, dateBox, box("Channel", f.channel)), box("Slot", f.slot), box("Issue or episode", f.issue), urlBox,
+    h("div", { class: "spo-two" }, box("Clicks", f.clicks), box("Unique clicks", f.unique_clicks)),
+    h("div", { class: "spo-two" }, box("Recipients", f.recipients), box("Opens", f.opens)), box("Kit broadcast", f.kit_broadcast_id));
+  const check = () => {
+    const v = { sponsor_id: f.sponsor_id.value, deal_id: f.deal_id.value, date: f.date.value, channel: f.channel.value, slot: f.slot.value, issue: f.issue.value.trim(),
+      kit_broadcast_id: wholeOr(f.kit_broadcast_id.value), url: f.url.value.trim(), clicks: wholeOr(f.clicks.value), unique_clicks: wholeOr(f.unique_clicks.value),
+      recipients: wholeOr(f.recipients.value), opens: wholeOr(f.opens.value) };
+    const badDate = !isDay(v.date), badUrl = !!v.url && !https(v.url);
+    dateBox.classList.toggle("bad", badDate); urlBox.classList.toggle("bad", badUrl);
+    if (badDate) { f.date.focus(); return null; }
+    if (badUrl) { f.url.focus(); return null; }
+    return v;
+  };
+  return { el, check };
+}
+
+// What differs from the history: the keys whose value is not what the rebuild says (empty is stored as null)
+function changedFrom(base, v, keys) {
+  const out = {};
+  for (const k of keys) {
+    const a = base ? base[k] ?? null : null, b = v[k] === "" ? null : v[k] ?? null;
+    if ((a === "" ? null : a) !== b) out[k] = b;
+  }
+  return out;
+}
+const plain = list => JSON.stringify((list || []).map(c => [c.name || "", c.email || "", c.role || ""]));
+
+function editor(onAdded) {
+  const scrim = h("div", { class: "spo-scrim", onclick: () => close() });
+  const el = h("aside", { class: "spo-drawer", role: "dialog", "aria-modal": "true", "aria-label": "Edit", tabindex: "-1" });
+  let cur = null, shown = false, opener = null, busy = false, asking = false;
+  function show(c, from) {
+    cur = c; busy = false; asking = false;
+    opener = from || document.activeElement;
+    shown = true;
+    if (!el.isConnected) document.body.append(scrim, el);
+    if (T.status() === "connected") loadCatalog();
+    paint();
+    requestAnimationFrame(() => { scrim.classList.add("on"); el.classList.add("on"); el.focus({ preventScroll: true }); });
+  }
+  function close() {
+    if (!shown) return;
+    shown = false; cur = null;
+    el.classList.remove("on"); scrim.classList.remove("on");
+    setTimeout(() => { if (!el.classList.contains("on")) { el.remove(); scrim.remove(); } }, calm ? 0 : 340);
+    if (opener?.isConnected) opener.focus({ preventScroll: true });
+  }
+  // The row being edited and where its correction lives
+  const find = (kind, id) => {
+    const key = kind === "deal" ? "deals" : "placements";
+    const row = H?.[key].find(x => x.id === id), hid = H?.hidden[key].find(x => x.id === id);
+    return row || hid ? { row: row || hid, hidden: !row, key } : null;
+  };
+  function sponsor(id, from) { const s = id && H?.byId.get(id); show({ kind: "sponsor", id: s ? id : null, form: sponsorForm(s || null) }, from); }
+  function deal(id, sid, from) { const f = id && find("deal", id); show({ kind: "deal", id: f ? id : null, sid, form: dealForm(f?.row || null, sid) }, from); }
+  function run(id, sid, from) { const f = id && find("run", id); show({ kind: "run", id: f ? id : null, sid, form: runForm(f?.row || null, sid) }, from); }
+
+  function paint() {
+    if (!shown || !cur) return;
+    const c = cur, found = c.id && c.kind !== "sponsor" ? find(c.kind, c.id) : null, s = c.kind === "sponsor" && c.id ? H?.byId.get(c.id) : null;
+    const title = c.kind === "sponsor" ? (s ? s.name : "New sponsor") : c.kind === "deal" ? (c.id ? "Edit deal" : "Add deal") : (c.id ? "Edit placement" : "Add placement");
+    const ed = s?.ed || found?.row.ed || null;
+    const added = c.kind === "sponsor" ? s?.ed?.how === "added" : found?.row.ed?.how === "added";
+    const label = c.id ? "Save changes" : c.kind === "sponsor" ? "Add sponsor" : c.kind === "deal" ? "Add deal" : "Add placement";
+    let foot = null;
+    if (c.id && added) foot = asking ? [h("span", {}, "Remove for good?"), h("button", { type: "button", class: "btn spo-danger", onclick: () => drop() }, "Remove"),
+      h("button", { type: "button", class: "plain spo-keep", onclick: () => { asking = false; paint(); } }, "Keep")]
+      : h("button", { type: "button", class: "plain spo-keep", onclick: () => { asking = true; paint(); } }, c.kind === "sponsor" ? "Remove sponsor" : c.kind === "deal" ? "Remove deal" : "Remove placement");
+    else if (found) foot = h("button", { type: "button", class: "btn quiet", onclick: () => hide(!found.hidden) }, found.hidden ? "Restore" : c.kind === "deal" ? "Hide deal" : "Hide placement");
+    put(el, h("button", { type: "button", class: "x spo-x", "aria-label": "Close", onclick: () => close() }, icon("x")),
+      h("div", { class: "spo-dhead" }, h("h2", {}, title), ed ? h("div", { class: "spo-dmeta" }, edMark(ed)) : null),
+      h("form", { class: "spo-newform", novalidate: true, onsubmit: e => { e.preventDefault(); submit(); } }, c.form.el,
+        h("div", { class: "spo-decide" }, h("button", { type: "submit", class: "btn solid", disabled: busy }, busy ? "Saving" : label),
+          h("button", { type: "button", class: "btn quiet", onclick: () => close() }, "Cancel"))),
+      foot ? h("div", { class: "spo-remove" }, foot) : null);
+  }
+  async function submit() {
+    const c = cur, v = c.form.check();
+    if (!v || busy) return;
+    busy = true; paint();
+    let ok = false;
+    if (c.kind === "sponsor") ok = await saveSponsor(c, v);
+    else ok = await saveRow(c, v);
+    busy = false;
+    if (cur !== c) return;
+    if (ok) close(); else paint();
+  }
+  async function saveSponsor(c, v) {
+    if (!c.id) {
+      const id = freshId(kebab(v.fields.name));
+      const fields = Object.fromEntries(SP_FIELDS.map(k => [k, v.fields[k] || null]));
+      const ok = await keep(id, { new: true, fields, contacts: v.contacts }, "Sponsor added");
+      if (ok && onAdded) setTimeout(() => onAdded(id));
+      return ok;
+    }
+    const base = H0?.byId.get(c.id), e = copyOf(c.id);
+    if (base && !e.new) {
+      e.fields = changedFrom(base, v.fields, SP_FIELDS);
+      if (plain(v.contacts) === plain(base.contacts)) delete e.contacts; else e.contacts = v.contacts;
+    } else { e.fields = Object.fromEntries(SP_FIELDS.map(k => [k, v.fields[k] || null])); e.contacts = v.contacts; }
+    return keep(c.id, e, "Saved");
+  }
+  async function saveRow(c, v) {
+    const key = c.kind === "deal" ? "deals" : "placements", keys = c.kind === "deal" ? DEAL_FIELDS : RUN_FIELDS;
+    if (!c.id) {
+      const home = v.sponsor_id, e = copyOf(home);
+      e.added = { deals: objs(obj(e.added).deals), placements: objs(obj(e.added).placements) };
+      e.added[key].push({ id: rowId(home), ...Object.fromEntries(keys.map(k => [k, v[k] === "" ? null : v[k]])) });
+      return keep(home, e, c.kind === "deal" ? "Deal added" : "Placement added");
+    }
+    const found = find(c.kind, c.id);
+    if (!found) return false;
+    const home = found.row.home, e = copyOf(home);
+    if (found.row.ed?.how === "added") {
+      e.added = { deals: objs(obj(e.added).deals), placements: objs(obj(e.added).placements) };
+      e.added[key] = e.added[key].map(x => x.id === c.id ? { id: c.id, ...Object.fromEntries(keys.map(k => [k, v[k] === "" ? null : v[k]])) } : x);
+      return keep(home, e, "Saved");
+    }
+    const base = H0?.[key].find(x => x.id === c.id) || H0?.hidden[key].find(x => x.id === c.id) || null;
+    const was = obj(obj(e[key])[c.id]);
+    e[key] = { ...obj(e[key]), [c.id]: { ...changedFrom(base, v, keys), ...(was.hidden ? { hidden: true } : {}) } };
+    return keep(home, e, "Saved");
+  }
+  async function hide(on) {
+    const c = cur, found = find(c.kind, c.id);
+    if (!found) return;
+    const home = found.row.home, e = copyOf(home), was = obj(obj(e[found.key])[c.id]);
+    const next = { ...was };
+    if (on) next.hidden = true; else delete next.hidden;
+    e[found.key] = { ...obj(e[found.key]), [c.id]: next };
+    if (await keep(home, e, on ? "Hidden" : "Restored")) close();
+  }
+  async function drop() {
+    const c = cur;
+    if (c.kind === "sponsor") { if (await keep(c.id, null, "Removed")) close(); return; }
+    const found = find(c.kind, c.id);
+    if (!found) return;
+    const home = found.row.home, e = copyOf(home);
+    e.added = { deals: objs(obj(e.added).deals), placements: objs(obj(e.added).placements) };
+    e.added[found.key] = e.added[found.key].filter(x => x.id !== c.id);
+    if (await keep(home, e, "Removed")) close();
+  }
+  const onKey = e => { if (e.key === "Escape" && shown) { e.preventDefault(); close(); } };
+  addEventListener("keydown", onKey);
+  return { sponsor, deal, run, close, paint, restore: async (kind, id) => { const f = find(kind, id); if (!f) return; cur = { kind, id }; await hide(false); },
+    leave() { close(); removeEventListener("keydown", onKey); el.remove(); scrim.remove(); } };
+}
+
 // ---------------------------------------------------------------- Sponsors: the directory, and each sponsor's profile
 function directoryView() {
-  const el = h("div", { class: "view spo" }), dr = panel();
+  const el = h("div", { class: "view spo" }), dr = panel(), ed = editor(id => open(id));
   let sel = want || history.state?.sponsor || null, pushed = false;
   if (want) { try { history.replaceState({ sponsor: want }, "", "#sponsors"); } catch { /* a sandbox without history */ } }
   want = null;
@@ -642,10 +1043,10 @@ function directoryView() {
   addEventListener("popstate", onPop);
 
   function paint() {
-    const sig = [histV, S.version, sel].join("|"), bsig = [B.v, T.status(), tReady].join("|");
+    const sig = [histV, S.version, sel, canEdit()].join("|"), bsig = [B.v, T.status(), tReady].join("|");
     if (sig === shown) {
       if (bsig !== lastBoard) { lastBoard = bsig; fillBoard(); }
-      return dr.paint();
+      dr.paint(); return ed.paint();
     }
     shown = sig; lastBoard = bsig;
     if (hist === undefined) return put(el, waiting(head("Sponsors"), skelTiles(5), h("div", { class: "skel spo-skel-table" })));
@@ -663,7 +1064,7 @@ function directoryView() {
     const card = h("section", { class: "card s12 rise spo-tcard", style: "--i:5" },
       h("div", { class: "card-head" }, h("h2", {}, "All sponsors"), h("div", { class: "spo-find" }, pickBox, search)), tableBox);
     paintTable();
-    put(el, head("Sponsors"),
+    put(el, head("Sponsors", null, canEdit() ? h("button", { type: "button", class: "btn quiet", onclick: e => ed.sponsor(null, e.currentTarget) }, icon("spo-plus"), "Add sponsor") : null),
       h("div", { class: "tiles" },
         tile("Active sponsors", active, fmt, H.sponsors.length, 0),
         tile("Lifetime sponsor revenue", all.revenue, money, null, 1),
@@ -681,7 +1082,7 @@ function directoryView() {
       .sort((a, b) => (STATUS_RANK[a.status] ?? 9) - (STATUS_RANK[b.status] ?? 9) || H.totals[b.id].revenue - H.totals[a.id].revenue || a.name.localeCompare(b.name));
     put(tableBox, list.length ? table("spo-dir", ["Sponsor", "Kind", "Status", "Revenue", "Placements", "Clicks", "First run", "Last run", "Last contact"],
       list.map(s => { const t = H.totals[s.id]; return [[
-        h("button", { type: "button", class: "plain spo-name" }, s.name), KIND[s.kind] || cap(s.kind), stateTag(s.status),
+        h("span", { class: "spo-namecell" }, h("button", { type: "button", class: "plain spo-name" }, s.name), edMark(s.ed)), KIND[s.kind] || cap(s.kind), stateTag(s.status),
         t.revenue ? money(t.revenue) : "", fmt(t.placements), H.runsOf.get(s.id).some(p => p.clicks != null) ? fmt(t.clicks) : "", dayText(t.first_run), dayText(t.last_run), dayText(s.last)], () => open(s.id)]; }),
       { cols: "minmax(120px, 1fr) 78px 80px 80px 78px 58px 86px 86px 90px", mcols: "minmax(0, 1fr) 80px 80px 78px 58px 86px",
         pcols: "minmax(0, 1fr) 80px 76px", ph: [0, 3, 7], mh: [1, 6, 8], left: [0, 1, 2] })
@@ -693,42 +1094,68 @@ function directoryView() {
     const rated = runs.filter(p => p.clicks != null && p.recipients), rate = rated.length ? sum(rated, "clicks") / sum(rated, "recipients") : null;
     const site = https(s.website);
     boardSlot = h("section", { class: "card rise spo-onboard", style: "--i:7" });
+    const can = canEdit(), fixed = s.ed && (s.ed.how === "added" || s.ed.fields.length) ? s.ed : null;
     put(el,
       h("div", { class: "spo-top rise" },
-        h("button", { type: "button", class: "back plain spo-back", onclick: back }, icon("back"), "Sponsors"),
+        h("div", { class: "spo-topbar" }, h("button", { type: "button", class: "back plain spo-back", onclick: back }, icon("back"), "Sponsors"),
+          can ? h("button", { type: "button", class: "btn quiet spo-editbtn", onclick: e => ed.sponsor(s.id, e.currentTarget) }, icon("spo-edit"), "Edit") : null),
         h("div", { class: "spo-title" },
           h("span", { class: "spo-mono", style: `--c:${hueOf(s.id)}`, "aria-hidden": "true" }, initials(s.name)),
           h("div", { class: "spo-who" }, h("h1", {}, s.name),
             h("div", { class: "spo-meta" }, stateTag(s.status), KIND[s.kind] || s.kind ? h("span", {}, KIND[s.kind] || cap(s.kind)) : null,
               site ? h("a", { class: "spo-site", href: site, target: "_blank", rel: "noopener noreferrer" }, icon("out"), h("span", {}, hostOf(site))) : s.website ? h("span", {}, s.website) : null,
-              s.first_contact ? h("span", {}, "Since " + asDate(s.first_contact).toLocaleDateString("en-US", { month: "short", year: "numeric" })) : null)))),
+              s.first_contact ? h("span", {}, "Since " + asDate(s.first_contact).toLocaleDateString("en-US", { month: "short", year: "numeric" })) : null, edMark(fixed))))),
       s.summary ? h("p", { class: "spo-summary rise", style: "--i:1" }, s.summary) : null,
       h("div", { class: "tiles" },
         tile("Revenue", t.revenue, money, all.revenue, 1), tile("Placements", t.placements, fmt, all.placements, 2), tile("Clicks", t.clicks, fmt, all.clicks, 3),
         rate != null ? tile("Click rate", rate, rateText, null, 4) : null),
-      runsCard(runs),
+      runsCard(runs, s),
       h("div", { class: "two" },
         h("div", { class: "stack" }, timelineCard(deals, runs, touch)),
-        h("div", { class: "stack" }, aboutCard(s, t), boardSlot)));
+        h("div", { class: "stack" }, aboutCard(s, t), dealsCard(s, deals), boardSlot, hiddenCard(s))));
     fillBoard();
   }
-  function runsCard(runs) {
-    const sec = h("section", { class: "card rise", style: "--i:6" });
+  // The history's deals for this sponsor, each one open to correct
+  function dealsCard(s, deals) {
+    const can = canEdit(), rows = [...deals].sort((a, b) => (b.start_date || b.end_date).localeCompare(a.start_date || a.end_date));
+    return h("section", { class: "card rise spo-hdeals", style: "--i:7" }, h("h2", {}, "Deals"),
+      rows.length ? h("div", { class: "spo-mini" }, rows.map(d => h(can ? "button" : "div", { type: can ? "button" : null, class: "spo-mini-row", onclick: can ? e => ed.deal(d.id, s.id, e.currentTarget) : null },
+        h("span", { class: "spo-mini-name" }, d.placement || (d.slot ? slotName(d.slot) : TYPE[d.type] || "Deal")), h("span", { class: "spo-amt" }, d.amount_cents != null ? money(d.amount_cents / 100) : ""),
+        h("span", { class: "spo-mini-sub" }, stageTag(d.status), range(d.start_date, d.end_date) ? h("span", {}, range(d.start_date, d.end_date)) : null, marks(d), edMark(d.ed)))))
+        : h("div", { class: "lbl" }, "None yet"),
+      can ? h("button", { type: "button", class: "btn quiet spo-add", onclick: e => ed.deal(null, s.id, e.currentTarget) }, icon("spo-plus"), "Add deal") : null);
+  }
+  // Rows taken out of the history, to put back
+  function hiddenCard(s) {
+    if (!canEdit()) return null;
+    const rows = [...H.hidden.deals.filter(d => d.sponsor_id === s.id).map(d => ["deal", d.id, d.placement || (d.slot ? slotName(d.slot) : TYPE[d.type] || "Deal"), "Deal", range(d.start_date, d.end_date)]),
+      ...H.hidden.placements.filter(p => p.sponsor_id === s.id).map(p => ["run", p.id, p.issue || CHANNEL[p.channel][0], "Placement", dayText(p.date)])];
+    if (!rows.length) return null;
+    return h("section", { class: "card rise", style: "--i:8" }, h("h2", {}, "Hidden"),
+      h("div", { class: "spo-mini" }, rows.map(([kind, id, name, what, day]) => h("div", { class: "spo-hid" },
+        h("span", { class: "spo-mini-name" }, name), h("button", { type: "button", class: "btn quiet", onclick: () => ed.restore(kind, id) }, "Restore"),
+        h("span", { class: "spo-mini-sub" }, h("span", {}, what), day ? h("span", {}, day) : null)))));
+  }
+  function runsCard(runs, s) {
+    const sec = h("section", { class: "card rise", style: "--i:6" }), can = canEdit();
+    const addBtn = () => can ? h("button", { type: "button", class: "btn quiet spo-add", onclick: e => ed.run(null, s.id, e.currentTarget) }, icon("spo-plus"), "Add placement") : null;
     const paintRuns = () => {
-      if (!runs.length) return put(sec, h("h2", {}, "Placements"), h("div", { class: "lbl" }, "None yet"));
+      if (!runs.length) return put(sec, h("h2", {}, "Placements"), h("div", { class: "lbl" }, "None yet"), addBtn());
       const last = runs.filter(p => p.clicks != null).slice(-24), chans = [...new Set(last.map(p => p.channel))], latest = [...runs].reverse();
       put(sec, h("h2", {}, "Placements"),
         last.length > 1 ? columns(last.map(p => [[p.clicks || 0, CHANNEL[p.channel][1]]]), last.map(p => asDate(p.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })),
           "Clicks by placement", fmt, { every: Math.max(1, Math.ceil(last.length / (phone() ? 4 : 8))), tipLabels: last.map(p => `${longDay(p.date)}, ${p.issue || CHANNEL[p.channel][0]}`) }) : null,
         chans.length > 1 ? legend(chans.map(c => CHANNEL[c])) : null,
         h("div", { class: "spo-gap" }),
-        table("spo-runs", ["Date", "Issue", "Slot", "Clicks", "Recipients", "Click rate"], latest.slice(0, runMax).map(p => {
-          const link = https(p.url);
-          return [[dayText(p.date), link ? h("a", { href: link, target: "_blank", rel: "noopener noreferrer" }, p.issue || CHANNEL[p.channel][0]) : p.issue || CHANNEL[p.channel][0],
+        table("spo-runs", ["Date", "Issue", "Slot", "Clicks", "Recipients", "Click rate", ...(can ? [""] : [])], latest.slice(0, runMax).map(p => {
+          const link = https(p.url), name = p.issue || CHANNEL[p.channel][0];
+          return [[dayText(p.date), h("span", { class: "spo-namecell" }, link ? h("a", { href: link, target: "_blank", rel: "noopener noreferrer" }, name) : name, edMark(p.ed)),
             p.slot ? slotName(p.slot, true) : CHANNEL[p.channel][0], p.clicks != null ? fmt(p.clicks) : "", p.recipients != null ? fmt(p.recipients) : "",
-            p.clicks != null && p.recipients ? rateText(p.clicks / p.recipients) : ""]];
-        }), { cols: "96px minmax(0, 1.3fr) minmax(0, 1fr) 70px 96px 84px", pcols: "minmax(0, 1fr) 58px 64px", ph: [1, 3, 5], left: [0, 1, 2] }),
-        latest.length > runMax ? h("button", { type: "button", class: "btn quiet spo-more-btn", onclick: () => { runMax += 25; paintRuns(); } }, `Show more (${fmt(latest.length - runMax)})`) : null);
+            p.clicks != null && p.recipients ? rateText(p.clicks / p.recipients) : "",
+            ...(can ? [h("button", { type: "button", class: "x spo-edit", "aria-label": `Edit ${name}, ${longDay(p.date)}`, onclick: e => ed.run(p.id, s.id, e.currentTarget) }, icon("spo-edit"))] : [])]];
+        }), can ? { cols: "96px minmax(0, 1.3fr) minmax(0, 1fr) 70px 96px 84px 40px", pcols: "minmax(0, 1fr) 58px 64px 44px", ph: [1, 3, 5, 6], left: [0, 1, 2] }
+          : { cols: "96px minmax(0, 1.3fr) minmax(0, 1fr) 70px 96px 84px", pcols: "minmax(0, 1fr) 58px 64px", ph: [1, 3, 5], left: [0, 1, 2] }),
+        h("div", { class: "spo-foot" }, latest.length > runMax ? h("button", { type: "button", class: "btn quiet", onclick: () => { runMax += 25; paintRuns(); } }, `Show more (${fmt(latest.length - runMax)})`) : null, addBtn()));
     };
     paintRuns();
     return sec;
@@ -768,7 +1195,7 @@ function directoryView() {
     return sec;
   }
   function aboutCard(s, t) {
-    return h("section", { class: "card rise", style: "--i:6" }, h("h2", {}, "Contacts"),
+    return h("section", { class: "card rise", style: "--i:6" }, h("div", { class: "spo-sec-head" }, h("h2", {}, "Contacts"), s.ed?.contacts && s.ed.how === "edited" ? edMark(s.ed) : null),
       s.contacts.length ? h("div", { class: "spo-contacts" }, s.contacts.map(c => h("div", { class: "spo-contact" },
         h("span", { class: "spo-cname" }, c.name || c.email), c.role ? h("span", { class: "lbl" }, c.role) : null, c.email && c.name ? mail(c.email, c.pid) : null)))
         : h("div", { class: "lbl" }, "None on file"),
@@ -805,7 +1232,7 @@ function directoryView() {
   const off = T.onChange(st => { if (st === "connected" && sel) load(); paint(); });
   T.ready.then(() => { if (sel && T.status() === "connected") load(); paint(); });
   paint();
-  return { el, update() { paint(); }, leave() { B.subs.delete(paint); off(); dr.leave(); removeEventListener("popstate", onPop); } };
+  return { el, update() { paint(); }, leave() { B.subs.delete(paint); off(); dr.leave(); ed.leave(); removeEventListener("popstate", onPop); } };
 }
 
 // ---------------------------------------------------------------- Deals: the board, by stage
@@ -1336,6 +1763,25 @@ body.spo-dragging, body.spo-dragging * { cursor: grabbing !important; user-selec
 .btn.spo-danger { border-color: var(--alert); color: var(--alert) }
 .btn.spo-danger:hover { background: var(--alert); color: var(--on-accent) }
 
+/* corrections */
+.spo-topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px }
+.spo-ed { font-size: 13px; color: var(--muted); text-decoration: underline dotted color-mix(in srgb, var(--muted) 60%, transparent); text-underline-offset: 3px; cursor: default; white-space: nowrap }
+.spo-namecell { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0 }
+.spo-hdeals, .spo-runs-card { display: grid; align-content: start }
+.spo-add { justify-self: start; margin-top: 16px }
+.spo-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px }
+.spo-foot .spo-add { margin-top: 0 }
+.spo-foot:empty { display: none }
+.spo-edit { width: 36px; height: 36px; justify-self: end } .spo-edit svg { width: 17px; height: 17px }
+.spo-runs .trow > :last-child:has(> .spo-edit) { display: flex; justify-content: flex-end }
+.spo-hid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--rule) }
+.spo-hid:first-child { border-top: 0; padding-top: 0 }
+.spo-cts { display: grid; gap: 10px }
+.spo-ct { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, .9fr) 36px; gap: 8px; align-items: center }
+.spo-addct { justify-self: start }
+.spo-dealpick { display: block } .spo-dealpick select { width: 100% }
+.spo-drawer input.bad, .spo-field.bad input, .spo-field.bad select { border-color: var(--alert) }
+
 @media (max-width: 1100px) and (min-width: 761px) { .spo-sched { --lw: 150px; --lg: 12px } }
 /* Phones: one column, single menus, 44px targets */
 @media (max-width: 760px) {
@@ -1387,5 +1833,10 @@ body.spo-dragging, body.spo-dragging * { cursor: grabbing !important; user-selec
   .spo-asset { grid-template-columns: 18px minmax(0, 1fr) 44px } .spo-asset > :nth-child(3) { grid-column: 2; grid-row: 2 } .spo-asset .x { grid-row: 1 / 3; grid-column: 3 }
   .spo-asset-add { grid-template-columns: minmax(0, 1fr) } .spo-asset-add .btn { min-height: 46px }
   .spo-keep { min-height: 44px }
+  .spo-add, .spo-foot .btn, .spo-editbtn, .spo-addct, .spo-hid .btn { min-height: 44px }
+  .spo-edit { width: 44px; height: 44px }
+  .spo-ct { grid-template-columns: minmax(0, 1fr) 44px; padding-bottom: 10px; border-bottom: 1px solid var(--rule) }
+  .spo-ct > input { grid-column: 1 } .spo-ct > .x { grid-column: 2; grid-row: 1 / 4; width: 44px; height: 44px }
+  .spo-drawer input[type="date"], .spo-drawer input[type="text"], .spo-drawer select { min-height: 46px; font-size: 16px }
 }
 `));
