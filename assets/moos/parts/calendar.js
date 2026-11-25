@@ -145,4 +145,4 @@ function calendar() {
   const sig = () => [plans.map(p => p.id + p.at + p.title).join(), Object.keys(S.metaDocs || {}).filter(id => id.startsWith("calendar-")).map(id => (S.metaDocs[id].rows || []).length).join(","), S.canWrite].join("|");
   return { el, update() { if (sig() !== shown) paint(); } };
 }
-addView("calendar", "Calendar", calendar, { after: "journal", icon: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>' });
+addView("calendar", "Calendar", calendar, { group: "work", icon: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>' });

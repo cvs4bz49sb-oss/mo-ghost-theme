@@ -1258,7 +1258,7 @@ function can(perm) {
   if (g.admin || g[perm]) return true;
   return legacy(g) && !LOCKED.includes(perm);
 }
-const VIEW_PERM = { home: "contacts", analytics: "analytics", calendar: "calendar", tasks: "projects", projects: "projects", journal: "journal" };
+const VIEW_PERM = { home: "contacts", analytics: "analytics", calendar: "calendar", tasks: "projects", projects: "projects", agenda: "projects", journal: "journal" };
 const GROUP_PERM = { people: "contacts", finances: "finances", tools: "tools", editorial: "editorial" };
 function viewAllowed(id) {
   if (id === "access") return S.owner;
@@ -1383,19 +1383,20 @@ function skeleton() {
 // ---------------------------------------------------------------- shell
 const VIEWS = { home, people, lists, journal, tasks, review, access };
 // [id, label, group]. Every view the palette can find; the rail draws them in ORDER below.
-const NAV = [["home", "Overview"], ["people", "Contacts", "people"], ["lists", "Lists", "people"], ["review", "Review", "people"], ["journal", "Journal"], ["tasks", "Tasks"], ["access", "Access"]];
+const NAV = [["home", "Overview"], ["people", "Contacts", "people"], ["lists", "Lists", "people"], ["review", "Review", "people"], ["journal", "Journal"], ["tasks", "Projects", "work"], ["access", "Access"]];
 // The rail, top to bottom, whichever module loads first. "group:x" places a group. A view not named here
 // follows the view in its after, or comes last; inside a group the same goes for GROUP_ORDER.
-const ORDER = ["home", "group:people", "analytics", "calendar", "tasks", "group:tools", "journal", "group:finances"];
-const GROUP_ORDER = { people: ["people", "audience", "lists", "review"], finances: ["finances", "migration"], tools: ["email-builder", "social", "liturgy", "auto-responders", "slide-ins", "site-settings"] };
+const ORDER = ["home", "group:people", "group:work", "analytics", "group:editorial", "group:tools", "journal", "group:finances"];
+const GROUP_ORDER = { people: ["people", "audience", "lists", "review"], work: ["calendar", "tasks", "agenda"], finances: ["finances", "migration"], tools: ["email-builder", "social", "liturgy", "auto-responders", "slide-ins", "site-settings"] };
 const FOOT = new Set(["access"]);  // Access sits in the rail's foot, beside the theme and collapse switches
 const AFTER = {};
 // Modules hook in: connect runs once the store is reachable, chrome on every redraw of the rail,
 // person(p, activity, giving) on every paint of a profile and returns cards to add to its right column.
 const hooks = { connect: [], chrome: [], person: [] };
 // Groups fold several views under one heading in the rail ("People", "Tools"); each opens like a drawer
-const GROUPS = new Map([["people", { label: "People", after: "home" }], ["tools", { label: "Tools", after: "tasks" }]]);
+const GROUPS = new Map([["people", { label: "People", after: "home" }], ["work", { label: "Work", after: "people" }], ["tools", { label: "Tools", after: "analytics" }]]);
 ICONS["group-people"] = ICONS.people;
+ICONS["group-work"] = '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/><path d="M3 12.5h18"/>';
 function addGroup(id, label, { icon: markup, after = null } = {}) {
   GROUPS.set(id, { label, after });
   if (markup) ICONS["group-" + id] = markup;
@@ -1553,11 +1554,12 @@ function closeMenu() {
   $("#tabbar [data-menu]")?.setAttribute("aria-expanded", "false");
   if (within) $("#tabbar [data-menu]")?.focus({ preventScroll: true });
 }
-const TABS = [["home", "Overview"], ["people", "People"], ["tasks", null]];
+// [view, label, group it stands for, icon]
+const TABS = [["home", "Overview"], ["people", "People", "people"], ["tasks", "Work", "work", "group-work"]];
 function paintTabbar(here, counts) {
-  // People covers its whole group: Contacts, Audience, Lists and every profile
-  const on = id => here === id || (id === "people" && NAV.some(n => n[2] === "people" && n[0] === here));
-  const tab = ([id, label]) => h("a", { href: "#" + id, "aria-current": on(id) ? "page" : null }, icon(id), h("span", { class: "t" }, label || labelOf(id)), counts[id] ? h("span", { class: "n" }, fmt(counts[id])) : null);
+  // People covers its whole group (Contacts, Audience, Lists and every profile), Work its own (Calendar, Projects, Agenda)
+  const on = id => { const g = TABS.find(t => t[0] === id)?.[2]; return here === id || (!!g && NAV.some(n => n[2] === g && n[0] === here)); };
+  const tab = ([id, label, , ic]) => h("a", { href: "#" + id, "aria-current": on(id) ? "page" : null }, icon(ic || id), h("span", { class: "t" }, label || labelOf(id)), counts[id] ? h("span", { class: "n" }, fmt(counts[id])) : null);
   put($("#tabbar"), TABS.map(tab),
     h("button", { type: "button", onclick: () => openPalette() }, icon("search"), h("span", { class: "t" }, "Search")),
     h("button", { type: "button", "data-menu": "", "aria-controls": "rail", "aria-expanded": String(app.classList.contains("menu-open")), class: TABS.some(([id]) => on(id)) ? null : "here", onclick: openMenu },
@@ -1751,7 +1753,7 @@ window.MOOS = {
   S, F, $, h, svg, icon, ICONS, put, fmt, money, pad, localDay, asDate, dateLabel, ago, DAY, fold, foldSame, marked, calm, fresh, later,
   num, fill, meter, toast, copy, ROLES, ROLE, RANK, has, planOf, avatar, teamAvatar, badge, badges, chipset, facts, section, ring, bars,
   columns, niceTop, lineChart, peakGrid, peakCard, mapCard, DAYS, hourShort, hourLong, giftOf, actOf, exportCSV, saveWorkbook, save, listen,
-  names, nameOf, teamIds, showPeople, go, refresh, remount, skeleton, use, addView, addGroup, hooks, can,
+  names, nameOf, teamIds, showPeople, go, refresh, remount, skeleton, use, addView, addGroup, hooks, can, ISSUES,
   get db() { return db; }, get user() { return user; }, get desktop() { return desktop; },
 };
 addEventListener("hashchange", route);
