@@ -71,7 +71,7 @@ const STYLE = `
 @media (prefers-reduced-motion: reduce) { .ask.in { animation: none } .ask-think i { animation: none } }`;
 if (!document.getElementById("ask-style")) document.body.append(h("style", { id: "ask-style" }, STYLE));
 
-const ICON_ASK = '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 3 13.5"/><path d="M8 8.5h8M8 12h5"/>';
+const ICON_ASK = '<path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-3.5 3.5V16A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M8 8.5h8M8 12h5"/>';
 const ICON_X = '<path d="M6 6l12 12M18 6L6 18"/>';
 const ICON_NEW = '<path d="M12 5v14M5 12h14"/>';
 function glyph(markup) {
