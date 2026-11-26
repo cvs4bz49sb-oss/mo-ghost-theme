@@ -171,6 +171,28 @@ const actOf = p => S.activity && p.ids.map(id => S.activity[id]).find(Boolean);
 // Engagement (moos_part_engagement.py): [score, essays, days since read, liturgy days/30, longest streak,
 // Faith Received days/30, Faith Received days, email clicks, saves and plays, sign-ins/90, days since active, topic]
 const engOf = p => actOf(p)?.eng?.[0] ?? -1;
+// What each person uses most (moos_part_types.py): tk = [Daily Liturgy days on the site, Daily Liturgy emails opened,
+// Daily Liturgy emails clicked, other emails opened, other emails clicked, Mere Fidelity link clicks, Mere Fidelity
+// episode pages read, the same two for Christians Reading Classics, the same two for Passages]. No podcast app says who
+// listens, so a "listener" here is someone who clicked a show's links in our emails or read its episode pages.
+// TOP[sort] = [name in the Sort menu, key (sorted largest first, then by name), the row's label]
+const engAt = (p, i) => actOf(p)?.eng?.[i] || 0, tkAt = (p, i) => actOf(p)?.tk?.[i] || 0;
+const many = (n, one, more = one + "s") => `${fmt(n)} ${n === 1 ? one : more}`;
+const podOf = (p, ...at) => at.reduce((s, i) => s + tkAt(p, i) + tkAt(p, i + 1), 0);
+const podLabel = (p, ...at) => {
+  const clicks = at.reduce((s, i) => s + tkAt(p, i), 0), pages = at.reduce((s, i) => s + tkAt(p, i + 1), 0);
+  return [clicks && many(clicks, "click"), pages && many(pages, "page")].filter(Boolean).join(", ") || "None";
+};
+const TOP = {
+  essays: ["Top essay readers", p => [engAt(p, 1), -(actOf(p)?.eng?.[2] ?? 1e9)], p => engAt(p, 1) ? many(engAt(p, 1), "essay") : "None"],
+  tfr: ["Top Faith Received users", p => [engAt(p, 6), engAt(p, 5)], p => engAt(p, 6) ? many(engAt(p, 6), "day") : "None"],
+  liturgy: ["Top Daily Liturgy users", p => [tkAt(p, 1) + tkAt(p, 0), tkAt(p, 2)],
+    p => [tkAt(p, 1) && many(tkAt(p, 1), "email"), tkAt(p, 0) && many(tkAt(p, 0), "day") + " on the site"].filter(Boolean).join(", ") || "None"],
+  email: ["Top email readers", p => [tkAt(p, 3), tkAt(p, 4)], p => tkAt(p, 3) || tkAt(p, 4) ? `${fmt(tkAt(p, 3))} opened, ${fmt(tkAt(p, 4))} clicked` : "None"],
+  mf: ["Top Mere Fidelity listeners", p => [podOf(p, 5), tkAt(p, 5)], p => podLabel(p, 5)],
+  crc: ["Top CRC listeners", p => [podOf(p, 7), tkAt(p, 7)], p => podLabel(p, 7)],
+  podcasts: ["Top podcast listeners", p => [podOf(p, 5, 7, 9), tkAt(p, 5) + tkAt(p, 7) + tkAt(p, 9)], p => podLabel(p, 5, 7, 9)],
+};
 
 // People arrive as 32 bundles. Links made in Review (and ids the nightly import retired)
 // fold several records into one person.
@@ -279,7 +301,11 @@ function results(f) {
     engaged: (a, b) => engOf(b[1]) - engOf(a[1]) || name(a, b),
     least: (a, b) => (engOf(a[1]) < 0) - (engOf(b[1]) < 0) || engOf(a[1]) - engOf(b[1]) || name(a, b),  // people with no record last
   };
-  hits.sort(SORTS[f.sort === "best" && list?.sort ? list.sort : f.sort] || SORTS.best);
+  const by = f.sort === "best" && list?.sort ? list.sort : f.sort;
+  if (TOP[by] && S.activity) {  // each person's key once, not once per comparison
+    const keyOf = TOP[by][1], keys = new Map(hits.map(x => [x[1], keyOf(x[1])]));
+    hits.sort((a, b) => { const ka = keys.get(a[1]), kb = keys.get(b[1]); return kb[0] - ka[0] || kb[1] - ka[1] || name(a, b); });
+  } else hits.sort(SORTS[by] || SORTS.best);
   return { hits: hits.map(x => x[1]), words: fuzzy ? [] : words, chips, role, plan, fuzzy };
 }
 // A matching line from the team's notes, shown under a person found by what was said about them
@@ -312,6 +338,12 @@ const LISTS = [
   { id: "fading", name: "Fading readers", act: true, sort: "engaged", test: p => { const e = actOf(p)?.eng; return !!e && e[1] >= 3 && e[2] != null && e[2] > 30 && e[2] <= 120; } },
   // never opened or clicked an email (Kit or HubSpot), signed in, read, or used anything, in any record (Activity's "le")
   { id: "never", name: "Never engaged", act: true, test: p => has(p, "subscriber") && !actOf(p)?.le && (!p.s || Date.now() - asDate(p.s) > 90 * DAY) },
+  // By what they use, each sorted by it (TOP above)
+  { id: "tfr-users", name: "Faith Received users", act: true, sort: "tfr", test: p => engAt(p, 6) > 0 },
+  { id: "liturgy-users", name: "Daily Liturgy users", act: true, sort: "liturgy", test: p => tkAt(p, 0) + tkAt(p, 1) > 0 },
+  { id: "mf-listeners", name: "Mere Fidelity listeners", act: true, sort: "mf", test: p => podOf(p, 5) > 0 },
+  { id: "crc-listeners", name: "CRC listeners", act: true, sort: "crc", test: p => podOf(p, 7) > 0 },
+  { id: "podcast-listeners", name: "Podcast listeners", act: true, sort: "podcasts", test: p => podOf(p, 5, 7, 9) > 0 },
   { id: "journal-writers", name: "Every journal contributor", test: p => !!p.ji?.length },
 ];
 // The print journal's issues, for a contributor list each (p.ji: the issues a person wrote for, from the issue readers'
@@ -328,6 +360,7 @@ const LIST_GROUPS = [
   ["Journal contributors by issue", "issues"],
   ["Journal mailing", ["journal", "address"]],
   ["Engagement", ["engaged", "prospects", "fading", "never"]],
+  ["Engagement by type", ["tfr-users", "liturgy-users", "mf-listeners", "crc-listeners", "podcast-listeners"]],
 ];
 function savedList(l) {
   if (!l) return null;
@@ -777,12 +810,20 @@ function people() {
       else if (e.key === "Escape" && F.q) { F.q = ""; input.value = ""; paint(); }
     } });
   const top = h("div", { class: "head rise" }), filters = h("div", { class: "filters rise" }), found = h("div", { class: "found" });
-  const rows = h("div", { class: "list" }), sort = h("select", { "aria-label": "Sort", onchange: e => { F.sort = e.target.value; paint(); } },
-    [["best", "Best match"], ["name", "Name"], ["recent", "Last contact"], ["newest", "Newest"], ...(S.activity ? [["engaged", "Most engaged"], ["least", "Least engaged"]] : [])].map(([v, l]) => h("option", { value: v, selected: F.sort === v }, l)));
+  const opt = ([v, l]) => h("option", { value: v, selected: F.sort === v }, l);
+  const rows = h("div", { class: "list" }), sort = h("select", { "aria-label": "Sort", onchange: e => { F.sort = e.target.value; paint(); } });
+  let sortAct = null;  // whether the menu has the Engagement sorts: Activity can arrive after the view opens
+  const fillSort = () => {
+    if (sortAct === !!S.activity) return;
+    sortAct = !!S.activity;
+    put(sort, [["best", "Best match"], ["name", "Name"], ["recent", "Last contact"], ["newest", "Newest"]].map(opt),
+      sortAct ? h("optgroup", { label: "Engagement" }, [["engaged", "Most engaged"], ...Object.entries(TOP).map(([v, [l]]) => [v, l]), ["least", "Least engaged"]].map(opt)) : null);
+  };
   const el = h("div", { class: "view" }, top, h("div", { class: "search rise" }, icon("search"), input), filters, found, h("section", { class: "card list-card rise", style: "padding: 0" }, rows));
   function paint() {
     const list = F.list ? listById(F.list) : null;
-    const r = results(F);
+    fillSort();
+    const r = results(F), by = F.sort === "best" && list?.sort ? list.sort : F.sort;
     hits = r.hits;
     const filtered = F.q || F.roles.length || F.plan;
     put(top, h("h1", {}, list ? list.name : "Contacts"), h("div", { class: "actions" },
@@ -808,7 +849,7 @@ function people() {
         h("div", { class: "name" }, marked(p.n || p.e[0] || "Unnamed", r.words)),
         h("div", { class: "sub" }, marked([p.n ? p.e[0] : "", p.sp?.org, p.place].filter(Boolean).join("  ·  "), r.words)),
         snippet(p, r.words)),
-      badges(p), h("div", { class: "when" }, ["engaged", "least"].includes(F.sort) || (F.sort === "best" && listById(F.list)?.sort) ? engLabel(p) : ago(p.last)))),
+      badges(p), h("div", { class: "when" }, TOP[by] && S.activity ? TOP[by][2](p) : ["engaged", "least"].includes(by) ? engLabel(p) : ago(p.last)))),
       hits.length > F.limit ? h("button", { type: "button", class: "btn quiet more", onclick: () => { F.limit += 100; paint(); } }, `Show ${fmt(Math.min(100, hits.length - F.limit))} more`) : "");
   }
   return { el, update: paint, focus: () => input.focus() };
@@ -923,7 +964,15 @@ function person(pid) {
 }
 
 const engLabel = p => { const e = engOf(p); return e < 0 ? "No activity" : `Engagement ${e}`; };
-function engagementCard(e) {
+// The tk figures (moos_part_types.py) as profile facts: what the sorts above rank by
+function typeFacts(t) {
+  const pod = i => [t[i] && many(t[i], "link click"), t[i + 1] && many(t[i + 1], "episode page") + " read"].filter(Boolean).join(", ");
+  return [["Daily Liturgy emails opened", t[1] ? fmt(t[1]) : ""], ["Daily Liturgy days on the site", t[0] ? fmt(t[0]) : ""],
+    ["Other emails opened", t[3] ? fmt(t[3]) : ""], ["Other emails clicked", t[4] ? fmt(t[4]) : ""],
+    ["Mere Fidelity", pod(5)], ["Christians Reading Classics", pod(7)], ["Passages", pod(9)]];
+}
+function engagementCard(e, t = []) {
+  if (!e) return section("Engagement", facts(typeFacts(t)));
   const [score, reads, lastRead, dl30, streak, tfr30, tfrAll, clicks, depth, signins, seen, topic, opened, sent] = e;
   const parts = [["Essays read", reads, 60], ["Daily Liturgy days, last 30", dl30, 20], ["Faith Received days, last 30", tfr30, 10],
     ["Emails opened", opened, sent || 1], ["Email clicks", clicks, 25], ["Sign-ins, last 90 days", signins, 20], ["Saves, plays and shares", depth, 20]].filter(([, v]) => v);
@@ -932,7 +981,7 @@ function engagementCard(e) {
     h("div", { class: "ring-wrap" }, ring([[score, "var(--accent)"], [100 - score, "var(--rule)"]], String(score)),
       h("div", { style: "flex: 1; min-width: min(100%, 340px)" }, parts.length ? h("div", { class: "ranked" }, parts.map(([l, v, top], i) => h("div", { class: "rank rise", style: `--i:${i}` },
         h("span", { class: "name" }, l), meter(Math.min(1, Math.log1p(v) / Math.log1p(top))), h("span", { class: "v" }, fmt(v)), h("span")))) : h("div", { class: "lbl" }, "No reading, clicks or sign-ins recorded"))),
-    h("div", { style: "margin-top: 24px" }, facts([["Last read", when(lastRead)], ["Last on the site", when(seen)], ["Reads most", topic], ["Longest liturgy streak", streak ? `${fmt(streak)} days` : ""], ["Faith Received, all time", tfrAll ? `${fmt(tfrAll)} days` : ""]])));
+    h("div", { style: "margin-top: 24px" }, facts([["Last read", when(lastRead)], ["Last on the site", when(seen)], ["Reads most", topic], ["Longest liturgy streak", streak ? `${fmt(streak)} days` : ""], ["Faith Received, all time", tfrAll ? `${fmt(tfrAll)} days` : ""], ...typeFacts(t)])));
 }
 // How a contributor likes to be paid: the team's entry (cards/<pid>.pay {method, detail, by, at}) over the contributor
 // list's (p.w.pay, e.g. "Check (inferred; ref #1032, paid 6/17/25)"). Anyone who can write edits it in place.
@@ -985,7 +1034,7 @@ function factCards(p, g, a) {
       gifts.length > 1 ? h("div", { style: "margin-bottom: 26px" }, columns(gifts.map(x => x[1]), gifts.map(x => asDate(x[0]).toLocaleDateString("en-US", { month: "short", year: "2-digit" })), "Gifts", money)) : null,
       facts([["First", dateLabel(g.first)], ["Latest", dateLabel(g.last)], ["Largest", g.largest ? money(g.largest) : ""], ["Recurring", g.recurring], ["Thanked", p.thanked ? dateLabel(p.thanked.slice(0, 10)) : ""]])));
   }
-  if (a?.eng) out.push(engagementCard(a.eng));
+  if (a?.eng || a?.tk) out.push(engagementCard(a.eng, a.tk || []));
   if (a) {
     const EVENTS = [["login", "Sign-ins"], ["read_completed", "Essays read"], ["hubspot_email_click", "HubSpot email clicks"], ["hubspot_email_open", "HubSpot email opens"], ["clicked_upgrade", "Upgrade clicks"]];
     const ev = EVENTS.filter(([k]) => a.ev?.[k]).map(([k, label]) => [label, a.ev[k][0]]);
