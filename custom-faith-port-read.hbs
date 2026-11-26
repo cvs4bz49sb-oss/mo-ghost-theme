@@ -318,6 +318,10 @@
 {{!-- The Research rail's Work tab. read-tools.js owns the panel; this names the
      work in it and routes the four shortcuts the restore left unbound. --}}
 <script src="{{asset "js/page/faith-port-read-research.js"}}&amp;frv=6acdf77bce1393b4"></script>
+{{!-- Export work, Export pages and the two Copy buttons. read-tools.js reads DATA.pages raw: no text on
+     TEI-only works, marker characters on PG works, a dead source link. This answers the four buttons
+     before his handlers do; see the file head. --}}
+<script src="{{asset "js/page/faith-port-read-export.js"}}&amp;frv=143ca185c26fbb17"></script>
 {{!-- From Mere Orthodoxy: the essays that relate to this page (mo-articles-placements.js; draws nothing when there are none). --}}
 <script src="{{asset "js/lib/mo-articles-dv.js"}}"></script>
 <script src="{{asset "js/lib/mo-articles.js"}}"></script>

@@ -21,13 +21,22 @@
   const MAX_AGE = 30 * 60 * 1000; // 30 minutes
   const REDIRECT_PATH = '/complete-membership/';
 
+  // Safari with cookies blocked throws SecurityError on any use of
+  // sessionStorage. No storage means no pending checkout.
+  const readFlag = () => {
+    try { return sessionStorage.getItem(FLAG); } catch (_) { return null; }
+  };
+  const clearFlag = () => {
+    try { sessionStorage.removeItem(FLAG); } catch (_) { /* storage blocked */ }
+  };
+
   // Skip if already on the complete-membership page
   if (window.location.pathname === REDIRECT_PATH) {
-    sessionStorage.removeItem(FLAG);
+    clearFlag();
     return;
   }
 
-  const pending = sessionStorage.getItem(FLAG);
+  const pending = readFlag();
   const status = document.body.getAttribute('data-member-status');
 
   // On page load: if checkout was recently pending and user is now paid,
@@ -37,13 +46,13 @@
 
     // Discard stale flags
     if (elapsed > MAX_AGE) {
-      sessionStorage.removeItem(FLAG);
+      clearFlag();
       return;
     }
 
     // User is now a paid member — redirect to address capture
     if (status === 'paid' || status === 'comped' || status === 'gift') {
-      sessionStorage.removeItem(FLAG);
+      clearFlag();
       // eslint-disable-next-line no-restricted-syntax -- same-origin path literal
       window.location.assign(REDIRECT_PATH);
       return;

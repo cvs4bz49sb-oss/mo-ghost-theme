@@ -819,7 +819,7 @@
       const step = steps[i];
       // A panel sliding shut hides its neighbours until it has closed.
       if (unwind(step)) await wait(380);
-      if (token !== run.token || !run) return;
+      if (!run || token !== run.token) return;
       // Only a step with `at`, or the step after one, can change page,
       // and never the step a page was just opened for: a page that
       // rewrites its own address must not send the tour round in a loop.
@@ -858,7 +858,7 @@
           if (entry.unless) await waitFor([entry.unless], 4000);
           await wait(450);
         }
-        if (token !== run.token || !run) return;
+        if (!run || token !== run.token) return;
       }
       if (step.fill) {
         const f = find(step.fill.sel);

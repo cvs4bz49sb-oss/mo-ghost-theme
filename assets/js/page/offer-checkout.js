@@ -57,7 +57,7 @@
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       // Mark checkout started for post-checkout redirect
-      sessionStorage.setItem('mo_checkout_pending', Date.now().toString());
+      try { sessionStorage.setItem('mo_checkout_pending', Date.now().toString()); } catch (_) { /* storage blocked */ }
       // Navigate to the offer page URL, which opens Portal with the
       // signup form (Name + Email) + coupon details. This ensures
       // the member is created in Ghost before Stripe payment.

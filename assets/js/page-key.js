@@ -94,7 +94,7 @@
     [/^\/year-end\/$/, "year-end"],
     [/^\/podcasts\//, "podcast"],
     [/^\/transcripts\//, "transcript"],
-    [/^\/journal\//, "journal"],
+    [/^\/journal(-archive)?\//, "journal"],
     [/^\/contributors\//, "contributors"],
     [/^\/archive\/|^\/page\/\d+\/$/, "archive"],
     [/^\/search\/$/, "search"],

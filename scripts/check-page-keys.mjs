@@ -88,6 +88,7 @@ const CASES = [
   ["/podcasts/christians-reading-classics/", "", none, "podcast"],
   ["/journal/", "", none, "journal"],
   ["/journal/preview/", "", none, "journal"],
+  ["/journal-archive/issue-04/", "", none, "journal"],
   ["/tag/culture/", "tag-template tag-culture", none, "tag"],
   ["/tag/culture/page/2/", "tag-template tag-culture paged", none, "tag"],
   ["/tag/author-jake-meador/", "tag-template tag-author-jake-meador", none, "author"],

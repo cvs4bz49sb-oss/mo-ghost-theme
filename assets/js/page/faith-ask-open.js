@@ -129,7 +129,11 @@
         new URL(document.referrer).pathname !== window.location.pathname;
     } catch (e) { /* no referrer to read; fall back to the library */ }
     if (sameOrigin && window.history.length > 1) window.history.back();
-    else window.MOSafeRedirect.go(LIBRARY);
+    // NOT MOSafeRedirect.go: that helper only accepts a Stripe address a
+    // worker handed us, so it threw on this path and the X left a blank
+    // page (2026-11-10 and 2026-11-13 in the error beacon).
+    // eslint-disable-next-line no-restricted-syntax -- same-origin literal path
+    else window.location.assign(LIBRARY);
   }
 
   /*
