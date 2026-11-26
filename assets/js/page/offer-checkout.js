@@ -6,7 +6,12 @@
   // Offer expires June 30 2026 at 11:59:59 PM CDT (= July 1 04:59:59 UTC).
   const EXPIRY = new Date('2026-07-01T05:00:00Z');
   if (Date.now() >= EXPIRY.getTime()) {
-    window.MOSafeRedirect.go('/membership/');
+    // NOT MOSafeRedirect.go: that helper only accepts a Stripe address a
+    // worker handed us, so it threw on this path and the expired page
+    // stayed up with dead buttons (daily reviews 2026-11-14 and 11-15).
+    // replace, so Back does not return here.
+    // eslint-disable-next-line no-restricted-syntax -- same-origin literal path
+    window.location.replace('/membership/');
     return;
   }
 
