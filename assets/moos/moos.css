@@ -58,7 +58,7 @@ svg.icon { width: 19px; height: 19px; flex: none; fill: none; stroke: currentCol
 .rail { position: sticky; top: 0; z-index: 30; height: 100vh; height: 100dvh; display: flex; flex-direction: column; gap: 22px; padding: 30px 18px 16px max(18px, env(safe-area-inset-left, 0px)); background: var(--rail); border-right: 1px solid var(--rule) }
 .rail-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: none }
 .brand { display: flex; align-items: center; gap: 10px; min-height: 36px; font-size: 22px; font-weight: 700; letter-spacing: .08em; padding-left: 10px }
-.brand .logo { width: 30px; height: 30px; flex: none }  /* the M. app icon (appIcon below draws the same mark for the dock) */
+.brand .logo { width: 30px; height: 30px; flex: none }  /* the MOOS moose (brand/logos/moos); appIcon below draws this same mark for the dock */
 .rail-x { display: none }
 .find { flex: none; display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; border: 1px solid var(--rule-strong); border-radius: 6px; background: var(--field); color: var(--muted); text-align: left; font-size: 15px }
 .find:hover { border-color: var(--accent); color: var(--ink) }

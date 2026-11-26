@@ -1669,18 +1669,21 @@ addEventListener("keydown", e => {
 
 // ---------------------------------------------------------------- desktop app
 async function appIcon() {
-  const c = h("canvas", { width: 256, height: 256 }), ctx = c.getContext("2d");
-  await document.fonts.load("700 150px 'Source Serif Pro'").catch(() => {});
-  ctx.fillStyle = "#2d2927"; ctx.beginPath(); ctx.roundRect(8, 8, 240, 240, 54); ctx.fill();
-  ctx.fillStyle = "#f6f3f2"; ctx.font = "700 150px 'Source Serif Pro', Georgia, serif"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-  ctx.fillText("M", 120, 182);
-  ctx.fillStyle = "#ee7d51"; ctx.fillRect(184, 160, 26, 26);
+  // The dock icon is the header's moose (brand/logos/moos/moos-icon.svg), drawn at 256 px.
+  const mark = $(".brand .logo");
+  if (!mark) return null;
+  const svg = new XMLSerializer().serializeToString(mark).replace("<svg ", '<svg width="256" height="256" ');
+  const img = new Image();
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  try { await img.decode(); } catch { return null; }
+  const c = h("canvas", { width: 256, height: 256 });
+  c.getContext("2d").drawImage(img, 0, 0, 256, 256);
   return c.toDataURL("image/png");
 }
 async function setupDesktop() {
   desktop = await use("desktop");
   if (!desktop) return;
-  if (desktop.app) desktop.app.dock.setIcon(await appIcon()).catch(() => {});
+  if (desktop.app) { const icon = await appIcon(); if (icon) desktop.app.dock.setIcon(icon).catch(() => {}); }
   if (desktop.permissions) S.notify = await desktop.permissions.state("notifications").catch(() => "unavailable");
   if ((await desktop.install?.state().catch(() => "unavailable")) === "available") {
     const b = $("#install");
