@@ -8,6 +8,9 @@
 // scheduled broadcast, and a test goes to the caller's own address, exactly as before.
 // The email is rendered from the same design as ghost-theme/assets/js/digest/email-template-v2.jsx and export-html.jsx,
 // element for element, so the preview shows the HTML Kit receives. Change the two together.
+// Sponsorships & CTAs (parts/tools/placements.js) edits the sponsor and CTA libraries with run dates; Pull this week puts
+// in what is scheduled for the Digest's day ("the schedule" below). That tool draws its preview with this file's code
+// through M.emailKit.
 const M = window.MOOS;
 const { h, put, icon, toast } = M;
 const T = () => M.tools;
@@ -168,9 +171,19 @@ function signature(c) {
   return E("div", { class: "mo-letter mo-pad-40", style: { padding: "8px 40px 28px" } },
     E("p", { style: { fontFamily: FELL, fontSize: 16, fontStyle: "italic", color: TK.lightText, margin: 0 } }, md(c.editorSignature || "")));
 }
+// A CTA's picture, at the top of its box (Sponsorships & CTAs, 2026-11-26). Only a web address is drawn, linked like
+// the button. A CTA without one renders exactly as before. The theme's /digest-gen/ builder doesn't draw it.
+function ctaPicture(x, gap) {
+  const src = String(x.image || "").trim();
+  if (!/^https?:\/\//i.test(src)) return "";
+  const img = E("img", { src, alt: "", width: "476", style: { display: "block", width: "100%", maxWidth: 476, height: "auto", margin: `0 auto ${gap}px`, borderRadius: 3 } });
+  const href = String(x.href || "").trim();
+  return href ? E("a", { href: linkOk(href), style: { display: "block", textDecoration: "none" } }, img) : img;
+}
 function membershipCta(x, accent) {
   const bold = accent === "bold", eyebrow = eyebrowOf(x.eyebrow, "Become a Member");
   return E("div", { class: "mo-pad-32", style: { padding: "0 32px 8px" } }, E("div", { class: "mo-pad-32-tight", style: { padding: "32px 28px", background: bold ? TK.tertiary : TK.bgCream, color: bold ? "#fff" : TK.bodyText, textAlign: "center", border: bold ? "none" : `1px solid ${TK.ruleSoft}`, borderRadius: 5 } },
+    ctaPicture(x, 20),
     eyebrow ? E("div", { style: { fontFamily: SANS, fontSize: 11, color: bold ? "#f1e0c9" : TK.secondary, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600, marginBottom: 12 } }, esc(eyebrow)) : "",
     E("h2", { class: "mo-cta-headline", style: { fontFamily: FELL, fontSize: 24, lineHeight: 1.25, margin: "0 0 12px", fontWeight: 400, color: bold ? "#fff" : TK.bodyText } }, md(x.headline || "")),
     E("p", { class: "mo-cta-body", style: { fontFamily: "Georgia, serif", fontSize: 15, lineHeight: 1.6, margin: "0 auto 22px", maxWidth: 440, color: bold ? "rgba(255,255,255,0.88)" : TK.lightText } }, md(x.body || "")),
@@ -276,6 +289,7 @@ function tfrSpotlight(c) {
 function memberThanks(x) {
   const eyebrow = eyebrowOf(x.eyebrow, "For Members");
   return E("div", { class: "mo-pad-32", style: { padding: "0 32px" } }, E("div", { class: "mo-pad-32-tight", style: { padding: "24px 28px", background: TK.bgCream, textAlign: "center", border: `1px solid ${TK.ruleSoft}`, borderRadius: 5 } },
+    ctaPicture(x, 16),
     eyebrow ? E("div", { style: { fontFamily: SANS, fontSize: 10.5, color: TK.secondary, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 700, marginBottom: 10 } }, esc(eyebrow)) : "",
     E("div", { style: { fontFamily: FELL, fontSize: 19, lineHeight: 1.35, color: TK.bodyText, margin: "0 0 10px" } }, md(x.headline || "")),
     E("p", { style: { fontFamily: "Georgia, serif", fontSize: 13.5, lineHeight: 1.55, color: TK.lightText, margin: "0 auto 12px", maxWidth: 420 } }, md(x.body || "")),
@@ -578,10 +592,77 @@ function blockTitle(b) {
   const kind = b.type === "button" ? "Button" : b.type === "image" ? "Image" : "Text", snip = plain(b.heading || b.text || b.linkText || "");
   return snip ? `${kind}: ${snip.slice(0, 40)}` : `${kind} block`;
 }
-const CTA_FIELDS = ["eyebrow", "headline", "body", "cta", "href"];
+const CTA_FIELDS = ["eyebrow", "headline", "body", "cta", "href", "image"];
 const CTA_SLOTS = { membership: "Membership", memberThanks: "Member thanks" };
 function ctaFields(s) { const o = {}; for (const f of CTA_FIELDS) { if (f === "eyebrow") { if ((s || {})[f] != null) o[f] = s[f]; } else o[f] = (s || {})[f] || ""; } return o; }
 const ctaTitle = c => (c.savedLabel || "").trim() || (c.headline || "").trim() || (c.cta || "").trim() || "Untitled CTA";
+
+// ---------------------------------------------------------------- the schedule (Sponsorships & CTAs, 2026-11-26)
+// Saved sponsors and CTAs live where they always have, in the mo:sponsorLibrary and mo:ctaLibrary settings rows, one
+// copy for the whole team. An item may also carry slot (which of the four places below it runs in) and runs, a list of
+// { from, to } days ("YYYY-MM-DD", both included). An item without runs isn't scheduled. Pull this week puts in the
+// item whose runs cover the Digest's day: its date field, else the next send day. The Digest goes out on Thursdays.
+const SEND_DAY = 4;
+const PLACES = {
+  sponsorTop: { lib: "mo:sponsorLibrary", label: "Top sponsor", who: "Free" },
+  sponsorBottom: { lib: "mo:sponsorLibrary", label: "Bottom sponsor", who: "Free" },
+  membership: { lib: "mo:ctaLibrary", label: "Membership ask", who: "Free" },
+  memberThanks: { lib: "mo:ctaLibrary", label: "Member thanks", who: "Paid" },
+};
+const DAY_RX = /^\d{4}-\d{2}-\d{2}$/;
+const dayDate = d => { const [y, m, n] = d.split("-").map(Number); return new Date(Date.UTC(y, m - 1, n, 12)); };
+const dayOf = t => t.toISOString().slice(0, 10);
+const addDays = (d, n) => { const t = dayDate(d); t.setUTCDate(t.getUTCDate() + n); return dayOf(t); };
+const weekdayOf = d => dayDate(d).getUTCDay();
+// Today where the team is (Central), as "YYYY-MM-DD".
+function todayDay(now = Date.now()) {
+  const p = new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(now));
+  const get = t => (p.find(x => x.type === t) || {}).value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+const sendDayOn = d => addDays(d, (SEND_DAY - weekdayOf(d) + 7) % 7);  // the send day on or after d
+const weekStart = d => addDays(d, -((weekdayOf(d) + 6) % 7));            // that week's Monday
+const DAY_FMT = { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" };
+const fmtDay = (d, o = DAY_FMT) => DAY_RX.test(d || "") ? dayDate(d).toLocaleDateString("en-US", { ...o, ...(d.slice(0, 4) !== todayDay().slice(0, 4) ? { year: "numeric" } : {}) }) : "";
+const fmtShort = d => fmtDay(d, { month: "short", day: "numeric", timeZone: "UTC" });
+const fmtRun = r => `${fmtShort(r.from)} to ${fmtShort(r.to)}`;
+function runsOf(item) {
+  const rs = Array.isArray(item && item.runs) ? item.runs : [];
+  return rs.filter(r => r && DAY_RX.test(r.from || "") && DAY_RX.test(r.to || "") && r.from <= r.to).sort((a, b) => a.from < b.from ? -1 : a.from > b.from ? 1 : 0);
+}
+const placeOf = (item, lib) => { const s = item && item.slot; return PLACES[s] && PLACES[s].lib === lib ? s : null; };
+const covers = (item, day) => runsOf(item).some(r => r.from <= day && day <= r.to);
+// The send days inside a run, in order.
+function sendDaysIn(r) { const out = []; for (let d = sendDayOn(r.from); d <= r.to && out.length < 400; d = addDays(d, 7)) out.push(d); return out; }
+const libItems = (settings, lib) => { const v = (settings || {})[lib]; return Array.isArray(v) ? v.filter(x => x && x.id) : []; };
+const scheduledIn = (settings, place, day) => libItems(settings, PLACES[place].lib).filter(it => placeOf(it, PLACES[place].lib) === place && covers(it, day));
+const itemTitle = (item, lib) => lib === "mo:ctaLibrary" ? ctaTitle(item) : sponsorTitle(item);
+const dot = t => /[.!?…]["'”’)]*$/.test(t) ? t : t + ".";  // a title as a sentence, without a second period
+// The Digest's day: its date field when that reads as a date, else the next send day.
+function digestDay(c) {
+  const today = todayDay(), next = sendDayOn(today), raw = String((c && c.dateStr) || "").trim();
+  if (!raw) return { day: next, source: "next", raw };
+  let t = NaN;
+  const iso = /\b(\d{4})-(\d{2})-(\d{2})\b/.exec(raw);
+  if (iso) t = Date.UTC(+iso[1], +iso[2] - 1, +iso[3], 12);
+  else {
+    const yearless = !/\b\d{4}\b/.test(raw), local = Date.parse(yearless ? `${raw} ${today.slice(0, 4)}` : raw);
+    if (Number.isFinite(local)) {
+      const d = new Date(local);
+      t = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 12);
+      if (yearless && t < dayDate(today).getTime() - 120 * 864e5) t = Date.UTC(d.getFullYear() + 1, d.getMonth(), d.getDate(), 12);  // "Jan 7" typed in December
+    }
+  }
+  return Number.isFinite(t) ? { day: dayOf(new Date(t)), source: "date", raw } : { day: next, source: "unread", raw };
+}
+// The fields a place takes from a library item. A CTA without an eyebrow shows its place's own.
+const placeFields = (place, item) => PLACES[place].lib === "mo:sponsorLibrary" ? sponsorFields(item) : ctaFields(item);
+const EYEBROWS = { membership: "Become a Member", memberThanks: "For Members" };
+// Whether two copies of a place read the same in the email (an empty eyebrow and the place's own are the same).
+function samePlace(place, a, b) {
+  const norm = x => { const f = placeFields(place, x || {}); if (EYEBROWS[place]) f.eyebrow = eyebrowOf(f.eyebrow, EYEBROWS[place]); return JSON.stringify(f); };
+  return norm(a) === norm(b);
+}
 const KIT_TAGS = [
   ["First name", "{{ subscriber.first_name }}"], ["Last name", "{{ subscriber.last_name }}"], ["Email address", "{{ subscriber.email_address }}"],
   ["Subscriber ID", "{{ subscriber.id }}"], ["Unsubscribe link", "{{ unsubscribe_url }}"], ["Preferences link", "{{ subscriber_preferences_url }}"],
@@ -857,6 +938,33 @@ function putSetting(key, value, now = false) {
   if (now) return go();
   settingTimers[key] = setTimeout(go, 900);
 }
+// The sponsor, CTA and block libraries are each one list in one settings row, shared by the team. A change is made to
+// the list as the server has it at that moment (read, change by id, write), so two people saving different items
+// don't undo each other. Writes to one row go one at a time; a failed write reloads the row.
+const libQueue = {}, libSubs = new Set();
+const libChanged = () => libSubs.forEach(f => { try { f(); } catch (e) { console.warn("Email Builder:", e); } });
+function commitList(key, change) {
+  S.settings[key] = change(libOf(key));
+  libChanged();
+  const run = async () => {
+    const fresh = await api("/digest/settings"), have = fresh?.settings?.[key];
+    const next = change(Array.isArray(have) ? have.filter(x => x && x.id) : []);
+    await api("/digest/settings", { method: "PUT", body: next.length ? { settings: { [key]: next } } : { settings: {}, clear: [key] } });
+    S.settings[key] = next; libChanged();
+    return next;
+  };
+  const p = (libQueue[key] || Promise.resolve()).catch(() => {}).then(run);
+  libQueue[key] = p;
+  p.catch(() => refreshLibs().catch(() => {}));
+  return p;
+}
+const LIB_KEYS = ["mo:sponsorLibrary", "mo:ctaLibrary", "mo:blockLibrary"];
+async function refreshLibs() {
+  const st = await api("/digest/settings");
+  for (const k of LIB_KEYS) { const v = st?.settings?.[k]; if (v === undefined) delete S.settings[k]; else S.settings[k] = v; }
+  libChanged();
+  return S.settings;
+}
 const draftKey = v => `mo:kit:draftId:${v}`;
 function draftId(v = S.variant) {
   const have = S.settings[draftKey(v)];
@@ -955,9 +1063,36 @@ async function pullWeek(btn) {
         if (pod.warnings.length) { soft = true; lines.push(...pod.warnings); }
       } catch (e) { bad = true; lines.push(`Podcasts failed: ${errText(e)}`); }
     }
+    const placed = await pullPlaces();
+    lines.push(...placed.lines); bad = bad || placed.bad; soft = soft || placed.soft;
   } finally { btn && (btn.disabled = false, btn.classList.remove("eb-busy")); }
   note(bad ? "err" : soft ? "warn" : "ok", lines);
   ui?.paintOpen(); changed();
+}
+// The sponsorships and CTAs scheduled for this Digest's day, from the team's schedule as it is now. A place with
+// nothing scheduled, or with more than one, is left as it is, and the note says so.
+async function pullPlaces() {
+  const lines = []; let soft = false;
+  try { await refreshLibs(); }
+  catch (e) { return { lines: [`The sponsorship and CTA schedule couldn't be read: ${errText(e)}. Those places are unchanged.`], bad: true, soft }; }
+  const c = S.content, { day, source, raw } = digestDay(c), when = fmtDay(day);
+  lines.push(source === "date" ? `Sponsorships and CTAs for this Digest's date: ${when}.`
+    : source === "unread" ? `"${raw}" isn't a date. Sponsorships and CTAs are for the next send day: ${when}.`
+      : `This Digest has no date. Sponsorships and CTAs are for the next send day: ${when}.`);
+  if (source === "unread") soft = true;
+  for (const place of Object.keys(PLACES)) {
+    const P = PLACES[place], name = `${P.label} (${P.who})`, sec = place.startsWith("sponsor") ? place : "membership";
+    const hits = scheduledIn(S.settings, place, day), cur = c[place] || {};
+    const now = place.startsWith("sponsor") ? [cur.name, plain(cur.headline)].filter(Boolean).join(" · ") : plain(cur.headline);
+    if (!hits.length) { soft = true; lines.push(`${name}: nothing is scheduled. ${now ? `It still has ${dot(now)}` : "It is unchanged."}`); continue; }
+    if (hits.length > 1) { soft = true; lines.push(`${name}: ${hits.length} are scheduled (${hits.map(t => itemTitle(t, P.lib)).join(" and ")}). It is unchanged. Keep one in Sponsorships & CTAs.`); continue; }
+    const it = hits[0], run = runsOf(it).find(r => r.from <= day && day <= r.to);
+    c[place] = placeFields(place, it);
+    let shown = "";
+    if (c.sections?.[sec] === false) { c.sections = { ...c.sections, [sec]: true }; shown = " It was hidden and is shown now."; }
+    lines.push(`${name}: ${dot(itemTitle(it, P.lib))} Runs ${fmtRun(run)}.${shown}`);
+  }
+  return { lines, bad: false, soft };
 }
 
 // ================================================================ readiness: what must be right before it goes out
@@ -995,6 +1130,17 @@ function checks() {
     if (b.type === "button" && placeholder(b.url)) add("err", b.id, `"${b.text || "Button"}" has no link.`);
     if (b.type === "image" && !b.src) add("warn", b.id, "An image block has no image. It is left out of the email.");
   });
+  if (S.kind === "digest") {
+    const { day } = digestDay(c);
+    for (const place of paid ? ["memberThanks"] : ["sponsorTop", "sponsorBottom", "membership"]) {
+      const sec = place.startsWith("sponsor") ? place : "membership";
+      if (!on(sec) || !order.has(sec)) continue;
+      const P = PLACES[place], hits = scheduledIn(S.settings, place, day), key = sec;
+      if (hits.length > 1) add("warn", key, `${hits.length} items are scheduled for the ${P.label.toLowerCase()} on ${fmtShort(day)}.`);
+      else if (hits.length === 1 && !samePlace(place, c[place], hits[0]))
+        add("warn", key, `The ${P.label.toLowerCase()} isn't the one scheduled for ${fmtShort(day)}.`, { label: "Use it", run: () => { c[place] = placeFields(place, hits[0]); ui.paintOpen(); changed(); } });
+    }
+  }
   const dash = /\u2014/;
   if (dash.test(kitSubject())) add("warn", null, "The subject has an em dash.");
   if (dash.test(c.editorTitle || "") || dash.test(c.editorBody || "")) add("warn", "letter", "The letter has an em dash.");
@@ -1121,20 +1267,40 @@ function libraryRow({ label, groups, pick, save, manage }) {
       manage.items.map(([id, t]) => h("div", { class: "eb-mrow" }, h("span", {}, t), h("button", { type: "button", class: "x", title: "Delete", "aria-label": `Delete ${t}`, onclick: () => manage.del(id, t) }, icon("x"))))) : null);
 }
 const libOf = key => { const v = S.settings[key]; return Array.isArray(v) ? v.filter(x => x && x.id) : []; };
+const libSaved = p => p.then(() => true, e => { toast("Couldn't save: " + errText(e)); ui?.paintOpen(); return false; });
 async function delFromLib(key, id, title) {
   if (!(await ask(`Delete "${title}" from the library?`, { ok: "Delete", danger: true }))) return;
-  putSetting(key, libOf(key).filter(x => x.id !== id), true); ui.paintOpen();
+  const done = libSaved(commitList(key, list => list.filter(x => x.id !== id))); ui.paintOpen();
+  return done;
+}
+const newLibId = pre => pre + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+// What the schedule has for this place on the Digest's day, a way to put it in, and the way to the schedule.
+function placeLine(place) {
+  const { day } = digestDay(S.content), hits = scheduledIn(S.settings, place, day), P = PLACES[place], when = fmtDay(day);
+  let text, use = null;
+  if (!hits.length) text = `Nothing is scheduled here for ${when}.`;
+  else if (hits.length > 1) text = `${hits.length} are scheduled here for ${when}: ${hits.map(t => itemTitle(t, P.lib)).join(" and ")}.`;
+  else if (samePlace(place, S.content[place], hits[0])) text = `Scheduled for ${when} and in this email: ${dot(itemTitle(hits[0], P.lib))}`;
+  else {
+    text = `Scheduled for ${when}: ${dot(itemTitle(hits[0], P.lib))}`;
+    use = h("button", { type: "button", class: "btn eb-sm", onclick: () => { S.content[place] = placeFields(place, hits[0]); ui.paintOpen(); changed(); } }, "Use it");
+  }
+  return h("div", { class: "eb-placeline" + (hits.length > 1 ? " warn" : "") }, h("span", {}, text),
+    h("div", { class: "eb-row2" }, use, h("button", { type: "button", class: "btn quiet eb-sm", onclick: () => M.go("placements") }, "Open the schedule")));
 }
 function sponsorEditor(key) {
-  const lib = libOf("mo:sponsorLibrary");
-  return [libraryRow({ label: "Load a sponsor",
-    groups: [{ label: "Built in", items: BUILTIN_SPONSORS.map(s => [s.id, sponsorTitle(s)]) }, { label: "Saved", items: lib.map(s => [s.id, sponsorTitle(s)]) }],
-    pick: id => { const s = [...BUILTIN_SPONSORS, ...lib].find(x => x.id === id); if (s) { S.content[key] = sponsorFields(s); ui.paintOpen(); changed(); } },
+  const lib = libOf("mo:sponsorLibrary"), { day } = digestDay(S.content), now = scheduledIn(S.settings, key, day), nowIds = new Set(now.map(s => s.id));
+  return [placeLine(key), libraryRow({ label: "Load a sponsor",
+    groups: [{ label: `Scheduled for ${fmtShort(day)}`, items: now.map(s => [s.id, sponsorTitle(s)]) }, { label: "Saved", items: lib.filter(s => !nowIds.has(s.id)).map(s => [s.id, sponsorTitle(s)]) },
+      { label: "Built in", items: BUILTIN_SPONSORS.map(s => [s.id, sponsorTitle(s)]) }],
+    pick: id => { const s = [...lib, ...BUILTIN_SPONSORS].find(x => x.id === id); if (s) { S.content[key] = sponsorFields(s); ui.paintOpen(); changed(); } },
     save: async () => {
-      const slot = sponsorFields(S.content[key]);
-      if (!slot.name && !slot.headline) return toast("Add a name or headline first");
-      const name = await askText("Save this sponsor as", sponsorTitle(slot)); if (name == null) return;
-      putSetting("mo:sponsorLibrary", [...lib, { ...slot, id: "spon_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), savedLabel: name }], true); ui.paintOpen(); toast("Saved to the library");
+      const fields = sponsorFields(S.content[key]);
+      if (!fields.name && !fields.headline) return toast("Add a name or headline first");
+      const name = await askText("Save this sponsor as", sponsorTitle(fields)); if (name == null) return;
+      const item = { ...fields, id: newLibId("spon_"), savedLabel: name, slot: key };
+      const done = libSaved(commitList("mo:sponsorLibrary", list => [...list.filter(x => x.id !== item.id), item])); ui.paintOpen();
+      if (await done) toast("Saved to the library");
     },
     manage: { label: "sponsors", items: lib.map(s => [s.id, sponsorTitle(s)]), del: (id, t) => delFromLib("mo:sponsorLibrary", id, t) } }),
   two(fld("Name", `${key}.name`), fld("Label", `${key}.label`)),
@@ -1142,21 +1308,25 @@ function sponsorEditor(key) {
   two(fld("Button", `${key}.cta`), fld("Link", `${key}.href`, { kind: "url", placeholder: "https://" }))];
 }
 function ctaEditor(slot) {
-  const lib = libOf("mo:ctaLibrary");
-  const grouped = Object.entries(CTA_SLOTS).map(([k, l]) => ({ label: l, items: lib.filter(c => c.slot === k).map(c => [c.id, ctaTitle(c)]) }));
-  grouped.push({ label: "Other", items: lib.filter(c => !CTA_SLOTS[c.slot]).map(c => [c.id, ctaTitle(c)]) });
+  const lib = libOf("mo:ctaLibrary"), { day } = digestDay(S.content), now = scheduledIn(S.settings, slot, day), nowIds = new Set(now.map(c => c.id));
+  const rest = lib.filter(c => !nowIds.has(c.id));
+  const grouped = [{ label: `Scheduled for ${fmtShort(day)}`, items: now.map(c => [c.id, ctaTitle(c)]) },
+    ...Object.entries(CTA_SLOTS).map(([k, l]) => ({ label: l, items: rest.filter(c => c.slot === k).map(c => [c.id, ctaTitle(c)]) })),
+    { label: "Other", items: rest.filter(c => !CTA_SLOTS[c.slot]).map(c => [c.id, ctaTitle(c)]) }];
   const fallback = slot === "membership" ? "Become a Member" : "For Members";
   if (S.content[slot] && S.content[slot].eyebrow == null) S.content[slot].eyebrow = fallback;
-  return [libraryRow({ label: "Load a saved CTA", groups: grouped,
-    pick: id => { const sel = lib.find(c => c.id === id); if (sel) { S.content[slot] = { ...(S.content[slot] || {}), ...ctaFields(sel) }; ui.paintOpen(); changed(); } },
+  return [placeLine(slot), libraryRow({ label: "Load a saved CTA", groups: grouped,
+    pick: id => { const sel = lib.find(c => c.id === id); if (sel) { S.content[slot] = ctaFields(sel); ui.paintOpen(); changed(); } },
     save: async () => {
       const f = ctaFields(S.content[slot]);
       if (!f.headline && !f.cta) return toast("Add a headline or button first");
       const name = await askText("Save this CTA as", ctaTitle(f)); if (name == null) return;
-      putSetting("mo:ctaLibrary", [...lib, { ...f, id: "cta_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), slot, savedLabel: name }], true); ui.paintOpen(); toast("Saved to the library");
+      const item = { ...f, id: newLibId("cta_"), slot, savedLabel: name };
+      const done = libSaved(commitList("mo:ctaLibrary", list => [...list.filter(x => x.id !== item.id), item])); ui.paintOpen();
+      if (await done) toast("Saved to the library");
     },
     manage: { label: "CTAs", items: lib.map(c => [c.id, ctaTitle(c)]), del: (id, t) => delFromLib("mo:ctaLibrary", id, t) } }),
-  fld("Eyebrow", `${slot}.eyebrow`, { placeholder: "Leave empty to hide" }), fld("Headline", `${slot}.headline`, { kind: "area", rows: 2 }),
+  fld("Eyebrow", `${slot}.eyebrow`, { placeholder: "Leave empty to hide" }), imageField("Picture", `${slot}.image`), fld("Headline", `${slot}.headline`, { kind: "area", rows: 2 }),
   fld("Body", `${slot}.body`, { kind: "md", rows: 3 }), two(fld("Button", `${slot}.cta`), fld("Link", `${slot}.href`, { kind: "url", placeholder: "https://" }))];
 }
 function essaysEditor() {
@@ -1256,7 +1426,8 @@ function blockEditor(key) {
     const f = blockFields(b);
     if (!(f.text || f.heading || f.src || f.body || f.linkText || f.url)) return toast("Add something first");
     const name = await askText("Save this block as", blockTitle(f)); if (name == null) return;
-    putSetting("mo:blockLibrary", [...lib, { ...f, id: "blk_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), savedLabel: name }], true); toast("Saved to the library");
+    const item = { ...f, id: newLibId("blk_"), savedLabel: name };
+    if (await libSaved(commitList("mo:blockLibrary", list => [...list.filter(x => x.id !== item.id), item]))) toast("Saved to the library");
   };
   const remove = async () => {
     if (!(await ask("Remove this block from the email?", { ok: "Remove", danger: true }))) return;
@@ -1512,7 +1683,7 @@ function mount(root) {
       if (S.phase === "loading" || S.phase === "idle") { put(root, h("div", { class: "eb-loading" }, h("div", { class: "skel", style: "height: 48px; width: 300px" }), h("div", { class: "eb-body" }, h("div", { class: "skel", style: "height: 560px" }), h("div", { class: "skel", style: "height: 560px" })))); return; }
       if (S.phase === "error") { put(root, h("div", { class: "card empty" }, h("h2", {}, "The Email Builder couldn't load"), h("p", { class: "lbl" }, S.error), h("button", { type: "button", class: "btn", onclick: load }, "Try again"))); return; }
       if (head.parentNode !== root) put(root, head, paneSwitch, body);
-      const pulls = ["essays", "podcasts"].some(k => enabled(k) && fullOrder().includes(k));
+      const pulls = ["essays", "podcasts", "sponsorTop", "sponsorBottom", "membership"].some(k => enabled(k) && fullOrder().includes(k));
       put(composer, noteBox, pulls ? h("div", { class: "eb-pullrow" }, h("button", { type: "button", class: "btn", onclick: e => pullWeek(e.currentTarget) }, icon("eb-pull"), "Pull this week")) : null, outline, adder);
       paintHead(); paintNote(); paintOutline(); paintStage(); paintInbox(); paintMeter();
       requestAnimationFrame(fit);
@@ -2105,6 +2276,9 @@ function paintSend() {
   if (keep) { const el = d.body.querySelector(`[data-kf="${keep}"]`); if (el) { el.focus(); try { el.setSelectionRange(caret, caret); } catch { /* not a text input */ } } }
 }
 
+// A library change (here or in Sponsorships & CTAs) can change what is scheduled: redo the readiness list.
+libSubs.add(() => ui?.meter());
+
 // ================================================================ register
 function view() {
   const el = h("div", { class: "view eb" });
@@ -2192,6 +2366,8 @@ document.head.append(h("style", { id: "eb-style" }, `
 .eb-thumb img, .eb-ithumb img { width: 100%; height: 100%; object-fit: cover } .eb-thumb svg, .eb-ithumb svg { width: 18px; height: 18px }
 .eb-ithumb.lg { width: 64px; height: 64px }
 .eb-lib { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding-bottom: 16px; border-bottom: 1px dashed var(--rule-strong) }
+.eb-placeline { display: grid; gap: 10px; padding: 12px 14px; border-left: 3px solid var(--rule-strong); border-radius: 4px; background: var(--ground); font-size: 15px }
+.eb-placeline.warn { border-left-color: var(--alert) } .eb-placeline.warn > span { color: var(--alert) }
 .eb-lib > select { flex: 1 1 200px }
 .eb-manage { width: 100%; font-size: 14px } .eb-manage summary { color: var(--muted); cursor: pointer } .eb-manage summary:hover { color: var(--ink) }
 .eb-mrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 4px 0; border-top: 1px solid var(--rule) }
@@ -2311,7 +2487,7 @@ document.head.append(h("style", { id: "eb-style" }, `
 .eb-vermeta { display: grid; gap: 2px; min-width: 0 } .eb-vermeta .eb-it { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; white-space: normal }
 .eb-veract { display: flex; gap: 6px; align-items: center }
 .eb-code { min-height: 220px; white-space: pre; background: var(--ground) }
-.eb-danger { border-color: var(--alert); background: var(--alert); color: var(--on-accent) }
+.btn.eb-danger, .btn.eb-danger:hover, .btn.eb-danger:focus-visible { border-color: var(--alert); background: var(--alert); color: var(--on-accent) }
 .eb-ask { display: grid; place-items: center; padding: 20px; z-index: 80 }
 .eb-askbox { display: grid; gap: 18px; width: min(480px, 100%); padding: 30px 32px; background: var(--card); border: 1px solid var(--rule); border-radius: 12px; box-shadow: 0 2px 4px rgba(45,41,39,.05), 0 20px 50px rgba(45,41,39,.22); transform: translateY(10px) scale(.98); transition: transform .25s cubic-bezier(.2,.7,.2,1) }
 .eb-ask.on .eb-askbox { transform: none }
@@ -2346,6 +2522,21 @@ document.head.append(h("style", { id: "eb-style" }, `
   .eb-ver { grid-template-columns: 48px minmax(0, 1fr); } .eb-verthumb { width: 48px; height: 48px } .eb-veract { grid-column: 1 / -1 }
 }
 `));
+
+// ================================================================ shared with Sponsorships & CTAs (parts/tools/placements.js)
+// One sponsor or CTA as the email draws it: the same function, the same finishing (finish()) and the same phone
+// rules as the HTML Kit receives, so the tool's preview is the email's. A whole document for an iframe's srcdoc.
+async function placeDoc(place, item) {
+  const x = item || {}, accent = S.style.accent;
+  const block = place === "membership" ? spacer(20) + membershipCta(x, accent) + spacer(14) : place === "memberThanks" ? spacer(20) + memberThanks(x) + spacer(14) : sponsor(x) + spacer(20);
+  const inner = await finish(E("div", { class: "mo-wrapper", style: { width: "100%", maxWidth: 600, margin: "0 auto", background: TK.bgPaper, color: TK.bodyText, fontFamily: GEORGIA, textAlign: "left" } }, block), {});
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>html,body{margin:0;padding:0}body{background:#ffffff}${RESPONSIVE_RULES}</style></head><body>${outerTable(inner)}</body></html>`;
+}
+M.emailKit = {
+  PLACES, EYEBROWS, SEND_DAY, todayDay, sendDayOn, weekStart, addDays, fmtDay, fmtShort, fmtRun, runsOf, placeOf, covers, sendDaysIn, scheduledIn, itemTitle,
+  libItems: key => libOf(key), refreshLibs, commitList, onLibs: fn => { libSubs.add(fn); return () => libSubs.delete(fn); },
+  placeDoc, hydrate, pic, upload, ask, insertAt, grow, menuAt, linkOk, sponsorTitle, ctaTitle, newLibId, errText, eyebrowOf,
+};
 
 function boot() {
   if (!window.MOOS?.tools?.register) return void setTimeout(boot, 60);
