@@ -10,9 +10,9 @@ const { h, svg, put, icon, toast } = M;
 const DOCS = [
   { slug: "writers-covenant", label: "Writer's Covenant", title: "The Mere Orthodoxy Writer's Covenant", file: "Mere Orthodoxy Writer's Covenant.pdf",
     icon: '<path d="M19.5 4.5C11 5.5 6.5 11 5 20"/><path d="M19.5 4.5c-.8 5.6-4.6 9.4-10.6 10.6"/><path d="M4 20h7"/>' },
-  { slug: "brand-guide", label: "Brand Guide", title: "Brand Guide", sub: "November 2026 edition", file: "Mere Orthodoxy Brand Guide.pdf",
+  { slug: "brand-guide", label: "Brand Guide", title: "Brand Guide", sub: "November 2026 edition", file: "Mere Orthodoxy Brand Guide.pdf", staff: true,
     icon: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><circle cx="17" cy="17" r="3.6"/>' },
-  { slug: "sponsorship-guide", label: "Sponsorship Guide", title: "Sponsorship Opportunities", sub: "2027", file: "Mere Orthodoxy Sponsorship 2027.pdf",
+  { slug: "sponsorship-guide", label: "Sponsorship Guide", title: "Sponsorship Opportunities", sub: "2027", file: "Mere Orthodoxy Sponsorship 2027.pdf", staff: true,
     icon: '<path d="M3.5 12V4.5a1 1 0 0 1 1-1H12l8.5 8.5-8.5 8.5z"/><circle cx="8" cy="8" r="1.4"/>' },
 ];
 M.ICONS["doc-download"] = '<path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 20h14"/>';
@@ -24,9 +24,24 @@ const imgSrc = src => typeof src === "string" && /^img\/[\w-]+(\/[\w.-]+)+\.(jpg
 const hex = v => typeof v === "string" && /^#[0-9a-f]{3,8}$/i.test(v) ? v : null;
 const safeHref = v => typeof v === "string" && /^(https:\/\/|mailto:)[^\s"<>]+$/i.test(v) ? v : null;
 
+// Staff-only documents (staff: true above; Ian, Nov 26: "Move behind sign-in"). On the site they are not theme files,
+// which anyone can open: mo-admin hands them to signed-in staff with MOOS access (GET /moos/web/file, workers
+// admin/lib/moos-web.js) through the staff bearer. In the artifact they sit in docs/ beside the others.
+const STAFF = new Set(DOCS.filter(d => d.staff).map(d => d.slug));
+function getFile(slug, ext) {
+  const name = slug + "." + ext, WEB = window.MOOS_WEB;
+  if (!WEB || !STAFF.has(slug)) return fetch(asset(name));
+  const authed = window.MOAuth?.fetch;
+  if (typeof authed !== "function" || typeof WEB.api !== "string") return Promise.reject(new Error("Not signed in"));
+  const url = WEB.api.replace(/\/+$/, "") + "/moos/web/file?name=" + encodeURIComponent(name);
+  const go = () => authed(url, { headers: { Accept: ext === "pdf" ? "application/pdf" : "application/json" } });
+  // MOAuth forgets an expired bearer on a 401, so one more try fetches a fresh one (as web.js does)
+  return go().then(r => r.status === 401 ? go() : r);
+}
+
 const cache = new Map();
 function load(slug) {
-  if (!cache.has(slug)) cache.set(slug, fetch(asset(slug + ".json")).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+  if (!cache.has(slug)) cache.set(slug, getFile(slug, "json").then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .catch(e => { cache.delete(slug); throw e; }));
   return cache.get(slug);
 }
@@ -170,7 +185,7 @@ function render(doc, { contents = true } = {}) {
 async function download(d, btn) {
   btn.disabled = true; btn.setAttribute("aria-busy", "true");
   try {
-    const res = await fetch(asset(d.slug + ".pdf"));
+    const res = await getFile(d.slug, "pdf");
     if (!res.ok) throw new Error("HTTP " + res.status);
     const bytes = new Uint8Array(await res.arrayBuffer());
     const dl = window.MOOS_WEB ? null : await M.use("downloads");
