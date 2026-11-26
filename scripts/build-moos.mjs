@@ -15,7 +15,9 @@
  *   assets/moos/web.js          parts/web.js, the web adapter (piece C),
  *                               which the host page loads before MOOS
  *   assets/moos/parts/**        every other part
- *   assets/moos/docs/**         the Documents section's JSON, PDFs and images, byte for byte
+ *   assets/moos/docs/**         the Documents section's JSON, PDFs and images, byte for byte,
+ *                               except the staff-only documents (STAFF_DOCS below), which
+ *                               never go in the theme: mo-admin serves them
  *   assets/moos/geo/*.<hash>.json  the map outlines, the content hash in the
  *                               name because the core fetches them by bare
  *                               path and a bare /assets/ path can be served
@@ -197,11 +199,23 @@ if (existsSync(geoDir)) {
 // The Documents section's files (website/moos/docs/: each document's JSON, its PDF and the images it shows), copied
 // byte for byte to assets/moos/docs/. documents.js resolves "../docs/<name>" from its own URL and adds the part's ?v=,
 // so these keep their names. Dotfiles (.DS_Store) stay behind.
+//
+// The staff-only documents are the exception (Ian, 2026-11-26: "Move behind sign-in"). This theme is public and Ghost
+// serves every file under assets/ to anyone, so the Brand Guide and the Sponsorship Guide (with its rate card) stay
+// out of it. mo-admin serves them to signed-in staff from the workers repo's admin/moos-docs/ (GET /moos/web/file),
+// and documents.js asks it for them (its DOCS rows marked staff: true). When the workers repo sits beside this one
+// (the MOCA's website/workers), they are copied there; then run ./deploy.sh admin. Keep this list and those rows
+// in step. A new staff document also needs its names in STAFF_FILES in workers admin/lib/moos-web.js.
+const STAFF_DOCS = new Set(["brand-guide.json", "brand-guide.pdf", "sponsorship-guide.json", "sponsorship-guide.pdf"]);
+const STAFF_OUT = path.resolve(REPO, "../workers/admin/moos-docs");
+const staffFiles = new Map(); // file name -> Buffer
 const docsDir = path.join(SRC, "docs");
 if (existsSync(docsDir)) {
   for (const abs of await walk(docsDir)) {
     if (path.basename(abs).startsWith(".")) continue;
     await note(abs);
+    const rel = posix(path.relative(docsDir, abs));
+    if (STAFF_DOCS.has(rel)) { staffFiles.set(rel, await fs.readFile(abs)); continue; }
     files.set(`${OUT}/${posix(path.relative(SRC, abs))}`, await fs.readFile(abs));
   }
 }
@@ -316,10 +330,23 @@ const same = async (relPath, data) => {
 };
 const existing = existsSync(path.join(REPO, OUT)) ? (await walk(path.join(REPO, OUT))).map((a) => posix(path.relative(REPO, a))) : [];
 
+// A staff-only document in the workers repo beside this one that differs from the MOCA's copy
+const staffStale = async () => {
+  if (!existsSync(STAFF_OUT)) return [];
+  const out = [];
+  for (const [name, data] of staffFiles) {
+    let cur = null;
+    try { cur = await fs.readFile(path.join(STAFF_OUT, name)); } catch { /* missing */ }
+    if (!cur || Buffer.compare(cur, data) !== 0) out.push(`${posix(path.relative(REPO, STAFF_OUT))}/${name} (staff only, served by mo-admin)`);
+  }
+  return out;
+};
+
 if (checkMode) {
   const stale = [];
   for (const [p, data] of files) if (!(await same(p, data))) stale.push(p);
   for (const p of existing) if (!files.has(p)) stale.push(`${p} (no longer in MOOS)`);
+  stale.push(...(await staffStale()));
   if (stale.length) {
     console.error(`build-moos: the theme's copy of MOOS is stale against ${SRC}:`);
     for (const p of stale) console.error(`  STALE: ${p}`);
@@ -339,7 +366,18 @@ for (const [p, data] of [...files].sort(([a], [b]) => a.localeCompare(b))) {
   bytes += Buffer.byteLength(data);
 }
 
+const staffChanged = await staffStale();
+if (staffFiles.size && existsSync(STAFF_OUT)) {
+  for (const [name, data] of staffFiles) await fs.writeFile(path.join(STAFF_OUT, name), data);
+}
+
 console.log(`build-moos: read ${SRC}`);
 for (const line of manifest) console.log(`  < ${line}`);
 console.log(`  > ${files.size} files, ${(bytes / 1024).toFixed(0)} KB (${parts.length} parts${webJs === null ? ", no web.js" : `, web.js as a ${webIsModule ? "module" : "classic script"}`})`);
 console.log("Commit assets/moos/ and partials/moos-app-*.hbs.");
+if (staffFiles.size && !existsSync(STAFF_OUT)) {
+  console.log(`Staff-only documents (${[...staffFiles.keys()].join(", ")}) were left out of the theme. No workers repo at ${STAFF_OUT}:`);
+  console.log("copy them into its admin/moos-docs/ by hand, then ./deploy.sh admin.");
+} else if (staffChanged.length) {
+  console.log(`Staff-only documents changed in ${STAFF_OUT}: commit them in the workers repo, then ./deploy.sh admin.`);
+}
