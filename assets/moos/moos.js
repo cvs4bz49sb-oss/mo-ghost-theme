@@ -1243,11 +1243,11 @@ function review() {
 // ---------------------------------------------------------------- access and permissions
 // Ian, Nov 25: "I need to be able to add users and permissions. Admin permission is everything, but I can also remove
 // permissions one by one." config/access holds { users: { id: { admin, contacts, edit, ... } } }, written by the owner only.
-// Giving, Activity and Finances are copied into each granted person's private area (here and by every hourly push,
-// moos_push.py), so the store itself keeps them from everyone else; the other permissions show or hide views and actions.
+// Giving, Activity, Finances, Sponsors and Support are copied into each granted person's private area (here and by every
+// hourly push, moos_push.py), so the store itself keeps them from everyone else; the other permissions show or hide views and actions.
 const PERMS = [["contacts", "Contacts"], ["edit", "Edit"], ["export", "Downloads"], ["analytics", "Analytics"], ["calendar", "Calendar"],
-  ["projects", "Projects"], ["journal", "Journal"], ["editorial", "Editorial"], ["tools", "Tools"], ["sponsors", "Sponsors"], ["giving", "Giving"], ["activity", "Activity"], ["finances", "Finances"]];
-const LOCKED = ["giving", "activity", "finances", "sponsors"];
+  ["projects", "Projects"], ["journal", "Journal"], ["editorial", "Editorial"], ["tools", "Tools"], ["sponsors", "Sponsors"], ["support", "Support"], ["giving", "Giving"], ["activity", "Activity"], ["finances", "Finances"]];
+const LOCKED = ["giving", "activity", "finances", "sponsors", "support"];
 const sectionOf = docId => docId.startsWith("giving-finances") ? "finances" : docId.split("-")[0];
 // Before permissions existed, a granted person saw every view: an entry without any view key keeps that
 const legacy = g => g && !g.admin && !PERMS.some(([k]) => !LOCKED.includes(k) && k in g);
@@ -1258,7 +1258,7 @@ function can(perm) {
   if (g.admin || g[perm]) return true;
   return legacy(g) && !LOCKED.includes(perm);
 }
-const VIEW_PERM = { home: "contacts", analytics: "analytics", calendar: "calendar", tasks: "projects", projects: "projects", agenda: "projects", journal: "journal", donors: "giving", "donor-pipeline": "giving" };
+const VIEW_PERM = { home: "contacts", analytics: "analytics", calendar: "calendar", tasks: "projects", projects: "projects", agenda: "projects", journal: "journal", donors: "giving", "donor-pipeline": "giving", support: "support" };
 const GROUP_PERM = { people: "contacts", finances: "finances", tools: "tools", editorial: "editorial", sponsors: "sponsors" };
 function viewAllowed(id) {
   if (id === "access") return S.owner;
@@ -1393,7 +1393,8 @@ const FOOT = new Set(["access"]);  // Access sits in the rail's foot, beside the
 const AFTER = {};
 // Modules hook in: connect runs once the store is reachable, chrome on every redraw of the rail,
 // person(p, activity, giving) on every paint of a profile and returns cards to add to its right column.
-const hooks = { connect: [], chrome: [], person: [] };
+// count() returns { viewId: n } for the rail's number beside a view (Support's open urgent and high tickets).
+const hooks = { connect: [], chrome: [], person: [], count: [] };
 // Groups fold several views under one heading in the rail ("People", "Tools"); each opens like a drawer
 const GROUPS = new Map([["people", { label: "People", after: "home" }], ["work", { label: "Work", after: "people" }], ["tools", { label: "Tools", after: "analytics" }]]);
 ICONS["group-people"] = ICONS.people;
@@ -1463,6 +1464,7 @@ const groupOpen = (g, here) => pref("group-" + g) === "1" || (NAV.some(n => n[2]
 function navState() {
   const hash = location.hash.slice(1) || "home", here = hash.startsWith("p-") ? "people" : hash.startsWith("list-") ? "lists" : hash;
   const counts = { tasks: S.tasks.filter(t => t.owner === S.me).length, review: S.loaded ? dupes().length : 0 };
+  for (const fn of hooks.count) { try { for (const [id, n] of Object.entries(fn() || {})) if (Number.isInteger(n) && n > 0) counts[id] = n; } catch { /* a module's count never breaks the rail */ } }
   const items = NAV.filter(([id]) => !FOOT.has(id) && viewAllowed(id));
   return { here, counts, items };
 }
