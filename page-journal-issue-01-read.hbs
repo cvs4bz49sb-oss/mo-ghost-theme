@@ -9,7 +9,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://mo-kit.mo-podcast-feed.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+  <meta name="mo-trusted-hosts" content="{{@custom.kit_worker_url}}" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Issue 001: Fall 2021 &mdash; Mere Orthodoxy Journal</title>
@@ -21,7 +22,7 @@
   <link rel="stylesheet" href="{{asset "css/magazine.css"}}">
   <script src="{{asset "js/reader-init.js"}}"></script>
 </head>
-<body data-reader data-reader-kind="journal"
+<body data-reader data-kit-worker-url="{{@custom.kit_worker_url}}" data-member-status="{{@member.status}}" data-reader-kind="journal"
       data-reader-share-title="Mere Orthodoxy Journal: Issue 01 — Fall 2021"
       data-reader-share-text="Mere Orthodoxy Journal: Issue 01 — Fall 2021"
       data-reader-attr-full="\n\n— Mere Orthodoxy Journal, Issue 01"
@@ -319,6 +320,11 @@
 
   <script src="{{asset "js/reader.js"}}"></script>
   <script src="{{asset "js/magazine.js"}}" data-flip="{{asset "js/vendor/page-flip.browser.js"}}" data-emblem="{{asset "images/mere-o-fav-icon.png"}}"></script>
+  {{!-- Book, ebook and journal clicks (mo-kit /item-click): MOAuth for the
+       member token, then item-clicks.js, which also rides in site.min.js
+       on every page that extends default.hbs. --}}
+  <script src="{{asset "js/admin-auth.js"}}"></script>
+  <script src="{{asset "js/item-clicks.js"}}"></script>
 </body>
 </html>
 {{else}}
