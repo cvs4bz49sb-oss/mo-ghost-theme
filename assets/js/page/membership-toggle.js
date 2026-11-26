@@ -103,7 +103,7 @@
         clone.setAttribute('href', `/${slug}`);
         // Re-attach checkout-pending flag for post-checkout redirect
         clone.addEventListener('click', () => {
-          sessionStorage.setItem('mo_checkout_pending', Date.now().toString());
+          try { sessionStorage.setItem('mo_checkout_pending', Date.now().toString()); } catch (_) { /* storage blocked */ }
         });
         btn.parentNode.replaceChild(clone, btn);
         offerBtns.push(clone);
@@ -137,7 +137,7 @@
   if (!offerActive) {
     portalBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
-        sessionStorage.setItem('mo_checkout_pending', Date.now().toString());
+        try { sessionStorage.setItem('mo_checkout_pending', Date.now().toString()); } catch (_) { /* storage blocked */ }
       });
     });
   }

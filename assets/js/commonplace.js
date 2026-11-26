@@ -176,7 +176,9 @@
   // Desktop: mouseup
   let mouseTimer;
   document.addEventListener("mouseup", (e) => {
-    if (e.target.closest(".commonplace-tooltip")) return;
+    // The target is not always an element (a Firefox visitor sent one
+    // with no closest(), 2026-11-16), so check before calling it.
+    if (e.target && e.target.closest && e.target.closest(".commonplace-tooltip")) return;
     clearTimeout(mouseTimer);
     mouseTimer = setTimeout(checkSelection, 10);
   });

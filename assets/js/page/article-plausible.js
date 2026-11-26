@@ -9,7 +9,7 @@
  * sender first.
  */
 window.addEventListener("load", () => {
-  if (!window.plausible) return;
+  if (typeof window.plausible !== "function") return;
   const titleEl = document.querySelector(".article-title");
   const title = titleEl ? titleEl.textContent.trim().slice(0, 200) : document.title;
 

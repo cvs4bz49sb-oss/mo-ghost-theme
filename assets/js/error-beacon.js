@@ -67,7 +67,16 @@
     return `${String(msg).slice(0, 200)}|${String(url || "").slice(0, 120)}|${line || ""}`;
   }
 
+  // Browser and extension noise that says nothing about the site. In the
+  // beacon's first day (2026-11-10) the ResizeObserver notice alone was
+  // 3,900 of 4,496 rows. "Script error." is a cross-origin error with
+  // its details withheld. Aborted view transitions are the browser
+  // cancelling an animation when the reader clicks again mid-transition.
+  // The rest come from wallet extensions and in-app browsers.
+  const NOISE = /^(?:ResizeObserver loop|Script error\.?$|Unhandled rejection: Transition was (?:aborted|skipped))|window\.ethereum|__gCrWeb|Java object is gone|runtime\.sendMessage/;
+
   function send(payload) {
+    if (NOISE.test(String(payload.message || ""))) return;
     if (sent >= MAX_REPORTS) return;
     const now = Date.now();
     if (now - lastSentAt < 1000) return;

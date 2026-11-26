@@ -85,6 +85,17 @@
 
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  // The button is disabled on submit and the success path leaves for
+  // Stripe. Back restores this page from the back-forward cache with the
+  // button still disabled and reading "Opening checkout…", so a buyer who
+  // came back to change something could not continue. Same fix as
+  // lifetime-checkout.js.
+  window.addEventListener("pageshow", (e) => {
+    if (!e.persisted) return;
+    submit.disabled = false;
+    submit.textContent = "Continue to payment";
+  });
+
   async function identity() {
     try {
       const r = await fetch("/members/api/session/", { credentials: "same-origin" });

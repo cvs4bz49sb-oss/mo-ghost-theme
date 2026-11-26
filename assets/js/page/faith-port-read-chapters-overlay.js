@@ -155,7 +155,11 @@
       }
       return;
     }
-    if (window.MOSafeRedirect) window.MOSafeRedirect.go(url);
+    // NOT MOSafeRedirect.go, which only accepts Stripe addresses and would
+    // throw. href() builds this from the current address, so it is this page
+    // with a different ?p= and fragment.
+    // eslint-disable-next-line no-restricted-syntax -- same-origin, built from location.href
+    window.location.assign(url);
   }, true);
 
   function watch() {

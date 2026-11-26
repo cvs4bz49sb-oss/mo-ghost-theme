@@ -143,7 +143,9 @@
       amountInput.inputMode = "decimal";
       amountInput.name = "dollars";
       amountInput.required = true;
-      amountInput.value = String(Math.round((off.cents || 0) / 100));
+      // Cents are shown when there are any, so saving only a new note
+      // never rounds the stored figure.
+      amountInput.value = ((off.cents || 0) / 100).toFixed((off.cents || 0) % 100 ? 2 : 0);
       amount.appendChild(amountInput);
       const note = el("label", "dashboard-form-field");
       note.appendChild(el("span", "dashboard-form-label", "Note"));
