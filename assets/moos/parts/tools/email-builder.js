@@ -86,8 +86,17 @@ function md(text) {
 const paras = text => text ? text.split(/\n\s*\n+/).map(s => s.trim()).filter(Boolean) : [];
 function quoteOf(p) { const lines = p.split("\n"); return lines.every(l => /^\s*>/.test(l)) ? lines.map(l => l.replace(/^\s*> ?/, "")).join("\n") : null; }
 function itemsOf(p) { const lines = p.split("\n"); return lines.every(l => /^\s*[-*] +\S/.test(l)) ? lines.map(l => l.replace(/^\s*[-*] +/, "")) : null; }
+// "1. " lines are a numbered list (the list starts at the first number); "## " alone is a subheading. Both come in
+// from Google Docs imports and can be typed.
+function numberedOf(p) { const lines = p.split("\n"); return lines.every(l => /^\s*\d{1,3}[.)] +\S/.test(l)) ? lines.map(l => l.replace(/^\s*\d{1,3}[.)] +/, "")) : null; }
+const headOf = p => { const m = /^#{2,3} +(\S[^\n]*)$/.exec(p.trim()); return m ? m[1] : null; };
 const MD_P = { fontFamily: GEORGIA, fontSize: 16, lineHeight: 1.65, margin: "0 0 14px" };
 function mdPara(text) {
+  const head = headOf(text);
+  if (head != null) return E("h2", { style: { fontFamily: FELL2, fontSize: 24, lineHeight: 1.25, color: TK.bodyText, fontWeight: 400, margin: "24px 0 12px" } }, md(head));
+  const nums = numberedOf(text);
+  if (nums) return E("ol", { start: String(parseInt(text.trim(), 10) || 1), style: { ...MD_P, color: TK.bodyText, margin: "0 0 14px 24px", padding: 0, listStyleType: "decimal" } },
+    nums.map((it, i) => E("li", { style: { margin: i === nums.length - 1 ? 0 : "0 0 6px", paddingLeft: 2 } }, md(it))));
   const items = itemsOf(text);
   if (items) return E("ul", { style: { ...MD_P, color: TK.bodyText, margin: "0 0 14px 22px", padding: 0, listStyleType: "disc" } },
     items.map((it, i) => E("li", { style: { margin: i === items.length - 1 ? 0 : "0 0 6px", paddingLeft: 2 } }, md(it))));
@@ -331,11 +340,15 @@ function renderEmail(c, { isMember = false, accent = "moderate", density = "norm
   const order = Array.isArray(c.sectionOrder) && c.sectionOrder.length ? c.sectionOrder.filter(k => known.has(k)) : DEFAULT_ORDER;
   const shown = order.map(key => ({ key, html: one(key) })).filter(s => s.html);
   const isButton = k => blocks[k]?.type === "button";
+  // No divider inside a letter: between two buttons, before a block that continues the letter (flow: an imported
+  // picture, the text after it, or a P.S.), and before a signature that follows the letter.
+  const flows = k => !!blocks[k]?.flow;
+  const joined = (prev, key) => (isButton(prev) && isButton(key)) || flows(key) || (key === "signature" && (prev === "letter" || flows(prev)));
   const divide = E("div", { style: { padding: "0 32px" } }, rule(divider));
   const last = shown.length ? shown[shown.length - 1].key : null;
   return E("div", { class: "mo-wrapper", style: { width: "100%", maxWidth: 600, margin: "0 auto", background: TK.bgPaper, color: TK.bodyText, fontFamily: GEORGIA, textAlign: "left", boxShadow: "0 1px 3px rgba(45,41,39,0.06), 0 12px 36px rgba(45,41,39,0.10)" } },
     box("masthead", masthead(c)),
-    shown.map(({ key, html }, i) => (i > 0 && !(isButton(shown[i - 1].key) && isButton(key)) ? divide : "") + box(key, html)),
+    shown.map(({ key, html }, i) => (i > 0 && !joined(shown[i - 1].key, key) ? divide : "") + box(key, html)),
     last !== "sponsorBottom" ? spacer(28) : "",
     footer(isMember));
 }
@@ -505,16 +518,22 @@ const DEFAULT_CONTENT = {
   sectionOrder: DEFAULT_ORDER,
 };
 const clone = x => JSON.parse(JSON.stringify(x));
+// Two kinds of email (Ian, 2026-11-26): Normal (a letter, a signature and any blocks) and Digest (the Weekly Digest, in a
+// Free and a Paid version). The kind is saved on the email as content.kind; older emails get theirs from kindOf().
+const DIGEST_KEYS = ["yearEnd", "membership", "sponsorTop", "essays", "podcasts", "dailyLiturgy", "tfrSpotlight", "sponsorBottom"];
+const NORMAL_SECTIONS = { letter: true, signature: true, ...Object.fromEntries(DIGEST_KEYS.map(k => [k, false])) };
 const KINDS = {
-  digest: { label: "Weekly Digest", make: () => ({ ...clone(DEFAULT_CONTENT), mastheadTitle: "The Weekly Digest", sectionOrder: [...DEFAULT_ORDER],
+  normal: { label: "Normal", make: () => ({ ...clone(DEFAULT_CONTENT), kind: "normal", issueNumber: "", dateStr: "", mastheadTitle: "", editorTitle: "", editorBody: "",
+    sectionOrder: [...DEFAULT_ORDER], sections: { ...NORMAL_SECTIONS }, customBlocks: [] }) },
+  digest: { label: "Digest", make: () => ({ ...clone(DEFAULT_CONTENT), kind: "digest", mastheadTitle: "The Weekly Digest", sectionOrder: [...DEFAULT_ORDER],
     sections: { letter: true, yearEnd: true, membership: true, sponsorTop: true, essays: true, podcasts: true, sponsorBottom: true, signature: true }, customBlocks: [] }) },
-  cta: { label: "CTA email", make: () => ({ ...clone(DEFAULT_CONTENT), issueNumber: "", mastheadTitle: "", editorTitle: "", editorBody: "",
-    sectionOrder: ["letter", "b_cta_btn1", "b_cta_body2", "b_cta_btn2", "signature"],
-    sections: { letter: true, membership: false, sponsorTop: false, essays: false, podcasts: false, dailyLiturgy: false, tfrSpotlight: false, sponsorBottom: false, signature: true, b_cta_btn1: true, b_cta_body2: true, b_cta_btn2: true },
-    customBlocks: [{ id: "b_cta_btn1", type: "button", text: "Call to Action", url: "#", variant: "primary" }, { id: "b_cta_body2", type: "text", text: "" }, { id: "b_cta_btn2", type: "button", text: "Call to Action", url: "#", variant: "primary" }] }) },
-  resource: { label: "Resource email", make: () => ({ ...clone(DEFAULT_CONTENT), issueNumber: "", mastheadTitle: "", editorTitle: "", editorBody: "", sectionOrder: ["letter", "essays", "signature"],
-    sections: { letter: true, membership: false, sponsorTop: false, essays: true, podcasts: false, dailyLiturgy: false, tfrSpotlight: false, sponsorBottom: false, signature: true }, customBlocks: [] }) },
 };
+// A digest has its masthead title or issue number; the old CTA and resource emails had neither.
+const kindOf = c => c && KINDS[c.kind] ? c.kind : c && (String(c.mastheadTitle || "").trim() || String(c.issueNumber || "").trim()) ? "digest" : "normal";
+// What changes with the kind. Switching keeps the letter, the signature, the blocks and the subject, and keeps each
+// kind's own layout in content.layouts, so going back to Digest brings back its sections as they were.
+const LAYOUT = ["sections", "sectionOrder", "mastheadTitle", "issueNumber", "dateStr"];
+const layoutOf = c => Object.fromEntries(LAYOUT.map(k => [k, clone(c[k] ?? null)]));
 // Sends built in the theme's builder but never saved there, rebuilt from their source copy. They live in code so
 // deleting a saved version can never take one with it.
 const RECOVERED = [{
@@ -592,7 +611,9 @@ function normalize(saved) {
     const missing = (s.customBlocks || []).map(b => b && b.id).filter(id => id && !s.sectionOrder.includes(id));
     if (missing.length) s.sectionOrder = [...s.sectionOrder, ...missing];
   }
-  return { ...clone(DEFAULT_CONTENT), ...s };
+  const out = { ...clone(DEFAULT_CONTENT), ...s };
+  out.kind = kindOf(s);
+  return out;
 }
 // Mirrors isMeaningful in workers/admin/lib/digest-store.js: never send what the server would refuse.
 const meaningful = v => v == null ? false : typeof v === "string" ? !["", "null", "undefined"].includes(v.trim()) : Array.isArray(v) ? v.length > 0 : typeof v === "object" ? Object.keys(v).length > 0 : true;
@@ -781,6 +802,7 @@ function changed({ outline = true } = {}) {
 }
 function replaceContent(next, { resetKit = false } = {}) {
   S.content = normalize(next);
+  S.kind = S.content.kind; if (S.kind === "normal") S.variant = "free";
   S.open = null; S.essayOpen = null;
   if (resetKit) resetDrafts();
   ui?.paintAll();
@@ -796,6 +818,7 @@ async function load() {
     const [st, doc, vs] = await Promise.all([api("/digest/settings"), api("/digest/document"), api("/digest/versions?full=1&limit=25")]);
     S.settings = st?.settings || {};
     S.content = normalize(doc?.content || null);
+    S.kind = S.content.kind; if (S.kind === "normal") S.variant = "free";
     S.saved = JSON.stringify(S.content);
     S.savedAt = doc?.updatedAt ? new Date(doc.updatedAt.replace(" ", "T") + (/[zZ]|[+-]\d\d:?\d\d$/.test(doc.updatedAt) ? "" : "Z")) : null;
     S.versions = shapeVersions(vs?.versions);
@@ -903,7 +926,7 @@ async function podcastSlots(existing) {
   });
   return { fresh, errors, warnings, total: res.length };
 }
-const note = (kind, lines) => { S.note = { kind, lines: lines.filter(Boolean) }; ui?.note(); };
+const note = (kind, lines, action = null) => { S.note = { kind, lines: lines.filter(Boolean), action }; ui?.note(); };
 async function pullWeek(btn) {
   btn && (btn.disabled = true, btn.classList.add("eb-busy"));
   const lines = []; let bad = false, soft = false;
@@ -1030,6 +1053,7 @@ Object.assign(M.ICONS, {
   "eb-desktop": '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>', "eb-phone": '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
   "eb-send": '<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/>', "eb-history": '<path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4M12 8v4l3 2"/>',
   "eb-export": '<path d="M12 3v12M7 8l5-5 5 5M5 14v6h14v-6"/>', "eb-new": '<path d="M5 4h10l4 4v12H5z"/><path d="M12 11v6M9 14h6"/>',
+  "eb-doc": '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
   "eb-check": '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/>', "eb-alert": '<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.5v.5"/>',
   "eb-up2": '<path d="M7 14l5-5 5 5"/>', "eb-down2": '<path d="M7 10l5 5 5-5"/>', "eb-upload": '<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>',
 });
@@ -1334,11 +1358,10 @@ function mount(root) {
     put(head,
       h("div", { class: "eb-title" }, h("h1", {}, "Email Builder"), h("div", { class: "eb-sub" }, status, T()?.chip?.() || null)),
       h("div", { class: "actions" },
-        chips([["free", "Free subscribers"], ["paid", "Members"]], S.variant, v => { S.variant = v; if (S.kit) { S.kit.link = null; S.kit.linkFor = null; S.kit.result = null; S.kit.error = null; } ui.paintAll(); schedulePreview(0); }, "Version"),
-        h("button", { type: "button", class: "btn quiet", onclick: e => newMenu(e.currentTarget) }, icon("eb-new"), "New"),
-        h("button", { type: "button", class: "btn quiet", onclick: () => saveVersion() }, "Save version"),
-        h("button", { type: "button", class: "btn quiet", onclick: () => openHistory() }, icon("eb-history"), "History"),
-        h("button", { type: "button", class: "btn quiet", onclick: () => openExport() }, icon("eb-export"), "Export"),
+        chips([["normal", "Normal"], ["digest", "Digest"]], S.kind, setKind, "Email type"),
+        S.kind === "digest" ? chips([["free", "Free"], ["paid", "Paid"]], S.variant, v => { S.variant = v; if (S.kit) { S.kit.link = null; S.kit.linkFor = null; S.kit.result = null; S.kit.error = null; } ui.paintAll(); schedulePreview(0); }, "Version") : null,
+        h("button", { type: "button", class: "btn quiet", onclick: () => openImport() }, icon("eb-doc"), "Import from Google Docs"),
+        h("button", { type: "button", class: "btn quiet", "aria-haspopup": "menu", onclick: e => moreMenu(e.currentTarget) }, "More", icon("eb-chev")),
         h("button", { type: "button", class: "btn solid", onclick: () => openSend() }, icon("eb-send"), "Send with Kit")));
     put(paneSwitch, chips([["edit", "Compose"], ["preview", "Preview"]], S.pane, v => { S.pane = v; root.dataset.pane = v; paintHead(); if (v === "preview") fit(); }, "Show"));
     paintStatus();
@@ -1351,7 +1374,8 @@ function mount(root) {
   function paintNote() {
     const n = S.note;
     put(noteBox, n ? h("div", { class: "eb-note " + n.kind, role: "status" }, h("span", { class: "eb-noteicon" }, icon(n.kind === "ok" ? "eb-check" : "eb-alert")),
-      h("div", {}, n.lines.map(l => h("p", {}, l))), h("button", { type: "button", class: "x", "aria-label": "Dismiss", onclick: () => { S.note = null; paintNote(); } }, icon("x"))) : null);
+      h("div", {}, n.lines.map(l => h("p", {}, l)), n.action ? h("button", { type: "button", class: "btn quiet eb-sm", style: "margin-top: 8px", onclick: () => { const run = n.action.run; S.note = null; paintNote(); run(); } }, n.action.label) : null),
+      h("button", { type: "button", class: "x", "aria-label": "Dismiss", onclick: () => { S.note = null; paintNote(); } }, icon("x"))) : null);
   }
   function row(key, i) {
     const fixed = key === "masthead", open = S.open === key, on = fixed || enabled(key), aud = audienceNote(key);
@@ -1370,11 +1394,12 @@ function mount(root) {
   }
   function paintOutline() {
     if (S.phase !== "ready") return;
-    const keys = fullOrder();
+    const all = fullOrder(), keys = S.kind === "normal" ? all.filter(k => !DIGEST_KEYS.includes(k) || enabled(k)) : all;
     put(outline, row("masthead", 0), h("div", { class: "eb-sortlist" }, keys.map((k, i) => row(k, i + 1))));
     sortable(outline.querySelector(".eb-sortlist"), ".eb-row", (from, to) => {
-      const arr = fullOrder(), [m] = arr.splice(from, 1); arr.splice(to, 0, m);
-      S.content.sectionOrder = arr; paintOutline(); changed();
+      const vis = [...keys], [m] = vis.splice(from, 1); vis.splice(to, 0, m);
+      let i = 0; S.content.sectionOrder = all.map(k => keys.includes(k) ? vis[i++] : k);  // hidden digest rows keep their places
+      paintOutline(); changed();
     });
     paintAdder();
   }
@@ -1499,20 +1524,312 @@ function mount(root) {
 }
 // A finished preview is the marked HTML. The pushed HTML is built the same way, unmarked.
 
+// ---------------------------------------------------------------- Import from Google Docs
+// Paste a Google Docs link, or the doc itself (copied in Google Docs). A link is read on the server (mo-admin POST
+// /digest/gdoc, with read access to Docs as ian@mereorthodoxy.com), which answers plain HTML built from the doc; a pasted
+// doc arrives as the clipboard's HTML. Either way the HTML is parsed into an inert document and only its text, bold,
+// italics, underlines, links, lists, headings and pictures are read; nothing from it is ever put on the page as HTML.
+// What it becomes: the letter (a Title or Heading 1 at the top is the letter's title), "Subject:" and "Preview:" lines
+// at the top become the subject and preview text, a sign-off name (Ian, Jake or Mark) becomes the signature, a P.S.
+// after it becomes a text block after the signature, and each picture becomes an Image block in its place.
+const GDOC_LINK = /docs\.google\.com\/document\/(?:u\/\d+\/)?d\/([A-Za-z0-9_-]{20,100})/;
+const isDocLink = v => GDOC_LINK.test(v) || /^[A-Za-z0-9_-]{25,100}$/.test(String(v).trim());
+const META_LINE = [["subject", /^(?:subject(?: line)?|subj)\s*[:–-]\s*(\S.*)$/i], ["preheader", /^(?:preview(?: text| line)?|preheader|pre-header)\s*[:–-]\s*(\S.*)$/i]];
+const fold = t => String(t || "").toLowerCase().normalize("NFKD").replace(/[^\p{L}\s]/gu, " ").replace(/\s+/g, " ").trim();
+function docHref(raw) {
+  let u = String(raw || "").trim();
+  try { const x = new URL(u); if (/^(www\.)?google\.com$/.test(x.hostname) && x.pathname === "/url" && x.searchParams.get("q")) u = x.searchParams.get("q"); } catch { return ""; }
+  return /^(https?:|mailto:)/i.test(u) ? u : "";
+}
+// The doc as blocks: { kind: "p" | "h1" | "h2" | "li" | "img", runs, ordered, n, src, alt }. Bold, italics and underlines
+// come from tags or inline styles (Google's pasted HTML is all spans with styles, inside a <b style="font-weight:normal">).
+function docBlocks(html) {
+  const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
+  const blocks = [];
+  let cur = null;
+  const flush = () => { if (cur && (cur.kind === "img" || cur.runs.some(r => r.br || r.t.trim()))) blocks.push(cur); cur = null; };
+  const open = (kind, extra = {}) => { flush(); cur = { kind, runs: [], ...extra }; };
+  const SKIP = new Set(["SCRIPT", "STYLE", "TITLE", "META", "LINK", "HEAD", "NOSCRIPT", "TEMPLATE", "SVG", "IFRAME", "OBJECT"]);
+  const HEAD = { H1: "h1", H2: "h2", H3: "h2", H4: "h2", H5: "h2", H6: "h2" };
+  const styleOf = (el, ctx) => {
+    const st = el.getAttribute("style") || "", tag = el.tagName;
+    const fw = /font-weight\s*:\s*([a-z0-9]+)/i.exec(st)?.[1], fs = /font-style\s*:\s*([a-z]+)/i.exec(st)?.[1], td = /text-decoration(?:-line)?\s*:\s*([^;]+)/i.exec(st)?.[1];
+    const b = fw ? fw === "bold" || fw === "bolder" || +fw >= 600 : tag === "B" || tag === "STRONG" ? true : ctx.b;
+    const i = fs ? fs === "italic" || fs === "oblique" : tag === "I" || tag === "EM" ? true : ctx.i;
+    const u = td ? /underline/i.test(td) : tag === "U" || tag === "INS" ? true : ctx.u;
+    const href = tag === "A" && el.getAttribute("href") != null ? docHref(el.getAttribute("href")) : ctx.href;
+    return { b, i, u, href };
+  };
+  const lists = [];  // the open lists, innermost last: { ordered, n }
+  const walk = (node, ctx) => {
+    if (node.nodeType === 3) {
+      const t = node.nodeValue.replace(/ /g, " ").replace(/[\t\r\n]+/g, " ");
+      if (!t) return;
+      if (!cur) { if (!t.trim()) return; open("p"); }
+      cur.runs.push({ t, ...ctx });
+      return;
+    }
+    if (node.nodeType !== 1) return;
+    const el = node, tag = el.tagName;
+    if (SKIP.has(tag)) return;
+    if (tag === "BR") { if (cur && cur.kind !== "img") cur.runs.push({ br: true, t: "" }); else flush(); return; }
+    if (tag === "HR") { flush(); return; }
+    if (tag === "IMG") {
+      const src = el.getAttribute("src") || "";
+      if (/^(https:|data:image\/)/i.test(src)) { flush(); blocks.push({ kind: "img", src, alt: (el.getAttribute("alt") || "").slice(0, 200) }); }
+      return;
+    }
+    if (tag === "UL" || tag === "OL") {
+      flush(); lists.push({ ordered: tag === "OL", n: Math.max(1, parseInt(el.getAttribute("start") || "1", 10) || 1) - 1 });
+      for (const k of el.childNodes) walk(k, ctx);
+      flush(); lists.pop(); return;
+    }
+    if (tag === "LI") {
+      const l = lists[lists.length - 1] || { ordered: false, n: 0 }; l.n++;
+      open("li", { ordered: l.ordered, n: l.n });
+      for (const k of el.childNodes) walk(k, ctx);
+      flush(); return;
+    }
+    if (HEAD[tag] || tag === "P" || tag === "DIV" || tag === "BLOCKQUOTE" || tag === "TD" || tag === "TH" || tag === "SECTION" || tag === "ARTICLE") {
+      // A <p> inside an <li> (Google's pasted lists) stays part of that item
+      const inItem = cur && cur.kind === "li" && el.closest("li") && (tag === "P" || tag === "DIV");
+      if (!inItem) open(HEAD[tag] || "p");
+      const c2 = HEAD[tag] ? { ...styleOf(el, ctx), b: false } : styleOf(el, ctx);
+      for (const k of el.childNodes) walk(k, c2);
+      if (!inItem) flush();
+      return;
+    }
+    const c2 = styleOf(el, ctx);
+    for (const k of el.childNodes) walk(k, c2);
+  };
+  for (const k of doc.body.childNodes) walk(k, { b: false, i: false, u: false, href: "" });
+  flush();
+  return blocks;
+}
+// Runs to the builder's markdown: **bold**, *italic*, __underline__, [text](link), a line break as a new line.
+function runsMd(runs, { plainText = false } = {}) {
+  const same = (a, b) => a.b === b.b && a.i === b.i && a.u === b.u && a.href === b.href;
+  const merged = [];
+  for (const r of runs) {
+    const last = merged[merged.length - 1];
+    if (last && !last.br && !r.br && same(last, r)) last.t += r.t; else merged.push({ ...r });
+  }
+  const wrap = r => {
+    if (plainText) return r.t;
+    const m = /^(\s*)([\s\S]*?)(\s*)$/.exec(r.t);
+    if (!m[2]) return r.t;
+    let core = m[2];
+    if (r.u && !r.href) core = `__${core}__`;
+    if (r.i) core = `*${core}*`;
+    if (r.b) core = `**${core}**`;
+    return m[1] + core + m[3];
+  };
+  let out = "";
+  for (let k = 0; k < merged.length;) {
+    const r = merged[k];
+    if (r.br) { out += "\n"; k++; continue; }
+    if (r.href && !plainText) {
+      let inner = "", j = k;
+      while (j < merged.length && !merged[j].br && merged[j].href === r.href) inner += wrap({ ...merged[j], u: false }), j++;
+      const text = inner.trim().replace(/\[/g, "(").replace(/\]/g, ")");
+      out += (/^\s/.test(inner) ? " " : "") + (text ? `[${text}](${r.href.replace(/\)/g, "%29").replace(/ /g, "%20")})` : "") + (/\s$/.test(inner) ? " " : "");
+      k = j; continue;
+    }
+    out += wrap(r); k++;
+  }
+  return out.split("\n").map(l => l.replace(/[ \t]+/g, " ").trim()).join("\n").trim();
+}
+// The blocks to the letter, its title, the subject and preview text, the signature, the P.S. and the pictures.
+function docToEmail(blocks) {
+  const items = blocks.map(b => b.kind === "img" ? b : { ...b, md: runsMd(b.runs), text: runsMd(b.runs, { plainText: true }) }).filter(b => b.kind === "img" || b.text);
+  const out = { title: "", subject: "", preheader: "", sig: null, ps: "", parts: [], images: 0 };
+  // "Subject:" and "Preview:" lines among the first few
+  for (let k = 0, seen = 0; k < items.length && seen < 6; k++) {
+    if (items[k].kind === "img") continue; seen++;
+    const hit = META_LINE.find(([, rx]) => rx.test(items[k].text));
+    if (hit) { out[hit[0]] = hit[1].exec(items[k].text)[1].trim(); items.splice(k, 1); k--; }
+  }
+  // A Title or Heading 1 at the top is the letter's title
+  const first = items.findIndex(b => b.kind !== "img");
+  if (first >= 0 && items[first].kind === "h1") { out.title = items[first].text; items.splice(first, 1); }
+  // The sign-off: a signer's name (or "Ian, Director of Communications"; or the first name alone after a closing
+  // line like "Thanks,") near the end. What follows the name is the P.S.
+  const names = Object.entries(SIGNATURES).map(([key, s]) => ({ key, full: fold(s.name), first: fold(s.name.split(" ")[0]), title: fold(s.title) }));
+  const who = (t, prev) => {
+    const f = fold(t);
+    return names.find(n => f === n.full || f === `${n.full} ${n.title}` || f === `${n.full} mere orthodoxy` || (f === n.first && prev && /[,–-]\s*$/.test(prev.trim())));
+  };
+  for (let k = items.length - 1; k >= Math.max(0, items.length - 8); k--) {
+    const b = items[k];
+    if (b.kind === "img" || b.kind === "li") continue;
+    const lines = b.text.split("\n"), mdLines = b.md.split("\n");
+    const prevText = lines.length > 1 ? lines[lines.length - 2] : (items[k - 1] && items[k - 1].text) || "";
+    const hit = who(lines[lines.length - 1], prevText);
+    if (!hit) continue;
+    out.sig = hit.key;
+    let tail = items.slice(k + 1);
+    // a title line or "Mere Orthodoxy" right under the name goes with it
+    while (tail.length && tail[0].kind !== "img" && [hit.title, "mere orthodoxy", `${hit.title} mere orthodoxy`].includes(fold(tail[0].text))) tail = tail.slice(1);
+    out.ps = tail.filter(x => x.kind !== "img").map(x => x.md).join("\n\n");
+    const keep = mdLines.slice(0, -1).join("\n").trim();
+    items.splice(k, items.length - k, ...(keep ? [{ ...b, md: keep, text: lines.slice(0, -1).join("\n") }] : []), ...tail.filter(x => x.kind === "img"));
+    break;
+  }
+  // Paragraphs to markdown, split at pictures: [{ text }, { img }, { text }, ...]
+  let para = [], listOf = null;
+  const push = () => { if (para.length) out.parts.push({ text: para.join("\n\n") }); para = []; };
+  for (const b of items) {
+    if (b.kind === "img") { push(); out.parts.push({ img: b.src, alt: b.alt }); out.images++; listOf = null; continue; }
+    if (b.kind === "li") {
+      const line = b.ordered ? `${b.n}. ${b.md.replace(/\n+/g, " ")}` : `- ${b.md.replace(/\n+/g, " ")}`;
+      if (listOf === (b.ordered ? "ol" : "ul") && para.length) para[para.length - 1] += "\n" + line; else para.push(line);
+      listOf = b.ordered ? "ol" : "ul"; continue;
+    }
+    listOf = null;
+    para.push(b.kind === "h1" || b.kind === "h2" ? `## ${b.text.replace(/\n+/g, " ")}` : b.md);
+  }
+  push();
+  return out;
+}
+// A pasted picture is on Google's servers for a while only, so it is copied to the site the way Upload does.
+async function rehost(src) {
+  if (/^https:\/\/(storage\.ghost\.io|mereorthodoxy\.com|www\.mereorthodoxy\.com)\//.test(src)) return src;
+  try {
+    const data = /^data:image\//.test(src) ? src : T()?.image ? await T().image(src) : "";
+    const m = /^data:(image\/(?:png|jpeg|gif|webp));base64,([A-Za-z0-9+/=]+)$/.exec(data || "");
+    if (!m) return null;
+    const bin = atob(m[2]), bytes = new Uint8Array(bin.length);
+    for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+    return await upload(new File([bytes], "doc-picture." + m[1].split("/")[1].replace("jpeg", "jpg"), { type: m[1] }));
+  } catch { return null; }
+}
+async function applyImport(r, label, extraNotes = []) {
+  const c = S.content, before = clone(c);
+  const parts = [...r.parts];
+  while (parts.length && parts[0].img) parts.shift(), r.images--, r.dropped = (r.dropped || 0) + 1;  // a picture before any text has no letter to follow
+  const letter = parts[0] && parts[0].text != null ? parts.shift().text : "";
+  if (!letter.trim() && !r.title && !parts.length) return false;
+  const added = [];
+  let lost = r.dropped || 0;
+  for (const part of parts) {
+    if (part.text != null) { added.push({ id: newBlockId(), type: "text", text: part.text, imported: true, flow: true }); continue; }
+    const src = await rehost(part.img);
+    if (src) added.push({ id: newBlockId(), type: "image", heading: "", src, body: "", url: "", linkText: "", alt: part.alt || "", imported: true, flow: true });
+    else lost++;
+  }
+  const ps = r.ps ? [{ id: newBlockId(), type: "text", text: r.ps, imported: true, flow: true }] : [];
+  // What an earlier import added goes; everything else stays
+  const old = new Set((c.customBlocks || []).filter(b => b && b.imported).map(b => b.id));
+  const order = fullOrder().filter(k => !old.has(k));
+  c.customBlocks = [...(c.customBlocks || []).filter(b => b && !old.has(b.id)), ...added, ...ps];
+  order.splice(order.indexOf("letter") + 1, 0, ...added.map(b => b.id));
+  order.splice(order.indexOf("signature") + 1, 0, ...ps.map(b => b.id));
+  c.sectionOrder = order;
+  c.editorTitle = r.title; c.editorBody = letter;
+  if (r.subject) c.subjectLine = r.subject;
+  if (r.preheader) c.preheader = r.preheader;
+  const sig = r.sig && SIGNATURES[r.sig];
+  if (sig) { c.signatureKey = r.sig; c.editorSignature = `${sig.name}, ${sig.title}`; }
+  c.sections = { ...(c.sections || {}), letter: true, ...(sig ? { signature: true } : {}), ...Object.fromEntries([...added, ...ps].map(b => [b.id, true])) };
+  if (S.kit) { if (r.subject) S.kit.subjectTouched = false; if (r.preheader) S.kit.preTouched = false; }
+  S.open = null; S.essayOpen = null;
+  ui?.paintAll(); changed(); schedulePreview(0);
+  const lines = [`Imported ${label}.`,
+    [sig ? `Signed by ${sig.name}.` : "", r.subject ? "Subject line set." : "", r.preheader ? "Preview text set." : "", r.ps ? "The P.S. is a text block after the signature." : ""].filter(Boolean).join(" "),
+    added.some(b => b.type === "image") ? `${added.filter(b => b.type === "image").length === 1 ? "The picture is an Image block" : "The pictures are Image blocks"} in its place.` : "",
+    lost ? `${lost === 1 ? "One picture" : `${lost} pictures`} couldn't come over. Add ${lost === 1 ? "it" : "them"} with an Image block.` : "",
+    ...extraNotes];
+  note(lost ? "warn" : "ok", lines, { label: "Undo", run: () => { replaceContent(before); toast("Import undone"); } });
+  return true;
+}
+let impD = null;
+function openImport() {
+  impD = impD || drawer("eb-imp");
+  let busy = false;
+  const box = grow(h("textarea", { rows: 2, placeholder: "https://docs.google.com/document/d/...", spellcheck: "false", "aria-describedby": "eb-imp-how" }));
+  const msg = h("div", { class: "eb-impmsg", role: "status" });
+  const go = h("button", { type: "button", class: "btn solid" }, icon("eb-doc"), "Import");
+  const say = text => put(msg, text ? h("div", { class: "eb-note warn" }, h("span", { class: "eb-noteicon" }, icon("eb-alert")), h("div", {}, h("p", {}, text))) : null);
+  const NOT_YET = "MOOS can't open Google Docs links yet. For now, open the doc, select everything (Command-A), copy it, and paste it here.";
+  async function run(job) {
+    if (busy) return;
+    busy = true; go.disabled = true; go.classList.add("eb-busy"); say("");
+    try {
+      if (await job()) impD.close();
+    } catch (e) {
+      const code = e && (e.data?.code || e.code);
+      say(code === "not_connected" || code === "not_found" ? NOT_YET : code === "no_access" || code === "bad_link" ? errText(e) : `The doc didn't come in: ${errText(e)}`);
+    } finally { busy = false; go.disabled = false; go.classList.remove("eb-busy"); }
+  }
+  const fromHtml = (html, label, notes) => async () => {
+    const r = docToEmail(docBlocks(html));
+    if (!(await applyImport(r, label, notes))) { say("That doc is empty."); return false; }
+    return true;
+  };
+  const fromLink = link => async () => {
+    const d = await api("/digest/gdoc", { method: "POST", body: { url: link } });
+    return fromHtml(d && d.html, d && d.title ? `“${d.title}”` : "the doc", (d && d.notes) || [])();
+  };
+  const fromText = text => fromHtml(text.split(/\n\s*\n/).map(p => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join(""), "the pasted text");
+  box.addEventListener("paste", e => {
+    const html = e.clipboardData?.getData("text/html") || "", text = (e.clipboardData?.getData("text/plain") || "").trim();
+    if (isDocLink(text)) { setTimeout(() => go.click(), 0); return; }   // a link: let it land, then read it
+    if (html || text.includes("\n")) { e.preventDefault(); run(html ? fromHtml(html, "the pasted doc") : fromText(text)); }
+  });
+  box.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); go.click(); } });
+  go.onclick = () => {
+    const v = box.value.trim();
+    if (!v) { say("Paste the doc's link, or the doc itself."); box.focus(); return; }
+    run(isDocLink(v) ? fromLink(v) : fromText(v));
+  };
+  put(impD.body, h("h2", {}, "Import from Google Docs"),
+    h("p", { class: "lbl", id: "eb-imp-how" }, `Paste the doc's link. Or open the doc, select everything (Command-A), copy it, and paste it here. It becomes ${S.kind === "digest" ? "this Digest's letter" : "this email"}, with its bold, italics, links and lists.`),
+    field("Link or doc", box), msg,
+    h("ul", { class: "eb-imphow lbl" },
+      h("li", {}, "A Title or Heading 1 at the top becomes the letter's title."),
+      h("li", {}, "“Subject:” and “Preview:” lines at the top set the subject and preview text."),
+      h("li", {}, "A sign-off by Ian, Jake or Mark becomes their signature. A P.S. stays after it."),
+      h("li", {}, "Importing again replaces the letter. Undo puts back what was there.")));
+  put(impD.foot, h("button", { type: "button", class: "btn quiet", onclick: () => impD.close() }, "Cancel"), go);
+  impD.open(); setTimeout(() => box.focus(), 60);
+}
+
 // ---------------------------------------------------------------- menus and saving versions
-function newMenu(anchor) {
+function menuAt(anchor, items) {
   document.querySelector(".eb-menu")?.remove();
-  const menu = h("div", { class: "eb-menu", role: "menu" }, Object.entries(KINDS).map(([k, v]) => h("button", { type: "button", role: "menuitem", onclick: async () => {
-    menu.remove();
-    if (!(await ask(`Start a new ${v.label}? It replaces the email you have open. Saved versions stay in History.`, { ok: "Start new", title: v.label }))) return;
-    S.kind = k; replaceContent(v.make(), { resetKit: true }); toast(`New ${v.label}`);
-  } }, h("span", { class: "eb-ricon" }, icon(k === "digest" ? "eb-s-essays" : k === "cta" ? "eb-s-button" : "eb-s-letter")), v.label)));
+  const menu = h("div", { class: "eb-menu", role: "menu" }, items.map(([label, ic, run]) => h("button", { type: "button", role: "menuitem", onclick: () => { menu.remove(); run(); } },
+    h("span", { class: "eb-ricon" }, icon(ic)), label)));
   const r = anchor.getBoundingClientRect();
-  menu.style.top = `${r.bottom + scrollY + 8}px`; menu.style.left = `${Math.max(12, Math.min(r.left + scrollX, innerWidth - 260))}px`;
+  menu.style.top = `${r.bottom + scrollY + 8}px`; menu.style.left = `${Math.max(12, Math.min(r.right + scrollX - 240, innerWidth - 260))}px`;
   document.body.append(menu);
   const off = e => { if (!menu.contains(e.target) && e.target !== anchor) { menu.remove(); removeEventListener("pointerdown", off, true); } };
   setTimeout(() => addEventListener("pointerdown", off, true));
+  menu.addEventListener("keydown", e => { if (e.key === "Escape") { menu.remove(); anchor.focus(); } });
   menu.querySelector("button")?.focus();
+}
+function moreMenu(anchor) {
+  const kind = KINDS[S.kind] || KINDS.digest;
+  menuAt(anchor, [
+    [`New ${kind.label === "Digest" ? "Digest" : "email"}`, "eb-new", async () => {
+      if (!(await ask(`Start a new ${kind.label === "Digest" ? "Digest" : "email"}? It replaces the email you have open. Saved versions stay in History.`, { ok: "Start new", title: kind.label }))) return;
+      replaceContent(kind.make(), { resetKit: true }); toast(kind.label === "Digest" ? "New Digest" : "New email");
+    }],
+    ["Save version", "eb-check", () => saveVersion()],
+    ["History", "eb-history", () => openHistory()],
+    ["Export", "eb-export", () => openExport()],
+  ]);
+}
+// Normal or Digest. The letter, signature, blocks and subject stay; each kind keeps its own layout (content.layouts).
+function setKind(k) {
+  if (!KINDS[k] || k === S.kind || !S.content) return;
+  const c = S.content;
+  c.layouts = { ...(c.layouts || {}), [S.kind]: layoutOf(c) };
+  Object.assign(c, clone(c.layouts[k] || layoutOf(KINDS[k].make())));
+  c.kind = S.kind = k;
+  if (k === "normal") S.variant = "free";
+  if (S.kit) { S.kit.link = null; S.kit.linkFor = null; S.kit.result = null; S.kit.error = null; }
+  S.open = null; S.essayOpen = null;
+  ui?.paintAll(); changed(); schedulePreview(0);
 }
 async function saveVersion() {
   const snap = clone(S.content);
@@ -1563,7 +1880,7 @@ function paintHistory() {
 let expD = null, expTimer = 0, expHtml = "", expBusy = false, expOut = null;
 const expPref = (k, d) => S.settings[k] != null && S.settings[k] !== "" ? S.settings[k] : d;
 const EXP = { subject: null, preheader: null };
-const expSubject = () => EXP.subject ?? `The Weekly Digest · No. ${S.content.issueNumber || ""} · ${S.content.subjectLine || S.content.editorTitle || ""}`.trim();
+const expSubject = () => EXP.subject ?? autoSubject();
 function openExport() { expD = expD || drawer("eb-exp"); EXP.subject = null; EXP.preheader = null; paintExport(); expD.open(); buildExport(); }
 function buildExport() {
   clearTimeout(expTimer); expBusy = true; expOut?.();
@@ -1914,6 +2231,7 @@ document.head.append(h("style", { id: "eb-style" }, `
 .eb-noteicon svg { width: 20px; height: 20px } .eb-note.ok .eb-noteicon { color: var(--accent) } .eb-note.warn .eb-noteicon { color: var(--c-lifetime) } .eb-note.err .eb-noteicon { color: var(--alert) }
 .eb-note.warn { border-color: color-mix(in srgb, var(--c-lifetime) 55%, var(--rule)) } .eb-note.err { border-color: color-mix(in srgb, var(--alert) 50%, var(--rule)) }
 .eb-drawer .eb-note { grid-template-columns: 28px minmax(0, 1fr) }
+.eb-imp .eb-impmsg:not(:empty) { margin-top: 12px } .eb-imp .eb-imphow { margin: 20px 0 0; padding-left: 18px; display: grid; gap: 6px } .eb-imp textarea { font-family: inherit }
 .eb-seg .chip svg { width: 16px; height: 16px } .eb-ic { display: inline-flex; align-items: center; gap: 7px }
 
 /* the stage */
