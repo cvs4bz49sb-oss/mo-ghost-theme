@@ -3,6 +3,8 @@
 //   History: the locked document data/users/<me>/sponsors-history, written by moos_part_sponsors.py from
 //     business/sponsorship/sponsors.json: sponsors, deals, placements (with Kit clicks), touchpoints and the rate
 //     card, plus totals per sponsor and by_month. The owner and people granted Sponsors (or Admin) receive it.
+//     A placement's clicks are null when no source counts them (podcast reads, pre-Kit digests): the page shows
+//     "–" (title "Not tracked") for those, never 0.
 //     It keeps only the newest email lines for size; data/users/<me>/sponsors-touchpoints holds every one, and
 //     its list is used in place of the history's whenever it is there.
 //   The board: mo-admin's sponsorships board, the same one /admin/sponsors/ uses (custom-admin-sponsors.hbs,
@@ -496,9 +498,12 @@ const head = (title, n, ...right) => h("div", { class: "head spo-head" }, h("h1"
 // A loading state the next paint replaces with an entrance (moos.html put() treats a box holding skeletons as empty)
 const waiting = (...kids) => h("div", { class: "spo-wait" }, ...kids);
 const skelTiles = n => h("div", { class: "tiles" }, Array.from({ length: n }, () => h("div", { class: "skel spo-skel-tile" })));
+// A count no source keeps (null), as against a counted zero
+const notTracked = () => h("span", { class: "spo-nt", title: "Not tracked" }, "–");
 function tile(label, value, show = fmt, whole = null, i = 0, extra = null) {
   return h("div", { class: "tile rise spo-tile", style: `--i:${i}` },
-    h("span", { class: "big" }, num(value || 0, show), whole != null ? h("span", { class: "spo-share" }, " | " + (share(value, whole) || "0%")) : null),
+    h("span", { class: "big" }, value === null ? notTracked() : num(value || 0, show),
+      whole != null && value !== null ? h("span", { class: "spo-share" }, " | " + (share(value, whole) || "0%")) : null),
     h("span", { class: "lbl" }, label), extra);
 }
 const stateTag = st => h("span", { class: "spo-state", style: `--c:${STATUS[st]?.[1] || "var(--rule-strong)"}` }, STATUS[st]?.[0] || cap(st));
@@ -1111,8 +1116,8 @@ function directoryView() {
         tile("Active sponsors", active, fmt, H.sponsors.length, 0),
         tile("Lifetime sponsor revenue", all.revenue, money, null, 1),
         tile("Placements run", H.placements.length, fmt, null, 2),
-        tile("Digest clicks", dClicks, fmt, null, 3),
-        tile("Average digest ad clicks", counted$.length ? dClicks / counted$.length : 0, one, null, 4)),
+        tile("Digest clicks", counted$.length ? dClicks : null, fmt, null, 3),
+        tile("Average digest ad clicks", counted$.length ? dClicks / counted$.length : null, one, null, 4)),
       h("div", { class: "grid" }, card));
   }
   function paintTable() {
@@ -1125,7 +1130,7 @@ function directoryView() {
     put(tableBox, list.length ? table("spo-dir", ["Sponsor", "Kind", "Status", "Revenue", "Placements", "Clicks", "First run", "Last run", "Last contact"],
       list.map(s => { const t = H.totals[s.id]; return [[
         h("span", { class: "spo-namecell" }, h("button", { type: "button", class: "plain spo-name" }, s.name), edMark(s.ed)), KIND[s.kind] || cap(s.kind), stateTag(s.status),
-        t.revenue ? money(t.revenue) : "", fmt(t.placements), H.runsOf.get(s.id).some(p => p.clicks != null) ? fmt(t.clicks) : "", dayText(t.first_run), dayText(t.last_run), dayText(s.last)], () => open(s.id)]; }),
+        t.revenue ? money(t.revenue) : "", fmt(t.placements), H.runsOf.get(s.id).some(p => p.clicks != null) ? fmt(t.clicks) : notTracked(), dayText(t.first_run), dayText(t.last_run), dayText(s.last)], () => open(s.id)]; }),
       { cols: "minmax(120px, 1fr) 78px 80px 80px 78px 58px 86px 86px 90px", mcols: "minmax(0, 1fr) 80px 80px 78px 58px 86px",
         pcols: "minmax(0, 1fr) 80px 76px", ph: [0, 3, 7], mh: [1, 6, 8], left: [0, 1, 2] })
       : h("div", { class: "lbl spo-none-row" }, "None"));
@@ -1149,7 +1154,7 @@ function directoryView() {
               s.first_contact ? h("span", {}, "Since " + asDate(s.first_contact).toLocaleDateString("en-US", { month: "short", year: "numeric" })) : null, edMark(fixed))))),
       s.summary ? h("p", { class: "spo-summary rise", style: "--i:1" }, s.summary) : null,
       h("div", { class: "tiles" },
-        tile("Revenue", t.revenue, money, all.revenue, 1), tile("Placements", t.placements, fmt, all.placements, 2), tile("Clicks", t.clicks, fmt, all.clicks, 3),
+        tile("Revenue", t.revenue, money, all.revenue, 1), tile("Placements", t.placements, fmt, all.placements, 2), tile("Clicks", runs.some(p => p.clicks != null) ? t.clicks : null, fmt, all.clicks, 3),
         rate != null ? tile("Click rate", rate, rateText, null, 4) : null),
       runsCard(runs, s),
       h("div", { class: "two" },
@@ -1192,7 +1197,7 @@ function directoryView() {
         table("spo-runs", ["Date", "Issue", "Slot", "Clicks", "Recipients", "Click rate", ...(can ? [""] : [])], latest.slice(0, runMax).map(p => {
           const link = https(p.url), name = p.issue || CHANNEL[p.channel][0];
           return [[dayText(p.date), h("span", { class: "spo-namecell" }, link ? h("a", { href: link, target: "_blank", rel: "noopener noreferrer" }, name) : name, edMark(p.ed)),
-            p.slot ? slotName(p.slot, true) : CHANNEL[p.channel][0], p.clicks != null ? fmt(p.clicks) : "", p.recipients != null ? fmt(p.recipients) : "",
+            p.slot ? slotName(p.slot, true) : CHANNEL[p.channel][0], p.clicks != null ? fmt(p.clicks) : notTracked(), p.recipients != null ? fmt(p.recipients) : "",
             p.clicks != null && p.recipients ? rateText(p.clicks / p.recipients) : "",
             ...(can ? [h("button", { type: "button", class: "x spo-edit", "aria-label": `Edit ${name}, ${longDay(p.date)}`, onclick: e => ed.run(p.id, s.id, e.currentTarget) }, icon("spo-edit"))] : [])]];
         }), can ? { cols: "96px minmax(0, 1.3fr) minmax(0, 1fr) 70px 96px 84px 40px", pcols: "minmax(0, 1fr) 58px 64px 44px", ph: [1, 3, 5, 6], left: [0, 1, 2] }
@@ -1537,6 +1542,7 @@ function performanceView() {
     const rate = rated.length ? rated.reduce((a, d) => a + by.get(d).clicks, 0) / rated.reduce((a, d) => a + by.get(d).rec, 0) : null;
     const today = localDay(), d90 = localDay(new Date(Date.now() - 90 * DAY)), d180 = localDay(new Date(Date.now() - 180 * DAY));
     const inSpan = (a, b) => known.filter(d => d > a && d <= b).reduce((n, d) => n + by.get(d).clicks, 0), now90 = inSpan(d90, today), was90 = inSpan(d180, d90);
+    const any90 = known.some(d => d > d90 && d <= today);
     const switcher = h("div", { class: "spo-switch", role: "group", "aria-label": "Clicks or click rate" },
       [["clicks", "Clicks"], ["rate", "Click rate"]].map(([v, l]) => h("button", { type: "button", "aria-pressed": String(clickMode === v), onclick: () => { if (clickMode !== v) { clickMode = v; paint(); } } }, l)));
     const chart = clickMode === "rate"
@@ -1544,9 +1550,9 @@ function performanceView() {
       : lineChart(known, known.map(d => by.get(d).clicks), fmt);
     return h("section", { class: "card s12 rise", style: "--i:7" }, h("div", { class: "card-head" }, h("h2", {}, "Digest sponsor clicks"), switcher),
       h("div", { class: "figures" },
-        h("div", {}, h("span", { class: "big md" }, num(clicks)), h("span", { class: "lbl" }, `Clicks on ${fmt(known.length)} issues`)),
-        h("div", {}, h("span", { class: "big md" }, rate == null ? "" : num(rate, rateText)), h("span", { class: "lbl" }, "Click rate")),
-        h("div", {}, h("span", { class: "big md" }, num(now90)), h("span", { class: "lbl" }, "Last 90 days"), delta(now90, was90, fmt))),
+        h("div", {}, h("span", { class: "big md" }, known.length ? num(clicks) : notTracked()), h("span", { class: "lbl" }, `Clicks on ${fmt(known.length)} issues`)),
+        h("div", {}, h("span", { class: "big md" }, rate == null ? notTracked() : num(rate, rateText)), h("span", { class: "lbl" }, "Click rate")),
+        h("div", {}, h("span", { class: "big md" }, any90 ? num(now90) : notTracked()), h("span", { class: "lbl" }, "Last 90 days"), any90 ? delta(now90, was90, fmt) : null)),
       chart || h("div", { class: "lbl" }, "Not enough issues yet"));
   }
   // Every placement in the catalog, in its order, then any other slot the rate card or a deal names: what each lists
@@ -1614,6 +1620,7 @@ document.body.append(h("style", {}, `
 .spo-n { font-size: 22px; font-weight: 400; color: var(--muted) }
 .spo-head-r { display: flex; align-items: center; gap: 14px 24px; flex-wrap: wrap }
 .spo .btn svg { width: 16px; height: 16px }
+.spo-nt { color: var(--muted); font-weight: 400 }
 .spo-share { margin-left: 3px; font-size: .5em; font-weight: 400; letter-spacing: 0; color: var(--muted); white-space: nowrap }
 .spo-tile .track { margin-top: 2px }
 @media (min-width: 761px) { .spo-tile { padding-left: 22px; padding-right: 22px } .spo-tile .big { font-size: clamp(28px, 2.3vw, 42px) } }
