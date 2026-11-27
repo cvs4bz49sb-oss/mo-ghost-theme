@@ -50,11 +50,11 @@ html[data-sd-theme="dark"] .sd-desk .vdb-site-mo { --highlight: var(--color-crea
   font: 400 0.9375rem/1.2 var(--font-body); letter-spacing: 0; text-transform: none;
 }
 .sd-desk :is(.sd-btn, .sd-more):is(:hover, :focus-visible) { background: var(--sd-accent); border-color: var(--sd-accent); color: var(--vds-on); }
-.sd-desk :is(.vdb-kind, .vdb-pv, .vdb-lane, .vdb-more, .vdb-sha a, .pw-lanes button, .pw-more button) {
+.sd-desk :is(.vdb-kind, .vdb-pv, .vdb-nt, .vdb-lane, .vdb-more, .vdb-sha a, .pw-lanes button, .pw-more button) {
   display: inline-flex; align-items: center; min-height: 34px; padding: 4px 10px; border: 1px solid var(--sd-ink); border-radius: 3px; background: transparent; box-shadow: none;
   color: var(--sd-ink); font: 400 0.875rem/1.2 var(--font-body); letter-spacing: 0; text-decoration: none; text-transform: none; cursor: pointer;
 }
-.sd-desk :is(.vdb-kind, .vdb-pv, .vdb-lane, .vdb-more, .vdb-sha a, .pw-lanes button, .pw-more button):hover { border-color: var(--sd-accent); box-shadow: none; color: var(--sd-accent); }
+.sd-desk :is(.vdb-kind, .vdb-pv, .vdb-nt, .vdb-lane, .vdb-more, .vdb-sha a, .pw-lanes button, .pw-more button):hover { border-color: var(--sd-accent); box-shadow: none; color: var(--sd-accent); }
 .sd-desk :is(.vdb-kind, .vdb-lane, .pw-lanes button)[aria-pressed="true"],
 .sd-desk .vdb .vdb-pv[aria-expanded="true"] { border-color: var(--sd-accent); background: var(--sd-accent); color: var(--vds-on); }
 .sd-desk .vdb-kind .vdb-n { margin-left: 0.3rem; color: inherit; font-size: 0.8125rem; opacity: 0.75; }
@@ -63,7 +63,7 @@ html[data-sd-theme="dark"] .sd-desk .vdb-site-mo { --highlight: var(--color-crea
 .sd-desk .pw-lanes { display: inline-flex; gap: 4px; border: 0; background: none; }
 .sd-desk .pw-more { display: inline-flex; gap: 4px; }
 @media (pointer: coarse) {
-  .sd-desk :is(.vdb-kind, .vdb-pv, .vdb-lane, .vdb-more, .vdb-sha a, .pw-lanes button, .pw-more button) { min-height: 44px; }
+  .sd-desk :is(.vdb-kind, .vdb-pv, .vdb-nt, .vdb-lane, .vdb-more, .vdb-sha a, .pw-lanes button, .pw-more button) { min-height: 44px; }
 }
 .sd-desk :is(.vdb-vsel select, .vdb-tr select, .vdb-cmpsel select) { border-radius: 3px; background-color: var(--sd-card); color: var(--sd-ink); }
 .sd-desk .vdb-arrow { border-radius: 3px; }
@@ -117,6 +117,24 @@ html[data-sd-theme="dark"] .sd-desk .vdb-site-mo { --highlight: var(--color-crea
 .sd-desk .vdb .vdb-shw { font: 600 1.25rem/1.25 var(--font-body); }
 .sd-desk .vdb-sha { gap: 6px; margin-top: 0.6rem; }
 .sd-desk .vdb-sha .vdb-lane { margin-right: 0; }
+/* "New tab" on a row and "Open in a new tab" keep their small arrow beside the words */
+.sd-desk :is(.vdb-nt, .vdb-sha a.vdb-out-a) { gap: 0.3rem; }
+/* beside the reading the list's column is narrower here than on The Faith Received, so the pill keeps its arrow without its two
+   words up to a wider screen (its name stays for a screen reader and under the pointer) */
+@media (min-width: 1180px) and (max-width: 1599px) {
+  .sd-desk .vdb-has-side .vdb-nt-w { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+  .sd-desk .vdb-has-side .vdb-nt { min-width: 34px; padding: 4px 8px; justify-content: center; }
+}
+/* choosing several: the bar that opens the chosen works stands on the page's foot, above the year-end bar while that is shown
+   (eoy-bar-v3.js keeps its height in --eoy-bar-h), and its button is ours */
+.sd-desk .vdb-pickbar { border-color: var(--vds-rule); border-radius: 3px 3px 0 0; background: var(--sd-card, var(--color-white)); }
+html.has-eoy-bar .sd-desk .vdb-pickbar { bottom: var(--eoy-bar-h, 0px); }
+.sd-desk .vdb .vdb-pb-open { min-height: 34px; padding: 4px 12px; border: 1px solid var(--sd-accent); border-radius: 3px; background: var(--sd-accent); color: var(--vds-on); font: 400 0.9375rem/1.2 var(--font-body); }
+.sd-desk .vdb .vdb-pb-open:hover { background: transparent; color: var(--sd-accent); }
+.sd-desk :is(.vdb-pk input, .vdb-all input) { accent-color: var(--sd-accent); }
+@media (pointer: coarse) { .sd-desk .vdb .vdb-pb-open { min-height: 44px; } }
+/* the shared sheet keeps the bar clear of a floating button The Faith Received has at the foot of a phone screen; there is none here */
+@media (max-width: 720px) { .sd-desk .vdb-pickbar { margin: 0; padding-right: 0.9rem; } }
 /* "Read on" is one fold in the pane's own scroll: never a scroller inside a scroller, and never the note printed twice */
 .sd-desk .vdb-side .pw-pages { max-height: none; overflow: visible; }
 .sd-desk .vdb-spd > summary.vdb-sph { display: flex; align-items: baseline; margin: 1.25rem 0 0; padding: 0.6rem 0; border-top: 1px solid var(--vds-rule); font: var(--vds-label); cursor: pointer; list-style: none; }
