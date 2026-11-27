@@ -64,6 +64,11 @@
     bootstrapTurnstile();
   }
 
+  // A form drawn after load (the writers meetings RSVP, which appears
+  // only when the schedule has a meeting ahead) asks for its bot check
+  // here. Submit is delegated below, so it needs nothing else.
+  window.MOSiteForms = { mount: renderTurnstileIn };
+
   // ---------------------------------------------------------------------
   // File-input UX + form submit
   // ---------------------------------------------------------------------

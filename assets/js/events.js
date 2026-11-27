@@ -20,6 +20,18 @@
  * published post, which is why we lean on the excerpt + the replay-
  * embed signal instead of dates.
  *
+ * START TIME (2026-11-26). A forum made or edited in MOOS's Events tool
+ * also carries its real start time in an HTML card, the same way as the
+ * zoom marker:
+ *
+ *   <!-- starts: 2026-12-05T19:30:00-05:00 -->
+ *
+ * Upcoming forums with one are ordered soonest first, so /forum/ shows
+ * the next forum rather than the newest post. Posts without it keep the
+ * old order (newest post first) after them. The excerpt stays the text
+ * readers see. A members-only post shows a signed-out visitor no body,
+ * so for them its marker is absent and it sorts as an old post.
+ *
  * ZOOM REGISTRATION
  * The event post carries its own Zoom registration link, the same way
  * it carries its own replay embed. Paste the link Zoom gives you
@@ -62,6 +74,13 @@
     return match ? { id: match[1], url: match[0] } : null;
   }
 
+  const STARTS_RE = /<!--\s*starts:\s*(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?[+-]\d{2}:\d{2})\s*-->/;
+  function findStarts(html) {
+    const match = STARTS_RE.exec(html);
+    const t = match ? Date.parse(match[1]) : NaN;
+    return Number.isFinite(t) ? t : 0;
+  }
+
   const items = Array.prototype.slice.call(source.querySelectorAll(".events-item"))
     .map((el) => {
       const contentHtml = (el.querySelector(".events-item-content") || {}).innerHTML || "";
@@ -81,11 +100,19 @@
         hasReplay: el.getAttribute("data-past") === "1" ||
           /<iframe[^>]+(youtube\.com|youtu\.be|vimeo\.com)/i.test(contentHtml),
         zoom: findZoom(contentHtml),
+        starts: findStarts(contentHtml),
       };
     });
 
+  // Soonest first among forums whose start is ahead or under way (three
+  // hours' grace), then forums with no start time in the old order
+  // (newest post first), then any whose start has passed with no replay
+  // or #past-event yet.
+  const now = Date.now();
+  const STARTED_GRACE = 3 * 60 * 60 * 1000;
+  const rank = (e) => { return !e.starts ? 1 : e.starts + STARTED_GRACE > now ? 0 : 2; };
   const upcoming = items.filter((e) => { return !e.hasReplay; })
-    .sort((a, b) => { return b.ts - a.ts; });
+    .sort((a, b) => { return rank(a) - rank(b) || (rank(a) === 0 ? a.starts - b.starts : b.ts - a.ts); });
   const past = items.filter((e) => { return e.hasReplay; })
     .sort((a, b) => { return b.ts - a.ts; });
 
