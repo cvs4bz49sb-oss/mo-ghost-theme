@@ -162,9 +162,13 @@ function placeOf(a) {
 const S = {
   loaded: false, offline: false, slow: false, me: null, owner: false, canWrite: true,
   shards: [], meta: {}, notes: [], tasks: [], cards: {}, lists: [], links: {}, apart: new Set(), team: [], access: { users: {} },
-  giving: null, activity: null, people: [], byId: new Map(), canon: x => x, noteText: new Map(), names: new Map(), version: 0,
+  giving: null, activity: null, renew: null, people: [], byId: new Map(), canon: x => x, noteText: new Map(), names: new Map(), version: 0,
 };
-const F = { q: "", role: null, roles: [], match: "all", plan: null, list: null, sort: "best", limit: 100 };
+// The Contacts filters. Past categories and plan (FILTER_KEYS below): engagement, HubSpot's fields, renewal, last gift and
+// place, and x, who to leave out. Save as list keeps every one of them.
+const F = { q: "", role: null, roles: [], match: "all", plan: null, list: null, sort: "best", limit: 100,
+  eng: null, tag: null, prof: null, fun: null, score: null, renew: null, gave: null, place: null, x: [] };
+const NO_FILTERS = { eng: null, tag: null, prof: null, fun: null, score: null, renew: null, gave: null, place: null, x: [] };
 let db = null, user = null, desktop = null;
 const giftOf = p => S.giving && p.ids.map(id => S.giving[id]).find(Boolean);
 const actOf = p => S.activity && p.ids.map(id => S.activity[id]).find(Boolean);
@@ -193,6 +197,26 @@ const TOP = {
   crc: ["Top CRC listeners", p => [podOf(p, 7), tkAt(p, 7)], p => podLabel(p, 7)],
   podcasts: ["Top podcast listeners", p => [podOf(p, 5, 7, 9), tkAt(p, 5) + tkAt(p, 7) + tkAt(p, 9)], p => podLabel(p, 5, 7, 9)],
 };
+// HubSpot's Mere O audience fields, kept from its last pull (moos_part_hubspot.py; Activity only): hs = [funnel stage 1 to 4,
+// lead score, topic tags as bits of HS_TAGS, reader profile 1 to 7, second profile, subscription source, referral site]
+const HS_FUNNEL = ["", "TOFU", "MOFU", "BOFU", "Superfan"];
+const HS_TAGS = ["Church", "Culture", "Formation", "Family", "Theology", "Technology", "Book Reviews", "Journal"];
+const HS_PROFILES = ["", "The Faithful Churchman", "The Devoted Presbyterian Layperson", "The Retired Reader", "The Young Intellectual",
+  "The Theologically Hungry Laywoman", "The Family Navigator", "The Post-Liberal Mind"];
+const hsOf = p => actOf(p)?.hs || null;
+const hsTags = m => HS_TAGS.filter((_, i) => (m || 0) & (1 << i));
+// Each paying person's next renewal (giving-finances-renew, Finances only): [day, plan, source, due | failing | ending]
+const renewOf = p => S.renew && p.ids.map(id => S.renew[id]).find(r => r && r[0] >= localDay());
+// The day of a person's latest gift, by the Donors view's rules: the gift list, and the Donors tab's first and last gift days
+const isDay = d => typeof d === "string" && /^\d{4}-\d\d-\d\d$/.test(d);
+function lastGift(p) {
+  const g = giftOf(p);
+  if (!g) return null;
+  const T = localDay();
+  return [...(g.gifts || []).filter(x => Array.isArray(x) && +x[1] > 0).map(x => x[0]), g.last, g.first].filter(d => isDay(d) && d <= T).sort().at(-1) || null;
+}
+const plusDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return localDay(d); };
+const dayShort = iso => asDate(iso).toLocaleDateString("en-US", iso.slice(0, 4) === localDay().slice(0, 4) ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" });
 
 // People arrive as 32 bundles. Links made in Review (and ids the nightly import retired)
 // fold several records into one person.
@@ -287,8 +311,9 @@ function results(f) {
   const { words, chips } = parse(f.q);
   const roles = rolesOf(chips.find(c => c[0] === "role")?.[1], f), role = roles[0] || null, inRoles = roleTest(roles, f.match);
   const plan = chips.find(c => c[0] === "plan")?.[1] || f.plan;
-  const list = f.list ? listById(f.list) : null;
-  const pool = S.people.filter(p => inRoles(p) && (!plan || planOf(p) === plan) && (!list || list.test(p)));
+  const list = f.list ? listById(f.list) : null, more = filterSpec(f).tests;
+  if (f.list && !list) return { hits: [], words: [], chips: [], role: null, plan: null, fuzzy: false };  // deleted, or needs access this person lacks
+  const pool = S.people.filter(p => inRoles(p) && (!plan || planOf(p) === plan) && (!list || list.test(p)) && more.every(t => t(p)));
   let hits = words.length ? pool.map(p => [score(p, words), p]).filter(x => x[0]) : pool.map(p => [p.rank + (p.last ? 1 : 0), p]);
   let fuzzy = false;
   if (words.length && !hits.length) { hits = pool.filter(p => near(p, words)).map(p => [p.rank, p]); fuzzy = hits.length > 0; }
@@ -305,9 +330,18 @@ function results(f) {
   if (TOP[by] && S.activity) {  // each person's key once, not once per comparison
     const keyOf = TOP[by][1], keys = new Map(hits.map(x => [x[1], keyOf(x[1])]));
     hits.sort((a, b) => { const ka = keys.get(a[1]), kb = keys.get(b[1]); return kb[0] - ka[0] || kb[1] - ka[1] || name(a, b); });
+  } else if (KEYED[by] && haveData(KEYED[by][0])) {  // people without the figure go last
+    const keyOf = KEYED[by][1], keys = new Map(hits.map(x => [x[1], keyOf(x[1])]));
+    hits.sort((a, b) => { const ka = keys.get(a[1]), kb = keys.get(b[1]); return (ka == null) - (kb == null) || (ka < kb ? 1 : ka > kb ? -1 : 0) * KEYED[by][2] || name(a, b); });
   } else hits.sort(SORTS[by] || SORTS.best);
   return { hits: hits.map(x => x[1]), words: fuzzy ? [] : words, chips, role, plan, fuzzy };
 }
+// Sorts on locked figures: [the data it needs, the key (missing goes last), 1 largest first or -1 smallest first, the row's label]
+const KEYED = {
+  score: ["hubspot", p => hsOf(p)?.[1] || null, 1, p => hsOf(p)?.[1] ? `Lead score ${hsOf(p)[1]}` : "No score"],
+  renew: ["finances", p => renewOf(p)?.[0] || null, -1, p => { const r = renewOf(p); return r ? `${r[3] === "ending" ? "Ends" : r[3] === "failing" ? "Payment failing" : "Renews"} ${dayShort(r[0])}` : "No renewal"; }],
+  gave: ["giving", p => lastGift(p), 1, p => { const d = lastGift(p); return d ? `Gave ${dayShort(d)}` : "No gifts"; }],
+};
 // A matching line from the team's notes, shown under a person found by what was said about them
 function snippet(p, words) {
   if (!words.length || words.every(w => p.base.includes(w))) return null;
@@ -362,15 +396,128 @@ const LIST_GROUPS = [
   ["Engagement", ["engaged", "prospects", "fading", "never"]],
   ["Engagement by type", ["tfr-users", "liturgy-users", "mf-listeners", "crc-listeners", "podcast-listeners"]],
 ];
-function savedList(l) {
-  if (!l) return null;
-  const { words, chips } = parse(l.f.q || "");
-  const inRoles = roleTest(rolesOf(chips.find(c => c[0] === "role")?.[1], l.f), l.f.match), plan = chips.find(c => c[0] === "plan")?.[1] || l.f.plan;
-  return { id: l.id, name: l.name, saved: true, test: p => inRoles(p) && (!plan || planOf(p) === plan) && words.every(w => p.hay.includes(w)) };
+for (const l of LISTS) l.needs = [l.act && "activity", l.gated && "giving"].filter(Boolean);
+
+// ---------------------------------------------------------------- filters past categories and plan
+// Each reads data that may be locked: Activity (engagement, HubSpot's fields), Giving (gifts) or Finances (renewals). A
+// filter, or a list that uses one, shows only to someone who has that data; without it, it matches no one.
+const ENG_STEPS = [["75", "75 and up", e => e >= 75], ["55", "55 and up", e => e >= 55], ["35", "35 and up", e => e >= 35], ["low", "Under 35", e => e >= 0 && e < 35], ["none", "No activity", e => e < 0]];
+const SCORE_STEPS = ["1", "5", "8", "10"];
+const RENEW_STEPS = ["7", "14", "30", "45", "60", "90"];
+const GAVE_STEPS = [["month", "This month"], ["30", "In the last 30 days"], ["90", "In the last 90 days"], ["180", "In the last 180 days"], ["365", "In the last year"]];
+const FILTER_KEYS = ["eng", "tag", "prof", "fun", "score", "renew", "gave", "place"];
+const NEEDS = { eng: "activity", tag: "hubspot", prof: "hubspot", fun: "hubspot", score: "hubspot", renew: "finances", gave: "giving" };
+// "hubspot": Activity, and a HubSpot pull behind it (meta/hubspot), or every count would read zero
+const haveData = need => !need || (need === "activity" ? !!S.activity : need === "hubspot" ? !!S.activity && !!S.metaDocs?.hubspot
+  : need === "giving" ? !!S.giving : need === "finances" ? !!S.renew : true);
+const gaveSince = v => v === "month" ? localDay().slice(0, 8) + "01" : plusDays(-(+v));
+// One filter as a test, by the kind and value Save as list keeps ("tag" and "Church"; in x, "gave:90")
+function clause(kind, v, depth = 0) {
+  const need = NEEDS[kind] ? [NEEDS[kind]] : [], out = test => test ? { test, needs: need } : null;
+  switch (kind) {
+    case "eng": { const s = ENG_STEPS.find(x => x[0] === v); return out(s && (p => s[2](engOf(p)))); }
+    case "tag": { const i = HS_TAGS.indexOf(v); return out(i >= 0 && (p => !!((hsOf(p)?.[2] || 0) & (1 << i)))); }
+    case "prof": return out(+v > 0 && (p => hsOf(p)?.[3] === +v));
+    case "fun": return out(+v > 0 && (p => hsOf(p)?.[0] === +v));
+    case "score": return out(+v > 0 && (p => (hsOf(p)?.[1] || 0) >= +v));
+    case "renew": { const until = plusDays(+v); return out(+v > 0 && (p => { const r = renewOf(p); return !!r && r[3] !== "ending" && r[0] <= until; })); }
+    case "gave": { const since = gaveSince(v); return out((v === "month" || +v > 0) && (p => { const d = lastGift(p); return !!d && d >= since; })); }
+    case "place": { const name = v.slice(3); return out(name && (v.startsWith("st:") ? p => p.st === name : p => p.co === name)); }
+    case "role": return out(ROLE[v] && (p => has(p, v)));
+    case "list": { const l = findList(v, depth + 1); return l && { test: l.test, needs: l.needs || [], name: l.name }; }
+  }
+  return null;
 }
-const allowed = l => (!l.gated || S.giving) && (!l.act || S.activity);
-const listById = id => LISTS.find(l => l.id === id && allowed(l)) || issueLists().find(l => l.id === id) || savedList(S.lists.find(l => l.id === id));
-const allLists = () => [...LISTS.filter(allowed), ...issueLists(), ...S.lists.map(savedList)];
+function clauseLabel(kind, v) {
+  switch (kind) {
+    case "eng": return v === "none" ? "No activity" : "Engagement " + (ENG_STEPS.find(x => x[0] === v)?.[1] || v).toLowerCase();
+    case "tag": return "Topic: " + v;
+    case "prof": return HS_PROFILES[+v] || "A reader profile";
+    case "fun": return "Funnel stage " + (HS_FUNNEL[+v] || v);
+    case "score": return `Lead score ${v} and up`;
+    case "renew": return `Renews in the next ${v} days`;
+    case "gave": return v === "month" ? "Gave this month" : v === "365" ? "Gave in the last year" : `Gave in the last ${v} days`;
+    case "place": return v.slice(3);
+    case "role": return ROLE[v]?.many || v;
+    case "list": return "A list";  // filterSpec names it from the list itself (no second lookup: a list could name itself)
+  }
+  return v;
+}
+// A Leave out choice as the Contacts chips show it
+const xLabel = key => { const [kind, v] = splitKey(key); return kind === "list" ? findList(v)?.name || "A deleted list" : clauseLabel(kind, v); };
+const splitKey = key => { const s = String(key), i = s.indexOf(":"); return i < 0 ? [s, ""] : [s.slice(0, i), s.slice(i + 1)]; };
+// Every filter of a list or of the Contacts view as tests, what data they need and how they read
+function filterSpec(f, depth = 0) {
+  const tests = [], needs = new Set(), about = [];
+  for (const k of FILTER_KEYS) {
+    const v = f[k];
+    if (v == null || v === "") continue;
+    const c = clause(k, String(v), depth);
+    if (!c) { tests.unshift(() => false); about.push("A filter MOOS can't read"); continue; }  // never a wider list than was asked for
+    tests.push(c.test); c.needs.forEach(n => needs.add(n)); about.push(clauseLabel(k, String(v)));
+  }
+  for (const key of [].concat(f.x || [])) {
+    const [kind, v] = splitKey(key), c = clause(kind, v, depth);
+    if (!c) { tests.unshift(() => false); about.push(kind === "list" ? "Leave out: A deleted list" : "A filter MOOS can't read"); continue; }
+    tests.push(p => !c.test(p)); c.needs.forEach(n => needs.add(n)); about.push("Leave out: " + (kind === "list" ? c.name : clauseLabel(kind, v)));
+  }
+  if ([...needs].some(n => !haveData(n))) tests.unshift(() => false);  // never a list that looks right without the data behind it
+  return { tests, needs: [...needs], about };
+}
+// A list from the settings Save as list keeps: { q, roles, match, plan, eng, tag, ..., x }
+function fList(def, depth = 0) {
+  const f = def.f || {}, { words, chips } = parse(f.q || "");
+  const roles = rolesOf(chips.find(c => c[0] === "role")?.[1], f), inRoles = roleTest(roles, f.match), plan = chips.find(c => c[0] === "plan")?.[1] || f.plan;
+  const spec = filterSpec(f, depth);
+  const about = [f.q && `Search "${f.q}"`, roles.length && roles.map(r => ROLE[r]?.many || r).join(f.match === "any" ? " or " : " and ") + (f.match === "only" ? " only" : ""), plan, ...spec.about].filter(Boolean);
+  return { ...def, needs: spec.needs, about, test: p => inRoles(p) && (!plan || planOf(p) === plan) && words.every(w => p.hay.includes(w)) && spec.tests.every(t => t(p)) };
+}
+function savedList(l, depth = 0) { return l ? fList({ id: l.id, name: l.name, saved: true, f: l.f || {} }, depth) : null; }
+// HubSpot lists recreated from their saved definitions (business/audience/hubspot-lists-archive-2026-11-26.md), as the
+// settings a saved list holds, where MOOS can compute them. Topic lists, as in HubSpot, are free subscribers only.
+const FREE_ONLY = ["role:member", "role:lifetime", "role:comped"];
+const HS_LISTS = () => [
+  { id: "hs-gave-90", name: "Gave in the last 90 days", f: { gave: "90" } },
+  { id: "hs-gave-month", name: "Gave this month", f: { gave: "month" } },
+  ...HS_TAGS.map(t => ({ id: "hs-topic-" + fold(t).replace(/\W+/g, "-"), name: `${t}, free subscribers`, f: { roles: ["subscriber"], tag: t, x: FREE_ONLY } })),
+  // a profile no one holds has no list (no Mere O contact held The Theologically Hungry Laywoman on 2026-11-26)
+  ...HS_PROFILES.map((name, i) => i && (!haveData("hubspot") || filterCounts().prof[i] > 0) && { id: "hs-profile-" + i, name, f: { prof: String(i) } }).filter(Boolean),
+].map(d => fList(d));
+const allowed = l => (!l.gated || S.giving) && (!l.act || S.activity) && (l.needs || []).every(haveData);
+// How many people each choice in More filters finds by itself, counted once per change of the data
+let countsMemo = { sig: "" };
+function filterCounts() {
+  const sig = [S.version, !!S.activity, !!S.giving, !!S.renew, localDay()].join("|");
+  if (countsMemo.sig === sig) return countsMemo.c;
+  const c = { eng: {}, gave: {}, renew: {}, tag: {}, prof: {}, fun: {}, score: {}, states: [], countries: [] };
+  const bump = (o, k) => { o[k] = (o[k] || 0) + 1; };
+  const until = Object.fromEntries(RENEW_STEPS.map(v => [v, plusDays(+v)])), since = Object.fromEntries(GAVE_STEPS.map(([v]) => [v, gaveSince(v)]));
+  const st = {}, co = {};
+  for (const p of S.people) {
+    if (p.st) bump(st, p.st);
+    if (p.co) bump(co, p.co);
+    if (S.activity) {
+      const e = engOf(p), hs = S.metaDocs?.hubspot && hsOf(p);
+      for (const [v, , t] of ENG_STEPS) if (t(e)) bump(c.eng, v);
+      if (hs) {
+        HS_TAGS.forEach((t, i) => { if ((hs[2] || 0) & (1 << i)) bump(c.tag, t); });
+        if (hs[3]) bump(c.prof, hs[3]);
+        if (hs[0]) bump(c.fun, hs[0]);
+        for (const v of SCORE_STEPS) if ((hs[1] || 0) >= +v) bump(c.score, v);
+      }
+    }
+    if (S.giving) { const d = lastGift(p); if (d) for (const [v] of GAVE_STEPS) if (d >= since[v]) bump(c.gave, v); }
+    if (S.renew) { const r = renewOf(p); if (r && r[3] !== "ending") for (const v of RENEW_STEPS) if (r[0] <= until[v]) bump(c.renew, v); }
+  }
+  const ranked = o => Object.entries(o).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  c.states = ranked(st).map(([name, n]) => ["st:" + name, name, n]);
+  c.countries = ranked(co).map(([name, n]) => ["co:" + name, name, n]);
+  countsMemo = { sig, c };
+  return c;
+}
+const findList = (id, depth = 0) => depth > 4 ? null : LISTS.find(l => l.id === id) || HS_LISTS().find(l => l.id === id) || issueLists().find(l => l.id === id) || savedList(S.lists.find(l => l.id === id), depth);
+const listById = (id, depth = 0) => { const l = findList(id, depth); return l && allowed(l) ? l : null; };
+const allLists = () => [...LISTS, ...HS_LISTS(), ...issueLists(), ...S.lists.map(l => savedList(l))].filter(allowed);
 
 async function exportCSV(name, people) {
   if (!can("export")) return toast("Downloads aren't part of your access");
@@ -452,6 +599,7 @@ async function connect() {
     S.giving = docs.find(([id]) => id === "giving")?.[1].donors || null;
     const acts = docs.filter(([id]) => id.startsWith("activity-"));
     S.activity = acts.length ? Object.assign({}, ...acts.map(([, d]) => d.people)) : null;
+    S.renew = docs.find(([id]) => id === "giving-finances-renew")?.[1].renew || null;  // sent with Finances
     S.gatedIn = true;
     attach();
   });
@@ -586,7 +734,7 @@ function peakCard(title, pairs) {
 
 // ---------------------------------------------------------------- views
 function showPeople(patch) {
-  Object.assign(F, { q: "", role: null, roles: [], match: "all", plan: null, list: null, limit: 100 }, patch);
+  Object.assign(F, { q: "", role: null, roles: [], match: "all", plan: null, list: null, limit: 100, ...NO_FILTERS, x: [] }, patch);
   if (F.role) { F.roles = [F.role]; F.role = null; }
   go("people");
 }
@@ -809,47 +957,105 @@ function people() {
       else if (e.key === "Enter" && hits[sel]) go("p-" + hits[sel].id);
       else if (e.key === "Escape" && F.q) { F.q = ""; input.value = ""; paint(); }
     } });
-  const top = h("div", { class: "head rise" }), filters = h("div", { class: "filters rise" }), found = h("div", { class: "found" });
+  const top = h("div", { class: "head rise" }), about = h("div", { class: "lbl list-about" }), filters = h("div", { class: "filters rise" });
+  const panel = h("div", { class: "card more-filters" }), found = h("div", { class: "found" });
   const opt = ([v, l]) => h("option", { value: v, selected: F.sort === v }, l);
   const rows = h("div", { class: "list" }), sort = h("select", { "aria-label": "Sort", onchange: e => { F.sort = e.target.value; paint(); } });
-  let sortAct = null;  // whether the menu has the Engagement sorts: Activity can arrive after the view opens
+  let sortSig = null;  // which locked sorts the menu has: Activity, Giving and Finances can arrive after the view opens
   const fillSort = () => {
-    if (sortAct === !!S.activity) return;
-    sortAct = !!S.activity;
+    const sig = [!!S.activity, !!S.giving, !!S.renew, haveData("hubspot")].join();
+    if (sortSig === sig) return;
+    sortSig = sig;
     put(sort, [["best", "Best match"], ["name", "Name"], ["recent", "Last contact"], ["newest", "Newest"]].map(opt),
-      sortAct ? h("optgroup", { label: "Engagement" }, [["engaged", "Most engaged"], ...Object.entries(TOP).map(([v, [l]]) => [v, l]), ["least", "Least engaged"]].map(opt)) : null);
+      S.activity ? h("optgroup", { label: "Engagement" }, [["engaged", "Most engaged"], ...Object.entries(TOP).map(([v, [l]]) => [v, l]), ["least", "Least engaged"], haveData("hubspot") && ["score", "Highest lead score"]].filter(Boolean).map(opt)) : null,
+      S.renew ? h("optgroup", { label: "Membership" }, opt(["renew", "Renews soonest"])) : null,
+      S.giving ? h("optgroup", { label: "Giving" }, opt(["gave", "Latest gift"])) : null);
   };
-  const el = h("div", { class: "view" }, top, h("div", { class: "search rise" }, icon("search"), input), filters, found, h("section", { class: "card list-card rise", style: "padding: 0" }, rows));
+  let open = FILTER_KEYS.some(k => F[k]) || F.x.length > 0;  // More filters stays open while one is set
+  const moreBtn = h("button", { type: "button", class: "btn quiet more-btn", "aria-expanded": "false", onclick: () => { open = !open; paint(); } });
+  const el = h("div", { class: "view" }, top, about, h("div", { class: "search rise" }, icon("search"), input), filters, panel, found, h("section", { class: "card list-card rise", style: "padding: 0" }, rows));
+  const setF = (k, v) => { F[k] = v || null; F.limit = 100; sel = 0; paint(); };
+  const settings = () => {  // what Save as list keeps: the old four, then each filter that is set
+    const f = { q: F.q, roles: F.roles, match: F.match, plan: F.plan };
+    for (const k of FILTER_KEYS) if (F[k]) f[k] = F[k];
+    if (F.x.length) f.x = [...F.x];
+    return f;
+  };
+  // More filters: one menu each, every choice counting everyone it would find by itself
+  function paintPanel() {
+    const set = FILTER_KEYS.filter(k => F[k]).length + F.x.length;
+    moreBtn.setAttribute("aria-expanded", String(open));
+    put(moreBtn, set ? `More filters ${set}` : "More filters", icon("chev"));
+    panel.style.display = open ? "" : "none";
+    if (!open) return;
+    const c = filterCounts(), withN = (l, n) => `${l} ${fmt(n)}`;
+    const menu = (key, label, anyLabel, choices, need) => haveData(need) && h("label", { class: "aud-filter" }, h("span", { class: "lbl" }, label),
+      h("select", { "aria-label": label, onchange: e => setF(key, e.target.value) }, h("option", { value: "", selected: !F[key] }, anyLabel),
+        choices.map(ch => ch.group ? h("optgroup", { label: ch.group }, ch.items.map(([v, l, n]) => h("option", { value: v, selected: F[key] === v }, withN(l, n))))
+          : h("option", { value: ch[0], selected: F[key] === ch[0] }, withN(ch[1], ch[2])))));
+    const xopt = (key, name) => h("option", { value: key, disabled: F.x.includes(key) }, name || clauseLabel(...splitKey(key)));
+    const leave = h("label", { class: "aud-filter" }, h("span", { class: "lbl" }, "Leave out"),
+      h("select", { "aria-label": "Leave out", onchange: e => { const v = e.target.value; if (v && !F.x.includes(v)) { F.x = [...F.x, v]; F.limit = 100; sel = 0; } paint(); } },
+        h("option", { value: "" }, "Choose who to leave out"),
+        S.giving ? h("optgroup", { label: "Giving" }, GAVE_STEPS.map(([v]) => xopt("gave:" + v))) : null,
+        S.renew ? h("optgroup", { label: "Renewal" }, RENEW_STEPS.map(v => xopt("renew:" + v))) : null,
+        S.activity ? h("optgroup", { label: "Engagement" }, ENG_STEPS.map(([v]) => xopt("eng:" + v))) : null,
+        h("optgroup", { label: "Categories" }, ROLES.map(([k]) => xopt("role:" + k))),
+        h("optgroup", { label: "Lists" }, allLists().filter(l => l.id !== F.list).map(l => xopt("list:" + l.id, l.name)))));
+    const places = [{ group: "States", items: c.states }, { group: "Countries", items: c.countries }].filter(g => g.items.length);
+    const kept = haveData("hubspot") && S.metaDocs.hubspot.at;
+    put(panel, h("div", { class: "aud-filters" },
+      menu("eng", "Engagement", "Anyone", ENG_STEPS.map(([v, l]) => [v, l, c.eng[v]]), "activity"),
+      menu("gave", "Last gift", "Anyone", GAVE_STEPS.map(([v, l]) => [v, l, c.gave[v]]), "giving"),
+      menu("renew", "Renews", "Anyone", RENEW_STEPS.map(v => [v, `In the next ${v} days`, c.renew[v]]), "finances"),
+      menu("place", "Place", "Anywhere", places),
+      menu("tag", "Topic", "Any topic", HS_TAGS.map(t => [t, t, c.tag[t]]), "hubspot"),
+      menu("prof", "Reader profile", "Any profile", HS_PROFILES.map((l, i) => [String(i), l, c.prof[i]]).filter(([v, , n]) => +v && n), "hubspot"),
+      menu("fun", "Funnel stage", "Any stage", HS_FUNNEL.map((l, i) => [String(i), l, c.fun[i]]).filter(([v]) => +v), "hubspot"),
+      menu("score", "Lead score", "Any score", SCORE_STEPS.map(v => [v, `${v} and up`, c.score[v]]), "hubspot"),
+      leave),
+      h("div", { class: "more-foot" },
+        kept ? h("span", { class: "lbl" }, `Topic, reader profile, funnel stage and lead score come from HubSpot. Its last pull was ${dateLabel(localDay(new Date(kept)))}.`) : h("span"),
+        set ? h("button", { type: "button", class: "btn quiet", onclick: () => { Object.assign(F, NO_FILTERS, { x: [] }); F.limit = 100; sel = 0; paint(); } }, "Clear filters") : null));
+  }
   function paint() {
     const list = F.list ? listById(F.list) : null;
     fillSort();
     const r = results(F), by = F.sort === "best" && list?.sort ? list.sort : F.sort;
     hits = r.hits;
-    const filtered = F.q || F.roles.length || F.plan;
-    put(top, h("h1", {}, list ? list.name : "Contacts"), h("div", { class: "actions" },
-      saving ? h("form", { class: "form", onsubmit: e => { e.preventDefault(); const name = e.target.name.value.trim(); if (name) save(() => db.collection("lists").add({ name, f: { q: F.q, roles: F.roles, match: F.match, plan: F.plan }, by: S.me, at: new Date().toISOString() }), "List saved").then(() => { saving = false; paint(); }); } },
+    const filtered = F.q || F.roles.length || F.plan || FILTER_KEYS.some(k => F[k]) || F.x.length;
+    const shut = F.list && !list;  // deleted, or it needs access this person lacks: it finds no one, and says so
+    put(top, h("h1", {}, list ? list.name : shut ? "This list isn't open to you" : "Contacts"), h("div", { class: "actions" },
+      saving ? h("form", { class: "form", onsubmit: e => { e.preventDefault(); const name = e.target.name.value.trim(); if (name) save(() => db.collection("lists").add({ name, f: settings(), by: S.me, at: new Date().toISOString() }), "List saved").then(() => { saving = false; paint(); }); } },
         h("input", { type: "text", name: "name", placeholder: "List name", "aria-label": "List name", autofocus: true }), h("button", { class: "btn solid" }, "Save"), h("button", { type: "button", class: "btn quiet", onclick: () => { saving = false; paint(); } }, "Cancel"))
         : [!list && filtered && S.canWrite && h("button", { type: "button", class: "btn quiet", onclick: () => { saving = true; paint(); } }, "Save as list"),
           list?.saved && S.canWrite && h("button", { type: "button", class: "btn quiet", onclick: () => save(() => db.doc("lists/" + list.id).delete(), "List deleted").then(() => go("lists")) }, "Delete list"),
-          can("export") ? h("button", { type: "button", class: "btn", onclick: () => exportCSV(list?.name || "MOOS people", hits) }, "Download CSV") : null]));
+          can("export") && !shut ? h("button", { type: "button", class: "btn", onclick: () => exportCSV(list?.name || "MOOS people", hits) }, "Download CSV") : null]));
+    put(about, list?.about?.length ? list.about.join("  ·  ") : "");
+    about.style.display = list?.about?.length ? "" : "none";
     const pick = v => { F.roles = v == null ? [] : F.roles.includes(v) ? F.roles.filter(r => r !== v) : [...F.roles, v]; F.limit = 100; sel = 0; paint(); };
     const matches = F.roles.length > 1 ? [["any", "Any of these"], ["all", "All of these"], ["only", "Only these"]] : [["all", "Has this"], ["only", "Only this"]];
     if (F.roles.length === 1 && F.match === "any") F.match = "all";
     put(filters, roleChips(F.roles, pick),
       F.roles.length ? h("select", { "aria-label": "How the categories combine", onchange: e => { F.match = e.target.value; F.limit = 100; sel = 0; paint(); } },
         matches.map(([v, l]) => h("option", { value: v, selected: F.match === v }, l))) : null,
-      sort);
+      moreBtn, sort);
+    paintPanel();
+    const unset = label => ({ "aria-label": `Remove ${label}` });
     put(found, h("span", { class: "count" }, num(hits.length)), h("span", {}, hits.length === 1 ? "person" : "people"),
       r.chips.map(([kind, v]) => h("span", { class: "chip", "aria-pressed": "true" }, kind === "role" ? ROLE[v].many : v)),
       F.plan && !r.chips.some(c => c[0] === "plan") && h("button", { type: "button", class: "chip", "aria-pressed": "true", onclick: () => { F.plan = null; paint(); } }, F.plan, icon("x")),
+      FILTER_KEYS.filter(k => F[k]).map(k => { const l = clauseLabel(k, String(F[k])); return h("button", { type: "button", class: "chip", "aria-pressed": "true", ...unset(l), onclick: () => setF(k, null) }, l, icon("x")); }),
+      F.x.map(key => { const l = "Leave out: " + xLabel(key); return h("button", { type: "button", class: "chip", "aria-pressed": "true", ...unset(l), onclick: () => { F.x = F.x.filter(x => x !== key); F.limit = 100; paint(); } }, l, icon("x")); }),
       r.fuzzy && h("span", { class: "chip" }, "Close matches"));
+    const label = p => TOP[by] && S.activity ? TOP[by][2](p) : KEYED[by] && haveData(KEYED[by][0]) ? KEYED[by][3](p) : ["engaged", "least"].includes(by) ? engLabel(p) : ago(p.last);
     put(rows, ...hits.slice(0, F.limit).map((p, i) => h("a", { class: "row rise" + (i === sel ? " sel" : ""), href: "#p-" + p.id, style: `--i:${Math.min(i, 14)}` },
       avatar(p),
       h("div", { class: "who" },
         h("div", { class: "name" }, marked(p.n || p.e[0] || "Unnamed", r.words)),
         h("div", { class: "sub" }, marked([p.n ? p.e[0] : "", p.sp?.org, p.place].filter(Boolean).join("  ·  "), r.words)),
         snippet(p, r.words)),
-      badges(p), h("div", { class: "when" }, TOP[by] && S.activity ? TOP[by][2](p) : ["engaged", "least"].includes(by) ? engLabel(p) : ago(p.last)))),
+      badges(p), h("div", { class: "when" }, label(p)))),
       hits.length > F.limit ? h("button", { type: "button", class: "btn quiet more", onclick: () => { F.limit += 100; paint(); } }, `Show ${fmt(Math.min(100, hits.length - F.limit))} more`) : "");
   }
   return { el, update: paint, focus: () => input.focus() };
@@ -1013,13 +1219,35 @@ function payField(p) {
   view();
   return box;
 }
+// The next renewal (Finances only): its day, and whether it is set to end or its payment is failing
+function renewLine(p) {
+  const r = renewOf(p);
+  if (!r) return "";
+  const how = [r[1] === "Annual" ? "yearly" : String(r[1] || "").toLowerCase(), r[2] && "through " + r[2]].filter(Boolean).join(" ");
+  return `${dateLabel(r[0])}${how ? ", " + how : ""}${r[3] === "ending" ? ", set to end" : r[3] === "failing" ? ", payment failing" : ""}`;
+}
+// HubSpot's Mere O fields for this person, as HubSpot last held them (moos_part_hubspot.py). Topics and profiles open Contacts filtered by them.
+function hubspotCard(hs) {
+  const [fun, score, tags, prof, prof2, sub, ref] = hs, at = S.metaDocs?.hubspot?.at;
+  const link = (label, patch) => h("button", { type: "button", class: "plain hs-link", onclick: () => showPeople(patch) }, label);
+  const topics = hsTags(tags);
+  return section("From HubSpot", facts([
+    ["Funnel stage", HS_FUNNEL[fun] ? link(HS_FUNNEL[fun], { fun: String(fun) }) : ""],
+    ["Lead score", score ? fmt(score) : ""],
+    ["Topics", topics.length ? h("span", {}, topics.map((t, i) => [i ? ", " : "", link(t, { tag: t })])) : ""],
+    ["Reader profile", HS_PROFILES[prof] ? link(HS_PROFILES[prof], { prof: String(prof) }) : ""],
+    ["Also fits", HS_PROFILES[prof2] || ""],
+    ["Subscribed through", sub ? String(sub) : ""],
+    ["Came from", ref ? String(ref) : ""]]),
+    at ? h("div", { class: "lbl", style: "margin-top: 18px" }, `As HubSpot held it on ${dateLabel(localDay(new Date(at)))}`) : null);
+}
 function factCards(p, g, a) {
   const linked = p.ids.filter(id => S.links[id]);
   const emails = p.e.map(e => h("span", { class: "copyable" }, e, h("button", { type: "button", class: "x", "aria-label": `Copy ${e}`, onclick: () => copy(e) }, icon("copy"))));
   const out = [
     section("Contact", facts([["Email", emails.length ? h("div", { style: "display: grid; gap: 2px" }, emails) : ""], ["Phone", p.ph], ["Address", p.a]]),
       linked.length && S.canWrite ? h("button", { type: "button", class: "btn quiet", style: "margin-top: 22px", onclick: () => save(() => Promise.all(linked.map(id => db.doc("links/" + id).delete())), "Records separated") }, `Separate ${linked.length + 1} merged records`) : null),
-    section("Membership", facts([["Ghost", ghostLine(p)], ["Type", p.m?.type], ["Plan", p.m?.plan], ["Paying", p.m?.paying], ["Since", dateLabel(p.m?.since)], ["Ends", p.m?.cancel], ["Detail", p.m?.detail], ["Org admin", p.m?.admin], ["Subscribed", p.m ? "" : dateLabel(p.s)]])),
+    section("Membership", facts([["Ghost", ghostLine(p)], ["Type", p.m?.type], ["Plan", p.m?.plan], ["Paying", p.m?.paying], ["Since", dateLabel(p.m?.since)], ["Ends", p.m?.cancel], ["Next renewal", renewLine(p)], ["Detail", p.m?.detail], ["Org admin", p.m?.admin], ["Subscribed", p.m ? "" : dateLabel(p.s)]])),
     p.w && section("Writing", facts([["Essays", p.w.posts ? fmt(p.w.posts) : ""], ["Latest", dateLabel(p.w.last)], ["Published", p.w.pub], ["Payment", payField(p)]])),
     p.g.length && section("Podcast", facts(p.g.map(([show, n, last]) => [show, `${fmt(n)} episode${n === 1 ? "" : "s"}, latest ${dateLabel(last)}`]))),
     p.sp && section("Sponsor", facts([["Organization", p.sp.org], ["Title", p.sp.title], ["Relationship", p.sp.rel]])),
@@ -1035,6 +1263,7 @@ function factCards(p, g, a) {
       facts([["First", dateLabel(g.first)], ["Latest", dateLabel(g.last)], ["Largest", g.largest ? money(g.largest) : ""], ["Recurring", g.recurring], ["Thanked", p.thanked ? dateLabel(p.thanked.slice(0, 10)) : ""]])));
   }
   if (a?.eng || a?.tk) out.push(engagementCard(a.eng, a.tk || []));
+  if (a?.hs) out.push(hubspotCard(a.hs));
   if (a) {
     const EVENTS = [["login", "Sign-ins"], ["read_completed", "Essays read"], ["hubspot_email_click", "HubSpot email clicks"], ["hubspot_email_open", "HubSpot email opens"], ["clicked_upgrade", "Upgrade clicks"]];
     const ev = EVENTS.filter(([k]) => a.ev?.[k]).map(([k, label]) => [label, a.ev[k][0]]);
@@ -1146,7 +1375,7 @@ function lists() {
   const el = h("div", { class: "view" });
   let shown = null;
   return { el, update() {
-    const sig = [S.version, S.lists.length, !!S.activity, !!S.giving].join("|");
+    const sig = [S.version, S.lists.map(l => l.id).join(), !!S.activity, !!S.giving, !!S.renew, haveData("hubspot"), localDay()].join("|");
     if (sig === shown && el.firstChild) return;
     shown = sig;
     const row = ([l, people], i, max) => {
@@ -1158,7 +1387,9 @@ function lists() {
     };
     const byId = Object.fromEntries(LISTS.filter(allowed).map(l => [l.id, l]));
     const groups = LIST_GROUPS.map(([title, ids]) => [title, ids === "issues" ? issueLists() : ids.map(id => byId[id]).filter(Boolean)]).filter(([, ls]) => ls.length);
-    const saved = S.lists.map(savedList).sort((a, b) => a.name.localeCompare(b.name));
+    const fromHubSpot = HS_LISTS().filter(allowed);
+    if (fromHubSpot.length) groups.push(["From HubSpot", fromHubSpot]);
+    const saved = S.lists.map(l => savedList(l)).filter(allowed).sort((a, b) => a.name.localeCompare(b.name));
     if (saved.length) groups.push(["Saved", saved]);
     let i = 0;
     put(el, h("div", { class: "head rise" }, h("h1", {}, "Lists")),
