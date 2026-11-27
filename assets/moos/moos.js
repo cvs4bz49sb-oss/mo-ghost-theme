@@ -1437,7 +1437,7 @@ const NAV = [["home", "Overview"], ["people", "Contacts", "people"], ["lists", "
 // follows the view in its after, or comes last; inside a group the same goes for GROUP_ORDER.
 // Ian, Nov 25: Overview, Analytics, People, Work, Editorial (with Journal), Tools, Finances, Sponsors, Documents
 const ORDER = ["home", "analytics", "group:people", "group:work", "group:editorial", "group:tools", "group:finances", "group:sponsors", "group:documents"];
-const GROUP_ORDER = { people: ["people", "audience", "lists", "review"], work: ["calendar", "tasks", "agenda"], editorial: ["editorial-inbox", "editorial-pipeline", "journal"], finances: ["finances", "donors", "donor-pipeline", "migration"], tools: ["email-builder", "placements", "social", "liturgy", "auto-responders", "slide-ins", "site-settings"] };
+const GROUP_ORDER = { people: ["people", "audience", "lists", "review"], work: ["calendar", "tasks", "agenda"], editorial: ["editorial-inbox", "editorial-pipeline", "journal"], finances: ["finances", "donors", "donor-pipeline", "migration"], tools: ["email-builder", "placements", "events", "social", "liturgy", "auto-responders", "slide-ins", "site-settings"] };
 const FOOT = new Set(["access"]);  // Access sits in the rail's foot, beside the theme and collapse switches
 const AFTER = {};
 // Modules hook in: connect runs once the store is reachable, chrome on every redraw of the rail,

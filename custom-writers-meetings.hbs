@@ -19,12 +19,16 @@
      member source:writers-meetings (mirrored to a Kit tag). Email that tag
      when the dates are set.
 
-     When dates are set: fill the three cards, add the dates to
-     WRITERS_MEETING_LABELS and WRITERS_MEETING_GFORM_OPTIONS in
-     workers/forms/forms.js and to the Google Form's "Meeting Attending"
-     question (byte-identical), then restore the RSVP form (git history,
-     commit before this one) with radios for the new keys. RSVPs write to
-     D1 writers_meetings_registrations, the email and the Google sheet. --}}
+     Dates are set in MOOS (2026-11-26): Tools, Events, New event, Writers
+     meeting. They go in D1 writers_meetings_schedule. assets/js/
+     writers-meetings.js reads the upcoming ones from mo-forms GET
+     /writers-meetings/schedule and, when there are any, fills the cards
+     below and swaps the interest sign-up for the RSVP form in
+     <template data-wm-rsvp>. mo-forms accepts an RSVP only for a meeting
+     on that schedule. RSVPs write to D1 writers_meetings_registrations and
+     the email to Nadya; the Google sheet gets only the fall 2026 dates,
+     which are the only ones its form has options for. With no meeting
+     ahead, or without JavaScript, the page is what is drawn here. --}}
 
 <main class="writers-meetings">
 
@@ -47,7 +51,7 @@
       <dl class="writers-meetings-facts">
         <div class="writers-meetings-fact">
           <dt>Next dates</dt>
-          <dd>To be announced</dd>
+          <dd data-wm-next>To be announced</dd>
         </div>
         <div class="writers-meetings-fact">
           <dt>Length</dt>
@@ -86,9 +90,10 @@
     </div>
 
     {{!-- Three cards in a row on a wider measure than the prose; they
-          stack on a phone. Fill each with its date and reading when set. --}}
+          stack on a phone. writers-meetings.js replaces them with the
+          meetings on the schedule when there are any ahead. --}}
     <div class="container">
-      <ol class="wm-dates">
+      <ol class="wm-dates" data-wm-schedule data-forms-url="{{@custom.forms_worker_url}}">
         <li class="wm-date">
           <span class="wm-date-numeral" aria-hidden="true">I</span>
           <p class="wm-date-when">Date to be announced</p>
@@ -111,6 +116,7 @@
     </div>
 
     <div class="container container-narrow">
+      <div data-wm-interest>
       <div class="section-intro" id="register">
         <h2 class="section-heading"><em>Hear about the next dates.</em></h2>
       </div>
@@ -135,6 +141,46 @@
           <p class="site-form-status" data-signup-status role="status" aria-live="polite"></p>
         </div>
       </div>
+      </div>
+
+      {{!-- The RSVP form, drawn by writers-meetings.js in place of the
+            interest sign-up above when a meeting is ahead. One meeting per
+            registration; the radios are the upcoming meetings. --}}
+      <template data-wm-rsvp>
+        <div class="section-intro" id="register">
+          <h2 class="section-heading">Come and sit in.</h2>
+        </div>
+        <div class="writers-meetings-form-panel">
+          <p class="writers-meetings-form-intro">Tell us who you are and which meeting you plan to join. We will send the Zoom link and the reading beforehand. There is no cost.</p>
+          <form class="site-form" data-site-form="writers-meetings" data-worker-url="{{@custom.forms_worker_url}}" novalidate>
+            <div class="site-form-row">
+              <div class="site-form-field">
+                <label for="wm-rsvp-first">First name</label>
+                <input id="wm-rsvp-first" name="firstName" type="text" autocomplete="given-name" required />
+              </div>
+              <div class="site-form-field">
+                <label for="wm-rsvp-last">Last name</label>
+                <input id="wm-rsvp-last" name="lastName" type="text" autocomplete="family-name" required />
+              </div>
+            </div>
+            <div class="site-form-field">
+              <label for="wm-rsvp-email">Email</label>
+              <input id="wm-rsvp-email" name="email" type="email" autocomplete="email" inputmode="email" required />
+            </div>
+            <fieldset class="site-form-field writers-meetings-checks" data-wm-choices>
+              <legend>Which meeting will you join?</legend>
+            </fieldset>
+            <div class="site-form-field">
+              <label for="wm-rsvp-note">Anything you would like us to know?</label>
+              <p class="site-form-note">Optional. What you are working on, or a question you want taken up.</p>
+              <textarea id="wm-rsvp-note" name="note" rows="3" maxlength="2000"></textarea>
+            </div>
+            <div class="site-form-field" data-turnstile-wrap></div>
+            <button type="submit" class="site-form-submit">Register</button>
+            <p class="site-form-status" data-form-status></p>
+          </form>
+        </div>
+      </template>
 
       <div class="about-prose writers-meetings-footnote">
         <p>You do not need to come to a meeting first. If you have an essay ready now, <a href="/submissions/">send us a pitch</a>.</p>
@@ -144,3 +190,6 @@
   </section>
 
 </main>
+
+<script src="{{asset "js/site-forms.js"}}"></script>
+<script src="{{asset "js/writers-meetings.js"}}"></script>
