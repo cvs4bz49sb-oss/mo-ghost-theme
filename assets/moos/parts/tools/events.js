@@ -76,6 +76,8 @@ function openState(e) {
   }
   return e.status === "scheduled" && e.phase !== "past" ? "Open" : "Closed";
 }
+// A forum needs its Ghost post to edit; a meeting has to be on the schedule
+const editable = e => e.kind === "forum" ? !!e.post_id : e.status === "scheduled";
 const onSite = e => e.kind === "forum" ? e.status === "published" : e.status === "scheduled";
 const tabOf = e => !onSite(e) ? "off" : e.phase === "past" ? "past" : "upcoming";
 const whereLine = e => e.kind === "forum"
@@ -328,7 +330,7 @@ function view() {
     const list = () => MEM.rosters.get(id)?.data?.registrants || [];
     boxes.shown = shown;
     const acts = h("div", { class: "ev-acts" },
-      h("button", { type: "button", class: "btn quiet", onclick: () => openForm(e) }, "Edit"),
+      editable(e) ? h("button", { type: "button", class: "btn quiet", onclick: () => openForm(e) }, "Edit") : null,
       h("button", { type: "button", class: "btn quiet", disabled: !list().length, onclick: () => csvFor(e, shown()) }, icon("ev-down"), "Download CSV"),
       h("button", { type: "button", class: "btn quiet", disabled: !list().length, onclick: () => copyEmails(shown()) }, icon("copy"), "Copy emails"),
       h("button", { type: "button", class: "btn quiet", "aria-haspopup": "menu", onclick: ev => K().menuAt(ev.currentTarget, moreItems(e)) }, "More", icon("eb-chev")));
@@ -471,6 +473,7 @@ function view() {
       if (e.ghost_url) items.push(["Open in Ghost", "ev-out", () => window.open(e.ghost_url, "_blank", "noopener")]);
     }
     if (e.kind === "writers" && e.status === "scheduled") items.push(["Delete", "eb-trash", () => removeMeeting(e)]);
+    if (e.kind === "writers" && e.status === "deleted" && e.phase !== "past") items.push(["Put back on the site", "ev-out", () => restoreMeeting(e)]);
     if (e.url) items.push([e.kind === "forum" ? "View the post" : "View the page", "ev-out", () => window.open(e.url, "_blank", "noopener")]);
     return items.length ? items : [["Nothing else to do here", "x", () => {}]];
   }
@@ -576,6 +579,10 @@ function view() {
   async function publish(e) {
     if (!(await K().ask(`"${e.title}" goes on /forum/ and /events/ now.`, { ok: "Put it on the site", title: "Put this forum on the site?" }))) return;
     await act(() => T().api(`/events/forums/${e.post_id}/publish`, { method: "POST" }), "On the site");
+  }
+  async function restoreMeeting(e) {
+    if (!(await K().ask(`The ${dayLabel(e.date)} meeting goes back on /writers-meetings/ and takes RSVPs again.`, { ok: "Put it back", title: "Put this meeting back?" }))) return;
+    await act(() => T().api("/events/writers", { method: "POST", body: { date: e.key, time: e.time || "12:00", reading_title: e.reading?.title || "", reading_url: e.reading?.url || "" } }), "Back on the site");
   }
   async function removeMeeting(e) {
     const n = e.counts.registered;
