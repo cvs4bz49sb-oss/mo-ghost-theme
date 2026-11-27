@@ -402,6 +402,14 @@ button.srow:hover .subj { color: var(--accent) }
 .aud-filters { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px 18px; margin-top: 26px }
 .aud-filter { display: grid; gap: 6px; min-width: 0 }
 .aud-filter select { width: 100%; min-width: 0 }
+/* Contacts: More filters, and the profile's HubSpot links */
+.hs-link { color: var(--accent); text-align: left; font: inherit } .hs-link:hover { text-decoration: underline }
+.more-filters { padding: 26px 28px }
+.more-filters .aud-filters { margin-top: 0 }
+.more-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; margin-top: 20px }
+.more-btn svg { width: 15px; height: 15px; transition: transform .2s } .more-btn[aria-expanded="true"] svg { transform: rotate(180deg) }
+.list-about { margin-top: -26px; line-height: 1.5 }
+.found .chip { white-space: normal; text-align: left; max-width: 100% }
 .rank.on .name { color: var(--accent) }
 .rank.on .fill { background: var(--accent-deep) }
 .legend button[aria-pressed="true"] { color: var(--accent) }
@@ -637,7 +645,10 @@ svg.tl { display: block; width: 100%; height: auto; overflow: visible }
   .form > .btn { flex: 1 1 auto }
   input[type="text"], input[type="search"], input[type="date"], select, textarea { font-size: 16px; min-height: 46px }
   .filters { gap: 14px }
-  .filters > select, .filters > input[type="search"] { flex: 1 1 160px }
+  .filters > select, .filters > input[type="search"], .filters > .more-btn { flex: 1 1 160px }
+  .more-filters { padding: 20px 16px }
+  .hs-link { display: inline-flex; align-items: center; min-height: 44px }
+  .list-about { margin-top: -16px }
   .badge, .due, .person-link, .meta, .sub, .snip, .when { font-size: 14px }
   /* a ranked row: name and figure on one line, the bar under them */
   .barrow, .bars.wide .barrow { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; min-height: 44px; padding: 8px 0 }
