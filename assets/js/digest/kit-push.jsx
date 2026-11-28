@@ -234,7 +234,7 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
   // opens, but never clobber a value the user typed by hand.
   React.useEffect(() => {
     if (!open) return;
-    const issue = content.issueNumber ? `The Weekly Digest — No. ${content.issueNumber}` : '';
+    const issue = content.issueNumber ? `The Weekly Digest · No. ${content.issueNumber}` : '';
     const line = content.subjectLine || content.editorTitle || '';
     const autoSubject = templateKey === 'digest'
       ? [issue, line].filter(Boolean).join(' · ')

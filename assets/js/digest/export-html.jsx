@@ -170,7 +170,7 @@ async function exportEmailHtml({
   imageMode = 'auto', // 'auto' | 'placeholder' | 'datauri'
   imageBaseUrl = 'https://mereorthodoxy.com/wp-content/uploads/digest',
   imageOverrides = {}, // { 'mere-o-logo.png': 'https://...', ... }
-  subject = "The Weekly Digest — No. " + (content.issueNumber || ''),
+  subject = "The Weekly Digest · No. " + (content.issueNumber || ''),
   preheader = '',
   target = 'kit', // 'kit' | 'generic' | 'kit-broadcast'
 }) {

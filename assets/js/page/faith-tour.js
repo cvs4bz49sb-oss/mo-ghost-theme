@@ -943,7 +943,7 @@
       const m = document.createElement("a");
       m.href = "/membership/";
       m.className = "frt-join";
-      m.textContent = "Become a member";
+      m.textContent = "Become a Member";
       nt.appendChild(m);
     }
     if (last) markDone(run.name);

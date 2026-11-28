@@ -104,7 +104,7 @@
     imageBaseUrl = "https://mereorthodoxy.com/wp-content/uploads/digest",
     imageOverrides = {},
     // { 'mere-o-logo.png': 'https://...', ... }
-    subject = "The Weekly Digest \u2014 No. " + (content.issueNumber || ""),
+    subject = "The Weekly Digest \xB7 No. " + (content.issueNumber || ""),
     preheader = "",
     target = "kit"
     // 'kit' | 'generic' | 'kit-broadcast'

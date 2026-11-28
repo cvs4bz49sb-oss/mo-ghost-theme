@@ -182,7 +182,7 @@
     }, [open, variant]);
     React.useEffect(() => {
       if (!open) return;
-      const issue = content.issueNumber ? `The Weekly Digest \u2014 No. ${content.issueNumber}` : "";
+      const issue = content.issueNumber ? `The Weekly Digest \xB7 No. ${content.issueNumber}` : "";
       const line = content.subjectLine || content.editorTitle || "";
       const autoSubject = templateKey === "digest" ? [issue, line].filter(Boolean).join(" \xB7 ") : line || content.mastheadTitle || "";
       const autoPreheader = content.preheader || content.editorDek || "";
