@@ -38,12 +38,12 @@
         window.MOSafeRedirect.go(body.url);
         return;
       }
-      errorEl.textContent = body.message || 'Checkout is not yet enabled. Stripe wiring is pending.';
+      errorEl.textContent = body.message || 'Checkout is not open yet. Email ian@mereorthodoxy.com to buy a membership.';
     } catch (err) {
       // See gift.js: a blocked request rejects as a bare TypeError, and
       // "Failed to fetch" in a checkout error slot loses the sale.
       const netMsg = window.MONet && window.MONet.describe(err, 'checkout');
-      errorEl.textContent = netMsg || err.message || 'Something went wrong. Please try again.';
+      errorEl.textContent = netMsg || err.message || 'We could not start the payment. Check your connection and try again.';
     } finally {
       submit.classList.remove('is-loading');
       submit.disabled = false;

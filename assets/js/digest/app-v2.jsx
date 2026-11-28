@@ -300,7 +300,7 @@ function GmailChrome({ children, content = {} }) {
                 fontSize: 22, fontWeight: 400, color: '#202124', flex: 1, lineHeight: 1.3,
                 fontFamily: '"Google Sans", Arial, sans-serif',
               }}>
-                The Weekly Digest · No. {content.issueNumber || '184'} — {content.editorTitle || ''}
+                The Weekly Digest · No. {content.issueNumber || '184'} · {content.editorTitle || ''}
                 <span style={{ color: '#5f6368', marginLeft: 8 }}>Inbox</span>
               </div>
               <div style={{
@@ -483,7 +483,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
   });
   const [overridesOpen, setOverridesOpen] = React.useState(false);
   const [subject, setSubject] = React.useState(() =>
-    `The Weekly Digest — No. ${content.issueNumber || ''} · ${content.subjectLine || content.editorTitle || ''}`.trim()
+    `The Weekly Digest · No. ${content.issueNumber || ''} · ${content.subjectLine || content.editorTitle || ''}`.trim()
   );
   const [preheader, setPreheader] = React.useState(content.preheader || content.editorDek || '');
   const [output, setOutput] = React.useState('');

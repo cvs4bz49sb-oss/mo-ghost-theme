@@ -277,7 +277,7 @@
       flex: 1,
       lineHeight: 1.3,
       fontFamily: '"Google Sans", Arial, sans-serif'
-    } }, "The Weekly Digest \xB7 No. ", content.issueNumber || "184", " \u2014 ", content.editorTitle || "", /* @__PURE__ */ React.createElement("span", { style: { color: "#5f6368", marginLeft: 8 } }, "Inbox")), /* @__PURE__ */ React.createElement("div", { style: {
+    } }, "The Weekly Digest \xB7 No. ", content.issueNumber || "184", " \xB7 ", content.editorTitle || "", /* @__PURE__ */ React.createElement("span", { style: { color: "#5f6368", marginLeft: 8 } }, "Inbox")), /* @__PURE__ */ React.createElement("div", { style: {
       fontSize: 11,
       fontWeight: 500,
       color: "#188038",
@@ -401,7 +401,7 @@
     });
     const [overridesOpen, setOverridesOpen] = React.useState(false);
     const [subject, setSubject] = React.useState(
-      () => `The Weekly Digest \u2014 No. ${content.issueNumber || ""} \xB7 ${content.subjectLine || content.editorTitle || ""}`.trim()
+      () => `The Weekly Digest \xB7 No. ${content.issueNumber || ""} \xB7 ${content.subjectLine || content.editorTitle || ""}`.trim()
     );
     const [preheader, setPreheader] = React.useState(content.preheader || content.editorDek || "");
     const [output, setOutput] = React.useState("");

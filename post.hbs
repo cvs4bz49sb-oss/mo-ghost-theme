@@ -248,7 +248,7 @@
                     {{!-- Anonymous visitor — convert to digest subscriber first. --}}
                     <div class="inline-support" data-hm-section="inline-cta">
                         <p class="eyebrow">The Weekly Digest</p>
-                        <h3><em>Premier Thought Every Thursday.</em></h3>
+                        <h3>Every Thursday morning.</h3>
                         <p>All of our recent essays and podcasts, delivered to you. Free.</p>
                         <div class="digest-form" data-inline-signup data-source="article">
                             <div class="digest-field">
@@ -362,7 +362,7 @@
             <p class="eyebrow">Read Next</p>
         </div>
 
-        <h2 class="section-heading related-sub-heading"><em>Recent Articles</em></h2>
+        <h2 class="section-heading related-sub-heading">Recent Essays</h2>
         <div class="week-grid">
             {{#next_post}}
             <a href="{{url}}" class="entry" data-hm-goal="read-next" data-neighbor-entry data-post-id="{{id}}">
@@ -401,7 +401,7 @@
         </div>
 
         {{#if primary_tag}}
-        <h2 class="section-heading related-sub-heading related-sub-heading--more"><em>More on this theme.</em></h2>
+        <h2 class="section-heading related-sub-heading related-sub-heading--more">More on this theme.</h2>
         <div class="week-grid" data-related-grid>
             {{#get "posts" filter="tag:{{primary_tag.slug}}+id:-{{id}}" limit="4" include="authors,tags"}}
                 {{#foreach posts}}{{> "post-entry"}}{{/foreach}}

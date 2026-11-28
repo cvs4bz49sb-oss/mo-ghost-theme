@@ -238,7 +238,7 @@
       ? "Your bookmarks are kept with your membership rather than in this browser, so they follow you between devices."
       : "Bookmarks are kept with your membership rather than in this browser, so they follow you between devices.";
     const act = signedIn
-      ? `<a class="bookmarks-empty-link" href="/membership/">Become a member</a>`
+      ? `<a class="bookmarks-empty-link" href="/membership/">Become a Member</a>`
       : `<a class="bookmarks-empty-link" href="#/portal/signin" data-portal="signin">Sign in</a>`;
     listEl.innerHTML =
       `<div class="bookmarks-empty">` +
