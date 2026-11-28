@@ -3927,3 +3927,20 @@ html.g-mobile.mh-hide:not(.fr-bar-hidden) #app.faith-port-read-page.no-facs .ph.
 @media (pointer: coarse) {
   .nb-image-preview .nb-image-size select { font-size: 16px; min-height: 44px; }
 }
+
+/* READING TAKES THE WHOLE PHONE SCREEN (2026-11-27, Stiven: "make reading
+   take up the whole phone screen"). On a phone the reader slides its bars
+   away as soon as the reader scrolls down (mh-hide: masthead, rail, page
+   head, toolbar) and brings them back on a scroll up or a tap on the prose.
+   The year-end bar stayed where it was: 217px of an 844px screen, a quarter
+   of it, over the text for as long as the reader read. On the reader page,
+   on a phone, it now leaves and returns with the other bars. Nothing about
+   the bar changes anywhere else, and at the top of a page it stands as
+   before. Transform only, like the rest of the phone chrome above. */
+html.g-mobile body:has(#app.faith-port-read-page) .eoy-bar {
+  transition: transform var(--hdr-ms, 280ms) var(--hdr-ease, cubic-bezier(0.45, 0, 0.55, 1));
+}
+html.g-mobile.mh-hide body:has(#app.faith-port-read-page) .eoy-bar { transform: translateY(105%); }
+@media (prefers-reduced-motion: reduce) {
+  html.g-mobile body:has(#app.faith-port-read-page) .eoy-bar { transition: none; }
+}

@@ -28,7 +28,8 @@
 [data-theme="sepia"]{--head:#2F281C;--bg:#DDD0B6;--card-bg:#F2E9D5;--sidebar-bg:#EBE1C9;--fg:#2F281C;--muted:#635844;--border:#CFC2A4;--rule-soft:#DED2B7;--latin:#2F281C;--english:#635844;--accent:#8A2A1E;--accent2:#9D3E2A;--highlight:#ECDCC9;--accent-soft:#AB8D55;--masthead:#F9F2E1;--masthead-ink:#2F281C;--facs-mat:#D6C9AB;--scan-filter:sepia(.08) brightness(.985);}
 /* Lamplight dark — a warm brown-black ROOM, unbleached-linen ink, ember red; the scan is dimmed
    into the room via --scan-filter instead of glaring full-white beside dark panes */
-:root[data-theme="dark"]{--head:#F2F2EE;--bg:#1A1A18;--card-bg:#232320;--sidebar-bg:#1E1E1C;--fg:#E9E9E5;--muted:#A2A29C;--border:#383836;--rule-soft:#2C2C2A;--latin:#E9E9E5;--english:#A2A29C;--accent:#E9E9E5;--accent2:#C9C9C3;--highlight:#2E2E2B;--accent-soft:#6E6E68;--masthead:#131311;--masthead-ink:#E9E9E5;--facs-mat:#161614;--scan-filter:brightness(.8) contrast(.96) grayscale(.15);--reading-lh:1.68;}  /* :root prefix — must out-rank :root[data-site]'s accent or the dark lift never ships */
+:root[data-theme="dark"]{--head:#F2F2EE;--bg:#1A1A18;--card-bg:#232320;--sidebar-bg:#1E1E1C;--fg:#E9E9E5;--muted:#A2A29C;--border:#383836;--rule-soft:#2C2C2A;--latin:#E9E9E5;--english:#A2A29C;--accent:#E9E9E5;--accent2:#C9C9C3;--highlight:#2E2E2B;--accent-soft:#6E6E68;--masthead:#131311;--masthead-ink:#E9E9E5;--facs-mat:#161614;--scan-filter:brightness(.8) contrast(.96) grayscale(.15);}  /* :root prefix — must out-rank :root[data-site]'s accent or the dark lift never ships */
+:root[data-theme="dark"]:not([data-lh]){--reading-lh:1.62}   /* light text on graphite wants a little more than paper's 1.56 (11-27; was 1.68 inside the block above, where it also outranked the reader's own compact and relaxed) */
 /* No auto-dark: the reading default is always light warm paper (dark stays opt-in via the theme toggle, matching aquinas). */
 /* ── Family sites (the data-site system): one shared skeleton; each sibling = its own accent + display face. Set <html data-site="…">. Faith Received is the default :root above. ── */
 [data-site="aquinas"]{--accent:oklch(.525 .12 25);--accent2:oklch(.46 .12 25);--accent-soft:oklch(.75 .06 70);--font-display:'Cardo','IM Fell Great Primer',Georgia,serif}
@@ -583,7 +584,7 @@ html.railok #reading:has(.hasmn){padding-left:calc(8.5rem + 1rem);padding-right:
 .row.rhead.h2col:not(.hmain) .csub{font-size:1.05em}
 .row.rhead.ixh .csub{margin:.1rem 0}
 /* TITLE PAGE: centered display stack, print-order caps lines scaled by position */
-.folio.titlepage .row{grid-template-columns:1fr;max-width:60ch;margin-left:auto;margin-right:auto}
+.folio.titlepage .row{grid-template-columns:1fr;max-width:68ch;margin-left:auto;margin-right:auto}
 /* TITLE-PAGE REGISTER BALANCE (owner 2026-08-20 Rutherford Exercitationes: LA lane's title
    tagged <head> shouted in giant accent caps while the EN facing block sat in body small
    caps). On a title page BOTH lanes set in the same quiet small-caps body register. */
@@ -763,6 +764,7 @@ sup.fnref:hover+.citedup,sup.fnref:focus+.citedup,.citedup:hover{display:inline;
 .app.rflow .apptog.open{margin:1rem 0 .2rem;font-size:.62rem;opacity:.55}
 .app.rflow .apptog:hover{opacity:1}
 @media(max-width:900px){.app.rflow .apptog:not(.open){position:static;margin:.2rem 0 0;max-width:none;opacity:.45}}
+@media(min-width:901px){.app.rflow.only-en .apptog:not(.open),.app.rflow.only-la .apptog:not(.open){transform:translateY(calc(var(--togn,0) * 1.5rem))}}   /* NOTES TOGGLES DO NOT PILE UP (placeSeamNotes): each closed toggle of a run of notes-only pages one step lower in the gutter. One lane only: with both lanes the toggle stands in the gap between rows, not in a gutter, and a step down laid it over the first line of the next paragraph (Voetius p. 10, 11-28) */
 .app.rflow .row.rapp:last-child{padding-bottom:1.1rem;margin-bottom:2rem;border-bottom:1px solid var(--rule-soft)}
 /* dense citation banks (Althusius-class: 150+ one-line legal cites) read better tighter */
 .row.rapp{break-inside:avoid}
@@ -979,6 +981,7 @@ p.apx.apx-sub>.rl:first-child{margin-bottom:.35rem}
   .app.rflow:not(.only-en):not(.only-la) .stkwrap>:last-child .pganchor{right:auto;left:calc(100% + .6rem)}
 }
 .fmark.rolled{display:none!important}   /* page merged into the previous run: its chip would stack on the next page's (owner 2026-09-04) */
+@media (min-width:901px){.app.rflow .fmark.carried .ff{display:none}}   /* the page began at the mark inside the paragraph that ran over the turn: Flow names it there, once (11-27). Wide screens only: below 881px the inline mark is not drawn, and this label is the page's only number in the text */
 /* print furniture that survived into the text (signature marks, lone catch-syllables):
    hidden in Flow, dimmed-visible in page/study views so nothing is silently lost */
 .app.rflow .row.furn{display:none}
@@ -1073,7 +1076,7 @@ a.xref:hover,a.xref:active{color:var(--accent);text-decoration-color:var(--accen
 .app.only-en #reading .stkwrap>.stk-en>.en{max-width:68ch;margin:0 auto;font-size:calc(1.04em * var(--ensz,1));line-height:var(--reading-lh)}
 html:not(.fr-plain) .app.only-en #reading .stkwrap>.stk-en>.en{font-feature-settings:"kern" 1,"liga" 1,"onum" 1,"pnum" 1,"locl" 0;font-variant-numeric:oldstyle-nums proportional-nums}
 html.g-mobile .app.only-en #reading .stkwrap>.stk-en>.en{max-width:none}
-.app.only-en #reading .stkwrap>.stk-en>.en p{line-height:1.74;text-wrap:pretty;margin:.3rem 0 .65rem;text-indent:0}
+.app.only-en #reading .stkwrap>.stk-en>.en p{line-height:var(--reading-lh);text-wrap:pretty;margin:.3rem 0 .65rem;text-indent:0}
 html:not(.g-mobile) .app.only-en #reading .stkwrap>.stk-en>.en:not(:first-child)>p:first-child{text-indent:1.3em}
 .app.only-en #reading .stkwrap>.stk-en>.en:first-child>p:first-child{margin-top:0}
 html.g-mobile .app.only-en #reading .stkwrap>.stk-en>.en p{line-height:var(--reading-lh);text-align:left;hyphens:auto;-webkit-hyphens:auto}
@@ -1810,7 +1813,12 @@ html.g-mobile .rsa-a .cite{margin:.05rem .15rem;vertical-align:baseline}
 @media(min-width:700px){
  #reading .row .la p,#reading .row .en p{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
 }
-#reading .row .la p,#reading .row .en p{line-height:1.74;text-wrap:pretty;margin:.6em 0}
+/* LEADING FROM THE TOKEN (owner 11-27: "im concerned about page flow and typesetting", "make it beyaitful and easy to read"). This
+   rule set every paragraph at 1.74 whatever --reading-lh said (1.55), so the designed leading never reached the page at the normal
+   spacing; on EB Garamond, small on the body, 1.74 read close to double spacing. The paragraph takes the token: 1.56 on paper, 1.62
+   on graphite. Greek keeps its 1.72 (stacked accents). Aa > Spacing still sets the token for compact and relaxed. */
+#reading .row .la p,#reading .row .en p{line-height:var(--reading-lh);text-wrap:pretty;margin:.6em 0}
+html:not(.g-mobile) .app.grcwork #reading .row .la p{line-height:1.72}   /* wide screens: a phone sets every lane at the token, as it did before */
 .app.teiflow .row.prow+.row.prow .la p:first-child,
 .app.teiflow .row.prow+.row.prow .en p:first-child{text-indent:1.45em}
 .app.teiflow .row.prow .la p,.app.teiflow .row.prow .en p{margin:.3em 0}
@@ -1886,6 +1894,10 @@ a.plref:hover{color:var(--accent);border-bottom-style:solid}
    specificity contest between the lane-grid, teiflow, and stack rules. */
 .app.only-en #reading .row{display:block}
 .app.only-la #reading .row{display:block}
+/* THE MEASURE OF ONE LANE: 68ch here, about 66 characters a line in this site's Source Serif Pro (measured 11-27). The Faith Received
+   sets EB Garamond, whose ch is a fifth wider than its average letter, and uses 60ch for the same result; the figure is NOT ported.
+   The stacked column (.stkwrap>.stk-en>.en), the tablet cap (g-mobile, 601 to 880px) and the folio mark's box (ONE PAGE MARK) carry
+   the same figure: change them together. */
 .app.only-en #reading .row .en,.app.only-en #reading .row.rapp .en{max-width:68ch;margin-inline:auto!important}
 .app.only-la #reading .row .la,.app.only-la #reading .row.rapp .la{max-width:68ch;margin-inline:auto!important}
 .app.only-en #reading .row.rhead .csub,.app.only-la #reading .row.rhead .csub{max-width:68ch;margin-inline:auto}
@@ -1913,6 +1925,14 @@ html.g-mobile #reading .rhead .csub{margin:1.9rem 0 .8rem}
 html.g-mobile #reading .rhead .csub .hla,html.g-mobile #reading .rhead .csub .hen{font-size:1.22em;line-height:1.28}
 html.g-mobile #reading .fmark{opacity:.4}
 html.g-mobile .app.only-en #reading .row .en,html.g-mobile .app.only-la #reading .row .la{max-width:none}
+/* A TABLET IS NOT A WIDE PHONE (11-27): the rule above, written for phones, also lifted the cap from 601 to 880px, where one lane then
+   ran 99 to 123 characters a line at the phone's 16px, edge to edge. There the lane keeps the measure of the desktop column and the
+   text is set 1.18 times the chosen size (16 reads at about 19), so the Aa control still governs. */
+@media (min-width:601px) and (max-width:880px){
+  html.g-mobile .app.only-en #reading,html.g-mobile .app.only-la #reading{font-size:calc(var(--rdszm,16px) * 1.18)!important}
+  html.g-mobile .app.only-en #reading .row .en,html.g-mobile .app.only-la #reading .row .la,
+  html.g-mobile .app.only-en #reading .stkwrap>.stk-en>.en{max-width:68ch;margin-inline:auto}
+}
 /* MOBILE SCAN NAV (owner 2026-08-17 'make scan easy to actually navigate'):
    swipe = page turn, double-tap = zoom toggle, and a page scrubber for long works. */
 @media(max-width:880px){
@@ -1947,7 +1967,7 @@ html.g-mobile .app.only-en #reading .row .en,html.g-mobile .app.only-la #reading
    folio instead of two pills; a text-button masthead; Loeb red for cues, labels and the running head.
    Escape hatches: <html class="fr-plain"> turns the layer off; <html class="fr-justify"> restores justified lanes. */
 html:not(.fr-plain){--font-body:'EB Garamond','Source Serif Pro',Palatino,'Times New Roman',Georgia,serif;--font-display:'EB Garamond','Source Serif Pro',Georgia,serif;
-  --reading-lh:1.55}  /* monochrome: the base tokens ARE the reading accents now (2026-09-05 'black white, academic journal') */
+  --reading-lh:1.56}  /* 1.56 (11-27; was 1.55, and no paragraph followed it: LEADING FROM THE TOKEN). monochrome: the base tokens ARE the reading accents now (2026-09-05 'black white, academic journal') */
 html:not(.fr-plain)[data-theme="dark"]{}
 html:not(.fr-plain)[data-theme="sepia"]{--accent:#8A2A1E;--accent2:#9D3E2A;--accent-soft:#AB8D55;--highlight:#ECDCC9}
 /* "locl" 0: EB Garamond's Latin localisation (lang="la") swaps u→v, "Qvamqvam Pantheismvs" — an inscriptional habit, not a reading one */
@@ -1959,9 +1979,21 @@ html:not(.fr-plain) .la,html:not(.fr-plain) .la *,html:not(.fr-plain) [lang="la"
 html:not(.fr-plain) .row .la{border-left-color:var(--rule-soft)!important}
 /* facing lanes */
 html:not(.fr-plain):not(.fr-justify) #reading .row .la p,html:not(.fr-plain):not(.fr-justify) #reading .row .en p{text-align:start;text-wrap:pretty;hyphens:manual;-webkit-hyphens:manual}
-html:not(.fr-plain) .app.teiflow .row.prow .la p,html:not(.fr-plain) .app.teiflow .row.prow .en p{margin:.16rem 0;text-indent:1.3em}
+html:not(.fr-plain) .app.teiflow .row.prow .la p,html:not(.fr-plain) .app.teiflow .row.prow .en p{margin:.16rem 0;text-indent:1.45em}   /* 1.45em, the indent the rule above gives a row's first paragraph: one indent on the page (11-27; a later paragraph of a row had 1.3em) */
+/* THE PAGE BOUNDARY DOES NOT SET THE INDENT IN FLOW (11-27): the first paragraph of every printed page was set flush, so in Flow, where
+   the page boundary is not drawn, a paragraph lost its indent for no reason a reader could see (Turretin's Institutes: "II." indented,
+   "III." flush, because p. 120 begins there). Flush now means what it means in a book: after a heading, or at the start of the text.
+   Pages view keeps the flush first paragraph under its page rule. A heading that ends a page still sets the next page's opening flush,
+   and so does a first row that continues the page before without being joined to it (.cont: a Greek Fathers page, where the page is
+   the unit; the old .row.cont rules lose to the indent rule above on specificity, and the page-first rule used to cover for them).
+   Where the page is the unit (.pgunit: the Greek and Latin Fathers, never merged) every page still opens flush, as it always has:
+   a page there opens mid-sentence more often than the continuation mark knows (measured on PG 36: 4 pages in 60). */
 html:not(.fr-plain) .app.teiflow .row.rhead+.row.prow .la p:first-of-type,html:not(.fr-plain) .app.teiflow .row.rhead+.row.prow .en p:first-of-type,
-html:not(.fr-plain) .app.teiflow .row.prow:first-child .la p:first-of-type,html:not(.fr-plain) .app.teiflow .row.prow:first-child .en p:first-of-type{text-indent:0}
+html:not(.fr-plain) .app.teiflow:not(.rflow) .row.prow:first-child .la p:first-of-type,html:not(.fr-plain) .app.teiflow:not(.rflow) .row.prow:first-child .en p:first-of-type,
+html:not(.fr-plain) .app.teiflow.rflow #reading>section.folio:first-of-type>.row.prow:first-child :is(.la,.en) p:first-of-type,
+html:not(.fr-plain) .app.teiflow.rflow .row.prow.cont:first-child :is(.la,.en) p:first-of-type,
+html:not(.fr-plain) .app.teiflow.pgunit .row.prow:first-child :is(.la,.en) p:first-of-type,
+html:not(.fr-plain) .app.teiflow.rflow .folio:has(>.row:last-child.rhead)+.fmark+.folio>.row.prow:first-child :is(.la,.en) p:first-of-type{text-indent:0}
 html:not(.fr-plain) .rl{font-weight:500;font-style:italic;font-variant:normal;color:var(--accent2)}
 html:not(.fr-plain) sup.fnref{font-variant-numeric:lining-nums;font-size:.62em;color:var(--accent)}
 /* heads: small caps, letterspaced, centred in their lane; a short rule under a main division */
@@ -2028,7 +2060,25 @@ html:not(.fr-plain) .app:not(.only-en):not(.only-la) #reading:has(.row.prow:not(
 html:not(.fr-plain) .app:not(.only-en):not(.only-la) #reading:has(.row.prow:not(.solo)) .row.solo:not(.rapp):not(.rcit)>.en:only-child{grid-column:2;max-width:none;margin-inline:0}
 html:not(.fr-plain) .app:not(.only-en):not(.only-la) #reading:has(.row.prow:not(.solo)) .row.solo:not(.rapp):not(.rcit)>.la:only-child{grid-column:1;max-width:none;margin-inline:0}
 /* the inline seam anchor ("p. 30" where a paragraph runs across the leaf) wears the same quiet folio dress */
-html:not(.fr-plain) .pganchor,html:not(.fr-plain) .app.rflow .pganchor{border:0;background:none;font:italic .8rem/1 var(--font-display);color:var(--muted);font-variant-numeric:oldstyle-nums;opacity:.75}
+html:not(.fr-plain) .pganchor,html:not(.fr-plain) .app.rflow .pganchor{border:0;background:none;font:italic .8rem/1 var(--font-display);color:var(--muted);font-variant-numeric:oldstyle-nums;opacity:.75;text-indent:0}
+/* ONE PAGE MARK, ON ITS LINE (11-27, owner: "im concerned about page flow and typesetting"). A page is named in the margin by one of
+   two marks: the inline mark where a paragraph runs over the turn, or the folio mark where the page opens a paragraph. They were two
+   different things to the eye: the folio mark stood 39px further out (it hung off the full-width folio, the inline mark off the
+   centred column), at about half the strength (.55 x .72 opacity, near invisible on graphite), and both sat at the TOP of the line
+   box, between two lines of text, so it was not plain which line a mark belonged to. The inline mark also inherited its
+   paragraph's first-line indent inside its own box, which pushed the English lane's marks 1.3em off their rail in the parallel
+   view. Now: one size (.6 of the reading size, so it follows Aa), one strength, one rail (in the single-lane views the folio mark
+   takes the column's own box: keep its measure and size in step with the column rules above, .app.only-en/.only-la #reading .row
+   .en/.la), and both dropped to the middle of the line they mark. Wide screens only; below 901px the marks are as before. A work
+   set in stacked runs (.stkwrap) hangs its inline marks off the full-width run, where the folio mark already stood: there both
+   stay on that outer rail (measured on Wolleb: 314 and 313px). */
+@media (min-width:901px){
+  html:not(.fr-plain) .app.rflow .pganchor,html:not(.fr-plain) .app.teiflow .pganchor{font-size:.6em;margin-top:.95em}
+  html:not(.fr-plain) .app.rflow #reading .fmark{opacity:1}
+  html:not(.fr-plain) .app.rflow #reading .fmark .ff{font-size:.6em;top:calc(.3rem + .95em);opacity:.75}
+  html:not(.fr-plain) .app.rflow.only-en #reading:not(:has(.stkwrap)) .fmark{max-width:68ch;margin-inline:auto;font-size:calc(1.04em * var(--ensz,1))}
+  html:not(.fr-plain) .app.rflow.only-la #reading:not(:has(.stkwrap)) .fmark{max-width:68ch;margin-inline:auto;font-size:calc(1em * var(--lasz,1))}
+}
 /* ═══ FR-CLASSIC end ═══ */
 /* ═══ FR-EDITION (2026-09-05, the Fine Press pass): the single reading column sits on a SHEET —
    a paper surface a step lighter than the desk, hairline edge, soft shadow — so the page reads
@@ -2082,7 +2132,7 @@ html:not(.fr-plain) .app.teiflow:not(.no-facs):not(.only-en):not(.only-la) #read
   .app.rflow:not(.only-en):not(.only-la) #reading .row,.app.rflow:not(.only-en):not(.only-la) #reading .inctoc{max-width:none;margin-left:0;margin-right:0}
 }
 html:not(.fr-plain) .fmark .ff,html:not(.fr-plain) .app.teiflow .fmark .ff,html:not(.fr-plain) .app.rflow .fmark .ff{font:italic .78rem/1 var(--font-display);color:var(--muted);opacity:.72}
-html:not(.fr-plain) .app.rflow .fmark .ff{right:calc(100% + .8rem)}
+html:not(.fr-plain) .app.rflow .fmark .ff{right:calc(100% + .6rem)}   /* the same .6rem as the inline mark at a turn (.pganchor): one rail (11-27; was .8rem) */
 html:not(.fr-plain) .app.rflow .fmark.titlepage{margin:0;height:0}
 html:not(.fr-plain) .app.rflow .fmark.titlepage .ff{position:absolute;background:none;border:0;color:var(--muted);font-size:.78rem;opacity:.72}
 html:not(.fr-plain) .app.rflow .fmark.titlepage .fr,html:not(.fr-plain) .app.rflow .fmark.titlepage .fm{display:none}
