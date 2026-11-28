@@ -457,7 +457,7 @@ function placeSeamNotes(homeOnly){try{
   const home=w=>{const s=w.__slot;
     if(s&&s.isConnected){relabel(w.querySelector(":scope > .apptog"),"");while(w.firstChild)s.parentNode.insertBefore(w.firstChild,s);s.remove();}
     w.remove();};   // no slot left: its page was drawn again with a fresh bank, so this copy is stale
-  if(homeOnly||!app.classList.contains("rflow")){carried.forEach(w=>home(w));return;}
+  if(homeOnly||!app.classList.contains("rflow")){carried.forEach(w=>home(w));R.querySelectorAll(".apptog[data-stacked]").forEach(t=>{delete t.dataset.stacked;t.style.removeProperty("--togn");relabel(t,"");});return;}
   const plan=new Map(),secBy=new Map();let pend=[],prev=null;
   const isBody=x=>(x.classList.contains("row")&&!x.classList.contains("rapp"))||x.classList.contains("stkwrap");
   for(const s of R.querySelectorAll(":scope > section.folio")){
@@ -493,6 +493,18 @@ function placeSeamNotes(homeOnly){try{
       at.after(w);at=w;
     }
   });
+  // NOTES TOGGLES DO NOT PILE UP (11-27). A page whose text all went up into a run keeps only its notes, and a folio with no text has
+  // no height, so in Flow the closed toggles of such pages (drawn in the gutter at the foot of their folio) all stood on one spot:
+  // Pusey's Occasional Sermons pp. 35 to 40 printed five labels over each other and only the top one could be pressed. (Two could
+  // already meet this way; since a notes-only page no longer stops a run there can be a string of them.) They step down the gutter
+  // from the foot of the run, one toggle's height each (--togn), and each names the page its notes belong to.
+  {let n=0;
+   for(const s of R.querySelectorAll(":scope > section.folio")){
+     const kids=[...s.children],tog=kids.find(x=>x.classList.contains("apptog"));
+     if(kids.some(isBody)){n=tog?1:0;if(tog&&tog.dataset.stacked){delete tog.dataset.stacked;tog.style.removeProperty("--togn");relabel(tog,"");}continue;}
+     if(!tog)continue;
+     tog.dataset.stacked="1";tog.style.setProperty("--togn",n++);relabel(tog,typeof locOf==="function"?locOf(s.dataset.page):"p. "+s.dataset.page);
+   }}
 }catch(e){console.warn("[seam notes]",e);}}
 let _seamNotesT=0;
 function schedSeamNotes(){clearTimeout(_seamNotesT);_seamNotesT=setTimeout(()=>placeSeamNotes(),30);}
@@ -1747,6 +1759,11 @@ function jump(p,ttl){
   // when the clicked TOC title matches a heading row INSIDE the page, land on the heading itself —
   // the section often starts mid-page and the page top shows the previous section's tail.
   const hit=frHeadingIn(t,ttl);if(hit)tgt=hit;
+  // a contents entry with no heading or line of its own, on a page that opens inside a paragraph carried over from the page before
+  // (owner 2026-11-24, Voetius's oration: Jurisprudence opened on p. 16's last lines, Politics on p. 20): the page's own mark in that
+  // paragraph is its start, the place the entry's link already lands. Contents clicks only (a title is given); the rule and its
+  // guards are reader-navigation.js pageStart.
+  else if(ttl&&t.classList.contains("folio")){const own=window.FRReaderNavigation?.pageStart?.(t,$("#reading").querySelectorAll(`.pganchor[data-page="${p}"]`));if(own)tgt=own;}
   window.__frPlaceReaderAnchor(tgt,{block:"start"});window.__frJumpEl=tgt;return tgt;}  // page starts at "pg. N", clear of the masthead (scroll-margin-top)
 // THE HEADING A TITLE NAMES INSIDE ONE DRAWN PAGE (contents clicks, and since 2026-10-20 the ?at= arrival: the commentary decks,
 // the set indexes and the citations open the reader on the heading itself, not on its page's top). The outline's own match first,
@@ -3505,6 +3522,7 @@ function build(){
   // anchors); (2) surviving print furniture rows (signature marks, lone catch-syllables)
   // are tagged .furn — hidden in Flow, dimmed in page views. DOM-level; text untouched.
   const readingEditionPass=()=>{try{
+    document.getElementById("app").classList.toggle("pgunit",!!DATA.pg_source);   // THE PAGE IS THE UNIT: these works keep the page-first flush paragraph in Flow (11-27)
     placeSeamNotes(true);   // every notes bank on its own page while this pass reads and joins pages (NOTES OFF THE SENTENCE)
     // SMALL-CAPS DISPLAY (owner 2026-08-17, Baronius: 'look at all caps'): shouted
     // address blocks and title-page runs in the ENGLISH lane set as true small caps —
@@ -3997,8 +4015,12 @@ function build(){
             const lp=a.querySelector("p:last-of-type"),fp=b.querySelector("p:first-of-type");
             if(lp&&fp&&/-\s*$/.test(lp.textContent)&&/^[a-zà-ÿ]/.test(fp.textContent)){
               lp.innerHTML=lp.innerHTML.replace(/-\s*$/,"");
-              a.appendChild(mk(ln==="en"?"an-en":"an-la"));
-              lp.innerHTML+=fp.innerHTML;fp.remove();
+              // THE MARK STANDS AT THE TURN (11-27): it was appended to the cell, so it stood after the whole joined paragraph, up to a
+              // paragraph late, and the next turn's mark landed on top of it (Bavinck's letters, "p. 31" under "p. 32" where p. 32
+              // begins). The rest of the divided word comes first, then the mark, then the page's words, all inside the paragraph.
+              {const t=fp.firstChild,m=t&&t.nodeType===3?/^\S+\s*/.exec(t.nodeValue):null;
+               if(m){lp.appendChild(document.createTextNode(m[0]));t.nodeValue=t.nodeValue.slice(m[0].length);}}
+              lp.appendChild(mk(ln==="en"?"an-en":"an-la"));while(fp.firstChild)lp.appendChild(fp.firstChild);fp.remove();
             } else if(lp&&fp&&/^[IM]$/.test(lp.dataset.part||"")&&/^[FM]$/.test(fp.dataset.part||"")){
               // ONE PARAGRAPH (owner 2026-10-08, Bucer Defensio p. 24/25: "these have a para break in the
               // reader but dont seem to be an actual break"): the corpus marks the pair as one paragraph the
@@ -4009,7 +4031,15 @@ function build(){
               {const before=lp.dataset.part==="M",after=fp.dataset.part==="M";   // what the joined paragraph still continues
                if(before||after)lp.dataset.part=before&&after?"M":(before?"F":"I");else lp.removeAttribute("data-part");}
               fp.remove();
-            } else a.appendChild(mk(ln==="en"?"an-en":"an-la"));
+            } else {
+              // A SENTENCE THE PAGE TURN BROKE IS ONE PARAGRAPH (11-27, owner: "im concerned about page flow and typesetting"): where
+              // the corpus marks no parts, the continuation opened a new paragraph under the mark, indented and set off, in the
+              // middle of its sentence. The lane's own words decide (FRReaderNavigation.seamJoin: plain paragraphs, no closing stop
+              // before the turn, lower case after it); the mark goes inside the paragraph at the turn, as in the marked case above.
+              const j=window.FRReaderNavigation?.seamJoin?.(a,b);
+              if(j){j.last.appendChild(document.createTextNode(" "));j.last.appendChild(mk(ln==="en"?"an-en":"an-la"));while(j.first.firstChild)j.last.appendChild(j.first.firstChild);j.first.remove();}
+              else a.appendChild(mk(ln==="en"?"an-en":"an-la"));
+            }
             while(b.firstChild)a.appendChild(b.firstChild);
           }
         });
@@ -4021,9 +4051,13 @@ function build(){
         // shows), as the margin-note join (span.rowjoin) and __healSeams (.folin) already do.
         {const an=made["an-en"]||made["an-la"];if(an&&cr.id){an.id=cr.id;cr.removeAttribute("id");}}
         cr.remove();
+        // A PAGE LEFT WITH ONLY ITS NOTES (11-27, Pusey's Occasional Sermons p. 40/41): its one paragraph went up into the run, its notes
+        // stayed, and because a notes row is a row the page became the new "previous page" with no text to read on from. The sentence
+        // then broke at the next turn ("all-radiant with" | "glory") with the page's notes toggle between the halves. The run still ends
+        // in the row that carries it, so that row stays the place the next page reads on from; the notes follow the paragraph.
         if(![...cur.children].some(x=>x.classList.contains("stkwrap")||x.classList.contains("row")))
           cur.classList.add("rolled");
-        else prev=cur;
+        else if([...cur.children].some(x=>x.classList.contains("stkwrap")||(x.classList.contains("row")&&!x.classList.contains("rapp"))))prev=cur;
         continue;
       }
       prev=cur;
@@ -4037,6 +4071,13 @@ function build(){
     R.querySelectorAll(".folio.rolled").forEach(f=>{const m=f.previousElementSibling;if(m&&m.classList&&m.classList.contains("fmark"))m.classList.add("rolled");});
     // a BLANK leaf (title verso, blank page: no rows at all) has nothing to head either — its chip would stack on the next page's (owner 2026-09-04)
     R.querySelectorAll(".folio:not(.titlepage)").forEach(f=>{if(f.querySelector(".row,.stkwrap"))return;const m=f.previousElementSibling;if(m&&m.classList&&m.classList.contains("fmark"))m.classList.add("rolled");});
+    // THE PAGE IS NAMED ONCE (11-27): a page whose opening paragraph was carried up into the page before begins at the inline mark at
+    // the turn. Its own folio mark was left standing at its first WHOLE paragraph, so in Flow the margin named the page twice, the
+    // second time up to a paragraph late (Turretin's Institutes p. 120: at "Hypothetically" and again beside "III."). The folio mark
+    // of such a page is tagged .carried and Flow does not draw its label; Pages keeps its rule between the pages.
+    {const byPage=new Map();R.querySelectorAll(":scope > section.folio").forEach(f=>byPage.set(String(f.dataset.page),f));
+     R.querySelectorAll(".pganchor[data-page]").forEach(a=>{const f=byPage.get(String(a.dataset.page));if(!f||f.contains(a)||!(a.compareDocumentPosition(f)&4))return;
+       const m=f.previousElementSibling;if(m&&m.classList&&m.classList.contains("fmark")&&!m.classList.contains("titlepage"))m.classList.add("carried");});}
     // RUNNING-HEAD ECHO HEADS (owner 2026-09-04, Urraburu Psych. II p.13 "DISPUTATIO PRIMA." printed as the leaf's
     // running head AND as the display head): within one folio, a head row whose Latin (or English) repeats the
     // text of a head row earlier in the same consecutive run of heads is the echo — hide it, keep the first.

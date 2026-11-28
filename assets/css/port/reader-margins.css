@@ -4,6 +4,11 @@
 @media screen{#reading .mnote:not(.headnote):not(.edinl):not(.edblock *){display:none!important}#reading .mnp.rm-bare{display:none!important}}
 html.fr-margin-notes.railok #reading:has(.hasmn){padding-inline:clamp(1.75rem,4.5vw,4rem)}
 html.fr-margin-notes #reading .row>:is(.la,.en).hasmn{padding-inline:0}
+/* The line above takes back the room the old note rail reserved in a lane that carries margin notes. With both lanes shown it also
+   took the source lane's own inset from its rule (reader_shell.html: .app:not(.only-en):not(.only-la) .row .la{padding-left:1.05rem}),
+   so a paragraph with notes stood 17px left of the paragraph after it, hard against the rule (Turretin's Institutes p. 119, "II." and
+   "III."). The lane keeps its inset whether or not the row has notes (11-27). Keep the value in step with that rule. */
+html.fr-margin-notes .app:not(.only-en):not(.only-la) #reading .row>.la.hasmn{padding-left:1.05rem}
 html.fr-margin-notes #reading .rm-original{display:none!important;float:none!important;clear:none!important}
 html.fr-margin-notes #reading .mnp.rm-group{display:block!important;float:none!important;clear:none!important;width:auto!important;max-width:none!important;margin:.25rem 0 .55rem!important;padding:0!important;border:0!important;text-align:start!important;text-indent:0!important;font-style:normal!important;line-height:1.4!important}
 html.fr-margin-notes #reading .rm-marker{display:inline-flex;align-items:center;gap:6px;border:0;border-bottom:1px solid var(--detail-rule,var(--border));border-radius:0;padding:4px 1px;min-height:32px;background:none;color:var(--detail,var(--muted));font:13px/1.45 'Source Serif Pro',Georgia,serif;text-align:start;text-indent:0;vertical-align:baseline;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}

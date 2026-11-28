@@ -209,5 +209,46 @@ function locator(data,page){
  return chapter?"Part "+part+" · ch. "+chapter[1]:node.title.startsWith("Index:")?"Part "+part+" · Index":node.title.startsWith("Front matter")?"Front matter":node.title;
 }
 
-return {isConfession,chapterLabel,contents,catalogue,outline,locator,exactHeading};
+// WHERE A PAGE BEGINS WHEN IT OPENS INSIDE A PARAGRAPH (2026-11-24, owner on Voetius's oration of 1636, "is the toc solid?":
+// Jurisprudence, p. 16, opened on the page's last lines and Politics, p. 19, on p. 20). In Flow a paragraph carried over from the
+// page before stays whole there, and the next page's folio holds only what BEGINS on it. A contents entry whose title finds no
+// heading or line of its own starts at the page's own mark inside that paragraph, where the entry's link (#b16-0) already lands.
+// The folio is kept when its first row is a heading (the section starts at that heading: Wolleb, Zanchi), and a mark never wins
+// when it is the hidden lane's, stands inside or after the folio, or is drawn outside its host folio (the scroll-spy's rule).
+function pageStart(folio,marks){
+ const drawn=e=>!!(e&&e.getClientRects&&e.getClientRects().length);
+ const first=folio&&folio.querySelector?folio.querySelector('.row:not(.rapp)'):null;
+ if(first&&(first.classList?.contains('rhead')||first.querySelector?.('.csub')))return null;
+ for(const mark of Array.from(marks||[])){
+  if(!drawn(mark))continue;
+  if(folio&&(folio.contains(mark)||!(mark.compareDocumentPosition(folio)&4)))continue;
+  const host=mark.closest?.('.folio');
+  if(host){const box=host.getBoundingClientRect(),y=mark.getBoundingClientRect().top;if(y<box.top-1||y>box.bottom+1)continue;}
+  return mark;
+ }
+ return null;
+}
+
+// A SENTENCE THE PAGE TURN BROKE IS ONE PARAGRAPH (11-27, owner: "im concerned about page flow and typesetting"). The reader already
+// carried a page's opening paragraph up to the page before when the print cut a sentence at the turn, but unless the corpus marked the
+// two halves (part I|M, F|M) the second half still opened as a paragraph of its own, indented and set off: Bavinck's letter of 14 Sept.
+// 1885, "(apart from the etymological meaning, which" | "in my opinion is not decisive here)". runsOn is the rule the stacked runs have
+// used since 11-11, now the one rule for both: the words before the turn do not close their sentence and the words after it begin in
+// lower case. Each lane is judged by its own words; a translation may close a sentence its source carries over.
+function runsOn(before,after){
+ const a=String(before??'').trim(),b=String(after??'').trim();
+ return a.length>11&&b.length>11&&!/[.!?…:;)\]"'’”»]\s*$/.test(a)&&/^[a-zà-öø-ÿ]/.test(b);
+}
+// the two paragraphs at a turn inside one lane (a = the lane's cell before the turn, b = the cell that opens the page), when they are
+// plain running text and the lane reads on; otherwise null and the reader keeps the break. Never joined: verse (a paragraph of lines),
+// a margin note or any other classed paragraph, a paragraph whose part the corpus marks, anything that is not a paragraph.
+function seamJoin(a,b){
+ const kids=Array.from(a?.children||[]).filter(x=>!x.classList?.contains('pganchor')),last=kids[kids.length-1],first=b?.firstElementChild;
+ const plain=p=>!!p&&p.tagName==='P'&&!String(p.className||'').trim()&&!p.dataset?.part&&!p.querySelector?.('br,img,table');
+ if(!plain(last)||!plain(first))return null;
+ const words=p=>{const c=p.cloneNode(true);c.querySelectorAll('sup,.mnote,.mnin,.rm-marker,.pganchor,.rhecho').forEach(x=>x.remove());return c.textContent||'';};
+ return runsOn(words(last),words(first))?{last,first}:null;
+}
+
+return {isConfession,chapterLabel,contents,catalogue,outline,locator,exactHeading,pageStart,runsOn,seamJoin};
 });
