@@ -764,7 +764,7 @@ sup.fnref:hover+.citedup,sup.fnref:focus+.citedup,.citedup:hover{display:inline;
 .app.rflow .apptog.open{margin:1rem 0 .2rem;font-size:.62rem;opacity:.55}
 .app.rflow .apptog:hover{opacity:1}
 @media(max-width:900px){.app.rflow .apptog:not(.open){position:static;margin:.2rem 0 0;max-width:none;opacity:.45}}
-@media(min-width:901px){.app.rflow .apptog:not(.open){transform:translateY(calc(var(--togn,0) * 1.5rem))}}   /* NOTES TOGGLES DO NOT PILE UP (placeSeamNotes): each closed toggle of a run of notes-only pages one step lower in the gutter */
+@media(min-width:901px){.app.rflow.only-en .apptog:not(.open),.app.rflow.only-la .apptog:not(.open){transform:translateY(calc(var(--togn,0) * 1.5rem))}}   /* NOTES TOGGLES DO NOT PILE UP (placeSeamNotes): each closed toggle of a run of notes-only pages one step lower in the gutter. One lane only: with both lanes the toggle stands in the gap between rows, not in a gutter, and a step down laid it over the first line of the next paragraph (Voetius p. 10, 11-28) */
 .app.rflow .row.rapp:last-child{padding-bottom:1.1rem;margin-bottom:2rem;border-bottom:1px solid var(--rule-soft)}
 /* dense citation banks (Althusius-class: 150+ one-line legal cites) read better tighter */
 .row.rapp{break-inside:avoid}
@@ -1818,7 +1818,7 @@ html.g-mobile .rsa-a .cite{margin:.05rem .15rem;vertical-align:baseline}
    spacing; on EB Garamond, small on the body, 1.74 read close to double spacing. The paragraph takes the token: 1.56 on paper, 1.62
    on graphite. Greek keeps its 1.72 (stacked accents). Aa > Spacing still sets the token for compact and relaxed. */
 #reading .row .la p,#reading .row .en p{line-height:var(--reading-lh);text-wrap:pretty;margin:.6em 0}
-.app.grcwork #reading .row .la p{line-height:1.72}
+html:not(.g-mobile) .app.grcwork #reading .row .la p{line-height:1.72}   /* wide screens: a phone sets every lane at the token, as it did before */
 .app.teiflow .row.prow+.row.prow .la p:first-child,
 .app.teiflow .row.prow+.row.prow .en p:first-child{text-indent:1.45em}
 .app.teiflow .row.prow .la p,.app.teiflow .row.prow .en p{margin:.3em 0}

@@ -498,10 +498,14 @@ function placeSeamNotes(homeOnly){try{
   // Pusey's Occasional Sermons pp. 35 to 40 printed five labels over each other and only the top one could be pressed. (Two could
   // already meet this way; since a notes-only page no longer stops a run there can be a string of them.) They step down the gutter
   // from the foot of the run, one toggle's height each (--togn), and each names the page its notes belong to.
-  {let n=0;
+  // One lane only (11-28): with both lanes shown the toggle stands at the right end of the gap between rows, not in a gutter. A step
+  // down laid it over the first line of the next paragraph and the longer label reached the end of the last (Voetius pp. 10, 19, 33).
+  {let n=0;const oneLane=app.classList.contains("only-en")||app.classList.contains("only-la");
+   const plain=t=>{if(t&&t.dataset.stacked){delete t.dataset.stacked;t.style.removeProperty("--togn");relabel(t,"");}};
    for(const s of R.querySelectorAll(":scope > section.folio")){
      const kids=[...s.children],tog=kids.find(x=>x.classList.contains("apptog"));
-     if(kids.some(isBody)){n=tog?1:0;if(tog&&tog.dataset.stacked){delete tog.dataset.stacked;tog.style.removeProperty("--togn");relabel(tog,"");}continue;}
+     if(!oneLane){plain(tog);continue;}
+     if(kids.some(isBody)){n=tog?1:0;plain(tog);continue;}
      if(!tog)continue;
      tog.dataset.stacked="1";tog.style.setProperty("--togn",n++);relabel(tog,typeof locOf==="function"?locOf(s.dataset.page):"p. "+s.dataset.page);
    }}
@@ -4877,6 +4881,7 @@ function applyLanes(){
   if(!(DATA&&DATA.has_pages))LN.fx=false;                 // born-digital: no scan exists
   if(LN.fx&&!scanAllowed())LN.fx=false;                   // the Scan pane needs an account (see scanAllowed)
   app.classList.toggle("only-en",LN.en&&!LN.la);
+  if(typeof schedSeamNotes==="function")schedSeamNotes();   // the notes toggles are laid out by the lanes shown (NOTES TOGGLES DO NOT PILE UP)
   app.classList.toggle("only-la",LN.la&&!LN.en);
   app.classList.toggle("no-facs",!LN.fx);
   const P={en:LN.en,par:LN.la,study:LN.fx};
