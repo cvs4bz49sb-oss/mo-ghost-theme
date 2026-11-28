@@ -1,0 +1,43 @@
+name: Live Smoke
+
+# After every theme deploy, load each fixed path in routes.yaml on the live
+# site and go red if any of them errors (scripts/smoke-live.mjs).
+#
+# This is its own workflow on purpose. It runs after the deploy has
+# finished and cannot block, slow or fail one. A red run here means a page
+# that answered before the deploy does not answer now: revert the commit
+# that deployed, then look.
+#
+# It reads public pages only. No secrets, no cookies, nothing posted.
+
+on:
+  workflow_run:
+    workflows: ["Deploy Ghost Theme"]
+    types: [completed]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Every routed page answers
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      # Ghost Pro's edge can serve the previous theme for a short while
+      # after activation.
+      - name: Let the new theme settle
+        if: ${{ github.event_name == 'workflow_run' }}
+        run: sleep 45
+      - name: Load every fixed route
+        run: node scripts/smoke-live.mjs

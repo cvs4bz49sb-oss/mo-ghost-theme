@@ -78,3 +78,10 @@ jobs:
         # of that is visible on the page, so a refactor that drops it would
         # leave every count quietly at zero.
         run: npm run check:slide-ins
+
+      # gscan is Ghost's own theme validator, the same one Ghost runs when a
+      # theme is uploaded. A fatal error here means the deploy would be
+      # rejected or the theme would not activate. Warnings do not fail it.
+      # Pinned to an exact version and installed without lifecycle scripts.
+      - name: Validate the theme with gscan
+        run: npx --yes --ignore-scripts gscan@6.7.0 .
